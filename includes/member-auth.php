@@ -1296,8 +1296,12 @@ function dispatchOTP($member, $forcedChannel = 'auto') {
     }
 }
 
-function maskPhone($p) { return strlen($p)>4 ? str_repeat('*',strlen($p)-4).substr($p,-4) : '****'; }
-function maskEmail($e) {
-    [$u,$d] = explode('@',$e,2) + ['',''];
-    return (strlen($u)>2 ? substr($u,0,2).str_repeat('*',max(1,strlen($u)-2)) : '**').'@'.$d;
+if (!function_exists('maskPhone')) {
+    function maskPhone($p) { return strlen($p)>4 ? str_repeat('*',strlen($p)-4).substr($p,-4) : '****'; }
+}
+if (!function_exists('maskEmail')) {
+    function maskEmail($e) {
+        [$u,$d] = explode('@',$e,2) + ['',''];
+        return (strlen($u)>2 ? substr($u,0,2).str_repeat('*',max(1,strlen($u)-2)) : '**').'@'.$d;
+    }
 }
