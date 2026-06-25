@@ -254,27 +254,31 @@ function getDB() {
  * HTML-escape trimmed string — प्रायः output को लागि मात्र।
  * फर्म/DB इनपुटको लागि `clean_text()` + देखाउँदा `e()` प्रयोग गर्नुहोस्।
  */
-function sanitize($input) {
-    if ($input === null) {
-        return '';
+if (!function_exists('sanitize')) {
+    function sanitize($input) {
+        if ($input === null) {
+            return '';
+        }
+        return htmlspecialchars(trim((string)$input), ENT_QUOTES, 'UTF-8');
     }
-    return htmlspecialchars(trim((string)$input), ENT_QUOTES, 'UTF-8');
 }
 
 /**
  * फर्म → DB स्टोरेजको लागि मानक: trim, control-char हटाउने, UTF-8 max लम्बाइ।
  * (INSERT अघि HTML escape नगर्नुहोस्; स्क्रिनमा `e()` प्रयोग गर्नुहोस्।)
  */
-function clean_text($input, int $maxLen = 4096): string {
-    if ($input === null) {
-        return '';
+if (!function_exists('clean_text')) {
+    function clean_text($input, int $maxLen = 4096): string {
+        if ($input === null) {
+            return '';
+        }
+        $s = trim((string) $input);
+        $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $s) ?? '';
+        if (function_exists('mb_substr')) {
+            return mb_substr($s, 0, $maxLen, 'UTF-8');
+        }
+        return strlen($s) <= $maxLen ? $s : substr($s, 0, $maxLen);
     }
-    $s = trim((string) $input);
-    $s = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $s) ?? '';
-    if (function_exists('mb_substr')) {
-        return mb_substr($s, 0, $maxLen, 'UTF-8');
-    }
-    return strlen($s) <= $maxLen ? $s : substr($s, 0, $maxLen);
 }
 
 // Escape output for safe HTML display - short helper function
@@ -435,15 +439,19 @@ require_once __DIR__ . '/auth-roles.php';
 require_once __DIR__ . '/site-license.php';
 
 // Format date in Nepali format
-function formatDate($date, $format = 'Y-m-d') {
-    return date($format, strtotime($date));
+if (!function_exists('formatDate')) {
+    function formatDate($date, $format = 'Y-m-d') {
+        return date($format, strtotime($date));
+    }
 }
 
 // Convert English numbers to Nepali numerals
-function toNepaliNumeral($number) {
-    $englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    $nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
-    return str_replace($englishNumerals, $nepaliNumerals, (string)$number);
+if (!function_exists('toNepaliNumeral')) {
+    function toNepaliNumeral($number) {
+        $englishNumerals = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        $nepaliNumerals = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
+        return str_replace($englishNumerals, $nepaliNumerals, (string)$number);
+    }
 }
 
 // Get Nepali month name
@@ -463,73 +471,81 @@ function getNepaliMonthName($monthKey) {
 
 // Format date in Nepali style (for display)
 // Uses accurate BS conversion via nepali_ad_to_bs_string() when available.
-function formatNepaliDate($date, $showTime = false) {
-    if (empty($date)) return '';
+if (!function_exists('formatNepaliDate')) {
+    function formatNepaliDate($date, $showTime = false) {
+        if (empty($date)) return '';
 
-    $timestamp = strtotime($date);
-    if ($timestamp === false) return $date;
+        $timestamp = strtotime($date);
+        if ($timestamp === false) return $date;
 
-    $adYmd = date('Y-m-d', $timestamp);
+        $adYmd = date('Y-m-d', $timestamp);
 
-    static $_bsMonthNames = [
-        1 => 'बैशाख', 2 => 'जेठ',    3 => 'असार',
-        4 => 'श्रावण', 5 => 'भदौ',   6 => 'असोज',
-        7 => 'कात्तिक', 8 => 'मंसिर', 9 => 'पुष',
-        10 => 'माघ',  11 => 'फागुन', 12 => 'चैत्र',
-    ];
+        static $_bsMonthNames = [
+            1 => 'बैशाख', 2 => 'जेठ',    3 => 'असार',
+            4 => 'श्रावण', 5 => 'भदौ',   6 => 'असोज',
+            7 => 'कात्तिक', 8 => 'मंसिर', 9 => 'पुष',
+            10 => 'माघ',  11 => 'फागुन', 12 => 'चैत्र',
+        ];
 
-    if (function_exists('nepali_ad_to_bs_string')) {
-        $bsYmd = nepali_ad_to_bs_string($adYmd);
-        if ($bsYmd) {
-            [$bsY, $bsM, $bsD] = array_map('intval', explode('-', $bsYmd));
-            $formatted = toNepaliNumeral($bsY) . ' ' . ($_bsMonthNames[$bsM] ?? $bsM) . ' ' . toNepaliNumeral($bsD);
-            if ($showTime) {
-                $formatted .= ' ' . toNepaliNumeral(date('H:i', $timestamp));
+        if (function_exists('nepali_ad_to_bs_string')) {
+            $bsYmd = nepali_ad_to_bs_string($adYmd);
+            if ($bsYmd) {
+                [$bsY, $bsM, $bsD] = array_map('intval', explode('-', $bsYmd));
+                $formatted = toNepaliNumeral($bsY) . ' ' . ($_bsMonthNames[$bsM] ?? $bsM) . ' ' . toNepaliNumeral($bsD);
+                if ($showTime) {
+                    $formatted .= ' ' . toNepaliNumeral(date('H:i', $timestamp));
+                }
+                return $formatted;
             }
-            return $formatted;
         }
-    }
 
-    // Fallback: simple approximation (only used if converter not loaded)
-    $year  = (int) date('Y', $timestamp);
-    $month = (int) date('n', $timestamp);
-    $day   = (int) date('j', $timestamp);
-    $nepaliYear = ($month < 4 || ($month == 4 && $day < 14)) ? $year + 56 : $year + 57;
-    $nepaliMonthName = $_bsMonthNames[min(12, max(1, (($month + 8) % 12) + 1))] ?? 'बैशाख';
-    $formatted = toNepaliNumeral($nepaliYear) . ' ' . $nepaliMonthName . ' ' . toNepaliNumeral($day);
-    if ($showTime) {
-        $formatted .= ' ' . toNepaliNumeral(date('H:i', $timestamp));
+        // Fallback: simple approximation (only used if converter not loaded)
+        $year  = (int) date('Y', $timestamp);
+        $month = (int) date('n', $timestamp);
+        $day   = (int) date('j', $timestamp);
+        $nepaliYear = ($month < 4 || ($month == 4 && $day < 14)) ? $year + 56 : $year + 57;
+        $nepaliMonthName = $_bsMonthNames[min(12, max(1, (($month + 8) % 12) + 1))] ?? 'बैशाख';
+        $formatted = toNepaliNumeral($nepaliYear) . ' ' . $nepaliMonthName . ' ' . toNepaliNumeral($day);
+        if ($showTime) {
+            $formatted .= ' ' . toNepaliNumeral(date('H:i', $timestamp));
+        }
+        return $formatted;
     }
-    return $formatted;
 }
 
 // Format currency in Nepali style
-function formatNepaliCurrency($amount, $showSymbol = true) {
-    $formatted = number_format($amount, 2);
-    if (isEnglish()) {
-        return $showSymbol ? 'Rs. ' . $formatted : $formatted;
+if (!function_exists('formatNepaliCurrency')) {
+    function formatNepaliCurrency($amount, $showSymbol = true) {
+        $formatted = number_format($amount, 2);
+        if (isEnglish()) {
+            return $showSymbol ? 'Rs. ' . $formatted : $formatted;
+        }
+        return $showSymbol ? 'रू. ' . toNepaliNumeral($formatted) : toNepaliNumeral($formatted);
     }
-    return $showSymbol ? 'रू. ' . toNepaliNumeral($formatted) : toNepaliNumeral($formatted);
 }
 
 // Format number in Nepali
-function formatNepaliNumber($number) {
-    if (isEnglish()) {
-        return number_format($number);
+if (!function_exists('formatNepaliNumber')) {
+    function formatNepaliNumber($number) {
+        if (isEnglish()) {
+            return number_format($number);
+        }
+        return toNepaliNumeral(number_format($number));
     }
-    return toNepaliNumeral(number_format($number));
 }
 
 // Generate slug from text (PHP 8.1+ compatible)
-function generateSlug($text) {
-    if ($text === null) {
-        return '';
+if (!function_exists('generateSlug')) {
+    function generateSlug($text) {
+        if ($text === null) {
+            return '';
+        }
+        $text = (string)$text;
+        $text = preg_replace('/[^a-zA-Z0-9\s]/', '', $text);
+        $text = strtolower(trim($text));
+        $text = preg_replace('/\s+/', '-', $text);
+        return $text;
     }
-    $text = (string)$text;
-    $text = preg_replace('/[^a-zA-Z0-9\s]/', '', $text);
-    $text = strtolower(trim($text));
-    $text = preg_replace('/\s+/', '-', $text);
-    return $text;
 }
 
 // Upload file with auto-resize for images
@@ -963,41 +979,49 @@ function checkCSRF() {
  */
 
 // Sanitize filename for uploads
-function sanitizeFilename($filename) {
-    // Remove any path components
-    $filename = basename($filename);
-    // Remove special characters except alphanumeric, dots, hyphens, underscores
-    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
-    return $filename;
+if (!function_exists('sanitizeFilename')) {
+    function sanitizeFilename($filename) {
+        // Remove any path components
+        $filename = basename($filename);
+        // Remove special characters except alphanumeric, dots, hyphens, underscores
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+        return $filename;
+    }
 }
 
 // Validate email
-function isValidEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+if (!function_exists('isValidEmail')) {
+    function isValidEmail($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
 }
 
 // Validate phone number (Nepal format)
-function isValidPhone($phone) {
-    // Nepal phone: 10 digits starting with 9
-    return preg_match('/^9[0-9]{9}$/', preg_replace('/[^0-9]/', '', $phone));
+if (!function_exists('isValidPhone')) {
+    function isValidPhone($phone) {
+        // Nepal phone: 10 digits starting with 9
+        return preg_match('/^9[0-9]{9}$/', preg_replace('/[^0-9]/', '', $phone));
+    }
 }
 
 // Rate limiting for forms (prevent spam)
-function checkRateLimit($action, $limit = 5, $period = 60) {
-    $key = 'rate_' . $action . '_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+if (!function_exists('checkRateLimit')) {
+    function checkRateLimit($action, $limit = 5, $period = 60) {
+        $key = 'rate_' . $action . '_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 
-    if (!isset($_SESSION[$key])) {
-        $_SESSION[$key] = ['count' => 0, 'time' => time()];
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = ['count' => 0, 'time' => time()];
+        }
+
+        // Reset if period has passed
+        if (time() - $_SESSION[$key]['time'] > $period) {
+            $_SESSION[$key] = ['count' => 0, 'time' => time()];
+        }
+
+        $_SESSION[$key]['count']++;
+
+        return $_SESSION[$key]['count'] <= $limit;
     }
-
-    // Reset if period has passed
-    if (time() - $_SESSION[$key]['time'] > $period) {
-        $_SESSION[$key] = ['count' => 0, 'time' => time()];
-    }
-
-    $_SESSION[$key]['count']++;
-
-    return $_SESSION[$key]['count'] <= $limit;
 }
 
 // Log security events
@@ -1056,13 +1080,15 @@ function requireAdminLogin() {
 }
 
 // Redirect function - improved to handle headers already sent
-function redirect($url) {
-    if (!headers_sent()) {
-        header("Location: " . $url);
-    } else {
-        echo '<script>window.location="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '";</script>';
+if (!function_exists('redirect')) {
+    function redirect($url) {
+        if (!headers_sent()) {
+            header("Location: " . $url);
+        } else {
+            echo '<script>window.location="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '";</script>';
+        }
+        exit();
     }
-    exit();
 }
 
 // Get current page name

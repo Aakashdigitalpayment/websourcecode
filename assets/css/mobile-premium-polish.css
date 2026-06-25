@@ -1,0 +1,110 @@
+/**
+ * Mobile Premium Polish — additive only.
+ * यो file ले कुनै पनि existing rule delete/override गर्दैन — केवल थप गर्छ।
+ * Loaded LAST (after premium-ui.css) — सबैभन्दा पछि, सबैभन्दा safe।
+ *
+ * Scope: मात्र mobile/touch breakpoints — desktop लाई touch गर्दैन।
+ */
+
+/* ── 1. Tap feedback — premium app-jasto press response ───────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .btn,
+  button:not(.no-tap-fx),
+  a.btn,
+  .card,
+  .nav-link,
+  .mem-nav-item,
+  .sidebar-nav a,
+  .admin-header-icon,
+  .public-mobile-footer a,
+  .public-mobile-footer button {
+    transition: transform .12s ease, opacity .12s ease;
+  }
+
+  .btn:active,
+  button:not(.no-tap-fx):active,
+  a.btn:active {
+    transform: scale(0.97);
+    opacity: 0.92;
+  }
+
+  .card:active {
+    transform: scale(0.995);
+  }
+
+  .public-mobile-footer a:active,
+  .public-mobile-footer button:active,
+  .mem-nav-item:active {
+    transform: scale(0.93);
+  }
+
+  /* Remove the grey flash tap highlight on touch devices, replaced by the
+     transform feedback above */
+  .btn, button, a.btn, .card, .nav-link, .mem-nav-item,
+  .sidebar-nav a, .public-mobile-footer a, .public-mobile-footer button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ── 2. Safe-area consistency for fixed bottom bars ─────────────────────
+   यदि कुनै fixed-bottom element मा safe-area padding छुटेको छ भने,
+   यो fallback ले notch/home-indicator भएका फोनमा content नछोपिने सुनिश्चित गर्छ।
+   (Existing safe-area rules भएका elements मा यो no-op हुन्छ। ) */
+@supports (padding: max(0px)) {
+  .public-mobile-footer,
+  .mem-bottom-nav,
+  .admin-mobile-bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+  }
+}
+
+/* ── 3. Very small screens (< 380px) — extra breathing room ─────────────
+   Existing breakpoints 420px/480px बाट तल झर्छ — पुराना/साना फोनको लागि। */
+@media (max-width: 379px) {
+  .container,
+  .container-fluid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .card {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .btn {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* ── 4. Smoother card elevation on mobile scroll-into-view ──────────────
+   (Opt-in class — कतै auto-apply हुँदैन, चाहेको ठाउँमा मात्र use गर्न सकिन्छ) */
+@media (max-width: 768px) {
+  .card,
+  .auth-card {
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+}
+
+/* ── 5. Prevent accidental horizontal scroll/jank on mobile ─────────────
+   (Additive guard — already-contained layouts मा कुनै असर पर्दैन) */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+/* ── 6. Respect reduced-motion users (accessibility) ────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active,
+  button:active,
+  a.btn:active,
+  .card:active,
+  .public-mobile-footer a:active,
+  .public-mobile-footer button:active,
+  .mem-nav-item:active {
+    transform: none !important;
+    transition: none !important;
+  }
+}

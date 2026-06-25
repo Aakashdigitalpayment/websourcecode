@@ -260,6 +260,9 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* ── 6. PREMIUM UI — loaded absolutely last for maximum override priority ── */
         coopThemeLink('assets/css/premium-ui.css');
+
+        /* ── 7. Mobile premium polish — additive only, loaded after everything ── */
+        coopThemeLink('assets/css/mobile-premium-polish.css');
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */
