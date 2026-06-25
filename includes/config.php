@@ -416,10 +416,25 @@ function getLocalizedLogoPath($default = 'assets/images/logo.png') {
     $isEn = function_exists('isEnglish') ? isEnglish() : false;
     if ($isEn) {
         $enLogo = trim((string) getSetting('logo_en', ''));
-        return $enLogo !== '' ? $enLogo : $fallback;
+        $fallback = $enLogo !== '' ? $enLogo : $fallback;
+    } else {
+        $npLogo = trim((string) getSetting('logo_np', ''));
+        $fallback = $npLogo !== '' ? $npLogo : $fallback;
     }
-    $npLogo = trim((string) getSetting('logo_np', ''));
-    return $npLogo !== '' ? $npLogo : $fallback;
+
+    /* सुरक्षा जाल: यदि resolved logo path (DB बाट वा default) actually disk मा
+       छैन भने (जस्तै admin ले अझै आफ्नो logo upload गरेका छैनन्), broken-image
+       icon site-wide देखिनबाट जोगाउन existing PWA icon मा fallback गर्ने। */
+    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+    $isRemote = (bool) preg_match('#^https?://#i', $fallback);
+    if ($fallback === '' || (!$isRemote && !is_file($root . ltrim($fallback, '/')))) {
+        $knownGoodIcon = 'assets/images/icon-512x512.png';
+        if (is_file($root . $knownGoodIcon)) {
+            return $knownGoodIcon;
+        }
+    }
+
+    return $fallback;
 }
 
 // Update site setting (INSERT if not exists, UPDATE if exists)
