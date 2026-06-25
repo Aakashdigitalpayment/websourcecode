@@ -1,0 +1,342 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ADMIN UI UNIFIED — Component Styles
+   ═══════════════════════════════════════════════════════════════════════════════
+   
+   Styles for the unified admin UI components defined in includes/admin-ui-unified.php
+   Load AFTER global.css and forms-tables.css
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   ADMIN PAGE HEADER
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  background: var(--bg-card);
+  border-bottom: 2px solid var(--border-soft);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  margin-bottom: var(--space-5);
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-header-icon {
+  font-size: 1.75rem;
+  color: var(--primary);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-header-title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.admin-header-subtitle {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-style: italic;
+}
+
+.admin-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* Color variants */
+.admin-header-primary .admin-header-icon {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, white);
+  border-radius: var(--radius-md);
+  width: 48px;
+  height: 48px;
+}
+
+.admin-header-danger .admin-header-icon {
+  color: var(--danger);
+  background: #ffebee;
+  border-radius: var(--radius-md);
+  width: 48px;
+  height: 48px;
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+
+  .admin-header-left,
+  .admin-header-right {
+    width: 100%;
+  }
+
+  .admin-header-right {
+    justify-content: flex-start;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   ADMIN CARD
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+.admin-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all var(--transition-base);
+  margin-bottom: var(--space-5);
+}
+
+.admin-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-color);
+}
+
+.admin-card-header {
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-soft);
+}
+
+.admin-card-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-card-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-card-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-soft);
+  background: var(--bg-soft);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   STAT CARDS (Dashboard)
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+.admin-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+}
+
+.admin-stat-primary {
+  border-left-color: var(--primary);
+}
+
+.admin-stat-primary::before {
+  background: var(--primary);
+}
+
+.admin-stat-success {
+  border-left-color: var(--success);
+}
+
+.admin-stat-success::before {
+  background: var(--success);
+}
+
+.admin-stat-warning {
+  border-left-color: var(--warning);
+}
+
+.admin-stat-warning::before {
+  background: var(--warning);
+}
+
+.admin-stat-danger {
+  border-left-color: var(--danger);
+}
+
+.admin-stat-danger::before {
+  background: var(--danger);
+}
+
+.admin-stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.admin-stat-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  background: var(--bg-soft);
+}
+
+.admin-stat-primary .admin-stat-icon {
+  background: color-mix(in srgb, var(--primary) 10%, white);
+  color: var(--primary);
+}
+
+.admin-stat-success .admin-stat-icon {
+  background: color-mix(in srgb, var(--success) 10%, white);
+  color: var(--success);
+}
+
+.admin-stat-warning .admin-stat-icon {
+  background: color-mix(in srgb, var(--warning) 10%, white);
+  color: var(--warning);
+}
+
+.admin-stat-danger .admin-stat-icon {
+  background: color-mix(in srgb, var(--danger) 10%, white);
+  color: var(--danger);
+}
+
+.admin-stat-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-stat-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.admin-stat-label {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.admin-stat-trend {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.admin-stat-trend.trend-up {
+  color: var(--success);
+}
+
+.admin-stat-trend.trend-down {
+  color: var(--danger);
+}
+
+.admin-stat-trend::before {
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+}
+
+.admin-stat-trend.trend-up::before {
+  content: '↑';
+}
+
+.admin-stat-trend.trend-down::before {
+  content: '↓';
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   EMPTY STATE
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+.admin-empty-state {
+  text-align: center;
+  padding: var(--space-10) var(--space-5);
+  background: var(--bg-card);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.admin-empty-icon {
+  font-size: 3.5rem;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.admin-empty-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-empty-message {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: var(--line-normal);
+}
+
+.admin-empty-action {
+  margin-top: var(--space-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   END ADMIN UI UNIFIED STYLES
+   ═══════════════════════════════════════════════════════════════════════════════ */

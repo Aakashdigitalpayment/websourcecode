@@ -1,0 +1,14 @@
+<?php
+/**
+ * कपी गरेर `superadmin-config.local.php` बनाउनुहोस् (gitignore)।
+ *
+ * फ्लो: तलका define → `admin/index.php` मा login → panel → `manage-admins.php` मा अरू admin/editor।
+ * Superadmin पासवर्ड बदल्न: cPanel मा यही फाइल edit (अलग setup URL छैन)।
+ *
+ * SUPER_ADMIN_INITIAL_PASSWORD खाली ('') पारेपछि superadmin पनि change-password / DB मार्फत।
+ */
+declare(strict_types=1);
+
+define('SUPER_ADMIN_USERNAME', 'myadmin');
+define('SUPER_ADMIN_DISPLAY_NAME', 'Super Admin');
+define('SUPER_ADMIN_INITIAL_PASSWORD', 'तपाईंको-बलियो-पासवर्ड-यहाँ');

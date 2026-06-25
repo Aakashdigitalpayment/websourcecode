@@ -1,0 +1,381 @@
+<?php
+require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
+$pageTitle = isEnglish() ? 'Committees' : 'समिति/उपसमिति';
+require_once 'includes/header.php';
+$L = getLangStrings();
+
+// Get selected committee type
+/* ?type=N (पुरानो) र ?id=N (नयाँ navbar बाट) — दुवै support */
+$selectedType  = isset($_GET['type']) ? (int)$_GET['type'] : (isset($_GET['id']) ? (int)$_GET['id'] : null);
+$selectedName  = isset($_GET['name']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', trim($_GET['name'])) : null;
+$showPast = isset($_GET['past']) && $_GET['past'] == '1';
+
+// Get data from database
+try {
+    $db = getDB();
+
+    // Get committee types
+    $committeeTypes = $db->query("SELECT * FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+
+    // Resolve name → id (nav links use ?name=sanchalak etc.)
+    if (!$selectedType && $selectedName) {
+        $nameMap = [
+            'sanchalak'   => ['सञ्चालक','sanchalak','board'],
+            'byabasthapan'=> ['व्यवस्थापन','byabasthapan','management'],
+            'lekha'       => ['लेखा','lekha','audit'],
+            'sallahakar'  => ['सल्लाह','sallahakar','advisory'],
+            'anya'        => ['अन्य','anya','sub','other'],
+        ];
+        $keywords = $nameMap[$selectedName] ?? [$selectedName];
+        foreach ($committeeTypes as $t) {
+            $haystack = strtolower($t['name'] . ' ' . $t['name_np']);
+            foreach ($keywords as $kw) {
+                if (mb_strpos($haystack, mb_strtolower($kw)) !== false) {
+                    $selectedType = $t['id'];
+                    break 2;
+                }
+            }
+        }
+    }
+
+    // Also get board members from team_members table (for showing in filters)
+    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+
+    // Get current tenures with members
+    $currentCommittees = [];
+    $pastCommittees = [];
+
+    foreach ($committeeTypes as $type) {
+        // Skip if specific type is selected and this isn't it
+        if ($selectedType && $selectedType != $type['id']) continue;
+
+        // Get current tenure
+        $stmt = $db->prepare("SELECT * FROM committee_tenures WHERE committee_type_id = ? AND is_current = 1 AND is_active = 1");
+        $stmt->execute([$type['id']]);
+        $currentTenure = $stmt->fetch();
+
+        if ($currentTenure) {
+            // Get members for current tenure
+            $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+            $memberStmt->execute([$currentTenure['id']]);
+            $members = $memberStmt->fetchAll();
+
+            // If no members in committee_members, try to get from team_members (for board)
+            if (empty($members) && stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) {
+                $members = $boardMembers;
+            }
+
+            $currentCommittees[] = [
+                'type' => $type,
+                'tenure' => $currentTenure,
+                'members' => $members
+            ];
+        } else {
+            // Even if no tenure, still show the type if it's a board type and we have board members
+            if ((stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) && !empty($boardMembers)) {
+                $currentCommittees[] = [
+                    'type' => $type,
+                    'tenure' => ['tenure_name' => isEnglish() ? 'Current' : 'हालको'],
+                    'members' => $boardMembers
+                ];
+            }
+        }
+
+        // Get past tenures
+        if ($showPast || $selectedType) {
+            $pastStmt = $db->prepare("SELECT * FROM committee_tenures WHERE committee_type_id = ? AND is_current = 0 AND is_active = 1 ORDER BY start_date DESC");
+            $pastStmt->execute([$type['id']]);
+            $pastTenures = $pastStmt->fetchAll();
+
+            foreach ($pastTenures as $tenure) {
+                $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+                $memberStmt->execute([$tenure['id']]);
+                $members = $memberStmt->fetchAll();
+
+                $pastCommittees[] = [
+                    'type' => $type,
+                    'tenure' => $tenure,
+                    'members' => $members
+                ];
+            }
+        }
+    }
+
+    // If no committees found at all but we have board members, show them as default
+    if (empty($currentCommittees) && !empty($boardMembers) && !$showPast) {
+        $currentCommittees[] = [
+            'type' => ['id' => 0, 'name' => 'Board of Directors', 'name_np' => 'सञ्चालक समिति'],
+            'tenure' => ['tenure_name' => isEnglish() ? 'Current' : 'हालको'],
+            'members' => $boardMembers
+        ];
+    }
+} catch (Throwable $e) {
+    $committeeTypes = [];
+    $currentCommittees = [];
+    $pastCommittees = [];
+    $boardMembers = [];
+}
+
+/* Section heading context: "Management Team" छानिएको बेला generic "समिति सदस्य" नदेखियोस् */
+$isManagementView = false;
+if (!$showPast && !empty($currentCommittees) && count($currentCommittees) === 1) {
+    $onlyType = $currentCommittees[0]['type'] ?? [];
+    $typeText = mb_strtolower(trim((string)(($onlyType['name_np'] ?? '') . ' ' . ($onlyType['name'] ?? ''))));
+    $isManagementView = (mb_strpos($typeText, 'व्यवस्थापन') !== false || mb_strpos($typeText, 'management') !== false);
+}
+
+$currentBadgeTitle = $isManagementView
+    ? (isEnglish() ? 'Current Management Team' : 'हालका व्यवस्थापन समूह')
+    : (isEnglish() ? 'Current Committees' : 'हालका समितिहरू');
+$currentHeroTitle = $isManagementView
+    ? (isEnglish() ? 'Current Management Team Members' : 'हालका व्यवस्थापन समूह सदस्यहरू')
+    : (isEnglish() ? 'Current Committee Members' : 'हालका समिति सदस्यहरू');
+$currentHeroDesc = $isManagementView
+    ? (isEnglish() ? 'Our current management team serving the cooperative' : 'हाम्रो सहकारीलाई सेवा गरिरहेका हालका व्यवस्थापन समूह सदस्यहरू')
+    : (isEnglish() ? 'Our current committee members serving the cooperative' : 'हाम्रो सहकारीलाई सेवा गरिरहेका हालका समिति सदस्यहरू');
+?>
+
+<!-- Page Banner -->
+<section class="page-banner">
+    <div class="container">
+        <h1><?php echo isEnglish() ? 'Committees & Sub-committees' : 'समिति/उपसमिति'; ?></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Committees' : 'समिति'; ?></li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<!-- Committee Filter — dropdown (replaces tab cloud that wraps badly with many types) -->
+<section class="committee-filter py-4">
+    <div class="container">
+        <div class="filter-wrapper">
+            <div class="row align-items-center g-3">
+
+                <!-- Dropdown selector -->
+                <div class="col-sm-7 col-md-6">
+                    <div class="coop-select-wrap">
+                        <i class="fas fa-users coop-select-icon"></i>
+                        <select id="committeeTypeSelect" class="form-select coop-select-field"
+                                onchange="location.href=this.value"
+                                aria-label="<?php echo isEnglish() ? 'Select committee type' : 'समिति प्रकार छान्नुहोस्'; ?>">
+                            <option value="committees.php<?php echo $showPast ? '?past=1' : ''; ?>"
+                                <?php echo !$selectedType ? 'selected' : ''; ?>>
+                                <i class="fas fa-list"></i>
+                                <?php echo isEnglish() ? '— All Current Committees —' : '— सबै हालका समितिहरू —'; ?>
+                            </option>
+                            <?php foreach ($committeeTypes as $type): ?>
+                            <option value="?type=<?php echo $type['id']; ?><?php echo $showPast ? '&past=1' : ''; ?>"
+                                <?php echo $selectedType == $type['id'] ? 'selected' : ''; ?>>
+                                <?php echo isEnglish() ? $type['name'] : $type['name_np']; ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Past / Current toggle -->
+                <div class="col-sm-5 col-md-6 text-sm-end">
+                    <?php if (!$showPast): ?>
+                    <a href="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>"
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-history"></i>
+                        <?php echo isEnglish() ? 'View Past Committees' : 'विगतका समितिहरू हेर्नुहोस्'; ?>
+                    </a>
+                    <?php else: ?>
+                    <a href="committees.php<?php echo $selectedType ? '?type='.$selectedType : ''; ?>"
+                       class="btn btn-primary btn-sm">
+                        <i class="fas fa-users"></i>
+                        <?php echo isEnglish() ? 'View Current Committees' : 'हालका समितिहरू हेर्नुहोस्'; ?>
+                    </a>
+                    <?php endif; ?>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+.coop-select-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.coop-select-icon {
+    position: absolute;
+    left: 13px;
+    color: var(--primary-color, #1a5f2a);
+    font-size: .85rem;
+    pointer-events: none;
+    z-index: 2;
+}
+.coop-select-field {
+    padding-left: 34px;
+    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb);
+    border-radius: 10px;
+    font-size: .93rem;
+    color: var(--text-primary, #1a2e1f);
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    transition: border-color .18s, box-shadow .18s;
+}
+.coop-select-field:focus {
+    border-color: var(--primary-color, #1a5f2a);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, transparent);
+    outline: none;
+}
+</style>
+
+<!-- Current Committees -->
+<?php if (!$showPast && !empty($currentCommittees)): ?>
+<section class="committees-section section-padding">
+    <div class="container">
+<div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
+<div class="section-badge-wrap">
+<span class="section-badge"><i class="fas fa-users"></i> <?php echo $currentBadgeTitle; ?></span>
+</div>
+<h2><?php echo $currentHeroTitle; ?></h2>
+<div class="section-divider"></div>
+<p><?php echo $currentHeroDesc; ?></p>
+</div>
+
+        <?php foreach ($currentCommittees as $committee): ?>
+        <div class="committee-block mb-5" data-aos="fade-up">
+            <div class="committee-header">
+                <h3>
+                    <i class="fas fa-users-cog"></i>
+                    <?php echo isEnglish() ? $committee['type']['name'] : $committee['type']['name_np']; ?>
+                </h3>
+                <span class="tenure-badge">
+                    <i class="fas fa-calendar-alt"></i>
+                    <?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?>
+                    <?php echo $committee['tenure']['tenure_name']; ?>
+                </span>
+            </div>
+
+            <?php if (!empty($committee['members'])): ?>
+            <div class="row justify-content-center">
+                <?php foreach ($committee['members'] as $index => $member): ?>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 4) * 50; ?>">
+                    <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                        <div class="team-photo-circular">
+                            <?php if ($member['photo']): ?>
+                                <img src="<?php echo $member['photo']; ?>" loading="lazy"  alt="<?php echo $member['name']; ?>">
+                            <?php else: ?>
+                                <div class="team-placeholder-circular">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="team-info-circular">
+                            <h5><?php echo $member['name']; ?></h5>
+                            <?php if ($member['name_en']): ?>
+                            <p class="team-name-en"><?php echo $member['name_en']; ?></p>
+                            <?php endif; ?>
+                            <span class="team-position-badge">
+                                <?php echo isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']; ?>
+                            </span>
+                            <?php if ($member['phone'] || $member['email']): ?>
+                            <div class="team-contact-circular">
+                                <?php if ($member['phone']): ?>
+                                <a href="tel:<?php echo $member['phone']; ?>" title="<?php echo $member['phone']; ?>">
+                                    <i class="fas fa-phone"></i>
+                                </a>
+                                <?php endif; ?>
+                                <?php if ($member['email']): ?>
+                                <a href="mailto:<?php echo $member['email']; ?>" title="<?php echo $member['email']; ?>">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <div class="empty-committee text-center py-4">
+                <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                <p class="text-muted"><?php echo isEnglish() ? 'No members available' : 'सदस्यहरू उपलब्ध छैनन्'; ?></p>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Past Committees -->
+<?php if ($showPast && !empty($pastCommittees)): ?>
+<section class="committees-section past-committees section-padding">
+    <div class="container">
+        <div class="section-header section-header-unified text-center" data-aos="fade-up">
+            <h2><?php echo isEnglish() ? 'Past Committees' : 'विगतका समितिहरू'; ?></h2>
+            <p><?php echo isEnglish() ? 'Our former committee members who served the cooperative' : 'हाम्रो सहकारीलाई सेवा गरेका पूर्व समिति सदस्यहरू'; ?></p>
+        </div>
+
+        <?php foreach ($pastCommittees as $committee): ?>
+        <div class="committee-block past mb-5" data-aos="fade-up">
+            <div class="committee-header">
+                <h3>
+                    <i class="fas fa-history"></i>
+                    <?php echo isEnglish() ? $committee['type']['name'] : $committee['type']['name_np']; ?>
+                </h3>
+                <span class="tenure-badge past">
+                    <i class="fas fa-calendar-alt"></i>
+                    <?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?>
+                    <?php echo $committee['tenure']['tenure_name']; ?>
+                    (<?php echo date('Y', strtotime($committee['tenure']['start_date'])); ?> - <?php echo date('Y', strtotime($committee['tenure']['end_date'])); ?>)
+                </span>
+            </div>
+
+            <?php if (!empty($committee['members'])): ?>
+            <div class="row justify-content-center">
+                <?php foreach ($committee['members'] as $index => $member): ?>
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
+                    <div class="team-card-circular small">
+                        <div class="team-photo-circular small">
+                            <?php if ($member['photo']): ?>
+                                <img src="<?php echo $member['photo']; ?>" loading="lazy"  alt="<?php echo $member['name']; ?>">
+                            <?php else: ?>
+                                <div class="team-placeholder-circular">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="team-info-circular">
+                            <h6><?php echo $member['name']; ?></h6>
+                            <span class="team-position-badge small">
+                                <?php echo isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']; ?>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Empty State -->
+<?php if (empty($currentCommittees) && empty($pastCommittees)): ?>
+<section class="section-padding">
+    <div class="container">
+        <div class="empty-state text-center py-5">
+            <i class="fas fa-users-cog fa-4x text-muted mb-3"></i>
+            <h4><?php echo isEnglish() ? 'No Committee Information Available' : 'समिति जानकारी उपलब्ध छैन'; ?></h4>
+            <p class="text-muted"><?php echo isEnglish() ? 'Committee information will be available soon.' : 'समिति जानकारी चाँडै उपलब्ध हुनेछ।'; ?></p>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+
+<?php require_once 'includes/footer.php'; ?>

@@ -1,0 +1,599 @@
+/* ════════════════════════════════════════════════════════════════════════════════
+   UI/UX ENHANCEMENTS — Color Fixes, Text Contrast, Form/Table Readability
+   ════════════════════════════════════════════════════════════════════════════════
+   
+   Load order in HTML:
+   1. bootstrap.min.css
+   2. app-admin.css (or app-member.css/app-public.css)
+   3. global.css
+   4. forms-tables.css
+   5. admin-ui-unified.css
+   6. ui-ux-enhancements.css ← This file (fixes + improvements)
+   
+   Purpose: Fix color overlaps, improve contrast, enhance readability across all pages
+   ════════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 1: COLOR HARMONY & CONTRAST FIXES
+   ────────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Ensure text colors meet WCAG AA contrast (4.5:1 minimum) */
+  --text-primary-contrast:    #0f1a15;  /* Darker than before for better contrast */
+  --text-secondary-contrast:  #3a4941;  /* Darker secondary */
+  --text-muted-contrast:      #5f6b66;  /* Darker muted */
+  
+  /* Enhanced semantic colors with better contrast */
+  --success-dark:    #0d652d;  /* Darker success for text */
+  --warning-dark:    #664d03;  /* Darker warning for text */
+  --danger-dark:     #842029;  /* Darker danger for text */
+  --info-dark:       #003d82;  /* Darker info for text */
+}
+
+/* Override text colors for better contrast */
+body {
+  color: var(--text-primary-contrast, var(--text-primary));
+}
+
+p, li, dd, td {
+  color: var(--text-primary-contrast, var(--text-primary));
+}
+
+.text-secondary, 
+.text-muted {
+  color: var(--text-secondary-contrast, var(--text-secondary)) !important;
+}
+
+/* Fix labels to ensure readability */
+label,
+.form-label {
+  color: var(--text-primary-contrast, var(--text-primary));
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 2: FORM INPUT ENHANCEMENTS
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Better input styling for visibility */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="search"],
+textarea,
+select {
+  background: #fefffe;
+  border: 1.5px solid var(--border-color, #e5e7eb);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  letter-spacing: 0.2px;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  background: #ffffff;
+  border-color: var(--primary, #1a5f2a);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02),
+              0 0 0 3px rgba(26, 95, 42, 0.12);
+}
+
+/* Placeholder text contrast */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted, #6b7280);
+  opacity: 0.8;
+}
+
+/* Disabled input styling */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background: var(--bg-muted, #e8f5e9);
+  border-color: var(--border-soft, #f0f0f0);
+  color: var(--text-muted, #6b7280);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 3: BUTTON CONSISTENCY & VISIBILITY
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Ensure button text is always readable */
+.btn, button, [role="button"] {
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.btn:focus-visible, button:focus-visible, [role="button"]:focus-visible {
+  outline: 2px solid var(--primary, #1a5f2a);
+  outline-offset: 2px;
+}
+
+/* Primary button - ensure white text */
+.btn-primary, .btn-coop {
+  background: var(--primary, #1a5f2a);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover, .btn-coop:hover {
+  background: var(--primary-dark, #144a21);
+  color: white;
+  box-shadow: 0 4px 12px rgba(20, 74, 33, 0.2);
+}
+
+/* Secondary button */
+.btn-secondary {
+  background: var(--secondary, #c0392b);
+  color: white;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background: var(--secondary-dark, #a03225);
+  color: white;
+}
+
+/* Danger button */
+.btn-danger {
+  background: var(--danger, #dc3545);
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  color: white;
+}
+
+/* Outline button */
+.btn-outline {
+  border: 1.5px solid var(--primary, #1a5f2a);
+  color: var(--primary, #1a5f2a);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: var(--primary, #1a5f2a);
+  color: white;
+}
+
+/* Ghost button */
+.btn-ghost {
+  border: 1px solid var(--border-color, #e5e7eb);
+  color: var(--text-primary, #1a2e1f);
+  background: transparent;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-soft, #f5faf6);
+  border-color: var(--border-strong, #cbd5d0);
+}
+
+/* Disabled button */
+button:disabled, .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 4: TABLE READABILITY & CLARITY
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Table header - ensure good contrast */
+.table th,
+.coop-table th {
+  background: var(--bg-soft, #f5faf6);
+  color: var(--text-primary-contrast, #0f1a15);
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-color, #e5e7eb);
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+/* Table body text */
+.table td,
+.coop-table td {
+  color: var(--text-primary-contrast, #0f1a15);
+  padding: 12px 16px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-soft, #f0f0f0);
+}
+
+/* Table row hover state */
+.table tbody tr:hover,
+.coop-table tbody tr:hover {
+  background: color-mix(in srgb, var(--bg-soft, #f5faf6) 60%, var(--primary, #1a5f2a) 5%);
+}
+
+/* Striped table */
+.table-striped tbody tr:nth-child(odd),
+.coop-table.table-striped tbody tr:nth-child(odd) {
+  background: var(--bg-muted, #e8f5e9);
+}
+
+/* Table links */
+.table a, .coop-table a {
+  color: var(--primary, #1a5f2a);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table a:hover, .coop-table a:hover {
+  text-decoration: underline;
+  color: var(--primary-dark, #144a21);
+}
+
+/* Table action buttons - ensure visibility */
+.table-actions .btn,
+.coop-table .btn {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border-radius: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 5: ALERT & BADGE CONTRAST
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Alerts with better contrast */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.alert-success {
+  background: #e6f4ec;
+  border-color: #0d652d;
+  color: var(--success-dark, #0d652d);
+}
+
+.alert-warning {
+  background: #fef3e2;
+  border-color: #664d03;
+  color: var(--warning-dark, #664d03);
+}
+
+.alert-danger {
+  background: #fde8e8;
+  border-color: #842029;
+  color: var(--danger-dark, #842029);
+}
+
+.alert-info {
+  background: #e0f2fe;
+  border-color: #003d82;
+  color: var(--info-dark, #003d82);
+}
+
+/* Badge styling with contrast */
+.badge {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.badge-success {
+  background: #e6f4ec;
+  color: var(--success-dark, #0d652d);
+  border: 1px solid #0d652d;
+}
+
+.badge-warning {
+  background: #fef3e2;
+  color: var(--warning-dark, #664d03);
+  border: 1px solid #664d03;
+}
+
+.badge-danger {
+  background: #fde8e8;
+  color: var(--danger-dark, #842029);
+  border: 1px solid #842029;
+}
+
+.badge-info {
+  background: #e0f2fe;
+  color: var(--info-dark, #003d82);
+  border: 1px solid #003d82;
+}
+
+.badge-primary {
+  background: color-mix(in srgb, var(--primary, #1a5f2a) 12%, white);
+  color: var(--primary, #1a5f2a);
+  border: 1px solid var(--primary, #1a5f2a);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 6: FORM SECTION TITLES & HELP TEXT
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Form card headers */
+.form-card-header {
+  border-bottom: 1px solid var(--border-soft, #f0f0f0);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.form-card-title {
+  color: var(--text-primary-contrast, #0f1a15);
+  font-weight: 700;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.form-card-title i {
+  color: var(--primary, #1a5f2a);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.form-card-info {
+  font-size: 0.875rem;
+  color: var(--text-secondary-contrast, #3a4941);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* Help text / error text */
+.form-text {
+  font-size: 0.8125rem;
+  color: var(--text-secondary-contrast, #3a4941);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.form-text.error {
+  color: var(--danger-dark, #842029);
+  font-weight: 500;
+}
+
+.form-text.success {
+  color: var(--success-dark, #0d652d);
+  font-weight: 500;
+}
+
+/* Required field indicator */
+.required, .form-required {
+  color: var(--danger, #dc3545);
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 7: CARD & CONTAINER STYLING
+   ────────────────────────────────────────────────────────────────────────────── */
+
+.card, .card-coop, .admin-card {
+  background: white;
+  border: 1px solid var(--border-soft, #f0f0f0);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover, .card-coop:hover, .admin-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--border-color, #e5e7eb);
+}
+
+.card-header, .admin-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-soft, #f0f0f0);
+  background: var(--bg-soft, #f5faf6);
+}
+
+.card-title, .admin-card-title {
+  color: var(--text-primary-contrast, #0f1a15);
+  font-weight: 700;
+  margin: 0;
+}
+
+.card-body, .admin-card-body {
+  padding: 20px;
+}
+
+.card-footer, .admin-card-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-soft, #f0f0f0);
+  background: var(--bg-soft, #f5faf6);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 8: TYPOGRAPHY & HEADING IMPROVEMENTS
+   ────────────────────────────────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary-contrast, #0f1a15);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 9: LINK & INTERACTIVE ELEMENT STYLING
+   ────────────────────────────────────────────────────────────────────────────── */
+
+a {
+  color: var(--primary, #1a5f2a);
+  text-decoration: none;
+  transition: color 0.15s ease;
+  font-weight: 500;
+}
+
+a:hover {
+  color: var(--primary-dark, #144a21);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--primary, #1a5f2a);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 10: ICON COLOR FIXES
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* Icons in labels / headers */
+label i, .form-label i {
+  color: var(--primary, #1a5f2a);
+  margin-right: 4px;
+}
+
+/* Icons in buttons */
+.btn i, button i {
+  font-size: inherit;
+}
+
+/* Icons in alerts */
+.alert i {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.alert-success i { color: var(--success-dark, #0d652d); }
+.alert-warning i { color: var(--warning-dark, #664d03); }
+.alert-danger i { color: var(--danger-dark, #842029); }
+.alert-info i { color: var(--info-dark, #003d82); }
+
+/* Icons in badges */
+.badge i {
+  font-size: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 11: ACCESSIBILITY IMPROVEMENTS
+   ────────────────────────────────────────────────────────────────────────────── */
+
+/* High contrast focus states */
+:focus-visible {
+  outline: 2px solid var(--primary, #1a5f2a);
+  outline-offset: 2px;
+}
+
+/* Improved keyboard navigation visibility */
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--primary, #1a5f2a);
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only, .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECTION 12: MOBILE RESPONSIVENESS
+   ────────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  body {
+    font-size: 0.9375rem;
+  }
+
+  .card, .admin-card {
+    padding: 16px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .table, .coop-table {
+    font-size: 0.875rem;
+  }
+
+  .table th, .coop-table th,
+  .table td, .coop-table td {
+    padding: 10px 12px;
+  }
+
+  .btn, button {
+    padding: 10px 16px;
+    font-size: 0.9375rem;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+  h4 { font-size: 1rem; }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 0.875rem;
+  }
+
+  .card, .admin-card, .form-card {
+    padding: 12px;
+  }
+
+  .table, .coop-table {
+    font-size: 0.8125rem;
+  }
+
+  .btn, button {
+    padding: 8px 12px;
+    font-size: 0.875rem;
+  }
+
+  h1 { font-size: 1.25rem; }
+  h2 { font-size: 1.125rem; }
+  h3 { font-size: 1rem; }
+}
+
+/* ════════════════════════════════════════════════════════════════════════════════
+   END UI/UX ENHANCEMENTS
+   ════════════════════════════════════════════════════════════════════════════════ */

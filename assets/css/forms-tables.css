@@ -1,0 +1,472 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FORMS & TABLES — Unified Component Styles
+   ═══════════════════════════════════════════════════════════════════════════════
+   
+   This file extends global.css with enhanced form and table components.
+   Load AFTER global.css in your HTML.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   FORM COMPONENTS
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+/* Form Card Container */
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  margin-bottom: var(--space-5);
+}
+
+.form-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-color);
+}
+
+/* Form Card Header */
+.form-card-header {
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: var(--space-4);
+}
+
+.form-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.form-card-title i {
+  color: var(--primary);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.form-card-info {
+  margin: var(--space-2) 0 0 var(--space-8);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-normal);
+}
+
+/* Form Section Body */
+.form-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Form Row (for side-by-side fields) */
+.form-row {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+.form-row.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.form-row.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .form-row.cols-2,
+  .form-row.cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Form Group (label + input wrapper) */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.form-group label .required {
+  color: var(--danger);
+  margin-left: var(--space-1);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-family: inherit;
+  background: #fafbfa;
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(26, 95, 42, 0.1);
+}
+
+/* Form Help Text */
+.form-text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.form-text.error {
+  color: var(--danger);
+}
+
+.form-text.success {
+  color: var(--success);
+}
+
+/* Form Actions Footer */
+.form-actions {
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-soft);
+  margin-top: var(--space-5);
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   TABLE COMPONENTS
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+/* Table Search */
+.table-search-wrapper {
+  margin-bottom: var(--space-4);
+}
+
+.table-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 320px;
+  width: 100%;
+}
+
+.table-search-icon {
+  position: absolute;
+  left: var(--space-3);
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: var(--text-sm);
+}
+
+.table-search-input {
+  width: 100%;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-8);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-family: inherit;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  transition: all var(--transition-base);
+}
+
+.table-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(26, 95, 42, 0.1);
+}
+
+/* Table Scroll Wrapper */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+}
+
+/* Table */
+.coop-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  font-size: var(--text-base);
+}
+
+.coop-table thead {
+  background: var(--bg-soft);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.coop-table th {
+  padding: var(--space-4);
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.coop-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+
+.coop-table tbody tr {
+  transition: background var(--transition-base);
+}
+
+.coop-table tbody tr:hover {
+  background: color-mix(in srgb, var(--bg-soft) 50%, transparent);
+}
+
+.coop-table.table-striped tbody tr:nth-child(odd) {
+  background: var(--bg-muted);
+}
+
+.coop-table.table-striped tbody tr:nth-child(odd):hover {
+  background: color-mix(in srgb, var(--bg-muted) 70%, var(--primary) 10%);
+}
+
+/* Table Sortable Headers */
+.coop-table.table-sortable th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: var(--space-5);
+}
+
+.coop-table.table-sortable th:hover {
+  background: color-mix(in srgb, var(--bg-soft) 80%, var(--primary) 5%);
+}
+
+.table-sort-indicator {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Table Actions Column */
+.table-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  align-items: center;
+}
+
+.table-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--bg-soft);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-size: 0.9rem;
+}
+
+.table-action-btn:hover {
+  background: var(--primary);
+  color: var(--text-on-primary);
+}
+
+.table-action-btn.btn-edit {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.table-action-btn.btn-edit:hover {
+  background: #1976d2;
+  color: white;
+}
+
+.table-action-btn.btn-delete {
+  background: #ffebee;
+  color: var(--danger);
+}
+
+.table-action-btn.btn-delete:hover {
+  background: var(--danger);
+  color: white;
+}
+
+/* Table Empty State */
+.table-empty-state {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.table-empty-icon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+  margin-bottom: var(--space-3);
+}
+
+.table-empty-text {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  line-height: var(--line-normal);
+}
+
+/* Responsive Table (Mobile Card View) */
+@media (max-width: 768px) {
+  .table-responsive-stack {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .table-responsive-stack thead {
+    display: none;
+  }
+
+  .table-responsive-stack tbody,
+  .table-responsive-stack tr,
+  .table-responsive-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-responsive-stack tr {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-4);
+    padding: var(--space-4);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table-responsive-stack td {
+    padding: var(--space-2) 0;
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+    border: none;
+    border-bottom: 1px solid var(--border-soft);
+  }
+
+  .table-responsive-stack td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--space-4);
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: left;
+  }
+
+  .table-responsive-stack td:last-child {
+    border-bottom: none;
+  }
+
+  .table-scroll-wrapper {
+    border: none;
+    overflow-x: visible;
+  }
+
+  .table-search-box {
+    max-width: 100%;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   INPUT VARIANTS
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+/* Select (Custom styling) */
+select.form-control {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%234a5a4f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 12px;
+  padding-right: 28px;
+}
+
+/* Checkbox & Radio Custom Styling */
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* ───────────────────────────────────────────────────────────────────────────────
+   VALIDATION STATES
+   ─────────────────────────────────────────────────────────────────────────────── */
+
+.form-group.has-error input,
+.form-group.has-error textarea,
+.form-group.has-error select {
+  border-color: var(--danger);
+  background: #fff5f5;
+}
+
+.form-group.has-error input:focus,
+.form-group.has-error textarea:focus,
+.form-group.has-error select:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+  border-color: var(--danger);
+}
+
+.form-group.has-success input,
+.form-group.has-success textarea,
+.form-group.has-success select {
+  border-color: var(--success);
+  background: #f0fdf4;
+}
+
+.form-group.has-success input:focus,
+.form-group.has-success textarea:focus,
+.form-group.has-success select:focus {
+  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+  border-color: var(--success);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   END FORMS & TABLES
+   ═══════════════════════════════════════════════════════════════════════════════ */

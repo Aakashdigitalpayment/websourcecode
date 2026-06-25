@@ -1,0 +1,321 @@
+/**
+ * ADMIN SERIOUS FIX v6.0 - Targeting Actual Classes
+ * Fixes real issues in production pages by overriding existing CSS classes
+ */
+
+/* TAB NAVIGATION - Fix icons and colors */
+.admin-nav-tabs {
+    border-bottom: 2px solid #d1d5db !important;
+    background: #f9fafb !important;
+}
+
+.admin-nav-tabs .nav-link {
+    color: #6b7280 !important;
+    border-bottom: 3px solid transparent !important;
+    font-weight: 500 !important;
+    padding: 12px 16px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+}
+
+.admin-nav-tabs .nav-link i,
+.admin-nav-tabs .nav-link [data-lucide] {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 2 !important;
+    flex-shrink: 0 !important;
+}
+
+.admin-nav-tabs .nav-link:hover {
+    color: #1a5f2a !important;
+    background: rgba(26, 95, 42, 0.05) !important;
+}
+
+.admin-nav-tabs .nav-link.active {
+    color: #1a5f2a !important;
+    border-bottom-color: #1a5f2a !important;
+    background: rgba(26, 95, 42, 0.03) !important;
+}
+
+/* ACTION BUTTONS - Make them visible and colorful */
+.ntc-btn-edit,
+.btn-edit-notice {
+    background: #0284c7 !important;
+    border-color: #0284c7 !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    border-radius: 4px !important;
+}
+
+.ntc-btn-edit:hover,
+.btn-edit-notice:hover {
+    background: #0369a1 !important;
+    border-color: #0369a1 !important;
+}
+
+.ntc-btn-delete {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    border-radius: 4px !important;
+}
+
+.ntc-btn-delete:hover {
+    background: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+/* BUTTONS - Bulk actions */
+.ntc-bulk-active {
+    background: #16a34a !important;
+    border-color: #16a34a !important;
+    color: white !important;
+}
+
+.ntc-bulk-active:hover {
+    background: #15803d !important;
+}
+
+.ntc-bulk-inactive {
+    background: #e5e7eb !important;
+    border-color: #d1d5db !important;
+    color: #374151 !important;
+}
+
+.ntc-bulk-inactive:hover {
+    background: #d1d5db !important;
+}
+
+/* TABLE CARD */
+.admin-table-card {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+.admin-table-card .card-header {
+    background: #f3f4f6 !important;
+    border-bottom: 2px solid #d1d5db !important;
+    padding: 12px 16px !important;
+}
+
+.admin-table-card table {
+    margin-bottom: 0 !important;
+}
+
+.admin-table-card thead {
+    background: #f9fafb !important;
+}
+
+.admin-table-card thead th {
+    border-bottom: 2px solid #d1d5db !important;
+    color: #1f2937 !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    padding: 12px !important;
+    white-space: nowrap !important;
+}
+
+.admin-table-card tbody td {
+    padding: 12px !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    vertical-align: middle !important;
+}
+
+.admin-table-card tbody tr:hover {
+    background: rgba(26, 95, 42, 0.02) !important;
+}
+
+.admin-table-card tbody tr:nth-child(even) {
+    background: #f9fafb !important;
+}
+
+/* FORM LABELS */
+.form-label.fw-semibold,
+.form-label.small,
+.ntc-label {
+    color: #0f1a15 !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 6px !important;
+    display: block !important;
+}
+
+.ntc-required::after {
+    content: " *";
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* FORM INPUTS */
+.form-control,
+.form-select,
+.admin-fancy-input {
+    border: 1.5px solid #d1d5db !important;
+    border-radius: 6px !important;
+    background: #fefffe !important;
+    padding: 10px 12px !important;
+    font-size: 0.95rem !important;
+    transition: all 0.15s ease !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.admin-fancy-input:focus {
+    border-color: #1a5f2a !important;
+    box-shadow: 0 0 0 3px rgba(26, 95, 42, 0.1) !important;
+}
+
+.form-control::placeholder,
+.admin-fancy-input::placeholder {
+    color: #9ca3af !important;
+}
+
+.form-control:disabled,
+.form-select:disabled,
+.admin-fancy-input:disabled {
+    background: #f3f4f6 !important;
+    color: #9ca3af !important;
+    opacity: 0.6 !important;
+}
+
+/* BADGES */
+.ntc-count-badge,
+.admin-stat-badge {
+    background: rgba(26, 95, 42, 0.15) !important;
+    color: #1a5f2a !important;
+    font-weight: 600 !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+}
+
+.ntc-status-on {
+    background: rgba(22, 163, 74, 0.15) !important;
+    color: #15803d !important;
+    border: 1px solid #16a34a !important;
+}
+
+.ntc-status-off {
+    background: rgba(229, 231, 235, 0.5) !important;
+    color: #6b7280 !important;
+    border: 1px solid #d1d5db !important;
+}
+
+.ntc-popup-badge {
+    background: rgba(8, 145, 178, 0.15) !important;
+    color: #0e7490 !important;
+    border: 1px solid #06b6d4 !important;
+}
+
+.ntc-no-badge {
+    background: rgba(229, 231, 235, 0.5) !important;
+    color: #6b7280 !important;
+}
+
+/* EMPTY STATE */
+.admin-empty-state {
+    padding: 40px 20px !important;
+    text-align: center !important;
+    color: #6b7280 !important;
+}
+
+.admin-empty-state i {
+    font-size: 2.5rem !important;
+    color: #d1d5db !important;
+    margin-bottom: 12px !important;
+    display: block !important;
+}
+
+/* BACKGROUND COLORS */
+.ntc-soft-bg {
+    background: #f9fafb !important;
+}
+
+/* ICONS COLORS */
+.ntc-date-icon,
+.ntc-file-icon {
+    color: #6b7280 !important;
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    .admin-nav-tabs .nav-link {
+        padding: 10px 12px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .ntc-btn-edit,
+    .ntc-btn-delete,
+    .btn-edit-notice {
+        min-width: 44px !important;
+        min-height: 44px !important;
+    }
+
+    .admin-table-card thead th,
+    .admin-table-card tbody td {
+        padding: 10px 8px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .form-control,
+    .form-select,
+    .admin-fancy-input {
+        font-size: 16px !important;
+        padding: 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-table-card table {
+        font-size: 0.85rem !important;
+    }
+
+    .admin-table-card thead {
+        display: none !important;
+    }
+
+    .admin-table-card tbody,
+    .admin-table-card tbody tr,
+    .admin-table-card tbody td {
+        display: block !important;
+        width: 100% !important;
+    }
+
+    .admin-table-card tbody tr {
+        margin-bottom: 12px !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 6px !important;
+        padding: 8px !important;
+    }
+
+    .admin-table-card tbody td {
+        padding: 8px 0 !important;
+        border: none !important;
+        text-align: right !important;
+        padding-right: 0 !important;
+    }
+
+    .admin-table-card tbody td:before {
+        content: attr(data-label);
+        float: left !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+    }
+}

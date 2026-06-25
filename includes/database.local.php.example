@@ -1,0 +1,18 @@
+<?php
+/**
+ * Copy to database.local.php (same folder). That file is gitignored.
+ * cPanel / प्रत्येक install मा फरक — Git मा यो फाइल जाँदैन (pull conflict हुँदैन)।
+ *
+ *   cp includes/database.local.php.example includes/database.local.php
+ *   chmod 600 includes/database.local.php   # optional
+ */
+
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'your_cpanel_dbname');
+if (!defined('DB_USER')) define('DB_USER', 'your_cpanel_dbuser');
+if (!defined('DB_PASS')) define('DB_PASS', 'your_secure_password');
+
+// Admin panel ले SITE_URL set गर्छ; खाली भए config.php ले dynamic URL प्रयोग गर्छ
+if (!defined('SITE_URL')) {
+    define('SITE_URL', 'https://your-domain.example/');
+}

@@ -1,0 +1,430 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * GLOBAL THEME — Single Source of Truth
+ * ═══════════════════════════════════════════════════════════════════
+ * File: global-theme.css
+ *
+ * PURPOSE:
+ *   All colours, typography, spacing, and component tokens live HERE.
+ *   No page, component, or partial should hard-code a colour value.
+ *   Reference tokens via var(--token-name).
+ *
+ * HOW TO INCLUDE (in includes/header.php, ONCE):
+ *   <link rel="stylesheet" href="<?= SITE_ROOT ?>assets/css/global-theme.css">
+ *
+ * HOW TO OVERRIDE PER SITE (from DB via installer):
+ *   PHP emits:
+ *     <style>:root { --primary: <?= $dbColor ?>; --primary-dark: <?= $dbColorDark ?>; }</style>
+ *   …AFTER this file. That overrides only the two root vars, rest cascades.
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+/* ───────────────────────────────────────────────────────────────
+   1. BRAND COLOURS
+   (Matches design_guidelines.json — Archetype 1: Organic & Earthy)
+──────────────────────────────────────────────────────────────── */
+:root {
+  /* Primary brand */
+  --primary:          #166534;   /* brand_primary  */
+  --primary-dark:     #14532d;   /* brand_hover    */
+  --primary-light:    #dcfce7;   /* tint for badges/backgrounds */
+  --primary-xlight:   #f0fdf4;   /* very light tint */
+
+  /* Legacy aliases — kept for backward compat with older templates */
+  --primary-color:    var(--primary);
+  --secondary-color:  var(--primary-dark);
+
+  /* Semantic */
+  --color-success:    #16a34a;
+  --color-danger:     #dc2626;
+  --color-warning:    #d97706;
+  --color-info:       #0284c7;
+
+  /* Backgrounds */
+  --bg-page:          #f4f5f4;   /* background_page  */
+  --bg-card:          #ffffff;   /* background_card  */
+  --bg-input:         #ffffff;
+
+  /* Text */
+  --text-main:        #064e3b;   /* text_main   */
+  --text-body:        #1e293b;
+  --text-muted:       #475569;   /* text_muted  */
+  --text-light:       #94a3b8;
+
+  /* Borders */
+  --border-color:     #e2e8f0;   /* border_subtle */
+  --border-radius:    0.5rem;    /* 8px — global card radius */
+  --border-radius-sm: 0.375rem;  /* 6px */
+  --border-radius-lg: 0.75rem;   /* 12px */
+
+  /* Focus */
+  --focus-ring:       #86efac;   /* focus_ring */
+  --focus-shadow:     0 0 0 3px rgba(134, 239, 172, 0.45);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   2. TYPOGRAPHY
+   Fonts loaded in header.php via Google Fonts:
+   Plus Jakarta Sans (headings) + Inter (body) + Noto Sans Devanagari (Nepali)
+──────────────────────────────────────────────────────────────── */
+:root {
+  --font-heading:  'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+  --font-body:     'Inter', 'Noto Sans Devanagari', sans-serif;
+  --font-mono:     'IBM Plex Mono', 'Monaco', monospace;
+
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+
+  --font-normal:    400;
+  --font-medium:    500;
+  --font-semibold:  600;
+  --font-bold:      700;
+  --font-black:     900;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   3. SPACING / LAYOUT
+──────────────────────────────────────────────────────────────── */
+:root {
+  --spacing-xs:   0.25rem;   /*  4px */
+  --spacing-sm:   0.5rem;    /*  8px */
+  --spacing-md:   1rem;      /* 16px */
+  --spacing-lg:   1.5rem;    /* 24px */
+  --spacing-xl:   2rem;      /* 32px */
+  --spacing-2xl:  3rem;      /* 48px */
+  --spacing-3xl:  4rem;      /* 64px */
+
+  --section-padding-y: 4rem; /* standard section vertical padding */
+  --container-max:     1280px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   4. SHADOWS
+──────────────────────────────────────────────────────────────── */
+:root {
+  --shadow-xs:  0 1px 2px rgba(0,0,0,.06);
+  --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
+  --shadow-md:  0 4px 12px rgba(0,0,0,.10);
+  --shadow-lg:  0 8px 24px rgba(0,0,0,.12);
+  --shadow-xl:  0 16px 40px rgba(0,0,0,.14);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   5. TRANSITIONS
+──────────────────────────────────────────────────────────────── */
+:root {
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   6. Z-INDEX SCALE
+──────────────────────────────────────────────────────────────── */
+:root {
+  --z-dropdown:  1000;
+  --z-sticky:    1020;
+  --z-fixed:     1030;
+  --z-backdrop:  1040;
+  --z-modal:     1050;
+  --z-popover:   1060;
+  --z-tooltip:   1070;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   7. GLOBAL BASE STYLES
+──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-body);
+  background-color: var(--bg-page);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-semibold);
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+a {
+  color: var(--primary);
+  transition: color var(--transition-fast);
+}
+a:hover { color: var(--primary-dark); }
+
+/* ───────────────────────────────────────────────────────────────
+   8. FOCUS STYLES — Accessibility
+──────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--primary);
+  box-shadow: var(--focus-shadow);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   9. BUTTONS — Primary / Outline
+──────────────────────────────────────────────────────────────── */
+.btn-primary,
+.home-btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: var(--font-medium);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+              transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.btn-primary:hover,
+.home-btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:focus-visible,
+.home-btn-primary:focus-visible {
+  box-shadow: var(--focus-shadow);
+}
+
+.btn-outline-primary {
+  border-color: var(--primary);
+  color: var(--primary);
+  transition: all var(--transition-fast);
+}
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   10. CARDS
+──────────────────────────────────────────────────────────────── */
+.card,
+.service-card,
+.news-card,
+.notice-card,
+.award-detail-card,
+.tool-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover,
+.service-card:hover,
+.news-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   11. SECTION HEADERS — unified, single class
+   Use:  class="section-header section-header-unified text-center"
+──────────────────────────────────────────────────────────────── */
+.section-header {
+  margin-bottom: var(--spacing-xl);
+}
+.section-header h2 {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--text-main);
+  margin-bottom: var(--spacing-sm);
+}
+.section-header p {
+  color: var(--text-muted);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-divider {
+  width: 60px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 2px;
+  margin: var(--spacing-sm) auto var(--spacing-md);
+}
+.section-badge-wrap { margin-bottom: var(--spacing-sm); }
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-xlight);
+  border: 1px solid var(--primary-light);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   12. PAGE BANNER (breadcrumb header)
+──────────────────────────────────────────────────────────────── */
+.page-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  padding: var(--spacing-2xl) 0;
+  color: #fff;
+}
+.page-banner h1 {
+  color: #fff;
+  font-size: var(--text-3xl);
+  margin-bottom: var(--spacing-sm);
+}
+.page-banner .breadcrumb-item a { color: rgba(255,255,255,.85); }
+.page-banner .breadcrumb-item.active { color: rgba(255,255,255,.65); }
+.page-banner .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,.5); }
+
+/* ───────────────────────────────────────────────────────────────
+   13. FORM INPUTS — global override
+──────────────────────────────────────────────────────────────── */
+.form-control,
+.form-select {
+  border-color: var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   14. BADGES
+──────────────────────────────────────────────────────────────── */
+.latest-badge,
+.new-badge {
+  display: inline-block;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  background: var(--color-success);
+  color: #fff;
+  border-radius: 999px;
+  padding: 1px 8px;
+  vertical-align: middle;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   15. SECTION PADDING — section-level spacing
+──────────────────────────────────────────────────────────────── */
+.section-padding {
+  padding-top: var(--section-padding-y);
+  padding-bottom: var(--section-padding-y);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   16. ICONS — Unified usage
+   Icons: Font Awesome 6 (primary set) + Lucide (secondary/modern)
+   Lucide icons use:  <i class="lucide-icon" data-lucide="icon-name"></i>
+   FontAwesome icons: <i class="fas fa-icon-name"></i>
+──────────────────────────────────────────────────────────────── */
+.icon-pulse {
+  animation: pulse-anim 1.5s infinite;
+}
+@keyframes pulse-anim {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   17. ERROR PAGES (404 / 500)
+──────────────────────────────────────────────────────────────── */
+.error-404-section {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+.error-404-number {
+  font-size: 7rem;
+  font-weight: var(--font-black);
+  line-height: 1;
+  color: #e8e8e8;
+  text-shadow: 2px 4px 0 #d0d0d0;
+  margin-bottom: 20px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   18. UTILITIES
+──────────────────────────────────────────────────────────────── */
+.text-primary-brand { color: var(--primary) !important; }
+.bg-primary-brand   { background-color: var(--primary) !important; }
+.border-primary     { border-color: var(--primary) !important; }
+
+/* Sticky action / save bar */
+.sticky-action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: var(--spacing-md) var(--spacing-lg);
+  box-shadow: 0 -4px 12px rgba(0,0,0,.06);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   19. ACCESSIBILITY
+──────────────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   20. RESPONSIVE ADJUSTMENTS
+──────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --section-padding-y: 2.5rem;
+  }
+  .section-header h2 { font-size: var(--text-2xl); }
+  .page-banner h1    { font-size: var(--text-2xl); }
+  .error-404-number  { font-size: 5rem; }
+}

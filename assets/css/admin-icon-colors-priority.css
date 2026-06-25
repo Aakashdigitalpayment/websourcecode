@@ -1,0 +1,239 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * ADMIN ICON COLORS - PRIORITY FIX v8.1
+ * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * ISSUE: Sidebar icons appearing gray/faint (#6b7280)
+ * SOLUTION: Force dark color (#374151) with maximum specificity
+ * 
+ * This file uses !important to override any conflicting CSS
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   CRITICAL FIX: SIDEBAR ICONS - Main Navigation
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Target ALL sidebar icon elements */
+.sidebar-nav i,
+.sidebar-nav a i,
+.admin-sidebar i,
+.admin-sidebar a i,
+.hg-sidebar i,
+.hg-sidebar a i,
+aside .nav-link i,
+aside nav i,
+[class*="sidebar"] i,
+[class*="sidebar"] a i {
+    color: #374151 !important;
+    fill: #374151 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   ACTIVE/SELECTED STATE - Green icons
+   ───────────────────────────────────────────────────────────────────────── */
+
+.sidebar-nav li.active i,
+.sidebar-nav li.active a i,
+.sidebar-nav a.active i,
+.admin-sidebar li.active i,
+.admin-sidebar li.active a i,
+.admin-sidebar a.active i,
+.hg-sidebar li.active i,
+.hg-sidebar li.active a i,
+.hg-sidebar a.active i,
+aside .nav-link.active i,
+aside nav .active i {
+    color: #16a34a !important;
+    fill: #16a34a !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   HOVER STATE - Darker green
+   ───────────────────────────────────────────────────────────────────────── */
+
+.sidebar-nav a:hover i,
+.admin-sidebar a:hover i,
+.hg-sidebar a:hover i,
+aside .nav-link:hover i,
+aside nav a:hover i {
+    color: #1a5f2a !important;
+    fill: #1a5f2a !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FONTAWESOME & ICONIC ICONS
+   ───────────────────────────────────────────────────────────────────────── */
+
+.fa,
+.fas,
+.far,
+.fal,
+.fab,
+.icon,
+[class*="icon"] {
+    color: inherit !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SPECIFIC ICON TARGETING - Grid, Arrow, Calendar, Bell, Search, Location
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Grid icon */
+.fa-grid,
+.fa-table,
+[data-icon="grid"],
+[class*="grid"] i {
+    color: #374151 !important;
+}
+
+/* Arrow/Exchange icon */
+.fa-arrow,
+.fa-exchange,
+.fa-arrows,
+[data-icon="arrow"],
+[class*="exchange"] i {
+    color: #374151 !important;
+}
+
+/* Calendar icon */
+.fa-calendar,
+[data-icon="calendar"],
+[class*="calendar"] i {
+    color: #374151 !important;
+}
+
+/* Bell/notification icon */
+.fa-bell,
+.fa-notification,
+[data-icon="bell"],
+[class*="notification"] i {
+    color: #374151 !important;
+}
+
+/* Search icon */
+.fa-search,
+.fa-magnifying-glass,
+[data-icon="search"],
+[class*="search"] i {
+    color: #374151 !important;
+}
+
+/* Location/map icon */
+.fa-location,
+.fa-map-pin,
+.fa-location-pin,
+[data-icon="location"],
+[class*="location"] i {
+    color: #374151 !important;
+}
+
+/* List icon */
+.fa-list,
+.fa-bars,
+[data-icon="list"],
+[class*="list"] i {
+    color: #374151 !important;
+}
+
+/* Help/question icon */
+.fa-question,
+.fa-circle-question,
+.fa-info,
+[data-icon="help"],
+[class*="help"] i {
+    color: #374151 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LUCIDE ICONS (SVG)
+   ───────────────────────────────────────────────────────────────────────── */
+
+svg[class*="icon"],
+svg.lucide,
+.lucide,
+.lucide-icon {
+    color: #374151 !important;
+    stroke: #374151 !important;
+    fill: none;
+}
+
+/* Active lucide icons */
+.sidebar-nav li.active svg,
+.admin-sidebar li.active svg,
+.sidebar-nav a.active svg,
+.admin-sidebar a.active svg {
+    color: #16a34a !important;
+    stroke: #16a34a !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   DROPDOWN & MENU ICONS
+   ───────────────────────────────────────────────────────────────────────── */
+
+.dropdown-toggle::after,
+.dropdown-menu i,
+.dropdown-item i {
+    color: #374151 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   BREADCRUMB & NAVIGATION ICONS
+   ───────────────────────────────────────────────────────────────────────── */
+
+.breadcrumb i,
+.nav i,
+.navbar i {
+    color: #374151 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   FALLBACK FOR INLINE STYLES
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* If icons have inline style="color: ...", override with !important */
+*[style*="color"] i {
+    color: #374151 !important;
+}
+
+.sidebar-nav *[style] i,
+.admin-sidebar *[style] i {
+    color: #374151 !important;
+}
+
+.sidebar-nav li.active *[style] i,
+.admin-sidebar li.active *[style] i {
+    color: #16a34a !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MOBILE OPTIMIZATION
+   ───────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .sidebar-nav i,
+    .sidebar-nav a i,
+    .admin-sidebar i,
+    .admin-sidebar a i {
+        color: #374151 !important;
+    }
+    
+    .sidebar-nav li.active i,
+    .sidebar-nav li.active a i,
+    .admin-sidebar li.active i,
+    .admin-sidebar li.active a i {
+        color: #16a34a !important;
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   DEBUG CLASS - Verify fixes are applied
+   ═════════════════════════════════════════════════════════════════════════ */
+
+.icon-fixed {
+    color: #374151 !important;
+}
+
+.icon-fixed.active {
+    color: #16a34a !important;
+}

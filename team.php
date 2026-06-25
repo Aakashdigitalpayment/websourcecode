@@ -1,0 +1,366 @@
+<?php
+$pageTitle = 'सम्पर्क अधिकारी';
+require_once __DIR__ . '/_bootstrap.php';
+require_once 'includes/header.php';
+
+// Get team members
+try {
+    $db = getDB();
+    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $managementMembers = $db->query("SELECT * FROM team_members WHERE category = 'management' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $staffMembers = $db->query("SELECT * FROM team_members WHERE category = 'staff' AND is_active = 1 ORDER BY display_order")->fetchAll();
+
+    $committeeTypes = [];
+    $committeeMembers = [];
+    try {
+        $committeeTypes = $db->query("SELECT id, name, name_np FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        foreach ($committeeTypes as $_ct) {
+            $committeeMembers[(int)$_ct['id']] = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+            $committeeMembers[(int)$_ct['id']]->execute(['cmt_' . (int)$_ct['id']]);
+            $committeeMembers[(int)$_ct['id']] = $committeeMembers[(int)$_ct['id']]->fetchAll();
+        }
+    } catch (Throwable $e) {
+        $committeeTypes = [];
+        $committeeMembers = [];
+    }
+
+    // Get Information Officer and Grievance Officer
+    $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
+    $grievanceOfficer = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
+} catch (Throwable $e) {
+    $boardMembers = $managementMembers = $staffMembers = [];
+    $informationOfficer = $grievanceOfficer = null;
+}
+?>
+
+<!-- Page Banner -->
+<section class="page-banner">
+    <div class="container">
+        <h1><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<?php
+$hasCommitteeFilters = false;
+$committeeFilterButtons = [];
+foreach ($committeeTypes as $_ct) {
+    $ctId = (int)$_ct['id'];
+    if (!empty($committeeMembers[$ctId])) {
+        $hasCommitteeFilters = true;
+        $committeeFilterButtons[] = [
+            'id' => $ctId,
+            'label' => isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']),
+        ];
+    }
+}
+?>
+
+<?php if (!empty($boardMembers) || !empty($managementMembers) || !empty($staffMembers) || $hasCommitteeFilters): ?>
+<section class="team-filter-bar section-padding bg-white">
+    <div class="container">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <button type="button" class="filter-btn active" onclick="teamFilter(this, 'all')">
+                <i class="fas fa-th-large"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
+            </button>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'board')">
+                <i class="lucide-icon" aria-hidden="true" data-lucide="building-columns"></i> <?php echo isEnglish() ? 'Board' : 'सञ्चालक समिति'; ?>
+            </button>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'management')">
+                <i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management' : 'व्यवस्थापन टोली'; ?>
+            </button>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'staff')">
+                <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारीहरू'; ?>
+            </button>
+            <?php foreach ($committeeFilterButtons as $_cf): ?>
+                <button type="button" class="filter-btn" onclick="teamFilter(this, 'committee-<?php echo $_cf['id']; ?>')">
+                    <i class="fas fa-users-gear"></i> <?php echo e($_cf['label']); ?>
+                </button>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Information & Grievance Officers Section -->
+<?php if ($informationOfficer || $grievanceOfficer): ?>
+<section class="officers-section section-padding bg-light">
+    <div class="container">
+        <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
+            <div class="section-badge-wrap">
+                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Key Officers' : 'प्रमुख अधिकारीहरू'; ?></span>
+            </div>
+            <h2><?php echo isEnglish() ? 'Key Officers' : 'प्रमुख अधिकारीहरू'; ?></h2>
+            <div class="section-divider"></div>
+            <p><?php echo isEnglish() ? 'Contact our designated officers for information and grievances' : 'सूचना र गुनासोको लागि तोकिएका अधिकारीहरूसँग सम्पर्क गर्नुहोस्'; ?></p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php if ($informationOfficer): ?>
+            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="officer-card information-officer">
+                    <div class="officer-badge">
+                        <i class="fas fa-info-circle"></i>
+                        <span><?php echo isEnglish() ? 'Information Officer' : 'सूचना अधिकारी'; ?></span>
+                    </div>
+                    <div class="officer-photo">
+                        <?php if ($informationOfficer['photo']): ?>
+                            <img src="<?php echo e($informationOfficer['photo']); ?>" loading="lazy" alt="<?php echo e($informationOfficer['name']); ?>">
+                        <?php else: ?>
+                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="officer-info">
+                        <h4><?php echo e(isEnglish() && $informationOfficer['name_en'] ? $informationOfficer['name_en'] : $informationOfficer['name']); ?></h4>
+                        <span class="position"><?php echo e(isEnglish() && $informationOfficer['position_en'] ? $informationOfficer['position_en'] : ($informationOfficer['position_np'] ?: $informationOfficer['position'])); ?></span>
+                        <div class="officer-contact">
+                            <?php if ($informationOfficer['phone']): ?>
+                            <a href="tel:<?php echo e($informationOfficer['phone']); ?>" class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span><?php echo e($informationOfficer['phone']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($informationOfficer['email']): ?>
+                            <a href="mailto:<?php echo e($informationOfficer['email']); ?>" class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span><?php echo e($informationOfficer['email']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="officer-description">
+                        <p><?php echo isEnglish() ? 'For any information related queries as per Right to Information Act, please contact.' : 'सूचनाको हकसम्बन्धी ऐन अनुसार कुनै पनि सूचना सम्बन्धी जिज्ञासाको लागि सम्पर्क गर्नुहोस्।'; ?></p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($grievanceOfficer): ?>
+            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="officer-card grievance-officer">
+                    <div class="officer-badge">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span><?php echo isEnglish() ? 'Grievance Officer' : 'गुनासो अधिकारी'; ?></span>
+                    </div>
+                    <div class="officer-photo">
+                        <?php if ($grievanceOfficer['photo']): ?>
+                            <img src="<?php echo e($grievanceOfficer['photo']); ?>" loading="lazy" alt="<?php echo e($grievanceOfficer['name']); ?>">
+                        <?php else: ?>
+                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="officer-info">
+                        <h4><?php echo e(isEnglish() && $grievanceOfficer['name_en'] ? $grievanceOfficer['name_en'] : $grievanceOfficer['name']); ?></h4>
+                        <span class="position"><?php echo e(isEnglish() && $grievanceOfficer['position_en'] ? $grievanceOfficer['position_en'] : ($grievanceOfficer['position_np'] ?: $grievanceOfficer['position'])); ?></span>
+                        <div class="officer-contact">
+                            <?php if ($grievanceOfficer['phone']): ?>
+                            <a href="tel:<?php echo e($grievanceOfficer['phone']); ?>" class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span><?php echo e($grievanceOfficer['phone']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($grievanceOfficer['email']): ?>
+                            <a href="mailto:<?php echo e($grievanceOfficer['email']); ?>" class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span><?php echo e($grievanceOfficer['email']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="officer-description">
+                        <p><?php echo isEnglish() ? 'For any complaints or grievances related to our services, please contact.' : 'हाम्रो सेवासँग सम्बन्धित कुनै पनि गुनासो वा उजुरीको लागि सम्पर्क गर्नुहोस्।'; ?></p>
+                        <a href="grievance.php" class="btn btn-sm btn-outline-danger mt-2">
+                            <i class="fas fa-pen"></i> <?php echo isEnglish() ? 'File Grievance Online' : 'अनलाइन गुनासो दर्ता'; ?>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Board of Directors -->
+<?php if (!empty($boardMembers)): ?>
+<section class="team-section section-padding" data-filter="board">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2>सञ्चालक समिति</h2>
+            <p>हाम्रो संस्थाको नेतृत्व गर्ने समिति</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php foreach ($boardMembers as $index => $member): ?>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
+                <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                    <div class="team-photo-circular">
+                        <?php if ($member['photo']): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h5><?php echo e($member['name']); ?></h5>
+                        <?php if ($member['name_en']): ?>
+                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                        <?php endif; ?>
+                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                        <?php if ($member['phone'] || $member['email']): ?>
+                        <div class="team-contact-circular">
+                            <?php if ($member['phone']): ?>
+                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                            <?php endif; ?>
+                            <?php if ($member['email']): ?>
+                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<!-- Management Team -->
+<?php if (!empty($managementMembers)): ?>
+<section class="team-section section-padding bg-light" data-filter="management">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2>व्यवस्थापन टोली</h2>
+            <p>संस्थाको दैनिक सञ्चालन गर्ने टोली</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php foreach ($managementMembers as $index => $member): ?>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
+                <div class="team-card-circular">
+                    <div class="team-photo-circular">
+                        <?php if ($member['photo']): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h5><?php echo e($member['name']); ?></h5>
+                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php foreach ($committeeTypes as $_ct): ?>
+    <?php $ctId = (int)$_ct['id']; ?>
+    <?php if (empty($committeeMembers[$ctId])) continue; ?>
+    <section class="team-section section-padding bg-light" data-filter="committee-<?php echo $ctId; ?>">
+        <div class="container">
+            <div class="section-header section-header-unified text-center">
+                <h2><?php echo isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']); ?></h2>
+                <p><?php echo isEnglish() ? 'Committee members for this group' : 'यस समूहका समिति सदस्यहरू'; ?></p>
+            </div>
+
+            <div class="row justify-content-center">
+                <?php foreach ($committeeMembers[$ctId] as $index => $member): ?>
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
+                    <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                        <div class="team-photo-circular">
+                            <?php if ($member['photo']): ?>
+                                <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                            <?php else: ?>
+                                <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="team-info-circular">
+                            <h5><?php echo e($member['name']); ?></h5>
+                            <?php if ($member['name_en']): ?>
+                            <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                            <?php endif; ?>
+                            <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                            <?php if ($member['phone'] || $member['email']): ?>
+                            <div class="team-contact-circular">
+                                <?php if ($member['phone']): ?>
+                                    <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                                <?php endif; ?>
+                                <?php if ($member['email']): ?>
+                                    <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
+                                <?php endif; ?>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+<?php endforeach; ?>
+
+<!-- Staff -->
+<?php if (!empty($staffMembers)): ?>
+<section class="team-section section-padding" data-filter="staff">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2>कर्मचारीहरू</h2>
+            <p>हाम्रो समर्पित कर्मचारी टोली</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php foreach ($staffMembers as $index => $member): ?>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
+                <div class="team-card-circular small">
+                    <div class="team-photo-circular small">
+                        <?php if ($member['photo']): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h6><?php echo e($member['name']); ?></h6>
+                        <span class="team-position-badge small"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if (empty($boardMembers) && empty($managementMembers) && empty($staffMembers) && empty(array_filter($committeeMembers))): ?>
+<section class="section-padding">
+    <div class="container">
+        <div class="empty-state text-center py-5">
+            <i class="lucide-icon fa-4x text-muted mb-3" aria-hidden="true" data-lucide="users"></i>
+            <h4>टोली जानकारी उपलब्ध छैन</h4>
+            <p class="text-muted">हाल टोली सदस्यहरूको जानकारी उपलब्ध छैन।</p>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<script>
+function teamFilter(btn, filter) {
+    document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
+        el.classList.toggle('active', el === btn);
+    });
+    document.querySelectorAll('.team-section[data-filter]').forEach(function (section) {
+        section.style.display = filter === 'all' || section.getAttribute('data-filter') === filter ? '' : 'none';
+    });
+}
+</script>
+<?php require_once 'includes/footer.php'; ?>

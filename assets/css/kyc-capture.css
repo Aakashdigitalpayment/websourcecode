@@ -1,0 +1,251 @@
+/* ===========================================================
+   KYC Capture v10.4 — Camera, Crop, Signature, Fingerprint
+   ममा Mobile-first design, सबै widget responsive
+   =========================================================== */
+
+.kyc-cap-field{
+  border:1.5px dashed #cfd8dc;
+  border-radius:12px;
+  padding:14px;
+  background:#fafafa;
+  position:relative;
+  margin-bottom:8px;
+}
+.kyc-cap-field.has-image{
+  border-style:solid;
+  border-color:#1a5f2a;
+  background:#f0fdf4;
+}
+.kyc-cap-label{
+  font-weight:600;
+  font-size:.88rem;
+  color:#374151;
+  display:block;
+  margin-bottom:8px;
+}
+.kyc-cap-label .req{color:#dc2626;}
+
+/* ── Capture trigger area ── */
+.kyc-cap-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:18px 12px;
+  cursor:pointer;
+  color:#6b7280;
+  border-radius:8px;
+  transition:background .15s;
+}
+.kyc-cap-empty:hover{background:#f3f4f6;}
+/* माथिको ठूलो आइकन मात्र — सबै .kyc-cap-empty i ले बटनभित्रको आइकनलाई पनि हरियो पार्थ्यो (पृष्ठभूमिसँग मिलेर लुक्थ्यो) */
+.kyc-cap-empty > i:first-child{font-size:2rem;color:#1a5f2a;margin-bottom:6px;}
+.kyc-cap-empty .kyc-cap-empty-title{font-weight:700;color:#1a5f2a;font-size:.95rem;}
+.kyc-cap-empty .kyc-cap-empty-sub{font-size:.78rem;color:#6b7280;margin-top:2px;}
+
+.kyc-cap-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.kyc-cap-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:8px;border:1px solid #cbd5e1;
+  background:#fff;color:#334155;font-size:.78rem;font-weight:600;cursor:pointer;
+  transition:all .15s;
+}
+.kyc-cap-btn:hover{background:#f1f5f9;border-color:#94a3b8;}
+.kyc-cap-btn > i{font-size:.72rem;line-height:1;flex-shrink:0;}
+.kyc-cap-btn.primary{background:#1a5f2a;color:#fff;border-color:#1a5f2a;}
+.kyc-cap-btn.primary > i{color:#fff;}
+.kyc-cap-btn.primary:hover{background:#15522a;}
+.kyc-cap-btn[data-gallery] > i{color:#15803d;}
+.kyc-cap-btn.danger{background:#fee2e2;color:#b91c1c;border-color:#fecaca;}
+
+/* ── Preview thumb after capture ── */
+.kyc-cap-preview{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.kyc-cap-preview img{
+  max-width:100%;max-height:200px;border-radius:8px;
+  border:2px solid #1a5f2a;background:#fff;
+  object-fit:contain;
+}
+.kyc-cap-preview .kyc-cap-status{
+  font-size:.78rem;color:#1a5f2a;font-weight:600;
+  display:flex;align-items:center;gap:4px;
+}
+
+/* ── Modal overlay (camera + crop) ── */
+.kyc-modal{
+  position:fixed;inset:0;z-index:11000;
+  background:rgba(0,0,0,.92);
+  display:none;flex-direction:column;
+  animation:kycFadeIn .2s;
+}
+.kyc-modal.active{display:flex;}
+@keyframes kycFadeIn{from{opacity:0}to{opacity:1}}
+
+.kyc-modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;background:#0f172a;color:#fff;
+}
+.kyc-modal-title{font-size:.95rem;font-weight:700;display:flex;align-items:center;gap:8px;}
+.kyc-modal-close{
+  background:rgba(255,255,255,.1);border:0;color:#fff;
+  width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:1rem;
+}
+.kyc-modal-close:hover{background:rgba(255,255,255,.2);}
+
+.kyc-modal-body{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;padding:8px;
+}
+.kyc-cam-video, .kyc-crop-canvas{
+  max-width:100%;max-height:100%;
+  background:#000;border-radius:6px;
+  touch-action:none;
+}
+.kyc-cap-hint{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.7);color:#fff;
+  padding:6px 12px;border-radius:20px;font-size:.78rem;
+  pointer-events:none;
+}
+
+.kyc-modal-footer{
+  background:#0f172a;padding:12px 14px 18px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.kyc-zoom-row{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.08);padding:8px 12px;border-radius:8px;
+}
+.kyc-zoom-row label{color:#fff;font-size:.78rem;font-weight:600;min-width:54px;}
+.kyc-zoom-row input[type=range]{flex:1;}
+.kyc-rotate-row{display:flex;justify-content:center;gap:8px;}
+.kyc-modal-btns{display:flex;gap:10px;}
+.kyc-modal-btn{
+  flex:1;padding:12px;border-radius:8px;border:0;
+  font-weight:700;font-size:.9rem;cursor:pointer;
+}
+.kyc-modal-btn.cancel{background:#475569;color:#fff;}
+.kyc-modal-btn.confirm{background:#16a34a;color:#fff;}
+.kyc-modal-btn.shutter{
+  background:#fff;color:#0f172a;width:70px;height:70px;
+  border-radius:50%;flex:0 0 auto;margin:0 auto;
+  border:4px solid rgba(255,255,255,.3);font-size:1.4rem;
+}
+.kyc-shutter-row{display:flex;justify-content:center;align-items:center;gap:14px;}
+.kyc-flip-btn{
+  background:rgba(255,255,255,.15);color:#fff;border:0;
+  width:46px;height:46px;border-radius:50%;font-size:1rem;cursor:pointer;
+}
+
+/* ── Signature pad ── */
+.kyc-sig-wrap{
+  background:#fff;border:2px solid #1a5f2a;border-radius:8px;
+  position:relative;overflow:hidden;
+}
+.kyc-sig-canvas{
+  width:100%;height:200px;display:block;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 39px, #f1f5f9 39px 40px);
+  touch-action:none;cursor:crosshair;
+}
+.kyc-sig-baseline{
+  position:absolute;left:8px;right:8px;bottom:24px;height:1px;
+  background:#cbd5e1;border-bottom:1px dashed #cbd5e1;
+  pointer-events:none;
+}
+.kyc-sig-toolbar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 10px;background:#f8fafc;border-top:1px solid #e2e8f0;
+}
+.kyc-sig-tools{display:flex;gap:6px;}
+.kyc-sig-tool{
+  padding:6px 10px;border-radius:6px;border:1px solid #cbd5e1;
+  background:#fff;font-size:.75rem;cursor:pointer;
+}
+.kyc-sig-tool.active{background:#1a5f2a;color:#fff;border-color:#1a5f2a;}
+.kyc-sig-stat{font-size:.72rem;color:#64748b;}
+
+/* ── Fingerprint quality indicator ── */
+.kyc-fp-quality{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;border-radius:14px;font-size:.72rem;font-weight:700;
+}
+.kyc-fp-quality.bad{background:#fee2e2;color:#b91c1c;}
+.kyc-fp-quality.ok{background:#fef3c7;color:#92400e;}
+.kyc-fp-quality.good{background:#d1fae5;color:#065f46;}
+
+/* ── Address grid ── */
+.kyc-addr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+@media (min-width:768px){.kyc-addr-grid{grid-template-columns:repeat(4,1fr);}}
+.kyc-addr-grid .kyc-addr-cell{display:flex;flex-direction:column;}
+.kyc-addr-grid label{font-size:.78rem;font-weight:600;color:#475569;margin-bottom:4px;}
+.kyc-same-toggle{
+  background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:8px;
+  padding:10px 12px;margin:8px 0;display:flex;align-items:center;gap:10px;
+}
+.kyc-same-toggle input{transform:scale(1.2);}
+
+/* Mobile tweaks */
+@media (max-width:576px){
+  .kyc-modal-body{padding:4px;}
+  .kyc-cap-empty{padding:14px 8px;}
+  .kyc-cap-empty > i:first-child{font-size:1.6rem;}
+  .kyc-sig-canvas{height:160px;}
+}
+
+/* ── Compact KYC document accordion (v10.5 UX) ── */
+.kyc-doc-compact{
+  border:1px solid #dbe5ea;
+  border-radius:12px;
+  background:#fff;
+  overflow:hidden;
+}
+.kyc-doc-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  background:#f8fafc;
+  border-bottom:1px solid #e5e7eb;
+  font-size:.82rem;
+  font-weight:700;
+  color:#0f766e;
+}
+.kyc-doc-head small{font-weight:600;color:#64748b;}
+.kyc-doc-item{border-bottom:1px solid #eef2f7;}
+.kyc-doc-item:last-child{border-bottom:0;}
+.kyc-doc-item summary{
+  list-style:none;
+  cursor:pointer;
+  padding:10px 12px;
+  font-size:.86rem;
+  font-weight:700;
+  color:#334155;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.kyc-doc-item summary::-webkit-details-marker{display:none;}
+.kyc-doc-item summary::after{
+  content:'\f078';
+  font-family:'Font Awesome 6 Free';
+  font-weight:900;
+  color:#64748b;
+  font-size:.78rem;
+}
+.kyc-doc-item[open] summary{
+  background:#f0fdf4;
+  color:#166534;
+}
+.kyc-doc-item[open] summary::after{
+  content:'\f077';
+  color:#166534;
+}
+.kyc-doc-body{padding:10px 12px 12px;background:#fff;}
+.kyc-doc-body .kyc-cap-field{
+  margin-bottom:0;
+  padding:10px;
+}

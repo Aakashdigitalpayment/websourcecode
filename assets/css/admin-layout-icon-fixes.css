@@ -1,0 +1,233 @@
+/**
+ * ═════════════════════════════════════════════════════════════════════════════
+ * ADMIN LAYOUT & ICON COLOR FIXES v8.0
+ * ═════════════════════════════════════════════════════════════════════════════
+ * 
+ * Fixes:
+ * 1. Tab content display (form tab showing properly)
+ * 2. Icon colors (sidebar icons darker & more visible)
+ * 3. Layout spacing improvements
+ * 
+ * ═════════════════════════════════════════════════════════════════════════════
+ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TAB NAVIGATION - Ensure proper display
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.nav-tabs.admin-nav-tabs {
+    border-bottom: 2px solid #e5e7eb !important;
+    background-color: #f9fafb !important;
+    border-radius: 8px 8px 0 0 !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+
+.nav-tabs.admin-nav-tabs .nav-item {
+    margin-bottom: 0 !important;
+}
+
+.nav-tabs.admin-nav-tabs .nav-link {
+    color: #6b7280 !important;
+    border: none !important;
+    border-bottom: 3px solid transparent !important;
+    font-weight: 500 !important;
+    font-size: 0.95rem !important;
+    padding: 12px 20px !important;
+    transition: all 0.2s ease !important;
+    white-space: nowrap !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    cursor: pointer !important;
+}
+
+.nav-tabs.admin-nav-tabs .nav-link:hover {
+    color: #1a5f2a !important;
+    background-color: rgba(26, 95, 42, 0.05) !important;
+}
+
+.nav-tabs.admin-nav-tabs .nav-link.active {
+    color: #1a5f2a !important;
+    border-bottom-color: #1a5f2a !important;
+    background-color: rgba(26, 95, 42, 0.03) !important;
+    font-weight: 600 !important;
+}
+
+.nav-tabs.admin-nav-tabs .nav-link i {
+    width: 16px !important;
+    height: 16px !important;
+    flex-shrink: 0 !important;
+}
+
+.nav-tabs.admin-nav-tabs .badge {
+    font-size: 0.7rem !important;
+    padding: 3px 6px !important;
+    margin-left: 4px !important;
+    background-color: rgba(26, 95, 42, 0.15) !important;
+    color: #1a5f2a !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TAB CONTENT - Proper pane display
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.tab-content {
+    border-radius: 0 0 8px 8px !important;
+    background-color: #ffffff !important;
+}
+
+.tab-pane {
+    display: none !important;
+}
+
+.tab-pane.active {
+    display: block !important;
+}
+
+.tab-pane.show {
+    display: block !important;
+}
+
+.tab-pane.fade.show {
+    display: block !important;
+    opacity: 1 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SIDEBAR ICON COLORS - Make icons darker & more visible
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Main sidebar nav icons */
+.sidebar-nav a i,
+.hg-sidebar a i,
+.admin-sidebar a i {
+    color: #374151 !important; /* Changed from #6b7280 (gray) to #374151 (dark) */
+}
+
+/* Active sidebar nav icons */
+.sidebar-nav li.active a i,
+.hg-sidebar a.active i,
+.admin-sidebar a.active i {
+    color: #16a34a !important; /* Green for active */
+}
+
+/* Hover state */
+.sidebar-nav a:hover i,
+.hg-sidebar a:hover i,
+.admin-sidebar a:hover i {
+    color: #1a5f2a !important; /* Darker green on hover */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ICON COLORS IN FORMS & INPUTS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Form input group icons */
+.input-group-text i,
+.input-group i {
+    color: #374151 !important;
+}
+
+/* Form label icons */
+.form-label i,
+label i {
+    color: #374151 !important;
+}
+
+/* Button icons */
+.btn i,
+button i {
+    color: inherit !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TABLE & ACTION ICONS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Table row icons */
+.table i,
+td i {
+    color: #6b7280 !important;
+}
+
+/* Action button icons */
+.btn-edit i,
+.btn-delete i,
+.btn-view i {
+    color: inherit !important;
+}
+
+/* Status icons */
+.ntc-status-on i,
+.badge i {
+    color: inherit !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CARD & HEADER ICONS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.card-header i {
+    color: #374151 !important;
+}
+
+.card-title i {
+    color: #374151 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BADGE & NOTIFICATION ICONS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.badge i {
+    color: inherit !important;
+}
+
+.ntc-popup-badge i {
+    color: #dc3545 !important; /* Red for popup */
+}
+
+.ntc-status-on i {
+    color: #16a34a !important; /* Green for active */
+}
+
+.ntc-status-off i {
+    color: #dc3545 !important; /* Red for inactive */
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FORM LAYOUT IMPROVEMENTS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.svc-flat-top-card {
+    border-radius: 0 0 8px 8px !important;
+    border-top: none !important;
+    margin-top: -8px !important;
+}
+
+.admin-table-card {
+    border-radius: 0 0 8px 8px !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE RESPONSIVE ICON SIZING
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .nav-tabs.admin-nav-tabs .nav-link {
+        padding: 10px 12px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .sidebar-nav a i {
+        width: 18px !important;
+    }
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   END OF ADMIN LAYOUT & ICON COLOR FIXES v8.0
+   ═════════════════════════════════════════════════════════════════════════════ */

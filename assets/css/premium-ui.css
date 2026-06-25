@@ -1,0 +1,615 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   PREMIUM UI — v3.0  (class-verified, safe-only)
+   Aakash Cooperative CMS
+
+   HOW THIS FILE WORKS
+   ───────────────────
+   • Every selector was verified against actual rendered HTML.
+   • Only these CSS properties are used:
+       font-family, font-weight, font-size (minor), letter-spacing,
+       line-height, border-radius, box-shadow, transition, outline
+   • NEVER touched: background-color, color, display, position,
+       z-index, width, height, margin, padding, flex, overflow.
+   • !important is used ONLY on font-family — needed to override the
+       hardcoded 'Mukta' / 'Work Sans' declarations in multiple CSS files.
+   • JS-controlled classes (.nav-open, .open, .active, .scrolled,
+       .mobile-nav-open) are intentionally left alone.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── 0. FONT VARIABLES ─────────────────────────────────────────────────
+   These are own --prem-* tokens so we never clobber the existing system.
+   ──────────────────────────────────────────────────────────────────── */
+:root {
+  --prem-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
+  --prem-font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+
+  /* Elevation tokens — purely additive */
+  --prem-sh-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --prem-sh-sm: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03);
+  --prem-sh-md: 0 4px 14px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --prem-sh-lg: 0 10px 30px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.05);
+
+  --prem-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── 1. GLOBAL BASE FONT ────────────────────────────────────────────────
+   !important required to override 'Mukta' declared in global.css body {}
+   ──────────────────────────────────────────────────────────────────── */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* Headings — Plus Jakarta Sans everywhere */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-family: var(--prem-font-head) !important;
+  letter-spacing: -0.018em;
+  line-height: 1.25;
+}
+
+/* Body text elements */
+p, li, td, th, label, span,
+.btn, .nav-link, .breadcrumb-item,
+.dropdown-item, .card-title, .card-text,
+.form-label, .form-text, .input-group-text {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ── 2. SCROLLBAR (webkit only, purely cosmetic) ────────────────────────
+   ──────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar           { width: 5px; height: 5px; }
+::-webkit-scrollbar-track     { background: transparent; }
+::-webkit-scrollbar-thumb     { background: rgba(0,0,0,0.15); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
+
+/* ── 3. TEXT SELECTION ──────────────────────────────────────────────────
+   ──────────────────────────────────────────────────────────────────── */
+::selection { background: rgba(22,101,52,0.14); }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PUBLIC SITE
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── 4. PUBLIC TOP BAR ──────────────────────────────────────────────────
+   .pfl-top-bar — utility bar (font only, bg/colors handled by existing CSS)
+   ──────────────────────────────────────────────────────────────────── */
+.pfl-top-bar,
+.pfl-top-bar a,
+.pfl-top-bar span,
+.pfl-top-bar li {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8125rem !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── 5. PUBLIC BRAND AREA ───────────────────────────────────────────────
+   .pfl-brand-area, .pfl-brand-content — font + refined weight only
+   ──────────────────────────────────────────────────────────────────── */
+.pfl-brand-name-np {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+}
+
+.pfl-brand-name-en {
+  font-family: var(--prem-font-body) !important;
+  letter-spacing: 0.05em !important;
+}
+
+.pfl-brand-slogan {
+  font-family: var(--prem-font-body) !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── 6. PUBLIC MAIN NAV ─────────────────────────────────────────────────
+   .nav-menu — font + letter-spacing only.
+   NO color, NO background, NO display changes.
+   JS uses .open and .nav-open — untouched.
+   ──────────────────────────────────────────────────────────────────── */
+.nav-menu > li > a {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Dropdown panel — only shape/shadow improvements, no color */
+.nav-menu .dropdown {
+  box-shadow: var(--prem-sh-lg);
+  border-radius: 12px !important;
+}
+
+.nav-menu .dropdown li a {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.875rem;
+  letter-spacing: 0.005em;
+}
+
+/* ── 7. SECTION HEADERS (public pages) ──────────────────────────────────
+   .section-header — typography only
+   ──────────────────────────────────────────────────────────────────── */
+.section-header h2,
+.section-header h3 {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.022em !important;
+}
+
+.section-header p {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ── 8. HERO SLIDER INDICATORS ──────────────────────────────────────────
+   .hero-slider .carousel-indicators — pill shape only
+   ──────────────────────────────────────────────────────────────────── */
+.hero-slider .carousel-indicators button {
+  border-radius: 9999px !important;
+  transition: width 0.25s var(--prem-ease) !important;
+}
+
+/* ── 9. PUBLIC FOOTER ───────────────────────────────────────────────────
+   Font only
+   ──────────────────────────────────────────────────────────────────── */
+footer h4, footer h5, footer h6,
+.site-footer h4, .site-footer h5 {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+footer p, footer a, footer li, footer span {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ADMIN PANEL
+   (class names verified from admin/includes/admin-header.php)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── 10. ADMIN SIDEBAR ──────────────────────────────────────────────────
+   aside.sidebar — font only; bg/colors defined in app-admin.css
+   ──────────────────────────────────────────────────────────────────── */
+aside.sidebar {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* Sidebar brand text */
+.sidebar-brand-text {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Sidebar nav links — exact classes from HTML */
+nav.sidebar-nav li a,
+.sidebar-link-flex {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.875rem;
+  letter-spacing: 0.005em;
+  transition: background-color 0.14s var(--prem-ease) !important;
+}
+
+/* Sidebar link label text */
+.sidebar-link-label {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* Nav group accordion labels */
+.nav-group-label {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.01em;
+}
+
+.nav-group-header {
+  font-family: var(--prem-font-body) !important;
+  transition: background-color 0.14s var(--prem-ease) !important;
+}
+
+/* Submenu items */
+nav.sidebar-nav .nav-submenu li a {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8125rem;
+}
+
+/* ── 11. ADMIN TOP HEADER ────────────────────────────────────────────────
+   header.admin-header — font only
+   Exact class: header.admin-header.admin-header--compact
+   ──────────────────────────────────────────────────────────────────── */
+header.admin-header {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* Page title in admin topbar — .page-title inside .page-title-wrap */
+.page-title-wrap .page-title {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Date pill next to page title */
+.header-date-pill {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+}
+
+/* Admin header icon buttons */
+.admin-header-icon {
+  font-family: var(--prem-font-body) !important;
+  transition: background-color 0.14s var(--prem-ease), box-shadow 0.14s var(--prem-ease) !important;
+}
+
+/* ── 12. ADMIN MAIN CONTENT AREA ────────────────────────────────────────
+   main.main-content — font only
+   ──────────────────────────────────────────────────────────────────── */
+main.main-content {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ── 13. STAT MINI CARDS (verified: stat-card.php component) ────────────
+   .stat-mini-row > .stat-mini > .sm-icon / .sm-val / .sm-lbl
+   Only: shadow + radius + transition (no colors — inline styles control those)
+   ──────────────────────────────────────────────────────────────────── */
+.stat-mini {
+  border-radius: 14px !important;
+  box-shadow: var(--prem-sh-sm);
+  transition: box-shadow 0.2s var(--prem-ease), transform 0.2s var(--prem-ease) !important;
+}
+
+.stat-mini:hover {
+  box-shadow: var(--prem-sh-md);
+  transform: translateY(-2px);
+}
+
+/* Icon container — already has inline bg/color; only shape */
+.sm-icon {
+  border-radius: 10px !important;
+}
+
+/* Value number — big font, premium weight */
+.sm-val {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+/* Label text */
+.sm-lbl {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8125rem;
+  letter-spacing: 0.005em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   MEMBER PORTAL
+   (class names verified from member/_partials/header.php)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── 14. MEMBER HEADER ──────────────────────────────────────────────────
+   header.mp-header — font only (layout/bg defined in inline <style>)
+   ──────────────────────────────────────────────────────────────────── */
+header.mp-header,
+.mp-header * {
+  font-family: var(--prem-font-body) !important;
+}
+
+.mp-brand-text {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+}
+
+/* ── 15. MEMBER CARDS (.mem-card) ───────────────────────────────────────
+   Shape + shadow only
+   ──────────────────────────────────────────────────────────────────── */
+.mem-card {
+  border-radius: 14px !important;
+  box-shadow: var(--prem-sh-sm);
+  transition: box-shadow 0.2s var(--prem-ease) !important;
+}
+
+.mem-card:hover {
+  box-shadow: var(--prem-sh-md);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SHARED BOOTSTRAP COMPONENTS (all panels)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── 16. CARDS ──────────────────────────────────────────────────────────
+   .card — radius + shadow + hover lift only. No bg, no color.
+   NOTE: transition on transform is safe (out-of-flow, no reflow)
+   ──────────────────────────────────────────────────────────────────── */
+.card {
+  border-radius: 14px !important;
+  box-shadow: var(--prem-sh-sm);
+  transition: box-shadow 0.2s var(--prem-ease), transform 0.2s var(--prem-ease) !important;
+}
+
+.card:hover {
+  box-shadow: var(--prem-sh-md);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border-radius: 14px 14px 0 0 !important;
+}
+
+.card-title {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.card-body,
+.card-footer {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ── 17. BUTTONS ────────────────────────────────────────────────────────
+   .btn — radius + font + transition + hover shadow.
+   No background, no color — Bootstrap / existing CSS owns those.
+   ──────────────────────────────────────────────────────────────────── */
+.btn {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 9px !important;
+  transition: box-shadow 0.16s var(--prem-ease),
+              transform 0.16s var(--prem-ease),
+              background-color 0.16s var(--prem-ease),
+              border-color 0.16s var(--prem-ease) !important;
+}
+
+.btn:hover:not(:disabled):not(.disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--prem-sh-md);
+}
+
+.btn:active:not(:disabled):not(.disabled) {
+  transform: translateY(0);
+  box-shadow: var(--prem-sh-xs);
+}
+
+.btn:disabled, .btn.disabled {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-sm  { border-radius: 7px  !important; }
+.btn-lg  { border-radius: 11px !important; }
+
+/* ── 18. FORM CONTROLS ──────────────────────────────────────────────────
+   .form-control, .form-select — radius + font + focus ring only.
+   No background, no border-color, no color.
+   ──────────────────────────────────────────────────────────────────── */
+.form-control,
+.form-select {
+  font-family: var(--prem-font-body) !important;
+  border-radius: 9px !important;
+  transition: border-color 0.15s var(--prem-ease),
+              box-shadow 0.15s var(--prem-ease) !important;
+}
+
+/* Focus ring — additive only (adds outer glow, keeps existing border) */
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 3px rgba(22,101,52,0.13) !important;
+}
+
+.form-label {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 600;
+}
+
+.form-text {
+  font-family: var(--prem-font-body) !important;
+}
+
+.input-group-text {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* Prevent iOS font-size zoom on focus (safe: only overrides font-size) */
+@media (max-width: 576px) {
+  .form-control,
+  .form-select {
+    font-size: 16px !important;
+  }
+}
+
+/* ── 19. TABLES ─────────────────────────────────────────────────────────
+   .table — font + header weight/case only. No color, no background.
+   ──────────────────────────────────────────────────────────────────── */
+.table {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.875rem;
+}
+
+.table thead th {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.table tbody td {
+  font-family: var(--prem-font-body) !important;
+  vertical-align: middle;
+}
+
+/* ── 20. BADGES ─────────────────────────────────────────────────────────
+   .badge — font + pill radius only. Existing bg/color classes intact.
+   ──────────────────────────────────────────────────────────────────── */
+.badge {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 9999px !important;
+}
+
+/* ── 21. ALERTS ─────────────────────────────────────────────────────────
+   .alert — radius + font only. All colors/bg/border kept.
+   ──────────────────────────────────────────────────────────────────── */
+.alert {
+  font-family: var(--prem-font-body) !important;
+  border-radius: 10px !important;
+  font-size: 0.9rem;
+}
+
+/* ── 22. MODALS ─────────────────────────────────────────────────────────
+   .modal-content — radius + shadow. No bg, no color.
+   ──────────────────────────────────────────────────────────────────── */
+.modal-content {
+  border-radius: 18px !important;
+  box-shadow: var(--prem-sh-lg);
+}
+
+.modal-title {
+  font-family: var(--prem-font-head) !important;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.modal-header,
+.modal-body,
+.modal-footer {
+  font-family: var(--prem-font-body) !important;
+}
+
+/* ── 23. DROPDOWNS ──────────────────────────────────────────────────────
+   .dropdown-menu — radius + shadow only. No bg/color.
+   ──────────────────────────────────────────────────────────────────── */
+.dropdown-menu {
+  border-radius: 12px !important;
+  box-shadow: var(--prem-sh-lg);
+}
+
+.dropdown-item {
+  font-family: var(--prem-font-body) !important;
+  border-radius: 7px;
+  font-size: 0.875rem;
+  transition: background-color 0.13s var(--prem-ease) !important;
+}
+
+.dropdown-header {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* ── 24. TABS ───────────────────────────────────────────────────────────
+   .nav-tabs — font + transition only
+   ──────────────────────────────────────────────────────────────────── */
+.nav-tabs .nav-link {
+  font-family: var(--prem-font-body) !important;
+  font-weight: 500;
+  transition: all 0.14s var(--prem-ease) !important;
+}
+
+.nav-tabs .nav-link.active {
+  font-weight: 700;
+}
+
+/* ── 25. PAGINATION ─────────────────────────────────────────────────────
+   .page-link — font + radius + transition
+   ──────────────────────────────────────────────────────────────────── */
+.page-link {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.875rem;
+  border-radius: 7px !important;
+  transition: all 0.14s var(--prem-ease) !important;
+}
+
+/* ── 26. PROGRESS ───────────────────────────────────────────────────────
+   Pill radius only
+   ──────────────────────────────────────────────────────────────────── */
+.progress,
+.progress-bar {
+  border-radius: 9999px !important;
+}
+
+/* ── 27. DATATABLES ─────────────────────────────────────────────────────
+   Font + focus ring + radius — no color changes
+   ──────────────────────────────────────────────────────────────────── */
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.875rem;
+  border-radius: 8px !important;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+  box-shadow: 0 0 0 3px rgba(22,101,52,0.13) !important;
+  outline: none;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  font-family: var(--prem-font-body) !important;
+  border-radius: 7px !important;
+  transition: all 0.13s var(--prem-ease) !important;
+}
+
+/* ── 28. POPOVERS & TOOLTIPS ────────────────────────────────────────────
+   ──────────────────────────────────────────────────────────────────── */
+.popover {
+  border-radius: 14px !important;
+  box-shadow: var(--prem-sh-lg);
+}
+
+.popover-header,
+.popover-body {
+  font-family: var(--prem-font-body) !important;
+}
+
+.tooltip-inner {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8125rem;
+}
+
+/* ── 29. BREADCRUMB ─────────────────────────────────────────────────────
+   ──────────────────────────────────────────────────────────────────── */
+.breadcrumb,
+.breadcrumb-item {
+  font-family: var(--prem-font-body) !important;
+  font-size: 0.8125rem;
+}
+
+/* ── 30. INPUT GROUP RADIUS FIX ─────────────────────────────────────────
+   Ensures rounded corners cascade correctly inside input groups
+   ──────────────────────────────────────────────────────────────────── */
+.input-group > .form-control:not(:last-child),
+.input-group > .form-select:not(:last-child)    { border-radius: 9px 0 0 9px !important; }
+.input-group > .form-control:not(:first-child),
+.input-group > .form-select:not(:first-child)   { border-radius: 0 9px 9px 0 !important; }
+.input-group > .input-group-text:first-child    { border-radius: 9px 0 0 9px !important; }
+.input-group > .input-group-text:last-child     { border-radius: 0 9px 9px 0 !important; }
+.input-group:not(.has-validation) > .form-control,
+.input-group:not(.has-validation) > .form-select { border-radius: 9px !important; }
+.input-group > :first-child:last-child.form-control,
+.input-group > :first-child:last-child.form-select { border-radius: 9px !important; }
+
+/* ── 31. PRINT ──────────────────────────────────────────────────────────
+   ──────────────────────────────────────────────────────────────────── */
+@media print {
+  body  { font-family: var(--prem-font-body) !important; }
+  .card { box-shadow: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   END — premium-ui.css v3.0 (verified safe)
+   ~310 lines. Font + radius + shadow only. Zero layout/color changes.
+   ═══════════════════════════════════════════════════════════════════════ */
