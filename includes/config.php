@@ -437,6 +437,24 @@ function getLocalizedLogoPath($default = 'assets/images/logo.png') {
     return $fallback;
 }
 
+/**
+ * Favicon path resolver — favicon.png default file disk मा नभए (admin ले
+ * अझै upload नगरेको अवस्थामा) browser tab मा broken icon नदेखिन existing
+ * PWA icon मा safely fallback गर्छ।
+ */
+function getSiteFaviconPath($default = 'assets/images/favicon.png') {
+    $path = trim((string) getSetting('site_favicon', $default));
+    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+    $isRemote = (bool) preg_match('#^https?://#i', $path);
+    if ($path === '' || (!$isRemote && !is_file($root . ltrim($path, '/')))) {
+        $knownGoodIcon = 'assets/images/icon-192x192.png';
+        if (is_file($root . $knownGoodIcon)) {
+            return $knownGoodIcon;
+        }
+    }
+    return $path;
+}
+
 // Update site setting (INSERT if not exists, UPDATE if exists)
 function updateSetting($key, $value) {
     try {
