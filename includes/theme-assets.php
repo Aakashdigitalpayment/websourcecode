@@ -261,7 +261,10 @@ if (!function_exists('coopThemeCssUrl')) {
         /* ── 6. PREMIUM UI — loaded absolutely last for maximum override priority ── */
         coopThemeLink('assets/css/premium-ui.css');
 
-        /* ── 7. Mobile premium polish — additive only, loaded after everything ── */
+        /* ── 7. Universal UI/UX polish utilities — opt-in classes, all panels ── */
+        coopThemeLink('assets/css/ui-ux-polish.css');
+
+        /* ── 8. Mobile premium polish — additive only, loaded after everything ── */
         coopThemeLink('assets/css/mobile-premium-polish.css');
     }
 

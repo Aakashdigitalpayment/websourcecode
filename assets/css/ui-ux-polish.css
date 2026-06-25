@@ -1,0 +1,105 @@
+/**
+ * UI/UX Polish — universal, additive, opt-in utilities.
+ * Public + Admin + Member + Verify सबैमा एकनासले उपलब्ध हुने गरी।
+ *
+ * सबै class यहाँ OPT-IN छन् — कतै auto-apply हुँदैनन्, तेसैले कुनै existing
+ * page को look अहिले नै फेरिँदैन। चाहेको ठाउँमा मात्र class थपेर use गर्न सकिन्छ।
+ */
+
+/* ── 1. Button loading state (prevents double-submit, shows progress) ───
+   Usage: <button class="btn is-loading">Save</button>
+   JS ले submit बेला यो class थप्ने/हटाउने हो — यहाँ केवल visual दिएको छ। */
+.btn.is-loading,
+button.is-loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+  opacity: 0.85;
+}
+.btn.is-loading::after,
+button.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  margin: -9px 0 0 -9px;
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ui-polish-spin 0.7s linear infinite;
+}
+/* Outline/light buttons need a dark spinner instead of white */
+.btn-outline-primary.is-loading::after,
+.btn-outline-secondary.is-loading::after,
+.btn-light.is-loading::after {
+  border-color: rgba(0, 0, 0, 0.18);
+  border-top-color: var(--primary-color, #1a5f2a);
+}
+@keyframes ui-polish-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 2. Universal skeleton shimmer (same visual as app-core.css's
+   .skeleton, made available on panels that don't load app-core.css,
+   e.g. admin) ───────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: ui-polish-shimmer 1.4s infinite;
+  border-radius: 4px;
+  color: transparent;
+}
+@keyframes ui-polish-shimmer {
+  to { background-position: -200% 0; }
+}
+
+/* ── 3. Alert / toast entrance — opt-in, gentle (no layout shift) ──────
+   Usage: add class="ui-fade-in" to an alert/toast on render. */
+.ui-fade-in {
+  animation: ui-polish-fadein 0.22s ease-out;
+}
+@keyframes ui-polish-fadein {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 4. Empty-state helper (icon + text, consistent spacing) ──────────
+   Usage: <div class="ui-empty-state"><i class="..."></i><p>...</p></div> */
+.ui-empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-muted, #6b7280);
+}
+.ui-empty-state i {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  opacity: 0.4;
+  display: block;
+}
+.ui-empty-state p {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+/* ── 5. Disabled-field visual consistency (form fields/buttons) ───────
+   Most browsers already grey out disabled inputs; this just keeps it
+   consistent if a panel's base CSS doesn't define it. */
+button:disabled,
+.btn:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn.is-loading::after,
+  button.is-loading::after,
+  .skeleton,
+  .ui-fade-in {
+    animation: none !important;
+  }
+}
