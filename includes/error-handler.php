@@ -94,7 +94,7 @@ function _show_error_page(): void {
         include $page;
     } else {
         /* Absolute fallback if 500.php not found */
-        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Server Error</title></head><body style="font-family:sans-serif;text-align:center;padding:80px 20px;"><h1 style="color:#dc3545">&#9888; Server Error</h1><p>केही गलत भयो। कृपया थोरै पछि पुनः प्रयास गर्नुहोस्।</p><a href="/" style="color:#1a5f2a">&#8592; गृहपृष्ठमा जानुहोस्</a></body></html>';
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Server Error</title></head><body style="font-family:sans-serif;text-align:center;padding:80px 20px;"><h1 style="color:#dc3545">&#9888; Server Error</h1><p>केही गलत भयो। कृपया थोरै पछि पुनः प्रयास गर्नुहोस्।</p><a href="/" style="color:#1a5f2a">&#8592; गृहपृष्ठमा जानुहोस्</a></body></html>';
     }
     exit(1);
 }
