@@ -23885,3 +23885,89 @@ body.auth-page,
         color: #1f8b46 !important;
     }
 }
+
+/* ============================================================
+   v14 — FINAL unified mobile menu style.
+   यो mobile menu को लागि धेरै पटक अलग-अलग समयमा थपिएका patch हरू
+   (dark-green panel, white panel, card-style, flat-style आदि) ले
+   एक-अर्कालाई आंशिक रूपमा मात्र override गर्दा "main menu र submenu
+   फरक-फरक" देखिने bug आएको थियो। पुराना rule हटाउनुको साटो (जोखिम
+   बढी), यो EK block लाई file को सबैभन्दा अन्त्यमा राखिएको छ — same
+   specificity भएकोले source-order ले यही final/स्पष्ट जित्छ, अनि
+   पुरानो कुनै code delete नगरिएकोले अन्त्यमा regression को जोखिम छैन।
+   ============================================================ */
+@media (max-width: 991.98px) {
+    /* Outer sliding panel — एउटै, स्पष्ट सतह */
+    body.header-v2 #mainNavV2,
+    body.header-v2 #mainNavV2.main-nav {
+        background: #ffffff !important;
+    }
+
+    /* Top bar (close button area) — branded green header strip */
+    body.header-v2 #mainNavV2 .close-menu {
+        background: linear-gradient(135deg, #14532d 0%, #0f6a31 100%) !important;
+    }
+
+    /* नेभ सूची आफैं — panel जस्तै सतह, अलग देखिने box छैन */
+    body.header-v2 #mainNavV2 .nav-menu {
+        background: transparent !important;
+    }
+
+    /* मुख्य मेनु आइटम — सफा white card, हल्का हरियो border */
+    body.header-v2 #mainNavV2 .nav-menu > li {
+        background: transparent !important;
+        border: none !important;
+        margin: 0 !important;
+    }
+    body.header-v2 #mainNavV2 .nav-menu > li > a {
+        background: #ffffff !important;
+        border: 1px solid #dfe8e2 !important;
+        border-radius: 14px !important;
+        color: #1f2937 !important;
+    }
+    body.header-v2 #mainNavV2 .nav-menu > li.active > a,
+    body.header-v2 #mainNavV2 .nav-menu > li.open > a {
+        background: #edf7ef !important;
+        border-color: #b9dbc6 !important;
+        color: #166534 !important;
+    }
+
+    /* Submenu — मुख्य आइटम जस्तै हरियो-tint card, flat grey box होइन */
+    body.header-v2 #mainNavV2 .dropdown,
+    body.header-v2 #mainNavV2 .sub-menu {
+        background: #f3f8f5 !important;
+        border: 1px solid #dce8e1 !important;
+        border-radius: 14px !important;
+        margin: 6px 0 10px !important;
+        padding: 6px !important;
+    }
+    body.header-v2 #mainNavV2 .dropdown li,
+    body.header-v2 #mainNavV2 .sub-menu li {
+        background: transparent !important;
+        border: none !important;
+    }
+    body.header-v2 #mainNavV2 .dropdown li a,
+    body.header-v2 #mainNavV2 .sub-menu li a {
+        background: transparent !important;
+        border-radius: 10px !important;
+        color: #1f2937 !important;
+    }
+    body.header-v2 #mainNavV2 .dropdown li a:hover,
+    body.header-v2 #mainNavV2 .dropdown li a:active,
+    body.header-v2 #mainNavV2 .sub-menu li a:hover,
+    body.header-v2 #mainNavV2 .sub-menu li a:active {
+        background: #e6f1ea !important;
+        color: #14532d !important;
+    }
+
+    /* Backdrop — पूरा screen ढाक्ने, ठोस गाढा overlay, कतै खाली ठाउँ/box
+       देखिने छैन */
+    body.header-v2 #pflMobileBackdrop,
+    body.header-v2 .mobile-nav-backdrop {
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(8, 20, 14, .58) !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+}
