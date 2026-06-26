@@ -9,6 +9,7 @@ try {
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
     $managementMembers = $db->query("SELECT * FROM team_members WHERE category = 'management' AND is_active = 1 ORDER BY display_order")->fetchAll();
     $staffMembers = $db->query("SELECT * FROM team_members WHERE category = 'staff' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $adminMembers = $db->query("SELECT * FROM team_members WHERE category = 'admin' AND is_active = 1 ORDER BY display_order")->fetchAll();
 
     $committeeTypes = [];
     $committeeMembers = [];
@@ -28,7 +29,7 @@ try {
     $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
     $grievanceOfficer = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
 } catch (Throwable $e) {
-    $boardMembers = $managementMembers = $staffMembers = [];
+    $boardMembers = $managementMembers = $staffMembers = $adminMembers = [];
     $informationOfficer = $grievanceOfficer = null;
 }
 ?>
@@ -61,7 +62,7 @@ foreach ($committeeTypes as $_ct) {
 }
 ?>
 
-<?php if (!empty($boardMembers) || !empty($managementMembers) || !empty($staffMembers) || $hasCommitteeFilters): ?>
+<?php if (!empty($boardMembers) || !empty($managementMembers) || !empty($staffMembers) || !empty($adminMembers) || $hasCommitteeFilters): ?>
 <section class="team-filter-bar section-padding bg-white">
     <div class="container">
         <div class="d-flex flex-wrap gap-2 justify-content-center">
@@ -77,6 +78,11 @@ foreach ($committeeTypes as $_ct) {
             <button type="button" class="filter-btn" onclick="teamFilter(this, 'staff')">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारीहरू'; ?>
             </button>
+            <?php if (!empty($adminMembers)): ?>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'admin')">
+                <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
+            </button>
+            <?php endif; ?>
             <?php foreach ($committeeFilterButtons as $_cf): ?>
                 <button type="button" class="filter-btn" onclick="teamFilter(this, 'committee-<?php echo $_cf['id']; ?>')">
                     <i class="fas fa-users-gear"></i> <?php echo e($_cf['label']); ?>
@@ -341,7 +347,39 @@ foreach ($committeeTypes as $_ct) {
 </section>
 <?php endif; ?>
 
-<?php if (empty($boardMembers) && empty($managementMembers) && empty($staffMembers) && empty(array_filter($committeeMembers))): ?>
+<!-- Admin Team -->
+<?php if (!empty($adminMembers)): ?>
+<section class="team-section section-padding bg-light" data-filter="admin">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2><?php echo isEnglish() ? 'Admin Team' : 'एडमिन टोली'; ?></h2>
+            <p><?php echo isEnglish() ? 'System and operations administration' : 'प्रणाली तथा सञ्चालन व्यवस्थापन गर्ने टोली'; ?></p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php foreach ($adminMembers as $index => $member): ?>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
+                <div class="team-card-circular small">
+                    <div class="team-photo-circular small">
+                        <?php if ($member['photo']): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h6><?php echo e($member['name']); ?></h6>
+                        <span class="team-position-badge small"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if (empty($boardMembers) && empty($managementMembers) && empty($staffMembers) && empty($adminMembers) && empty(array_filter($committeeMembers))): ?>
 <section class="section-padding">
     <div class="container">
         <div class="empty-state text-center py-5">
