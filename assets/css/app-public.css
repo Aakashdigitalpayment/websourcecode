@@ -19305,6 +19305,37 @@ body:has(.card > .card-top) { font-family: var(--font-primary,'Mukta','Noto Sans
    54. COMMITTEES PAGE (committees.php)
    ═══════════════════════════════════════════════════ */
 .committee-filter-wrapper { background: var(--bg-soft, #f5faf6); padding: 15px 20px; border-radius: 10px; }
+
+/* Committee type dropdown — icon + select.
+   यो class हरू पहिला कतै defined थिएन, तेसैले icon र select text
+   overlap भएर letter जोडिएको जस्तो देखिने bug आएको थियो। */
+.coop-select-wrap {
+    position: relative;
+}
+.coop-select-wrap .coop-select-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary-color);
+    pointer-events: none;
+    z-index: 2;
+    font-size: 0.92rem;
+}
+.coop-select-wrap .coop-select-field {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color, #dde3e0);
+    background: #fff;
+    font-size: 0.95rem;
+    color: var(--text-color, #1f2937);
+}
+.coop-select-wrap .coop-select-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(26, 95, 42, 0.1);
+}
 .committee-filter-tabs { display: flex; flex-wrap: wrap; gap: 10px; }
 .committee-filter-tab { padding: 8px 16px; background: var(--white, #fff); border: 1px solid var(--border-color, #e5e7eb); border-radius: 25px; color: var(--text-color); font-size: 14px; transition: all .3s; text-decoration: none; }
 .committee-filter-tab:hover, .committee-filter-tab.active { background: var(--primary-color); border-color: var(--primary-color); color: var(--white, #fff); }
