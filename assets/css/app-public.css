@@ -9943,16 +9943,33 @@ input[readonly].nepali-datepicker:hover,
     position: absolute;
     top: 15px;
     right: 15px;
-    width: 36px;
+    min-width: 36px;
     height: 36px;
+    padding: 0 8px;
     background: linear-gradient(135deg, #1976d2, #42a5f5);
-    border-radius: 50%;
+    border-radius: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 6px;
     color: var(--white);
     font-size: 14px;
+    white-space: nowrap;
     box-shadow: 0 3px 10px rgba(25, 118, 210, 0.3);
+}
+
+/* Icon-only badge (no text span inside) stays a perfect circle —
+   matches the original design exactly when used as intended. */
+.leadership-profile-card .officer-badge:not(:has(span)) {
+    width: 36px;
+    padding: 0;
+    border-radius: 50%;
+}
+
+.leadership-profile-card .officer-badge span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.1;
 }
 
 .leadership-profile-card .officer-badge.grievance {
