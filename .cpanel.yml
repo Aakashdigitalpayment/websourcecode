@@ -1,0 +1,14 @@
+---
+# cPanel Git Version Control deployment file.
+#
+# यो file नभए cPanel को "Deploy HEAD Commit" button ले "The system cannot
+# deploy" भन्छ — file exist गर्नु नै cPanel ko requirement #1 ho।
+#
+# Repository Path (cPanel मा देखिएको) नै सीधा public_html भएकोले, git checkout
+# आफैंमा already-deployed हो — थप file copy गर्नु पर्दैन। तेसैले यहाँ कुनै
+# risky cp/rsync कमाण्ड राखिएको छैन (same-directory copy ले error दिन सक्छ)।
+# `/bin/true` ले simply task list लाई valid/non-empty बनाउँछ, जुन सबै
+# domain/account (asthajnk, dev.bandanasigdel, आदि) मा सुरक्षित रूपमा काम गर्छ।
+deployment:
+  tasks:
+    - /bin/true
