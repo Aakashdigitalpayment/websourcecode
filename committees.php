@@ -199,33 +199,35 @@ $currentHeroDesc = $isManagementView
 </section>
 <style>
 .coop-select-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
 }
 .coop-select-icon {
-    position: absolute;
-    left: 13px;
-    color: var(--primary-color, #1a5f2a);
-    font-size: .85rem;
-    pointer-events: none;
-    z-index: 2;
+    position: absolute !important;
+    left: 14px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: var(--primary-color, #1a5f2a) !important;
+    font-size: .85rem !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
 }
 .coop-select-field {
-    padding-left: 34px;
-    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb);
-    border-radius: 10px;
-    font-size: .93rem;
-    color: var(--text-primary, #1a2e1f);
-    background: #fff;
-    cursor: pointer;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+    padding-left: 42px !important;
+    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb) !important;
+    border-radius: 10px !important;
+    font-size: .93rem !important;
+    color: var(--text-primary, #1a2e1f) !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05) !important;
     transition: border-color .18s, box-shadow .18s;
 }
 .coop-select-field:focus {
-    border-color: var(--primary-color, #1a5f2a);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, transparent);
-    outline: none;
+    border-color: var(--primary-color, #1a5f2a) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, transparent) !important;
+    outline: none !important;
 }
 </style>
 
