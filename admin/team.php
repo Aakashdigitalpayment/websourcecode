@@ -133,9 +133,10 @@ $db   = getDB();
 $cats = [
     'board' => $__t('सञ्चालक समिति', 'Board Committee'),
     'management' => $__t('व्यवस्थापन', 'Management'),
-    'staff' => $__t('कर्मचारी', 'Staff')
+    'staff' => $__t('कर्मचारी', 'Staff'),
+    'admin' => $__t('एडमिन', 'Admin')
 ];
-$catColors = ['board' => 'var(--primary-color)', 'management' => 'var(--secondary-color)', 'staff' => 'var(--text-secondary)'];
+$catColors = ['board' => 'var(--primary-color)', 'management' => 'var(--secondary-color)', 'staff' => 'var(--text-secondary)', 'admin' => 'var(--info, #0369a1)'];
 
 $extraTypes = [];
 try {
@@ -160,7 +161,7 @@ if ($teamListSection === 'governance') {
     $stTeam->execute($govCategoryList);
     $team = $stTeam->fetchAll();
 } else {
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('management','staff') ORDER BY category, display_order, id DESC");
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('management','staff','admin') ORDER BY category, display_order, id DESC");
     $stTeam->execute();
     $team = $stTeam->fetchAll();
 }
@@ -182,6 +183,7 @@ if ($teamListSection === 'governance') {
 } else {
     $catsForm['management'] = $cats['management'];
     $catsForm['staff'] = $cats['staff'];
+    $catsForm['admin'] = $cats['admin'];
 }
 
 ?>
