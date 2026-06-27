@@ -129,7 +129,13 @@ if (!function_exists('site_license_public_guard')) {
 
         $baseUrl = defined('SITE_URL') ? (string) SITE_URL : '/';
         $baseUrlH = htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8');
-        $svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 2v3M16 2v3M3.5 9.09h17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3.5" y="4.5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 15.5l5-5M14.5 15.5l-5-5" stroke="currentColor" stroke-width="1.65" stroke-linecap="round"/></svg>';
+        $svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="16.4" r="1.15" fill="#fff"/></svg>';
+
+        $phone = function_exists('getSetting') ? trim((string) getSetting('phone', '')) : '';
+        $email = function_exists('getSetting') ? trim((string) getSetting('email', '')) : '';
+        $phoneH = htmlspecialchars($phone, ENT_QUOTES, 'UTF-8');
+        $emailH = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+        $phoneTel = htmlspecialchars(preg_replace('/[^0-9+]/', '', $phone), ENT_QUOTES, 'UTF-8');
 
         ob_start();
         if (function_exists('coopThemeRequireGlobal')) {
@@ -139,46 +145,47 @@ if (!function_exists('site_license_public_guard')) {
         }
         $brandDynamicStyle = ob_get_clean();
 
-        $datesBlock = '';
+        $dateLineParts = [];
         if ($bs !== '') {
-            $datesBlock = '<div class="svc-expired-status"><span class="svc-expired-pill">स्थिति · म्याद सकियो · Expired</span></div>'
-                . '<dl class="svc-expired-dates">'
-                . '<div class="svc-expired-date-row"><dt>अन्तिम वैध दिन — बि.सं.</dt><dd>'
-                . htmlspecialchars($bsNp !== '' ? $bsNp : $bs, ENT_QUOTES, 'UTF-8')
-                . ' <span class="svc-expired-date-code">(' . htmlspecialchars($bs, ENT_QUOTES, 'UTF-8') . ')</span></dd></div>'
-                . ($ad !== '' ? '<div class="svc-expired-date-row"><dt>अन्तिम वैध दिन — ई.सं. / AD</dt><dd>' . htmlspecialchars($ad, ENT_QUOTES, 'UTF-8') . '</dd></div>' : '')
-                . '</dl>';
-        } else {
-            $datesBlock = '<div class="svc-expired-status"><span class="svc-expired-pill">स्थिति · म्याद सकियो · Expired</span></div>';
+            $dateLineParts[] = htmlspecialchars($bsNp !== '' ? $bsNp : $bs, ENT_QUOTES, 'UTF-8') . ' (बि.सं.)';
+        }
+        if ($ad !== '') {
+            $dateLineParts[] = htmlspecialchars($ad, ENT_QUOTES, 'UTF-8') . ' (AD)';
+        }
+        $dateLine = !empty($dateLineParts)
+            ? '<p class="svc-expired-date-line">अन्तिम वैध मिति · ' . implode(' &nbsp;·&nbsp; ', $dateLineParts) . '</p>'
+            : '';
+
+        $actionsHtml = '';
+        if ($phone !== '' || $email !== '') {
+            $actionsHtml = '<div class="svc-expired-actions">';
+            if ($phone !== '') {
+                $actionsHtml .= '<a class="svc-expired-btn svc-expired-btn--primary" href="tel:' . $phoneTel . '">फोन गर्नुहोस् · ' . $phoneH . '</a>';
+            }
+            if ($email !== '') {
+                $actionsHtml .= '<a class="svc-expired-btn svc-expired-btn--outline" href="mailto:' . $emailH . '">इमेल गर्नुहोस्</a>';
+            }
+            $actionsHtml .= '</div>';
         }
 
         $layoutCss = <<<'CSS'
 <style id="svc-expired-layout">
 *,*::before,*::after{box-sizing:border-box}
-.svc-expired-page{margin:0;min-height:100dvh;font-family:var(--font-primary,'Mukta','Noto Sans Devanagari',system-ui,sans-serif);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;padding:clamp(1.25rem,5vw,2.5rem);position:relative}
-.svc-expired-bg{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse 85% 55% at 50% -15%,rgba(var(--primary-rgb),0.12),transparent 58%),radial-gradient(ellipse 50% 45% at 100% 0%,rgba(var(--primary-rgb),0.05),transparent 42%),linear-gradient(165deg,var(--bg-soft,#f5faf6) 0%,var(--bg-page,#f8faf9) 45%,#f8fafc 100%)}
-.svc-expired-shell{position:relative;z-index:1;width:100%;max-width:32rem}
-.svc-expired-card{background:var(--bg-card,#fff);border-radius:var(--radius-xl,24px);border:1px solid var(--border-color,#e5e7eb);box-shadow:0 1px 2px rgba(15,23,42,.04),0 24px 48px -12px rgba(var(--primary-rgb),0.14),0 0 0 1px rgba(255,255,255,.6) inset;overflow:hidden}
-.svc-expired-card__accent{height:4px;background:linear-gradient(90deg,var(--primary-color),var(--primary-light,var(--primary-color)))}
-.svc-expired-head{text-align:center;padding:clamp(1.35rem,4vw,1.85rem) clamp(1.35rem,4vw,1.75rem) 1rem}
-.svc-expired-icon{display:inline-flex;align-items:center;justify-content:center;width:4.25rem;height:4.25rem;border-radius:50%;color:var(--color-warning,#d97706);background:rgba(var(--primary-rgb),0.08);border:1px solid rgba(var(--primary-rgb),0.12);margin-bottom:1rem}
-.svc-expired-eyebrow{margin:0 0 .35rem;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted,#6b7280)}
-.svc-expired-head h1{margin:0;font-size:clamp(1.35rem,4.2vw,1.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.25;color:var(--text-primary)}
-.svc-expired-site{margin:.65rem 0 0;font-size:.95rem;line-height:1.55;color:var(--text-secondary,#4a5a4f)}
-.svc-expired-site strong{font-weight:700;color:var(--text-primary)}
-.svc-expired-body{padding:0 clamp(1.35rem,4vw,1.75rem) clamp(1.5rem,4vw,1.85rem)}
-.svc-expired-desc{margin:0 0 1.15rem;text-align:center;font-size:.92rem;line-height:1.65;color:var(--text-secondary,#4a5a4f)}
-.svc-expired-status{display:flex;justify-content:center;margin-bottom:1rem}
-.svc-expired-pill{display:inline-flex;align-items:center;gap:.35rem;font-size:.75rem;font-weight:600;padding:.4rem .85rem;border-radius:999px;background:linear-gradient(180deg,#fffbeb,#fef3c7);color:#92400e;border:1px solid rgba(251,191,36,.45);box-shadow:0 1px 2px rgba(146,64,14,.06)}
-.svc-expired-dates{margin:0 0 1.25rem;padding:0;background:var(--bg-soft,#f5faf6);border:1px solid var(--border-color,#e5e7eb);border-radius:var(--radius-lg,16px);overflow:hidden}
-.svc-expired-date-row{padding:.85rem 1.1rem}
-.svc-expired-date-row+.svc-expired-date-row{border-top:1px solid var(--border-soft,#f0f0f0)}
-.svc-expired-dates dt{margin:0 0 .35rem;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted,#6b7280)}
-.svc-expired-dates dd{margin:0;font-size:1.05rem;font-weight:700;color:var(--text-primary);line-height:1.35}
-.svc-expired-date-code{font-weight:500;font-size:.88rem;color:var(--text-muted)}
-.svc-expired-foot{margin:0;text-align:center;font-size:.88rem;line-height:1.65;color:var(--text-muted)}
-.svc-expired-foot strong{color:var(--text-secondary);font-weight:600}
-.svc-expired-hint{margin:.85rem 0 0;padding:.85rem 1rem;text-align:center;font-size:.8rem;line-height:1.55;color:var(--text-secondary);background:rgba(var(--primary-rgb),0.06);border-radius:var(--radius-md,10px);border:1px solid rgba(var(--primary-rgb),0.1)}
+.svc-expired-page{margin:0;min-height:100dvh;font-family:var(--font-primary,'Mukta','Noto Sans Devanagari',system-ui,sans-serif);color:var(--text-primary);-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;padding:clamp(1.25rem,5vw,2.5rem);position:relative;background:#f4f5f7}
+.svc-expired-shell{position:relative;z-index:1;width:100%;max-width:27rem}
+.svc-expired-card{background:#fff;border-radius:20px;border:1px solid #eceef1;box-shadow:0 1px 2px rgba(15,23,42,.04),0 18px 40px -16px rgba(15,23,42,.16);overflow:hidden;padding:clamp(1.75rem,5vw,2.5rem) clamp(1.5rem,5vw,2.25rem);text-align:center}
+.svc-expired-icon{display:inline-flex;align-items:center;justify-content:center;width:4.5rem;height:4.5rem;border-radius:50%;background:var(--danger,#dc3545);margin-bottom:1.4rem;box-shadow:0 6px 16px -4px rgba(220,53,69,.4)}
+.svc-expired-head h1{margin:0 0 .9rem;font-size:clamp(1.5rem,5vw,1.85rem);font-weight:800;letter-spacing:-.02em;line-height:1.25;color:var(--text-primary,#1a1d23)}
+.svc-expired-desc{margin:0 0 1.5rem;font-size:.96rem;line-height:1.7;color:var(--text-secondary,#5b6470)}
+.svc-expired-desc strong{color:var(--text-primary,#1a1d23);font-weight:700}
+.svc-expired-date-line{margin:0 0 1.6rem;font-size:.85rem;line-height:1.6;color:var(--text-muted,#8993a1);background:var(--bg-soft,#f5faf6);border:1px solid var(--border-color,#eceef1);border-radius:10px;padding:.7rem .9rem}
+.svc-expired-actions{display:flex;flex-direction:column;gap:.65rem;margin-bottom:1.4rem}
+.svc-expired-btn{display:block;width:100%;padding:.85rem 1rem;border-radius:11px;font-size:.98rem;font-weight:700;text-decoration:none;transition:transform .15s ease, opacity .15s ease}
+.svc-expired-btn--primary{background:var(--primary-color,#1a5f2a);color:#fff;box-shadow:0 6px 16px -6px rgba(var(--primary-rgb,26,95,42),.5)}
+.svc-expired-btn--primary:active{transform:scale(.98);opacity:.92}
+.svc-expired-btn--outline{background:#fff;color:var(--text-secondary,#5b6470);border:1.5px solid var(--border-color,#dfe3e8)}
+.svc-expired-btn--outline:active{transform:scale(.98);background:#f8f9fa}
+.svc-expired-foot{margin:1.4rem 0 0;padding-top:1.2rem;border-top:1px solid var(--border-color,#eceef1);font-size:.82rem;line-height:1.6;color:var(--text-muted,#8993a1)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 CSS;
@@ -193,22 +200,15 @@ CSS;
             . '<link rel="stylesheet" href="' . $baseUrlH . 'assets/css/app-public.css">'
             . $layoutCss
             . '</head><body class="svc-expired-page">'
-            . '<div class="svc-expired-bg" aria-hidden="true"></div>'
             . '<main class="svc-expired-shell">'
             . '<div class="svc-expired-card">'
-            . '<div class="svc-expired-card__accent" aria-hidden="true"></div>'
-            . '<div class="svc-expired-head">'
             . '<div class="svc-expired-icon">' . $svgIcon . '</div>'
-            . '<p class="svc-expired-eyebrow">सेवा स्थिति · Service status</p>'
-            . '<h1>सेवा म्याद सकियो</h1>'
-            . '<p class="svc-expired-site"><strong>' . $siteH . '</strong> को वेबसाइट सेवा हाल अस्थायी रूपमा उपलब्ध छैन।</p>'
-            . '</div>'
-            . '<div class="svc-expired-body">'
-            . '<p class="svc-expired-desc">यो सन्देश साइट सेवा अवधि समाप्त भएपछि देखाइन्छ। नवीकरण पछि सेवा पुनः सामान्य हुन्छ।</p>'
-            . $datesBlock
-            . '<p class="svc-expired-foot">लाइसेन्स नवीकरण वा प्राविधिक सहयोगका लागि कृपया <strong>विक्रेता / प्राविधिक टोली</strong> लाई सम्पर्क गर्नुहोस्।</p>'
-            . '<p class="svc-expired-hint">नवीकरण पुष्टि भएपछि सेवा पुनः सामान्य रूपमा सञ्चालन हुनेछ। थप जानकारीका लागि कार्यालय वा प्राविधिक टोली सम्पर्क गर्नुहोस्।</p>'
-            . '</div></div></main></body></html>';
+            . '<div class="svc-expired-head"><h1>सेवा बन्द भयो</h1></div>'
+            . '<p class="svc-expired-desc"><strong>' . $siteH . '</strong> को वेबसाइट सेवा हाल नवीकरण नभएकोले अस्थायी रूपमा बन्द छ।</p>'
+            . $dateLine
+            . $actionsHtml
+            . '<p class="svc-expired-foot">नवीकरणका लागि कृपया माथिको नम्बर/इमेलमा सम्पर्क गर्नुहोस्। पुष्टि भएपछि सेवा पुनः सामान्य हुनेछ।<br>© ' . date('Y') . ' ' . $siteH . '। सर्वाधिकार सुरक्षित।</p>'
+            . '</div></main></body></html>';
         exit;
     }
 }
