@@ -67,16 +67,12 @@
     _toast('✓ App सफलतापूर्वक Install भयो! Home screen मा हेर्नुहोस्।', 'success');
   });
 
-  /* ── 6. On page load: show banner (unless standalone / dismissed) ── */
+  /* ── 6. On page load: auto-banner disabled — header icon already provides
+     install access on all devices (desktop + mobile). _showBanner is kept
+     so the header icon's manual trigger (pwaTriggerInstall) still works. ── */
   window.addEventListener('load', function () {
     _readMeta();
-    if (_standalone) return; // already installed — CSS hides buttons via .pwa-standalone
-    /* Show banner unless dismissed in the last 24 h */
-    var _lastDismissed = parseInt(localStorage.getItem('pwa-banner-dismissed-ts') || '0', 10);
-    var _bannerCoolOff = 24 * 60 * 60 * 1000; /* 24 hours */
-    if (!sessionStorage.getItem('pwa-banner-dismissed') && (Date.now() - _lastDismissed > _bannerCoolOff)) {
-      setTimeout(_showBanner, 1400);
-    }
+    /* Auto-popup intentionally removed — no unsolicited banner on load. */
   });
 
   /* ── 7. Online / Offline ─────────────────────────────────────────── */
