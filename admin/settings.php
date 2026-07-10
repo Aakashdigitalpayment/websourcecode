@@ -564,23 +564,23 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="stg-title-primary mb-3"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo $__t('अध्यक्ष', 'Chairperson'); ?></h6>
-                            <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('अध्यक्षको नाम', 'Chairperson Name'); ?></label>
-                                <input type="text" name="chairman_name" class="form-control"
-                                       value="<?php echo $settings['chairman_name'] ?? ''; ?>"
-                                       placeholder="<?php echo $__t('अध्यक्षको पूरा नाम', 'Full chairperson name'); ?>">
+                        <div class="col-12">
+                            <div class="alert alert-info d-flex align-items-start gap-3 mb-3" role="alert">
+                                <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
+                                <div>
+                                    <strong><?php echo $__t('अध्यक्ष / CEO नाम र फोटो — Team बाट व्यवस्थापन गर्नुहोस्।', 'Chairman / CEO name & photo — manage from Team page.'); ?></strong><br>
+                                    <span class="small"><?php echo $__t(
+                                        'अध्यक्ष र CEO को नाम, पद र फोटो अब <strong>टिम सदस्य</strong> बाट थप्नुहोस् — सदस्य थपेपछि "अध्यक्ष" वा "प्रमुख कार्यकारी (CEO)" रेडियो बटन ON गर्नुहोस्। यसले Homepage Leadership section मा स्वतः देखाउँछ।',
+                                        'Add chairman & CEO name, position and photo from <strong>Team Members</strong> — after adding, turn ON the "Chairman" or "CEO" radio button. This auto-displays on the Homepage Leadership section.'
+                                    ); ?></span><br>
+                                    <a href="team-karmachari.php" class="btn btn-sm btn-primary mt-2">
+                                        <i class="fas fa-users me-1"></i><?php echo $__t('टिम सदस्य व्यवस्थापन', 'Manage Team Members'); ?>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="stg-title-accent mb-3"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo $__t('प्रमुख कार्यकारी अधिकृत', 'Chief Executive Officer'); ?></h6>
-                            <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('CEO को नाम', 'CEO Name'); ?></label>
-                                <input type="text" name="ceo_name" class="form-control"
-                                       value="<?php echo $settings['ceo_name'] ?? ''; ?>"
-                                       placeholder="<?php echo $__t('CEO को पूरा नाम', 'Full CEO name'); ?>">
-                            </div>
+                            <h6 class="stg-title-accent mb-3"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo $__t('प्रमुख कार्यकारी — पदनाम', 'Chief Executive — Designation'); ?></h6>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -841,15 +841,12 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <input type="file" name="mobile_app_photo" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 400x600</small>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('अध्यक्ष फोटो', 'Chairman Photo'); ?></label>
-                            <?php if (!empty($settings['chairman_photo'])): ?><img src="../<?php echo htmlspecialchars($settings['chairman_photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="Chairman" class="img-fluid mb-2 border rounded stg-media-preview-sm"><?php endif; ?>
-                            <input type="file" name="chairman_photo" class="form-control" accept="image/*">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('CEO / कार्यकारी फोटो', 'CEO / Executive Photo'); ?></label>
-                            <?php if (!empty($settings['ceo_photo'])): ?><img src="../<?php echo htmlspecialchars($settings['ceo_photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="CEO" class="img-fluid mb-2 border rounded stg-media-preview-sm"><?php endif; ?>
-                            <input type="file" name="ceo_photo" class="form-control" accept="image/*">
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="alert alert-secondary w-100 mb-0 small" role="alert">
+                                <i class="fas fa-users me-1"></i>
+                                <?php echo $__t('अध्यक्ष / CEO को फोटो अब <strong>टिम सदस्य</strong> बाट व्यवस्थापन गर्नुहोस्।','Chairman / CEO photos are now managed from <strong>Team Members</strong>.'); ?>
+                                <a href="team-karmachari.php" class="d-block mt-1"><?php echo $__t('→ टिम खोल्नुहोस्','→ Open Team'); ?></a>
+                            </div>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label fw-semibold"><?php echo $__t('Default Share Image (SEO OG)', 'Default Share Image (SEO OG)'); ?></label>

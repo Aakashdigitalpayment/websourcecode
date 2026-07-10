@@ -114,17 +114,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($_POST['action'] === 'add') {
-                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_chairman, is_ceo, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive]);
+                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive]);
+                    $newId = (int)$db->lastInsertId();
+                    /* is_chairman / is_ceo — column नभएको DB मा पनि error नआउन अलग try-catch */
+                    if ($newId) {
+                        try { $db->prepare("UPDATE team_members SET is_chairman=? WHERE id=?")->execute([$isChairman, $newId]); } catch (Throwable $e2) {}
+                        try { $db->prepare("UPDATE team_members SET is_ceo=? WHERE id=?")->execute([$isCeo, $newId]); } catch (Throwable $e2) {}
+                    }
                     $success = $__t('टिम सदस्य सफलतापूर्वक थपियो।', 'Team member added successfully.');
                 } else {
                     if ($photo) {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
                     } else {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
                     }
+                    /* is_chairman / is_ceo — column नभएको DB मा पनि error नआउन अलग try-catch */
+                    try { $db->prepare("UPDATE team_members SET is_chairman=? WHERE id=?")->execute([$isChairman, $id]); } catch (Throwable $e2) {}
+                    try { $db->prepare("UPDATE team_members SET is_ceo=? WHERE id=?")->execute([$isCeo, $id]); } catch (Throwable $e2) {}
                     $success = $__t('टिम सदस्य सफलतापूर्वक अपडेट भयो।', 'Team member updated successfully.');
                 }
                 break;
