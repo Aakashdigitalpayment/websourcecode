@@ -263,14 +263,64 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
 
 <!-- Leadership Messages Section -->
 <?php
-$chairmanMessage = getSetting('chairman_message_np', '');
-$chairmanName = getSetting('chairman_name', 'अध्यक्ष');
-$chairmanPhoto = getSetting('chairman_photo', '');
-$ceoMessage = getSetting('ceo_message_np', '');
-$ceoName = getSetting('ceo_name', 'प्रमुख कार्यकारी अधिकृत');
-$ceoPhoto = getSetting('ceo_photo', '');
+// Get from settings first
+$chairmanMessageSetting = getSetting('chairman_message_np', '');
+$chairmanNameSetting = getSetting('chairman_name', '');
+$chairmanPhotoSetting = getSetting('chairman_photo', '');
+$ceoMessageSetting = getSetting('ceo_message_np', '');
+$ceoNameSetting = getSetting('ceo_name', '');
+$ceoPhotoSetting = getSetting('ceo_photo', '');
 $ceoDesignationNp = trim((string)getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
 $ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executive Officer'));
+
+// Fallback: Get chairman/CEO from team_members table based on is_chairman/is_ceo flags
+try {
+    // Chairman
+    if (empty($chairmanNameSetting) || empty($chairmanMessageSetting)) {
+        $chairStmt = $db->prepare("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1");
+        $chairStmt->execute();
+        $chairFromTeam = $chairStmt->fetch();
+        if ($chairFromTeam) {
+            if (empty($chairmanNameSetting)) {
+                $chairmanNameSetting = $chairFromTeam['name_np'] ?: $chairFromTeam['name'];
+            }
+            if (empty($chairmanPhotoSetting)) {
+                $chairmanPhotoSetting = $chairFromTeam['photo'];
+            }
+            // If no message in settings, use position as fallback message
+            if (empty($chairmanMessageSetting)) {
+                $chairmanMessageSetting = $chairFromTeam['position_np'] ?: $chairFromTeam['position'];
+            }
+        }
+    }
+    
+    // CEO
+    if (empty($ceoNameSetting) || empty($ceoMessageSetting)) {
+        $ceoStmt = $db->prepare("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1");
+        $ceoStmt->execute();
+        $ceoFromTeam = $ceoStmt->fetch();
+        if ($ceoFromTeam) {
+            if (empty($ceoNameSetting)) {
+                $ceoNameSetting = $ceoFromTeam['name_np'] ?: $ceoFromTeam['name'];
+            }
+            if (empty($ceoPhotoSetting)) {
+                $ceoPhotoSetting = $ceoFromTeam['photo'];
+            }
+            // If no message in settings, use position as fallback message
+            if (empty($ceoMessageSetting)) {
+                $ceoMessageSetting = $ceoFromTeam['position_np'] ?: $ceoFromTeam['position'];
+            }
+        }
+    }
+} catch (Throwable $e) { /* silent fallback */ }
+
+// Use settings or team member data
+$chairmanName = $chairmanNameSetting ?: 'अध्यक्ष';
+$chairmanPhoto = $chairmanPhotoSetting;
+$chairmanMessage = $chairmanMessageSetting;
+$ceoName = $ceoNameSetting ?: 'प्रमुख कार्यकारी अधिकृत';
+$ceoPhoto = $ceoPhotoSetting;
+$ceoMessage = $ceoMessageSetting;
 ?>
 <?php if ($chairmanMessage || $ceoMessage): ?>
 <section class="leadership-messages-about section-padding bg-light" id="chairman">
