@@ -41,6 +41,17 @@ try {
 
     // Also get board members from team_members table (for showing in filters)
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    
+    // Get committee members from team_members table by category (cmt_X format)
+    $allTeamMembers = $db->query("SELECT * FROM team_members WHERE category LIKE 'cmt_%' AND is_active = 1 ORDER BY category, display_order")->fetchAll();
+    $committeeTeamMembers = [];
+    foreach ($allTeamMembers as $tm) {
+        $cmtId = (int)str_replace('cmt_', '', $tm['category']);
+        if ($cmtId > 0) {
+            if (!isset($committeeTeamMembers[$cmtId])) $committeeTeamMembers[$cmtId] = [];
+            $committeeTeamMembers[$cmtId][] = $tm;
+        }
+    }
 
     // Get current tenures with members
     $currentCommittees = [];
@@ -61,9 +72,15 @@ try {
             $memberStmt->execute([$currentTenure['id']]);
             $members = $memberStmt->fetchAll();
 
-            // If no members in committee_members, try to get from team_members (for board)
-            if (empty($members) && stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) {
-                $members = $boardMembers;
+            // If no members in committee_members, try to get from team_members (for this committee type)
+            if (empty($members)) {
+                // First check if this is the board committee
+                if (stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) {
+                    $members = $boardMembers;
+                } else {
+                    // Check team_members table for members with matching cmt_X category
+                    $members = $committeeTeamMembers[$type['id']] ?? [];
+                }
             }
 
             $currentCommittees[] = [
@@ -72,12 +89,15 @@ try {
                 'members' => $members
             ];
         } else {
-            // Even if no tenure, still show the type if it's a board type and we have board members
-            if ((stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) && !empty($boardMembers)) {
+            // Even if no tenure, still show the type if we have team members for it
+            $isBoardType = (stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false);
+            $teamMembers = $isBoardType ? $boardMembers : ($committeeTeamMembers[$type['id']] ?? []);
+            
+            if (!empty($teamMembers)) {
                 $currentCommittees[] = [
                     'type' => $type,
                     'tenure' => ['tenure_name' => isEnglish() ? 'Current' : 'हालको'],
-                    'members' => $boardMembers
+                    'members' => $teamMembers
                 ];
             }
         }
@@ -129,6 +149,7 @@ try {
     $currentCommittees = [];
     $pastCommittees = [];
     $boardMembers = [];
+    $committeeTeamMembers = [];
 }
 
 /* Section heading context: "Management Team" छानिएको बेला generic "समिति सदस्य" नदेखियोस् */
