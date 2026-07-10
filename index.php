@@ -573,11 +573,11 @@ if (empty($whyFeatures)) {
 
 <!-- Leadership Messages Section -->
 <?php
-$chairmanMessage  = getSetting('chairman_message_np', '');
-$chairmanName     = '';   // team_members बाट मात्र
+$chairmanMessageSetting  = getSetting('chairman_message_np', '');
+$chairmanName     = '';
 $chairmanPhoto    = '';
-$ceoMessage       = getSetting('ceo_message_np', '');
-$ceoName          = '';   // team_members बाट मात्र
+$ceoMessageSetting       = getSetting('ceo_message_np', '');
+$ceoName          = '';
 $ceoPhoto         = '';
 $ceoDesignationNp = trim((string)getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
 $ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executive Officer'));
@@ -595,6 +595,19 @@ if ($db instanceof PDO) {
         $informationOfficer = $grievanceOfficer = null;
     }
 }
+
+// Get chairman message: settings first, fallback to team member position
+$chairmanMessage = $chairmanMessageSetting;
+if (empty($chairmanMessage) && $chairmanMember) {
+    $chairmanMessage = $chairmanMember['position_np'] ?: $chairmanMember['position'] ?: '';
+}
+
+// Get CEO message: settings first, fallback to team member position  
+$ceoMessage = $ceoMessageSetting;
+if (empty($ceoMessage) && $ceoMember) {
+    $ceoMessage = $ceoMember['position_np'] ?: $ceoMember['position'] ?: '';
+}
+
 if ($chairmanMember) {
     $chairmanName  = isEnglish() && $chairmanMember['name_en'] ? $chairmanMember['name_en'] : $chairmanMember['name'];
     $chairmanPhoto = $chairmanMember['photo'] ?? '';
