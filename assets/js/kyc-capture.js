@@ -117,9 +117,27 @@ window._kycCaptureInited = true;
         });
         this.video.srcObject = this.stream;
       } catch (e) {
-        alert('क्यामेरा खोल्न सकिएन: ' + (e && e.message ? e.message : 'Permission denied'));
-        // fallback: open gallery
-        document.getElementById('kycGalleryInput').click();
+        // iOS Safari: programmatic .click() on file input outside a user-gesture
+        // causes page reload. Show a tap-able button inside the modal instead.
+        const hint = document.getElementById('kycCamHint');
+        if (hint) {
+          hint.innerHTML = '<div style="text-align:center;padding:12px;">'
+            + '<p style="margin:0 0 10px;font-size:.9rem;color:#dc3545;">'
+            + '<i class="fas fa-exclamation-triangle me-1"></i>'
+            + 'क्यामेरा खोल्न सकिएन।'
+            + '</p>'
+            + '<button type="button" id="kycFallbackGalleryBtn" class="kyc-cap-btn primary" style="margin:0 auto;display:inline-flex;">'
+            + '<i class="fas fa-images me-1"></i> Gallery बाट छान्नुहोस्'
+            + '</button>'
+            + '</div>';
+          hint.style.display = '';
+          const fallbackBtn = document.getElementById('kycFallbackGalleryBtn');
+          if (fallbackBtn) {
+            fallbackBtn.addEventListener('click', function () {
+              document.getElementById('kycGalleryInput').click();
+            });
+          }
+        }
       }
     },
 
@@ -460,6 +478,21 @@ window._kycCaptureInited = true;
   function setupSignaturePads() {
     document.querySelectorAll('[data-kyc-signature]').forEach((wrap) => {
       const hidden = wrap.querySelector('input[type=hidden]');
+
+      // ── Tab switcher ──────────────────────────────────────────────
+      const tabs = document.createElement('div');
+      tabs.className = 'kyc-sig-tabs';
+      tabs.innerHTML = `
+        <button type="button" class="kyc-sig-tab active" data-tab="draw">
+          <i class="fas fa-pen-fancy"></i> हात लेख्नुहोस्
+        </button>
+        <button type="button" class="kyc-sig-tab" data-tab="upload">
+          <i class="fas fa-upload"></i> फाइल अपलोड
+        </button>`;
+
+      // ── Draw panel ────────────────────────────────────────────────
+      const drawPanel = document.createElement('div');
+      drawPanel.className = 'kyc-sig-panel';
       const canvas = document.createElement('canvas');
       canvas.className = 'kyc-sig-canvas';
       const baseline = document.createElement('div');
@@ -474,12 +507,41 @@ window._kycCaptureInited = true;
         </div>
         <div class="kyc-sig-stat">तल हस्ताक्षर गर्नुहोस्</div>
       `;
+      drawPanel.appendChild(canvas);
+      drawPanel.appendChild(baseline);
+      drawPanel.appendChild(toolbar);
+
+      // ── Upload panel ───────────────────────────────────────────────
+      const uploadPanel = document.createElement('div');
+      uploadPanel.className = 'kyc-sig-panel';
+      uploadPanel.style.display = 'none';
+      const uploadFileInput = document.createElement('input');
+      uploadFileInput.type = 'file';
+      uploadFileInput.accept = 'image/png,image/jpeg,image/jpg,.png,.jpg,.jpeg';
+      uploadFileInput.style.cssText = 'display:none';
+      const uploadLabel = document.createElement('label');
+      uploadLabel.className = 'kyc-sig-upload-label';
+      uploadLabel.innerHTML = `<i class="fas fa-cloud-upload-alt"></i><br>PNG/JPG हस्ताक्षर छान्नुहोस्<br><span style="font-size:.75rem;opacity:.65;">सेतो पृष्ठभूमिमा कालो हस्ताक्षर राम्रो हुन्छ।</span>`;
+      uploadLabel.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed #b9dbc6;border-radius:10px;padding:28px 20px;cursor:pointer;font-size:.88rem;color:#4a5a4f;text-align:center;';
+      uploadLabel.appendChild(uploadFileInput);
+      const uploadPreview = document.createElement('div');
+      uploadPreview.className = 'kyc-sig-upload-preview';
+      uploadPreview.style.cssText = 'display:none;text-align:center;';
+      const uploadStat = document.createElement('div');
+      uploadStat.className = 'kyc-sig-stat';
+      uploadStat.textContent = 'हस्ताक्षर फाइल छान्नुहोस्';
+      uploadPanel.appendChild(uploadLabel);
+      uploadPanel.appendChild(uploadPreview);
+      uploadPanel.appendChild(uploadStat);
+
+      // Assemble widget
       wrap.innerHTML = '';
-      wrap.appendChild(canvas);
-      wrap.appendChild(baseline);
-      wrap.appendChild(toolbar);
+      wrap.appendChild(tabs);
+      wrap.appendChild(drawPanel);
+      wrap.appendChild(uploadPanel);
       wrap.appendChild(hidden);
 
+      // ── Canvas resize / draw logic ───────────────────────────────
       const ctx = canvas.getContext('2d');
       function resize() {
         const r = wrap.getBoundingClientRect();
@@ -518,36 +580,80 @@ window._kycCaptureInited = true;
         save();
       }
       function end() { drawing = false; }
-
       function save() {
         if (!hasInk) { hidden.value = ''; return; }
-        // Trim to remove huge whitespace? Keep simple — full canvas
         hidden.value = canvas.toDataURL('image/png');
         stat.textContent = '✓ हस्ताक्षर सुरक्षित';
         stat.style.color = '#16a34a';
       }
-
       function clear() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        hidden.value = '';
-        hasInk = false;
+        hidden.value = ''; hasInk = false;
         stat.textContent = 'तल हस्ताक्षर गर्नुहोस्';
         stat.style.color = '';
       }
-
       canvas.addEventListener('mousedown', start);
       canvas.addEventListener('mousemove', move);
       window.addEventListener('mouseup', end);
       canvas.addEventListener('touchstart', start, { passive: false });
       canvas.addEventListener('touchmove', move, { passive: false });
       canvas.addEventListener('touchend', end);
-
       toolbar.querySelectorAll('.kyc-sig-tool').forEach((b) => {
         b.addEventListener('click', () => {
           if (b.dataset.clear) { clear(); return; }
           width = parseFloat(b.dataset.w);
           toolbar.querySelectorAll('.kyc-sig-tool').forEach(x => x.classList.remove('active'));
           b.classList.add('active');
+        });
+      });
+
+      // ── Upload logic ─────────────────────────────────────────────
+      uploadFileInput.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+          const dataUrl = ev.target.result;
+          hidden.value = dataUrl;
+          uploadPreview.innerHTML = `<img src="${dataUrl}" alt="हस्ताक्षर preview" style="max-width:100%;max-height:140px;border:1px solid #ddd;border-radius:8px;margin-top:8px;">
+            <button type="button" class="kyc-sig-tool" style="margin-top:6px;" id="sigUploadClear_${Math.random().toString(36).slice(2)}"><i class="fas fa-trash me-1"></i>हटाउनुहोस्</button>`;
+          uploadPreview.style.display = '';
+          uploadLabel.style.display = 'none';
+          uploadStat.textContent = '✓ हस्ताक्षर अपलोड भयो';
+          uploadStat.style.color = '#16a34a';
+          uploadPreview.querySelector('button').addEventListener('click', function () {
+            hidden.value = '';
+            uploadPreview.style.display = 'none';
+            uploadLabel.style.display = '';
+            uploadStat.textContent = 'हस्ताक्षर फाइल छान्नुहोस्';
+            uploadStat.style.color = '';
+            uploadFileInput.value = '';
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // ── Tab switch ────────────────────────────────────────────────
+      tabs.querySelectorAll('.kyc-sig-tab').forEach((btn) => {
+        btn.addEventListener('click', function () {
+          const target = this.dataset.tab;
+          tabs.querySelectorAll('.kyc-sig-tab').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          // Clear previous value when switching tabs to avoid stale data
+          hidden.value = '';
+          if (target === 'draw') {
+            drawPanel.style.display = '';
+            uploadPanel.style.display = 'none';
+            clear();
+          } else {
+            drawPanel.style.display = 'none';
+            uploadPanel.style.display = '';
+            uploadPreview.style.display = 'none';
+            uploadLabel.style.display = '';
+            uploadStat.textContent = 'हस्ताक्षर फाइल छान्नुहोस्';
+            uploadStat.style.color = '';
+            uploadFileInput.value = '';
+          }
         });
       });
     });
