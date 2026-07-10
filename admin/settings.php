@@ -21,7 +21,7 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'chairman_name', 'ceo_name', 'ceo_designation_np', 'ceo_designation_en', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -557,56 +557,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
 
             <div class="row">
             <div class="col-xl-6">
-            <!-- Leadership Section -->
-            <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="general" data-stg-group="leadership" data-stg-order="1">
-                <div class="card-header stg-section-header">
-                    <h5 class="stg-section-title"><i class="fas fa-user-tie"></i> <?php echo $__t('नेतृत्व सन्देश', 'Leadership Message'); ?></h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="alert alert-info d-flex align-items-start gap-3 mb-3" role="alert">
-                                <i class="fas fa-info-circle mt-1 flex-shrink-0"></i>
-                                <div>
-                                    <strong><?php echo $__t('अध्यक्ष / CEO नाम र फोटो — Team बाट व्यवस्थापन गर्नुहोस्।', 'Chairman / CEO name & photo — manage from Team page.'); ?></strong><br>
-                                    <span class="small"><?php echo $__t(
-                                        'अध्यक्ष र CEO को नाम, पद र फोटो अब <strong>टिम सदस्य</strong> बाट थप्नुहोस् — सदस्य थपेपछि "अध्यक्ष" वा "प्रमुख कार्यकारी (CEO)" रेडियो बटन ON गर्नुहोस्। यसले Homepage Leadership section मा स्वतः देखाउँछ।',
-                                        'Add chairman & CEO name, position and photo from <strong>Team Members</strong> — after adding, turn ON the "Chairman" or "CEO" radio button. This auto-displays on the Homepage Leadership section.'
-                                    ); ?></span><br>
-                                    <a href="team-karmachari.php" class="btn btn-sm btn-primary mt-2">
-                                        <i class="fas fa-users me-1"></i><?php echo $__t('टिम सदस्य व्यवस्थापन', 'Manage Team Members'); ?>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="stg-title-accent mb-3"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo $__t('प्रमुख कार्यकारी — पदनाम', 'Chief Executive — Designation'); ?></h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label"><?php echo $__t('कार्यकारी पदनाम (नेपाली)', 'Executive Designation (Nepali)'); ?></label>
-                                        <input type="text" name="ceo_designation_np" class="form-control"
-                                               value="<?php echo $settings['ceo_designation_np'] ?? 'प्रमुख कार्यकारी अधिकृत'; ?>"
-                                               placeholder="<?php echo $__t('उदा: व्यवस्थापक / प्रमुख कार्यकारी अधिकृत', 'e.g. Manager / Chief Executive Officer'); ?>">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Executive Designation (English)</label>
-                                        <input type="text" name="ceo_designation_en" class="form-control"
-                                               value="<?php echo $settings['ceo_designation_en'] ?? 'Chief Executive Officer'; ?>"
-                                               placeholder="e.g. Manager / Chief Executive Officer">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="alert alert-info mt-3 mb-0">
-                        <i class="fas fa-info-circle"></i>
-                        <?php echo $__t('सन्देशहरू', 'Messages'); ?> <a href="pages.php" class="alert-link"><?php echo $__t('पृष्ठ व्यवस्थापन', 'Page Management'); ?></a> <?php echo $__t('मा सम्पादन गर्नुहोस्। फोटोहरू "Branding / Media Manager" मा एकै ठाउँबाट अपलोड गर्न सकिन्छ।', 'can be edited there. Photos can be uploaded from "Branding / Media Manager".'); ?>
-                    </div>
-                </div>
-            </div>
+            <!-- Leadership Section removed — Chairman/CEO name, photo, designation
+                 are now managed from Team Members (team-karmachari.php).
+                 Keeping col-xl-6 wrapper intact so Footer card layout is unchanged. -->
             </div>
 
             <div class="col-xl-6">

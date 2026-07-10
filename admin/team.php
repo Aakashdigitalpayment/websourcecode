@@ -91,20 +91,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $db->exec('UPDATE team_members SET is_grievance_officer = 0');
                     }
                 }
-                /* Chairman ra CEO — ek matra person hunu parne (exclusive) */
+                /* Chairman ra CEO — ek matra person hunu parne (exclusive) —
+                   try-catch: column DB मा नभए silently skip, error nadekhaune */
                 if ($isChairman) {
-                    if ($id) {
-                        $db->prepare('UPDATE team_members SET is_chairman = 0 WHERE id != ?')->execute([$id]);
-                    } else {
-                        $db->exec('UPDATE team_members SET is_chairman = 0');
-                    }
+                    try {
+                        if ($id) { $db->prepare('UPDATE team_members SET is_chairman = 0 WHERE id != ?')->execute([$id]); }
+                        else      { $db->exec('UPDATE team_members SET is_chairman = 0'); }
+                    } catch (Throwable $e2) {}
                 }
                 if ($isCeo) {
-                    if ($id) {
-                        $db->prepare('UPDATE team_members SET is_ceo = 0 WHERE id != ?')->execute([$id]);
-                    } else {
-                        $db->exec('UPDATE team_members SET is_ceo = 0');
-                    }
+                    try {
+                        if ($id) { $db->prepare('UPDATE team_members SET is_ceo = 0 WHERE id != ?')->execute([$id]); }
+                        else      { $db->exec('UPDATE team_members SET is_ceo = 0'); }
+                    } catch (Throwable $e2) {}
                 }
 
                 $photo = '';
