@@ -429,6 +429,8 @@ function ensureAdminTables(): void {
             "ALTER TABLE team_members ADD COLUMN position_en VARCHAR(100) AFTER position_np",
             "ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0",
             "ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0",
+            "ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0",
+            "ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0",
             "ALTER TABLE team_members ADD COLUMN display_order INT DEFAULT 0",
         ];
         foreach ($tmAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }

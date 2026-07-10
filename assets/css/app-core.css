@@ -5660,16 +5660,16 @@ html.pwa-installed  .mem-footer-pwa { display: none !important; }
 html.pwa-standalone .mem-pwa-btn,
 html.pwa-installed  .mem-pwa-btn { display: none !important; }
 
-/* ── Install Banner ─────────────────────────────────────────────── */
+/* ── Install Banner — slides DOWN from top, below header ─────────── */
 #pwa-install-banner {
-    position: fixed; bottom: -130px; left: 12px; right: 12px;
+    position: fixed; top: -110px; left: 0; right: 0;
     z-index: 8500; pointer-events: none;
-    transition: bottom .38s cubic-bezier(.34,1.4,.64,1);
+    transition: top .38s cubic-bezier(.34,1.4,.64,1);
 }
-#pwa-install-banner.pwa-banner-show { bottom: 76px; pointer-events: auto; }
+#pwa-install-banner.pwa-banner-show { top: 60px; pointer-events: auto; }
 @media (min-width: 600px) {
     #pwa-install-banner { left: auto; right: 20px; width: 400px; }
-    #pwa-install-banner.pwa-banner-show { bottom: 20px; }
+    #pwa-install-banner.pwa-banner-show { top: 70px; }
 }
 .pwa-bi-inner {
     background: #fff; border-radius: 16px; padding: 13px 14px;

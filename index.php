@@ -584,13 +584,34 @@ $ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executi
 
 // Get Information Officer and Grievance Officer
 $informationOfficer = $grievanceOfficer = null;
+// Also try to pull Chairman and CEO from team_members (dynamic, overrides Settings photo/name if set)
+$chairmanMember = $ceoMember = null;
 if ($db instanceof PDO) {
     try {
         $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
         $grievanceOfficer = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
+        // Dynamic chairman/CEO from team table — is_chairman/is_ceo columns (added via ensure-admin-tables.php migration)
+        // Wrapped in try-catch so pages don't break if columns don't exist yet on older DBs
+        try {
+            $chairmanMember = $db->query("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1")->fetch();
+            $ceoMember      = $db->query("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1")->fetch();
+        } catch (Throwable $e) {
+            $chairmanMember = $ceoMember = null; // column not yet migrated — fall back to Settings silently
+        }
     } catch (Throwable $e) {
         $informationOfficer = $grievanceOfficer = null;
     }
+}
+// Merge team-member data into chairman/CEO (team overrides Settings if a member is flagged)
+if ($chairmanMember) {
+    $chairmanName  = isEnglish() && $chairmanMember['name_en'] ? $chairmanMember['name_en'] : $chairmanMember['name'];
+    $chairmanPhoto = $chairmanMember['photo'] ?? $chairmanPhoto;
+}
+if ($ceoMember) {
+    $ceoName  = isEnglish() && $ceoMember['name_en'] ? $ceoMember['name_en'] : $ceoMember['name'];
+    $ceoPhoto = $ceoMember['photo'] ?? $ceoPhoto;
+    if ($ceoMember['position_np']) $ceoDesignationNp = $ceoMember['position_np'];
+    if ($ceoMember['position_en']) $ceoDesignationEn = $ceoMember['position_en'];
 }
 ?>
 <?php if ($chairmanMessage || $ceoMessage || $informationOfficer || $grievanceOfficer): ?>

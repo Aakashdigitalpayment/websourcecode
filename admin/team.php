@@ -73,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $order     = (int)($_POST['display_order']  ?? 0);
                 $isInfo    = isset($_POST['is_information_officer']) ? 1 : 0;
                 $isGriev   = isset($_POST['is_grievance_officer'])   ? 1 : 0;
+                $isChairman = isset($_POST['is_chairman']) ? 1 : 0;
+                $isCeo      = isset($_POST['is_ceo'])      ? 1 : 0;
                 $isActive  = isset($_POST['is_active']) ? 1 : 0;
 
                 if ($isInfo) {
@@ -89,6 +91,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $db->exec('UPDATE team_members SET is_grievance_officer = 0');
                     }
                 }
+                /* Chairman ra CEO — ek matra person hunu parne (exclusive) */
+                if ($isChairman) {
+                    if ($id) {
+                        $db->prepare('UPDATE team_members SET is_chairman = 0 WHERE id != ?')->execute([$id]);
+                    } else {
+                        $db->exec('UPDATE team_members SET is_chairman = 0');
+                    }
+                }
+                if ($isCeo) {
+                    if ($id) {
+                        $db->prepare('UPDATE team_members SET is_ceo = 0 WHERE id != ?')->execute([$id]);
+                    } else {
+                        $db->exec('UPDATE team_members SET is_ceo = 0');
+                    }
+                }
 
                 $photo = '';
                 if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {
@@ -97,16 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($_POST['action'] === 'add') {
-                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
-                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive]);
+                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_chairman, is_ceo, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive]);
                     $success = $__t('टिम सदस्य सफलतापूर्वक थपियो।', 'Team member added successfully.');
                 } else {
                     if ($photo) {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     } else {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     }
                     $success = $__t('टिम सदस्य सफलतापूर्वक अपडेट भयो।', 'Team member updated successfully.');
                 }
@@ -503,9 +520,17 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <input class="form-check-input" type="checkbox" name="is_information_officer" id="tmf_is_info" value="1">
                                 <label class="form-check-label fw-semibold tm-form-label" for="tmf_is_info"><?php echo $__t('सूचना अधिकारी (RTI)', 'Information Officer (RTI)'); ?></label>
                             </div>
-                            <div class="form-check form-switch fs-5">
+                            <div class="form-check form-switch fs-5 mb-2">
                                 <input class="form-check-input" type="checkbox" name="is_grievance_officer" id="tmf_is_griev" value="1">
                                 <label class="form-check-label fw-semibold tm-form-label" for="tmf_is_griev"><?php echo $__t('गुनासो अधिकारी', 'Grievance Officer'); ?></label>
+                            </div>
+                            <div class="form-check form-switch fs-5 mb-2">
+                                <input class="form-check-input" type="checkbox" name="is_chairman" id="tmf_is_chairman" value="1">
+                                <label class="form-check-label fw-semibold tm-form-label" for="tmf_is_chairman"><?php echo $__t('अध्यक्ष', 'Chairman'); ?></label>
+                            </div>
+                            <div class="form-check form-switch fs-5">
+                                <input class="form-check-input" type="checkbox" name="is_ceo" id="tmf_is_ceo" value="1">
+                                <label class="form-check-label fw-semibold tm-form-label" for="tmf_is_ceo"><?php echo $__t('प्रमुख कार्यकारी (CEO)', 'Chief Executive (CEO)'); ?></label>
                             </div>
                             <p class="small tm-meta-muted mb-0 mt-2 tm-note-xs">
                                 <i class="fas fa-link me-1 opacity-75"></i><?php echo $__t('छुट्टै पृष्ठबाट पनि तोक्न मिल्छ —', 'Can also be assigned from dedicated pages -'); ?>
@@ -620,6 +645,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('tmf_order').value    = m.display_order || 0;
             document.getElementById('tmf_is_info').checked  = m.is_information_officer == 1;
             document.getElementById('tmf_is_griev').checked = m.is_grievance_officer == 1;
+            if (document.getElementById('tmf_is_chairman')) document.getElementById('tmf_is_chairman').checked = m.is_chairman == 1;
+            if (document.getElementById('tmf_is_ceo'))      document.getElementById('tmf_is_ceo').checked      = m.is_ceo == 1;
             document.getElementById('tmf_active').checked   = m.is_active == 1;
             var sel = document.getElementById('tmf_cat');
             for (var i=0; i<sel.options.length; i++) {
