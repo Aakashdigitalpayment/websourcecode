@@ -41,6 +41,15 @@ try {
     if ($_col && stripos($_col['Type'] ?? '', 'enum') !== false) {
         $_db_chk->exec("ALTER TABLE team_members MODIFY COLUMN category VARCHAR(50) NOT NULL DEFAULT 'staff'");
     }
+    /* Ensure is_chairman and is_ceo columns exist (for v7.0 chairman/CEO selection) */
+    $_cols = $_db_chk->query("SHOW COLUMNS FROM team_members")->fetchAll(PDO::FETCH_ASSOC);
+    $_existing = array_column($_cols, 'Field');
+    if (!in_array('is_chairman', $_existing, true)) {
+        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0");
+    }
+    if (!in_array('is_ceo', $_existing, true)) {
+        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0");
+    }
     /* Ensure committee_types table exists (silently) */
     $_db_chk->exec("CREATE TABLE IF NOT EXISTS committee_types (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -113,26 +122,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($_POST['action'] === 'add') {
-                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
-                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive]);
-                    $newId = (int)$db->lastInsertId();
-                    /* is_chairman / is_ceo — column नभएको DB मा पनि error नआउन अलग try-catch */
-                    if ($newId) {
-                        try { $db->prepare("UPDATE team_members SET is_chairman=? WHERE id=?")->execute([$isChairman, $newId]); } catch (Throwable $e2) {}
-                        try { $db->prepare("UPDATE team_members SET is_ceo=? WHERE id=?")->execute([$isCeo, $newId]); } catch (Throwable $e2) {}
-                    }
+                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_chairman, is_ceo, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive]);
                     $success = $__t('टिम सदस्य सफलतापूर्वक थपियो।', 'Team member added successfully.');
                 } else {
                     if ($photo) {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     } else {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     }
-                    /* is_chairman / is_ceo — column नभएको DB मा पनि error नआउन अलग try-catch */
-                    try { $db->prepare("UPDATE team_members SET is_chairman=? WHERE id=?")->execute([$isChairman, $id]); } catch (Throwable $e2) {}
-                    try { $db->prepare("UPDATE team_members SET is_ceo=? WHERE id=?")->execute([$isCeo, $id]); } catch (Throwable $e2) {}
                     $success = $__t('टिम सदस्य सफलतापूर्वक अपडेट भयो।', 'Team member updated successfully.');
                 }
                 break;
@@ -322,8 +322,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <?php if ($m['is_information_officer']): ?><span class="badge tm-role-badge tm-role-badge--info mb-1 d-block"><?php echo $__t('सूचना अधिकारी', 'Information Officer'); ?></span><?php endif; ?>
-                                    <?php if ($m['is_grievance_officer']): ?><span class="badge tm-role-badge tm-role-badge--griev d-block"><?php echo $__t('गुनासो अधिकारी', 'Grievance Officer'); ?></span><?php endif; ?>
+                                    <?php if (!empty($m['is_chairman'])): ?><span class="badge tm-role-badge tm-role-badge--chairman mb-1 d-block"><?php echo $__t('अध्यक्ष', 'Chairman'); ?></span><?php endif; ?>
+                                    <?php if (!empty($m['is_ceo'])): ?><span class="badge tm-role-badge tm-role-badge--ceo mb-1 d-block"><?php echo $__t('CEO', 'CEO'); ?></span><?php endif; ?>
+                                    <?php if ($m['is_information_officer']): ?><span class="badge tm-role-badge tm-role-badge--info mb-1 d-block"><?php echo $__t('सूचना अधिकारी', 'Info Officer'); ?></span><?php endif; ?>
+                                    <?php if ($m['is_grievance_officer']): ?><span class="badge tm-role-badge tm-role-badge--griev mb-1 d-block"><?php echo $__t('गुनासो अधिकारी', 'Grievance'); ?></span><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" class="svc-inline-form">
@@ -404,8 +406,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <?php if ($m['is_information_officer']): ?><span class="badge tm-role-badge tm-role-badge--info mb-1 d-block"><?php echo $__t('सूचना अधिकारी', 'Information Officer'); ?></span><?php endif; ?>
-                                    <?php if ($m['is_grievance_officer']): ?><span class="badge tm-role-badge tm-role-badge--griev d-block"><?php echo $__t('गुनासो अधिकारी', 'Grievance Officer'); ?></span><?php endif; ?>
+                                    <?php if (!empty($m['is_chairman'])): ?><span class="badge tm-role-badge tm-role-badge--chairman mb-1 d-block"><?php echo $__t('अध्यक्ष', 'Chairman'); ?></span><?php endif; ?>
+                                    <?php if (!empty($m['is_ceo'])): ?><span class="badge tm-role-badge tm-role-badge--ceo mb-1 d-block"><?php echo $__t('CEO', 'CEO'); ?></span><?php endif; ?>
+                                    <?php if ($m['is_information_officer']): ?><span class="badge tm-role-badge tm-role-badge--info mb-1 d-block"><?php echo $__t('सूचना अधिकारी', 'Info Officer'); ?></span><?php endif; ?>
+                                    <?php if ($m['is_grievance_officer']): ?><span class="badge tm-role-badge tm-role-badge--griev mb-1 d-block"><?php echo $__t('गुनासो अधिकारी', 'Grievance'); ?></span><?php endif; ?>
                                 </td>
                                 <td class="text-center">
                                     <form method="POST" class="svc-inline-form">

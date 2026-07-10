@@ -10025,6 +10025,18 @@ body.admin-auth-page {
     border-color: color-mix(in srgb, var(--secondary-color) 28%, transparent);
 }
 
+.tm-role-badge--chairman {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border-color: #f59e0b;
+}
+
+.tm-role-badge--ceo {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border-color: #3b82f6;
+}
+
 .tm-status--on {
     background: var(--primary-color) !important;
     color: var(--text-on-primary) !important;

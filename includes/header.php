@@ -285,7 +285,8 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     <link rel="alternate" hreflang="x-default" href="<?php echo e($__seoCanon); ?>" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="<?php echo SITE_URL . (function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/favicon.png'); ?>">
+    <link rel="icon" type="image/svg+xml" href="<?php echo SITE_URL . (function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'public/icon.svg'); ?>">
+    <link rel="icon" type="image/png" href="<?php echo SITE_URL . (function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/icon-192x192.png'); ?>" sizes="192x192">
 
     <!-- Preload Logo for faster display -->
     <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">
