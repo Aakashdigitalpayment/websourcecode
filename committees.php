@@ -8,7 +8,8 @@ $L = getLangStrings();
 /* ?type=N (पुरानो) र ?id=N (नयाँ navbar बाट) — दुवै support */
 $selectedType  = isset($_GET['type']) ? (int)$_GET['type'] : (isset($_GET['id']) ? (int)$_GET['id'] : null);
 $selectedName  = isset($_GET['name']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', trim($_GET['name'])) : null;
-$showPast = isset($_GET['past']) && $_GET['past'] == '1';
+$showPast      = isset($_GET['past']) && $_GET['past'] == '1';
+$selectedTenure = isset($_GET['tenure']) ? (int)$_GET['tenure'] : null; // past tenure year filter
 
 // Get data from database
 try {
@@ -88,14 +89,28 @@ try {
             $pastTenures = $pastStmt->fetchAll();
 
             foreach ($pastTenures as $tenure) {
+                // If a specific tenure year is selected, only show that one
+                if ($selectedTenure && $tenure['id'] != $selectedTenure) continue;
+
                 $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
                 $memberStmt->execute([$tenure['id']]);
                 $members = $memberStmt->fetchAll();
 
                 $pastCommittees[] = [
-                    'type' => $type,
-                    'tenure' => $tenure,
+                    'type'    => $type,
+                    'tenure'  => $tenure,
                     'members' => $members
+                ];
+            }
+
+            // Collect all available past tenures for the dropdown (for selected type or all)
+            if (!isset($allPastTenures)) $allPastTenures = [];
+            foreach ($pastTenures as $t) {
+                $allPastTenures[$t['id']] = [
+                    'id'         => $t['id'],
+                    'label'      => ($t['tenure_name_np'] ?? $t['tenure_name'] ?? ''),
+                    'type_id'    => $type['id'],
+                    'type_label' => isEnglish() ? $type['name'] : $type['name_np'],
                 ];
             }
         }
@@ -154,8 +169,8 @@ $currentHeroDesc = $isManagementView
         <div class="filter-wrapper">
             <div class="row align-items-center g-3">
 
-                <!-- Dropdown selector -->
-                <div class="col-sm-7 col-md-6">
+                <!-- Committee type dropdown -->
+                <div class="col-sm-6 col-md-5">
                     <div class="coop-select-wrap">
                         <i class="fas fa-users coop-select-icon"></i>
                         <select id="committeeTypeSelect" class="form-select coop-select-field"
@@ -163,32 +178,53 @@ $currentHeroDesc = $isManagementView
                                 aria-label="<?php echo isEnglish() ? 'Select committee type' : 'समिति प्रकार छान्नुहोस्'; ?>">
                             <option value="committees.php<?php echo $showPast ? '?past=1' : ''; ?>"
                                 <?php echo !$selectedType ? 'selected' : ''; ?>>
-                                <i class="fas fa-list"></i>
-                                <?php echo isEnglish() ? '— All Current Committees —' : '— सबै हालका समितिहरू —'; ?>
+                                <?php echo isEnglish() ? '— All Committees —' : '— सबै समितिहरू —'; ?>
                             </option>
                             <?php foreach ($committeeTypes as $type): ?>
-                            <option value="?type=<?php echo $type['id']; ?><?php echo $showPast ? '&past=1' : ''; ?>"
+                            <option value="?<?php echo $showPast ? 'past=1&' : ''; ?>type=<?php echo $type['id']; ?>"
                                 <?php echo $selectedType == $type['id'] ? 'selected' : ''; ?>>
-                                <?php echo isEnglish() ? $type['name'] : $type['name_np']; ?>
+                                <?php echo isEnglish() ? htmlspecialchars($type['name']) : htmlspecialchars($type['name_np']); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
 
-                <!-- Past / Current toggle -->
-                <div class="col-sm-5 col-md-6 text-sm-end">
+                <!-- Tenure/year dropdown — only in past mode -->
+                <?php if ($showPast && !empty($allPastTenures)): ?>
+                <div class="col-sm-6 col-md-4">
+                    <div class="coop-select-wrap">
+                        <i class="fas fa-calendar-alt coop-select-icon"></i>
+                        <select class="form-select coop-select-field"
+                                onchange="location.href=this.value"
+                                aria-label="<?php echo isEnglish() ? 'Select tenure year' : 'कार्यकाल छान्नुहोस्'; ?>">
+                            <option value="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>">
+                                <?php echo isEnglish() ? '— All Years —' : '— सबै कार्यकाल —'; ?>
+                            </option>
+                            <?php foreach ($allPastTenures as $pt): ?>
+                            <option value="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>&tenure=<?php echo $pt['id']; ?>"
+                                <?php echo $selectedTenure == $pt['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($pt['label'] ?: $pt['type_label']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- Current / Past toggle -->
+                <div class="col-sm-12 col-md-<?php echo ($showPast && !empty($allPastTenures)) ? '3' : '7'; ?> text-md-end">
                     <?php if (!$showPast): ?>
                     <a href="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>"
                        class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-history"></i>
-                        <?php echo isEnglish() ? 'View Past Committees' : 'विगतका समितिहरू हेर्नुहोस्'; ?>
+                        <i class="fas fa-history me-1"></i>
+                        <?php echo isEnglish() ? 'Past Committees' : 'विगतका समितिहरू'; ?>
                     </a>
                     <?php else: ?>
                     <a href="committees.php<?php echo $selectedType ? '?type='.$selectedType : ''; ?>"
                        class="btn btn-primary btn-sm">
-                        <i class="fas fa-users"></i>
-                        <?php echo isEnglish() ? 'View Current Committees' : 'हालका समितिहरू हेर्नुहोस्'; ?>
+                        <i class="fas fa-users me-1"></i>
+                        <?php echo isEnglish() ? 'Current Committees' : 'हालका समितिहरू'; ?>
                     </a>
                     <?php endif; ?>
                 </div>

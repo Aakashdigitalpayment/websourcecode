@@ -279,10 +279,12 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     </div>
                 </div>
                 <div class="col-md-4 d-flex align-items-end pb-1">
-                    <!-- नयाँ: navbar drop-down मा देखाउने/नदेखाउने toggle -->
-                    <div class="form-check form-switch fs-5">
-                        <input class="form-check-input" type="checkbox" name="type_show_in_navbar" id="typ_show_nav">
-                        <label class="form-check-label fw-semibold" for="typ_show_nav">मेनु ड्रप-डाउनमा देखाउनुहोस्</label>
+                    <div>
+                        <div class="form-check form-switch fs-5 mb-0">
+                            <input class="form-check-input" type="checkbox" name="type_show_in_navbar" id="typ_show_nav">
+                            <label class="form-check-label fw-semibold" for="typ_show_nav">मेनु ड्रप-डाउनमा देखाउनुहोस्</label>
+                        </div>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>ON गर्नुस् भने Website को "सम्पर्क अधिकारी → समिति" submenu मा यो प्रकार देखिन्छ।</small>
                     </div>
                 </div>
             </div>
@@ -438,6 +440,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <option value="<?php echo $ct['id']; ?>"><?php echo htmlspecialchars($ct['name_np']); ?></option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                <div class="col-12">
+                    <div class="alert alert-info py-2 mb-1 small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>कार्यकाल भनेको के हो?</strong>
+                        समितिको एक कार्य-अवधि (जस्तै २०७८-२०८१)। एउटा समिति प्रकारमा धेरै कार्यकाल हुन सक्छन् — <strong>हालको कार्यकाल ON</strong> गरेको मात्र public website मा देखिन्छ। पुराना कार्यकाल "विगतका समितिहरू" मा जान्छन्।
+                    </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-semibold text-success">कार्यकाल नाम <span class="text-danger">*</span></label>
