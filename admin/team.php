@@ -41,7 +41,7 @@ try {
     if ($_col && stripos($_col['Type'] ?? '', 'enum') !== false) {
         $_db_chk->exec("ALTER TABLE team_members MODIFY COLUMN category VARCHAR(50) NOT NULL DEFAULT 'staff'");
     }
-    /* Ensure is_chairman and is_ceo columns exist (for v7.0 chairman/CEO selection) */
+    /* Ensure is_chairman, is_ceo, is_information_officer, is_grievance_officer columns exist */
     $_cols = $_db_chk->query("SHOW COLUMNS FROM team_members")->fetchAll(PDO::FETCH_ASSOC);
     $_existing = array_column($_cols, 'Field');
     if (!in_array('is_chairman', $_existing, true)) {
@@ -49,6 +49,12 @@ try {
     }
     if (!in_array('is_ceo', $_existing, true)) {
         $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0");
+    }
+    if (!in_array('is_information_officer', $_existing, true)) {
+        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_information_officer TINYINT(1) DEFAULT 0");
+    }
+    if (!in_array('is_grievance_officer', $_existing, true)) {
+        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0");
     }
     /* Ensure committee_types table exists (silently) */
     $_db_chk->exec("CREATE TABLE IF NOT EXISTS committee_types (
