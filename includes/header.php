@@ -142,12 +142,30 @@ $currentLang = getCurrentLang();
 /* ── Services dropdown/mega-menu links (admin/services.php बाट) ── */
 $navServiceLinks  = [];
 $navServiceGroups = [];
+$__navGrpLabels   = [];
+$__navGrpIcons    = [];
 try {
     if ($db) {
         if (function_exists('ensureServiceProductsTables')) { ensureServiceProductsTables($db); }
         try {
-            $svcRows = $db->query("SELECT id, title, title_en, title_np, icon, nav_group FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
+            // Join with service_categories for dynamic mega-menu grouping
+            $svcRows = $db->query("
+                SELECT s.id, s.title, s.title_en, s.title_np, s.icon,
+                       s.service_category_id,
+                       sc.id        AS cat_id,
+                       sc.name      AS cat_name,
+                       sc.name_en   AS cat_name_en,
+                       sc.name_np   AS cat_name_np,
+                       sc.icon      AS cat_icon,
+                       sc.display_order AS cat_order
+                FROM services s
+                LEFT JOIN service_categories sc ON sc.id = s.service_category_id AND sc.is_active = 1
+                WHERE s.is_active = 1
+                ORDER BY sc.display_order, sc.id, s.display_order, s.id
+                LIMIT 60
+            ")->fetchAll();
         } catch (Throwable $e2) {
+            // Fallback: columns not migrated yet
             $svcRows = $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
         }
         $serviceAnchorId = static function (array $service): string {
@@ -157,36 +175,31 @@ try {
             $label = $title !== '' ? $title : $titleNp;
             $norm = mb_strtolower($label, 'UTF-8');
             if (mb_strpos($norm, 'बचत') !== false || mb_strpos($norm, 'saving') !== false) return 'saving';
-            if (mb_strpos($norm, 'ऋण') !== false || mb_strpos($norm, 'loan') !== false || mb_strpos($norm, 'rin') !== false) return 'loan';
+            if (mb_strpos($norm, 'ऋण') !== false || mb_strpos($norm, 'loan') !== false) return 'loan';
             if (mb_strpos($norm, 'रेमिट') !== false || mb_strpos($norm, 'remit') !== false) return 'remittance';
             $ascii = trim(strtolower((string) preg_replace('/[^a-z0-9]+/i', '-', $title)), '-');
-            if ($ascii !== '') return $ascii;
-            return $id > 0 ? ('service-' . $id) : 'service';
+            return $ascii ?: ($id > 0 ? 'service-'.$id : 'service');
         };
-        $__navGrpLabels = [
-            'general'   => isEnglish() ? 'Our Services'      : 'सामान्य सेवा',
-            'financial' => isEnglish() ? 'Financial'          : 'वित्तीय सेवा',
-            'social'    => isEnglish() ? 'Social Programs'    : 'सामाजिक कार्यक्रम',
-            'student'   => isEnglish() ? 'Student Awards'     : 'विद्यार्थी सम्मान',
-            'other'     => isEnglish() ? 'Other'              : 'अन्य',
-        ];
-        $__navGrpIcons = [
-            'general'   => 'fas fa-briefcase',
-            'financial' => 'fas fa-piggy-bank',
-            'social'    => 'fas fa-hands-helping',
-            'student'   => 'fas fa-graduation-cap',
-            'other'     => 'fas fa-ellipsis-h',
-        ];
         foreach ($svcRows as $sv) {
             $rawTitle = (string)(($currentLang === 'en' && !empty($sv['title_en'])) ? $sv['title_en'] : (!empty($sv['title_np']) ? $sv['title_np'] : ($sv['title'] ?? '')));
             $title = trim($rawTitle);
             if ($title === '') continue;
             $icon   = trim((string)($sv['icon'] ?? 'fas fa-star')) ?: 'fas fa-star';
             $anchor = $serviceAnchorId($sv);
-            $group  = $sv['nav_group'] ?? 'general';
-            if (!isset($__navGrpLabels[$group])) $group = 'general';
-            $navServiceLinks[]        = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor, 'group' => $group];
-            $navServiceGroups[$group][] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor];
+            $catId  = (int)($sv['cat_id'] ?? 0);
+            $navServiceLinks[] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor, 'cat_id' => $catId];
+            if ($catId > 0) {
+                if (!isset($navServiceGroups[$catId])) {
+                    $catLabel = '';
+                    if ($currentLang === 'en' && !empty($sv['cat_name_en'])) $catLabel = $sv['cat_name_en'];
+                    elseif (!empty($sv['cat_name_np'])) $catLabel = $sv['cat_name_np'];
+                    else $catLabel = $sv['cat_name'] ?? '';
+                    $__navGrpLabels[$catId] = $catLabel;
+                    $__navGrpIcons[$catId]  = $sv['cat_icon'] ?? 'fas fa-th-large';
+                    $navServiceGroups[$catId] = [];
+                }
+                $navServiceGroups[$catId][] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor];
+            }
         }
     }
 } catch (Throwable $e) {

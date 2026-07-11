@@ -441,9 +441,21 @@ function ensureAdminTables(): void {
         ];
         foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
-        /* ── services: mega-menu grouping column ── */
+        /* ── services: mega-menu grouping — dynamic categories table ── */
+        $db->exec("CREATE TABLE IF NOT EXISTS service_categories (
+            id           INT AUTO_INCREMENT PRIMARY KEY,
+            name         VARCHAR(120) NOT NULL,
+            name_en      VARCHAR(120) DEFAULT '',
+            name_np      VARCHAR(120) DEFAULT '',
+            icon         VARCHAR(80)  DEFAULT 'fas fa-th-large',
+            display_order INT DEFAULT 0,
+            is_active    TINYINT(1) DEFAULT 1,
+            created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        /* Add category FK column to services (safe — ignored if already exists) */
         $svcAlters = [
             "ALTER TABLE services ADD COLUMN nav_group VARCHAR(40) DEFAULT 'general'",
+            "ALTER TABLE services ADD COLUMN service_category_id INT DEFAULT NULL",
         ];
         foreach ($svcAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
@@ -495,7 +507,7 @@ function ensureAdminTables(): void {
 
 /* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
  * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
-$_adminSchemaVersion = 'v4-megamenu-navgroup-2026';
+$_adminSchemaVersion = 'v5-svc-categories-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {

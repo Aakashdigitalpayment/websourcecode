@@ -28,6 +28,37 @@ ensureServiceProductsTables($db);
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     try {
         $act = $_POST['action'];
+
+        /* ── Service Category CRUD ────────────────────────────────────────── */
+        if ($act === 'cat_add' || $act === 'cat_edit') {
+            $catName   = clean_text($_POST['cat_name']    ?? '');
+            $catNameEn = clean_text($_POST['cat_name_en'] ?? '');
+            $catNameNp = clean_text($_POST['cat_name_np'] ?? $catName);
+            $catIcon   = clean_text($_POST['cat_icon']    ?? 'fas fa-th-large');
+            $catOrder  = (int)($_POST['cat_order'] ?? 0);
+            $catActive = isset($_POST['cat_is_active']) ? 1 : 0;
+            if ($catName === '') throw new Exception('Category name required.');
+            if ($act === 'cat_add') {
+                $db->prepare("INSERT INTO service_categories (name, name_en, name_np, icon, display_order, is_active) VALUES (?,?,?,?,?,?)")
+                   ->execute([$catName, $catNameEn, $catNameNp, $catIcon, $catOrder, $catActive]);
+                $success = $__t('श्रेणी थपियो।', 'Category added.');
+            } else {
+                $db->prepare("UPDATE service_categories SET name=?, name_en=?, name_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
+                   ->execute([$catName, $catNameEn, $catNameNp, $catIcon, $catOrder, $catActive, (int)$_POST['cat_id']]);
+                $success = $__t('श्रेणी अपडेट भयो।', 'Category updated.');
+            }
+            header('Location: services.php?tab=cats&msg=' . urlencode($success)); exit;
+        }
+        if ($act === 'cat_delete') {
+            $catDel = (int)($_POST['cat_id'] ?? 0);
+            if ($catDel) {
+                $db->prepare("DELETE FROM service_categories WHERE id=?")->execute([$catDel]);
+                // Unlink services from this category
+                $db->prepare("UPDATE services SET service_category_id = NULL WHERE service_category_id=?")->execute([$catDel]);
+            }
+            header('Location: services.php?tab=cats'); exit;
+        }
+
         if ($act === 'add' || $act === 'edit') {
             $title        = clean_text($_POST['title']        ?? '');
             $title_en     = clean_text($_POST['title_en']     ?? '');
@@ -37,12 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $icon         = clean_text($_POST['icon']         ?? 'fas fa-star');
             $order        = (int)($_POST['display_order']   ?? 0);
             $is_active    = isset($_POST['is_active']) ? 1 : 0;
-            $nav_group    = in_array($_POST['nav_group'] ?? '', ['general','social','student','financial','other']) ? ($_POST['nav_group']) : 'general';
+            $nav_group          = in_array($_POST['nav_group'] ?? '', ['general','social','student','financial','other']) ? ($_POST['nav_group']) : 'general';
+            $service_category_id = (int)($_POST['service_category_id'] ?? 0) ?: null;
 
             if ($act === 'add') {
                 try {
-                    $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active, nav_group) VALUES (?,?,?,?,?,?,?,?,?)")
-                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group]);
+                    $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active, nav_group, service_category_id) VALUES (?,?,?,?,?,?,?,?,?,?)")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group, $service_category_id]);
                 } catch (Throwable $e2) {
                     $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active) VALUES (?,?,?,?,?,?,?,?)")
                        ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active]);
@@ -50,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $success = 'सेवा सफलतापूर्वक थपियो।';
             } else {
                 try {
-                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=?, nav_group=? WHERE id=?")
-                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group, (int)$_POST['id']]);
+                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=?, nav_group=?, service_category_id=? WHERE id=?")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group, $service_category_id, (int)$_POST['id']]);
                 } catch (Throwable $e2) {
                     $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
                        ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, (int)$_POST['id']]);
@@ -119,6 +151,18 @@ try {
                                    ORDER BY sp.service_id, sp.display_order, sp.id DESC")->fetchAll();
 } catch (Exception $e) { $serviceProducts = []; }
 
+// Service categories (dynamic mega-menu groups)
+try {
+    $serviceCategories = $db->query("SELECT * FROM service_categories ORDER BY display_order, id")->fetchAll();
+} catch (Exception $e) { $serviceCategories = []; }
+
+$activeTab = $_GET['tab'] ?? 'services';
+$editCatId = (int)($_GET['edit_cat'] ?? 0);
+$editCat   = null;
+foreach ($serviceCategories as $sc) {
+    if ((int)$sc['id'] === $editCatId) { $editCat = $sc; break; }
+}
+
 $editServiceId = (int)($_GET['edit'] ?? 0);
 $editService = null;
 if ($editServiceId > 0) {
@@ -152,7 +196,7 @@ $servicesArch = $svcPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link <?php echo $openServiceForm ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="सक्रिय / जम्मा">
             <i class="fas fa-list me-2"></i><?php echo $__t('सेवा सूची', 'Service List'); ?>
             <span class="badge bg-success ms-1"><?php echo count($servicesLive); ?> / <?php echo count($services); ?></span>
         </button>
@@ -165,6 +209,12 @@ $servicesArch = $svcPart['archived'];
     <li class="nav-item">
         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#svc-products" id="svc-products-btn">
             <i class="fas fa-list-check me-2"></i><span id="svcProductsTabLabel">Service Products</span>
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link <?php echo $activeTab === 'cats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-cats" id="svc-cats-btn">
+            <i class="fas fa-layer-group me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
+            <span class="badge bg-secondary ms-1"><?php echo count($serviceCategories); ?></span>
         </button>
     </li>
 </ul>
@@ -351,12 +401,17 @@ $servicesArch = $svcPart['archived'];
                             <small class="text-muted"><?php echo $__t('FontAwesome class — जस्तै', 'FontAwesome class — e.g.'); ?>: fas fa-piggy-bank, fas fa-hand-holding-usd</small>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('मेनु समूह', 'Menu Group'); ?></label>
-                            <?php $navGrps = ['general'=>$__t('सामान्य','General'),'financial'=>$__t('वित्तीय','Financial'),'social'=>$__t('सामाजिक','Social'),'student'=>$__t('विद्यार्थी','Student'),'other'=>$__t('अन्य','Other')]; $curNavGrp = $editService['nav_group'] ?? 'general'; ?>
-                            <select name="nav_group" id="svcf_nav_group" class="form-select admin-fancy-input">
-                                <?php foreach ($navGrps as $gk => $gl): ?><option value="<?php echo $gk; ?>" <?php echo $curNavGrp===$gk?'selected':''; ?>><?php echo htmlspecialchars($gl); ?></option><?php endforeach; ?>
+                            <label class="form-label fw-semibold text-success"><?php echo $__t('मेनु श्रेणी', 'Menu Category'); ?></label>
+                            <?php $curCatId = (int)($editService['service_category_id'] ?? 0); ?>
+                            <select name="service_category_id" id="svcf_cat" class="form-select admin-fancy-input">
+                                <option value=""><?php echo $__t('— श्रेणी छैन —', '— No Category —'); ?></option>
+                                <?php foreach ($serviceCategories as $sc): ?>
+                                <option value="<?php echo $sc['id']; ?>" <?php echo $curCatId == $sc['id'] ? 'selected' : ''; ?>>
+                                    <?php $scLabel = (!empty($sc['name_np']) ? $sc['name_np'] : (!empty($sc['name_en']) ? $sc['name_en'] : $sc['name'])); echo htmlspecialchars($scLabel); ?>
+                                </option>
+                                <?php endforeach; ?>
                             </select>
-                            <small class="text-muted"><?php echo $__t('मेगामेनु column', 'Mega-menu column'); ?></small>
+                            <small class="text-muted"><?php echo $__t('मेगामेनुको column', 'Mega-menu column'); ?> — <a href="?tab=cats" class="text-success"><?php echo $__t('श्रेणी थप्ने', 'Add categories'); ?></a></small>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold text-success"><?php echo $__t('क्रम', 'Order'); ?></label>
@@ -496,6 +551,96 @@ $servicesArch = $svcPart['archived'];
         </div>
     </div>
 
+    <!-- ── मेनु श्रेणी (Service Categories) Tab Panel ──────────────────── -->
+    <div class="tab-pane fade <?php echo $activeTab === 'cats' ? 'show active' : ''; ?>" id="svc-cats">
+        <div class="card-body">
+            <div class="alert alert-info py-2 mb-3 small">
+                <i class="fas fa-info-circle me-1"></i>
+                <?php echo $__t('यहाँ बनाएका श्रेणी Services को form मा "मेनु श्रेणी" dropdown मा देखिन्छन्। Service लाई श्रेणी assign गर्नुस् भने website को mega-menu मा त्यो श्रेणी अन्तर्गत column बन्छ।','Categories you create here appear in the service form\'s "Menu Category" dropdown. Assign a category to a service, and it shows as a column in the website mega-menu.'); ?>
+            </div>
+
+            <!-- Category Add/Edit Form -->
+            <div class="card border mb-4">
+                <div class="card-header bg-light py-2"><strong><?php echo $editCat ? $__t('श्रेणी सम्पादन', 'Edit Category') : $__t('नयाँ श्रेणी थप्नुहोस्', 'Add New Category'); ?></strong></div>
+                <div class="card-body">
+                    <form method="POST" action="services.php?tab=cats<?php echo $editCat ? '&edit_cat='.$editCat['id'] : ''; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="action" value="<?php echo $editCat ? 'cat_edit' : 'cat_add'; ?>">
+                        <?php if ($editCat): ?><input type="hidden" name="cat_id" value="<?php echo $editCat['id']; ?>"><?php endif; ?>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="cat_name_np" class="form-control" required value="<?php echo htmlspecialchars($editCat['name_np'] ?? $editCat['name'] ?? ''); ?>" placeholder="<?php echo $__t('जस्तै: सामाजिक कार्यक्रम', 'e.g. Social Programs'); ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="cat_name_en" class="form-control" value="<?php echo htmlspecialchars($editCat['name_en'] ?? ''); ?>" placeholder="e.g. Social Programs">
+                                <input type="hidden" name="cat_name" value=""><!-- filled by JS below -->
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('आइकन (Font Awesome)', 'Icon (Font Awesome)'); ?></label>
+                                <input type="text" name="cat_icon" class="form-control" value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
+                                <small class="text-muted"><a href="https://fontawesome.com/icons" target="_blank">FA Icons</a></small>
+                            </div>
+                            <div class="col-md-1">
+                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="cat_order" class="form-control" value="<?php echo (int)($editCat['display_order'] ?? 0); ?>" min="0">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end gap-2 pb-1">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="cat_is_active" id="cat_active" value="1" <?php echo ($editCat['is_active'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="cat_active"><?php echo $__t('सक्रिय', 'Active'); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-success px-4" onclick="this.form.elements['cat_name'].value = this.form.elements['cat_name_np'].value || this.form.elements['cat_name_en'].value;">
+                                <i class="fas fa-save me-1"></i><?php echo $editCat ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add Category'); ?>
+                            </button>
+                            <?php if ($editCat): ?><a href="services.php?tab=cats" class="btn btn-outline-secondary"><?php echo $__t('रद्द गर्नुहोस्', 'Cancel'); ?></a><?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Category List -->
+            <?php if (empty($serviceCategories)): ?>
+            <div class="text-center py-4 text-muted"><i class="fas fa-layer-group fa-2x mb-2 d-block opacity-50"></i><?php echo $__t('कुनै श्रेणी छैन। माथि थप्नुहोस्।', 'No categories yet. Add one above.'); ?></div>
+            <?php else: ?>
+            <table class="table table-sm table-hover admin-table-card">
+                <thead><tr>
+                    <th><?php echo $__t('श्रेणी नाम', 'Category Name'); ?></th>
+                    <th><?php echo $__t('अंग्रेजी', 'English'); ?></th>
+                    <th class="text-center"><?php echo $__t('आइकन', 'Icon'); ?></th>
+                    <th class="text-center"><?php echo $__t('क्रम', 'Order'); ?></th>
+                    <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
+                    <th class="text-center"><?php echo $__t('कार्य', 'Action'); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($serviceCategories as $sc): ?>
+                <tr>
+                    <td><i class="<?php echo htmlspecialchars($sc['icon']); ?> me-2 text-success"></i><?php echo htmlspecialchars($sc['name_np'] ?: $sc['name']); ?></td>
+                    <td><?php echo htmlspecialchars($sc['name_en'] ?? ''); ?></td>
+                    <td class="text-center"><code class="small"><?php echo htmlspecialchars($sc['icon']); ?></code></td>
+                    <td class="text-center"><?php echo (int)$sc['display_order']; ?></td>
+                    <td class="text-center"><span class="badge <?php echo $sc['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sc['is_active'] ? $__t('सक्रिय','Active') : $__t('निष्क्रिय','Inactive'); ?></span></td>
+                    <td class="text-center">
+                        <a href="?tab=cats&edit_cat=<?php echo $sc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('यो श्रेणी हटाउने? यसमा assign भएका services unlink हुन्छन्।')">
+                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="action" value="cat_delete">
+                            <input type="hidden" name="cat_id" value="<?php echo $sc['id']; ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -544,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('svcf_desc').value    = d.description || '';
             document.getElementById('svcf_icon').value    = d.icon;
             document.getElementById('svcf_order').value   = d.order;
-            if (document.getElementById('svcf_nav_group')) document.getElementById('svcf_nav_group').value = d.nav_group || 'general';
+            if (document.getElementById('svcf_cat')) document.getElementById('svcf_cat').value = d.cat_id || '';
             document.getElementById('svcf_active').checked= d.active === '1';
             document.getElementById('svcIconPreview').innerHTML = '<i class="' + d.icon + '"></i>';
             document.getElementById('svcf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
