@@ -183,9 +183,9 @@ try {
     }
 } catch (\Throwable $e) { /* committee_types छैन */ }
 
-/* सूची: governance = board + समिति (cmt_*), karmachari = व्यवस्थापन + कर्मचारी */
+/* सूची: governance = board + समिति (cmt_*), karmachari = शीर्ष व्यवस्थापन + व्यवस्थापन + कर्मचारी + एडमिन */
 if ($teamListSection === 'governance') {
-    $govCategoryList = ['board', 'leadership'];
+    $govCategoryList = ['board'];
     foreach ($extraTypes as $ct) {
         $govCategoryList[] = 'cmt_' . (int)$ct['id'];
     }
@@ -194,7 +194,7 @@ if ($teamListSection === 'governance') {
     $stTeam->execute($govCategoryList);
     $team = $stTeam->fetchAll();
 } else {
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('management','top_management','leadership','staff','admin') ORDER BY category, display_order, id DESC");
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('top_management','management','staff','admin') ORDER BY category, display_order, id DESC");
     $stTeam->execute();
     $team = $stTeam->fetchAll();
 }
