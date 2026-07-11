@@ -327,7 +327,10 @@ if (!function_exists('adminFooter')) {
      * @param string $extraBtns   — Extra HTML buttons
      * @return string             — HTML
      */
-    function adminFooter($submitText = _t('जमा गर्नुहोस्', 'Submit'), $submitType = 'primary', $cancelUrl = 'javascript:history.back();', $extraBtns = '') {
+    function adminFooter($submitText = null, $submitType = 'primary', $cancelUrl = 'javascript:history.back();', $extraBtns = '') {
+        if ($submitText === null) {
+            $submitText = _t('जमा गर्नुहोस्', 'Submit');
+        }
         $html = '<div class="form-actions">';
 
         if (!empty($extraBtns)) {
