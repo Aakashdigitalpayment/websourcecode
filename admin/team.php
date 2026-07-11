@@ -163,11 +163,13 @@ $db   = getDB();
 /* Default 3 categories (backward-compatible) */
 $cats = [
     'board' => $__t('सञ्चालक समिति', 'Board Committee'),
+    'leadership' => $__t('नेतृत्व', 'Leadership'),
+    'top_management' => $__t('शीर्ष व्यवस्थापन टोली', 'Top Management Team'),
     'management' => $__t('व्यवस्थापन', 'Management'),
     'staff' => $__t('कर्मचारी', 'Staff'),
     'admin' => $__t('एडमिन', 'Admin')
 ];
-$catColors = ['board' => 'var(--primary-color)', 'management' => 'var(--secondary-color)', 'staff' => 'var(--text-secondary)', 'admin' => 'var(--info, #0369a1)'];
+$catColors = ['board' => 'var(--primary-color)', 'leadership' => 'var(--warning)', 'top_management' => 'var(--warning)', 'management' => 'var(--secondary-color)', 'staff' => 'var(--text-secondary)', 'admin' => 'var(--info, #0369a1)'];
 
 $extraTypes = [];
 try {
@@ -183,7 +185,7 @@ try {
 
 /* सूची: governance = board + समिति (cmt_*), karmachari = व्यवस्थापन + कर्मचारी */
 if ($teamListSection === 'governance') {
-    $govCategoryList = ['board'];
+    $govCategoryList = ['board', 'leadership'];
     foreach ($extraTypes as $ct) {
         $govCategoryList[] = 'cmt_' . (int)$ct['id'];
     }
@@ -192,7 +194,7 @@ if ($teamListSection === 'governance') {
     $stTeam->execute($govCategoryList);
     $team = $stTeam->fetchAll();
 } else {
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('management','staff','admin') ORDER BY category, display_order, id DESC");
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('management','top_management','leadership','staff','admin') ORDER BY category, display_order, id DESC");
     $stTeam->execute();
     $team = $stTeam->fetchAll();
 }
@@ -212,9 +214,31 @@ if ($teamListSection === 'governance') {
         }
     }
 } else {
+    $catsForm['top_management'] = $cats['top_management'];
     $catsForm['management'] = $cats['management'];
     $catsForm['staff'] = $cats['staff'];
     $catsForm['admin'] = $cats['admin'];
+}
+
+$catOptgroups = [];
+if ($teamListSection === 'governance') {
+    $catOptgroups[isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'] = ['board' => $catsForm['board'] ?? $cats['board']];
+    $committeeOptions = [];
+    foreach ($catsForm as $slug => $label) {
+        if (strpos($slug, 'cmt_') === 0) {
+            $committeeOptions[$slug] = $label;
+        }
+    }
+    if (!empty($committeeOptions)) {
+        $catOptgroups[isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'] = $committeeOptions;
+    }
+} else {
+    $catOptgroups[isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'] = ['top_management' => $catsForm['top_management'] ?? $cats['top_management']];
+    $catOptgroups[isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'] = ['management' => $catsForm['management'] ?? $cats['management']];
+    $catOptgroups[isEnglish() ? 'Staff' : 'कर्मचारी'] = ['staff' => $catsForm['staff'] ?? $cats['staff']];
+    if (!isset($catOptgroups[isEnglish() ? 'Admin Team' : 'एडमिन टोली'])) {
+        $catOptgroups[isEnglish() ? 'Admin Team' : 'एडमिन टोली'] = ['admin' => $catsForm['admin'] ?? $cats['admin']];
+    }
 }
 
 ?>
@@ -517,8 +541,12 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <select name="category" id="tmf_cat" class="form-select admin-fancy-input">
                                 <?php
                                 $_defCat = $teamListSection === 'karmachari' ? 'management' : 'board';
-                                foreach ($catsForm as $_slug => $_lbl): ?>
-                                    <option value="<?php echo htmlspecialchars($_slug); ?>" <?php echo $_slug === $_defCat ? 'selected' : ''; ?>><?php echo htmlspecialchars($_lbl); ?></option>
+                                foreach ($catOptgroups as $_groupLabel => $_options): ?>
+                                    <optgroup label="<?php echo htmlspecialchars($_groupLabel); ?>">
+                                        <?php foreach ($_options as $_slug => $_lbl): ?>
+                                            <option value="<?php echo htmlspecialchars($_slug); ?>" <?php echo $_slug === $_defCat ? 'selected' : ''; ?>><?php echo htmlspecialchars($_lbl); ?></option>
+                                        <?php endforeach; ?>
+                                    </optgroup>
                                 <?php endforeach; ?>
                             </select>
                         </div>

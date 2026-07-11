@@ -135,8 +135,21 @@ try {
     $tenures = $db->query("SELECT t.*, ct.name_np AS type_name FROM committee_tenures t LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY t.is_current DESC, t.start_date DESC")->fetchAll();
 ensureDesignationsTable(getDB());
 $__designations = fetchDesignations(getDB(), ['committee']);
-    $members = $db->query("SELECT m.*, t.tenure_name, ct.name_np AS type_name FROM committee_members m LEFT JOIN committee_tenures t ON m.tenure_id=t.id LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY m.display_order, m.id")->fetchAll();
-} catch (Exception $e) { $committeeTypes = $tenures = $members = []; }
+    $members = $db->query("SELECT m.*, t.tenure_name, t.tenure_name_np, t.committee_type_id, ct.name AS type_name_en, ct.name_np AS type_name_np FROM committee_members m LEFT JOIN committee_tenures t ON m.tenure_id=t.id LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY ct.display_order, t.start_date DESC, m.display_order, m.id")->fetchAll();
+    $groupedMembers = [];
+    foreach ($members as $member) {
+        $typeLabel = trim((string)($member['type_name_np'] ?: $member['type_name_en'] ?: '')); 
+        $tenureLabel = trim((string)($member['tenure_name_np'] ?: $member['tenure_name'] ?: '')); 
+        $groupKey = trim($typeLabel . ' — ' . $tenureLabel);
+        if ($groupKey === '—') {
+            $groupKey = isEnglish() ? 'Other Committee Members' : 'अन्य समिति सदस्यहरू';
+        }
+        if (!isset($groupedMembers[$groupKey])) {
+            $groupedMembers[$groupKey] = [];
+        }
+        $groupedMembers[$groupKey][] = $member;
+    }
+} catch (Exception $e) { $committeeTypes = $tenures = $members = $groupedMembers = []; }
 
 $_flash = getFlash();
 ?>
@@ -282,9 +295,9 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     <div>
                         <div class="form-check form-switch fs-5 mb-0">
                             <input class="form-check-input" type="checkbox" name="type_show_in_navbar" id="typ_show_nav">
-                            <label class="form-check-label fw-semibold" for="typ_show_nav">मेनु ड्रप-डाउनमा देखाउनुहोस्</label>
+                            <label class="form-check-label fw-semibold" for="typ_show_nav">Navbar मा देखाउनुहोस्</label>
                         </div>
-                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>ON गर्नुस् भने Website को "सम्पर्क अधिकारी → समिति" submenu मा यो प्रकार देखिन्छ।</small>
+                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>ON गर्दा Website को "Team / Committees" वा "सम्पर्क अधिकारी → समिति" मेनुमा यो प्रकार देखिन्छ।</small>
                     </div>
                 </div>
             </div>
@@ -449,12 +462,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">कार्यकाल नाम <span class="text-danger">*</span></label>
-                    <input type="text" name="tenure_name" id="ten_name" class="form-control admin-fancy-input" required placeholder="2080-2084">
+                    <label class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल <span class="text-danger">*</span></label>
+                    <input type="text" name="tenure_name" id="ten_name" class="form-control admin-fancy-input" required placeholder="2080-2084 or FY 2023/24">
+                    <small class="text-muted">उदाहरण: 2080-2084, २०८०-२०८४, वा आ.व. २०८०/८१</small>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">कार्यकाल नाम (नेपाली)</label>
-                    <input type="text" name="tenure_name_np" id="ten_name_np" class="form-control admin-fancy-input" placeholder="२०८०-२०८४">
+                    <label class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल (नेपाली)</label>
+                    <input type="text" name="tenure_name_np" id="ten_name_np" class="form-control admin-fancy-input" placeholder="२०८०-२०८४ वा आ.व. २०८०/८१">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label fw-semibold text-success">सुरु मिति (वि.सं.)</label>
@@ -566,7 +580,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?php if (empty($members)): ?>
                     <tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-users fa-3x mb-2 d-block opacity-25"></i>कुनै सदस्य छैन।</td></tr>
                     <?php endif; ?>
-                    <?php foreach ($members as $m): ?>
+                    <?php foreach ($groupedMembers as $groupLabel => $membersInGroup): ?>
+                    <tr class="table-secondary">
+                        <td colspan="6" class="fw-semibold text-start">
+                            <i class="fas fa-layer-group me-2"></i>
+                            <?php echo htmlspecialchars($groupLabel); ?>
+                        </td>
+                    </tr>
+                        <?php foreach ($membersInGroup as $m): ?>
                     <tr>
                         <td class="ps-3">
                             <?php if ($m['photo']): ?>
@@ -605,6 +626,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </form>
                         </td>
                     </tr>
+                    <?php endforeach; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
