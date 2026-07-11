@@ -7,6 +7,7 @@ require_once 'includes/header.php';
 try {
     $db = getDB();
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $topManagementMembers = $db->query("SELECT * FROM team_members WHERE category = 'top_management' AND is_active = 1 ORDER BY display_order")->fetchAll();
     $managementMembers = $db->query("SELECT * FROM team_members WHERE category = 'management' AND is_active = 1 ORDER BY display_order")->fetchAll();
     $staffMembers = $db->query("SELECT * FROM team_members WHERE category = 'staff' AND is_active = 1 ORDER BY display_order")->fetchAll();
     $adminMembers = $db->query("SELECT * FROM team_members WHERE category = 'admin' AND is_active = 1 ORDER BY display_order")->fetchAll();
@@ -64,18 +65,24 @@ foreach ($committeeTypes as $_ct) {
 }
 ?>
 
-<?php if (!empty($boardMembers) || !empty($managementMembers) || !empty($staffMembers) || !empty($adminMembers) || $hasCommitteeFilters): ?>
+<?php if (!empty($boardMembers) || !empty($topManagementMembers) || !empty($managementMembers) || !empty($staffMembers) || !empty($adminMembers) || $hasCommitteeFilters): ?>
 <section class="team-filter-bar section-padding bg-white">
     <div class="container">
-        <div class="d-flex flex-wrap gap-2 justify-content-center">
+        <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
             <button type="button" class="filter-btn active" onclick="teamFilter(this, 'all')">
                 <i class="fas fa-th-large"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
+            </button>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'contact-officers')">
+                <i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
+            </button>
+            <button type="button" class="filter-btn" onclick="teamFilter(this, 'top-management')">
+                <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?>
             </button>
             <button type="button" class="filter-btn" onclick="teamFilter(this, 'board')">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="building-columns"></i> <?php echo isEnglish() ? 'Board' : 'सञ्चालक समिति'; ?>
             </button>
             <button type="button" class="filter-btn" onclick="teamFilter(this, 'management')">
-                <i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management' : 'व्यवस्थापन टोली'; ?>
+                <i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?>
             </button>
             <button type="button" class="filter-btn" onclick="teamFilter(this, 'staff')">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारीहरू'; ?>
@@ -85,11 +92,22 @@ foreach ($committeeTypes as $_ct) {
                 <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
             </button>
             <?php endif; ?>
-            <?php foreach ($committeeFilterButtons as $_cf): ?>
-                <button type="button" class="filter-btn" onclick="teamFilter(this, 'committee-<?php echo $_cf['id']; ?>')">
-                    <i class="fas fa-users-gear"></i> <?php echo e($_cf['label']); ?>
+            <?php if (!empty($committeeFilterButtons)): ?>
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm dropdown-toggle filter-btn" type="button" id="committeeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?>
                 </button>
-            <?php endforeach; ?>
+                <ul class="dropdown-menu" aria-labelledby="committeeDropdown">
+                    <?php foreach ($committeeFilterButtons as $_cf): ?>
+                        <li>
+                            <button class="dropdown-item" type="button" onclick="teamFilter(this, 'committee-<?php echo $_cf['id']; ?>')">
+                                <?php echo e($_cf['label']); ?>
+                            </button>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -97,15 +115,15 @@ foreach ($committeeTypes as $_ct) {
 
 <!-- Information & Grievance Officers Section -->
 <?php if ($chairman || $ceo || $informationOfficer || $grievanceOfficer): ?>
-<section id="leadership" class="officers-section section-padding bg-light">
+<section id="contact-officers" class="team-section officers-section section-padding bg-light" data-filter="contact-officers">
     <div class="container">
         <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
+                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></span>
             </div>
-            <h2><?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></h2>
+            <h2><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></h2>
             <div class="section-divider"></div>
-            <p><?php echo isEnglish() ? 'Meet our leadership team and designated officers for information and grievances.' : 'हाम्रा नेतृत्वकर्ता तथा सूचना र गुनासोका लागि तोकिएका अधिकारीहरू'; ?></p>
+            <p><?php echo isEnglish() ? 'Meet our designated officers, senior leadership and contact points for information or grievances.' : 'सूचना तथा गुनासोका लागि तोकिएका अधिकारीहरू र वरिष्ठ नेतृत्वसँग भेट्नुहोस्'; ?></p>
         </div>
 
         <div class="row justify-content-center">
@@ -272,7 +290,18 @@ foreach ($committeeTypes as $_ct) {
 </section>
 <?php endif; ?>
 
-<!-- Board of Directors -->
+<!-- Committees & Subcommittees -->
+<?php if (!empty($boardMembers) || !empty(array_filter($committeeMembers))): ?>
+<section class="section-padding" id="committees-group">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2><?php echo isEnglish() ? 'Committees & Subcommittees' : 'समिति / उपसमिति'; ?></h2>
+            <p><?php echo isEnglish() ? 'Our board, audit, advisory and other committee groups.' : 'हाम्रो सञ्चालक समिति, लेखा समिति, सल्लाहकार समिति र अन्य उपसमितिहरू'; ?></p>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <?php if (!empty($boardMembers)): ?>
 <section class="team-section section-padding" data-filter="board">
     <div class="container">
@@ -318,6 +347,50 @@ foreach ($committeeTypes as $_ct) {
 <?php endif; ?>
 
 <!-- Management Team -->
+<?php if (!empty($topManagementMembers)): ?>
+<section id="top-management" class="team-section section-padding bg-light" data-filter="top-management">
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2><?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?></h2>
+            <p><?php echo isEnglish() ? 'Our senior managers and executive employees.' : 'हाम्रा वरिष्ठ व्यवस्थापनका कर्मचारीहरू'; ?></p>
+        </div>
+
+        <div class="row justify-content-center">
+            <?php foreach ($topManagementMembers as $index => $member): ?>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
+                <div class="team-card-circular">
+                    <div class="team-photo-circular">
+                        <?php if ($member['photo']): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h5><?php echo e($member['name']); ?></h5>
+                        <?php if ($member['name_en']): ?>
+                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                        <?php endif; ?>
+                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                        <?php if ($member['phone'] || $member['email']): ?>
+                        <div class="team-contact-circular">
+                            <?php if ($member['phone']): ?>
+                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                            <?php endif; ?>
+                            <?php if ($member['email']): ?>
+                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <?php if (!empty($managementMembers)): ?>
 <section class="team-section section-padding bg-light" data-filter="management">
     <div class="container">
