@@ -45,76 +45,48 @@ try {
         </div>
 
         <div class="row">
-            <!-- Saving Rates -->
-            <div class="col-lg-6 mb-4">
-                <div class="rates-card-modern saving-rates">
-                    <div class="rates-header-modern">
-                        <div class="rates-icon saving">
-                            <i class="fas fa-piggy-bank"></i>
-                        </div>
-                        <div>
-                            <h3>बचत ब्याज दर</h3>
-                            <p>Saving Interest Rates</p>
-                        </div>
+            <div class="col-12 mb-4">
+                <div class="rates-box-enhanced">
+                    <div class="rates-header">
+                        <h3><i class="fas fa-chart-line"></i> <?php echo isEnglish() ? 'Interest Rate Details' : 'ब्याज दर विवरण'; ?></h3>
                     </div>
-                    <div class="rates-body-modern">
-                        <?php if (!empty($savingRates)): ?>
-                        <?php foreach ($savingRates as $rate): ?>
-                        <div class="rate-item">
-                            <div class="rate-info">
-                                <strong><?php echo $rate['name_np'] ?: $rate['name']; ?></strong>
-                                <?php if ($rate['description']): ?>
-                                    <small><?php echo $rate['description']; ?></small>
-                                <?php endif; ?>
+                    <div class="rates-body">
+                        <div class="row gy-4">
+                            <div class="col-md-6">
+                                <div class="rate-card-enhanced">
+                                    <h5><i class="fas fa-piggy-bank"></i> <?php echo isEnglish() ? 'Savings Interest Rates' : 'बचत ब्याज दरहरू'; ?></h5>
+                                    <?php if (!empty($savingRates)): ?>
+                                        <?php foreach ($savingRates as $rate): ?>
+                                        <div class="rate-item">
+                                            <span class="rate-name"><?php echo htmlspecialchars($rate['name_np'] ?: $rate['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                            <span class="rate-value"><?php echo number_format($rate['rate'], 2); ?>%</span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-center py-4 text-muted">
+                                            <?php echo isEnglish() ? 'No savings rate data available.' : 'बचत दर डेटा उपलब्ध छैन।'; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <div class="rate-value saving">
-                                <?php echo number_format($rate['rate'], 2); ?><span>%</span>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                        <?php else: ?>
-                        <div class="rate-empty">
-                            <i class="fas fa-info-circle"></i>
-                            <p>डाटा उपलब्ध छैन</p>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Loan Rates -->
-            <div class="col-lg-6 mb-4">
-                <div class="rates-card-modern loan-rates">
-                    <div class="rates-header-modern">
-                        <div class="rates-icon loan">
-                            <i class="fas fa-hand-holding-usd"></i>
-                        </div>
-                        <div>
-                            <h3>ऋण ब्याज दर</h3>
-                            <p>Loan Interest Rates</p>
-                        </div>
-                    </div>
-                    <div class="rates-body-modern">
-                        <?php if (!empty($loanRates)): ?>
-                        <?php foreach ($loanRates as $rate): ?>
-                        <div class="rate-item">
-                            <div class="rate-info">
-                                <strong><?php echo $rate['name_np'] ?: $rate['name']; ?></strong>
-                                <?php if ($rate['description']): ?>
-                                    <small><?php echo $rate['description']; ?></small>
-                                <?php endif; ?>
-                            </div>
-                            <div class="rate-value loan">
-                                <?php echo number_format($rate['rate'], 2); ?><span>%</span>
+                            <div class="col-md-6">
+                                <div class="rate-card-enhanced">
+                                    <h5><i class="fas fa-hand-holding-usd"></i> <?php echo isEnglish() ? 'Loan Interest Rates' : 'ऋण ब्याज दरहरू'; ?></h5>
+                                    <?php if (!empty($loanRates)): ?>
+                                        <?php foreach ($loanRates as $rate): ?>
+                                        <div class="rate-item">
+                                            <span class="rate-name"><?php echo htmlspecialchars($rate['name_np'] ?: $rate['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                                            <span class="rate-value"><?php echo number_format($rate['rate'], 2); ?>%</span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="text-center py-4 text-muted">
+                                            <?php echo isEnglish() ? 'No loan rate data available.' : 'ऋण दर डेटा उपलब्ध छैन।'; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
-                        <?php endforeach; ?>
-                        <?php else: ?>
-                        <div class="rate-empty">
-                            <i class="fas fa-info-circle"></i>
-                            <p>डाटा उपलब्ध छैन</p>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>

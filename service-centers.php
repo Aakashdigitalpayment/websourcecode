@@ -31,11 +31,11 @@ try {
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Branches' : 'शाखाहरू'; ?></span>
+                <span class="section-badge"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
             </div>
-            <h2><?php echo isEnglish() ? 'Our Branch & Service Centers' : 'हाम्रा शाखा तथा सेवा केन्द्रहरू'; ?></h2>
+            <h2><?php echo isEnglish() ? 'Our Service Centers' : 'हाम्रा सेवा कार्यालयहरू'; ?></h2>
             <div class="section-divider"></div>
-            <p><?php echo isEnglish() ? 'Find our service centers across Nepal' : 'नेपालभरि हाम्रा सेवा केन्द्रहरू खोज्नुहोस्'; ?></p>
+            <p><?php echo isEnglish() ? 'Find our service centers across Nepal' : 'नेपालभरि हाम्रा सेवा कार्यालयहरू खोज्नुहोस्'; ?></p>
         </div>
 
         <?php if (!empty($centers)): ?>
@@ -75,7 +75,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-landmark"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Main Branch' : 'मुख्य शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Main Service Center' : 'मुख्य सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Kathmandu, Nepal' : 'काठमाडौं, नेपाल'; ?></li>
                             <li><i class="fas fa-phone"></i> <?php echo getSetting('phone', ''); ?></li>
@@ -94,7 +94,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Lalitpur Branch' : 'ललितपुर शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Lalitpur Service Center' : 'ललितपुर सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Pulchowk, Lalitpur' : 'पुल्चोक, ललितपुर'; ?></li>
                             <li><i class="fas fa-phone"></i> 9827157000</li>
@@ -112,7 +112,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Bhaktapur Branch' : 'भक्तपुर शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Bhaktapur Service Center' : 'भक्तपुर सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Dudhpati, Bhaktapur' : 'दुधपाटी, भक्तपुर'; ?></li>
                             <li><i class="fas fa-phone"></i> 9827157000</li>
@@ -130,7 +130,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Pokhara Branch' : 'पोखरा शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Pokhara Service Center' : 'पोखरा सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Lakeside, Pokhara' : 'लेकसाइड, पोखरा'; ?></li>
                             <li><i class="fas fa-phone"></i> 061-523456</li>
@@ -148,7 +148,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Chitwan Branch' : 'चितवन शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Chitwan Service Center' : 'चितवन सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Narayangarh, Chitwan' : 'नारायणगढ, चितवन'; ?></li>
                             <li><i class="fas fa-phone"></i> 056-520123</li>
@@ -166,7 +166,7 @@ try {
                         <div class="center-icon">
                             <i class="fas fa-building"></i>
                         </div>
-                        <h4><?php echo isEnglish() ? 'Butwal Branch' : 'बुटवल शाखा'; ?></h4>
+                        <h4><?php echo isEnglish() ? 'Butwal Service Center' : 'बुटवल सेवा कार्यालय'; ?></h4>
                         <ul class="center-info">
                             <li><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Traffic Chowk, Butwal' : 'ट्राफिक चोक, बुटवल'; ?></li>
                             <li><i class="fas fa-phone"></i> 071-540123</li>

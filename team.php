@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'सम्पर्क अधिकारी';
+$pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once __DIR__ . '/_bootstrap.php';
 require_once 'includes/header.php';
 
@@ -28,6 +28,8 @@ try {
     // Get Information Officer and Grievance Officer
     $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
     $grievanceOfficer = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
+    $chairman = $db->query("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1")->fetch();
+    $ceo = $db->query("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1")->fetch();
 } catch (Throwable $e) {
     $boardMembers = $managementMembers = $staffMembers = $adminMembers = [];
     $informationOfficer = $grievanceOfficer = null;
@@ -37,11 +39,11 @@ try {
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></h1>
+        <h1><?php echo isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
-                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></li>
+                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत'; ?></li>
             </ol>
         </nav>
     </div>
@@ -94,21 +96,99 @@ foreach ($committeeTypes as $_ct) {
 <?php endif; ?>
 
 <!-- Information & Grievance Officers Section -->
-<?php if ($informationOfficer || $grievanceOfficer): ?>
-<section class="officers-section section-padding bg-light">
+<?php if ($chairman || $ceo || $informationOfficer || $grievanceOfficer): ?>
+<section id="leadership" class="officers-section section-padding bg-light">
     <div class="container">
         <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Key Officers' : 'प्रमुख अधिकारीहरू'; ?></span>
+                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
             </div>
-            <h2><?php echo isEnglish() ? 'Key Officers' : 'प्रमुख अधिकारीहरू'; ?></h2>
+            <h2><?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></h2>
             <div class="section-divider"></div>
-            <p><?php echo isEnglish() ? 'Contact our designated officers for information and grievances' : 'सूचना र गुनासोको लागि तोकिएका अधिकारीहरूसँग सम्पर्क गर्नुहोस्'; ?></p>
+            <p><?php echo isEnglish() ? 'Meet our leadership team and designated officers for information and grievances.' : 'हाम्रा नेतृत्वकर्ता तथा सूचना र गुनासोका लागि तोकिएका अधिकारीहरू'; ?></p>
         </div>
 
         <div class="row justify-content-center">
-            <?php if ($informationOfficer): ?>
+            <?php if ($chairman): ?>
             <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="officer-card chairman-officer">
+                    <div class="officer-badge">
+                        <i class="fas fa-user-tie"></i>
+                        <span><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
+                    </div>
+                    <div class="officer-photo">
+                        <?php if ($chairman['photo']): ?>
+                            <img src="<?php echo e($chairman['photo']); ?>" loading="lazy" alt="<?php echo e($chairman['name']); ?>">
+                        <?php else: ?>
+                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="officer-info">
+                        <h4><?php echo e(isEnglish() && $chairman['name_en'] ? $chairman['name_en'] : $chairman['name']); ?></h4>
+                        <span class="position"><?php echo e(isEnglish() && $chairman['position_en'] ? $chairman['position_en'] : ($chairman['position_np'] ?: $chairman['position'])); ?></span>
+                        <div class="officer-contact">
+                            <?php if ($chairman['phone']): ?>
+                            <a href="tel:<?php echo e($chairman['phone']); ?>" class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span><?php echo e($chairman['phone']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($chairman['email']): ?>
+                            <a href="mailto:<?php echo e($chairman['email']); ?>" class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span><?php echo e($chairman['email']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="officer-description">
+                        <p><?php echo isEnglish() ? 'The elected chairman guiding our cooperative governance.' : 'हाम्रा सहकारी शासनलाई मार्गदर्शन गर्ने निर्वाचित अध्यक्ष'; ?></p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($ceo): ?>
+            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="150">
+                <div class="officer-card ceo-officer">
+                    <div class="officer-badge">
+                        <i class="fas fa-user-check"></i>
+                        <span><?php echo isEnglish() ? 'CEO' : 'मुख्य कार्यकारी अधिकारी'; ?></span>
+                    </div>
+                    <div class="officer-photo">
+                        <?php if ($ceo['photo']): ?>
+                            <img src="<?php echo e($ceo['photo']); ?>" loading="lazy" alt="<?php echo e($ceo['name']); ?>">
+                        <?php else: ?>
+                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="officer-info">
+                        <h4><?php echo e(isEnglish() && $ceo['name_en'] ? $ceo['name_en'] : $ceo['name']); ?></h4>
+                        <span class="position"><?php echo e(isEnglish() && $ceo['position_en'] ? $ceo['position_en'] : ($ceo['position_np'] ?: $ceo['position'])); ?></span>
+                        <div class="officer-contact">
+                            <?php if ($ceo['phone']): ?>
+                            <a href="tel:<?php echo e($ceo['phone']); ?>" class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <span><?php echo e($ceo['phone']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($ceo['email']): ?>
+                            <a href="mailto:<?php echo e($ceo['email']); ?>" class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span><?php echo e($ceo['email']); ?></span>
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="officer-description">
+                        <p><?php echo isEnglish() ? 'The executive leader responsible for daily operations.' : 'दैनिक सञ्चालनको लागि उत्तरदायी कार्यकारी प्रमुख'; ?></p>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($informationOfficer): ?>
+            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="officer-card information-officer">
                     <div class="officer-badge">
                         <i class="fas fa-info-circle"></i>
@@ -147,7 +227,7 @@ foreach ($committeeTypes as $_ct) {
             <?php endif; ?>
 
             <?php if ($grievanceOfficer): ?>
-            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="250">
                 <div class="officer-card grievance-officer">
                     <div class="officer-badge">
                         <i class="fas fa-exclamation-triangle"></i>

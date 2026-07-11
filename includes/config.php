@@ -1443,7 +1443,7 @@ function getLangStrings() {
         'interest_rates' => 'ब्याज दर',
         'notices' => 'सूचना',
         'gallery' => 'ग्यालरी',
-        'team' => 'सम्पर्क अधिकारी',
+        'team' => 'मानवीय श्रोत',
         'contact' => 'सम्पर्क',
         'saving' => 'बचत सेवा',
         'loan' => 'ऋण सेवा',
