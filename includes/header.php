@@ -857,7 +857,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                         <a href="<?php echo SITE_URL; ?>date-converter.php"><i class="fas fa-calendar-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Date Converter' : 'मिति परिवर्तन'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></span></a>
-                        <a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Branches' : 'शाखाहरू'; ?></span></a>
+                        <a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-bar"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>faqs.php"><i class="fas fa-question-circle me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></span></a>
                     </div>
@@ -1174,6 +1174,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                         <a href="<?php echo SITE_URL; ?>team.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <li><a href="<?php echo SITE_URL; ?>team.php"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>team.php#leadership"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></a></li>
                             <?php /* Admin बाट 'मेनुमा देखाउनुहोस्' check गरिएका committees मात्र */ ?>
                             <?php foreach ($navCommittees as $_nc): ?>
                                 <li><a href="<?php echo SITE_URL; ?>committees.php?id=<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
@@ -1190,7 +1191,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li><a href="<?php echo SITE_URL; ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-line"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>downloads.php"><i class="fas fa-download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
-                            <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Branches' : 'शाखाहरू'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>faqs.php"><i class="fas fa-question-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
@@ -1459,6 +1460,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                 <a href="<?php echo SITE_URL; ?>team.php"><?php echo $L['team']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <li><a href="<?php echo SITE_URL; ?>team.php"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#leadership"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></a></li>
                                     <?php foreach ($navCommittees as $_nc): ?>
                                         <li><a href="<?php echo SITE_URL; ?>committees.php?id=<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                     <?php endforeach; ?>
@@ -1474,7 +1476,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <li><a href="<?php echo SITE_URL; ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-line"></i> <?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन तथा प्रकाशनहरू'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>downloads.php"><i class="fas fa-download"></i> <?php echo isEnglish() ? 'Downloads' : 'डाउनलोड'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Branches' : 'शाखाहरू'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>faqs.php"><i class="fas fa-question-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>

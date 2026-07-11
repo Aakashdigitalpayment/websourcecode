@@ -520,6 +520,12 @@ img {
     font-size: 14px;
 }
 
+body.header-v2 #mainNavV2 .nav-menu > li > a,
+body.header-v2 #mainNavV2 .nav-menu > li > a .mnav-main-label,
+body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
+    font-size: 14px;
+}
+
 .nav-menu > li > a:hover,
 .nav-menu > li.active > a {
     background: var(--primary-color);
@@ -21930,7 +21936,7 @@ footer.main-footer,
     color: rgba(255,255,255,.94) !important;
     background: rgba(255,255,255,.08) !important;
     border: 1px solid rgba(255,255,255,.08) !important;
-    font-size: .92rem !important;
+    font-size: 14px !important;
     font-weight: 700 !important;
     text-decoration: none !important;
     box-shadow: none !important;

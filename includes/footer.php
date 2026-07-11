@@ -120,7 +120,7 @@ try {
                                     <ul class="footer-links">
                                         <li><a href="<?php echo SITE_URL; ?>about.php"><?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>service-centers.php"><?php echo isEnglish() ? 'Branches' : 'शाखाहरू'; ?></a></li>
+                                        <li><a href="<?php echo SITE_URL; ?>service-centers.php"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
                                     </ul>
                                 </div>
@@ -1114,11 +1114,11 @@ if ($__uiTestMode):
       <span>आवेदन ट्र्याक</span>
     </a>
 
-    <!-- Branches -->
+    <!-- Service Centers -->
     <a class="qh-item" role="menuitem"
        href="<?php echo SITE_URL; ?>service-centers.php">
       <span class="qh-ic qh-branch"><i class="fas fa-location-dot"></i></span>
-      <span>शाखाहरू</span>
+      <span><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
     </a>
 
     <!-- Member Login -->
