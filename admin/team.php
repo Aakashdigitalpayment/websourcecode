@@ -555,6 +555,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <a href="info-officer.php" class="tm-inline-link">RTI</a>,
                                 <a href="grievance-officer.php" class="tm-inline-link"><?php echo $__t('गुनासो', 'Grievance'); ?></a>.
                             </p>
+                            <p class="small tm-meta-muted mt-2">
+                                <strong><?php echo $__t('नेतृत्व देखाउन:', 'Leadership visibility:'); ?></strong>
+                                <?php echo $__t('यहाँ चयन गरिएका अध्यक्ष, CEO, सूचना अधिकारी वा गुनासो अधिकारी सार्वजनिक नेतृत्‍वमा देखिन्छन्।', 'Selecting Chairman, CEO, Information Officer, or Grievance Officer here makes the member appear in leadership display.'); ?>
+                            </p>
                         </div>
                         <div class="col-md-4 d-flex align-items-center">
                             <div class="form-check form-switch fs-5">

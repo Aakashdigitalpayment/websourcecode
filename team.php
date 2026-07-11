@@ -1,6 +1,6 @@
 <?php
-$pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once __DIR__ . '/_bootstrap.php';
+$pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once 'includes/header.php';
 
 // Get team members
