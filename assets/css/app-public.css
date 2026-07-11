@@ -24017,11 +24017,13 @@ body.auth-page,
         display:flex; align-items:center; gap:7px;
     }
     .nmm-panel-items { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:2px; }
+    .nmm-cat-item { font-size:.8rem; }
     .nmm-panel-item {
         display:flex; align-items:center; gap:8px; padding:7px 10px;
-        border-radius:8px; color:var(--text-primary,#1a2e1f); font-size:.88rem;
+        border-radius:8px; color:var(--text-primary,#1a2e1f); font-size:.70rem;
         text-decoration:none; transition:background .12s,color .12s; white-space:nowrap;
     }
+    .nmm-panel-head { font-size:.66rem; }
     .nmm-panel-item i { width:16px; text-align:center; opacity:.6; font-size:.78rem; flex-shrink:0; }
     .nmm-panel-item:hover { background:rgba(26,95,42,.08); color:var(--primary-color,#1a5f2a); }
     .nmm-panel-item:hover i { opacity:1; }
