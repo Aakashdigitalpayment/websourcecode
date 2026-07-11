@@ -139,28 +139,16 @@ if (is_file(__DIR__ . '/service-products-tables.php')) { require_once __DIR__ . 
 $navMenuBadges = nav_get_public_submenu_badges($db);
 $currentLang = getCurrentLang();
 
-/* ── Services dropdown links (admin/services.php बाट) ── */
-$navServiceLinks = [];
+/* ── Services dropdown/mega-menu links (admin/services.php बाट) ── */
+$navServiceLinks  = [];
+$navServiceGroups = [];
 try {
     if ($db) {
-        if (function_exists('ensureServiceProductsTables')) {
-            ensureServiceProductsTables($db);
-        }
-        $svcRows = $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 30")->fetchAll();
-        $productsByService = [];
+        if (function_exists('ensureServiceProductsTables')) { ensureServiceProductsTables($db); }
         try {
-            $spRows = $db->query("SELECT service_id, title_np, title_en, display_order, id
-                                  FROM service_products
-                                  WHERE is_active = 1
-                                  ORDER BY service_id, display_order, id")->fetchAll();
-            foreach (($spRows ?: []) as $sp) {
-                $sid = (int)($sp['service_id'] ?? 0);
-                if ($sid <= 0) continue;
-                if (!isset($productsByService[$sid])) $productsByService[$sid] = [];
-                $productsByService[$sid][] = $sp;
-            }
-        } catch (Throwable $e) {
-            $productsByService = [];
+            $svcRows = $db->query("SELECT id, title, title_en, title_np, icon, nav_group FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
+        } catch (Throwable $e2) {
+            $svcRows = $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
         }
         $serviceAnchorId = static function (array $service): string {
             $id = (int)($service['id'] ?? 0);
@@ -175,27 +163,36 @@ try {
             if ($ascii !== '') return $ascii;
             return $id > 0 ? ('service-' . $id) : 'service';
         };
+        $__navGrpLabels = [
+            'general'   => isEnglish() ? 'Our Services'      : 'सामान्य सेवा',
+            'financial' => isEnglish() ? 'Financial'          : 'वित्तीय सेवा',
+            'social'    => isEnglish() ? 'Social Programs'    : 'सामाजिक कार्यक्रम',
+            'student'   => isEnglish() ? 'Student Awards'     : 'विद्यार्थी सम्मान',
+            'other'     => isEnglish() ? 'Other'              : 'अन्य',
+        ];
+        $__navGrpIcons = [
+            'general'   => 'fas fa-briefcase',
+            'financial' => 'fas fa-piggy-bank',
+            'social'    => 'fas fa-hands-helping',
+            'student'   => 'fas fa-graduation-cap',
+            'other'     => 'fas fa-ellipsis-h',
+        ];
         foreach ($svcRows as $sv) {
-            $rawTitle = (string) (($currentLang === 'en' && !empty($sv['title_en'])) ? $sv['title_en'] : (!empty($sv['title_np']) ? $sv['title_np'] : ($sv['title'] ?? '')));
+            $rawTitle = (string)(($currentLang === 'en' && !empty($sv['title_en'])) ? $sv['title_en'] : (!empty($sv['title_np']) ? $sv['title_np'] : ($sv['title'] ?? '')));
             $title = trim($rawTitle);
             if ($title === '') continue;
-            $icon = trim((string) ($sv['icon'] ?? 'fas fa-star'));
-            if ($icon === '') $icon = 'fas fa-star';
+            $icon   = trim((string)($sv['icon'] ?? 'fas fa-star')) ?: 'fas fa-star';
             $anchor = $serviceAnchorId($sv);
-            $products = [];
-            foreach (($productsByService[(int)($sv['id'] ?? 0)] ?? []) as $sp) {
-                $pTitleRaw = (string)(($currentLang === 'en' && !empty($sp['title_en'])) ? $sp['title_en'] : ($sp['title_np'] ?? ''));
-                $pTitle = trim($pTitleRaw);
-                if ($pTitle === '') continue;
-                $products[] = ['title' => $pTitle, 'anchor' => $anchor];
-                if (count($products) >= 4) break;
-            }
-            $navServiceLinks[] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor, 'products' => $products];
+            $group  = $sv['nav_group'] ?? 'general';
+            if (!isset($__navGrpLabels[$group])) $group = 'general';
+            $navServiceLinks[]        = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor, 'group' => $group];
+            $navServiceGroups[$group][] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor];
         }
     }
 } catch (Throwable $e) {
-    $navServiceLinks = [];
+    $navServiceLinks = []; $navServiceGroups = [];
 }
+
 
 $currentPage = getCurrentPage();
 $L = getLangStrings();
@@ -1063,8 +1060,32 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
                         </ul>
                     </li>
-                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
+                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?> <?php echo count($navServiceGroups) > 1 ? 'has-megamenu' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>services.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <?php if (count($navServiceGroups) > 1): ?>
+                        <div class="nav-megamenu">
+                            <div class="nav-megamenu-inner">
+                                <?php foreach ($__navGrpLabels as $__gk => $__gl):
+                                    if (empty($navServiceGroups[$__gk])) continue; ?>
+                                <div class="nav-megamenu-col">
+                                    <div class="nav-megamenu-col-head">
+                                        <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-star'); ?>"></i>
+                                        <?php echo htmlspecialchars($__gl); ?>
+                                    </div>
+                                    <?php foreach ($navServiceGroups[$__gk] as $_gsvc): ?>
+                                    <a class="nav-megamenu-item" href="<?php echo SITE_URL; ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
+                                        <i class="<?php echo htmlspecialchars($_gsvc['icon']); ?>"></i>
+                                        <?php echo htmlspecialchars($_gsvc['title']); ?>
+                                    </a>
+                                    <?php endforeach; ?>
+                                </div>
+                                <?php endforeach; ?>
+                                <div class="nav-megamenu-footer">
+                                    <a href="<?php echo SITE_URL; ?>services.php"><i class="fas fa-th-list me-1"></i><?php echo isEnglish() ? 'View All Services' : 'सबै सेवाहरू हेर्नुहोस्'; ?></a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php else: ?>
                         <ul class="dropdown">
                             <?php if (!empty($navServiceLinks)): ?>
                                 <?php foreach ($navServiceLinks as $_svc): ?>
@@ -1076,6 +1097,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                 <li><a href="<?php echo SITE_URL; ?>services.php#remittance"><i class="fas fa-money-bill-wave"></i> <?php echo $L['remittance']; ?></a></li>
                             <?php endif; ?>
                         </ul>
+                        <?php endif; ?>
                     </li>
                     <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>interest-rates.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="chart-line"></i><span class="mnav-main-label"><?php echo $L['interest_rates']; ?></span></a>

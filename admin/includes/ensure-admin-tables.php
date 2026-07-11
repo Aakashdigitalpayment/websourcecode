@@ -441,6 +441,12 @@ function ensureAdminTables(): void {
         ];
         foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
+        /* ── services: mega-menu grouping column ── */
+        $svcAlters = [
+            "ALTER TABLE services ADD COLUMN nav_group VARCHAR(40) DEFAULT 'general'",
+        ];
+        foreach ($svcAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+
         /* ── 25. NOTIFICATION LOG — ensurePublicTables + notification-log-tables.php ── */
 
         /* ── 26–27. MEMBER OF YEAR + SATISFACTION LINKS — shared helpers ── */
@@ -488,11 +494,12 @@ function ensureAdminTables(): void {
 }
 
 /* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
- * v2 परिवर्तन: हरेक admin page load मा 30+ tables को CREATE/ALTER overhead हटाइयो।
- * Migration Runner ले lock file हटाएर पुनः verify गराउन सक्छ। */
+ * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
+$_adminSchemaVersion = 'v4-megamenu-navgroup-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
-if (!file_exists($_adminLock)) {
+$_lockContent = @file_get_contents($_adminLock);
+if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {
     ensureAdminTables();
-    @file_put_contents($_adminLock, "Admin schema initialized at " . date('Y-m-d H:i:s') . "\n");
+    @file_put_contents($_adminLock, "Admin schema initialized at " . date('Y-m-d H:i:s') . " [{$_adminSchemaVersion}]\n");
 }
-unset($_adminLock);
+unset($_adminLock, $_lockContent, $_adminSchemaVersion);

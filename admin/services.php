@@ -37,14 +37,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $icon         = clean_text($_POST['icon']         ?? 'fas fa-star');
             $order        = (int)($_POST['display_order']   ?? 0);
             $is_active    = isset($_POST['is_active']) ? 1 : 0;
+            $nav_group    = in_array($_POST['nav_group'] ?? '', ['general','social','student','financial','other']) ? ($_POST['nav_group']) : 'general';
 
             if ($act === 'add') {
-                $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active) VALUES (?,?,?,?,?,?,?,?)")
-                   ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active]);
+                try {
+                    $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active, nav_group) VALUES (?,?,?,?,?,?,?,?,?)")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group]);
+                } catch (Throwable $e2) {
+                    $db->prepare("INSERT INTO services (title, title_en, title_np, description, description_np, icon, display_order, is_active) VALUES (?,?,?,?,?,?,?,?)")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active]);
+                }
                 $success = 'सेवा सफलतापूर्वक थपियो।';
             } else {
-                $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
-                   ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, (int)$_POST['id']]);
+                try {
+                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=?, nav_group=? WHERE id=?")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, $nav_group, (int)$_POST['id']]);
+                } catch (Throwable $e2) {
+                    $db->prepare("UPDATE services SET title=?, title_en=?, title_np=?, description=?, description_np=?, icon=?, display_order=?, is_active=? WHERE id=?")
+                       ->execute([$title, $title_en, $title_np, $description, $description_np, $icon, $order, $is_active, (int)$_POST['id']]);
+                }
                 $success = 'सेवा सफलतापूर्वक अपडेट भयो।';
             }
         } elseif ($act === 'delete') {
@@ -340,6 +351,14 @@ $servicesArch = $svcPart['archived'];
                             <small class="text-muted"><?php echo $__t('FontAwesome class — जस्तै', 'FontAwesome class — e.g.'); ?>: fas fa-piggy-bank, fas fa-hand-holding-usd</small>
                         </div>
                         <div class="col-md-2">
+                            <label class="form-label fw-semibold text-success"><?php echo $__t('मेनु समूह', 'Menu Group'); ?></label>
+                            <?php $navGrps = ['general'=>$__t('सामान्य','General'),'financial'=>$__t('वित्तीय','Financial'),'social'=>$__t('सामाजिक','Social'),'student'=>$__t('विद्यार्थी','Student'),'other'=>$__t('अन्य','Other')]; $curNavGrp = $editService['nav_group'] ?? 'general'; ?>
+                            <select name="nav_group" id="svcf_nav_group" class="form-select admin-fancy-input">
+                                <?php foreach ($navGrps as $gk => $gl): ?><option value="<?php echo $gk; ?>" <?php echo $curNavGrp===$gk?'selected':''; ?>><?php echo htmlspecialchars($gl); ?></option><?php endforeach; ?>
+                            </select>
+                            <small class="text-muted"><?php echo $__t('मेगामेनु column', 'Mega-menu column'); ?></small>
+                        </div>
+                        <div class="col-md-2">
                             <label class="form-label fw-semibold text-success"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="display_order" id="svcf_order" class="form-control admin-fancy-input" value="<?php echo (int)($editService['display_order'] ?? 0); ?>" min="0">
                         </div>
@@ -525,6 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('svcf_desc').value    = d.description || '';
             document.getElementById('svcf_icon').value    = d.icon;
             document.getElementById('svcf_order').value   = d.order;
+            if (document.getElementById('svcf_nav_group')) document.getElementById('svcf_nav_group').value = d.nav_group || 'general';
             document.getElementById('svcf_active').checked= d.active === '1';
             document.getElementById('svcIconPreview').innerHTML = '<i class="' + d.icon + '"></i>';
             document.getElementById('svcf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';

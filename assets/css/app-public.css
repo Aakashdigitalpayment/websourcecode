@@ -23945,3 +23945,82 @@ body.auth-page,
         backdrop-filter: none !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   v15 — MEGA MENU (Services grouped columns, desktop only)
+   Mobile: existing flat accordion — UNTOUCHED.
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 992px) {
+    li.has-megamenu { position: static !important; }
+
+    .nav-megamenu {
+        display: none;
+        position: absolute;
+        left: 0; right: 0; top: 100%;
+        z-index: 9000;
+        padding-top: 6px;
+    }
+    li.has-megamenu:hover > .nav-megamenu,
+    li.has-megamenu:focus-within > .nav-megamenu { display: block; }
+
+    .nav-megamenu-inner {
+        background: #fff;
+        border: 1px solid rgba(26,95,42,.13);
+        border-radius: 14px;
+        box-shadow: 0 16px 48px -10px rgba(26,95,42,.20), 0 2px 8px rgba(0,0,0,.05);
+        padding: 18px 20px 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0;
+    }
+    .nav-megamenu-col {
+        flex: 1 1 160px;
+        min-width: 140px;
+        max-width: 220px;
+        padding: 0 16px 16px;
+        border-right: 1px solid #f0f4f1;
+    }
+    .nav-megamenu-col:last-of-type { border-right: none; }
+    .nav-megamenu-col-head {
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        color: var(--primary-color, #1a5f2a);
+        padding-bottom: 8px;
+        margin-bottom: 6px;
+        border-bottom: 2px solid rgba(26,95,42,.14);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+    .nav-megamenu-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 8px;
+        color: var(--text-primary, #1a2e1f);
+        font-size: .875rem;
+        text-decoration: none;
+        transition: background .13s, color .13s;
+        white-space: nowrap;
+    }
+    .nav-megamenu-item i { width:16px; text-align:center; opacity:.65; font-size:.78rem; flex-shrink:0; }
+    .nav-megamenu-item:hover { background: rgba(26,95,42,.08); color: var(--primary-color, #1a5f2a); }
+    .nav-megamenu-item:hover i { opacity: 1; }
+    .nav-megamenu-footer {
+        width: 100%;
+        border-top: 1px solid #edf2ee;
+        padding: 9px 8px;
+    }
+    .nav-megamenu-footer a {
+        font-size: .8rem;
+        color: var(--primary-color, #1a5f2a);
+        font-weight: 600;
+        opacity: .8;
+        text-decoration: none;
+    }
+    .nav-megamenu-footer a:hover { opacity: 1; text-decoration: underline; }
+}
