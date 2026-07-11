@@ -6,10 +6,12 @@ $L = getLangStrings();
 
 // Get selected committee type
 /* ?type=N (पुरानो) र ?id=N (नयाँ navbar बाट) — दुवै support */
-$selectedType  = isset($_GET['type']) ? (int)$_GET['type'] : (isset($_GET['id']) ? (int)$_GET['id'] : null);
-$selectedName  = isset($_GET['name']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', trim($_GET['name'])) : null;
-$showPast      = isset($_GET['past']) && $_GET['past'] == '1';
-$selectedTenure = isset($_GET['tenure']) ? (int)$_GET['tenure'] : null; // past tenure year filter
+$selectedType   = isset($_GET['type']) ? (int)$_GET['type'] : (isset($_GET['id']) ? (int)$_GET['id'] : null);
+$selectedName   = isset($_GET['name']) ? preg_replace('/[^a-zA-Z0-9_-]/', '', trim($_GET['name'])) : null;
+$showPast       = isset($_GET['past']) && $_GET['past'] == '1';
+$selectedTenure = isset($_GET['tenure']) ? (int)$_GET['tenure'] : null; // selected tenure filter
+$allTenures     = [];
+$selectedTenureIsCurrent = false;
 
 // Get data from database
 try {
@@ -17,6 +19,38 @@ try {
 
     // Get committee types
     $committeeTypes = $db->query("SELECT * FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+
+    // Load all available tenures for filtering and lookup
+    $allTenures = $db->query(
+        "SELECT t.*, ct.name, ct.name_np
+         FROM committee_tenures t
+         LEFT JOIN committee_types ct ON ct.id = t.committee_type_id
+         WHERE t.is_active = 1
+         ORDER BY t.start_date DESC, t.id DESC"
+    )->fetchAll();
+    $tenureMap = [];
+    $allTenureOptions = [];
+    foreach ($allTenures as $tn) {
+        $tnId = (int)$tn['id'];
+        $tenureMap[$tnId] = $tn;
+        $allTenureOptions[$tnId] = [
+            'id'         => $tnId,
+            'label'      => trim((string)(isEnglish() ? ($tn['tenure_name'] ?: $tn['tenure_name_np']) : ($tn['tenure_name_np'] ?: $tn['tenure_name']))),
+            'type_id'    => (int)$tn['committee_type_id'],
+            'type_label' => trim((string)(isEnglish() ? ($tn['name'] ?: $tn['name_np']) : ($tn['name_np'] ?: $tn['name']))),
+            'is_current' => (int)$tn['is_current'],
+            'period'     => (trim((string)$tn['start_date']) !== '' && trim((string)$tn['end_date']) !== '') ? date('Y', strtotime($tn['start_date'])) . ' - ' . date('Y', strtotime($tn['end_date'])) : '',
+        ];
+    }
+    if ($selectedTenure && isset($tenureMap[$selectedTenure])) {
+        $selectedTenureIsCurrent = (int)$tenureMap[$selectedTenure]['is_current'] === 1;
+        if (!$selectedType) {
+            $selectedType = (int)$tenureMap[$selectedTenure]['committee_type_id'];
+        }
+        if (!$selectedTenureIsCurrent) {
+            $showPast = true;
+        }
+    }
 
     // Resolve name → id (nav links use ?name=sanchalak etc.)
     if (!$selectedType && $selectedName) {
@@ -67,6 +101,10 @@ try {
         $currentTenure = $stmt->fetch();
 
         if ($currentTenure) {
+            if ($selectedTenure && (int)$currentTenure['id'] !== $selectedTenure) {
+                continue;
+            }
+
             // Get members for current tenure
             $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
             $memberStmt->execute([$currentTenure['id']]);
@@ -103,14 +141,18 @@ try {
         }
 
         // Get past tenures
-        if ($showPast || $selectedType) {
+        if ($showPast || $selectedType || $selectedTenure) {
             $pastStmt = $db->prepare("SELECT * FROM committee_tenures WHERE committee_type_id = ? AND is_current = 0 AND is_active = 1 ORDER BY start_date DESC");
             $pastStmt->execute([$type['id']]);
             $pastTenures = $pastStmt->fetchAll();
 
             foreach ($pastTenures as $tenure) {
                 // If a specific tenure year is selected, only show that one
-                if ($selectedTenure && $tenure['id'] != $selectedTenure) continue;
+                if ($selectedTenure && (int)$tenure['id'] !== $selectedTenure) continue;
+
+                if ($selectedTenure && $selectedType && (int)$tenure['committee_type_id'] !== $selectedType) {
+                    continue;
+                }
 
                 $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
                 $memberStmt->execute([$tenure['id']]);
@@ -211,21 +253,34 @@ $currentHeroDesc = $isManagementView
                     </div>
                 </div>
 
-                <!-- Tenure/year dropdown — only in past mode -->
-                <?php if ($showPast && !empty($allPastTenures)): ?>
+                <!-- Tenure/year dropdown -->
+                <?php if (!empty($allTenureOptions)): ?>
                 <div class="col-sm-6 col-md-4">
                     <div class="coop-select-wrap">
                         <i class="fas fa-calendar-alt coop-select-icon"></i>
                         <select class="form-select coop-select-field"
                                 onchange="location.href=this.value"
                                 aria-label="<?php echo isEnglish() ? 'Select tenure year' : 'कार्यकाल छान्नुहोस्'; ?>">
-                            <option value="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>">
+                            <option value="?<?php echo $showPast ? 'past=1' : ''; echo ($showPast && $selectedType) ? '&type='.$selectedType : ($selectedType ? 'type='.$selectedType : ''); ?>"
+                                <?php echo !$selectedTenure ? 'selected' : ''; ?>>
                                 <?php echo isEnglish() ? '— All Years —' : '— सबै कार्यकाल —'; ?>
                             </option>
-                            <?php foreach ($allPastTenures as $pt): ?>
-                            <option value="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>&tenure=<?php echo $pt['id']; ?>"
-                                <?php echo $selectedTenure == $pt['id'] ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($pt['label'] ?: $pt['type_label']); ?>
+                            <?php foreach ($allTenureOptions as $opt): ?>
+                            <?php
+                                $optParams = [];
+                                if ($opt['is_current'] === 0) {
+                                    $optParams[] = 'past=1';
+                                }
+                                if ($selectedType || $opt['type_id']) {
+                                    $optParams[] = 'type=' . $opt['type_id'];
+                                }
+                                $optUrl = 'committees.php?' . implode('&', $optParams) . '&tenure=' . $opt['id'];
+                            ?>
+                            <option value="<?php echo htmlspecialchars($optUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                                <?php echo $selectedTenure == $opt['id'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($opt['label'] ?: $opt['type_label'], ENT_QUOTES, 'UTF-8'); ?>
+                                <?php if ($opt['period']): ?> (<?php echo htmlspecialchars($opt['period'], ENT_QUOTES, 'UTF-8'); ?>)<?php endif; ?>
+                                <?php if ($opt['is_current']): ?> <?php echo isEnglish() ? '(Current)' : '(हालको)'; ?><?php endif; ?>
                             </option>
                             <?php endforeach; ?>
                         </select>

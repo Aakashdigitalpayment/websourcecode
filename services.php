@@ -36,6 +36,14 @@ try {
             FROM services WHERE is_active = 1 ORDER BY display_order";
     }
     $services = $db->query($sql)->fetchAll();
+
+    $serviceCategories = [];
+    try {
+        $serviceCategories = $db->query("SELECT * FROM service_categories WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+    } catch (Throwable $e) {
+        $serviceCategories = [];
+    }
+
     $serviceProducts = [];
     if (!empty($services)) {
         $serviceIds = array_values(array_filter(array_map(fn($r) => (int)($r['id'] ?? 0), $services), fn($v) => $v > 0));
@@ -53,9 +61,25 @@ try {
             }
         }
     }
+
+    $servicesByCategory = [];
+    foreach ($services as $service) {
+        $catId = (int)($service['service_category_id'] ?? 0);
+        if (!isset($servicesByCategory[$catId])) {
+            $servicesByCategory[$catId] = [];
+        }
+        $servicesByCategory[$catId][] = $service;
+    }
+
+    // Only keep categories that have active services
+    $serviceCategories = array_values(array_filter($serviceCategories, static function(array $cat) use ($servicesByCategory) {
+        return !empty($servicesByCategory[(int)($cat['id'] ?? 0)] ?? []);
+    }));
 } catch (Throwable $e) {
     $services = [];
+    $serviceCategories = [];
     $serviceProducts = [];
+    $servicesByCategory = [];
 }
 
 if (!function_exists('service_anchor_id')) {
@@ -102,50 +126,138 @@ if (!function_exists('service_anchor_id')) {
             <p><?php echo isEnglish() ? 'We are here to fulfill your financial needs' : 'तपाईंको वित्तीय आवश्यकताहरू पूरा गर्न हामी यहाँ छौं'; ?></p>
         </div>
 
-        <div class="row">
-            <?php if (!empty($services)): ?>
-                <?php foreach ($services as $index => $service): ?>
-                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index ?? 0) * 50; ?>" id="<?php echo htmlspecialchars(service_anchor_id($service, (int)$index)); ?>">
-                    <div class="service-detail-card">
-                        <?php if (!empty($service['show_new_badge'])): ?>
-                        <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
-                        <?php endif; ?>
-                        <div class="service-icon-lg">
-                            <i class="<?php echo $service['icon']; ?>"></i>
-                        </div>
-                        <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
-                        <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
-                        <?php $sProducts = $serviceProducts[(int)($service['id'] ?? 0)] ?? []; ?>
-                        <?php if (!empty($sProducts)): ?>
-                            <button class="btn btn-sm btn-outline-primary mt-2 service-more-btn" type="button"
-                                    data-bs-toggle="collapse" data-bs-target="#service-products-<?php echo (int)$service['id']; ?>"
-                                    aria-expanded="false" aria-controls="service-products-<?php echo (int)$service['id']; ?>">
-                                <?php echo isEnglish() ? 'More Products' : 'थप उत्पादहरू'; ?> <i class="lucide-icon ms-1" aria-hidden="true" data-lucide="chevron-down"></i>
-                            </button>
-                            <div class="collapse mt-3" id="service-products-<?php echo (int)$service['id']; ?>">
-                                <ul class="service-features mb-0">
-                                    <?php foreach ($sProducts as $sp): ?>
-                                        <li>
-                                            <i class="fas fa-check"></i>
-                                            <span>
-                                                <?php echo htmlspecialchars(isEnglish() ? (($sp['title_en'] ?: $sp['title_np']) ?? '') : (($sp['title_np'] ?: $sp['title_en']) ?? ''), ENT_QUOTES, 'UTF-8'); ?>
-                                                <?php
-                                                $pDesc = isEnglish() ? (($sp['description_en'] ?: $sp['description_np']) ?? '') : (($sp['description_np'] ?: $sp['description_en']) ?? '');
-                                                if (trim((string)$pDesc) !== ''): ?>
-                                                <small class="d-block text-muted"><?php echo htmlspecialchars((string)$pDesc, ENT_QUOTES, 'UTF-8'); ?></small>
-                                                <?php endif; ?>
-                                            </span>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        <?php endif; ?>
-                        <?php if ($service['image']): ?>
-                            <img src="<?php echo $service['image']; ?>" loading="lazy"  alt="<?php echo $service['title']; ?>" class="img-fluid mt-3 rounded">
-                        <?php endif; ?>
-                    </div>
-                </div>
+        <?php if (!empty($serviceCategories)): ?>
+        <div class="service-category-nav mb-4">
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <?php foreach ($serviceCategories as $cat): ?>
+                    <a class="btn btn-sm btn-outline-secondary" href="#category-<?php echo (int)$cat['id']; ?>">
+                        <?php echo isEnglish() ? ($cat['name_en'] ?: $cat['name']) : ($cat['name_np'] ?: $cat['name']); ?>
+                    </a>
                 <?php endforeach; ?>
+                <?php if (!empty($servicesByCategory[0])): ?>
+                    <a class="btn btn-sm btn-outline-secondary" href="#category-0"><?php echo isEnglish() ? 'Other Services' : 'अन्य सेवाहरू'; ?></a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <div class="row">
+            <?php if (!empty($serviceCategories) || !empty($servicesByCategory[0])): ?>
+                <?php foreach ($serviceCategories as $catIndex => $category): ?>
+                    <?php $catId = (int)($category['id'] ?? 0); ?>
+                    <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="<?php echo ($catIndex ?? 0) * 70; ?>" id="category-<?php echo $catId; ?>">
+                        <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="service-category-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                                    <i class="<?php echo htmlspecialchars($category['icon'] ?: 'fas fa-th-large'); ?> fs-4"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-1"><?php echo isEnglish() ? ($category['name_en'] ?: $category['name']) : ($category['name_np'] ?: $category['name']); ?></h3>
+                                    <?php if (!empty($category['description'])): ?><p class="mb-0 text-muted"><?php echo htmlspecialchars(isEnglish() ? ($category['description'] ?? '') : ($category['description_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p><?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php $catServices = $servicesByCategory[$catId] ?? []; ?>
+                    <?php foreach ($catServices as $index => $service): ?>
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo (($catIndex * 10 + $index) ?? 0) * 30; ?>" id="<?php echo htmlspecialchars(service_anchor_id($service, (int)$index)); ?>">
+                        <div class="service-detail-card">
+                            <?php if (!empty($service['show_new_badge'])): ?>
+                            <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
+                            <?php endif; ?>
+                            <div class="service-icon-lg">
+                                <i class="<?php echo $service['icon']; ?>"></i>
+                            </div>
+                            <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
+                            <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
+                            <?php $sProducts = $serviceProducts[(int)($service['id'] ?? 0)] ?? []; ?>
+                            <?php if (!empty($sProducts)): ?>
+                                <button class="btn btn-sm btn-outline-primary mt-2 service-more-btn" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#service-products-<?php echo (int)$service['id']; ?>"
+                                        aria-expanded="false" aria-controls="service-products-<?php echo (int)$service['id']; ?>">
+                                    <?php echo isEnglish() ? 'More Products' : 'थप उत्पादहरू'; ?> <i class="lucide-icon ms-1" aria-hidden="true" data-lucide="chevron-down"></i>
+                                </button>
+                                <div class="collapse mt-3" id="service-products-<?php echo (int)$service['id']; ?>">
+                                    <ul class="service-features mb-0">
+                                        <?php foreach ($sProducts as $sp): ?>
+                                            <li>
+                                                <i class="fas fa-check"></i>
+                                                <span>
+                                                    <?php echo htmlspecialchars(isEnglish() ? (($sp['title_en'] ?: $sp['title_np']) ?? '') : (($sp['title_np'] ?: $sp['title_en']) ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+                                                    <?php
+                                                    $pDesc = isEnglish() ? (($sp['description_en'] ?: $sp['description_np']) ?? '') : (($sp['description_np'] ?: $sp['description_en']) ?? '');
+                                                    if (trim((string)$pDesc) !== ''): ?>
+                                                    <small class="d-block text-muted"><?php echo htmlspecialchars((string)$pDesc, ENT_QUOTES, 'UTF-8'); ?></small>
+                                                    <?php endif; ?>
+                                                </span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($service['image'])): ?>
+                                <img src="<?php echo $service['image']; ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+                <?php if (!empty($servicesByCategory[0])): ?>
+                    <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="200">
+                        <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="service-category-icon rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-1"><?php echo isEnglish() ? 'Other Services' : 'अन्य सेवाहरू'; ?></h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php foreach ($servicesByCategory[0] as $index => $service): ?>
+                    <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index ?? 0) * 30; ?>" id="<?php echo htmlspecialchars(service_anchor_id($service, (int)$index)); ?>">
+                        <div class="service-detail-card">
+                            <?php if (!empty($service['show_new_badge'])): ?>
+                            <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
+                            <?php endif; ?>
+                            <div class="service-icon-lg">
+                                <i class="<?php echo $service['icon']; ?>"></i>
+                            </div>
+                            <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
+                            <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
+                            <?php $sProducts = $serviceProducts[(int)($service['id'] ?? 0)] ?? []; ?>
+                            <?php if (!empty($sProducts)): ?>
+                                <button class="btn btn-sm btn-outline-primary mt-2 service-more-btn" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#service-products-<?php echo (int)$service['id']; ?>"
+                                        aria-expanded="false" aria-controls="service-products-<?php echo (int)$service['id']; ?>">
+                                    <?php echo isEnglish() ? 'More Products' : 'थप उत्पादहरू'; ?> <i class="lucide-icon ms-1" aria-hidden="true" data-lucide="chevron-down"></i>
+                                </button>
+                                <div class="collapse mt-3" id="service-products-<?php echo (int)$service['id']; ?>">
+                                    <ul class="service-features mb-0">
+                                        <?php foreach ($sProducts as $sp): ?>
+                                            <li>
+                                                <i class="fas fa-check"></i>
+                                                <span>
+                                                    <?php echo htmlspecialchars(isEnglish() ? (($sp['title_en'] ?: $sp['title_np']) ?? '') : (($sp['title_np'] ?: $sp['title_en']) ?? ''), ENT_QUOTES, 'UTF-8'); ?>
+                                                    <?php
+                                                    $pDesc = isEnglish() ? (($sp['description_en'] ?: $sp['description_np']) ?? '') : (($sp['description_np'] ?: $sp['description_en']) ?? '');
+                                                    if (trim((string)$pDesc) !== ''): ?>
+                                                    <small class="d-block text-muted"><?php echo htmlspecialchars((string)$pDesc, ENT_QUOTES, 'UTF-8'); ?></small>
+                                                    <?php endif; ?>
+                                                </span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+                            <?php if (!empty($service['image'])): ?>
+                                <img src="<?php echo $service['image']; ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             <?php else: ?>
                 <!-- Default Services if none in database -->
                 <div class="col-lg-4 col-md-6 mb-4" id="saving">
