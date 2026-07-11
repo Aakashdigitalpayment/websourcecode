@@ -1075,27 +1075,51 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                     </li>
                     <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?> <?php echo count($navServiceGroups) > 1 ? 'has-megamenu' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>services.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
-                        <?php if (count($navServiceGroups) > 1): ?>
-                        <div class="nav-megamenu">
+                        <?php if (count($navServiceGroups) > 1):
+                            $__firstCatId = array_key_first($navServiceGroups); ?>
+                        <!-- TWO-PANEL MEGA MENU: left=categories, right=hover-revealed services -->
+                        <div class="nav-megamenu nav-megamenu--twopanel">
                             <div class="nav-megamenu-inner">
-                                <?php foreach ($__navGrpLabels as $__gk => $__gl):
-                                    if (empty($navServiceGroups[$__gk])) continue; ?>
-                                <div class="nav-megamenu-col">
-                                    <div class="nav-megamenu-col-head">
-                                        <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-star'); ?>"></i>
-                                        <?php echo htmlspecialchars($__gl); ?>
+
+                                <!-- LEFT: category list -->
+                                <div class="nmm-cats">
+                                    <?php foreach ($__navGrpLabels as $__gk => $__gl):
+                                        if (empty($navServiceGroups[$__gk])) continue; ?>
+                                    <div class="nmm-cat-item <?php echo $__gk == $__firstCatId ? 'nmm-cat-item--active' : ''; ?>"
+                                         data-cat="nmm-panel-<?php echo (int)$__gk; ?>">
+                                        <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-th-large'); ?>"></i>
+                                        <span><?php echo htmlspecialchars($__gl); ?></span>
+                                        <i class="fas fa-chevron-right nmm-cat-arrow"></i>
                                     </div>
-                                    <?php foreach ($navServiceGroups[$__gk] as $_gsvc): ?>
-                                    <a class="nav-megamenu-item" href="<?php echo SITE_URL; ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
-                                        <i class="<?php echo htmlspecialchars($_gsvc['icon']); ?>"></i>
-                                        <?php echo htmlspecialchars($_gsvc['title']); ?>
+                                    <?php endforeach; ?>
+                                    <a class="nmm-view-all" href="<?php echo SITE_URL; ?>services.php">
+                                        <i class="fas fa-th-list"></i>
+                                        <?php echo isEnglish() ? 'All Services' : 'सबै सेवाहरू'; ?>
                                     </a>
+                                </div>
+
+                                <!-- RIGHT: service panels (one per category, shown on hover) -->
+                                <div class="nmm-panels">
+                                    <?php foreach ($navServiceGroups as $__gk => $__gsvcs):
+                                        $__gl = $__navGrpLabels[$__gk] ?? ''; ?>
+                                    <div class="nmm-panel <?php echo $__gk == $__firstCatId ? 'nmm-panel--active' : ''; ?>"
+                                         id="nmm-panel-<?php echo (int)$__gk; ?>">
+                                        <div class="nmm-panel-head">
+                                            <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-th-large'); ?>"></i>
+                                            <?php echo htmlspecialchars($__gl); ?>
+                                        </div>
+                                        <div class="nmm-panel-items">
+                                            <?php foreach ($__gsvcs as $_gsvc): ?>
+                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
+                                                <i class="<?php echo htmlspecialchars($_gsvc['icon']); ?>"></i>
+                                                <?php echo htmlspecialchars($_gsvc['title']); ?>
+                                            </a>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
                                     <?php endforeach; ?>
                                 </div>
-                                <?php endforeach; ?>
-                                <div class="nav-megamenu-footer">
-                                    <a href="<?php echo SITE_URL; ?>services.php"><i class="fas fa-th-list me-1"></i><?php echo isEnglish() ? 'View All Services' : 'सबै सेवाहरू हेर्नुहोस्'; ?></a>
-                                </div>
+
                             </div>
                         </div>
                         <?php else: ?>
@@ -1657,6 +1681,31 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     })();
     </script>
     <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.5" defer></script>
+    <script>
+    /* Two-panel mega menu: category hover switches right panel */
+    (function () {
+        function initMegaMenu() {
+            document.querySelectorAll('.nav-megamenu--twopanel').forEach(function (menu) {
+                menu.querySelectorAll('.nmm-cat-item').forEach(function (cat) {
+                    cat.addEventListener('mouseenter', function () {
+                        var panelId = cat.getAttribute('data-cat');
+                        if (!panelId) return;
+                        menu.querySelectorAll('.nmm-cat-item').forEach(function (c) { c.classList.remove('nmm-cat-item--active'); });
+                        menu.querySelectorAll('.nmm-panel').forEach(function (p) { p.classList.remove('nmm-panel--active'); });
+                        cat.classList.add('nmm-cat-item--active');
+                        var panel = document.getElementById(panelId);
+                        if (panel) panel.classList.add('nmm-panel--active');
+                    });
+                });
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initMegaMenu);
+        } else {
+            initMegaMenu();
+        }
+    })();
+    </script>
 
     <?php
     // Get notices for ticker - with safe query
