@@ -201,6 +201,24 @@ try {
                 $navServiceGroups[$catId][] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor];
             }
         }
+        /* Uncategorized services → auto "अन्य / Other" group so nothing gets hidden */
+        $uncatKey = 0;
+        foreach ($svcRows as $sv) {
+            if ((int)($sv['cat_id'] ?? 0) > 0) continue;
+            $rawTitle = (string)(($currentLang === 'en' && !empty($sv['title_en'])) ? $sv['title_en'] : (!empty($sv['title_np']) ? $sv['title_np'] : ($sv['title'] ?? '')));
+            $title = trim($rawTitle);
+            if ($title === '') continue;
+            $icon   = trim((string)($sv['icon'] ?? 'fas fa-star')) ?: 'fas fa-star';
+            $anchor = $serviceAnchorId($sv);
+            if (!isset($navServiceGroups[$uncatKey])) {
+                $__navGrpLabels[$uncatKey] = isEnglish() ? 'Other Services' : 'अन्य सेवाहरू';
+                $__navGrpIcons[$uncatKey]  = 'fas fa-ellipsis-h';
+                $navServiceGroups[$uncatKey] = [];
+            }
+            $navServiceGroups[$uncatKey][] = ['title' => $title, 'icon' => $icon, 'anchor' => $anchor];
+        }
+        /* Sort: categorized groups first (id > 0), uncategorized (key=0) last */
+        uksort($navServiceGroups, function($a, $b) { return ($a === 0 ? 1 : ($b === 0 ? -1 : $a - $b)); });
     }
 } catch (Throwable $e) {
     $navServiceLinks = []; $navServiceGroups = [];
@@ -1073,9 +1091,9 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
                         </ul>
                     </li>
-                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?> <?php echo count($navServiceGroups) > 1 ? 'has-megamenu' : ''; ?>">
+                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?> <?php echo !empty($navServiceGroups) ? 'has-megamenu' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>services.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
-                        <?php if (count($navServiceGroups) > 1):
+                        <?php if (!empty($navServiceGroups)):
                             $__firstCatId = array_key_first($navServiceGroups); ?>
                         <!-- TWO-PANEL MEGA MENU: left=categories, right=hover-revealed services -->
                         <div class="nav-megamenu nav-megamenu--twopanel">
