@@ -303,7 +303,7 @@ foreach ($committeeTypes as $_ct) {
 <?php endif; ?>
 
 <?php if (!empty($boardMembers)): ?>
-<section class="team-section section-padding" data-filter="board">
+<section id="board" class="team-section section-padding">
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2>सञ्चालक समिति</h2>
@@ -392,7 +392,7 @@ foreach ($committeeTypes as $_ct) {
 <?php endif; ?>
 
 <?php if (!empty($managementMembers)): ?>
-<section class="team-section section-padding bg-light" data-filter="management">
+<section id="management" class="team-section section-padding bg-light" data-filter="management">
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2>व्यवस्थापन टोली</h2>
@@ -425,7 +425,7 @@ foreach ($committeeTypes as $_ct) {
 <?php foreach ($committeeTypes as $_ct): ?>
     <?php $ctId = (int)$_ct['id']; ?>
     <?php if (empty($committeeMembers[$ctId])) continue; ?>
-    <section class="team-section section-padding bg-light" data-filter="committee-<?php echo $ctId; ?>">
+    <section id="committee-<?php echo $ctId; ?>" class="team-section section-padding bg-light" data-filter="committee-<?php echo $ctId; ?>">
         <div class="container">
             <div class="section-header section-header-unified text-center">
                 <h2><?php echo isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']); ?></h2>
@@ -502,7 +502,7 @@ foreach ($committeeTypes as $_ct) {
 
 <!-- Admin Team -->
 <?php if (!empty($adminMembers)): ?>
-<section class="team-section section-padding bg-light" data-filter="admin">
+<section id="admin" class="team-section section-padding bg-light" data-filter="admin">
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2><?php echo isEnglish() ? 'Admin Team' : 'एडमिन टोली'; ?></h2>

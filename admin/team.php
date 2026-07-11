@@ -538,6 +538,12 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('वर्ग', 'Category'); ?></label>
+                            <div class="form-text tm-meta-muted mb-2">
+                                <?php echo $__t('समूहहरू:', 'Groups:'); ?>
+                                <?php echo $teamListSection === 'karmachari'
+                                    ? $__t('शीर्ष व्यवस्थापन, व्यवस्थापन, कर्मचारी, एडमिन।', 'Top Management, Management, Staff, Admin.')
+                                    : $__t('सञ्चालक समिति, समिति / उपसमिति।', 'Board Committee, Committees / Subcommittees.'); ?>
+                            </div>
                             <select name="category" id="tmf_cat" class="form-select admin-fancy-input">
                                 <?php
                                 $_defCat = $teamListSection === 'karmachari' ? 'management' : 'board';

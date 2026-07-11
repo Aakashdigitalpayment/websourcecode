@@ -1173,11 +1173,18 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                     <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>team.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
+                            <li class="dropdown-header"><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></li>
                             <li><a href="<?php echo SITE_URL; ?>team.php#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>team.php#top-management"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>team.php#management"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>team.php#staff"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>team.php#admin"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?></a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li class="dropdown-header"><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></li>
+                            <li><a href="<?php echo SITE_URL; ?>team.php#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
                             <?php /* Admin बाट 'मेनुमा देखाउनुहोस्' check गरिएका committees मात्र */ ?>
                             <?php foreach ($navCommittees as $_nc): ?>
-                                <li><a href="<?php echo SITE_URL; ?>committees.php?id=<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                <li><a href="<?php echo SITE_URL; ?>team.php#committee-<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                             <?php endforeach; ?>
                             <?php if (empty($navCommittees)): ?>
                                 <li><a href="<?php echo SITE_URL; ?>committees.php"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?></a></li>
@@ -1459,10 +1466,17 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
                                 <a href="<?php echo SITE_URL; ?>team.php"><?php echo $L['team']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
-                                    <li><a href="<?php echo SITE_URL; ?>team.php"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                                    <li class="dropdown-header"><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>team.php#top-management"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#management"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#staff"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#admin"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?></a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li class="dropdown-header"><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
                                     <?php foreach ($navCommittees as $_nc): ?>
-                                        <li><a href="<?php echo SITE_URL; ?>committees.php?id=<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                        <li><a href="<?php echo SITE_URL; ?>team.php#committee-<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                     <?php endforeach; ?>
                                     <?php if (empty($navCommittees)): ?>
                                         <li><a href="<?php echo SITE_URL; ?>committees.php"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?></a></li>

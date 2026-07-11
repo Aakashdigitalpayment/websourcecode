@@ -1990,6 +1990,9 @@ body, .admin-shell, .member-page                   {
     text-shadow: none !important;
     animation: none !important;
 }
+.tools-widget-section .tools-category-card.tools-cat-member h5 {
+    font-size: 0.82rem !important;
+}
 .tools-widget-section .tools-category-card h5 i,
 .tools-category-card h5 i {
     color: var(--text-on-primary, #fff) !important;
