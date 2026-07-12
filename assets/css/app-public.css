@@ -1312,6 +1312,27 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     transform: translateX(3px);
 }
 
+/* Service category section header (e.g. सदस्य सेवा) */
+.service-category-header {
+    text-align: center;
+}
+
+.service-category-header-inner {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: center;
+}
+
+.service-category-header-text {
+    text-align: center;
+}
+
+.service-category-header-text h3 {
+    margin-bottom: 0.25rem;
+}
+
 /* Service Detail Card */
 .service-detail-card {
     background: var(--white);
