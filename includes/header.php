@@ -1091,55 +1091,39 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
                         </ul>
                     </li>
-                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?> <?php echo !empty($navServiceGroups) ? 'has-megamenu' : ''; ?>">
+                    <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>services.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="briefcase"></i><span class="mnav-main-label"><?php echo $L['services']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
-                        <?php if (!empty($navServiceGroups)):
-                            $__firstCatId = array_key_first($navServiceGroups); ?>
-                        <!-- TWO-PANEL MEGA MENU: left=categories, right=hover-revealed services -->
-                        <div class="nav-megamenu nav-megamenu--twopanel">
-                            <div class="nav-megamenu-inner">
-
-                                <!-- LEFT: category list -->
-                                <div class="nmm-cats">
-                                    <?php foreach ($__navGrpLabels as $__gk => $__gl):
-                                        if (empty($navServiceGroups[$__gk])) continue; ?>
-                                    <div class="nmm-cat-item <?php echo $__gk == $__firstCatId ? 'nmm-cat-item--active' : ''; ?>"
-                                         data-cat="nmm-panel-<?php echo (int)$__gk; ?>">
-                                        <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-th-large'); ?>"></i>
-                                        <span><?php echo htmlspecialchars($__gl); ?></span>
-                                        <i class="fas fa-chevron-right nmm-cat-arrow"></i>
-                                    </div>
+                        <?php if (!empty($navServiceGroups)): ?>
+                        <!-- Cascade: Menu → category submenu → hover shows mapped items -->
+                        <ul class="dropdown">
+                            <?php foreach ($__navGrpLabels as $__gk => $__gl):
+                                if (empty($navServiceGroups[$__gk])) continue;
+                                $__gsvcs = $navServiceGroups[$__gk]; ?>
+                            <li class="has-sub">
+                                <a href="#" aria-haspopup="true" aria-expanded="false">
+                                    <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-th-large'); ?>"></i>
+                                    <span><?php echo htmlspecialchars($__gl); ?></span>
+                                    <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
+                                </a>
+                                <ul class="sub-menu">
+                                    <?php foreach ($__gsvcs as $_gsvc): ?>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
+                                            <i class="<?php echo htmlspecialchars($_gsvc['icon']); ?>"></i>
+                                            <?php echo htmlspecialchars($_gsvc['title']); ?>
+                                        </a>
+                                    </li>
                                     <?php endforeach; ?>
-                                    <a class="nmm-view-all" href="<?php echo SITE_URL; ?>services.php">
-                                        <i class="fas fa-th-list"></i>
-                                        <?php echo isEnglish() ? 'All Services' : 'सबै सेवाहरू'; ?>
-                                    </a>
-                                </div>
-
-                                <!-- RIGHT: service panels (one per category, shown on hover) -->
-                                <div class="nmm-panels">
-                                    <?php foreach ($navServiceGroups as $__gk => $__gsvcs):
-                                        $__gl = $__navGrpLabels[$__gk] ?? ''; ?>
-                                    <div class="nmm-panel <?php echo $__gk == $__firstCatId ? 'nmm-panel--active' : ''; ?>"
-                                         id="nmm-panel-<?php echo (int)$__gk; ?>">
-                                        <div class="nmm-panel-head">
-                                            <i class="<?php echo htmlspecialchars($__navGrpIcons[$__gk] ?? 'fas fa-th-large'); ?>"></i>
-                                            <?php echo htmlspecialchars($__gl); ?>
-                                        </div>
-                                        <div class="nmm-panel-items">
-                                            <?php foreach ($__gsvcs as $_gsvc): ?>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>services.php#<?php echo htmlspecialchars($_gsvc['anchor']); ?>">
-                                                <i class="<?php echo htmlspecialchars($_gsvc['icon']); ?>"></i>
-                                                <?php echo htmlspecialchars($_gsvc['title']); ?>
-                                            </a>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-
-                            </div>
-                        </div>
+                                </ul>
+                            </li>
+                            <?php endforeach; ?>
+                            <li>
+                                <a href="<?php echo SITE_URL; ?>services.php">
+                                    <i class="fas fa-th-list"></i>
+                                    <?php echo isEnglish() ? 'All Services' : 'सबै सेवाहरू'; ?>
+                                </a>
+                            </li>
+                        </ul>
                         <?php else: ?>
                         <ul class="dropdown">
                             <?php if (!empty($navServiceLinks)): ?>
@@ -1170,82 +1154,86 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                     <li class="<?php echo $currentPage == 'gallery' ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>gallery.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="image"></i><span class="mnav-main-label"><?php echo $L['gallery']; ?></span></a>
                     </li>
-                    <li class="has-dropdown has-megamenu <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
+                    <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>team.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
-                        <div class="nav-megamenu nav-megamenu--twopanel">
-                            <div class="nav-megamenu-inner">
-                                <div class="nmm-cats">
-                                    <div class="nmm-cat-item nmm-cat-item--active" data-cat="nmm-panel-team-management">
-                                        <i class="fas fa-briefcase"></i>
-                                        <span><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></span>
-                                        <i class="fas fa-chevron-right nmm-cat-arrow"></i>
-                                    </div>
-                                    <div class="nmm-cat-item" data-cat="nmm-panel-team-committees">
-                                        <i class="fas fa-sitemap"></i>
-                                        <span><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></span>
-                                        <i class="fas fa-chevron-right nmm-cat-arrow"></i>
-                                    </div>
-                                    <a class="nmm-view-all" href="<?php echo SITE_URL; ?>team.php">
-                                        <i class="fas fa-th-list"></i>
-                                        <?php echo isEnglish() ? 'All Team' : 'सम्पूर्ण टोली'; ?>
-                                    </a>
-                                </div>
-                                <div class="nmm-panels">
-                                    <div class="nmm-panel nmm-panel--active" id="nmm-panel-team-management">
-                                        <div class="nmm-panel-head">
-                                            <i class="fas fa-briefcase"></i>
-                                            <?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?>
-                                        </div>
-                                        <div class="nmm-panel-items">
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#contact-officers">
-                                                <i class="fas fa-id-card-clip"></i>
-                                                <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
-                                            </a>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#top-management">
-                                                <i class="fas fa-user-shield"></i>
-                                                <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?>
-                                            </a>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#management">
-                                                <i class="fas fa-user-tie"></i>
-                                                <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?>
-                                            </a>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#staff">
-                                                <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>
-                                                <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?>
-                                            </a>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#admin">
-                                                <i class="fas fa-user-shield"></i>
-                                                <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="nmm-panel" id="nmm-panel-team-committees">
-                                        <div class="nmm-panel-head">
+                        <ul class="dropdown">
+                            <li class="has-sub">
+                                <a href="#" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></span>
+                                    <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#contact-officers">
+                                            <i class="fas fa-id-card-clip"></i>
+                                            <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#top-management">
+                                            <i class="fas fa-user-shield"></i>
+                                            <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#management">
+                                            <i class="fas fa-user-tie"></i>
+                                            <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#staff">
+                                            <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>
+                                            <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#admin">
+                                            <i class="fas fa-user-shield"></i>
+                                            <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="has-sub">
+                                <a href="#" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-sitemap"></i>
+                                    <span><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></span>
+                                    <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#board">
+                                            <i class="fas fa-landmark"></i>
+                                            <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
+                                        </a>
+                                    </li>
+                                    <?php foreach ($navCommittees as $_nc): ?>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>team.php#committee-<?php echo (int)$_nc['id']; ?>">
+                                            <i class="fas fa-users-gear"></i>
+                                            <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
+                                        </a>
+                                    </li>
+                                    <?php endforeach; ?>
+                                    <?php if (empty($navCommittees)): ?>
+                                    <li>
+                                        <a href="<?php echo SITE_URL; ?>committees.php">
                                             <i class="fas fa-sitemap"></i>
-                                            <?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?>
-                                        </div>
-                                        <div class="nmm-panel-items">
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#board">
-                                                <i class="fas fa-landmark"></i>
-                                                <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
-                                            </a>
-                                            <?php foreach ($navCommittees as $_nc): ?>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>team.php#committee-<?php echo (int)$_nc['id']; ?>">
-                                                <i class="fas fa-users-gear"></i>
-                                                <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
-                                            </a>
-                                            <?php endforeach; ?>
-                                            <?php if (empty($navCommittees)): ?>
-                                            <a class="nmm-panel-item" href="<?php echo SITE_URL; ?>committees.php">
-                                                <i class="fas fa-sitemap"></i>
-                                                <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?>
-                                            </a>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                            <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?>
+                                        </a>
+                                    </li>
+                                    <?php endif; ?>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="<?php echo SITE_URL; ?>team.php">
+                                    <i class="fas fa-th-list"></i>
+                                    <?php echo isEnglish() ? 'All Team' : 'सम्पूर्ण टोली'; ?>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="has-dropdown">
                         <a href="javascript:void(0);"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
@@ -1772,28 +1760,19 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     </script>
     <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.5" defer></script>
     <script>
-    /* Two-panel mega menu: category hover switches right panel */
+    /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {
-        function initMegaMenu() {
-            document.querySelectorAll('.nav-megamenu--twopanel').forEach(function (menu) {
-                menu.querySelectorAll('.nmm-cat-item').forEach(function (cat) {
-                    cat.addEventListener('mouseenter', function () {
-                        var panelId = cat.getAttribute('data-cat');
-                        if (!panelId) return;
-                        menu.querySelectorAll('.nmm-cat-item').forEach(function (c) { c.classList.remove('nmm-cat-item--active'); });
-                        menu.querySelectorAll('.nmm-panel').forEach(function (p) { p.classList.remove('nmm-panel--active'); });
-                        cat.classList.add('nmm-cat-item--active');
-                        var panel = document.getElementById(panelId);
-                        if (panel) panel.classList.add('nmm-panel--active');
-                    });
+        function bindCascadeParents() {
+            document.querySelectorAll('#mainNavV2 .nav-menu .has-sub > a[href="#"]').forEach(function (link) {
+                if (link.dataset.cascadeBound === '1') return;
+                link.dataset.cascadeBound = '1';
+                link.addEventListener('click', function (e) {
+                    if (window.innerWidth >= 992) e.preventDefault();
                 });
             });
         }
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initMegaMenu);
-        } else {
-            initMegaMenu();
-        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bindCascadeParents);
+        else bindCascadeParents();
     })();
     </script>
 
