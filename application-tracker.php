@@ -860,6 +860,9 @@ function getAppTypeLabel($type) {
                                         } elseif ($app['app_type'] === 'account') {
                                             echo htmlspecialchars($app['account_type'] ?? 'खाता आवेदन');
                                         } elseif ($app['app_type'] === 'appointment') {
+                                            if (($app['visit_kind'] ?? 'member') === 'cooperative') {
+                                                echo isEnglish() ? 'Cooperative Visit' : 'सहकारी भ्रमण';
+                                            } else {
                                             $purposeLabels = [
                                                 'account_inquiry' => isEnglish() ? 'Account Inquiry' : 'खाता जानकारी',
                                                 'loan_inquiry' => isEnglish() ? 'Loan Inquiry' : 'ऋण जानकारी',
@@ -869,6 +872,7 @@ function getAppTypeLabel($type) {
                                                 'other' => isEnglish() ? 'Other' : 'अन्य'
                                             ];
                                             echo htmlspecialchars($purposeLabels[$app['purpose'] ?? 'other'] ?? 'भेटघाट');
+                                            }
                                         } elseif ($app['app_type'] === 'feedback') {
                                             echo htmlspecialchars($app['subject'] ?? $app['type'] ?? 'सर्वेक्षण/गुनासो');
                                         } elseif ($app['app_type'] === 'welfare_claim') {
@@ -1101,6 +1105,25 @@ function getAppTypeLabel($type) {
                                             </div>
                                         </div>
                                     </div>
+                                    <?php if (($app['visit_kind'] ?? 'member') === 'cooperative'): ?>
+                                    <div class="admin-response-block mt-2">
+                                        <strong><i class="fas fa-handshake tracker-ico-primary"></i> <?php echo isEnglish() ? 'Cooperative visit details:' : 'सहकारी भ्रमण विवरण:'; ?></strong>
+                                        <ul class="mb-0 mt-1 small ps-3">
+                                            <?php if (!empty($app['contact_person'])): ?>
+                                            <li><?php echo isEnglish() ? 'Contact' : 'सम्पर्क'; ?>: <?php echo htmlspecialchars($app['contact_person']); ?></li>
+                                            <?php endif; ?>
+                                            <?php if (!empty($app['organization_address'])): ?>
+                                            <li><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?>: <?php echo htmlspecialchars($app['organization_address']); ?></li>
+                                            <?php endif; ?>
+                                            <?php if (!empty($app['organization_website'])): ?>
+                                            <li><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?>: <a href="<?php echo htmlspecialchars($app['organization_website']); ?>" target="_blank" rel="noopener"><?php echo htmlspecialchars($app['organization_website']); ?></a></li>
+                                            <?php endif; ?>
+                                            <?php if (!empty($app['purpose_detail'])): ?>
+                                            <li><?php echo isEnglish() ? 'Notes' : 'विवरण'; ?>: <?php echo nl2br(htmlspecialchars($app['purpose_detail'])); ?></li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
+                                    <?php endif; ?>
                                     <?php if (!empty($app['preferred_date'])): ?>
                                     <div class="admin-response-block mt-2">
                                         <strong><i class="fas fa-clock tracker-ico-primary"></i> <?php echo isEnglish() ? 'Scheduled:' : 'तालिका:'; ?></strong>
