@@ -75,8 +75,8 @@
 
     <!-- Admin JS -->
     <script src="assets/admin.js"></script>
-    <link rel="stylesheet" href="assets/icon-picker.css?v=1">
-    <script src="assets/icon-picker.js?v=1"></script>
+    <link rel="stylesheet" href="assets/icon-picker.css?v=2">
+    <script src="assets/icon-picker.js?v=2"></script>
     <script src="../assets/js/v9-mobile-fix.js?v=9.7" defer></script>
 
     <!-- PWA — Service Worker + Install Handler -->
