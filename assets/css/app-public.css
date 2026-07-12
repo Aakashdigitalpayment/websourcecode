@@ -19489,13 +19489,96 @@ body.auth-portal-page.verify-auth-page .vp-card { background: transparent !impor
 
 /* ═══════════════════════════════════════════════════
    51. APPOINTMENT PAGE (appointment.php)
+   Global .card / .card-header use background:#fff/#f9fafb !important —
+   appointment panels must win that fight or white-on-light text disappears.
    ═══════════════════════════════════════════════════ */
-.appt-steps-card { background: linear-gradient(160deg, var(--primary-dark), var(--primary-color)); color: var(--text-on-primary, white); border-radius: 16px; }
-.appt-step-icon-wrap { width: 36px; height: 36px; background: rgba(255,255,255,.18); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.appt-step-divider { border-color: rgba(255,255,255,.25); margin: 20px 0 16px; }
-.appt-step-help { font-size: 12.5px; opacity: .85; }
-.appt-step-link { color: color-mix(in srgb, var(--secondary-color) 45%, white); text-decoration: underline; }
-.appt-form-card { border-radius: 16px; }
+.appt-form-card {
+    border-radius: 16px !important;
+}
+.appt-form-card > .card-header {
+    background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+    border-bottom: 0 !important;
+    color: #fff !important;
+}
+.appt-form-card > .card-header,
+.appt-form-card > .card-header h5,
+.appt-form-card > .card-header i {
+    color: #fff !important;
+}
+
+.appt-steps-card {
+    background: linear-gradient(160deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+    border: 0 !important;
+    border-radius: 16px !important;
+    color: #fff !important;
+}
+.appt-steps-card .card-body,
+.appt-steps-card h5,
+.appt-steps-card .fw-semibold,
+.appt-steps-card .appt-step-help,
+.appt-steps-card i {
+    color: #fff !important;
+}
+.appt-steps-card .fw-semibold + div {
+    color: rgba(255, 255, 255, 0.88) !important;
+    opacity: 1 !important;
+}
+.appt-step-icon-wrap {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #fff;
+}
+.appt-step-divider {
+    border-color: rgba(255, 255, 255, 0.28);
+    margin: 20px 0 16px;
+    opacity: 1;
+}
+.appt-step-help {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+.appt-step-link {
+    color: #ffe08a !important;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+.appt-step-link:hover {
+    color: #fff !important;
+}
+
+.appt-kind-tabs .nav-link {
+    border: 1.5px solid var(--primary-color, #1a5f2a);
+    color: var(--primary-color, #1a5f2a);
+    background: #fff;
+    font-weight: 600;
+}
+.appt-kind-tabs .nav-link.active {
+    background: var(--primary-color, #1a5f2a) !important;
+    border-color: var(--primary-color, #1a5f2a) !important;
+    color: #fff !important;
+}
+
+body.dark-mode .appt-form-card > .card-header {
+    background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+    color: #fff !important;
+}
+body.dark-mode .appt-steps-card {
+    background: linear-gradient(160deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+    color: #fff !important;
+}
+body.dark-mode .appt-steps-card h5,
+body.dark-mode .appt-steps-card .fw-semibold,
+body.dark-mode .appt-steps-card .appt-step-help {
+    color: #fff !important;
+}
 
 /* ═══════════════════════════════════════════════════
    52. ATTEND PAGE (attend.php) — standalone, no Bootstrap
