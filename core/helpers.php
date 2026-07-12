@@ -632,11 +632,20 @@ if (!function_exists('calcFDMaturity')) {
  */
 if (!function_exists('truncateText')) {
     function truncateText(string $text, int $length = 100, string $suffix = '...'): string {
-        if (function_exists('mb_strlen') && mb_strlen($text, 'UTF-8') <= $length) return $text;
-        if (!function_exists('mb_strlen') && strlen($text) <= $length) return $text;
-        return function_exists('mb_substr')
-            ? mb_substr($text, 0, $length, 'UTF-8') . $suffix
-            : substr($text, 0, $length) . $suffix;
+        $text = trim(preg_replace('/\s+/u', ' ', $text) ?? '');
+        $text = str_replace(["\u{FFFD}", '�'], '', $text);
+        if ($text === '') return '';
+        $length = max(1, $length);
+        if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+            if (mb_strlen($text, 'UTF-8') <= $length) return $text;
+            return rtrim(mb_substr($text, 0, $length, 'UTF-8')) . $suffix;
+        }
+        if (strlen($text) <= $length) return $text;
+        $cut = substr($text, 0, $length);
+        if (preg_match('/^([\x00-\x7F]|[\xC2-\xF4][\x80-\xBF]*)*/', $cut, $m)) {
+            $cut = $m[0];
+        }
+        return rtrim($cut) . $suffix;
     }
 }
 

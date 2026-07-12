@@ -1145,16 +1145,33 @@ function getCurrentPage() {
     return $page;
 }
 
-// Truncate text (PHP 8.1+ compatible)
-function truncateText($text, $length = 100) {
+// Truncate text — UTF-8 safe (Nepali/multibyte must not use byte substr)
+function truncateText($text, $length = 100, $suffix = '...') {
     if ($text === null) {
         return '';
     }
-    $text = (string)$text;
+    $text = trim(preg_replace('/\s+/u', ' ', (string)$text) ?? '');
+    // Drop already-broken replacement chars from bad prior truncations / encoding
+    $text = str_replace(["\u{FFFD}", '�'], '', $text);
+    if ($text === '') {
+        return '';
+    }
+    $length = max(1, (int)$length);
+    if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+        if (mb_strlen($text, 'UTF-8') <= $length) {
+            return $text;
+        }
+        return rtrim(mb_substr($text, 0, $length, 'UTF-8')) . $suffix;
+    }
     if (strlen($text) <= $length) {
         return $text;
     }
-    return substr($text, 0, $length) . '...';
+    // Last-resort byte cut: back up to avoid splitting a UTF-8 sequence
+    $cut = substr($text, 0, $length);
+    if (preg_match('/^([\x00-\x7F]|[\xC2-\xF4][\x80-\xBF]*)*/', $cut, $m)) {
+        $cut = $m[0];
+    }
+    return rtrim($cut) . $suffix;
 }
 
 // Adjust color brightness (for dynamic theme)
