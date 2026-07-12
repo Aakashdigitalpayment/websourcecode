@@ -248,19 +248,40 @@ $rows = $db->query(
             <input type="hidden" name="action" value="create" id="credAction">
             <input type="hidden" name="id" value="" id="credId">
             <div class="cred-form-grid">
-                <input class="field-coop" name="site_name" id="cf_name" placeholder="Site नाम (e.g. NRB Portal)" required>
-                <input class="field-coop" name="site_url"  id="cf_url"  type="url" placeholder="https://..." required>
-                <input class="field-coop" name="site_logo" id="cf_logo" placeholder="Logo URL (खाली राखे favicon auto)">
-                <select class="field-coop" name="category" id="cf_cat">
-                    <option value="government">सरकारी (Government)</option>
-                    <option value="banking">बैंकिङ</option>
-                    <option value="cooperative">सहकारी सम्बन्धी</option>
-                    <option value="general">सामान्य</option>
-                </select>
-                <input class="field-coop" name="username" id="cf_user" placeholder="Username" required>
-                <input class="field-coop" name="password" id="cf_pass" type="password"
-                       placeholder="Password (edit मा खाली राखे पुरानै रहन्छ)">
-                <textarea class="field-coop" name="notes" id="cf_notes" rows="2" placeholder="Notes (optional)"></textarea>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_name">Site नाम</label>
+                    <input class="field-coop" name="site_name" id="cf_name" placeholder="e.g. NRB Portal" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_url">Site URL</label>
+                    <input class="field-coop" name="site_url"  id="cf_url"  type="url" placeholder="https://..." required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_logo">Logo URL</label>
+                    <input class="field-coop" name="site_logo" id="cf_logo" placeholder="खाली राखे favicon auto">
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_cat">श्रेणी</label>
+                    <select class="field-coop" name="category" id="cf_cat">
+                        <option value="government">सरकारी (Government)</option>
+                        <option value="banking">बैंकिङ</option>
+                        <option value="cooperative">सहकारी सम्बन्धी</option>
+                        <option value="general">सामान्य</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_user">Username</label>
+                    <input class="field-coop" name="username" id="cf_user" placeholder="Username" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="cf_pass">Password</label>
+                    <input class="field-coop" name="password" id="cf_pass" type="password"
+                           placeholder="Edit मा खाली = पुरानै रहन्छ">
+                </div>
+                <div class="cred-notes-span">
+                    <label class="form-label small fw-semibold mb-1" for="cf_notes">Notes</label>
+                    <textarea class="field-coop" name="notes" id="cf_notes" rows="2" placeholder="Optional"></textarea>
+                </div>
             </div>
             <div class="cred-inline-actions cred-form-actions">
                 <button type="button" class="btn-coop btn-outline" onclick="closeCredModal()">रद्द</button>

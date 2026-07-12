@@ -54,7 +54,7 @@ if ($kycRow) {
 }
 
 /* Applications */
-$apps      = getMemberApplications($memEmail, $memPhone, 200);
+$apps      = getMemberApplications($memEmail, $memPhone, 200, $mem['id'] ?? null);
 $totalApps = count($apps);
 $pending   = count(array_filter($apps, fn($a) => $a['status'] === 'pending'));
 $approved  = count(array_filter($apps, fn($a) => in_array($a['status'], ['approved','completed','resolved'])));

@@ -102,6 +102,7 @@ try {
       <strong>छुट्याएर बुझ्नुहोस्:</strong>
       HRM = आन्तरिक कर्मचारी रेकर्ड ·
       <a href="team-karmachari.php">कर्मचारी / व्यवस्थापन</a> = website मा देखिने टोली ·
+      <a href="manage-admins.php">Manage Admins</a> = panel login user ·
       <a href="service-centers.php">शाखाहरू</a> = सेवा केन्द्र (शाखा dropdown को स्रोत) ·
       <a href="designations.php">पद मास्टर</a> = पदको नाम
     </div>

@@ -113,9 +113,9 @@ function adminEmptyRow(int $colspan = 6, string $msg = '', string $sub = ''): st
         : '<i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i>';
     return '<tr><td colspan="' . $colspan . '" class="text-center admin-empty-state">'
          . $iconHtml
-         . '<div style="font-size:0.9rem;font-weight:600;color:#6b7280;margin-top:8px;">'
+         . '<div style="font-size:var(--fs-sm,0.9rem);font-weight:600;color:#6b7280;margin-top:8px;">'
          . htmlspecialchars($msg) . '</div>'
-         . '<p>' . htmlspecialchars($sub) . '</p>'
+         . '<p style="font-size:var(--fs-xs,0.8rem);">' . htmlspecialchars($sub) . '</p>'
          . '</td></tr>';
 }
 
@@ -137,7 +137,7 @@ function adminBadge(string $color, string $text, bool $dark = false): string {
     ];
     $style = $softStyles[$color] ?? ('background:color-mix(in srgb, var(--primary-color) 10%, #ffffff);color:var(--primary-dark,var(--primary-color));');
     return '<span class="badge" style="'
-         . 'border-radius:20px;padding:4px 10px;font-weight:600;font-size:0.72rem;'
+         . 'border-radius:20px;padding:4px 10px;font-weight:600;font-size:var(--fs-xs,0.72rem);'
          . $style . '">'
          . htmlspecialchars($text) . '</span>';
 }
@@ -150,7 +150,7 @@ function adminActiveBadge($isActive): string {
     if ($isActive) {
         return '<span class="badge" style="'
              . 'background:color-mix(in srgb, var(--primary-color) 14%, #ffffff);color:var(--primary-dark,var(--primary-color));border-radius:20px;'
-             . 'padding:4px 10px;font-weight:600;font-size:0.72rem;'
+             . 'padding:4px 10px;font-weight:600;font-size:var(--fs-xs,0.72rem);'
              . 'display:inline-flex;align-items:center;gap:5px;">'
              . '<span style="width:6px;height:6px;border-radius:50%;background:var(--primary-color);'
              . 'box-shadow:0 0 0 2px color-mix(in srgb, var(--primary-color) 25%, transparent);flex-shrink:0;"></span>'
@@ -158,7 +158,7 @@ function adminActiveBadge($isActive): string {
     }
     return '<span class="badge" style="'
          . 'background:color-mix(in srgb, var(--secondary-color) 10%, #ffffff);color:var(--secondary-dark,var(--secondary-color));border-radius:20px;'
-         . 'padding:4px 10px;font-weight:600;font-size:0.72rem;'
+         . 'padding:4px 10px;font-weight:600;font-size:var(--fs-xs,0.72rem);'
          . 'display:inline-flex;align-items:center;gap:5px;">'
          . '<span style="width:6px;height:6px;border-radius:50%;background:#9ca3af;flex-shrink:0;"></span>'
          . htmlspecialchars(adminUiT('लुकाइएको', 'Hidden')) . '</span>';
@@ -185,7 +185,7 @@ function adminStatusBadge(string $status): string {
         : '<i class="fas fa-circle" style="font-size:0.65rem;"></i>';
     return '<span class="badge" style="'
          . 'background:' . $s['bg'] . ';color:' . $s['color'] . ';'
-         . 'border-radius:20px;padding:4px 10px;font-weight:600;font-size:0.72rem;'
+         . 'border-radius:20px;padding:4px 10px;font-weight:600;font-size:var(--fs-xs,0.72rem);'
          . 'display:inline-flex;align-items:center;gap:4px;">'
          . $iconHtml
          . htmlspecialchars($s['label']) . '</span>';

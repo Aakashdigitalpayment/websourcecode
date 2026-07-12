@@ -142,6 +142,13 @@ $users = filter_out_file_managed_superadmin_rows($users);
         </button>
     </div>
 
+    <div class="alert alert-light border small py-2 mb-3">
+        <i class="fas fa-info-circle text-warning me-1"></i>
+        <strong>सुझाव:</strong> Admin login users को मुख्य पृष्ठ
+        <a href="manage-admins.php"><strong>Manage Admins</strong></a> हो।
+        यो <code>staff.php</code> advanced/legacy विकल्प हो (HRM link सहित) — नयाँ कामका लागि Manage Admins प्रयोग गर्नुहोस्।
+    </div>
+
     <?php echo adminHelpTip('यो पृष्ठबाट Admin र Staff Users व्यवस्थापन गर्न सकिन्छ।', ['नयाँ User थप्न: माथिको "नयाँ User थप्नुहोस्" बटन थिच्नुहोस्।', 'Role: Admin = सबै access; Staff = सीमित access।', 'Password बदल्न: सम्बन्धित user को Edit icon थिच्नुहोस्।']); ?>
 
     <?php if ($f = getFlash()): ?>
@@ -157,6 +164,15 @@ $users = filter_out_file_managed_superadmin_rows($users);
                 </tr>
             </thead>
             <tbody>
+            <?php if (empty($users)): ?>
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        <i class="fas fa-users-slash mb-2 d-block opacity-25"></i>
+                        कुनै staff/admin user छैन। माथिको <strong>नयाँ User थप्नुहोस्</strong> बाट थप्नुहोस्।
+                        <div class="mt-2 small">मुख्य पृष्ठ: <a href="manage-admins.php">Manage Admins</a></div>
+                    </td>
+                </tr>
+            <?php endif; ?>
             <?php foreach ($users as $u): ?>
                 <?php
                   $badge = $u['role']==='superadmin' ? 'danger'
@@ -242,40 +258,61 @@ $users = filter_out_file_managed_superadmin_rows($users);
             <input type="hidden" name="link_employee_id" id="f_link_emp_id" value="">
             <div class="stf-grid-gap">
                 <?php if (!empty($__hrmEmployees)): ?>
-                <select class="field-coop" id="f_link_emp_select" onchange="prefillFromEmployee(this)">
-                    <option value="">— कर्मचारीबाट छान्नुहोस् (वैकल्पिक) —</option>
-                    <?php foreach ($__hrmEmployees as $__e): ?>
-                        <?php $linked = (int)($__e['admin_user_id'] ?? 0) > 0; ?>
-                        <option value="<?= (int)$__e['id'] ?>"
-                                data-name="<?= e($__e['full_name_np']) ?>"
-                                data-email="<?= e($__e['email'] ?? '') ?>"
-                                data-desig="<?= e($__e['designation'] ?? '') ?>"
-                                data-code="<?= e($__e['employee_code']) ?>"
-                                <?= $linked ? 'disabled' : '' ?>>
-                            <?= e($__e['employee_code']) ?> — <?= e($__e['full_name_np']) ?><?= $linked ? ' (पहिले नै लिंक छ)' : '' ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <small class="stf-muted-note">कर्मचारी छान्दा नाम/Email/पद/Username स्वतः भरिन्छ।</small>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="f_link_emp_select">HRM कर्मचारी (वैकल्पिक)</label>
+                    <select class="field-coop" id="f_link_emp_select" onchange="prefillFromEmployee(this)">
+                        <option value="">— कर्मचारीबाट छान्नुहोस् (वैकल्पिक) —</option>
+                        <?php foreach ($__hrmEmployees as $__e): ?>
+                            <?php $linked = (int)($__e['admin_user_id'] ?? 0) > 0; ?>
+                            <option value="<?= (int)$__e['id'] ?>"
+                                    data-name="<?= e($__e['full_name_np']) ?>"
+                                    data-email="<?= e($__e['email'] ?? '') ?>"
+                                    data-desig="<?= e($__e['designation'] ?? '') ?>"
+                                    data-code="<?= e($__e['employee_code']) ?>"
+                                    <?= $linked ? 'disabled' : '' ?>>
+                                <?= e($__e['employee_code']) ?> — <?= e($__e['full_name_np']) ?><?= $linked ? ' (पहिले नै लिंक छ)' : '' ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="stf-muted-note">कर्मचारी छान्दा नाम/Email/पद/Username स्वतः भरिन्छ।</small>
+                </div>
                 <?php endif; ?>
-                <input class="field-coop" name="name"     placeholder="पूरा नाम" required>
-                <input class="field-coop" name="username" placeholder="Username" required>
-                <input class="field-coop" name="email"    type="email" placeholder="Email">
-                <input class="field-coop" name="password" type="password" placeholder="Password (कम्तीमा 6)" required>
-                <select class="field-coop" name="designation">
-                    <option value="">— पद छान्नुहोस् (वैकल्पिक) —</option>
-                    <?php foreach ($__staffDesigs as $__d): ?>
-                        <option value="<?= e($__d['title_np']) ?>"><?= e($__d['title_np']) ?><?php if($__d['title_en']): ?> — <?= e($__d['title_en']) ?><?php endif; ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <small class="stf-muted-note">पद यहाँ नभए <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</small>
-                <select class="field-coop" name="role">
-                    <option value="staff">Staff (सीमित अधिकार)</option>
-                    <?php if (is_superadmin()): ?>
-                        <option value="admin">Admin</option>
-                        <option value="superadmin">Superadmin</option>
-                    <?php endif; ?>
-                </select>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_name">पूरा नाम <span class="text-danger">*</span></label>
+                    <input class="field-coop" id="stf_name" name="name" placeholder="उदा. राम बहादुर" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_username">Username <span class="text-danger">*</span></label>
+                    <input class="field-coop" id="stf_username" name="username" placeholder="login username" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_email">Email (वैकल्पिक)</label>
+                    <input class="field-coop" id="stf_email" name="email" type="email" placeholder="name@example.com">
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_password">Password <span class="text-danger">*</span></label>
+                    <input class="field-coop" id="stf_password" name="password" type="password" placeholder="कम्तीमा 6 अक्षर" required>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_desig">पद (वैकल्पिक)</label>
+                    <select class="field-coop" id="stf_desig" name="designation">
+                        <option value="">— पद छान्नुहोस् (वैकल्पिक) —</option>
+                        <?php foreach ($__staffDesigs as $__d): ?>
+                            <option value="<?= e($__d['title_np']) ?>"><?= e($__d['title_np']) ?><?php if($__d['title_en']): ?> — <?= e($__d['title_en']) ?><?php endif; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="stf-muted-note">पद यहाँ नभए <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</small>
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold mb-1" for="stf_role">भूमिका <span class="text-danger">*</span></label>
+                    <select class="field-coop" id="stf_role" name="role">
+                        <option value="staff">Staff (सीमित अधिकार)</option>
+                        <?php if (is_superadmin()): ?>
+                            <option value="admin">Admin</option>
+                            <option value="superadmin">Superadmin</option>
+                        <?php endif; ?>
+                    </select>
+                </div>
             </div>
             <div class="stf-actions-row stf-actions-row-lg">
                 <button type="button" class="btn-coop btn-outline"
@@ -295,8 +332,9 @@ $users = filter_out_file_managed_superadmin_rows($users);
             <?= csrfField() ?>
             <input type="hidden" name="action" value="resetpw">
             <input type="hidden" name="id" id="resetPwId">
-            <input class="field-coop" type="password" name="new_password"
-                   placeholder="नयाँ password (कम्तीमा 6 अक्षर)" required minlength="6">
+            <label class="form-label small fw-semibold mb-1" for="stf_new_pw">नयाँ Password <span class="text-danger">*</span></label>
+            <input class="field-coop" id="stf_new_pw" type="password" name="new_password"
+                   placeholder="कम्तीमा 6 अक्षर" required minlength="6">
             <div class="stf-actions-row stf-actions-row-sm">
                 <button type="button" class="btn-coop btn-outline"
                         onclick="document.getElementById('resetPwModal').style.display='none'">रद्द</button>

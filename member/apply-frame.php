@@ -11,35 +11,15 @@ $_t = static function (string $np, string $en): string {
 };
 
 $frames = [
-    'appointment' => [
-        'path' => 'appointment.php',
-        'title' => $_t('भेटघाट बुक गर्नुहोस्', 'Book Appointment'),
-        'hint' => $_t('तलको फारममा तपाईंको प्रोफाइल/KYC बाट विवरण auto-fill हुनेछ। मिति र उद्देश्य भर्नुहोस्।', 'Your profile/KYC details will auto-fill below. Fill date and purpose.'),
-    ],
     'kyc' => [
         'path' => 'online-kyc.php',
         'title' => $_t('KYC दर्ता / अपडेट', 'KYC Register / Update'),
         'hint' => $_t('अनलाइन KYC फारम — लगिन सत्र प्रयोग भइरहेको छ।', 'Online KYC form using your current login session.'),
     ],
-    'loan' => [
-        'path' => 'loan-apply.php',
-        'title' => $_t('ऋण आवेदन', 'Loan Application'),
-        'hint' => $_t('सदस्य प्रोफाइल अनुसार नाम, सम्पर्क आदि भरिनेछन्। ऋण विवरण मात्र थप्नुहोस्।', 'Name/contact will auto-fill from profile. Add loan details only.'),
-    ],
-    'account' => [
-        'path' => 'online-account.php',
-        'title' => $_t('खाता खोल्ने आवेदन', 'Open Account Application'),
-        'hint' => $_t('व्यक्तिगत विवरण प्रोफाइलबाट लिइन्छ। खाता प्रकार र अन्य विवरण भर्नुहोस्।', 'Personal details come from profile. Fill account type and other details.'),
-    ],
     'digital' => [
         'path' => 'digital-services.php',
         'title' => $_t('डिजिटल सेवा अनुरोध', 'Digital Service Request'),
         'hint' => $_t('डिजिटल सेवा छानेर विवरण पठाउनुहोस्।', 'Choose digital service and submit details.'),
-    ],
-    'grievance' => [
-        'path' => 'grievance.php',
-        'title' => $_t('गुनासो दर्ता', 'Submit Grievance'),
-        'hint' => $_t('सम्पर्क विवरण प्रोफाइलबाट भरिनेछ। गुनासो विवरण लेख्नुहोस्।', 'Contact details auto-fill from profile. Write grievance details.'),
     ],
     'career' => [
         'path' => 'career.php',
@@ -53,7 +33,19 @@ $frames = [
     ],
 ];
 
+/* Native member forms — avoid duplicate iframe of public apply pages */
+$nativeRedirects = [
+    'loan' => 'loan-apply.php',
+    'appointment' => 'appointment.php',
+    'grievance' => 'grievance.php',
+    'account' => 'account-apply.php',
+];
+
 $p = $_GET['p'] ?? '';
+if (isset($nativeRedirects[$p])) {
+    header('Location: ' . SITE_URL . 'member/' . $nativeRedirects[$p]);
+    exit;
+}
 if (!isset($frames[$p])) {
     header('Location: ' . SITE_URL . 'member/');
     exit;

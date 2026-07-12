@@ -45,12 +45,21 @@ $rCitizen  = trim((string)($kycRow['citizenship_no'] ?? ''));
 $rDobBS    = trim((string)($kycRow['dob_bs'] ?? ''));
 $rGender   = trim((string)($kycRow['gender'] ?? ''));
 
-/* Recent account applications */
+/* Recent account applications — by mobile/email (schema has no member_id) */
 $recentAccounts = [];
 try {
-    $ra = $db->prepare("SELECT tracking_id, account_type, initial_deposit, status, created_at FROM account_applications WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-    $ra->execute([$memberId]);
-    $recentAccounts = $ra->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $conds = []; $params = [];
+    if ($memPhone !== '') { $conds[] = 'mobile=?'; $params[] = $memPhone; }
+    if ($memEmail !== '') { $conds[] = 'email=?'; $params[] = $memEmail; }
+    if ($conds) {
+        $ra = $db->prepare(
+            'SELECT tracking_id, account_type, initial_deposit, status, created_at
+             FROM account_applications WHERE (' . implode(' OR ', $conds) . ')
+             ORDER BY created_at DESC LIMIT 10'
+        );
+        $ra->execute($params);
+        $recentAccounts = $ra->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 } catch (Throwable $e) {}
 
 /* ── Handle POST ── */
@@ -71,27 +80,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         $notes           = trim((string)($_POST['notes'] ?? ''));
 
         if (!$account_type) $errorMsg = $_t('खाता प्रकार छान्नुहोस्।', 'Please select account type.');
+        if (!$errorMsg && $rPhone === '' && $memPhone === '') {
+            $errorMsg = $_t('मोबाइल नम्बर आवश्यक छ। प्रोफाइलमा फोन अपडेट गर्नुहोस्।', 'Mobile number required. Update phone on profile.');
+        }
 
         if (!$errorMsg) {
             try {
+                $submitMobile = $rPhone !== '' ? $rPhone : $memPhone;
                 $accTrackingId = 'ACC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
                 $stmt = $db->prepare("INSERT INTO account_applications
                     (tracking_id, account_type, full_name, full_name_en, dob_bs, gender,
                      mobile, email, permanent_address, citizenship_no,
                      initial_deposit, nominee_name, nominee_relation, nominee_phone,
-                     member_id, branch)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                     branch)
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
                 $stmt->execute([
                     $accTrackingId, $account_type,
                     $memName, '', $rDobBS, $rGender,
-                    $rPhone, $rEmail, $rAddress, $rCitizen,
+                    $submitMobile, $rEmail, $rAddress, $rCitizen,
                     $initial_deposit, $nominee_name ?: null, $nominee_relation ?: null, $nominee_phone ?: null,
-                    $memberId, $branch ?: null,
+                    $branch ?: null,
                 ]);
-                /* Reload */
-                $ra2 = $db->prepare("SELECT tracking_id, account_type, initial_deposit, status, created_at FROM account_applications WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-                $ra2->execute([$memberId]);
-                $recentAccounts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                /* Reload history by contact */
+                $conds2 = []; $params2 = [];
+                if ($submitMobile !== '') { $conds2[] = 'mobile=?'; $params2[] = $submitMobile; }
+                if ($rEmail !== '') { $conds2[] = 'email=?'; $params2[] = $rEmail; }
+                if ($conds2) {
+                    $ra2 = $db->prepare(
+                        'SELECT tracking_id, account_type, initial_deposit, status, created_at
+                         FROM account_applications WHERE (' . implode(' OR ', $conds2) . ')
+                         ORDER BY created_at DESC LIMIT 10'
+                    );
+                    $ra2->execute($params2);
+                    $recentAccounts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
                 $successMsg = $_t('खाता खोल्ने आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Account application submitted! Tracking ID: ') . $accTrackingId;
                 if (function_exists('sendAdminNotification')) {
                     require_once __DIR__ . '/../includes/notifications.php';
