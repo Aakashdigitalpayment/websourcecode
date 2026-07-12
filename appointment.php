@@ -321,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             'सदस्य नं.' => $member_id ?: 'N/A',
                             'उद्देश्य'   => $purpose,
                             'मिति'      => $preferred_date . ' ' . $preferred_time,
-                            'शाखा'      => $branch ?: 'N/A',
+                            'सेवा कार्यालय' => $branch ?: 'N/A',
                         ], $apptTrackingId);
                     } catch (Throwable $e) {
                         error_log('[appointment member notify] ' . $e->getMessage());
@@ -332,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-/* शाखाहरू load गर्नुहोस् */
+/* सेवा कार्यालयहरू load गर्नुहोस् */
 try {
     $db       = getDB();
     require_once __DIR__ . '/includes/service-centers-helpers.php';
@@ -412,8 +412,8 @@ $L = getLangStrings();
                         <h5 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i><?php echo isEnglish() ? 'How It Works' : 'कसरी काम गर्छ'; ?></h5>
                         <?php
                         $steps = isEnglish()
-                            ? [['fa-edit','Fill the form','Complete all required fields below.'],['fa-clock','Await Confirmation','Our team will call/email to confirm.'],['fa-building','Visit Office','Come to the branch on scheduled date.'],['fa-handshake','Get Served','Receive personalised service.']]
-                            : [['fa-edit','फारम भर्नुहोस्','तलका सबै आवश्यक जानकारी भर्नुहोस्।'],['fa-clock','पुष्टिको प्रतीक्षा','हाम्रो टोलीले फोन/इमेलबाट पुष्टि गर्नेछ।'],['fa-building','कार्यालय आउनुहोस्','तोकिएको मितिमा शाखामा आउनुहोस्।'],['fa-handshake','सेवा पाउनुहोस्','व्यक्तिगत सेवा प्राप्त गर्नुहोस्।']];
+                            ? [['fa-edit','Fill the form','Complete all required fields below.'],['fa-clock','Await Confirmation','Our team will call/email to confirm.'],['fa-building','Visit Office','Come to the service office on scheduled date.'],['fa-handshake','Get Served','Receive personalised service.']]
+                            : [['fa-edit','फारम भर्नुहोस्','तलका सबै आवश्यक जानकारी भर्नुहोस्।'],['fa-clock','पुष्टिको प्रतीक्षा','हाम्रो टोलीले फोन/इमेलबाट पुष्टि गर्नेछ।'],['fa-building','कार्यालय आउनुहोस्','तोकिएको मितिमा सेवा कार्यालयमा आउनुहोस्।'],['fa-handshake','सेवा पाउनुहोस्','व्यक्तिगत सेवा प्राप्त गर्नुहोस्।']];
                         foreach ($steps as $i => $s): ?>
                         <div class="d-flex gap-3 mb-3">
                             <div class="appt-step-icon-wrap">
@@ -590,9 +590,9 @@ $L = getLangStrings();
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Branch' : 'शाखा'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></label>
                                     <select name="branch" class="form-select">
-                                        <option value=""><?php echo isEnglish() ? 'Select Branch' : 'शाखा छान्नुहोस्'; ?></option>
+                                        <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $br): ?>
                                         <option value="<?php echo htmlspecialchars($br['name']); ?>"><?php echo htmlspecialchars($br['name']); ?></option>
                                         <?php endforeach; ?>
@@ -705,9 +705,9 @@ $L = getLangStrings();
                                               placeholder="<?php echo isEnglish() ? 'Purpose of the visit, agenda, number of visitors...' : 'भ्रमणको उद्देश्य, एजेन्डा, आउने व्यक्ति संख्या...'; ?>"><?php echo htmlspecialchars(!$postIsMember ? ($_POST['purpose_detail'] ?? '') : '', ENT_QUOTES); ?></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Branch' : 'रुचाइएको शाखा'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
                                     <select name="branch" class="form-select">
-                                        <option value=""><?php echo isEnglish() ? 'Select Branch' : 'शाखा छान्नुहोस्'; ?></option>
+                                        <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $br): ?>
                                         <option value="<?php echo htmlspecialchars($br['name']); ?>"><?php echo htmlspecialchars($br['name']); ?></option>
                                         <?php endforeach; ?>
