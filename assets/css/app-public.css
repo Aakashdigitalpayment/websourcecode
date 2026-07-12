@@ -13099,7 +13099,7 @@ body.dark-mode textarea::placeholder {
 
 body.dark-mode table,
 body.dark-mode .table {
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 
 body.dark-mode .table td,
@@ -13118,7 +13118,7 @@ body.dark-mode .nav-menu .dropdown {
 }
 
 body.dark-mode .nav-menu .dropdown li a {
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 
 body.dark-mode .nav-menu .dropdown li a:hover {
@@ -13130,7 +13130,7 @@ body.dark-mode .modal-content,
 body.dark-mode .chatbot-box,
 body.dark-mode .useful-links-popup-box {
     background: var(--dark-bg);
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 
 body.dark-mode .modal-header,
@@ -13145,7 +13145,7 @@ body.dark-mode .chatbot-body {
 
 body.dark-mode .faq-question {
     background: #252545;
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 
 body.dark-mode .page-banner {
@@ -13173,7 +13173,7 @@ body.dark-mode .result-box,
 body.dark-mode .success-card {
     background: var(--dark-bg);
     border-color: rgba(255,255,255,.08);
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 
 /* Mobile responsive for header actions */
@@ -14028,7 +14028,7 @@ body.dark-mode .footer-links li a:hover {
 /* Notice ticker — dark mode मा border र text */
 body.dark-mode .notice-ticker {
     border-color: rgba(255,255,255,0.08);
-    color: var(--border-color);
+    color: var(--text-primary, #e8eef2);
 }
 body.dark-mode .notice-ticker .ticker-label {
     background: var(--primary-light);
@@ -14139,7 +14139,7 @@ body.dark-mode .form-select:focus {
 body.dark-mode .nepali-datepicker-popup,
 body.dark-mode .ndp-calendar {
     background: var(--dark-bg) !important;
-    color: var(--border-color) !important;
+    color: var(--text-primary, #e8eef2) !important;
     border-color: rgba(255,255,255,.08) !important;
 }
 
@@ -14147,7 +14147,7 @@ body.dark-mode .ndp-calendar {
 body.dark-mode .emi-result-box,
 body.dark-mode .schedule-table th {
     background: #16243a !important;
-    color: var(--border-color) !important;
+    color: var(--text-primary, #e8eef2) !important;
 }
 body.dark-mode .schedule-table td {
     border-color: rgba(255,255,255,.08) !important;
@@ -14159,7 +14159,7 @@ body.dark-mode .mobile-nav {
     background: var(--dark-bg) !important;
 }
 body.dark-mode .mobile-nav-link {
-    color: var(--border-color) !important;
+    color: var(--text-primary, #e8eef2) !important;
     border-bottom-color: rgba(255,255,255,0.07) !important;
 }
 body.dark-mode .mobile-nav-link:hover,
@@ -14174,7 +14174,7 @@ body.dark-mode .scroll-btn.up {
 }
 body.dark-mode .scroll-btn.down {
     background: #252545 !important;
-    color: var(--border-color) !important;
+    color: var(--text-primary, #e8eef2) !important;
 }
 
 /* ==============================================
