@@ -1103,3 +1103,115 @@ body.dark-mode .text-primary {
   background: var(--primary-color, #1a5f2a) !important;
   border-color: var(--primary-color, #1a5f2a) !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   English header density — longer EN labels collide with
+   absolute SINCE badge + wide banner logo. NP stays unchanged.
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 992px) {
+  html[lang="en"] .pfl-brand-area {
+    max-width: min(420px, 38vw) !important;
+    padding-right: 14px !important;
+    gap: 8px !important;
+  }
+
+  html[lang="en"] .pfl-brand-logo {
+    max-height: 50px !important;
+    max-width: min(320px, 100%) !important;
+  }
+
+  /* Keep SINCE inside brand flow — stop half-badge overlapping Home */
+  html[lang="en"] .pfl-brand-content.has-logo {
+    padding-right: 0 !important;
+    gap: 8px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 42px !important;
+    height: 42px !important;
+    margin-left: 2px !important;
+    flex-shrink: 0 !important;
+    z-index: 2 !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-text {
+    font-size: 6px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-year {
+    font-size: 11px !important;
+  }
+
+  html[lang="en"] .pfl-nav-area {
+    padding-left: 8px !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li {
+    margin: 0 !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a {
+    font-size: 12px !important;
+    padding: 6px 7px !important;
+    gap: 3px !important;
+    min-height: 34px !important;
+    letter-spacing: 0 !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon.lucide-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a svg.mnav-main-icon {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* Top utility bar: slightly tighter EN labels */
+  html[lang="en"] .pfl-top-bar .pfl-quick-links > li > a {
+    font-size: 11.5px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* Mid desktop EN — hide nav icons, tighten further */
+@media (min-width: 992px) and (max-width: 1280px) {
+  html[lang="en"] .pfl-brand-area {
+    max-width: min(360px, 34vw) !important;
+  }
+
+  html[lang="en"] .pfl-brand-logo {
+    max-height: 46px !important;
+    max-width: min(280px, 100%) !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a svg.mnav-main-icon {
+    display: none !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a {
+    font-size: 11.5px !important;
+    padding: 6px 6px !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .fa-chevron-down,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a [data-lucide="chevron-down"] {
+    margin-left: 1px !important;
+  }
+}
+
+/* Narrow desktop EN — if still cramped, tuck SINCE (NP unchanged) */
+@media (min-width: 992px) and (max-width: 1100px) {
+  html[lang="en"] .pfl-since-badge {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-year {
+    font-size: 10px !important;
+  }
+}
