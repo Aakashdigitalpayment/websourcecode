@@ -119,7 +119,8 @@ if ($fDept > 0)    { $where[] = "e.department_id=?"; $args[]=$fDept; }
 if ($fBranch > 0)  { $where[] = "e.branch_id=?"; $args[]=$fBranch; }
 $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
 
-$stmt = $db->prepare("SELECT e.*, d.name_np AS dept_name, sc.name_np AS branch_name
+$stmt = $db->prepare("SELECT e.*, d.name_np AS dept_name,
+                             COALESCE(NULLIF(TRIM(sc.name_np), ''), sc.name) AS branch_name
                         FROM hrm_employees e
                         LEFT JOIN hrm_departments d ON d.id = e.department_id
                         LEFT JOIN service_centers sc ON sc.id = e.branch_id
@@ -179,6 +180,16 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </select>
         </div>
         <button class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
+        <?php if (empty($branches)): ?>
+        <div class="w-100">
+          <small class="text-warning">
+            <i class="fas fa-info-circle me-1"></i>
+            शाखा सूची खाली छ —
+            <a href="service-centers.php" class="fw-semibold">सेवा केन्द्र / शाखा</a>
+            बाट शाखा थप्नुहोस्।
+          </small>
+        </div>
+        <?php endif; ?>
     </form>
 
     <div class="card-coop stf-card-table-wrap admin-table-card">
@@ -209,9 +220,9 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </td>
                     <td data-label="पद"><small><?= e($r['designation']) ?></small></td>
                     <td data-label="विभाग"><small><?= e($r['dept_name']) ?></small></td>
-                    <td data-label="शाखा"><small><?= e($r['branch_name'] ?? '—') ?></small></td>
+                    <td data-label="शाखा"><small><?= e($r['branch_name'] ?: 'केन्द्रीय कार्यालय') ?></small></td>
                     <td data-label="नियुक्ति"><small><?= e($r['join_date_ad'] ?: $r['join_date_bs']) ?></small></td>
-                    <td data-label="प्रकार"><small><?= e($r['employment_type']) ?></small></td>
+                    <td data-label="प्रकार"><small><?= e(hrmEmploymentTypeLabel((string)($r['employment_type'] ?? ''))) ?></small></td>
                     <td data-label="अवस्था"><?= hrmStatusBadge($r['status']) ?></td>
                     <td class="stf-align-right" data-label="कार्य">
                         <a class="btn btn-sm btn-outline-primary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a>
@@ -307,9 +318,15 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <select class="field-coop" name="branch_id" id="f_branch">
             <option value="0">— केन्द्रीय कार्यालय —</option>
             <?php foreach ($branches as $b): ?>
-              <option value="<?= (int)$b['id'] ?>"><?= e($b['name']) ?></option>
+              <option value="<?= (int)$b['id'] ?>"><?= e($b['name']) ?><?= !empty($b['is_main_branch']) ? ' (मुख्य)' : '' ?></option>
             <?php endforeach; ?>
           </select>
+          <small class="text-muted">
+            सूची <a href="service-centers.php" target="_blank">सेवा केन्द्र / शाखा</a> बाट आउँछ।
+            <?php if (empty($branches)): ?>
+            <span class="text-warning">अहिले कुनै सक्रिय शाखा छैन — पहिले त्यहाँ थप्नुहोस्।</span>
+            <?php endif; ?>
+          </small>
         </div>
 
         <div class="col-md-3"><label class="small">सेवा प्रकार</label>
@@ -324,14 +341,18 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="col-md-2"><label class="small">नियुक्ति (BS)</label><input class="field-coop nepali-datepicker hrm-bs-date" name="join_date_bs" id="f_jdbs" placeholder="YYYY-MM-DD" autocomplete="off"></div>
         <div class="col-md-3"><label class="small">नियुक्ति (AD)</label><input class="field-coop" type="date" name="join_date_ad" id="f_jdad"></div>
 
-        <div class="col-md-4"><label class="small">अवस्था</label>
+        <div class="col-md-4">
+          <label class="small" for="f_status">अवस्था</label>
           <select class="field-coop" name="status" id="f_status">
             <?php foreach (['active'=>'सक्रिय','probation'=>'परीक्षणकाल','on_leave'=>'बिदामा','suspended'=>'निलम्बित','resigned'=>'राजीनामा','terminated'=>'बर्खास्त','retired'=>'अवकाश'] as $k=>$v): ?>
               <option value="<?= $k ?>"><?= $v ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-8"><label class="small">कैफियत</label><input class="field-coop" name="remarks" id="f_remarks"></div>
+        <div class="col-md-8">
+          <label class="small" for="f_remarks">कैफियत / टिप्पणी</label>
+          <input class="field-coop" name="remarks" id="f_remarks" placeholder="थप जानकारी (ऐच्छिक)">
+        </div>
       </div>
 
       <div class="stf-actions-row stf-actions-row-lg mt-3">
