@@ -319,7 +319,7 @@ if ($logoPath) {
 <style>
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
 body {
-    font-family: var(--font-primary,'Mukta','Noto Sans Devanagari','Segoe UI',sans-serif);
+    font-family: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif);
     min-height: 100dvh;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;

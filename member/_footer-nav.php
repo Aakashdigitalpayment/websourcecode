@@ -1,22 +1,22 @@
-<!-- Member Portal Mobile Footer Navigation (Mobile Only) -->
+  <!-- Member Portal Mobile Footer Navigation (Mobile Only) -->
 <nav class="member-mobile-footer" aria-label="Member mobile navigation">
   <a href="<?php echo defined('MEMBER_URL') ? MEMBER_URL : SITE_URL . 'member/'; ?>index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''); ?>" title="Dashboard">
-    <i class="fas fa-gauge-high"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="gauge"></i>
     <span>Dashboard</span>
   </a>
 
   <a href="<?php echo defined('MEMBER_URL') ? MEMBER_URL : SITE_URL . 'member/'; ?>profile.php" class="<?php echo (basename($_SERVER['PHP_SELF']) === 'profile.php' ? 'active' : ''); ?>" title="Profile">
-    <i class="lucide-icon" aria-hidden="true" data-lucide="user-circle"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="circle-user"></i>
     <span>Profile</span>
   </a>
 
   <a href="<?php echo defined('MEMBER_URL') ? MEMBER_URL : SITE_URL . 'member/'; ?>loans.php" class="<?php echo (basename($_SERVER['PHP_SELF']) === 'loans.php' ? 'active' : ''); ?>" title="Loans">
-    <i class="fas fa-hand-holding-dollar"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i>
     <span>Loans</span>
   </a>
 
   <a href="<?php echo defined('MEMBER_URL') ? MEMBER_URL : SITE_URL . 'member/'; ?>savings.php" class="<?php echo (basename($_SERVER['PHP_SELF']) === 'savings.php' ? 'active' : ''); ?>" title="Savings">
-    <i class="fas fa-piggy-bank"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i>
     <span>Savings</span>
   </a>
 
@@ -24,12 +24,12 @@
   <button type="button" class="pwa-install-btn mem-footer-pwa"
           onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
           title="App Install">
-    <i class="fas fa-mobile-screen-button"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i>
     <span>Install</span>
   </button>
 
   <a href="<?php echo defined('MEMBER_URL') ? MEMBER_URL : SITE_URL . 'member/'; ?>logout.php" title="Logout">
-    <i class="fas fa-right-from-bracket"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="log-out"></i>
     <span>Logout</span>
   </a>
 </nav>

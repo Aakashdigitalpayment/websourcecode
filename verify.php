@@ -246,9 +246,8 @@ if ($result && !empty($result['ok'])) {
 <?php endif; ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('verify', ['skip_fonts' => true]); } ?>
+<?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('verify'); } ?>
 <style>
 /* ── verify.php layout overrides ── */
 .vp-back-bar {

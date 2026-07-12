@@ -269,6 +269,12 @@ if (!function_exists('coopThemeCssUrl')) {
             || ($panel === 'shell' && $isAdminShell)) {
             coopThemeLink('assets/css/admin-shell-polish.css');
         }
+
+        /* ── 10. Member / auth / verify shell polish (LAST for those panels) ── */
+        if (in_array($panel, ['member', 'auth', 'verify'], true)
+            || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'))) {
+            coopThemeLink('assets/css/member-shell-polish.css');
+        }
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */
