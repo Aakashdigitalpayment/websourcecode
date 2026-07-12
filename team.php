@@ -124,6 +124,28 @@ foreach ($committeeTypes as $_ct) {
         ];
     }
 }
+
+/* Default committee for the single picker viewer */
+$viewCommitteeId = $selectedCommitteeId;
+if ($viewCommitteeId <= 0 && !empty($committeeFilterButtons)) {
+    $viewCommitteeId = (int)$committeeFilterButtons[0]['id'];
+}
+$viewCommittee = null;
+foreach ($committeeTypes as $_ct) {
+    if ((int)$_ct['id'] === $viewCommitteeId) {
+        $viewCommittee = $_ct;
+        break;
+    }
+}
+$viewTenures = $committeeTenures[$viewCommitteeId] ?? [];
+$viewTenureId = (int)($committeeActiveTenure[$viewCommitteeId] ?? 0);
+$viewMembers = $committeeMembers[$viewCommitteeId] ?? [];
+$viewCommitteeLabel = '';
+if ($viewCommittee) {
+    $viewCommitteeLabel = isEnglish()
+        ? (($viewCommittee['name'] ?: $viewCommittee['name_np']) ?: '')
+        : (($viewCommittee['name_np'] ?: $viewCommittee['name']) ?: '');
+}
 ?>
 
 <?php if (!empty($boardMembers) || !empty($topManagementMembers) || !empty($managementMembers) || !empty($staffMembers) || !empty($adminMembers) || $hasCommitteeFilters): ?>
@@ -153,21 +175,10 @@ foreach ($committeeTypes as $_ct) {
                 <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
             </button>
             <?php endif; ?>
-            <?php if (!empty($committeeFilterButtons)): ?>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm dropdown-toggle filter-btn" type="button" id="committeeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?>
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="committeeDropdown">
-                    <?php foreach ($committeeFilterButtons as $_cf): ?>
-                        <li>
-                            <button class="dropdown-item" type="button" onclick="teamFilter(this, 'committee-<?php echo $_cf['id']; ?>')">
-                                <?php echo e($_cf['label']); ?>
-                            </button>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+            <?php if ($hasCommitteeFilters): ?>
+            <button type="button" class="filter-btn" id="committeeFilterBtn" onclick="teamFilter(this, 'committees')">
+                <i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'Committees' : 'समिति / उपसमिति'; ?>
+            </button>
             <?php endif; ?>
         </div>
     </div>
@@ -351,18 +362,6 @@ foreach ($committeeTypes as $_ct) {
 </section>
 <?php endif; ?>
 
-<!-- Committees & Subcommittees -->
-<?php if (!empty($boardMembers) || !empty(array_filter($committeeMembers))): ?>
-<section class="section-padding" id="committees-group">
-    <div class="container">
-        <div class="section-header section-header-unified text-center">
-            <h2><?php echo isEnglish() ? 'Committees & Subcommittees' : 'समिति / उपसमिति'; ?></h2>
-            <p><?php echo isEnglish() ? 'Our board, audit, advisory and other committee groups.' : 'हाम्रो सञ्चालक समिति, लेखा समिति, सल्लाहकार समिति र अन्य उपसमितिहरू'; ?></p>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
-
 <?php if (!empty($boardMembers)): ?>
 <section id="board" class="team-section section-padding" data-filter="board">
     <div class="container">
@@ -483,93 +482,140 @@ foreach ($committeeTypes as $_ct) {
 </section>
 <?php endif; ?>
 
-<?php foreach ($committeeTypes as $_ct): ?>
-    <?php $ctId = (int)$_ct['id']; ?>
-    <?php
-    $hasMembers = !empty($committeeMembers[$ctId]);
-    $hasTenures = !empty($committeeTenures[$ctId]);
-    if (!$hasMembers && !$hasTenures) continue;
-    ?>
-    <section id="committee-<?php echo $ctId; ?>" class="team-section section-padding bg-light" data-filter="committee-<?php echo $ctId; ?>">
-        <div class="container">
-            <div class="section-header section-header-unified text-center">
-                <h2><?php echo isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']); ?></h2>
-                <p><?php echo isEnglish() ? 'Committee members for this group' : 'यस समूहका समिति सदस्यहरू'; ?></p>
-            </div>
+<!-- Committees viewer: one section + committee/tenure dropdowns -->
+<?php if ($hasCommitteeFilters && $viewCommittee): ?>
+<section id="committees" class="team-section section-padding bg-light" data-filter="committees"
+         data-active-cmt="<?php echo (int)$viewCommitteeId; ?>">
+    <?php foreach ($committeeFilterButtons as $_cf): ?>
+    <div id="committee-<?php echo (int)$_cf['id']; ?>" class="visually-hidden" aria-hidden="true"></div>
+    <?php endforeach; ?>
+    <div class="container">
+        <div class="section-header section-header-unified text-center">
+            <h2><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></h2>
+            <p><?php echo isEnglish()
+                ? 'Choose a committee and tenure to view members.'
+                : 'समिति र कार्यकाल छानेर सदस्यहरू हेर्नुहोस्।'; ?></p>
+        </div>
 
-            <?php $tenuresForCmt = $committeeTenures[$ctId] ?? []; ?>
-            <?php if (count($tenuresForCmt) > 0): ?>
-            <div class="d-flex justify-content-center mb-4">
-                <div class="coop-select-wrap" style="min-width:min(360px,100%);">
-                    <i class="fas fa-calendar-alt coop-select-icon"></i>
-                    <select class="form-select coop-select-field"
-                            aria-label="<?php echo isEnglish() ? 'Select tenure' : 'कार्यकाल छान्नुहोस्'; ?>"
-                            onchange="if(this.value) location.href=this.value;">
-                        <?php foreach ($tenuresForCmt as $tn):
-                            $tid = (int)$tn['id'];
-                            $label = isEnglish()
-                                ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
-                                : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
-                            $period = '';
-                            if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
-                                $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
-                            }
-                            $url = SITE_URL . 'team.php?cmt=' . $ctId . '&tenure=' . $tid . '#committee-' . $ctId;
-                            $isSel = ((int)($committeeActiveTenure[$ctId] ?? 0) === $tid);
-                        ?>
-                        <option value="<?php echo htmlspecialchars($url, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $isSel ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
-                            <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Current)' : '(हालको)'; ?><?php endif; ?>
+        <div class="team-cmt-picker row g-3 justify-content-center mb-4">
+            <div class="col-md-5 col-lg-4">
+                <label class="form-label small fw-semibold text-success mb-1" for="teamCmtSelect">
+                    <i class="fas fa-sitemap me-1"></i><?php echo isEnglish() ? 'Committee' : 'समिति'; ?>
+                </label>
+                <div class="coop-select-wrap">
+                    <i class="fas fa-sitemap coop-select-icon"></i>
+                    <select id="teamCmtSelect" class="form-select coop-select-field"
+                            aria-label="<?php echo isEnglish() ? 'Select committee' : 'समिति छान्नुहोस्'; ?>">
+                        <?php foreach ($committeeFilterButtons as $_cf): ?>
+                        <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($_cf['label']); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             </div>
-            <style>
-            .coop-select-wrap{position:relative;display:flex;align-items:center}
-            .coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
-            .coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff}
-            </style>
-            <?php endif; ?>
+            <div class="col-md-5 col-lg-4">
+                <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
+                    <i class="fas fa-calendar-alt me-1"></i><?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
+                </label>
+                <div class="coop-select-wrap">
+                    <i class="fas fa-calendar-alt coop-select-icon"></i>
+                    <select id="teamTenureSelect" class="form-select coop-select-field"
+                            aria-label="<?php echo isEnglish() ? 'Select tenure' : 'कार्यकाल छान्नुहोस्'; ?>"
+                            <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
+                        <?php if (empty($viewTenures)): ?>
+                        <option value="0"><?php echo isEnglish() ? 'Current members' : 'हालका सदस्यहरू'; ?></option>
+                        <?php else: ?>
+                            <?php foreach ($viewTenures as $tn):
+                                $tid = (int)$tn['id'];
+                                $label = isEnglish()
+                                    ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
+                                    : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
+                                $period = '';
+                                if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
+                                    $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
+                                }
+                            ?>
+                            <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
+                                <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Current)' : '(हालको)'; ?><?php endif; ?>
+                            </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-            <div class="row justify-content-center">
-                <?php foreach ($committeeMembers[$ctId] as $index => $member): ?>
-                <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
-                    <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
-                        <div class="team-photo-circular">
-                            <?php if (!empty($member['photo'])): ?>
-                                <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                            <?php else: ?>
-                                <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+        <div class="text-center mb-3">
+            <span class="badge rounded-pill px-3 py-2" style="background:rgba(26,95,42,.1);color:var(--primary-color,#1a5f2a);font-weight:600;">
+                <?php echo htmlspecialchars($viewCommitteeLabel); ?>
+            </span>
+        </div>
+
+        <div class="row justify-content-center" id="teamCmtMembers">
+            <?php foreach ($viewMembers as $index => $member): ?>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                    <div class="team-photo-circular">
+                        <?php if (!empty($member['photo'])): ?>
+                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php else: ?>
+                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="team-info-circular">
+                        <h5><?php echo e($member['name']); ?></h5>
+                        <?php if (!empty($member['name_en'])): ?>
+                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                        <?php endif; ?>
+                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: ($member['position'] ?? '')); ?></span>
+                        <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
+                        <div class="team-contact-circular">
+                            <?php if (!empty($member['phone'])): ?>
+                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                            <?php endif; ?>
+                            <?php if (!empty($member['email'])): ?>
+                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
                             <?php endif; ?>
                         </div>
-                        <div class="team-info-circular">
-                            <h5><?php echo e($member['name']); ?></h5>
-                            <?php if (!empty($member['name_en'])): ?>
-                            <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
-                            <?php endif; ?>
-                            <span class="team-position-badge"><?php echo e($member['position_np'] ?: ($member['position'] ?? '')); ?></span>
-                            <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
-                            <div class="team-contact-circular">
-                                <?php if (!empty($member['phone'])): ?>
-                                    <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
-                                <?php endif; ?>
-                                <?php if (!empty($member['email'])): ?>
-                                    <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
-                                <?php endif; ?>
-                            </div>
-                            <?php endif; ?>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
-                <?php endforeach; ?>
             </div>
-            <?php if (empty($committeeMembers[$ctId])): ?>
-            <p class="text-center text-muted"><?php echo isEnglish() ? 'No members found for this tenure.' : 'यो कार्यकालका लागि सदस्य भेटिएन।'; ?></p>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
-    </section>
-<?php endforeach; ?>
+        <?php if (empty($viewMembers)): ?>
+        <p class="text-center text-muted mb-0"><?php echo isEnglish() ? 'No members found for this selection.' : 'यो छनोटका लागि सदस्य भेटिएन।'; ?></p>
+        <?php endif; ?>
+    </div>
+</section>
+<style>
+.coop-select-wrap{position:relative;display:flex;align-items:center}
+.coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
+.coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff;min-height:44px}
+.team-cmt-picker .form-label{letter-spacing:.02em}
+</style>
+<script>
+window.__teamCmtTenures = <?php
+    $tenureMap = [];
+    foreach ($committeeTenures as $cid => $rows) {
+        if (!is_numeric($cid)) continue;
+        $tenureMap[(int)$cid] = array_map(static function ($tn) {
+            return [
+                'id' => (int)$tn['id'],
+                'label' => (string)(($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('#' . $tn['id'])),
+                'label_en' => (string)(($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('#' . $tn['id'])),
+                'period' => trim(($tn['start_date'] ?? '') . ((!empty($tn['start_date']) || !empty($tn['end_date'])) ? ' – ' : '') . ($tn['end_date'] ?? '')),
+                'is_current' => !empty($tn['is_current']) ? 1 : 0,
+            ];
+        }, $rows ?: []);
+    }
+    echo json_encode($tenureMap, JSON_UNESCAPED_UNICODE);
+?>;
+window.__teamCmtIsEn = <?php echo isEnglish() ? 'true' : 'false'; ?>;
+</script>
+<?php endif; ?>
 
 <!-- Staff -->
 <?php if (!empty($staffMembers)): ?>
@@ -650,13 +696,8 @@ foreach ($committeeTypes as $_ct) {
 <script>
 function teamFilter(btn, filter) {
     document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
-        el.classList.toggle('active', el === btn || (btn && btn.classList && btn.classList.contains('dropdown-item') && el.id === 'committeeDropdown' && filter.indexOf('committee-') === 0));
+        el.classList.toggle('active', el === btn);
     });
-    if (btn && btn.classList && !btn.classList.contains('dropdown-item')) {
-        document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
-            el.classList.toggle('active', el === btn);
-        });
-    }
     document.querySelectorAll('.team-section[data-filter]').forEach(function (section) {
         var match = filter === 'all' || section.getAttribute('data-filter') === filter;
         section.style.display = match ? '' : 'none';
@@ -672,24 +713,92 @@ function teamFilter(btn, filter) {
     }
 }
 
+function teamGoCommittee(cmtId, tenureId) {
+    var url = 'team.php?cmt=' + encodeURIComponent(cmtId || 0);
+    if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
+    url += '#committees';
+    location.href = url;
+}
+
 (function () {
+    var cmtSelect = document.getElementById('teamCmtSelect');
+    var tenureSelect = document.getElementById('teamTenureSelect');
+    var tenureData = window.__teamCmtTenures || {};
+    var isEn = !!window.__teamCmtIsEn;
+
+    function fillTenures(cmtId, preferredTenure) {
+        if (!tenureSelect) return;
+        var rows = tenureData[String(cmtId)] || tenureData[cmtId] || [];
+        tenureSelect.innerHTML = '';
+        if (!rows.length) {
+            var opt = document.createElement('option');
+            opt.value = '0';
+            opt.textContent = isEn ? 'Current members' : 'हालका सदस्यहरू';
+            tenureSelect.appendChild(opt);
+            tenureSelect.disabled = true;
+            return;
+        }
+        tenureSelect.disabled = false;
+        var currentId = preferredTenure || 0;
+        rows.forEach(function (tn) {
+            if (!currentId && tn.is_current) currentId = tn.id;
+            var opt = document.createElement('option');
+            opt.value = String(tn.id);
+            var label = isEn ? (tn.label_en || tn.label) : (tn.label || tn.label_en);
+            if (tn.period) label += ' (' + tn.period + ')';
+            if (tn.is_current) label += isEn ? ' (Current)' : ' (हालको)';
+            opt.textContent = label;
+            tenureSelect.appendChild(opt);
+        });
+        if (!currentId && rows[0]) currentId = rows[0].id;
+        tenureSelect.value = String(currentId);
+    }
+
+    if (cmtSelect) {
+        cmtSelect.addEventListener('change', function () {
+            var cmtId = parseInt(cmtSelect.value, 10) || 0;
+            fillTenures(cmtId, 0);
+            var tid = tenureSelect && !tenureSelect.disabled ? (parseInt(tenureSelect.value, 10) || 0) : 0;
+            teamGoCommittee(cmtId, tid);
+        });
+    }
+    if (tenureSelect) {
+        tenureSelect.addEventListener('change', function () {
+            var cmtId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
+            var tid = parseInt(tenureSelect.value, 10) || 0;
+            teamGoCommittee(cmtId, tid);
+        });
+    }
+
     function applyHashFocus() {
         var hash = (location.hash || '').replace(/^#/, '');
+        var params = new URLSearchParams(location.search);
+        var cmtParam = parseInt(params.get('cmt') || '0', 10) || 0;
+
+        if (/^committee-\d+$/.test(hash)) {
+            var id = parseInt(hash.replace('committee-', ''), 10) || 0;
+            if (id && (!cmtParam || cmtParam !== id)) {
+                teamGoCommittee(id, parseInt(params.get('tenure') || '0', 10) || 0);
+                return;
+            }
+            hash = 'committees';
+            if (cmtSelect && id) cmtSelect.value = String(id);
+        }
+
+        if (hash === 'committees' || cmtParam > 0) {
+            var btn = document.getElementById('committeeFilterBtn');
+            teamFilter(btn, 'committees');
+            return;
+        }
+
         if (!hash) return;
         var section = document.getElementById(hash);
         if (!section || !section.classList.contains('team-section')) return;
         var filter = section.getAttribute('data-filter') || hash;
-        var btn = document.querySelector('.team-filter-bar .filter-btn[onclick*="' + filter + '"]')
-            || document.querySelector('.team-filter-bar .dropdown-item[onclick*="' + filter + '"]');
-        teamFilter(btn || null, filter);
-        document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
-            if (el.getAttribute('onclick') && el.getAttribute('onclick').indexOf("'" + filter + "'") !== -1) {
-                el.classList.add('active');
-            } else if (!el.classList.contains('dropdown-toggle')) {
-                el.classList.remove('active');
-            }
-        });
+        var matchBtn = document.querySelector('.team-filter-bar .filter-btn[onclick*="' + filter + '"]');
+        teamFilter(matchBtn, filter);
     }
+
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyHashFocus);
     else applyHashFocus();
     window.addEventListener('hashchange', applyHashFocus);
@@ -700,6 +809,11 @@ function teamFilter(btn, filter) {
     outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
     outline-offset: 6px;
     border-radius: 12px;
+}
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
 }
 </style>
 <?php require_once 'includes/footer.php'; ?>
