@@ -1,11 +1,17 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/includes/team-staff-groups.php';
+require_once __DIR__ . '/includes/team-menu-categories.php';
 $pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once 'includes/header.php';
 
 $selectedCommitteeId = isset($_GET['cmt']) ? (int)$_GET['cmt'] : 0;
 $selectedTenureId = isset($_GET['tenure']) ? (int)$_GET['tenure'] : 0;
+$selectedMenuSlug = preg_replace('/[^a-z0-9\-_]/', '', strtolower((string)($_GET['menu'] ?? '')));
+$selectedItemKey = preg_replace('/[^a-z0-9\-_]/', '', strtolower((string)($_GET['item'] ?? $_GET['cat'] ?? '')));
+if ($selectedCommitteeId > 0 && ($selectedItemKey === '' || $selectedItemKey === 'committees')) {
+    $selectedItemKey = 'cmt-' . $selectedCommitteeId;
+}
 
 $staffGroups = [];
 $staffMembersBySlug = [];
@@ -19,10 +25,13 @@ $informationOfficer = $grievanceOfficer = $chairman = $ceo = null;
 // Get team members
 try {
     $db = getDB();
+    try {
+        ensureTeamMenuCategoriesTable($db);
+        ensureTeamStaffGroupsTable($db);
+    } catch (Throwable $e) { /* best-effort */ }
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
 
     try {
-        ensureTeamStaffGroupsTable($db);
         $staffGroups = fetchTeamStaffGroups($db, true);
         $memberStmt = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
         foreach ($staffGroups as $sg) {
@@ -37,7 +46,7 @@ try {
     }
 
     try {
-        $committeeTypes = $db->query("SELECT id, name, name_np FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        $committeeTypes = $db->query("SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
         foreach ($committeeTypes as $_ct) {
             $ctId = (int)$_ct['id'];
             $tenures = [];
@@ -119,71 +128,169 @@ $hasAnyStaffMembers = false;
 foreach ($staffMembersBySlug as $_sm) {
     if (!empty($_sm)) { $hasAnyStaffMembers = true; break; }
 }
-?>
 
-<!-- Page Banner -->
-<section class="page-banner">
-    <div class="container">
-        <h1><?php echo isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत'; ?></h1>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
-                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत'; ?></li>
-            </ol>
-        </nav>
-    </div>
-</section>
+/* ── Menu श्रेणी tree (same parents as nav) → items inside each ── */
+$menuCategoriesPublic = [];
+try {
+    $menuCategoriesPublic = array_values(array_filter(
+        fetchTeamMenuCategories(getDB(), false),
+        static fn($c) => !empty($c['is_active'])
+    ));
+} catch (Throwable $e) {
+    $menuCategoriesPublic = [];
+}
 
-<?php
-$hasCommitteeFilters = false;
-$committeeFilterButtons = [];
-foreach ($committeeTypes as $_ct) {
-    $ctId = (int)$_ct['id'];
-    if (!empty($committeeMembers[$ctId]) || !empty($committeeTenures[$ctId])) {
-        $hasCommitteeFilters = true;
-        $committeeFilterButtons[] = [
-            'id' => $ctId,
-            'label' => isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']),
-        ];
+$fallbackCommitteesMenuId = 0;
+foreach ($menuCategoriesPublic as $_mc) {
+    if (($_mc['source_type'] ?? '') === 'committees') {
+        $fallbackCommitteesMenuId = (int)$_mc['id'];
+        break;
     }
 }
 
-/* Category → Item → Tenure */
-$teamCategories = [];
-if ($chairman || $ceo || $informationOfficer || $grievanceOfficer) {
-    $teamCategories['contact-officers'] = isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी';
-}
-if (!empty($boardMembers)) {
-    $teamCategories['board'] = isEnglish() ? 'Board Committee' : 'सञ्चालक समिति';
-}
-foreach ($staffGroups as $_sg) {
-    $slug = (string)($_sg['slug'] ?? '');
-    if ($slug === '' || empty($staffMembersBySlug[$slug])) continue;
-    $anchor = teamStaffGroupAnchor($slug);
-    $teamCategories[$anchor] = isEnglish()
-        ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
-        : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
-}
-if ($hasCommitteeFilters) {
-    $teamCategories['committees'] = isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति';
-}
+$menuTree = [];
+foreach ($menuCategoriesPublic as $_mc) {
+    $mid = (int)$_mc['id'];
+    $mslug = (string)($_mc['slug'] ?? '');
+    if ($mslug === '') $mslug = 'menu-' . $mid;
+    $mlabel = isEnglish()
+        ? (($_mc['name_en'] ?: $_mc['name_np']) ?: $mslug)
+        : (($_mc['name_np'] ?: $_mc['name_en']) ?: $mslug);
+    $source = (string)($_mc['source_type'] ?? 'staff');
+    $items = [];
 
-$viewCat = preg_replace('/[^a-z0-9\-]/', '', strtolower((string)($_GET['cat'] ?? '')));
-$hasExplicitFilter = ($viewCat !== '' && isset($teamCategories[$viewCat])) || $selectedCommitteeId > 0;
-if ($viewCat === '' && $selectedCommitteeId > 0) {
-    $viewCat = 'committees';
-}
-if ($viewCat === '' || !isset($teamCategories[$viewCat])) {
-    $viewCat = $hasExplicitFilter ? (array_key_first($teamCategories) ?: 'all') : 'all';
-}
-
-$viewCommitteeId = $selectedCommitteeId;
-if ($viewCat === 'committees') {
-    if ($viewCommitteeId <= 0 && !empty($committeeFilterButtons)) {
-        $viewCommitteeId = (int)$committeeFilterButtons[0]['id'];
+    if ($source === 'staff') {
+        if (!empty($_mc['include_contact_officers']) && ($chairman || $ceo || $informationOfficer || $grievanceOfficer)) {
+            $items[] = [
+                'key' => 'contact-officers',
+                'label' => isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी',
+                'type' => 'contact',
+                'filter' => 'contact-officers',
+            ];
+        }
+        foreach ($staffGroups as $_sg) {
+            if ((int)($_sg['menu_category_id'] ?? 0) !== $mid) continue;
+            $slug = (string)($_sg['slug'] ?? '');
+            if ($slug === '' || empty($staffMembersBySlug[$slug])) continue;
+            $anchor = teamStaffGroupAnchor($slug);
+            $items[] = [
+                'key' => $anchor,
+                'label' => isEnglish()
+                    ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
+                    : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug),
+                'type' => 'staff',
+                'filter' => $anchor,
+                'slug' => $slug,
+            ];
+        }
+    } else {
+        if (!empty($_mc['include_board']) && !empty($boardMembers)) {
+            $items[] = [
+                'key' => 'board',
+                'label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति',
+                'type' => 'board',
+                'filter' => 'board',
+            ];
+        }
+        foreach ($committeeTypes as $_ct) {
+            $ctId = (int)$_ct['id'];
+            $ctMenu = (int)($_ct['menu_category_id'] ?? 0);
+            $belongs = ($ctMenu === $mid) || ($ctMenu === 0 && $mid === $fallbackCommitteesMenuId);
+            if (!$belongs) continue;
+            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($_ct)) {
+                continue;
+            }
+            if (empty($committeeMembers[$ctId]) && empty($committeeTenures[$ctId])) continue;
+            $items[] = [
+                'key' => 'cmt-' . $ctId,
+                'label' => isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']),
+                'type' => 'committee',
+                'filter' => 'committees',
+                'cmt' => $ctId,
+            ];
+        }
     }
-} else {
-    $viewCommitteeId = 0;
+
+    if (empty($items)) continue;
+    $menuTree[$mslug] = [
+        'id' => $mid,
+        'slug' => $mslug,
+        'label' => $mlabel,
+        'source' => $source,
+        'items' => $items,
+    ];
+}
+
+/* Resolve selection: menu → item */
+$viewMenuSlug = $selectedMenuSlug;
+if ($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) {
+    if ($selectedItemKey !== '') {
+        foreach ($menuTree as $_slug => $_node) {
+            foreach ($_node['items'] as $_it) {
+                if ($_it['key'] === $selectedItemKey
+                    || ($selectedCommitteeId > 0 && ($_it['cmt'] ?? 0) === $selectedCommitteeId)
+                    || ($selectedItemKey === 'committees' && ($_it['type'] ?? '') === 'committee')
+                ) {
+                    $viewMenuSlug = $_slug;
+                    if ($selectedItemKey === 'committees' && $selectedCommitteeId > 0) {
+                        $selectedItemKey = 'cmt-' . $selectedCommitteeId;
+                    } elseif ($selectedItemKey === 'committees') {
+                        $selectedItemKey = (string)$_it['key'];
+                    }
+                    break 2;
+                }
+            }
+        }
+    }
+}
+if (($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) && $selectedItemKey === '' && $selectedCommitteeId <= 0) {
+    $viewMenuSlug = 'all';
+} elseif ($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) {
+    $viewMenuSlug = array_key_first($menuTree) ?: 'all';
+}
+
+$viewItemKey = $selectedItemKey;
+$viewItem = null;
+if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
+    foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
+        if ($_it['key'] === $viewItemKey) { $viewItem = $_it; break; }
+    }
+    if (!$viewItem && $selectedCommitteeId > 0) {
+        foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
+            if ((int)($_it['cmt'] ?? 0) === $selectedCommitteeId) {
+                $viewItem = $_it;
+                $viewItemKey = $_it['key'];
+                break;
+            }
+        }
+    }
+    if (!$viewItem && !empty($menuTree[$viewMenuSlug]['items'])) {
+        $viewItem = $menuTree[$viewMenuSlug]['items'][0];
+        $viewItemKey = $viewItem['key'];
+    }
+}
+
+$viewCat = 'all';
+$viewCommitteeId = 0;
+if ($viewItem) {
+    $viewCat = (string)($viewItem['filter'] ?? 'all');
+    if (($viewItem['type'] ?? '') === 'committee') {
+        $viewCommitteeId = (int)($viewItem['cmt'] ?? 0);
+        $viewCat = 'committees';
+    }
+} elseif ($viewMenuSlug === 'all') {
+    $viewCat = 'all';
+}
+
+$allowedFiltersForMenu = [];
+if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
+    foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
+        $allowedFiltersForMenu[] = (string)$_it['filter'];
+        if (($_it['type'] ?? '') === 'committee') {
+            $allowedFiltersForMenu[] = 'committees';
+        }
+    }
+    $allowedFiltersForMenu = array_values(array_unique($allowedFiltersForMenu));
 }
 
 $viewCommittee = null;
@@ -195,14 +302,31 @@ foreach ($committeeTypes as $_ct) {
 }
 $viewTenures = ($viewCat === 'committees') ? ($committeeTenures[$viewCommitteeId] ?? []) : [];
 $viewTenureId = ($viewCat === 'committees') ? (int)($committeeActiveTenure[$viewCommitteeId] ?? 0) : 0;
-/* Prefer current tenure; else newest by list order (already sorted) */
+if ($viewCat === 'committees' && $selectedTenureId > 0) {
+    $viewTenureId = $selectedTenureId;
+}
 if ($viewCat === 'committees' && $viewTenureId <= 0 && !empty($viewTenures)) {
     foreach ($viewTenures as $tn) {
         if (!empty($tn['is_current'])) { $viewTenureId = (int)$tn['id']; break; }
     }
     if ($viewTenureId <= 0) $viewTenureId = (int)($viewTenures[0]['id'] ?? 0);
 }
-$viewMembers = ($viewCat === 'committees') ? ($committeeMembers[$viewCommitteeId] ?? []) : [];
+/* Reload members if tenure overridden via GET */
+if ($viewCat === 'committees' && $viewCommitteeId > 0 && $viewTenureId > 0
+    && $viewTenureId !== (int)($committeeActiveTenure[$viewCommitteeId] ?? 0)) {
+    try {
+        $mStmt = getDB()->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
+            FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+        $mStmt->execute([$viewTenureId]);
+        $viewMembers = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($viewMembers as &$mm) { $mm['position_np'] = $mm['position'] ?? ''; }
+        unset($mm);
+    } catch (Throwable $e) {
+        $viewMembers = $committeeMembers[$viewCommitteeId] ?? [];
+    }
+} else {
+    $viewMembers = ($viewCat === 'committees') ? ($committeeMembers[$viewCommitteeId] ?? []) : [];
+}
 $viewCommitteeLabel = '';
 if ($viewCommittee) {
     $viewCommitteeLabel = isEnglish()
@@ -210,10 +334,27 @@ if ($viewCommittee) {
         : (($viewCommittee['name_np'] ?: $viewCommittee['name']) ?: '');
 }
 
-$focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'committees' : $viewCat);
+$hasCommitteeFilters = $viewCat === 'committees' && $viewCommitteeId > 0;
+$focusFilter = ($viewCat === 'all') ? 'all' : $viewCat;
+$menuItemsForSelect = ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug]))
+    ? $menuTree[$viewMenuSlug]['items']
+    : [];
 ?>
 
-<?php if (!empty($teamCategories)): ?>
+<!-- Page Banner -->
+<section class="page-banner">
+    <div class="container">
+        <h1><?php echo isEnglish() ? 'Human Resources' : 'मानवीय श्रोत'; ?></h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Human Resources' : 'मानवीय श्रोत'; ?></li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<?php if (!empty($menuTree)): ?>
 <section class="team-filter-bar section-padding bg-white border-bottom">
     <div class="container">
         <div class="team-triple-filter">
@@ -223,28 +364,32 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
             </div>
             <div class="row g-3 align-items-end justify-content-center">
                 <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-semibold text-success mb-1" for="teamCatSelect">
+                    <label class="form-label small fw-semibold text-success mb-1" for="teamMenuSelect">
                         <i class="fas fa-layer-group me-1" aria-hidden="true"></i>
                         1. <?php echo isEnglish() ? 'Category' : 'श्रेणी'; ?>
                     </label>
-                    <select id="teamCatSelect" class="form-select team-filter-select">
-                        <option value="all" <?php echo $viewCat === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All categories' : 'सबै श्रेणी'; ?></option>
-                        <?php foreach ($teamCategories as $catKey => $catLabel): ?>
-                        <option value="<?php echo htmlspecialchars($catKey); ?>" <?php echo $viewCat === $catKey ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($catLabel); ?>
+                    <select id="teamMenuSelect" class="form-select team-filter-select">
+                        <option value="all" <?php echo $viewMenuSlug === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All categories' : 'सबै श्रेणी'; ?></option>
+                        <?php foreach ($menuTree as $_slug => $_node): ?>
+                        <option value="<?php echo htmlspecialchars($_slug); ?>" <?php echo $viewMenuSlug === $_slug ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($_node['label']); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-4 col-lg-3" id="teamItemWrap" style="<?php echo $viewCat === 'committees' ? '' : 'display:none'; ?>">
-                    <label class="form-label small fw-semibold text-success mb-1" for="teamCmtSelect">
+                <div class="col-md-4 col-lg-3" id="teamItemWrap" style="<?php echo ($viewMenuSlug !== 'all' && !empty($menuItemsForSelect)) ? '' : 'display:none'; ?>">
+                    <label class="form-label small fw-semibold text-success mb-1" for="teamItemSelect">
                         <i class="fas fa-sitemap me-1" aria-hidden="true"></i>
                         2. <?php echo isEnglish() ? 'Item' : 'विवरण'; ?>
                     </label>
-                    <select id="teamCmtSelect" class="form-select team-filter-select">
-                        <?php foreach ($committeeFilterButtons as $_cf): ?>
-                        <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($_cf['label']); ?>
+                    <select id="teamItemSelect" class="form-select team-filter-select">
+                        <?php foreach ($menuItemsForSelect as $_it): ?>
+                        <option value="<?php echo htmlspecialchars($_it['key']); ?>"
+                                data-type="<?php echo htmlspecialchars($_it['type']); ?>"
+                                data-filter="<?php echo htmlspecialchars($_it['filter']); ?>"
+                                data-cmt="<?php echo (int)($_it['cmt'] ?? 0); ?>"
+                                <?php echo $viewItemKey === $_it['key'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($_it['label']); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -279,8 +424,8 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
             </div>
             <p class="text-center text-muted small mt-3 mb-0">
                 <?php echo isEnglish()
-                    ? 'Pick category → item → tenure. Menu links open the chosen item with the latest tenure.'
-                    : 'श्रेणी → विवरण → कार्यकाल छान्नुहोस्। मेनुबाट आएको विवरणमा हालको/पछिल्लो कार्यकाल default देखिन्छ।'; ?>
+                    ? 'Same categories as the Human Resources menu: pick category → item (→ tenure for committees).'
+                    : 'मानवीय श्रोत मेनुकै श्रेणी: श्रेणी छान्नुहोस् → त्यसभित्रको विवरण मात्र (समितिमा कार्यकाल पनि)।'; ?>
             </p>
         </div>
     </div>
@@ -588,12 +733,12 @@ foreach ($staffGroups as $_sg):
 <?php endforeach; ?>
 
 <!-- Committees viewer: one section + committee/tenure dropdowns -->
-<?php if ($hasCommitteeFilters && $viewCommittee): ?>
+<?php if ($viewCat === 'committees' && $viewCommittee): ?>
 <section id="committees" class="team-section section-padding bg-light" data-filter="committees"
          data-active-cmt="<?php echo (int)$viewCommitteeId; ?>">
-    <?php foreach ($committeeFilterButtons as $_cf): ?>
-    <div id="committee-<?php echo (int)$_cf['id']; ?>" class="visually-hidden" aria-hidden="true"></div>
-    <?php endforeach; ?>
+    <?php if ($viewCommitteeId > 0): ?>
+    <div id="committee-<?php echo (int)$viewCommitteeId; ?>" class="visually-hidden" aria-hidden="true"></div>
+    <?php endif; ?>
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2><?php echo htmlspecialchars($viewCommitteeLabel ?: (isEnglish() ? 'Committees' : 'समिति')); ?></h2>
@@ -672,10 +817,23 @@ window.__teamCmtTenures = window.__teamCmtTenures || <?php
 ?>;
 window.__teamCmtIsEn = <?php echo isEnglish() ? 'true' : 'false'; ?>;
 window.__teamFocusFilter = <?php echo json_encode($focusFilter); ?>;
+window.__teamMenuSlug = <?php echo json_encode($viewMenuSlug); ?>;
+window.__teamMenuTree = <?php echo json_encode($menuTree, JSON_UNESCAPED_UNICODE); ?>;
+window.__teamAllowedFilters = <?php echo json_encode($allowedFiltersForMenu, JSON_UNESCAPED_UNICODE); ?>;
 
-function teamFilter(btn, filter) {
+function teamFilter(btn, filter, allowed) {
+    var allow = Array.isArray(allowed) ? allowed : null;
     document.querySelectorAll('.team-section[data-filter]').forEach(function (section) {
-        var match = filter === 'all' || section.getAttribute('data-filter') === filter;
+        var key = section.getAttribute('data-filter');
+        var match;
+        if (filter === 'all' && (!allow || !allow.length)) {
+            match = true;
+        } else if (filter === 'all' && allow && allow.length) {
+            match = allow.indexOf(key) !== -1;
+        } else {
+            match = key === filter;
+            if (match && allow && allow.length && allow.indexOf(key) === -1) match = false;
+        }
         section.style.display = match ? '' : 'none';
         section.classList.toggle('team-section--focused', match && filter !== 'all');
     });
@@ -689,26 +847,39 @@ function teamFilter(btn, filter) {
     }
 }
 
-function teamBuildUrl(cat, itemId, tenureId) {
-    if (!cat || cat === 'all') return 'team.php';
-    var url = 'team.php?cat=' + encodeURIComponent(cat);
-    if (cat === 'committees') {
-        if (itemId) url += '&cmt=' + encodeURIComponent(itemId);
-        if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
-        url += '#committees';
-    } else {
-        url += '#' + encodeURIComponent(cat);
+function teamBuildUrl(menuSlug, itemKey, tenureId) {
+    if (!menuSlug || menuSlug === 'all') return 'team.php';
+    var tree = window.__teamMenuTree || {};
+    var node = tree[menuSlug];
+    var item = null;
+    if (node && node.items) {
+        for (var i = 0; i < node.items.length; i++) {
+            if (node.items[i].key === itemKey) { item = node.items[i]; break; }
+        }
+        if (!item && node.items.length) item = node.items[0];
     }
-    return url;
+    if (!item) return 'team.php?menu=' + encodeURIComponent(menuSlug);
+
+    var url = 'team.php?menu=' + encodeURIComponent(menuSlug) + '&item=' + encodeURIComponent(item.key);
+    var hash = item.filter || item.key;
+    if (item.type === 'committee') {
+        url += '&cat=committees&cmt=' + encodeURIComponent(item.cmt || 0);
+        if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
+        hash = 'committees';
+    } else {
+        url += '&cat=' + encodeURIComponent(item.filter || item.key);
+    }
+    return url + '#' + encodeURIComponent(hash);
 }
 
 (function () {
-    var catSelect = document.getElementById('teamCatSelect');
-    var cmtSelect = document.getElementById('teamCmtSelect');
+    var menuSelect = document.getElementById('teamMenuSelect');
+    var itemSelect = document.getElementById('teamItemSelect');
     var tenureSelect = document.getElementById('teamTenureSelect');
     var itemWrap = document.getElementById('teamItemWrap');
     var tenureWrap = document.getElementById('teamTenureWrap');
     var tenureData = window.__teamCmtTenures || {};
+    var menuTree = window.__teamMenuTree || {};
     var isEn = !!window.__teamCmtIsEn;
 
     function latestTenureId(rows) {
@@ -717,6 +888,31 @@ function teamBuildUrl(cat, itemId, tenureId) {
             if (rows[i].is_current) return rows[i].id;
         }
         return rows[0].id;
+    }
+
+    function fillItems(menuSlug, preferredKey) {
+        if (!itemSelect) return null;
+        itemSelect.innerHTML = '';
+        var node = menuTree[menuSlug];
+        if (!node || !node.items || !node.items.length) {
+            if (itemWrap) itemWrap.style.display = 'none';
+            return null;
+        }
+        if (itemWrap) itemWrap.style.display = '';
+        var selected = null;
+        node.items.forEach(function (it) {
+            var opt = document.createElement('option');
+            opt.value = it.key;
+            opt.textContent = it.label;
+            opt.setAttribute('data-type', it.type || '');
+            opt.setAttribute('data-filter', it.filter || '');
+            opt.setAttribute('data-cmt', String(it.cmt || 0));
+            itemSelect.appendChild(opt);
+            if (preferredKey && it.key === preferredKey) selected = it;
+        });
+        if (!selected) selected = node.items[0];
+        itemSelect.value = selected.key;
+        return selected;
     }
 
     function fillTenures(cmtId, preferredTenure) {
@@ -743,36 +939,53 @@ function teamBuildUrl(cat, itemId, tenureId) {
         tenureSelect.value = String(currentId);
     }
 
-    function go() {
-        var cat = catSelect ? catSelect.value : '';
-        var itemId = 0;
-        var tid = 0;
-        if (cat === 'committees') {
-            itemId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
-            tid = tenureSelect && !tenureSelect.disabled ? (parseInt(tenureSelect.value, 10) || 0) : 0;
-            if (!tid) tid = latestTenureId(tenureData[String(itemId)] || []);
-        }
-        location.href = teamBuildUrl(cat, itemId, tid);
+    function selectedItemMeta() {
+        if (!itemSelect || !itemSelect.options.length) return null;
+        var opt = itemSelect.options[itemSelect.selectedIndex];
+        if (!opt) return null;
+        return {
+            key: opt.value,
+            type: opt.getAttribute('data-type') || '',
+            filter: opt.getAttribute('data-filter') || opt.value,
+            cmt: parseInt(opt.getAttribute('data-cmt') || '0', 10) || 0
+        };
     }
 
-    if (catSelect) {
-        catSelect.addEventListener('change', function () {
-            var cat = catSelect.value;
-            if (itemWrap) itemWrap.style.display = cat === 'committees' ? '' : 'none';
-            if (cat !== 'committees') {
+    function go() {
+        var menuSlug = menuSelect ? menuSelect.value : 'all';
+        if (menuSlug === 'all') {
+            location.href = 'team.php';
+            return;
+        }
+        var item = selectedItemMeta();
+        var tid = 0;
+        if (item && item.type === 'committee') {
+            tid = tenureSelect && !tenureSelect.disabled ? (parseInt(tenureSelect.value, 10) || 0) : 0;
+            if (!tid) tid = latestTenureId(tenureData[String(item.cmt)] || []);
+        }
+        location.href = teamBuildUrl(menuSlug, item ? item.key : '', tid);
+    }
+
+    if (menuSelect) {
+        menuSelect.addEventListener('change', function () {
+            var menuSlug = menuSelect.value;
+            if (menuSlug === 'all') {
+                if (itemWrap) itemWrap.style.display = 'none';
                 if (tenureWrap) tenureWrap.style.display = 'none';
                 go();
                 return;
             }
-            var itemId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
-            fillTenures(itemId, 0);
+            var item = fillItems(menuSlug, '');
+            if (item && item.type === 'committee') fillTenures(item.cmt || 0, 0);
+            else if (tenureWrap) tenureWrap.style.display = 'none';
             go();
         });
     }
-    if (cmtSelect) {
-        cmtSelect.addEventListener('change', function () {
-            var itemId = parseInt(cmtSelect.value, 10) || 0;
-            fillTenures(itemId, 0);
+    if (itemSelect) {
+        itemSelect.addEventListener('change', function () {
+            var item = selectedItemMeta();
+            if (item && item.type === 'committee') fillTenures(item.cmt || 0, 0);
+            else if (tenureWrap) tenureWrap.style.display = 'none';
             go();
         });
     }
@@ -786,15 +999,28 @@ function teamBuildUrl(cat, itemId, tenureId) {
         if (/^committee-\d+$/.test(hash)) {
             var id = parseInt(hash.replace('committee-', ''), 10) || 0;
             if (id) {
-                location.replace(teamBuildUrl('committees', id, parseInt(params.get('tenure') || '0', 10) || 0));
+                var foundMenu = '';
+                Object.keys(menuTree).forEach(function (ms) {
+                    (menuTree[ms].items || []).forEach(function (it) {
+                        if (it.cmt === id) foundMenu = ms;
+                    });
+                });
+                location.replace(teamBuildUrl(foundMenu || (window.__teamMenuSlug || ''), 'cmt-' + id, parseInt(params.get('tenure') || '0', 10) || 0));
                 return;
             }
         }
-        var focus = params.get('cat') || hash || window.__teamFocusFilter || 'all';
-        if (params.get('cmt') && !params.get('cat')) focus = 'committees';
+        var focus = window.__teamFocusFilter || params.get('cat') || hash || 'all';
+        if (params.get('cmt') && !params.get('cat') && !params.get('item')) focus = 'committees';
         if (hash === 'committees' || focus === 'committees') focus = 'committees';
         if (focus === 'all' && hash && hash !== 'all') focus = hash;
-        teamFilter(null, focus === 'all' ? 'all' : focus);
+        var allowed = window.__teamAllowedFilters || [];
+        if (window.__teamMenuSlug && window.__teamMenuSlug !== 'all' && (!allowed || !allowed.length)) {
+            allowed = [];
+        }
+        teamFilter(null, focus === 'all' && !(allowed && allowed.length) ? 'all' : focus, allowed);
+        if (focus === 'all' && allowed && allowed.length) {
+            teamFilter(null, 'all', allowed);
+        }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
