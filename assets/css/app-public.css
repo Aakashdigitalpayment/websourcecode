@@ -13080,7 +13080,7 @@ body.dark-mode textarea,
 body.dark-mode select {
     background-color: #252545;
     border-color: #3a3a6a;
-    color: var(--border-color);
+    color: #e8eef2;
 }
 
 body.dark-mode .form-control:focus,
