@@ -264,6 +264,46 @@ $L = getLangStrings();
             <div class="col-lg-4 mb-4 mb-lg-0 order-lg-2">
                 <div class="card border-0 shadow-sm h-100 appt-steps-card">
                     <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i><?php echo isEnglish() ? 'How It Works' : 'कसरी काम गर्छ'; ?></h5>
+                        <?php
+                        $steps = isEnglish()
+                            ? [['fa-edit','Fill the form','Complete all required fields below.'],['fa-clock','Await Confirmation','Our team will call/email to confirm.'],['fa-building','Visit Office','Come to the branch on scheduled date.'],['fa-handshake','Get Served','Receive personalised service.']]
+                            : [['fa-edit','फारम भर्नुहोस्','तलका सबै आवश्यक जानकारी भर्नुहोस्।'],['fa-clock','पुष्टिको प्रतीक्षा','हाम्रो टोलीले फोन/इमेलबाट पुष्टि गर्नेछ।'],['fa-building','कार्यालय आउनुहोस्','तोकिएको मितिमा शाखामा आउनुहोस्।'],['fa-handshake','सेवा पाउनुहोस्','व्यक्तिगत सेवा प्राप्त गर्नुहोस्।']];
+                        foreach ($steps as $i => $s): ?>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="appt-step-icon-wrap">
+                                <i class="fas <?php echo $s[0]; ?>" style="font-size:15px;"></i>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" style="font-size:13.5px;"><?php echo ($i+1) . '. ' . $s[1]; ?></div>
+                                <div style="font-size:12px;opacity:.8;"><?php echo $s[2]; ?></div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+
+                        <hr class="appt-step-divider">
+                        <div class="appt-step-help">
+                            <i class="fas fa-search me-1"></i>
+                            <?php echo isEnglish() ? 'After booking, use your Tracking ID on the ' : 'बुक गरेपछि '; ?>
+                            <a href="<?php echo e($trackerUrl); ?>" class="appt-step-link">
+                                <?php echo isEnglish() ? 'Application Tracker' : 'Application Tracker'; ?>
+                            </a>
+                            <?php echo isEnglish() ? ' page to check status.' : ' मा Tracking ID बाट स्थिति हेर्नुहोस्।'; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form card -->
+            <div class="col-lg-8 order-lg-1">
+                <div class="card border-0 shadow-sm appt-form-card">
+                    <div class="card-header border-0 rounded-top-3 py-3 px-4" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-color));">
+                        <h5 class="mb-0 text-white fw-bold">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
 
                         <?php if ($error): ?>
                         <div class="alert alert-danger alert-dismissible fade show mb-4">
@@ -583,6 +623,7 @@ $L = getLangStrings();
                             </div>
                         </div>
 
+
                     </div><!-- /card-body -->
                 </div><!-- /card -->
             </div>
@@ -591,6 +632,12 @@ $L = getLangStrings();
     </div><!-- /container -->
 </section>
 <style>
+.appt-kind-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.appt-kind-tabs .nav-item { flex: 0 0 auto; }
 .appt-kind-tabs .nav-link {
     border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
     color: var(--primary-color, #1a5f2a);
@@ -598,6 +645,7 @@ $L = getLangStrings();
     border-radius: 999px;
     padding: .45rem 1rem;
     background: #fff;
+    white-space: nowrap;
 }
 .appt-kind-tabs .nav-link.active {
     background: var(--primary-color, #1a5f2a);
