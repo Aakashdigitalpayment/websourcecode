@@ -539,3 +539,30 @@ body.has-bottomnav {
   min-height: 42px;
   font-weight: 500;
 }
+
+/* ── Mobile compat: keep bottom nav through tablet portrait band ───── */
+@media (max-width: 899.98px) {
+  .mob-bottomnav {
+    display: flex !important;
+  }
+
+  body.has-bottomnav .main-footer {
+    padding-bottom: 0 !important;
+  }
+
+  /* Chat / FAQ panels clear bottom nav + FAB */
+  #publicChatPanel,
+  .chatbot-widget .chatbot-box {
+    bottom: calc(var(--pub-bottom-nav-h, 64px) + 72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100dvh - var(--pub-bottom-nav-h, 64px) - 100px) !important;
+    z-index: 9100 !important;
+  }
+
+  .qh-item {
+    min-height: 40px;
+  }
+
+  .mob-bn-item {
+    min-height: 44px;
+  }
+}

@@ -254,7 +254,7 @@ set_exception_handler(function (\Throwable $ex) {
 <html lang="<?php echo $adminIsEnglish ? 'en' : 'ne'; ?>">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - ' : ''; ?><?php echo $adminT('एडमिन प्यानल', 'Admin Panel'); ?></title>
 
     <!-- Bootstrap CSS (required for admin pages) -->

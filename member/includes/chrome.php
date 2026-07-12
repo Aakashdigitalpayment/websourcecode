@@ -181,7 +181,7 @@ try {
 <html lang="<?php echo $_isEn ? 'en' : 'ne'; ?>" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?php echo htmlspecialchars($pageTitle); ?></title>
 <!-- Bootstrap utility compatibility layer (self-hosted, replaces CDN Bootstrap) -->
