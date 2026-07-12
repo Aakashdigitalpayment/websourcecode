@@ -24096,3 +24096,135 @@ body.auth-page,
         transform: rotate(-90deg);
     }
 }
+
+/* ═══════════════════════════════════════════════════
+   FOOTER TOP — light like menu header (logos clear)
+   Footer-bottom bar stays dark brand green (unchanged intent).
+   ═══════════════════════════════════════════════════ */
+.main-footer {
+    background: #f4f6f5 !important;
+    color: #1f2937 !important;
+}
+.main-footer::after {
+    background: none !important;
+    opacity: 0 !important;
+}
+.main-footer .footer-top {
+    background: #f4f6f5 !important;
+    color: #1f2937 !important;
+}
+.main-footer .footer-widget h4,
+.main-footer .footer-widget h5,
+.main-footer .footer-widget h6,
+.main-footer .footer-title,
+.main-footer .footer-sahakari-name,
+.main-footer .footer-logo span {
+    color: var(--primary-dark, #14532d) !important;
+    text-shadow: none !important;
+}
+.main-footer .footer-widget h4::after,
+.main-footer .footer-title::after {
+    background: linear-gradient(90deg, var(--primary-color, #15803d), transparent) !important;
+}
+.main-footer .footer-widget p,
+.main-footer .footer-top p {
+    color: #4b5563 !important;
+}
+.main-footer .footer-logo img {
+    filter: none !important;
+}
+.main-footer .footer-links a,
+.main-footer .footer-notices a,
+.main-footer .footer-top a:not(.btn):not(.footer-social a) {
+    color: #374151 !important;
+}
+.main-footer .footer-links a::before {
+    color: var(--primary-color, #15803d) !important;
+}
+.main-footer .footer-links a:hover,
+.main-footer .footer-notices a:hover {
+    color: var(--primary-color, #15803d) !important;
+}
+.main-footer .footer-contact li,
+.main-footer .footer-contact span,
+.main-footer .footer-notices .notice-date {
+    color: #4b5563 !important;
+}
+.main-footer .footer-contact i {
+    color: var(--primary-color, #15803d) !important;
+}
+.main-footer .footer-social a {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: var(--primary-color, #15803d) !important;
+    box-shadow: none !important;
+}
+.main-footer .footer-social a i {
+    color: var(--primary-color, #15803d) !important;
+}
+.main-footer .footer-social a:hover {
+    background: var(--primary-color, #15803d) !important;
+    border-color: var(--primary-color, #15803d) !important;
+    color: #fff !important;
+    box-shadow: 0 6px 16px rgba(21, 128, 61, 0.25) !important;
+    transform: translateY(-2px) !important;
+}
+.main-footer .footer-social a:hover i {
+    color: #fff !important;
+}
+.main-footer .footer-social a:hover::before {
+    opacity: 0 !important;
+}
+
+/* Last footer line — keep dark (do not lighten) */
+.main-footer .footer-bottom {
+    background: color-mix(in srgb, var(--footer-color, var(--primary-color, #15803d)) 78%, #000) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+.main-footer .footer-bottom p,
+.main-footer .footer-bottom .copyright,
+.main-footer .footer-bottom .developer,
+.main-footer .footer-bottom .developer a,
+.main-footer .footer-bottom span,
+.main-footer .footer-bottom small,
+.main-footer .footer-bottom i,
+.main-footer .footer-bottom a,
+.main-footer .footer-bottom .footer-policy-links a,
+.main-footer .footer-bottom .visitor-counter,
+.main-footer .footer-bottom .visitor-item {
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+.main-footer .footer-bottom a:hover,
+.main-footer .footer-bottom .developer a:hover,
+.main-footer .footer-bottom .footer-policy-links a:hover {
+    color: #ffffff !important;
+}
+.main-footer .footer-bottom .visitor-item {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Dark mode: keep full footer dark for contrast */
+body.dark-mode .main-footer,
+body.dark-mode .main-footer .footer-top {
+    background: color-mix(in srgb, var(--footer-color, var(--primary-color, #15803d)) 88%, #000) !important;
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+body.dark-mode .main-footer .footer-widget h4,
+body.dark-mode .main-footer .footer-sahakari-name,
+body.dark-mode .main-footer .footer-links a,
+body.dark-mode .main-footer .footer-contact li,
+body.dark-mode .main-footer .footer-contact span,
+body.dark-mode .main-footer .footer-widget p {
+    color: rgba(255, 255, 255, 0.88) !important;
+}
+body.dark-mode .main-footer .footer-contact i,
+body.dark-mode .main-footer .footer-social a,
+body.dark-mode .main-footer .footer-social a i {
+    color: #fff !important;
+}
+body.dark-mode .main-footer .footer-social a {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border-color: rgba(255, 255, 255, 0.18) !important;
+}
