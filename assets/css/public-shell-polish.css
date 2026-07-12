@@ -601,3 +601,397 @@ body.has-bottomnav {
   align-items: center;
   justify-content: center;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE — site-wide readable contrast (beats late UX !important)
+   ═══════════════════════════════════════════════════════════════════ */
+body.dark-mode {
+  --pub-surface: var(--bg-card, #1a2535);
+  --pub-surface-soft: var(--bg-soft, #1f2a3a);
+  --pub-border: var(--border-color, #2a3a50);
+  --pub-text: #e8eef2;
+  --pub-muted: #8a96a0;
+  --primary-on-dark: color-mix(in srgb, var(--primary-color, #1a5f2a) 42%, #ffffff);
+  --primary-ink: var(--primary-on-dark);
+  color: var(--text-primary, #e8eef2) !important;
+  background: var(--bg-page, #111825) !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.mob-bn-item) {
+  color: var(--primary-on-dark, #86efac);
+}
+body.dark-mode a:not(.btn):not(.nav-link):not(.mob-bn-item):hover {
+  color: #bbf7d0;
+}
+
+/* Forms — beat white/dark-hex !important from UX polish */
+body.dark-mode .form-label,
+body.dark-mode label.form-label,
+body.dark-mode .form-check-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode textarea.form-control,
+body.dark-mode input.form-control {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: var(--text-primary, #e8eef2) !important;
+  border-color: var(--border-color, #2a3a50) !important;
+}
+body.dark-mode .form-control::placeholder,
+body.dark-mode textarea::placeholder {
+  color: var(--text-muted, #8a96a0) !important;
+}
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus,
+body.dark-mode textarea.form-control:focus {
+  background: #243041 !important;
+  color: #fff !important;
+  border-color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Generic Bootstrap / content cards */
+body.dark-mode .card,
+body.dark-mode .form-card,
+body.dark-mode .notice-card,
+body.dark-mode .news-card,
+body.dark-mode .download-card,
+body.dark-mode .team-card,
+body.dark-mode .rate-card-enhanced,
+body.dark-mode .rates-box-enhanced,
+body.dark-mode .notices-box-enhanced,
+body.dark-mode .tools-category-card,
+body.dark-mode .tools-mini-link,
+body.dark-mode .contact-info-box,
+body.dark-mode .loan-card,
+body.dark-mode .product-card,
+body.dark-mode .branch-card,
+body.dark-mode .faq-accordion .accordion-item {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .card-header,
+body.dark-mode .card-footer {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .card-title,
+body.dark-mode .form-card-title,
+body.dark-mode .form-section-title {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .service-card,
+body.dark-mode .service-card-modern,
+body.dark-mode .feature-box,
+body.dark-mode .quick-service-card,
+body.dark-mode .app-feature-item,
+body.dark-mode .app-feature-item:hover,
+body.dark-mode .app-feature-item.has-new-badge {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.dark-mode .services-section,
+body.dark-mode .app-features-section,
+body.dark-mode .features-section,
+body.dark-mode .why-choose-section,
+body.dark-mode .rates-notices-section,
+body.dark-mode .tools-widget-section,
+body.dark-mode .notices-section,
+body.dark-mode .section-padding {
+  background-color: var(--bg-page, #111825) !important;
+}
+
+/* Service card titles + body */
+body.dark-mode .service-title-modern,
+body.dark-mode .service-card h4,
+body.dark-mode .service-card h5,
+body.dark-mode .service-card-modern h4 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .service-description-modern,
+body.dark-mode .service-card p,
+body.dark-mode .service-card-modern p,
+body.dark-mode .feature-box p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .feature-box h5 {
+  color: #f3f6f9 !important;
+}
+
+/* Brand links / learn-more — light green on dark, not dark primary */
+body.dark-mode .service-link,
+body.dark-mode .service-link-modern,
+body.dark-mode .service-link-modern:hover,
+body.dark-mode .quick-service-card .btn-link,
+body.dark-mode .read-more,
+body.dark-mode .read-more-link,
+body.dark-mode a.service-link-modern .link-text,
+body.dark-mode .news-content .read-more,
+body.dark-mode .profile-btn:hover {
+  color: var(--primary-on-dark, var(--primary-ink, #86efac)) !important;
+}
+
+/* Service / feature icons — visible wells + bright glyph */
+body.dark-mode .service-icon,
+body.dark-mode .service-icon-modern,
+body.dark-mode .quick-service-card .service-icon,
+body.dark-mode .feature-icon {
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.dark-mode .service-icon i,
+body.dark-mode .service-icon-modern i,
+body.dark-mode .service-icon .lucide-icon,
+body.dark-mode .service-icon-modern .lucide-icon,
+body.dark-mode .quick-service-card .service-icon i,
+body.dark-mode .feature-icon i,
+body.dark-mode .feature-icon .lucide-icon {
+  color: var(--primary-on-dark, #86efac) !important;
+  opacity: 1 !important;
+  stroke: currentColor;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern,
+body.dark-mode .quick-service-card:hover .service-icon,
+body.dark-mode .feature-box:hover .feature-icon {
+  background: var(--primary-color) !important;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern i,
+body.dark-mode .quick-service-card:hover .service-icon i,
+body.dark-mode .feature-box:hover .feature-icon i {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* App features — unify cards; fix dark-label-on-dark (has-new-badge) */
+body.dark-mode .app-feature-item h5 {
+  color: #f3f6f9 !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  box-shadow: 0 6px 18px rgba(var(--primary-rgb, 26, 95, 42), 0.35);
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap i,
+body.dark-mode .app-feature-item .feature-icon-wrap .lucide-icon {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .app-feature-item.has-new-badge {
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-card, #1a2535)) !important;
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent) !important;
+}
+
+body.dark-mode .new-badge,
+body.dark-mode .new-badge-modern {
+  color: var(--text-on-secondary, #fff) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Section headers (beat #111827 !important) */
+body.dark-mode .section-header h2,
+body.dark-mode .section-header h3,
+body.dark-mode .section-header-unified h2,
+body.dark-mode .ip-section-intro h2,
+body.dark-mode .notices-section .section-header h2,
+body.dark-mode .notices-section .section-header h3 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .section-header p,
+body.dark-mode .section-header-unified p,
+body.dark-mode .ip-section-intro p,
+body.dark-mode .notices-section .section-header p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .section-badge {
+  color: var(--primary-on-dark, #86efac) !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.22) !important;
+}
+
+body.dark-mode .notices-section .section-header,
+body.dark-mode .notices-section .section-header-unified {
+  background: transparent !important;
+}
+
+/* Rates + notices homepage strip */
+body.dark-mode .rate-card-enhanced h5,
+body.dark-mode .rates-box-enhanced h5,
+body.dark-mode .mvv-card h4,
+body.dark-mode .form-card-title,
+body.dark-mode .form-section-title,
+body.dark-mode .tools-category-card h5 {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+body.dark-mode .rate-name {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+body.dark-mode .notice-content h6,
+body.dark-mode .notice-content h6 a,
+body.dark-mode .notice-card h5,
+body.dark-mode .notice-card h5 a,
+body.dark-mode .news-content h4,
+body.dark-mode .news-content h5,
+body.dark-mode .profile-info h4,
+body.dark-mode .team-info h5,
+body.dark-mode .download-info h5 {
+  color: #f3f6f9 !important;
+}
+
+/* Tools widget */
+body.dark-mode .tools-category-card h5 {
+  color: var(--primary-on-dark, #86efac) !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.18) !important;
+}
+body.dark-mode .tools-mini-link {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-mode .tools-mini-link span {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .tools-mini-link:hover span {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Tables */
+body.dark-mode .table,
+body.dark-mode .table td,
+body.dark-mode .table th,
+body.dark-mode .interest-rates-table,
+body.dark-mode .rates-table {
+  color: var(--text-secondary, #b0bcc6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode .table thead th,
+body.dark-mode .interest-rates-table thead th,
+body.dark-mode .rates-table thead th {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: #f3f6f9 !important;
+}
+
+/* FAQ */
+body.dark-mode .faq-question,
+body.dark-mode .accordion-button,
+body.dark-mode .faq-accordion .accordion-button {
+  background: var(--bg-card, #1a2535) !important;
+  color: #f3f6f9 !important;
+}
+body.dark-mode .faq-accordion .accordion-button:not(.collapsed) {
+  background: color-mix(in srgb, var(--primary-color) 16%, var(--bg-card, #1a2535)) !important;
+  color: #f3f6f9 !important;
+}
+body.dark-mode .faq-answer,
+body.dark-mode .accordion-body {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+/* Institutional profile + career + auction leftovers */
+body.dark-mode .ip-month-grid {
+  background: var(--bg-soft, #1f2a3a) !important;
+}
+body.dark-mode .ip-month-tile,
+body.dark-mode .ip-profile-card,
+body.dark-mode .ip-filter-wrap,
+body.dark-mode .ip-featured-card {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .ip-month-tile-head strong,
+body.dark-mode .ip-month-value strong,
+body.dark-mode .ip-featured-title,
+body.dark-mode .ip-stat-value {
+  color: #f3f6f9 !important;
+}
+body.dark-mode .ip-month-title,
+body.dark-mode .ip-month-tile-head span,
+body.dark-mode .ip-featured-sub {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+body.dark-mode .ip-month-value em,
+body.dark-mode .ip-mini-chip,
+body.dark-mode .ip-month-badge,
+body.dark-mode .ip-row-doc-btn {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+body.dark-mode .ip-stat-members-icon,
+body.dark-mode .ip-stat-share-icon,
+body.dark-mode .ip-stat-deposit-icon,
+body.dark-mode .ip-stat-loan-icon,
+body.dark-mode .ip-stat-assets-icon {
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.22) !important;
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+body.dark-mode .cr-job-title,
+body.dark-mode .cr-cv-card h4,
+body.dark-mode .cr-why-card h4,
+body.dark-mode .auc2-title,
+body.dark-mode .auc2-info-value,
+body.dark-mode .cp-section-sub h3,
+body.dark-mode .cp-prereg-title,
+body.dark-mode .ds-title-ok,
+body.dark-mode .ct-success-title {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+body.dark-mode .institutional-profile-bar {
+  background: var(--bg-card, #1a2535) !important;
+}
+body.dark-mode .institutional-profile-bar .profile-title,
+body.dark-mode .institutional-profile-bar .profile-title-link {
+  color: #f3f6f9 !important;
+}
+
+/* Wrong token used as text in older dark-mode rules */
+body.dark-mode .form-control,
+body.dark-mode .table,
+body.dark-mode .modal-body,
+body.dark-mode .faq-question,
+body.dark-mode .tool-widget-card {
+  /* ensure readable if an older rule set color: var(--border-color) */
+  color: var(--text-primary, #e8eef2);
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+  background-color: var(--bg-card, #1a2535) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+
+body.dark-mode .text-dark,
+body.dark-mode .text-muted {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .text-primary {
+  color: var(--primary-on-dark, #86efac) !important;
+}

@@ -1142,6 +1142,10 @@ body.dark-mode {
     --border-color:    #2a3a50;
     --border-soft:     #243041;
 
+    /* Brand-as-text on dark surfaces — never keep dark green */
+    --primary-ink:     color-mix(in srgb, var(--primary-color, #1a5f2a) 42%, #ffffff);
+    --primary-on-dark: color-mix(in srgb, var(--primary-color, #1a5f2a) 42%, #ffffff);
+
     --color-success-bg: rgba(22, 163, 74, 0.16);
     --color-warning-bg: rgba(217, 119, 6, 0.16);
     --color-danger-bg:  rgba(220, 38, 38, 0.16);
