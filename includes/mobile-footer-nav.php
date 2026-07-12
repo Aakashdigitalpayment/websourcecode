@@ -1,5 +1,12 @@
-<!-- Public Website Mobile Footer Navigation (Mobile Only) -->
-<nav class="public-mobile-footer" aria-label="Mobile navigation">
+<?php
+/**
+ * DEPRECATED — do not include.
+ * Public mobile nav is `.mob-bottomnav` in includes/footer.php.
+ * Re-enabling this creates a duplicate bottom bar.
+ */
+?>
+<!-- Public Website Mobile Footer Navigation (Mobile Only) — DISABLED -->
+<nav class="public-mobile-footer" aria-label="Mobile navigation" hidden>
   <a href="<?php echo SITE_URL; ?>index.php" class="<?php echo (basename($_SERVER['PHP_SELF']) === 'index.php' ? 'active' : ''); ?>" title="Home">
     <i class="fas fa-home"></i>
     <span>Home</span>

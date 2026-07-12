@@ -74,7 +74,7 @@
 }
 
 /* ── 4. Smoother card elevation on mobile ─────────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 899.98px) {
   .card,
   .auth-card {
     transition: box-shadow .2s ease, transform .2s ease;
@@ -82,7 +82,7 @@
 }
 
 /* ── 5. Prevent accidental horizontal scroll ──────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 899.98px) {
   html, body {
     overflow-x: clip;
   }
@@ -104,9 +104,9 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   7. PUBLIC MOBILE UX PASS (≤768) — high-impact fixes
+   7. PUBLIC MOBILE UX PASS (≤899.98) — high-impact fixes
    ═══════════════════════════════════════════════════════════════════════ */
-@media (max-width: 768px) {
+@media (max-width: 899.98px) {
 
   /* Single bottom nav: keep .mob-bottomnav, hide legacy duplicate */
   .public-mobile-footer {

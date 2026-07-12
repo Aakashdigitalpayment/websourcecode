@@ -311,7 +311,7 @@ if ($logoPath) {
 <html lang="<?php echo isEnglish() ? 'en' : 'ne'; ?>" dir="ltr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Member login and registration portal for Aakash Cooperative.">
 <title><?php echo htmlspecialchars($_t('सदस्य लगिन', 'Member Login')); ?> — <?php echo htmlspecialchars($siteName); ?></title>
 
