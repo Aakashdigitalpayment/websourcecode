@@ -2,7 +2,8 @@
    ADMIN UI UNIFIED — Component Styles
    ═══════════════════════════════════════════════════════════════════════════════
    
-   Styles for the unified admin UI components defined in includes/admin-ui-unified.php
+   Styles for shared admin UI patterns (forms, tables, badges).
+   PHP helpers live in admin/includes/admin-ui.php.
    Load AFTER global.css and forms-tables.css
    ═══════════════════════════════════════════════════════════════════════════════ */
 

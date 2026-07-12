@@ -1192,7 +1192,7 @@ if ($__uiTestMode):
 </script>
 
 <?php /* Duplicate public-mobile-footer disabled — .mob-bottomnav above is the single mobile bar */ ?>
-<?php /* require_once __DIR__ . '/mobile-footer-nav.php'; */ ?>
+<?php /* Public mobile nav: .mob-bottomnav rendered above — do not re-add a second footer bar */ ?>
 
 <?php if (function_exists("coopThemeLucideInit")) { coopThemeLucideInit(); } ?>
 </body>

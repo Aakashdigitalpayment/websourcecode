@@ -8,7 +8,7 @@
  *   #2 — Footer phone & website pulled from site_settings (phone, site_url).
  *   #3 — Card prefix derived from site domain.
  *   #4 — Validity = 5 years; uses members.card_expires_at when present.
- *   #5 — Cleaner header (handled in _partials/header.php).
+ *   #5 — Cleaner header (handled in member chrome).
  *   #8 — Issued + expiry dates always shown.
  *  #10 — verification_code printed exactly as stored in DB so verify.php
  *        always matches digit-for-digit.

@@ -42,7 +42,7 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 │   ├── pages.php                # CMS page editor
 │   ├── hrm-dashboard.php        # HRM module entry
 │   ├── election-*.php           # Election management
-│   ├── _partials/               # Shared admin partials
+│   ├── _partials/               # header.php, footer.php (members/applications)
 │   ├── includes/                # admin-header.php, admin-ui.php, admin-footer.php
 │   └── api/                     # Admin AJAX endpoints
 │
@@ -53,8 +53,7 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 │   ├── loan-apply.php
 │   ├── welfare.php
 │   ├── election-vote.php        # Secure online voting
-│   ├── _partials/               # header.php, footer.php
-│   └── includes/                # Member-only helpers
+│   └── includes/                # chrome.php, chrome-foot.php, helpers
 │
 ├── includes/                    # Shared PHP includes (52 files)
 │   ├── config.php               # Global config loader
@@ -81,9 +80,8 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 ├── database/
 │   └── install.sql              # 74 CREATE TABLE statements — fresh-install schema
 │
-└── public/                      # Static public files (robots.txt, sitemap…)
+└── public/                      # Static fallbacks (e.g. icon.svg favicon)
 ```
-
 ---
 
 ## 3. CSS Architecture (CRITICAL — read before touching CSS)
