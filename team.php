@@ -1,24 +1,41 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/includes/team-staff-groups.php';
 $pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once 'includes/header.php';
 
 $selectedCommitteeId = isset($_GET['cmt']) ? (int)$_GET['cmt'] : 0;
 $selectedTenureId = isset($_GET['tenure']) ? (int)$_GET['tenure'] : 0;
 
+$staffGroups = [];
+$staffMembersBySlug = [];
+$boardMembers = [];
+$committeeTypes = [];
+$committeeMembers = [];
+$committeeTenures = [];
+$committeeActiveTenure = [];
+$informationOfficer = $grievanceOfficer = $chairman = $ceo = null;
+
 // Get team members
 try {
     $db = getDB();
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
-    $topManagementMembers = $db->query("SELECT * FROM team_members WHERE category = 'top_management' AND is_active = 1 ORDER BY display_order")->fetchAll();
-    $managementMembers = $db->query("SELECT * FROM team_members WHERE category = 'management' AND is_active = 1 ORDER BY display_order")->fetchAll();
-    $staffMembers = $db->query("SELECT * FROM team_members WHERE category = 'staff' AND is_active = 1 ORDER BY display_order")->fetchAll();
-    $adminMembers = $db->query("SELECT * FROM team_members WHERE category = 'admin' AND is_active = 1 ORDER BY display_order")->fetchAll();
 
-    $committeeTypes = [];
-    $committeeMembers = [];
-    $committeeTenures = [];
-    $committeeActiveTenure = [];
+    try {
+        ensureTeamStaffGroupsTable($db);
+        $staffGroups = fetchTeamStaffGroups($db, true);
+        $memberStmt = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+        foreach ($staffGroups as $sg) {
+            $slug = (string)($sg['slug'] ?? '');
+            if ($slug === '') continue;
+            $memberStmt->execute([$slug]);
+            $staffMembersBySlug[$slug] = $memberStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        }
+    } catch (Throwable $e) {
+        $staffGroups = [];
+        $staffMembersBySlug = [];
+    }
+
     try {
         $committeeTypes = $db->query("SELECT id, name, name_np FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
         foreach ($committeeTypes as $_ct) {
@@ -88,13 +105,19 @@ try {
     $chairman = $db->query("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1")->fetch();
     $ceo = $db->query("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1")->fetch();
 } catch (Throwable $e) {
-    $boardMembers = $managementMembers = $staffMembers = $adminMembers = [];
-    $topManagementMembers = [];
-    $informationOfficer = $grievanceOfficer = null;
+    $boardMembers = [];
+    $staffGroups = [];
+    $staffMembersBySlug = [];
+    $informationOfficer = $grievanceOfficer = $chairman = $ceo = null;
     $committeeTypes = [];
     $committeeMembers = [];
     $committeeTenures = [];
     $committeeActiveTenure = [];
+}
+
+$hasAnyStaffMembers = false;
+foreach ($staffMembersBySlug as $_sm) {
+    if (!empty($_sm)) { $hasAnyStaffMembers = true; break; }
 }
 ?>
 
@@ -130,20 +153,16 @@ $teamCategories = [];
 if ($chairman || $ceo || $informationOfficer || $grievanceOfficer) {
     $teamCategories['contact-officers'] = isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी';
 }
-if (!empty($topManagementMembers)) {
-    $teamCategories['top-management'] = isEnglish() ? 'Top Management' : 'शीर्ष व्यवस्थापन';
-}
 if (!empty($boardMembers)) {
     $teamCategories['board'] = isEnglish() ? 'Board Committee' : 'सञ्चालक समिति';
 }
-if (!empty($managementMembers)) {
-    $teamCategories['management'] = isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली';
-}
-if (!empty($staffMembers)) {
-    $teamCategories['staff'] = isEnglish() ? 'Staff' : 'कर्मचारीहरू';
-}
-if (!empty($adminMembers)) {
-    $teamCategories['admin'] = isEnglish() ? 'Admin' : 'एडमिन';
+foreach ($staffGroups as $_sg) {
+    $slug = (string)($_sg['slug'] ?? '');
+    if ($slug === '' || empty($staffMembersBySlug[$slug])) continue;
+    $anchor = teamStaffGroupAnchor($slug);
+    $teamCategories[$anchor] = isEnglish()
+        ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
+        : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
 }
 if ($hasCommitteeFilters) {
     $teamCategories['committees'] = isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति';
@@ -205,63 +224,57 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
             <div class="row g-3 align-items-end justify-content-center">
                 <div class="col-md-4 col-lg-3">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamCatSelect">
+                        <i class="fas fa-layer-group me-1" aria-hidden="true"></i>
                         1. <?php echo isEnglish() ? 'Category' : 'श्रेणी'; ?>
                     </label>
-                    <div class="coop-select-wrap">
-                        <i class="fas fa-layer-group coop-select-icon"></i>
-                        <select id="teamCatSelect" class="form-select coop-select-field">
-                            <option value="all" <?php echo $viewCat === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All categories' : 'सबै श्रेणी'; ?></option>
-                            <?php foreach ($teamCategories as $catKey => $catLabel): ?>
-                            <option value="<?php echo htmlspecialchars($catKey); ?>" <?php echo $viewCat === $catKey ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($catLabel); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <select id="teamCatSelect" class="form-select team-filter-select">
+                        <option value="all" <?php echo $viewCat === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All categories' : 'सबै श्रेणी'; ?></option>
+                        <?php foreach ($teamCategories as $catKey => $catLabel): ?>
+                        <option value="<?php echo htmlspecialchars($catKey); ?>" <?php echo $viewCat === $catKey ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($catLabel); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4 col-lg-3" id="teamItemWrap" style="<?php echo $viewCat === 'committees' ? '' : 'display:none'; ?>">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamCmtSelect">
+                        <i class="fas fa-sitemap me-1" aria-hidden="true"></i>
                         2. <?php echo isEnglish() ? 'Item' : 'विवरण'; ?>
                     </label>
-                    <div class="coop-select-wrap">
-                        <i class="fas fa-sitemap coop-select-icon"></i>
-                        <select id="teamCmtSelect" class="form-select coop-select-field">
-                            <?php foreach ($committeeFilterButtons as $_cf): ?>
-                            <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($_cf['label']); ?>
-                            </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <select id="teamCmtSelect" class="form-select team-filter-select">
+                        <?php foreach ($committeeFilterButtons as $_cf): ?>
+                        <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($_cf['label']); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="col-md-4 col-lg-3" id="teamTenureWrap" style="<?php echo ($viewCat === 'committees' && !empty($viewTenures)) ? '' : 'display:none'; ?>">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
+                        <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i>
                         3. <?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
                     </label>
-                    <div class="coop-select-wrap">
-                        <i class="fas fa-calendar-alt coop-select-icon"></i>
-                        <select id="teamTenureSelect" class="form-select coop-select-field" <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
-                            <?php if (empty($viewTenures)): ?>
-                            <option value="0"><?php echo isEnglish() ? 'Latest / current' : 'हालको / पछिल्लो'; ?></option>
-                            <?php else: ?>
-                                <?php foreach ($viewTenures as $tn):
-                                    $tid = (int)$tn['id'];
-                                    $label = isEnglish()
-                                        ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
-                                        : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
-                                    $period = '';
-                                    if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
-                                        $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
-                                    }
-                                ?>
-                                <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
-                                    <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Latest)' : '(हालको)'; ?><?php endif; ?>
-                                </option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
+                    <select id="teamTenureSelect" class="form-select team-filter-select" <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
+                        <?php if (empty($viewTenures)): ?>
+                        <option value="0"><?php echo isEnglish() ? 'Latest / current' : 'हालको / पछिल्लो'; ?></option>
+                        <?php else: ?>
+                            <?php foreach ($viewTenures as $tn):
+                                $tid = (int)$tn['id'];
+                                $label = isEnglish()
+                                    ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
+                                    : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
+                                $period = '';
+                                if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
+                                    $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
+                                }
+                            ?>
+                            <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
+                                <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Latest)' : '(हालको)'; ?><?php endif; ?>
+                            </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
                 </div>
             </div>
             <p class="text-center text-muted small mt-3 mb-0">
@@ -276,9 +289,18 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
 .team-triple-filter{max-width:980px;margin:0 auto;padding:8px 4px 4px}
 .team-triple-title{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:var(--primary-color,#1a5f2a);margin-bottom:14px}
 .team-triple-title i{opacity:.85}
-.coop-select-wrap{position:relative;display:flex;align-items:center}
-.coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
-.coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff;min-height:44px}
+.team-filter-select{
+  border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);
+  border-radius:10px;
+  font-size:.93rem;
+  background-color:#fff;
+  min-height:44px;
+  padding:.5rem 2.25rem .5rem .85rem;
+}
+.team-filter-select:focus{
+  border-color:var(--primary-color,#1a5f2a);
+  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary-color,#1a5f2a) 18%,transparent);
+}
 </style>
 <?php endif; ?>
 
@@ -503,38 +525,55 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
 </section>
 <?php endif; ?>
 
-<!-- Management Team -->
-<?php if (!empty($topManagementMembers)): ?>
-<section id="top-management" class="team-section section-padding bg-light" data-filter="top-management">
+<!-- Management / Staff groups (dynamic from team_staff_groups) -->
+<?php
+$_staffSectionIdx = 0;
+foreach ($staffGroups as $_sg):
+    $slug = (string)($_sg['slug'] ?? '');
+    if ($slug === '') continue;
+    $members = $staffMembersBySlug[$slug] ?? [];
+    if (empty($members)) continue;
+    $anchor = teamStaffGroupAnchor($slug);
+    $title = isEnglish()
+        ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
+        : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
+    $useSmall = in_array($slug, ['staff', 'admin'], true) || count($members) > 8;
+    $bgClass = ($_staffSectionIdx % 2 === 0) ? 'bg-light' : '';
+    $_staffSectionIdx++;
+?>
+<section id="<?php echo htmlspecialchars($anchor); ?>" class="team-section section-padding <?php echo $bgClass; ?>" data-filter="<?php echo htmlspecialchars($anchor); ?>">
     <div class="container">
         <div class="section-header section-header-unified text-center">
-            <h2><?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?></h2>
-            <p><?php echo isEnglish() ? 'Our senior managers and executive employees.' : 'हाम्रा वरिष्ठ व्यवस्थापनका कर्मचारीहरू'; ?></p>
+            <h2><?php echo htmlspecialchars($title); ?></h2>
         </div>
 
         <div class="row justify-content-center">
-            <?php foreach ($topManagementMembers as $index => $member): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
-                <div class="team-card-circular">
-                    <div class="team-photo-circular">
-                        <?php if ($member['photo']): ?>
+            <?php foreach ($members as $index => $member): ?>
+            <div class="<?php echo $useSmall ? 'col-lg-2 col-md-3 col-sm-4 col-6' : 'col-lg-3 col-md-4 col-sm-6'; ?> mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
+                <div class="team-card-circular <?php echo $useSmall ? 'small' : ''; ?>">
+                    <div class="team-photo-circular <?php echo $useSmall ? 'small' : ''; ?>">
+                        <?php if (!empty($member['photo'])): ?>
                             <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
                         <?php else: ?>
                             <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
                         <?php endif; ?>
                     </div>
                     <div class="team-info-circular">
+                        <?php if ($useSmall): ?>
+                        <h6><?php echo e($member['name']); ?></h6>
+                        <?php else: ?>
                         <h5><?php echo e($member['name']); ?></h5>
-                        <?php if ($member['name_en']): ?>
+                        <?php if (!empty($member['name_en'])): ?>
                         <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
                         <?php endif; ?>
-                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                        <?php if ($member['phone'] || $member['email']): ?>
+                        <?php endif; ?>
+                        <span class="team-position-badge <?php echo $useSmall ? 'small' : ''; ?>"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                        <?php if (!$useSmall && (!empty($member['phone']) || !empty($member['email']))): ?>
                         <div class="team-contact-circular">
-                            <?php if ($member['phone']): ?>
+                            <?php if (!empty($member['phone'])): ?>
                                 <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
                             <?php endif; ?>
-                            <?php if ($member['email']): ?>
+                            <?php if (!empty($member['email'])): ?>
                                 <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
                             <?php endif; ?>
                         </div>
@@ -546,38 +585,7 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
         </div>
     </div>
 </section>
-<?php endif; ?>
-
-<?php if (!empty($managementMembers)): ?>
-<section id="management" class="team-section section-padding bg-light" data-filter="management">
-    <div class="container">
-        <div class="section-header section-header-unified text-center">
-            <h2>व्यवस्थापन टोली</h2>
-            <p>संस्थाको दैनिक सञ्चालन गर्ने टोली</p>
-        </div>
-
-        <div class="row justify-content-center">
-            <?php foreach ($managementMembers as $index => $member): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
-                <div class="team-card-circular">
-                    <div class="team-photo-circular">
-                        <?php if ($member['photo']): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h5><?php echo e($member['name']); ?></h5>
-                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
+<?php endforeach; ?>
 
 <!-- Committees viewer: one section + committee/tenure dropdowns -->
 <?php if ($hasCommitteeFilters && $viewCommittee): ?>
@@ -633,71 +641,7 @@ $focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'co
 </section>
 <?php endif; ?>
 
-<!-- Staff -->
-<?php if (!empty($staffMembers)): ?>
-<section id="staff" class="team-section section-padding" data-filter="staff">
-    <div class="container">
-        <div class="section-header section-header-unified text-center">
-            <h2>कर्मचारीहरू</h2>
-            <p>हाम्रो समर्पित कर्मचारी टोली</p>
-        </div>
-
-        <div class="row justify-content-center">
-            <?php foreach ($staffMembers as $index => $member): ?>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
-                <div class="team-card-circular small">
-                    <div class="team-photo-circular small">
-                        <?php if ($member['photo']): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h6><?php echo e($member['name']); ?></h6>
-                        <span class="team-position-badge small"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
-
-<!-- Admin Team -->
-<?php if (!empty($adminMembers)): ?>
-<section id="admin" class="team-section section-padding bg-light" data-filter="admin">
-    <div class="container">
-        <div class="section-header section-header-unified text-center">
-            <h2><?php echo isEnglish() ? 'Admin Team' : 'एडमिन टोली'; ?></h2>
-            <p><?php echo isEnglish() ? 'System and operations administration' : 'प्रणाली तथा सञ्चालन व्यवस्थापन गर्ने टोली'; ?></p>
-        </div>
-
-        <div class="row justify-content-center">
-            <?php foreach ($adminMembers as $index => $member): ?>
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
-                <div class="team-card-circular small">
-                    <div class="team-photo-circular small">
-                        <?php if ($member['photo']): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h6><?php echo e($member['name']); ?></h6>
-                        <span class="team-position-badge small"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
-
-<?php if (empty($boardMembers) && empty($managementMembers) && empty($staffMembers) && empty($adminMembers) && empty(array_filter($committeeMembers))): ?>
+<?php if (empty($boardMembers) && !$hasAnyStaffMembers && empty(array_filter($committeeMembers))): ?>
 <section class="section-padding">
     <div class="container">
         <div class="empty-state text-center py-5">

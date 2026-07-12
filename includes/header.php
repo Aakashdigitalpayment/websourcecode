@@ -89,12 +89,53 @@ $navCommittees = [];
 try {
     if ($db) {
         $navCommittees = $db->query(
-            "SELECT id, name, name_np FROM committee_types
+            "SELECT id, name, name_np, menu_category_id FROM committee_types
              WHERE is_active = 1 AND show_in_navbar = 1
              ORDER BY display_order, id"
         )->fetchAll();
     }
-} catch (Exception $e) { $navCommittees = []; }
+} catch (Exception $e) {
+    try {
+        if ($db) {
+            $navCommittees = $db->query(
+                "SELECT id, name, name_np FROM committee_types
+                 WHERE is_active = 1 AND show_in_navbar = 1
+                 ORDER BY display_order, id"
+            )->fetchAll();
+            foreach ($navCommittees as &$_ncRow) { $_ncRow['menu_category_id'] = null; }
+            unset($_ncRow);
+        }
+    } catch (Exception $e2) { $navCommittees = []; }
+}
+
+/* ── कर्मचारी वर्ग / समूह (team_staff_groups, show_in_nav) ── */
+$navStaffGroups = [];
+$navTeamMenuCategories = [];
+try {
+    require_once __DIR__ . '/team-staff-groups.php';
+    require_once __DIR__ . '/team-menu-categories.php';
+    if ($db) {
+        ensureTeamStaffGroupsTable($db);
+        ensureTeamMenuCategoriesTable($db);
+        foreach (fetchTeamStaffGroups($db, true) as $_sg) {
+            if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
+                $navStaffGroups[] = $_sg;
+            }
+        }
+        $navTeamMenuCategories = fetchTeamMenuCategories($db, true);
+    }
+} catch (Throwable $e) {
+    $navStaffGroups = [];
+    $navTeamMenuCategories = [];
+}
+
+/* Fallback: seeded categories missing (DB issue) — keep old 2 parents */
+if (empty($navTeamMenuCategories)) {
+    $navTeamMenuCategories = [
+        ['id' => 0, 'slug' => 'management', 'name_np' => 'व्यवस्थापन', 'name_en' => 'Management', 'icon' => 'fas fa-briefcase', 'source_type' => 'staff', 'include_contact_officers' => 1, 'include_board' => 0],
+        ['id' => 0, 'slug' => 'committees', 'name_np' => 'समिति / उपसमिति', 'name_en' => 'Committees / Subcommittees', 'icon' => 'fas fa-sitemap', 'source_type' => 'committees', 'include_contact_officers' => 0, 'include_board' => 1],
+    ];
+}
 
 /* ── Active cooperative programs count (for notices dropdown badge) ── */
 $activeProgramCount = 0;
@@ -1157,76 +1198,86 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                     <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
                         <a href="<?php echo SITE_URL; ?>team.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="users"></i><span class="mnav-main-label"><?php echo $L['team']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
+                            <?php foreach ($navTeamMenuCategories as $_tmc):
+                                $_tmcId = (int)($_tmc['id'] ?? 0);
+                                $_tmcLabel = isEnglish()
+                                    ? (($_tmc['name_en'] ?: $_tmc['name_np']) ?: '')
+                                    : (($_tmc['name_np'] ?: $_tmc['name_en']) ?: '');
+                                $_tmcIcon = (string)($_tmc['icon'] ?? 'fas fa-folder') ?: 'fas fa-folder';
+                                $_tmcSource = (string)($_tmc['source_type'] ?? 'staff');
+                            ?>
                             <li class="has-sub">
                                 <a href="#" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-briefcase"></i>
-                                    <span><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></span>
+                                    <i class="<?php echo htmlspecialchars($_tmcIcon); ?>"></i>
+                                    <span><?php echo htmlspecialchars($_tmcLabel); ?></span>
                                     <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
                                 </a>
                                 <ul class="sub-menu">
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#contact-officers">
-                                            <i class="fas fa-id-card-clip"></i>
-                                            <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#top-management">
-                                            <i class="fas fa-user-shield"></i>
-                                            <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#management">
-                                            <i class="fas fa-user-tie"></i>
-                                            <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#staff">
-                                            <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>
-                                            <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#admin">
-                                            <i class="fas fa-user-shield"></i>
-                                            <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="has-sub">
-                                <a href="#" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-sitemap"></i>
-                                    <span><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></span>
-                                    <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
-                                </a>
-                                <ul class="sub-menu">
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php#board">
-                                            <i class="fas fa-landmark"></i>
-                                            <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
-                                        </a>
-                                    </li>
-                                    <?php foreach ($navCommittees as $_nc): ?>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>team.php?cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees">
-                                            <i class="fas fa-users-gear"></i>
-                                            <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
-                                        </a>
-                                    </li>
-                                    <?php endforeach; ?>
-                                    <?php if (empty($navCommittees)): ?>
-                                    <li>
-                                        <a href="<?php echo SITE_URL; ?>committees.php">
-                                            <i class="fas fa-sitemap"></i>
-                                            <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?>
-                                        </a>
-                                    </li>
+                                    <?php if ($_tmcSource === 'staff'): ?>
+                                        <?php if (!empty($_tmc['include_contact_officers'])): ?>
+                                        <li>
+                                            <a href="<?php echo SITE_URL; ?>team.php#contact-officers">
+                                                <i class="fas fa-id-card-clip"></i>
+                                                <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
+                                            </a>
+                                        </li>
+                                        <?php endif; ?>
+                                        <?php foreach ($navStaffGroups as $_sg):
+                                            if ($_tmcId > 0 && (int)($_sg['menu_category_id'] ?? 0) !== $_tmcId) continue;
+                                            $_slug = (string)$_sg['slug'];
+                                            $_anchor = teamStaffGroupAnchor($_slug);
+                                            $_label = isEnglish()
+                                                ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $_slug)
+                                                : (($_sg['name_np'] ?: $_sg['name_en']) ?: $_slug);
+                                            $_icon = 'fas fa-user-tie';
+                                            if ($_slug === 'top_management' || $_slug === 'admin') $_icon = 'fas fa-user-shield';
+                                            elseif ($_slug === 'staff') $_icon = 'fas fa-users';
+                                        ?>
+                                        <li>
+                                            <a href="<?php echo SITE_URL; ?>team.php#<?php echo htmlspecialchars($_anchor); ?>">
+                                                <i class="<?php echo $_icon; ?>"></i>
+                                                <?php echo htmlspecialchars($_label); ?>
+                                            </a>
+                                        </li>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php if (!empty($_tmc['include_board'])): ?>
+                                        <li>
+                                            <a href="<?php echo SITE_URL; ?>team.php#board">
+                                                <i class="fas fa-landmark"></i>
+                                                <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
+                                            </a>
+                                        </li>
+                                        <?php endif; ?>
+                                        <?php
+                                        $_catCommittees = [];
+                                        foreach ($navCommittees as $_nc) {
+                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
+                                            if ($_tmcId <= 0 || $ncid === 0 || $ncid === $_tmcId) {
+                                                $_catCommittees[] = $_nc;
+                                            }
+                                        }
+                                        foreach ($_catCommittees as $_nc):
+                                        ?>
+                                        <li>
+                                            <a href="<?php echo SITE_URL; ?>team.php?cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees">
+                                                <i class="fas fa-users-gear"></i>
+                                                <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
+                                            </a>
+                                        </li>
+                                        <?php endforeach; ?>
+                                        <?php if (empty($_catCommittees)): ?>
+                                        <li>
+                                            <a href="<?php echo SITE_URL; ?>committees.php">
+                                                <i class="fas fa-sitemap"></i>
+                                                <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?>
+                                            </a>
+                                        </li>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </ul>
                             </li>
+                            <?php endforeach; ?>
                             <li>
                                 <a href="<?php echo SITE_URL; ?>team.php">
                                     <i class="fas fa-th-list"></i>
@@ -1510,21 +1561,57 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li class="has-dropdown <?php echo in_array($currentPage, ['team', 'committees']) ? 'active' : ''; ?>">
                                 <a href="<?php echo SITE_URL; ?>team.php"><?php echo $L['team']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
-                                    <li class="dropdown-header"><?php echo isEnglish() ? 'Management' : 'व्यवस्थापन'; ?></li>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#top-management"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#management"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#staff"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारी'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#admin"><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?></a></li>
+                                    <?php
+                                    $_deskCatIdx = 0;
+                                    foreach ($navTeamMenuCategories as $_tmc):
+                                        $_tmcId = (int)($_tmc['id'] ?? 0);
+                                        $_tmcLabel = isEnglish()
+                                            ? (($_tmc['name_en'] ?: $_tmc['name_np']) ?: '')
+                                            : (($_tmc['name_np'] ?: $_tmc['name_en']) ?: '');
+                                        $_tmcSource = (string)($_tmc['source_type'] ?? 'staff');
+                                        if ($_deskCatIdx > 0):
+                                    ?>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li class="dropdown-header"><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></li>
+                                    <?php endif; $_deskCatIdx++; ?>
+                                    <li class="dropdown-header"><?php echo htmlspecialchars($_tmcLabel); ?></li>
+                                    <?php if ($_tmcSource === 'staff'): ?>
+                                        <?php if (!empty($_tmc['include_contact_officers'])): ?>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                                        <?php endif; ?>
+                                        <?php foreach ($navStaffGroups as $_sg):
+                                            if ($_tmcId > 0 && (int)($_sg['menu_category_id'] ?? 0) !== $_tmcId) continue;
+                                            $_slug = (string)$_sg['slug'];
+                                            $_anchor = teamStaffGroupAnchor($_slug);
+                                            $_label = isEnglish()
+                                                ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $_slug)
+                                                : (($_sg['name_np'] ?: $_sg['name_en']) ?: $_slug);
+                                            $_icon = 'fas fa-user-tie';
+                                            if ($_slug === 'top_management' || $_slug === 'admin') $_icon = 'fas fa-user-shield';
+                                            elseif ($_slug === 'staff') $_icon = 'fas fa-users';
+                                        ?>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php#<?php echo htmlspecialchars($_anchor); ?>"><i class="<?php echo $_icon; ?>"></i> <?php echo htmlspecialchars($_label); ?></a></li>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <?php if (!empty($_tmc['include_board'])): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
-                                    <?php foreach ($navCommittees as $_nc): ?>
-                                        <li><a href="<?php echo SITE_URL; ?>team.php?cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
-                                    <?php endforeach; ?>
-                                    <?php if (empty($navCommittees)): ?>
-                                        <li><a href="<?php echo SITE_URL; ?>committees.php"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?></a></li>
+                                        <?php endif; ?>
+                                        <?php
+                                        $_catCommittees = [];
+                                        foreach ($navCommittees as $_nc) {
+                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
+                                            if ($_tmcId <= 0 || $ncid === 0 || $ncid === $_tmcId) {
+                                                $_catCommittees[] = $_nc;
+                                            }
+                                        }
+                                        foreach ($_catCommittees as $_nc):
+                                        ?>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                        <?php endforeach; ?>
+                                        <?php if (empty($_catCommittees)): ?>
+                                    <li><a href="<?php echo SITE_URL; ?>committees.php"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'All Committees' : 'सबै समिति'; ?></a></li>
+                                        <?php endif; ?>
                                     <?php endif; ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="has-dropdown">

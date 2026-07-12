@@ -7,6 +7,8 @@ if (!in_array($teamListSection, ['governance', 'karmachari'], true)) {
     $teamListSection = 'governance';
 }
 require_once __DIR__ . '/../includes/election-tables.php';
+require_once __DIR__ . '/../includes/team-staff-groups.php';
+require_once __DIR__ . '/../includes/team-menu-categories.php';
 /**
  * टिम सदस्य व्यवस्थापन — Team Members Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
@@ -68,6 +70,8 @@ try {
         show_in_navbar TINYINT(1) DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    ensureTeamStaffGroupsTable($_db_chk);
+    ensureTeamMenuCategoriesTable($_db_chk);
 } catch (\Throwable $e) { /* best-effort */ }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -153,12 +157,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = $__t('स्थिति परिवर्तन भयो।', 'Status changed.');
                 break;
 
-            /* समिति समूह (service category जस्तै) — map गर्न मिल्ने group बनाउने */
+            /* समूह CRUD — governance: committee_types | karmachari: team_staff_groups */
             case 'group_add':
             case 'group_edit':
-                if ($teamListSection !== 'governance') {
-                    throw new RuntimeException('Groups only on governance page');
-                }
                 $gid = (int)($_POST['group_id'] ?? 0);
                 $gNameNp = clean_text($_POST['group_name_np'] ?? '');
                 $gNameEn = clean_text($_POST['group_name_en'] ?? '');
@@ -169,27 +170,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($gNameNp === '' && $gNameEn === '') {
                     throw new InvalidArgumentException('Group name required');
                 }
-                if (($_POST['action'] ?? '') === 'group_add') {
-                    $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar) VALUES (?,?,?,?,?)")
-                       ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav]);
-                    $success = $__t('समिति समूह थपियो। अब सदस्य फारमको वर्गमा map गर्न सकिन्छ।', 'Committee group added. You can map members to it in the form.');
+                if ($teamListSection === 'governance') {
+                    if (($_POST['action'] ?? '') === 'group_add') {
+                        $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar) VALUES (?,?,?,?,?)")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav]);
+                        $success = $__t('समिति समूह थपियो। अब सदस्य फारमको वर्गमा map गर्न सकिन्छ।', 'Committee group added. You can map members to it in the form.');
+                    } else {
+                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=? WHERE id=?")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gid]);
+                        $success = $__t('समिति समूह अपडेट भयो।', 'Committee group updated.');
+                    }
+                } elseif ($teamListSection === 'karmachari') {
+                    ensureTeamStaffGroupsTable($db);
+                    ensureTeamMenuCategoriesTable($db);
+                    $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
+                    if (($_POST['action'] ?? '') === 'group_add') {
+                        $baseSlug = teamStaffGroupSlugify($gNameEn !== '' ? $gNameEn : $gNameNp, 'group');
+                        $slug = $baseSlug;
+                        $n = 2;
+                        while (true) {
+                            $chk = $db->prepare('SELECT id FROM team_staff_groups WHERE slug=? LIMIT 1');
+                            $chk->execute([$slug]);
+                            if (!$chk->fetch()) break;
+                            $slug = substr($baseSlug, 0, 45) . '_' . $n;
+                            $n++;
+                        }
+                        $db->prepare('INSERT INTO team_staff_groups (slug, name_np, name_en, display_order, is_active, show_in_nav, menu_category_id) VALUES (?,?,?,?,?,?,?)')
+                           ->execute([$slug, $gNameNp, $gNameEn !== '' ? $gNameEn : $gName, $gOrder, $gActive, $gNav, $gMenuCat]);
+                        $success = $__t('वर्ग/समूह थपियो। अब सदस्य फारममा map गर्न सकिन्छ।', 'Category/group added. You can map members in the form.');
+                    } else {
+                        $db->prepare('UPDATE team_staff_groups SET name_np=?, name_en=?, display_order=?, is_active=?, show_in_nav=?, menu_category_id=? WHERE id=?')
+                           ->execute([$gNameNp, $gNameEn !== '' ? $gNameEn : $gName, $gOrder, $gActive, $gNav, $gMenuCat, $gid]);
+                        $success = $__t('वर्ग/समूह अपडेट भयो।', 'Category/group updated.');
+                    }
                 } else {
-                    $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=? WHERE id=?")
-                       ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gid]);
-                    $success = $__t('समिति समूह अपडेट भयो।', 'Committee group updated.');
+                    throw new RuntimeException('Invalid section for groups');
+                }
+                break;
+
+            /* मानवीय श्रोत मेनुका parent श्रेणी (व्यवस्थापन, समिति/उपसमिति, …) */
+            case 'menu_cat_add':
+            case 'menu_cat_edit':
+                ensureTeamMenuCategoriesTable($db);
+                $mid = (int)($_POST['menu_cat_id'] ?? 0);
+                $mNameNp = clean_text($_POST['menu_name_np'] ?? '');
+                $mNameEn = clean_text($_POST['menu_name_en'] ?? '');
+                $mIcon = clean_text($_POST['menu_icon'] ?? 'fas fa-folder', 80) ?: 'fas fa-folder';
+                $mSource = in_array($_POST['menu_source_type'] ?? '', ['staff', 'committees'], true)
+                    ? $_POST['menu_source_type'] : 'staff';
+                $mOrder = (int)($_POST['menu_order'] ?? 0);
+                $mActive = isset($_POST['menu_is_active']) ? 1 : 0;
+                $mNav = isset($_POST['menu_show_in_nav']) ? 1 : 0;
+                $mContact = isset($_POST['menu_include_contact']) ? 1 : 0;
+                $mBoard = isset($_POST['menu_include_board']) ? 1 : 0;
+                if ($mNameNp === '' && $mNameEn === '') {
+                    throw new InvalidArgumentException('Menu category name required');
+                }
+                if (($_POST['action'] ?? '') === 'menu_cat_add') {
+                    $baseSlug = teamMenuCategorySlugify($mNameEn !== '' ? $mNameEn : $mNameNp, 'menu');
+                    $slug = $baseSlug;
+                    $n = 2;
+                    while (true) {
+                        $chk = $db->prepare('SELECT id FROM team_menu_categories WHERE slug=? LIMIT 1');
+                        $chk->execute([$slug]);
+                        if (!$chk->fetch()) break;
+                        $slug = substr($baseSlug, 0, 45) . '_' . $n;
+                        $n++;
+                    }
+                    $db->prepare('INSERT INTO team_menu_categories (slug, name_np, name_en, icon, source_type, include_contact_officers, include_board, display_order, is_active, show_in_nav) VALUES (?,?,?,?,?,?,?,?,?,?)')
+                       ->execute([$slug, $mNameNp, $mNameEn !== '' ? $mNameEn : $mNameNp, $mIcon, $mSource, $mContact, $mBoard, $mOrder, $mActive, $mNav]);
+                    $success = $__t('मेनु श्रेणी थपियो। अब सार्वजनिक मानवीय श्रोत मेनुमा देखिन्छ।', 'Menu category added. It will appear under Human Resources.');
+                } else {
+                    $db->prepare('UPDATE team_menu_categories SET name_np=?, name_en=?, icon=?, source_type=?, include_contact_officers=?, include_board=?, display_order=?, is_active=?, show_in_nav=? WHERE id=?')
+                       ->execute([$mNameNp, $mNameEn !== '' ? $mNameEn : $mNameNp, $mIcon, $mSource, $mContact, $mBoard, $mOrder, $mActive, $mNav, $mid]);
+                    $success = $__t('मेनु श्रेणी अपडेट भयो।', 'Menu category updated.');
+                }
+                break;
+
+            case 'menu_cat_delete':
+                ensureTeamMenuCategoriesTable($db);
+                $mid = (int)($_POST['menu_cat_id'] ?? 0);
+                if ($mid > 0) {
+                    try {
+                        $db->prepare('UPDATE team_staff_groups SET menu_category_id = NULL WHERE menu_category_id=?')->execute([$mid]);
+                    } catch (Throwable $e) {}
+                    try {
+                        $db->prepare('UPDATE committee_types SET menu_category_id = NULL WHERE menu_category_id=?')->execute([$mid]);
+                    } catch (Throwable $e) {}
+                    $db->prepare('DELETE FROM team_menu_categories WHERE id=?')->execute([$mid]);
+                    $success = $__t('मेनु श्रेणी हटाइयो।', 'Menu category deleted.');
                 }
                 break;
 
             case 'group_delete':
-                if ($teamListSection !== 'governance') {
-                    throw new RuntimeException('Groups only on governance page');
-                }
                 $gid = (int)($_POST['group_id'] ?? 0);
-                if ($gid > 0) {
+                if ($gid <= 0) break;
+                if ($teamListSection === 'governance') {
                     $slug = 'cmt_' . $gid;
                     $db->prepare("UPDATE team_members SET category='board' WHERE category=?")->execute([$slug]);
                     $db->prepare("DELETE FROM committee_types WHERE id=?")->execute([$gid]);
                     $success = $__t('समिति समूह हटाइयो। त्यसमा map भएका सदस्य सञ्चालक समितिमा सारियो।', 'Group deleted. Mapped members moved to Board.');
+                } elseif ($teamListSection === 'karmachari') {
+                    ensureTeamStaffGroupsTable($db);
+                    $st = $db->prepare('SELECT slug FROM team_staff_groups WHERE id=? LIMIT 1');
+                    $st->execute([$gid]);
+                    $row = $st->fetch(PDO::FETCH_ASSOC);
+                    if ($row) {
+                        $oldSlug = (string)$row['slug'];
+                        $fallback = 'staff';
+                        $fb = $db->prepare('SELECT slug FROM team_staff_groups WHERE id != ? AND is_active = 1 ORDER BY display_order, id LIMIT 1');
+                        $fb->execute([$gid]);
+                        $fbRow = $fb->fetch(PDO::FETCH_ASSOC);
+                        if ($fbRow && !empty($fbRow['slug'])) {
+                            $fallback = (string)$fbRow['slug'];
+                        }
+                        $db->prepare('UPDATE team_members SET category=? WHERE category=?')->execute([$fallback, $oldSlug]);
+                        $db->prepare('DELETE FROM team_staff_groups WHERE id=?')->execute([$gid]);
+                        $success = $__t('वर्ग/समूह हटाइयो। map भएका सदस्य अर्को सक्रिय वर्गमा सारियो।', 'Group deleted. Mapped members moved to another active category.');
+                    }
+                } else {
+                    throw new RuntimeException('Invalid section for groups');
                 }
                 break;
         }
@@ -199,37 +299,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $db = getDB();
+$teamAdminSelf = ($teamListSection === 'karmachari') ? 'team-karmachari.php' : 'team.php';
 
 $editGroup = null;
-if ($teamListSection === 'governance' && isset($_GET['edit_group'])) {
+$editMenuCat = null;
+$allStaffGroups = [];
+$allMenuCategories = [];
+try {
+    ensureTeamStaffGroupsTable($db);
+    ensureTeamMenuCategoriesTable($db);
+    $allStaffGroups = fetchTeamStaffGroups($db, false);
+    $allMenuCategories = fetchAllTeamMenuCategories($db);
+} catch (Throwable $e) {
+    $allStaffGroups = [];
+    $allMenuCategories = [];
+}
+
+$staffMenuCategories = array_values(array_filter($allMenuCategories, static function ($c) {
+    return ($c['source_type'] ?? '') === 'staff';
+}));
+
+if (isset($_GET['edit_group'])) {
     try {
-        $st = $db->prepare("SELECT * FROM committee_types WHERE id=? LIMIT 1");
-        $st->execute([(int)$_GET['edit_group']]);
-        $editGroup = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($teamListSection === 'governance') {
+            $st = $db->prepare("SELECT * FROM committee_types WHERE id=? LIMIT 1");
+            $st->execute([(int)$_GET['edit_group']]);
+            $editGroup = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        } elseif ($teamListSection === 'karmachari') {
+            $st = $db->prepare('SELECT * FROM team_staff_groups WHERE id=? LIMIT 1');
+            $st->execute([(int)$_GET['edit_group']]);
+            $editGroup = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+            if ($editGroup) {
+                $editGroup['name'] = $editGroup['name_en'] ?? '';
+                $editGroup['show_in_navbar'] = $editGroup['show_in_nav'] ?? 0;
+            }
+        }
     } catch (Throwable $e) {
         $editGroup = null;
     }
 }
 
-$activeTeamTab = $_GET['tab'] ?? 'list';
-if (!in_array($activeTeamTab, ['list', 'form', 'groups'], true)) {
-    $activeTeamTab = 'list';
+if (isset($_GET['edit_menu'])) {
+    try {
+        $st = $db->prepare('SELECT * FROM team_menu_categories WHERE id=? LIMIT 1');
+        $st->execute([(int)$_GET['edit_menu']]);
+        $editMenuCat = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (Throwable $e) {
+        $editMenuCat = null;
+    }
 }
-if ($teamListSection !== 'governance' && $activeTeamTab === 'groups') {
+
+$activeTeamTab = $_GET['tab'] ?? 'list';
+if (!in_array($activeTeamTab, ['list', 'form', 'groups', 'menu'], true)) {
     $activeTeamTab = 'list';
 }
 if ($editGroup) {
     $activeTeamTab = 'groups';
 }
+if ($editMenuCat) {
+    $activeTeamTab = 'menu';
+}
+
 $cats = [
     'board' => $__t('सञ्चालक समिति', 'Board Committee'),
     'leadership' => $__t('नेतृत्व', 'Leadership'),
-    'top_management' => $__t('शीर्ष व्यवस्थापन टोली', 'Top Management Team'),
-    'management' => $__t('व्यवस्थापन', 'Management'),
-    'staff' => $__t('कर्मचारी', 'Staff'),
-    'admin' => $__t('एडमिन', 'Admin')
 ];
-$catColors = ['board' => 'var(--primary-color)', 'leadership' => 'var(--warning)', 'top_management' => 'var(--warning)', 'management' => 'var(--secondary-color)', 'staff' => 'var(--text-secondary)', 'admin' => 'var(--info, #0369a1)'];
+$catColors = ['board' => 'var(--primary-color)', 'leadership' => 'var(--warning)'];
+$palette = ['var(--warning)', 'var(--secondary-color)', 'var(--text-secondary)', 'var(--info, #0369a1)', 'var(--primary-light)'];
+foreach ($allStaffGroups as $i => $sg) {
+    $slug = (string)($sg['slug'] ?? '');
+    if ($slug === '') continue;
+    $cats[$slug] = isEnglish()
+        ? (($sg['name_en'] ?: $sg['name_np']) ?: $slug)
+        : (($sg['name_np'] ?: $sg['name_en']) ?: $slug);
+    $catColors[$slug] = $palette[$i % count($palette)];
+}
 
 $extraTypes = [];
 $allCommitteeGroups = [];
@@ -245,7 +389,7 @@ try {
     $allCommitteeGroups = $db->query("SELECT * FROM committee_types ORDER BY display_order, id")->fetchAll();
 } catch (\Throwable $e) { /* committee_types छैन */ }
 
-/* सूची: governance = board + समिति (cmt_*), karmachari = शीर्ष व्यवस्थापन + व्यवस्थापन + कर्मचारी + एडमिन */
+/* सूची */
 if ($teamListSection === 'governance') {
     $govCategoryList = ['board'];
     foreach ($extraTypes as $ct) {
@@ -256,8 +400,16 @@ if ($teamListSection === 'governance') {
     $stTeam->execute($govCategoryList);
     $team = $stTeam->fetchAll();
 } else {
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ('top_management','management','staff','admin') ORDER BY category, display_order, id DESC");
-    $stTeam->execute();
+    $staffSlugs = [];
+    foreach ($allStaffGroups as $sg) {
+        if (!empty($sg['slug'])) $staffSlugs[] = (string)$sg['slug'];
+    }
+    if (empty($staffSlugs)) {
+        $staffSlugs = ['top_management', 'management', 'staff', 'admin'];
+    }
+    $ph = implode(',', array_fill(0, count($staffSlugs), '?'));
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC");
+    $stTeam->execute($staffSlugs);
     $team = $stTeam->fetchAll();
 }
 
@@ -265,41 +417,42 @@ $tmPart = adminPartitionRowsByIsActive($team);
 $teamLive = $tmPart['live'];
 $teamArch = $tmPart['archived'];
 
-/* फारम dropdown: यो पृष्ठ अनुसार मात्र वर्ग देखाउने */
+/* फारम dropdown */
 $catsForm = [];
+$catOptgroups = [];
 if ($teamListSection === 'governance') {
     $catsForm['board'] = $cats['board'];
     foreach ($extraTypes as $ct) {
         $slug = 'cmt_' . (int)$ct['id'];
-        if (isset($cats[$slug])) {
-            $catsForm[$slug] = $cats[$slug];
-        }
+        if (isset($cats[$slug])) $catsForm[$slug] = $cats[$slug];
     }
-} else {
-    $catsForm['top_management'] = $cats['top_management'];
-    $catsForm['management'] = $cats['management'];
-    $catsForm['staff'] = $cats['staff'];
-    $catsForm['admin'] = $cats['admin'];
-}
-
-$catOptgroups = [];
-if ($teamListSection === 'governance') {
     $catOptgroups[isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'] = ['board' => $catsForm['board'] ?? $cats['board']];
     $committeeOptions = [];
     foreach ($catsForm as $slug => $label) {
-        if (strpos($slug, 'cmt_') === 0) {
-            $committeeOptions[$slug] = $label;
-        }
+        if (strpos($slug, 'cmt_') === 0) $committeeOptions[$slug] = $label;
     }
     if (!empty($committeeOptions)) {
         $catOptgroups[isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'] = $committeeOptions;
     }
 } else {
-    $catOptgroups[isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'] = ['top_management' => $catsForm['top_management'] ?? $cats['top_management']];
-    $catOptgroups[isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'] = ['management' => $catsForm['management'] ?? $cats['management']];
-    $catOptgroups[isEnglish() ? 'Staff' : 'कर्मचारी'] = ['staff' => $catsForm['staff'] ?? $cats['staff']];
-    if (!isset($catOptgroups[isEnglish() ? 'Admin Team' : 'एडमिन टोली'])) {
-        $catOptgroups[isEnglish() ? 'Admin Team' : 'एडमिन टोली'] = ['admin' => $catsForm['admin'] ?? $cats['admin']];
+    foreach ($allStaffGroups as $sg) {
+        if (empty($sg['is_active'])) continue;
+        $slug = (string)($sg['slug'] ?? '');
+        if ($slug === '' || !isset($cats[$slug])) continue;
+        $catsForm[$slug] = $cats[$slug];
+        $grpLabel = $cats[$slug];
+        $catOptgroups[$grpLabel] = [$slug => $cats[$slug]];
+    }
+    if (empty($catsForm)) {
+        $catsForm = [
+            'top_management' => $__t('शीर्ष व्यवस्थापन टोली', 'Top Management Team'),
+            'management' => $__t('व्यवस्थापन', 'Management'),
+            'staff' => $__t('कर्मचारी', 'Staff'),
+            'admin' => $__t('एडमिन', 'Admin'),
+        ];
+        foreach ($catsForm as $slug => $label) {
+            $catOptgroups[$label] = [$slug => $label];
+        }
     }
 }
 
@@ -340,14 +493,22 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
             <i class="fas fa-plus-circle me-2"></i><span id="teamFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
-    <?php if ($teamListSection === 'governance'): ?>
+    <?php if ($teamListSection === 'governance' || $teamListSection === 'karmachari'): ?>
     <li class="nav-item">
         <button class="nav-link <?php echo $activeTeamTab === 'groups' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-groups" id="team-groups-btn">
-            <i class="fas fa-layer-group me-2"></i><?php echo $__t('समिति समूह', 'Committee Groups'); ?>
-            <span class="badge tm-tab-count ms-1"><?php echo count($allCommitteeGroups); ?></span>
+            <i class="fas fa-layer-group me-2"></i><?php echo $teamListSection === 'karmachari'
+                ? $__t('वर्ग / समूह', 'Category / Groups')
+                : $__t('समिति समूह', 'Committee Groups'); ?>
+            <span class="badge tm-tab-count ms-1"><?php echo $teamListSection === 'karmachari' ? count($allStaffGroups) : count($allCommitteeGroups); ?></span>
         </button>
     </li>
     <?php endif; ?>
+    <li class="nav-item">
+        <button class="nav-link <?php echo $activeTeamTab === 'menu' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-menu" id="team-menu-btn">
+            <i class="fas fa-sitemap me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
+            <span class="badge tm-tab-count ms-1"><?php echo count($allMenuCategories); ?></span>
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content">
@@ -610,7 +771,9 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('वर्ग / समूह', 'Category / Group'); ?></label>
                             <div class="form-text tm-meta-muted mb-2">
                                 <?php if ($teamListSection === 'karmachari'): ?>
-                                    <?php echo $__t('शीर्ष व्यवस्थापन, व्यवस्थापन, कर्मचारी, एडमिन।', 'Top Management, Management, Staff, Admin.'); ?>
+                                    <?php echo $__t('वर्गहरू:', 'Groups:'); ?>
+                                    <a href="#team-groups" onclick="document.getElementById('team-groups-btn')?.click(); return false;"><?php echo $__t('वर्ग / समूह ट्याब', 'Category / Groups tab'); ?></a>
+                                    <?php echo $__t(' बाट थप्न/सम्पादन गर्न सकिन्छ (पद मास्टर जस्तै)।', ' — add/edit like Post Master.'); ?>
                                 <?php else: ?>
                                     <?php echo $__t('सञ्चालक समिति वा समिति समूह। नयाँ समूह:', 'Board or a committee group. New groups:'); ?>
                                     <a href="#team-groups" onclick="document.getElementById('team-groups-btn')?.click(); return false;"><?php echo $__t('समिति समूह ट्याब', 'Committee Groups tab'); ?></a>
@@ -618,7 +781,9 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </div>
                             <select name="category" id="tmf_cat" class="form-select admin-fancy-input">
                                 <?php
-                                $_defCat = $teamListSection === 'karmachari' ? 'management' : 'board';
+                                $_defCat = $teamListSection === 'karmachari'
+                                    ? (array_key_first($catsForm) ?: 'management')
+                                    : 'board';
                                 foreach ($catOptgroups as $_groupLabel => $_options): ?>
                                     <optgroup label="<?php echo htmlspecialchars($_groupLabel); ?>">
                                         <?php foreach ($_options as $_slug => $_lbl): ?>
@@ -689,7 +854,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     </div>
 
     <?php if ($teamListSection === 'governance'): ?>
-    <!-- ══ TAB: समिति समूह (map categories) ══ -->
+    <!-- ══ TAB: समिति समूह ══ -->
     <div class="tab-pane fade <?php echo $activeTeamTab === 'groups' ? 'show active' : ''; ?>" id="team-groups">
         <div class="card-body">
             <div class="alert alert-info py-2 mb-3 small">
@@ -706,7 +871,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                     <strong><?php echo $editGroup ? $__t('समूह सम्पादन', 'Edit Group') : $__t('नयाँ समिति समूह', 'Add Committee Group'); ?></strong>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="team.php?tab=groups<?php echo $editGroup ? '&edit_group='.(int)$editGroup['id'] : ''; ?>">
+                    <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups<?php echo $editGroup ? '&edit_group='.(int)$editGroup['id'] : ''; ?>">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <input type="hidden" name="action" value="<?php echo $editGroup ? 'group_edit' : 'group_add'; ?>">
                         <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
@@ -744,7 +909,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <i class="fas fa-save me-1"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                             </button>
                             <?php if ($editGroup): ?>
-                            <a href="team.php?tab=groups" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
                             <?php endif; ?>
                         </div>
                     </form>
@@ -781,7 +946,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </span>
                         </td>
                         <td class="text-center">
-                            <a href="team.php?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
                             <a href="committees.php?tab=tenures&type=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-outline-secondary me-1" title="<?php echo $__t('कार्यकाल', 'Tenures'); ?>"><i class="fas fa-calendar-alt"></i></a>
                             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो समूह हटाउने?', 'Delete this group?')); ?>')">
                                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
@@ -797,7 +962,266 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
             <?php endif; ?>
         </div>
     </div>
+    <?php elseif ($teamListSection === 'karmachari'): ?>
+    <!-- ══ TAB: कर्मचारी वर्ग / समूह (पद मास्टर जस्तै) ══ -->
+    <div class="tab-pane fade <?php echo $activeTeamTab === 'groups' ? 'show active' : ''; ?>" id="team-groups">
+        <div class="card-body">
+            <div class="alert alert-info py-2 mb-3 small">
+                <i class="fas fa-info-circle me-1"></i>
+                <?php echo $__t(
+                    'यो वर्ग/समूह सदस्य फारमको “वर्ग / समूह” dropdown मा आउँछ। पद मास्टरबाट पद छुट्टै थपिन्छ; यहाँ चाहिँ कर्मचारीलाई कुन टोलीमा राख्ने भन्ने समूह manage हुन्छ।',
+                    'These groups appear in the member form Category/Group dropdown. Designations (posts) stay in Post Master; here you manage which staff team bucket a member belongs to.'
+                ); ?>
+            </div>
+
+            <div class="card border mb-4">
+                <div class="card-header bg-light py-2">
+                    <strong><?php echo $editGroup ? $__t('वर्ग सम्पादन', 'Edit Category') : $__t('नयाँ वर्ग / समूह', 'Add Category / Group'); ?></strong>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups<?php echo $editGroup ? '&edit_group='.(int)$editGroup['id'] : ''; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="action" value="<?php echo $editGroup ? 'group_edit' : 'group_add'; ?>">
+                        <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="group_name_np" class="form-control" required
+                                       value="<?php echo htmlspecialchars($editGroup['name_np'] ?? ''); ?>"
+                                       placeholder="<?php echo $__t('जस्तै: व्यवस्थापन', 'e.g. Management'); ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="group_name_en" class="form-control"
+                                       value="<?php echo htmlspecialchars($editGroup['name_en'] ?? ($editGroup['name'] ?? '')); ?>"
+                                       placeholder="e.g. Management">
+                                <small class="text-muted"><?php echo $__t('नयाँ समूहको slug अंग्रेजी नामबाट बन्छ।', 'New group slug is generated from the English name.'); ?></small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="group_order" class="form-control" min="0"
+                                       value="<?php echo (int)($editGroup['display_order'] ?? 0); ?>">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
+                                <select name="group_menu_category_id" class="form-select">
+                                    <option value=""><?php echo $__t('— छान्नुहोस् —', '— Choose —'); ?></option>
+                                    <?php foreach ($staffMenuCategories as $_mc): ?>
+                                    <option value="<?php echo (int)$_mc['id']; ?>" <?php echo (int)($editGroup['menu_category_id'] ?? 0) === (int)$_mc['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars(isEnglish() ? ($_mc['name_en'] ?: $_mc['name_np']) : ($_mc['name_np'] ?: $_mc['name_en'])); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted"><?php echo $__t('मानवीय श्रोत भित्र कुन parent', 'Parent under Human Resources'); ?> —
+                                    <a href="#team-menu" onclick="document.getElementById('team-menu-btn')?.click(); return false;"><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?></a>
+                                </small>
+                            </div>
+                            <div class="col-md-2 d-flex flex-column justify-content-end gap-2 pb-1">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="group_is_active" id="sgrp_active" value="1" <?php echo ($editGroup['is_active'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="sgrp_active"><?php echo $__t('सक्रिय', 'Active'); ?></label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="group_show_in_navbar" id="sgrp_nav" value="1" <?php echo ($editGroup['show_in_nav'] ?? $editGroup['show_in_navbar'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="sgrp_nav"><?php echo $__t('सार्वजनिक फिल्टर', 'Public filter'); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save me-1"></i><?php echo $editGroup ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                            </button>
+                            <?php if ($editGroup): ?>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <?php if (empty($allStaffGroups)): ?>
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-layer-group fa-2x mb-2 d-block opacity-50"></i>
+                <?php echo $__t('कुनै वर्ग छैन। माथि थप्नुहोस्।', 'No categories yet. Add one above.'); ?>
+            </div>
+            <?php else: ?>
+            <table class="table table-sm table-hover admin-table-card">
+                <thead>
+                    <tr>
+                        <th><?php echo $__t('वर्ग', 'Category'); ?></th>
+                        <th><?php echo $__t('अंग्रेजी', 'English'); ?></th>
+                        <th class="text-center"><?php echo $__t('Slug', 'Slug'); ?></th>
+                        <th class="text-center"><?php echo $__t('क्रम', 'Order'); ?></th>
+                        <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
+                        <th class="text-center"><?php echo $__t('कार्य', 'Actions'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($allStaffGroups as $g): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($g['name_np'] ?: $g['name_en']); ?></td>
+                        <td><?php echo htmlspecialchars($g['name_en'] ?? ''); ?></td>
+                        <td class="text-center"><code class="small"><?php echo htmlspecialchars($g['slug']); ?></code></td>
+                        <td class="text-center"><?php echo (int)$g['display_order']; ?></td>
+                        <td class="text-center">
+                            <span class="badge <?php echo !empty($g['is_active']) ? 'bg-success' : 'bg-secondary'; ?>">
+                                <?php echo !empty($g['is_active']) ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=groups&edit_group=<?php echo (int)$g['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो वर्ग हटाउने? सदस्य कर्मचारीमा सर्छन्।', 'Delete this category? Members move to Staff.')); ?>')">
+                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="action" value="group_delete">
+                                <input type="hidden" name="group_id" value="<?php echo (int)$g['id']; ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+        </div>
+    </div>
     <?php endif; ?>
+
+    <!-- ══ TAB: मानवीय श्रोत मेनु श्रेणी (parent categories) ══ -->
+    <div class="tab-pane fade <?php echo $activeTeamTab === 'menu' ? 'show active' : ''; ?>" id="team-menu">
+        <div class="card-body">
+            <div class="alert alert-info py-2 mb-3 small">
+                <i class="fas fa-info-circle me-1"></i>
+                <?php echo $__t(
+                    'यो सार्वजनिक मेनु «मानवीय श्रोत» भित्रका parent श्रेणी हुन् (जस्तै: व्यवस्थापन, समिति/उपसमिति)। यी item होइनन् — यिनका भित्रका item हरू कर्मचारी वर्ग वा समिति समूहबाट आउँछन्।',
+                    'These are parent categories inside the public Human Resources menu (e.g. Management, Committees). They are not leaf items — items under them come from staff groups or committee groups.'
+                ); ?>
+            </div>
+
+            <div class="card border mb-4">
+                <div class="card-header bg-light py-2">
+                    <strong><?php echo $editMenuCat ? $__t('मेनु श्रेणी सम्पादन', 'Edit Menu Category') : $__t('नयाँ मेनु श्रेणी', 'Add Menu Category'); ?></strong>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu<?php echo $editMenuCat ? '&edit_menu='.(int)$editMenuCat['id'] : ''; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="action" value="<?php echo $editMenuCat ? 'menu_cat_edit' : 'menu_cat_add'; ?>">
+                        <?php if ($editMenuCat): ?><input type="hidden" name="menu_cat_id" value="<?php echo (int)$editMenuCat['id']; ?>"><?php endif; ?>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="menu_name_np" class="form-control" required
+                                       value="<?php echo htmlspecialchars($editMenuCat['name_np'] ?? ''); ?>"
+                                       placeholder="<?php echo $__t('जस्तै: व्यवस्थापन', 'e.g. Management'); ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="menu_name_en" class="form-control"
+                                       value="<?php echo htmlspecialchars($editMenuCat['name_en'] ?? ''); ?>"
+                                       placeholder="e.g. Management">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('आइटम स्रोत', 'Item source'); ?></label>
+                                <select name="menu_source_type" class="form-select" id="menu_source_type">
+                                    <option value="staff" <?php echo ($editMenuCat['source_type'] ?? 'staff') === 'staff' ? 'selected' : ''; ?>><?php echo $__t('कर्मचारी वर्गहरू', 'Staff groups'); ?></option>
+                                    <option value="committees" <?php echo ($editMenuCat['source_type'] ?? '') === 'committees' ? 'selected' : ''; ?>><?php echo $__t('समितिहरू', 'Committees'); ?></option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
+                                <input type="text" name="menu_icon" class="form-control" value="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder'); ?>" placeholder="fas fa-briefcase">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="menu_order" class="form-control" min="0" value="<?php echo (int)($editMenuCat['display_order'] ?? 0); ?>">
+                            </div>
+                            <div class="col-md-10 d-flex flex-wrap align-items-end gap-4 pb-1">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="menu_is_active" id="menu_active" value="1" <?php echo ($editMenuCat['is_active'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="menu_active"><?php echo $__t('सक्रिय', 'Active'); ?></label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="menu_show_in_nav" id="menu_nav" value="1" <?php echo ($editMenuCat['show_in_nav'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="menu_nav"><?php echo $__t('मेनुमा देखाउने', 'Show in menu'); ?></label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="menu_include_contact" id="menu_contact" value="1" <?php echo ($editMenuCat['include_contact_officers'] ?? 0) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="menu_contact"><?php echo $__t('+ सम्पर्क अधिकारी', '+ Contact officers'); ?></label>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="menu_include_board" id="menu_board" value="1" <?php echo ($editMenuCat['include_board'] ?? 0) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="menu_board"><?php echo $__t('+ सञ्चालक समिति', '+ Board committee'); ?></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-success px-4">
+                                <i class="fas fa-save me-1"></i><?php echo $editMenuCat ? $__t('अपडेट', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                            </button>
+                            <?php if ($editMenuCat): ?>
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <?php if (empty($allMenuCategories)): ?>
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-sitemap fa-2x mb-2 d-block opacity-50"></i>
+                <?php echo $__t('कुनै मेनु श्रेणी छैन।', 'No menu categories yet.'); ?>
+            </div>
+            <?php else: ?>
+            <table class="table table-sm table-hover admin-table-card">
+                <thead>
+                    <tr>
+                        <th><?php echo $__t('श्रेणी', 'Category'); ?></th>
+                        <th><?php echo $__t('स्रोत', 'Source'); ?></th>
+                        <th class="text-center"><?php echo $__t('क्रम', 'Order'); ?></th>
+                        <th class="text-center"><?php echo $__t('मेनु', 'Menu'); ?></th>
+                        <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
+                        <th class="text-center"><?php echo $__t('कार्य', 'Actions'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($allMenuCategories as $mc): ?>
+                    <tr>
+                        <td>
+                            <i class="<?php echo htmlspecialchars($mc['icon'] ?: 'fas fa-folder'); ?> me-1 text-muted"></i>
+                            <?php echo htmlspecialchars($mc['name_np'] ?: $mc['name_en']); ?>
+                            <?php if (!empty($mc['name_en']) && $mc['name_en'] !== $mc['name_np']): ?>
+                            <small class="text-muted d-block"><?php echo htmlspecialchars($mc['name_en']); ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border">
+                                <?php echo ($mc['source_type'] ?? '') === 'committees'
+                                    ? $__t('समिति', 'Committees')
+                                    : $__t('कर्मचारी वर्ग', 'Staff groups'); ?>
+                            </span>
+                        </td>
+                        <td class="text-center"><?php echo (int)$mc['display_order']; ?></td>
+                        <td class="text-center"><?php echo !empty($mc['show_in_nav']) ? '✓' : '—'; ?></td>
+                        <td class="text-center">
+                            <span class="badge <?php echo !empty($mc['is_active']) ? 'bg-success' : 'bg-secondary'; ?>">
+                                <?php echo !empty($mc['is_active']) ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <a href="<?php echo htmlspecialchars($teamAdminSelf); ?>?tab=menu&edit_menu=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo addslashes($__t('यो मेनु श्रेणी हटाउने?', 'Delete this menu category?')); ?>')">
+                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="action" value="menu_cat_delete">
+                                <input type="hidden" name="menu_cat_id" value="<?php echo (int)$mc['id']; ?>">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endif; ?>
+        </div>
+    </div>
 
 </div>
 
