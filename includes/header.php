@@ -1045,7 +1045,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                         </div>
                     </div>
                 </li>
-                <li class="pfl-lang-wrap">
+                <li class="pfl-lang-wrap notranslate" translate="no">
                     <a href="?lang=en" class="pfl-lang-link <?php echo $currentLang === 'en' ? 'active' : ''; ?>"><span class="pfl-lang-dot" aria-hidden="true"></span><span>EN</span></a>
                     <span class="pfl-lang-divider">|</span>
                     <a href="?lang=np" class="pfl-lang-link <?php echo $currentLang === 'np' ? 'active' : ''; ?>"><span class="pfl-lang-dot" aria-hidden="true"></span><span>NP</span></a>
@@ -1412,7 +1412,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                 </div>
                 <div class="col-lg-4 col-md-12 text-lg-end">
                     <ul class="social-links">
-                        <li class="lang-switch">
+                        <li class="lang-switch notranslate" translate="no">
                             <a href="?lang=en" class="lang-btn <?php echo $currentLang === 'en' ? 'active' : ''; ?>">EN</a>
                             <span class="lang-divider">|</span>
                             <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>">NP</a>

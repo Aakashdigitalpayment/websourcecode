@@ -324,7 +324,7 @@ $__pageTitleDisplay = $pageTitle ?? $_t('कार्ड प्रमाणी�
             <i class="fas fa-arrow-left"></i> <?= $_t('गृहपृष्ठ', 'Homepage') ?>
         </a>
         <?php if (function_exists('portalLangToggleUrl') && function_exists('portalLangToggleBadge')): ?>
-        <a href="<?php echo htmlspecialchars(portalLangToggleUrl(), ENT_QUOTES, 'UTF-8'); ?>" class="vp-back-link" title="<?= htmlspecialchars($_t('भाषा परिवर्तन', 'Switch language'), ENT_QUOTES, 'UTF-8') ?>">
+        <a href="<?php echo htmlspecialchars(portalLangToggleUrl(), ENT_QUOTES, 'UTF-8'); ?>" class="vp-back-link notranslate" translate="no" title="<?= htmlspecialchars($_t('भाषा परिवर्तन', 'Switch language'), ENT_QUOTES, 'UTF-8') ?>">
             <i class="fas fa-language"></i> <?= htmlspecialchars(portalLangToggleBadge()) ?>
         </a>
         <?php endif; ?>

@@ -404,19 +404,23 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
 }
 
-/* Page back button */
+/* Page back button — top-right pill (never stretch with left+right) */
 .page-back {
     position: fixed !important;
     top: 16px !important;
-    left: 16px !important;
+    left: auto !important;
+    right: 16px !important;
+    width: auto !important;
+    max-width: calc(100vw - 120px) !important;
     color: #374151 !important;
     text-decoration: none !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
     font-size: 0.9rem !important;
     transition: color 0.15s ease !important;
     z-index: 100 !important;
+    white-space: nowrap !important;
 }
 
 .page-back:hover {
@@ -428,26 +432,30 @@
     width: 18px !important;
     height: 18px !important;
     stroke-width: 2 !important;
+    flex-shrink: 0 !important;
 }
 
-/* Language toggle */
+/* Language toggle — top-left compact pill */
 .auth-lang-toggle {
     position: fixed !important;
     top: 16px !important;
-    right: 16px !important;
+    right: auto !important;
+    left: 16px !important;
+    width: auto !important;
     background-color: #ffffff !important;
     border: 1px solid #e5e7eb !important;
-    border-radius: 6px !important;
+    border-radius: 999px !important;
     padding: 8px 12px !important;
     color: #374151 !important;
     text-decoration: none !important;
-    display: flex !important;
+    display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
     font-size: 0.85rem !important;
     font-weight: 600 !important;
     transition: all 0.15s ease !important;
     z-index: 100 !important;
+    white-space: nowrap !important;
 }
 
 .auth-lang-toggle:hover {

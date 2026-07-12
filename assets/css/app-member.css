@@ -3602,6 +3602,7 @@ body.auth-portal-page .security-note {
 body.auth-portal-page:not(.verify-auth-page) .page-back {
   position: fixed;
   top: 18px;
+  left: auto;
   right: 20px;
   z-index: 20;
   display: inline-flex;
@@ -3617,6 +3618,9 @@ body.auth-portal-page:not(.verify-auth-page) .page-back {
   font-size: 0.78rem;
   font-weight: 700;
   box-shadow: 0 1px 4px color-mix(in srgb, var(--text-primary) 6%, transparent);
+  width: auto;
+  max-width: calc(100vw - 120px);
+  white-space: nowrap;
 }
 
 body.auth-portal-page:not(.verify-auth-page) .page-back:hover {
@@ -3924,6 +3928,7 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
   position: fixed;
   top: 18px;
   left: 20px;
+  right: auto;
   z-index: 10;
   display: inline-flex;
   align-items: center;
@@ -3939,6 +3944,8 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
   color: var(--primary-color);
   box-shadow: 0 1px 6px color-mix(in srgb, var(--text-primary) 8%, transparent);
   transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  width: auto;
+  white-space: nowrap;
 }
 
 body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle:hover {
