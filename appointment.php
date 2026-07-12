@@ -442,9 +442,9 @@ $L = getLangStrings();
             <!-- Form card -->
             <div class="col-lg-8 order-lg-1">
                 <div class="card border-0 shadow-sm appt-form-card">
-                    <div class="card-header border-0 rounded-top-3 py-3 px-4" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-color));">
+                    <div class="card-header appt-form-card-head border-0 rounded-top-3 py-3 px-4 bg-primary">
                         <h5 class="mb-0 text-white fw-bold">
-                            <i class="fas fa-calendar-check me-2"></i>
+                            <i class="fas fa-calendar-check me-2" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                         </h5>
                     </div>
@@ -640,13 +640,13 @@ $L = getLangStrings();
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-2 justify-content-end pt-2 border-top mt-2">
-                                <a href="<?php echo SITE_URL; ?>" class="btn btn-light px-4">
-                                    <i class="fas fa-arrow-left me-1"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
+                            <div class="appt-form-actions">
+                                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
+                                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
                                 </a>
-                                <button type="submit" class="btn btn-primary px-5">
-                                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-calendar-check me-2"></i>
-                                    <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
+                                <button type="submit" class="btn btn-primary appt-btn-submit">
+                                    <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                                    <i class="fas fa-calendar-check me-2" aria-hidden="true"></i><?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                                 </button>
                             </div>
                         </form>
@@ -756,13 +756,12 @@ $L = getLangStrings();
                                 </div>
                             </div>
 
-                            <div class="d-flex gap-2 justify-content-end pt-2 border-top mt-2">
-                                <a href="<?php echo SITE_URL; ?>" class="btn btn-light px-4">
-                                    <i class="fas fa-arrow-left me-1"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
+                            <div class="appt-form-actions">
+                                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
+                                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
                                 </a>
-                                <button type="submit" class="btn btn-primary px-5">
-                                    <i class="fas fa-handshake me-2"></i>
-                                    <?php echo isEnglish() ? 'Request Cooperative Visit' : 'सहकारी भ्रमण अनुरोध'; ?>
+                                <button type="submit" class="btn btn-primary appt-btn-submit">
+                                    <i class="fas fa-handshake me-2" aria-hidden="true"></i><?php echo isEnglish() ? 'Request Cooperative Visit' : 'सहकारी भ्रमण अनुरोध'; ?>
                                 </button>
                             </div>
                         </form>
@@ -797,6 +796,59 @@ $L = getLangStrings();
     background: var(--primary-color, #1a5f2a);
     border-color: var(--primary-color, #1a5f2a);
     color: #fff;
+}
+
+/* Beat global-theme .card-header:not([class*="bg-"]) light wash */
+.card.appt-form-card > .card-header.appt-form-card-head,
+.card.appt-form-card > .card-header.bg-primary {
+    background: linear-gradient(135deg, #145021, #1a5f2a) !important;
+    background-color: #1a5f2a !important;
+    border-bottom: 0 !important;
+    color: #fff !important;
+}
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.appt-form-card-head i,
+.card.appt-form-card > .card-header.bg-primary h5,
+.card.appt-form-card > .card-header.bg-primary i {
+    color: #fff !important;
+}
+
+.appt-form-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+.appt-form-actions .appt-btn-back,
+.appt-form-actions .appt-btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    white-space: nowrap;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.appt-form-actions .appt-btn-back {
+    flex: 0 0 auto;
+    padding: .65rem 1.1rem;
+}
+.appt-form-actions .appt-btn-submit {
+    flex: 1 1 auto;
+    font-size: 1rem;
+    padding: .7rem 1.25rem;
+}
+@media (max-width: 575.98px) {
+    .appt-form-actions {
+        flex-direction: column-reverse;
+    }
+    .appt-form-actions .appt-btn-back,
+    .appt-form-actions .appt-btn-submit {
+        width: 100%;
+    }
 }
 </style>
 <script>

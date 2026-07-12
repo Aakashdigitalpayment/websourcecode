@@ -19497,14 +19497,19 @@ body.auth-portal-page.verify-auth-page .vp-card { background: transparent !impor
 .appt-form-card {
     border-radius: 16px !important;
 }
-.appt-form-card > .card-header {
-    background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+.card.appt-form-card > .card-header,
+.card.appt-form-card > .card-header.appt-form-card-head,
+.card.appt-form-card > .card-header.bg-primary {
+    background: linear-gradient(135deg, #145021, #1a5f2a) !important;
+    background-color: #1a5f2a !important;
     border-bottom: 0 !important;
     color: #fff !important;
 }
-.appt-form-card > .card-header,
-.appt-form-card > .card-header h5,
-.appt-form-card > .card-header i {
+.card.appt-form-card > .card-header,
+.card.appt-form-card > .card-header h5,
+.card.appt-form-card > .card-header i,
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.appt-form-card-head i {
     color: #fff !important;
 }
 

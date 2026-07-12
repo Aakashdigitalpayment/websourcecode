@@ -601,7 +601,7 @@ body.auth-portal-page                  {
     border-color: var(--border-soft) !important;
     background: var(--bg-soft) !important;
 }
-.card-header:not([class*="bg-"])       {
+.card-header:not([class*="bg-"]):not(.appt-form-card-head)       {
     background: var(--bg-soft) !important;
     border-color: var(--border-soft) !important;
     color: var(--text-primary) !important;
