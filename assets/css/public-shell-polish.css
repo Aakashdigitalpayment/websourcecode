@@ -361,10 +361,10 @@ textarea.form-control {
   align-items: stretch;
   height: calc(var(--pub-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(255, 255, 255, 0.96);
+  background: color-mix(in srgb, var(--bg-card, #fff) 96%, transparent);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb));
   box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.08);
   z-index: 8999;
   border-radius: 14px 14px 0 0;
@@ -378,11 +378,11 @@ textarea.form-control {
   justify-content: center;
   gap: 3px;
   padding: 6px 2px;
-  color: #6b7280;
+  color: var(--text-muted, #6b7280);
   text-decoration: none;
   font-size: 10px;
   font-weight: 600;
-  border-right: 1px solid #f1f4f2;
+  border-right: 1px solid var(--border-soft, #f1f4f2);
   transition: color 0.15s ease, background 0.15s ease;
   position: relative;
 }
@@ -416,8 +416,8 @@ textarea.form-control {
 
 .mob-bottomnav a.mob-bn-item.active,
 .mob-bottomnav a.mob-bn-item:hover {
-  color: var(--primary-color, #1a5f2a);
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff);
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, var(--bg-card, #fff));
 }
 
 .mob-bottomnav a.mob-bn-item.active::before {
@@ -428,7 +428,7 @@ textarea.form-control {
   right: 18%;
   height: 2.5px;
   border-radius: 0 0 3px 3px;
-  background: var(--primary-color, #1a5f2a);
+  background: var(--primary-ink, var(--primary-color, #1a5f2a));
 }
 
 body.has-bottomnav {

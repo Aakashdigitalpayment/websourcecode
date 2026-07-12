@@ -7719,16 +7719,16 @@ input[type="file"].form-control {
 /* Stat mini cards — row at top */
 .stat-mini-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
 .stat-mini {
-    flex: 1; min-width: 130px; background: #fff; border-radius: 10px;
-    border: 1.5px solid #e8edf3; padding: 14px 16px; text-decoration: none !important;
+    flex: 1; min-width: 130px; background: var(--bg-card, #fff); border-radius: 10px;
+    border: 1.5px solid var(--border-color, #e8edf3); padding: 14px 16px; text-decoration: none !important;
     transition: box-shadow 0.18s, border-color 0.18s; display: flex; flex-direction: column;
     justify-content: flex-start; min-height: 122px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
-.stat-mini:hover { box-shadow: 0 4px 18px rgba(26,95,42,0.12); border-color:#22c55e; }
-.stat-mini.active-filter { border-color: var(--primary-color); background: #f0fdf4; box-shadow: 0 2px 10px rgba(26,95,42,0.15); }
-.stat-mini .sm-val { font-size: 1.6rem; font-weight: 800; color: #1a2e1d; line-height: 1; }
-.stat-mini .sm-lbl { font-size: 0.73rem; color: #6b7280; margin-top: 2px; line-height: 1.35; min-height: 2em; }
+.stat-mini:hover { box-shadow: 0 4px 18px rgba(var(--primary-rgb, 26,95,42),0.12); border-color: var(--primary-color); }
+.stat-mini.active-filter { border-color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 8%, var(--bg-card, #f0fdf4)); box-shadow: 0 2px 10px rgba(var(--primary-rgb, 26,95,42),0.15); }
+.stat-mini .sm-val { font-size: 1.6rem; font-weight: 800; color: var(--primary-ink, var(--text-primary, #1a2e1d)); line-height: 1; }
+.stat-mini .sm-lbl { font-size: 0.73rem; color: var(--text-muted, #6b7280); margin-top: 2px; line-height: 1.35; min-height: 2em; }
 .stat-mini .sm-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; margin-bottom:8px; }
 .sm-icon.ic-total     { background:#fef2f2; color:var(--secondary-dark,#922b21); }
 .sm-icon.ic-pending   { background:#fef9c3; color:#b45309; }
@@ -7752,7 +7752,7 @@ input[type="file"].form-control {
     border: 1.5px solid #e5e9ef; color: #374151; background: #fff; transition: all 0.15s;
 }
 .adm-pagination a:hover { background:#e8f5e9; border-color:#22c55e; color:var(--primary-color); }
-.adm-pagination span.active { background:var(--primary-color); color:#fff; border-color:var(--primary-color); }
+.adm-pagination span.active { background:var(--primary-color); color:var(--text-on-primary,#fff); border-color:var(--primary-color); }
 .adm-pagination a.disabled { opacity:0.4; pointer-events:none; }
 
 /* Export CSV button */

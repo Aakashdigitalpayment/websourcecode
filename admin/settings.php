@@ -1089,6 +1089,37 @@ function complementary(hex) {
 
 function isValidHex(h) { return /^#[0-9a-fA-F]{6}$/.test(h); }
 
+/* WCAG relative luminance — match global-theme.php $__textOn */
+function textOnColor(hex) {
+    hex = String(hex || '').replace('#', '');
+    if (hex.length !== 6) return '#ffffff';
+    function lin(c) {
+        c = c / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+    var r = lin(parseInt(hex.slice(0, 2), 16));
+    var g = lin(parseInt(hex.slice(2, 4), 16));
+    var b = lin(parseInt(hex.slice(4, 6), 16));
+    var lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    var contrastWhite = 1.05 / (lum + 0.05);
+    var contrastBlack = (lum + 0.05) / 0.05;
+    return contrastBlack > contrastWhite ? '#111827' : '#ffffff';
+}
+
+function brandInk(hex, darker) {
+    if (textOnColor(hex) === '#ffffff') return hex;
+    if (textOnColor(darker) === '#ffffff') return darker;
+    return '#1a2e1f';
+}
+
+function hexToRgbCsv(hex) {
+    hex = String(hex || '').replace('#', '');
+    if (hex.length !== 6) return '26, 95, 42';
+    return parseInt(hex.slice(0, 2), 16) + ', '
+         + parseInt(hex.slice(2, 4), 16) + ', '
+         + parseInt(hex.slice(4, 6), 16);
+}
+
 // ─── Apply colors to preview ──────────────────────────────
 function applyPreview(colors) {
     var pc  = colors.primary_color   || DEFAULTS.primary_color;
@@ -1096,15 +1127,25 @@ function applyPreview(colors) {
     var hc  = colors.header_color    || DEFAULTS.header_color;
     var fc  = colors.footer_color    || DEFAULTS.footer_color;
     var tc  = colors.topbar_color    || DEFAULTS.topbar_color;
+    var pcDark = darken(pc, 0.22);
+    var scDark = darken(sc, 0.18);
+    var onP = textOnColor(pc);
+    var onS = textOnColor(sc);
+    var onH = textOnColor(hc);
+    var onF = textOnColor(fc);
+    var pInk = brandInk(pc, pcDark);
+    var sInk = brandInk(sc, scDark);
 
     if (prevTopbar)  prevTopbar.style.background = 'linear-gradient(90deg,'+tc+','+darken(tc,0.15)+')';
     if (prevHeader)  prevHeader.style.background = 'linear-gradient(135deg,'+hc+','+darken(hc,0.2)+')';
 
     if (prevHero) {
         prevHero.style.background = 'linear-gradient(135deg,'+pc+' 0%,'+darken(pc,0.25)+' 100%)';
+        prevHero.style.color = onP;
     }
     if (prevBtnPrim) {
         prevBtnPrim.style.background = sc;
+        prevBtnPrim.style.color = onS;
         prevBtnPrim.style.boxShadow  = '0 2px 8px ' + sc + '66';
     }
     if (prevFooter)  prevFooter.style.background = 'linear-gradient(135deg,'+fc+','+darken(fc,0.25)+')';
@@ -1112,14 +1153,26 @@ function applyPreview(colors) {
     // Card icons
     cardIcons.forEach(function(el) {
         el.style.background = 'linear-gradient(135deg,'+pc+','+darken(pc,0.2)+')';
+        el.style.color = onP;
     });
 
     // Update CSS variables on the live page too (for real-time feel)
-    document.documentElement.style.setProperty('--primary-color', pc);
-    document.documentElement.style.setProperty('--secondary-color', sc);
-    document.documentElement.style.setProperty('--header-color', hc);
-    document.documentElement.style.setProperty('--footer-color', fc);
-    document.documentElement.style.setProperty('--topbar-bg', tc);
+    var root = document.documentElement;
+    root.style.setProperty('--primary-color', pc);
+    root.style.setProperty('--primary-dark', pcDark);
+    root.style.setProperty('--primary-rgb', hexToRgbCsv(pc));
+    root.style.setProperty('--primary-ink', pInk);
+    root.style.setProperty('--secondary-color', sc);
+    root.style.setProperty('--secondary-dark', scDark);
+    root.style.setProperty('--secondary-rgb', hexToRgbCsv(sc));
+    root.style.setProperty('--secondary-ink', sInk);
+    root.style.setProperty('--header-color', hc);
+    root.style.setProperty('--footer-color', fc);
+    root.style.setProperty('--topbar-bg', tc);
+    root.style.setProperty('--text-on-primary', onP);
+    root.style.setProperty('--text-on-secondary', onS);
+    root.style.setProperty('--text-on-header', onH);
+    root.style.setProperty('--text-on-footer', onF);
 }
 
 // ─── Gather current color values ─────────────────────────

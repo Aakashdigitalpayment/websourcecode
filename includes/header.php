@@ -448,7 +448,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                 width: 44px; height: 44px;
                 min-width: 44px; min-height: 44px;
                 background: var(--primary-color);
-                color: #fff;
+                color: var(--text-on-primary, #fff);
                 border: none;
                 border-radius: 8px;
                 font-size: 1.05rem;

@@ -13019,20 +13019,27 @@ body.dark-mode .dark-mode-toggle {
    ============================================== */
 body.dark-mode {
     --bg-color: var(--dark-bg-deep);
-    --text-color: var(--border-color);
+    --text-color: #e8eef2;
     --card-bg: var(--dark-bg);
+    --bg-page: var(--dark-bg-deep);
+    --bg-card: var(--dark-bg);
+    --bg-soft: #1f2a3a;
+    --text-primary: #e8eef2;
+    --text-secondary: #b0bcc6;
+    --text-muted: #8a96a0;
+    --border-color: #2a3a50;
     background-color: var(--bg-color);
     color: var(--text-color);
 }
 
 body.dark-mode .nav-menu > li > a {
-    color: var(--border-color);
+    color: var(--text-secondary, #b0bcc6);
 }
 
 body.dark-mode .nav-menu > li > a:hover,
 body.dark-mode .nav-menu > li.active > a {
     background: var(--primary-color);
-    color: white;
+    color: var(--text-on-primary, #fff);
 }
 
 body.dark-mode .card,

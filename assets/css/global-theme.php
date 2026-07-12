@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.0');
+define('THEME_VERSION', '2.1');
 
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
@@ -116,6 +116,20 @@ $_onS = $__textOnGradient($_s, $_sDark);
 $_onH = $__textOnGradient($_h, $_hDark);
 $_onF = $__textOnGradient($_f, $_fDark);
 
+/* Ink for brand-as-text on light/dark surfaces (readable when primary is pale) */
+$__brandInk = function (string $hex, string $darker) use ($__textOn): string {
+    // Dark enough brand → use as-is on white; light brand → use darker shade (or near-black)
+    if ($__textOn($hex) === '#ffffff') {
+        return $hex;
+    }
+    if ($__textOn($darker) === '#ffffff') {
+        return $darker;
+    }
+    return '#1a2e1f';
+};
+$_pInk = $__brandInk($_p, $_pDark);
+$_sInk = $__brandInk($_s, $_sDark);
+
 /* RGB for rgba() usage */
 $_pRgb = $__rgb($_p);
 $_sRgb = $__rgb($_s);
@@ -151,6 +165,8 @@ $__onP = $_onP ?? '#ffffff';
 $__onS = $_onS ?? '#ffffff';
 $__onH = $_onH ?? '#ffffff';
 $__onF = $_onF ?? '#ffffff';
+$__pInk = $_pInk ?? $__p;
+$__sInk = $_sInk ?? $__s;
 $__shadowP = $_shadowP ?? '0 4px 20px rgba(26,95,42,0.20)';
 $__shadowS = $_shadowS ?? '0 4px 16px rgba(192,57,43,0.20)';
 $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
@@ -158,7 +174,7 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
 <style id="coop-global-theme" data-panel="<?= htmlspecialchars($_panel ?? 'public', ENT_QUOTES) ?>">
 /* ═══════════════════════════════════════════════════════════
    🎨 GLOBAL THEME — Admin बाट DB मा save गरिएका रङहरू
-    Portal: <?= htmlspecialchars($_panel ?? 'public', ENT_QUOTES) ?> | Version: <?= htmlspecialchars(defined('THEME_VERSION') ? THEME_VERSION : '2.0', ENT_QUOTES) ?>
+    Portal: <?= htmlspecialchars($_panel ?? 'public', ENT_QUOTES) ?> | Version: <?= htmlspecialchars(defined('THEME_VERSION') ? THEME_VERSION : '2.1', ENT_QUOTES) ?>
    ═══════════════════════════════════════════════════════════ */
 :root {
     /* ── Brand Colors ── */
@@ -167,10 +183,12 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --primary-light:    <?= $__pLight ?>;
     --primary-xlight:   <?= $__pXLight ?>;
     --primary-rgb:      <?= $__pRgb ?>;
+    --primary-ink:      <?= $__pInk ?>;
 
     --secondary-color:  <?= $__s ?>;
     --secondary-dark:   <?= $__sDark ?>;
     --secondary-rgb:    <?= $__sRgb ?>;
+    --secondary-ink:    <?= $__sInk ?>;
 
     --header-color:     <?= $__h ?>;
     --header-dark:      <?= $__hDark ?>;
@@ -1105,10 +1123,121 @@ body.auth-portal-page                           {
     background: var(--bg-soft)    !important;
 }
 
-/* ── Y. DARK MODE (body.dark-mode) ──────────────────────────── */
+/* ── Y. DARK MODE — remap design tokens (bottom nav / cards / text follow) ─ */
+body.dark-mode {
+    --bg-page:         var(--dark-bg-deep, #111825);
+    --bg-card:         var(--dark-bg, #1a2535);
+    --bg-soft:         #1f2a3a;
+    --bg-muted:        #243041;
+    --bg-hover:        rgba(var(--primary-rgb), 0.12);
+    --bg-color:        var(--dark-bg-deep, #111825);
+    --card-bg:         var(--dark-bg, #1a2535);
+
+    --text-primary:    #e8eef2;
+    --text-secondary:  #b0bcc6;
+    --text-muted:      #8a96a0;
+    --text-light:      #6b7680;
+    --text-color:      #e8eef2;
+
+    --border-color:    #2a3a50;
+    --border-soft:     #243041;
+
+    --color-success-bg: rgba(22, 163, 74, 0.16);
+    --color-warning-bg: rgba(217, 119, 6, 0.16);
+    --color-danger-bg:  rgba(220, 38, 38, 0.16);
+    --color-info-bg:    rgba(8, 145, 178, 0.16);
+}
+
 body.dark-mode .page-banner,
 body.dark-mode .slider-section,
 body.dark-mode .hero-section                    {
+    color: var(--text-on-primary) !important;
+}
+
+/* Brand-fill controls: never assume white text */
+.btn-primary,
+.btn-coop,
+.pfl-mobile-toggle,
+.qh-fab,
+.qh-launcher,
+.public-fab-help,
+.mob-bn-scan,
+.mp-scan-fab,
+.adm-pagination span.active,
+.stat-card-badge {
+    color: var(--text-on-primary) !important;
+}
+.btn-secondary,
+[class*="btn-coop-secondary"] {
+    color: var(--text-on-secondary) !important;
+}
+
+/* Bottom nav — token surfaces (public / member / admin) */
+.mob-bottomnav,
+.mp-bottom-nav,
+.member-mobile-footer {
+    background: color-mix(in srgb, var(--bg-card, #fff) 96%, transparent) !important;
+    border-top-color: color-mix(in srgb, var(--primary-color) 14%, var(--border-color, #e5e7eb)) !important;
+}
+.mob-bottomnav a.mob-bn-item,
+.mp-bottom-nav a,
+.mp-bottom-nav__item,
+.mp-bn-more,
+.member-mobile-footer a,
+.member-mobile-footer button {
+    color: var(--text-muted, #6b7280) !important;
+    border-right-color: var(--border-soft, #f1f4f2) !important;
+}
+.mob-bottomnav a.mob-bn-item.active,
+.mob-bottomnav a.mob-bn-item:hover,
+.mp-bottom-nav a.active,
+.mp-bottom-nav__item.active,
+.mp-bn-more.open,
+.member-mobile-footer a.active {
+    color: var(--primary-ink, var(--primary-color)) !important;
+    background: color-mix(in srgb, var(--primary-color) 12%, var(--bg-card, #fff)) !important;
+}
+.mob-bottomnav a.mob-bn-item.active::before,
+.mp-bottom-nav a.active::before,
+.mp-bottom-nav__item.active::before {
+    background: var(--primary-ink, var(--primary-color)) !important;
+}
+
+/* Stat cards — readable values + soft icons */
+.stat-mini,
+.stat-card,
+.admin-stat-card,
+.ds-card,
+.mem-stat-card {
+    background: var(--bg-card, #fff) !important;
+    border-color: var(--border-color, #e5e7eb) !important;
+    color: var(--text-primary, #1a2e1f) !important;
+}
+.sm-val,
+.stat-card-value,
+.stat-value,
+.ds-val,
+.mem-stat-value {
+    color: var(--primary-ink, var(--primary-color)) !important;
+}
+.sm-lbl,
+.stat-card-label,
+.stat-label,
+.ds-label,
+.mem-stat-label {
+    color: var(--text-secondary, #4a5a4f) !important;
+}
+/* Soft-tint icon wells: brand ink, NOT on-primary (that is for solid fills) */
+.stat-mini .sm-icon,
+.stat-card .stat-icon:not(.stat-icon-solid) {
+    color: var(--primary-ink, var(--primary-color)) !important;
+}
+.stat-card .stat-icon.stat-icon-solid,
+.stat-card .stat-icon.stat-icon-solid i {
+    color: var(--text-on-primary) !important;
+}
+.stat-card-badge {
+    background: var(--primary-color) !important;
     color: var(--text-on-primary) !important;
 }
 
@@ -1240,8 +1369,9 @@ body.dark-mode .hero-section                    {
     color: var(--text-on-primary) !important;
 }
 
-/* ── Z9. STAT CARD ICON (already #fff hardcoded — add safety) ── */
-.stat-card .stat-icon, .stat-card .stat-icon i  {
+/* ── Z9. STAT CARD — solid brand icons only use on-primary ───── */
+.stat-card .stat-icon.stat-icon-solid,
+.stat-card .stat-icon.stat-icon-solid i  {
     color: var(--text-on-primary) !important;
 }
 
