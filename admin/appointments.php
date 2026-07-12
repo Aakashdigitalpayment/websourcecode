@@ -143,9 +143,17 @@ $status_filter = $_GET['status'] ?? '';
 if ($status_filter !== '' && !in_array($status_filter, $appointmentListStatuses, true)) {
     $status_filter = '';
 }
+$kind_filter = $_GET['kind'] ?? '';
+if ($kind_filter !== '' && !in_array($kind_filter, ['member', 'cooperative'], true)) {
+    $kind_filter = '';
+}
 $search  = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
 $where   = "1=1"; $aptParams = [];
 if ($status_filter) { $where .= " AND status = ?"; $aptParams[] = $status_filter; }
+if ($kind_filter !== '') {
+    $where .= " AND IFNULL(visit_kind,'member') = ?";
+    $aptParams[] = $kind_filter;
+}
 if ($search !== '') {
     $where .= " AND (name LIKE ? OR phone LIKE ? OR email LIKE ? OR tracking_id LIKE ? OR branch LIKE ? OR purpose LIKE ? OR IFNULL(contact_person,'') LIKE ? OR IFNULL(organization_address,'') LIKE ?)";
     $t = "%$search%"; $aptParams = array_merge($aptParams, [$t,$t,$t,$t,$t,$t,$t,$t]);
@@ -158,7 +166,25 @@ try {
     $totalPages = ceil($total / $limit);
     $stmt = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
     $stmt->execute(array_merge($aptParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
-} catch (Exception $e) { $appointments = []; $total = 0; $totalPages = 0; }
+} catch (Exception $e) {
+    error_log('[admin/appointments list] ' . $e->getMessage());
+    /* Fallback without coop columns if older DB somehow skipped safeAddColumn */
+    try {
+        $whereFb = '1=1'; $fbParams = [];
+        if ($status_filter) { $whereFb .= ' AND status = ?'; $fbParams[] = $status_filter; }
+        if ($search !== '') {
+            $whereFb .= ' AND (name LIKE ? OR phone LIKE ? OR email LIKE ? OR tracking_id LIKE ? OR branch LIKE ? OR purpose LIKE ?)';
+            $t = "%$search%"; $fbParams = array_merge($fbParams, [$t,$t,$t,$t,$t,$t]);
+        }
+        $cnt = $db->prepare("SELECT COUNT(*) FROM appointments WHERE $whereFb"); $cnt->execute($fbParams); $total = $cnt->fetchColumn();
+        $totalPages = ceil($total / $limit);
+        $stmt = $db->prepare("SELECT * FROM appointments WHERE $whereFb ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
+        $stmt->execute(array_merge($fbParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
+    } catch (Exception $e2) {
+        error_log('[admin/appointments list fallback] ' . $e2->getMessage());
+        $appointments = []; $total = 0; $totalPages = 0;
+    }
+}
 
 /* ─── Counts ─── */
 try {
@@ -167,8 +193,12 @@ try {
         'confirmed' => $db->query("SELECT COUNT(*) FROM appointments WHERE status='confirmed'")->fetchColumn(),
         'completed' => $db->query("SELECT COUNT(*) FROM appointments WHERE status='completed'")->fetchColumn(),
         'cancelled' => $db->query("SELECT COUNT(*) FROM appointments WHERE status='cancelled'")->fetchColumn(),
+        'member'    => $db->query("SELECT COUNT(*) FROM appointments WHERE IFNULL(visit_kind,'member')='member'")->fetchColumn(),
+        'cooperative'=> $db->query("SELECT COUNT(*) FROM appointments WHERE IFNULL(visit_kind,'member')='cooperative'")->fetchColumn(),
     ];
-} catch (Exception $e) { $counts = ['pending'=>0,'confirmed'=>0,'completed'=>0,'cancelled'=>0]; }
+} catch (Exception $e) {
+    $counts = ['pending'=>0,'confirmed'=>0,'completed'=>0,'cancelled'=>0,'member'=>0,'cooperative'=>0];
+}
 
 /* ─── Single view ─── */
 $viewApt = null;
@@ -201,10 +231,10 @@ if ($viewApt) {
         'APT-' . str_pad($viewApt['id'], 6, '0', STR_PAD_LEFT),
         adminBackBtn('appointments.php', 'भेटघाट सूचीमा फर्किनुहोस्'));
 } else {
-    echo adminPageHeader('भेटघाट व्यवस्थापन', 'fa-calendar-check',
-        'Admin ले appointment confirm/complete/cancel गर्न सक्छ',
+    echo adminPageHeader('भेटघाट / सहकारी भ्रमण', 'fa-calendar-check',
+        'सदस्य भेटघाट र सहकारी भ्रमण दुवै यहाँ आउँछन् — confirm/complete/cancel गर्न सकिन्छ',
         adminStatLink('?status=pending', 'danger', 'पेन्डिङ', $counts['pending'])
-        . ' ' . adminStatLink('?status=confirmed', 'info', 'पुष्टि भएको', $counts['confirmed']));
+        . ' ' . adminStatLink('?kind=cooperative', 'primary', 'सहकारी भ्रमण', $counts['cooperative'] ?? 0));
 }
 
 $flash = getFlash(); if ($flash) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']);
@@ -437,10 +467,20 @@ if ($viewApt):
 
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
-    <a href="appointments.php" class="stat-mini <?php echo $status_filter===''?'active-filter':''; ?>">
+    <a href="appointments.php" class="stat-mini <?php echo ($status_filter==='' && $kind_filter==='')?'active-filter':''; ?>">
         <div class="sm-icon ic-total"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></div>
-        <div class="sm-val"><?php echo $total; ?></div>
+        <div class="sm-val"><?php echo (int)(($counts['pending']??0)+($counts['confirmed']??0)+($counts['completed']??0)+($counts['cancelled']??0)); ?></div>
         <div class="sm-lbl">जम्मा</div>
+    </a>
+    <a href="?kind=cooperative" class="stat-mini <?php echo $kind_filter==='cooperative'?'active-filter':''; ?>">
+        <div class="sm-icon ic-process"><i class="fas fa-handshake"></i></div>
+        <div class="sm-val"><?php echo (int)($counts['cooperative'] ?? 0); ?></div>
+        <div class="sm-lbl">सहकारी भ्रमण</div>
+    </a>
+    <a href="?kind=member" class="stat-mini <?php echo $kind_filter==='member'?'active-filter':''; ?>">
+        <div class="sm-icon ic-total"><i class="fas fa-user"></i></div>
+        <div class="sm-val"><?php echo (int)($counts['member'] ?? 0); ?></div>
+        <div class="sm-lbl">सदस्य भेटघाट</div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $status_filter==='pending'?'active-filter':''; ?>">
         <div class="sm-icon ic-pending"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i></div>
@@ -467,7 +507,15 @@ if ($viewApt):
 <!-- ── Filter Bar ── -->
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
-        <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
+            <label>प्रकार</label>
+            <select name="kind" id="apt_qf_kind" class="form-select form-select-sm">
+                <option value="">सबै प्रकार</option>
+                <option value="cooperative" <?php echo $kind_filter==='cooperative'?'selected':''; ?>>सहकारी भ्रमण</option>
+                <option value="member" <?php echo $kind_filter==='member'?'selected':''; ?>>सदस्य भेटघाट</option>
+            </select>
+        </div>
+        <div class="col-md-2 col-6">
             <label>स्थिति</label>
             <select name="status" id="apt_qf_status" class="form-select form-select-sm">
                 <option value="">सबै स्थिति</option>
@@ -477,20 +525,23 @@ if ($viewApt):
                 <option value="cancelled" <?php echo $status_filter==='cancelled'?'selected':''; ?>>❌ रद्द</option>
             </select>
         </div>
-        <div class="col-md-7 col-12">
+        <div class="col-md-6 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
-                       placeholder="नाम, फोन, Tracking ID, शाखा, उद्देश्य...">
-                <?php if ($search): ?><a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                       placeholder="नाम, फोन, Tracking ID, सहकारी, सम्पर्क व्यक्ति...">
+                <?php if ($search): ?><a href="?status=<?php echo urlencode($status_filter); ?>&amp;kind=<?php echo urlencode($kind_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
             </div>
         </div>
         <div class="col-md-2 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i>खोज</button>
         </div>
     </form>
-    <script>document.getElementById('apt_qf_status').addEventListener('change',function(){this.closest('form').submit();});</script>
+    <script>
+    document.getElementById('apt_qf_status').addEventListener('change',function(){this.closest('form').submit();});
+    document.getElementById('apt_qf_kind').addEventListener('change',function(){this.closest('form').submit();});
+    </script>
 </div>
 
 <!-- ── Table ── -->
