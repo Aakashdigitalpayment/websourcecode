@@ -404,4 +404,42 @@ body.verify-auth-page {
   .mem-card-body {
     padding: 0.95rem 1rem !important;
   }
+
+  .mp-bottom-nav,
+  .member-mobile-footer {
+    display: flex !important;
+  }
+
+  .mp-bottom-nav a,
+  .mp-bottom-nav__item,
+  .mp-bn-more {
+    min-height: 44px;
+  }
+
+  .mem-container .table-responsive,
+  .mem-container .table {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mem-container .table-responsive {
+    overflow-x: auto;
+  }
+}
+
+/* More drawer must sit above bottom nav (z-index 8999) */
+.mp-more-overlay {
+  z-index: 9000 !important;
+}
+
+.mp-more-drawer {
+  z-index: 9001 !important;
+  padding-bottom: calc(var(--mem-bottom-nav-h, 64px) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.mp-more-close {
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
 }

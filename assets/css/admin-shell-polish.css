@@ -15,7 +15,7 @@
   --admin-surface-soft: #f6f9f7;
   --admin-text: #0f1a15;
   --admin-muted: #5b6b62;
-  --admin-bottom-nav-h: 60px;
+  --admin-bottom-nav-h: 64px;
   --admin-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
 }
 
@@ -266,7 +266,7 @@ body[class*="admin-page-"],
 }
 
 /* Prefer horizontal scroll on small screens for dense admin tables */
-@media (max-width: 767.98px) {
+@media (max-width: 899.98px) {
   .main-content .admin-table-card .table-responsive,
   .main-content .table-responsive.admin-table-card {
     overflow-x: auto;
@@ -504,5 +504,19 @@ body.has-bottomnav {
 
   .main-content .admin-table-card .card-header {
     padding: 0.75rem 0.9rem !important;
+  }
+
+  /* Override hide-at-769 so tablet portrait still gets bottom nav */
+  .mob-bottomnav {
+    display: flex !important;
+  }
+
+  .mob-bn-item {
+    min-height: 44px;
+  }
+
+  .admin-fab-msg {
+    width: 46px;
+    height: 46px;
   }
 }

@@ -326,3 +326,64 @@
     display: none !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   8. CROSS-PANEL MOBILE COMPAT (≤899.98) — unify with shell polish
+   Public/Admin often hid bottom nav at 769px while shell kept padding to 900.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --mobile-bottom-nav-h: 64px;
+  --pub-bottom-nav-h: var(--mobile-bottom-nav-h);
+  --admin-bottom-nav-h: var(--mobile-bottom-nav-h);
+  --mem-bottom-nav-h: var(--mobile-bottom-nav-h);
+}
+
+@media (max-width: 899.98px) {
+  html, body {
+    overflow-x: clip;
+  }
+
+  /* iOS: avoid auto-zoom on focus (needs ≥16px) */
+  .form-control,
+  .form-select,
+  .admin-fancy-input,
+  .team-filter-select,
+  .vp-input,
+  .afb-input,
+  .afb-select,
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="url"],
+  input[type="date"],
+  textarea,
+  select,
+  #publicChatPanel input,
+  #publicChatPanel textarea,
+  .auth-card input:not([type="checkbox"]):not([type="radio"]),
+  .auth-card select,
+  .auth-card textarea {
+    font-size: 16px !important;
+  }
+
+  /* Touch-friendly bottom nav rows */
+  .mob-bn-item,
+  .mp-bottom-nav a,
+  .mp-bottom-nav__item,
+  .mp-bn-more,
+  .member-mobile-footer a,
+  .member-mobile-footer button {
+    min-height: 44px;
+  }
+
+  /* Tables: prefer horizontal scroll over page blowout */
+  .table-responsive,
+  .admin-table-card .table-responsive,
+  .mem-container .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
