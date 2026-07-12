@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'name' => $name,
                 'name_np' => $name_np,
             ])) {
-                setFlash('warning', '“सञ्चालक समिति / Board” Team मा पहिले नै board को रूपमा छ — दोहोरो समिति प्रकार नबनाउनुहोस्। सदस्य map गर्न Team → सञ्चालक समिति (board) प्रयोग गर्नुहोस्।');
+                setFlash('warning', '“सञ्चालक समिति / Board” Team मा पहिले नै board को रूपमा छ — दोहोरो समिति प्रकार नबनाउनुहोस्। सदस्यहरू Team → सञ्चालक समिति (board) बाट व्यवस्थापन गर्नुहोस्। मेनुमा देखाउन Team मेनु श्रेणीमा “सञ्चालक समिति समावेश” (include board) अन गर्नुहोस्।');
             } elseif ($action === 'add_type') {
                 $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar, menu_category_id, icon) VALUES (?,?,?,?,?,?,?,?)")
                    ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $icon]);
@@ -251,6 +251,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         $showNav = (int)($t['show_in_navbar'] ?? 0);
                         $mcId = (int)($t['menu_category_id'] ?? 0);
                         $mcRow = $menuCatById[$mcId] ?? null;
+                        $isBoardAlias = function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($t);
                     ?>
                     <tr>
                         <td class="ps-3"><span class="badge bg-light text-dark border"><?php echo $t['display_order']; ?></span></td>
@@ -258,8 +259,14 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                             <div class="fw-semibold">
                                 <i class="<?php echo htmlspecialchars($t['icon'] ?? 'fas fa-users-gear'); ?> me-1 text-success"></i>
                                 <?php echo htmlspecialchars($t['name_np']); ?>
+                                <?php if ($isBoardAlias): ?>
+                                    <span class="badge bg-warning-subtle text-warning border border-warning ms-1" title="Public UI ले Team → board प्रयोग गर्छ">board</span>
+                                <?php endif; ?>
                             </div>
                             <small class="text-muted"><?php echo htmlspecialchars($t['name']); ?></small>
+                            <?php if ($isBoardAlias): ?>
+                                <div class="small text-warning mt-1">दोहोरो प्रकार — सदस्यहरू Team → सञ्चालक समिति बाट; यो पङ्क्ति मेटाउन सकिन्छ।</div>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($mcRow): ?>

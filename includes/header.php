@@ -1267,7 +1267,23 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                         </li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <?php if (!empty($_tmc['include_board'])): ?>
+                                        <?php
+                                        $_catCommittees = [];
+                                        $_showBoardLink = !empty($_tmc['include_board']);
+                                        foreach ($navCommittees as $_nc) {
+                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
+                                            if ($ncid !== $_tmcId) {
+                                                continue;
+                                            }
+                                            /* Duplicate "सञ्चालक समिति" type → board link, not cmt-* */
+                                            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($_nc)) {
+                                                $_showBoardLink = true;
+                                                continue;
+                                            }
+                                            $_catCommittees[] = $_nc;
+                                        }
+                                        ?>
+                                        <?php if ($_showBoardLink): ?>
                                         <li>
                                             <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board">
                                                 <i class="fas fa-landmark"></i>
@@ -1276,13 +1292,6 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                         </li>
                                         <?php endif; ?>
                                         <?php
-                                        $_catCommittees = [];
-                                        foreach ($navCommittees as $_nc) {
-                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
-                                            if ($ncid === $_tmcId) {
-                                                $_catCommittees[] = $_nc;
-                                            }
-                                        }
                                         foreach ($_catCommittees as $_nc):
                                             $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
@@ -1293,7 +1302,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                             </a>
                                         </li>
                                         <?php endforeach; ?>
-                                        <?php if (empty($_catCommittees) && empty($_tmc['include_board'])): ?>
+                                        <?php if (empty($_catCommittees) && !$_showBoardLink): ?>
                                         <li>
                                             <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>">
                                                 <i class="fas fa-sitemap"></i>
@@ -1624,23 +1633,31 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=<?php echo urlencode($_anchor); ?>&cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>"><i class="<?php echo $_icon; ?>"></i> <?php echo htmlspecialchars($_label); ?></a></li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <?php if (!empty($_tmc['include_board'])): ?>
+                                        <?php
+                                        $_catCommittees = [];
+                                        $_showBoardLink = !empty($_tmc['include_board']);
+                                        foreach ($navCommittees as $_nc) {
+                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
+                                            if ($ncid !== $_tmcId) {
+                                                continue;
+                                            }
+                                            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($_nc)) {
+                                                $_showBoardLink = true;
+                                                continue;
+                                            }
+                                            $_catCommittees[] = $_nc;
+                                        }
+                                        ?>
+                                        <?php if ($_showBoardLink): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
                                         <?php endif; ?>
                                         <?php
-                                        $_catCommittees = [];
-                                        foreach ($navCommittees as $_nc) {
-                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
-                                            if ($ncid === $_tmcId) {
-                                                $_catCommittees[] = $_nc;
-                                            }
-                                        }
                                         foreach ($_catCommittees as $_nc):
                                             $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><i class="<?php echo htmlspecialchars($_ncIcon); ?>"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                         <?php endforeach; ?>
-                                        <?php if (empty($_catCommittees) && empty($_tmc['include_board'])): ?>
+                                        <?php if (empty($_catCommittees) && !$_showBoardLink): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?></a></li>
                                         <?php endif; ?>
                                     <?php endif; ?>
