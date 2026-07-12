@@ -441,6 +441,18 @@ function ensureAdminTables(): void {
         ];
         foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
+        /* ── कर्मचारी वर्ग / समूह (team_staff_groups) ── */
+        try {
+            require_once dirname(__DIR__, 2) . '/includes/team-staff-groups.php';
+            ensureTeamStaffGroupsTable($db);
+        } catch (Throwable $e) { /* best-effort */ }
+
+        /* ── मानवीय श्रोत मेनु श्रेणी (team_menu_categories) ── */
+        try {
+            require_once dirname(__DIR__, 2) . '/includes/team-menu-categories.php';
+            ensureTeamMenuCategoriesTable($db);
+        } catch (Throwable $e) { /* best-effort */ }
+
         /* ── services: mega-menu grouping — dynamic categories table ── */
         $db->exec("CREATE TABLE IF NOT EXISTS service_categories (
             id           INT AUTO_INCREMENT PRIMARY KEY,
