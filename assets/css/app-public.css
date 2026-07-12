@@ -7987,7 +7987,8 @@ body.chatbot-open {
 .app-image img {
     max-width: 100%;
     height: auto;
-    border-radius: 20px;
+    border-radius: 0;
+    background: transparent;
 }
 
 .app-mockup {
@@ -8932,10 +8933,12 @@ input[readonly].nepali-datepicker:hover,
    FIX: MOBILE APP SECTION PHOTO STYLES
    ============================================== */
 .app-phone-img {
-    max-width: 280px;
+    max-width: 320px;
     height: auto;
-    border-radius: 25px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.32));
 }
 
 .app-mockup-default {
@@ -17435,7 +17438,45 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .app-btn span { display: flex; flex-direction: column; }
 .app-btn span small { font-size: .68rem; opacity: .8; text-transform: uppercase; letter-spacing: .04em; }
 .app-btn span { font-size: .95rem; font-weight: 700; }
-.app-phone-img { max-width: 280px; filter: drop-shadow(0 16px 32px rgba(0,0,0,.28)); position: relative; z-index: 1; }
+.app-phone-img { max-width: 320px; width: 100%; height: auto; position: relative; z-index: 1;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.32));
+    /* Soften baked-in green plate so it blends into the section */
+    -webkit-mask-image: radial-gradient(ellipse 78% 82% at 50% 52%, #000 58%, rgba(0,0,0,.55) 72%, transparent 88%);
+    mask-image: radial-gradient(ellipse 78% 82% at 50% 52%, #000 58%, rgba(0,0,0,.55) 72%, transparent 88%);
+}
+.app-image {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    isolation: isolate;
+}
+.app-image::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    width: min(92%, 420px);
+    aspect-ratio: 1 / 1.05;
+    left: 50%;
+    top: 52%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 60% 55% at 50% 45%, rgba(255, 255, 255, 0.14), transparent 70%),
+        radial-gradient(ellipse 75% 70% at 50% 55%, rgba(0, 0, 0, 0.18), transparent 72%);
+    filter: blur(2px);
+}
+.app-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0;
+    background: transparent;
+}
 .app-mockup-default {
     display: flex; justify-content: center; align-items: center; position: relative; z-index: 1;
 }
@@ -17456,6 +17497,7 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 @media (max-width: 767px) {
     .mobile-app-section { padding: 48px 0; }
     .app-image { margin-top: 2rem; }
+    .app-phone-img { max-width: 240px; }
 }
 
 /* ═══════════════════════════════════════════════════
