@@ -1367,14 +1367,23 @@ body.auth-portal-page .verify-form-card__head       {
     background:    var(--bg-card, #fff) !important;
 }
 
-/* Logo image inside card */
+/* Banner / multi-mark site logo — readable on login cards */
+body.auth-portal-page .card-logo-wrap {
+    display:         flex !important;
+    align-items:     center !important;
+    justify-content: center !important;
+    width:           100% !important;
+    margin:          0 0 0.35rem !important;
+}
 body.auth-portal-page .card-logo-wrap img           {
-    max-height:   54px !important;
-    max-width:    180px !important;
+    max-height:   76px !important;
+    max-width:    min(300px, 92%) !important;
+    width:        auto !important;
+    height:       auto !important;
     object-fit:   contain !important;
     border-radius: 8px !important;
     display:      block !important;
-    margin:       0 auto 0.5rem !important;
+    margin:       0 auto !important;
 }
 
 /* Portal label */

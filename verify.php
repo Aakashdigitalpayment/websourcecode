@@ -264,11 +264,20 @@ if ($result && !empty($result['ok'])) {
     transition: background .15s;
 }
 .vp-back-link:hover { background: rgba(var(--primary-rgb, 26,95,42), .13); color: var(--primary-dark, #145021); }
-.vp-logo-wrap { text-align: center; margin-bottom: 1.5rem; }
-.vp-logo-wrap img { max-height: 64px; max-width: 180px; width: auto; height: auto; object-fit: contain; border-radius: 8px; display: block; margin: 0 auto .6rem; }
-.vp-logo-icon { width: 62px; height: 62px; border-radius: 50%; margin: 0 auto .65rem; background: var(--primary-color, #1a5f2a); color: var(--text-on-primary, #fff); font-size: 1.45rem; display: grid; place-items: center; box-shadow: 0 4px 18px rgba(var(--primary-rgb, 26,95,42), .28); }
-.vp-site-name { font-weight: 700; font-size: 1.02rem; color: var(--primary-color, #1a5f2a); }
-.vp-site-sub  { font-size: .78rem; color: var(--text-muted, #6b7280); margin-top: 2px; }
+.vp-logo-wrap { text-align: center; margin-bottom: 1.35rem; }
+.vp-logo-wrap img {
+    max-height: 96px;
+    max-width: min(420px, 100%);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto .75rem;
+}
+.vp-logo-icon { width: 72px; height: 72px; border-radius: 50%; margin: 0 auto .65rem; background: var(--primary-color, #1a5f2a); color: var(--text-on-primary, #fff); font-size: 1.55rem; display: grid; place-items: center; box-shadow: 0 4px 18px rgba(var(--primary-rgb, 26,95,42), .28); }
+.vp-site-name { font-weight: 700; font-size: 1.05rem; line-height: 1.35; color: var(--primary-color, #1a5f2a); max-width: 28rem; margin: 0 auto; }
+.vp-site-sub  { font-size: .8rem; color: var(--text-muted, #6b7280); margin-top: 4px; }
 .vp-main-card { background: #fff; border-radius: 16px; box-shadow: 0 2px 18px rgba(0,0,0,.09); overflow: hidden; border: 1px solid var(--border-color, #e5e7eb); }
 .vp-card-head { background: var(--primary-color, #1a5f2a); padding: 18px 22px; display: flex; align-items: center; gap: 14px; }
 .vp-card-head-icon { width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 1.25rem; color: #fff; flex-shrink: 0; }

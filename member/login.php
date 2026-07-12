@@ -325,9 +325,18 @@ body {
     align-items: center; justify-content: center;
     padding: 56px 14px 20px;
 }
+.card-logo-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 0.35rem;
+}
 .card-logo-wrap img {
-    max-height: 52px;
-    max-width: 180px;
+    max-height: 76px;
+    max-width: min(300px, 92%);
+    width: auto;
+    height: auto;
     object-fit: contain;
     border-radius: 8px;
 }
