@@ -42,7 +42,7 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 │   ├── pages.php                # CMS page editor
 │   ├── hrm-dashboard.php        # HRM module entry
 │   ├── election-*.php           # Election management
-│   ├── _partials/               # Shared admin partials
+│   ├── _partials/               # header.php, footer.php (members/applications)
 │   ├── includes/                # admin-header.php, admin-ui.php, admin-footer.php
 │   └── api/                     # Admin AJAX endpoints
 │
@@ -53,8 +53,7 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 │   ├── loan-apply.php
 │   ├── welfare.php
 │   ├── election-vote.php        # Secure online voting
-│   ├── _partials/               # header.php, footer.php
-│   └── includes/                # Member-only helpers
+│   └── includes/                # chrome.php, chrome-foot.php, helpers
 │
 ├── includes/                    # Shared PHP includes (52 files)
 │   ├── config.php               # Global config loader
@@ -81,9 +80,8 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 ├── database/
 │   └── install.sql              # 74 CREATE TABLE statements — fresh-install schema
 │
-└── public/                      # Static public files (robots.txt, sitemap…)
+└── public/                      # Static fallbacks (e.g. icon.svg favicon)
 ```
-
 ---
 
 ## 3. CSS Architecture (CRITICAL — read before touching CSS)
@@ -107,12 +105,12 @@ app-member.css         ← member portal (6 782 lines)
 global.css             ← shared CSS variables + base resets
 forms-tables.css       ← form + table shared styles
 admin-ui-unified.css   ← admin UI component system
-admin-serious-fix.css  ← admin-only high-priority fixes    (admin/shell only)
 admin-auth-login-fixes.css  ← admin login page fixes       (admin-auth only)
 ui-ux-enhancements.css ← cross-panel UX polish
 admin-layout-icon-fixes.css ← admin icon layout            (admin/shell only)
 bootstrap-admin-overrides.css ← Bootstrap reset for admin  (admin/shell only)
 admin-icon-colors-priority.css ← icon colour patch         (admin/shell only)
+*-shell-polish.css     ← public / member / admin shell polish (panel-specific)
 global-theme.php       ← ⭐ DB-driven brand colours (inline <style>, LAST-1)
 premium-ui.css         ← ⭐⭐ Premium font + shape polish (LAST — wins all)
 ```
@@ -122,8 +120,7 @@ premium-ui.css         ← ⭐⭐ Premium font + shape polish (LAST — wins all
 | File | Owns |
 |------|------|
 | `global.css` | `--primary`, `--secondary`, `--bg-page`, `--font-primary`, `--radius-md`… |
-| `global-theme.css` | `--font-heading`, `--font-body`, `--text-*` scale, shadow tokens |
-| `assets/css/global-theme.php` | DB-driven `--primary-color`, `--header-color`, `--footer-color` (inline, dynamic) |
+| `assets/css/global-theme.php` | DB-driven `--primary-color`, `--text-on-*`, surface/text tokens (inline, dynamic) |
 | `premium-ui.css` | `--prem-font-head`, `--prem-font-body`, `--prem-sh-*` (own namespace, never conflicts) |
 
 ### Rules
