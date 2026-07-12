@@ -316,7 +316,7 @@ if ($viewApt):
                             <td><?php echo htmlspecialchars($viewApt['preferred_time'] ?? '—'); ?></td></tr>
                         <tr><th>उद्देश्य</th>
                             <td><?php echo htmlspecialchars($purposeTxt); ?></td></tr>
-                        <tr><th>शाखा</th>
+                        <tr><th>सेवा कार्यालय</th>
                             <td><?php echo htmlspecialchars(str_replace(['_'],[' '], ucwords($viewApt['branch'] ?? '—'))); ?></td></tr>
                         <tr><th>Tracking ID</th>
                             <td><code class="text-success fw-bold"><?php echo htmlspecialchars($viewApt['tracking_id'] ?? ('APT-'.str_pad($viewApt['id'],6,'0',STR_PAD_LEFT))); ?></code></td></tr>
@@ -566,7 +566,7 @@ if ($viewApt):
                     <th>नाम / ID</th>
                     <th>मिति / समय</th>
                     <th>उद्देश्य</th>
-                    <th>शाखा</th>
+                    <th>सेवा कार्यालय</th>
                     <th>स्थिति</th>
                     <th class="no-print">कार्यहरू</th>
                 </tr>
