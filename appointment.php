@@ -8,6 +8,7 @@ $pageTitle = isEnglish() ? 'Book Appointment' : 'भेटघाट बुक �
 $success        = false;
 $error          = '';
 $apptTrackingId = '';
+$successVisitKind = 'member';
 $loggedMember   = getLoggedInMemberProfile();
 $isEmbed = !empty($_GET['embed']);
 $trackerUrl = $isEmbed ? (SITE_URL . 'member/tracker.php') : 'application-tracker.php';
@@ -83,12 +84,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $preferred_date, $preferred_time, $branch, $orgAddress, $orgWebsite, $contactPerson,
                     ]);
                     $success = true;
+                    $successVisitKind = 'cooperative';
                     logSecurityEvent('appointment_booking', 'Cooperative visit booked: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
 
                     $__nf = __DIR__ . '/includes/notifications.php';
                     if (is_file($__nf)) { require_once $__nf; }
                     unset($__nf);
                     sendAdminNotification('appointment', [
+                        'नाम'            => $name,
                         'प्रकार'         => 'सहकारी भ्रमण',
                         'सहकारी'         => $name,
                         'सम्पर्क व्यक्ति' => $contactPerson,
@@ -96,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'ठेगाना'         => $orgAddress,
                         'वेबसाइट'        => $orgWebsite ?: 'N/A',
                         'मिति'           => $preferred_date . ' ' . $preferred_time,
-                    ]);
+                    ], $apptTrackingId);
                 } catch (Throwable $e) {
                     $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
                 }
@@ -163,6 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'member')");
                     $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
                     $success = true;
+                    $successVisitKind = 'member';
                     logSecurityEvent('appointment_booking', 'Appointment booked by: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
 
                     $__nf = __DIR__ . '/includes/notifications.php';
@@ -176,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'उद्देश्य'   => $purpose,
                         'मिति'      => $preferred_date . ' ' . $preferred_time,
                         'शाखा'      => $branch ?: 'N/A',
-                    ]);
+                    ], $apptTrackingId);
                 } catch (Throwable $e) {
                     $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
                 }
@@ -217,8 +221,20 @@ $L = getLangStrings();
         <div class="row justify-content-center">
             <div class="col-lg-7 form-success-card">
                 <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
-                <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Appointment Request Submitted!' : 'भेटघाट अनुरोध पेश भयो!'; ?></h3>
-                <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will confirm your appointment soon. Check your phone/email.' : 'हाम्रो टोलीले छिट्टै तपाईंको भेटघाट पुष्टि गर्नेछ। फोन/इमेल हेर्नुहोस्।'; ?></p>
+                <h3 class="mt-3 fw-bold text-success"><?php
+                    if ($successVisitKind === 'cooperative') {
+                        echo isEnglish() ? 'Cooperative Visit Request Submitted!' : 'सहकारी भ्रमण अनुरोध पेश भयो!';
+                    } else {
+                        echo isEnglish() ? 'Appointment Request Submitted!' : 'भेटघाट अनुरोध पेश भयो!';
+                    }
+                ?></h3>
+                <p class="text-muted mb-3"><?php
+                    if ($successVisitKind === 'cooperative') {
+                        echo isEnglish() ? 'We will confirm your cooperative visit soon. Save your Tracking ID and check status in Tracker.' : 'हाम्रो टोलीले छिट्टै सहकारी भ्रमण पुष्टि गर्नेछ। Tracking ID सुरक्षित राख्नुहोस् र Tracker बाट स्थिति हेर्नुहोस्।';
+                    } else {
+                        echo isEnglish() ? 'We will confirm your appointment soon. Check your phone/email.' : 'हाम्रो टोलीले छिट्टै तपाईंको भेटघाट पुष्टि गर्नेछ। फोन/इमेल हेर्नुहोस्।';
+                    }
+                ?></p>
                 <?php if ($apptTrackingId): ?>
                 <div class="form-tracking-box mb-4">
                     <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID — save this!' : 'तपाईंको Tracking ID — सुरक्षित राख्नुहोस्!'; ?></div>
