@@ -65,8 +65,28 @@ if (!function_exists('hrmStatusBadge')) {
 
 if (!function_exists('hrmEmployeePhotoUrl')) {
     function hrmEmployeePhotoUrl(?string $rel): string {
-        if (!$rel) return '../assets/images/default-avatar.png';
-        return '../' . ltrim($rel, '/');
+        static $placeholder = null;
+        if ($placeholder === null) {
+            $placeholder = 'data:image/svg+xml,' . rawurlencode(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
+                . '<rect width="64" height="64" fill="#e5e7eb"/>'
+                . '<circle cx="32" cy="24" r="12" fill="#9ca3af"/>'
+                . '<path d="M10 58c5-14 16-20 22-20s17 6 22 20" fill="#9ca3af"/>'
+                . '</svg>'
+            );
+        }
+        $rel = trim((string)$rel);
+        if ($rel === '') {
+            return $placeholder;
+        }
+        if (preg_match('#^(https?:)?//#i', $rel) || strpos($rel, 'data:') === 0) {
+            return $rel;
+        }
+        $rel = ltrim(str_replace('\\', '/', $rel), '/');
+        if (defined('SITE_URL') && SITE_URL) {
+            return rtrim((string)SITE_URL, '/') . '/' . $rel;
+        }
+        return '../' . $rel;
     }
 }
 
@@ -82,7 +102,8 @@ if (!function_exists('hrmHandleUpload')) {
     /** Returns relative path (assets/uploads/hrm/...) or null. */
     function hrmHandleUpload(array $file, string $subdir = 'docs'): ?string {
         if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) return null;
-        $base = dirname(__DIR__) . '/assets/uploads/hrm/' . $subdir;
+        $root = dirname(__DIR__, 2); /* admin/includes → project root */
+        $base = $root . '/assets/uploads/hrm/' . $subdir;
         if (!is_dir($base)) @mkdir($base, 0775, true);
         $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg','jpeg','png','webp','pdf','doc','docx'];

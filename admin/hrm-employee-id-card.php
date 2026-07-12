@@ -34,7 +34,7 @@ $logoPath    = function_exists('getLocalizedLogoPath') ? getLocalizedLogoPath('a
 $logoSrc     = '../' . ltrim($logoPath, '/');
 
 /* Photo */
-$photoSrc = !empty($emp['photo']) ? '../' . ltrim($emp['photo'], '/') : '../assets/images/default-avatar.png';
+$photoSrc = hrmEmployeePhotoUrl($emp['photo'] ?? null);
 
 /* Validity */
 $joinAd = $emp['join_date_ad'] ?: date('Y-m-d');
@@ -393,7 +393,7 @@ body {
     <div class="card-body">
       <div class="photo-frame">
         <img src="<?= htmlspecialchars($photoSrc) ?>" alt="photo"
-             onerror="this.src='../assets/images/default-avatar.png'">
+             onerror="this.onerror=null;this.src='<?= htmlspecialchars(hrmEmployeePhotoUrl(null), ENT_QUOTES) ?>'">
       </div>
       <div class="info">
         <div class="emp-name"><?= htmlspecialchars($emp['full_name_np']) ?></div>

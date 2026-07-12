@@ -14642,8 +14642,11 @@ html body .useful-links-float .useful-links-close{
   z-index:auto !important;
   display:none;
 }
+#empModal.stf-modal-backdrop.open,
 #empModal.stf-modal-backdrop[style*="display:flex"],
-#empModal.stf-modal-backdrop[style*="display: flex"]{
+#empModal.stf-modal-backdrop[style*="display: flex"],
+#empModal.stf-modal-backdrop[style*="display:block"],
+#empModal.stf-modal-backdrop[style*="display: block"]{
   display:block !important;
 }
 #empModal .stf-modal-card,

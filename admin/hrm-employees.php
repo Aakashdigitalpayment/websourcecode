@@ -136,7 +136,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="d-flex gap-2">
           <a class="btn-coop" href="hrm-dashboard.php"><i class="fas fa-gauge"></i> ड्यासबोर्ड</a>
-          <button class="btn-coop" onclick="var m=document.getElementById('empModal');m.style.display='flex';m.scrollIntoView({behavior:'smooth',block:'start'});">
+          <button type="button" class="btn-coop" onclick="openEmpModal()">
               <i class="fas fa-user-plus"></i> नयाँ कर्मचारी
           </button>
         </div>
@@ -197,7 +197,10 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td data-label="कोड"><code><?= e($r['employee_code']) ?></code></td>
                     <td data-label="नाम">
                         <div class="d-flex align-items-center gap-2">
-                          <img src="<?= e(hrmEmployeePhotoUrl($r['photo'])) ?>" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#eee">
+                          <img src="<?= e(hrmEmployeePhotoUrl($r['photo'])) ?>" alt=""
+                               class="hrm-emp-avatar"
+                               style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#eee"
+                               onerror="this.onerror=null;this.src='<?= e(hrmEmployeePhotoUrl(null)) ?>';">
                           <div>
                             <strong><?= e($r['full_name_np']) ?></strong><br>
                             <small class="text-muted"><?= e($r['mobile']) ?></small>
@@ -213,7 +216,9 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td class="stf-align-right" data-label="कार्य">
                         <a class="btn btn-sm btn-outline-primary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a>
                         <a class="btn btn-sm btn-outline-success" target="_blank" title="Digital ID Card" href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-id-card"></i></a>
-                        <button class="btn btn-sm btn-outline-secondary" onclick='editEmp(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'><i class="fas fa-pen"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary hrm-edit-btn"
+                                data-emp="<?= e(json_encode($r, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)) ?>"
+                                onclick="editEmpFromBtn(this)" title="सम्पादन"><i class="fas fa-pen"></i></button>
                         <?php if (is_superadmin()): ?>
                         <form method="post" class="stf-inline-form" onsubmit="return confirm('पक्का delete गर्ने?');">
                             <?= csrfField() ?>
@@ -330,7 +335,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
       <div class="stf-actions-row stf-actions-row-lg mt-3">
-        <button type="button" class="btn-coop btn-outline" onclick="document.getElementById('empModal').style.display='none';window.scrollTo({top:0,behavior:'smooth'});">रद्द</button>
+        <button type="button" class="btn-coop btn-outline" onclick="closeEmpModal()">रद्द</button>
         <button type="submit" class="btn-coop">Save / सुरक्षित गर्नुहोस्</button>
       </div>
     </form>
@@ -338,21 +343,46 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
+function openEmpModal(){
+  var m = document.getElementById('empModal');
+  if (!m) return;
+  m.style.display = 'flex';
+  m.classList.add('open');
+  m.scrollIntoView({behavior:'smooth', block:'start'});
+}
+function closeEmpModal(){
+  var m = document.getElementById('empModal');
+  if (!m) return;
+  m.style.display = 'none';
+  m.classList.remove('open');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function editEmpFromBtn(btn){
+  try {
+    var raw = btn.getAttribute('data-emp') || '{}';
+    editEmp(JSON.parse(raw));
+  } catch (err) {
+    console.error('editEmp parse failed', err);
+    alert('सम्पादन फारम खोल्न सकिएन।');
+  }
+}
 function editEmp(r){
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v ?? ''; };
+  if (!r || typeof r !== 'object') return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = (v == null ? '' : v); };
   set('f_id', r.id); set('f_code', r.employee_code);
   set('f_name_np', r.full_name_np); set('f_name_en', r.full_name_en);
-  set('f_gender', r.gender); set('f_dob_bs', r.dob_bs); set('f_dob_ad', r.dob_ad);
-  set('f_blood', r.blood_group); set('f_ms', r.marital_status);
+  set('f_gender', r.gender || 'male'); set('f_dob_bs', r.dob_bs); set('f_dob_ad', r.dob_ad);
+  set('f_blood', r.blood_group); set('f_ms', r.marital_status || 'single');
   set('f_mobile', r.mobile); set('f_email', r.email);
   set('f_citi', r.citizenship_no); set('f_pan', r.pan_no);
   set('f_pdist', r.perm_district); set('f_pmun', r.perm_municipality); set('f_pward', r.perm_ward);
   set('f_desig', r.designation); set('f_dept', r.department_id || 0); set('f_branch', r.branch_id || 0);
-  set('f_etype', r.employment_type); set('f_level', r.level); set('f_grade', r.grade);
+  set('f_etype', r.employment_type || 'permanent'); set('f_level', r.level); set('f_grade', r.grade);
   set('f_jdbs', r.join_date_bs); set('f_jdad', r.join_date_ad);
-  set('f_status', r.status); set('f_remarks', r.remarks);
-  document.getElementById('empModalTitle').textContent = 'कर्मचारी सम्पादन — ' + r.full_name_np;
-  document.getElementById('empModal').style.display = 'flex';
+  set('f_status', r.status || 'active'); set('f_remarks', r.remarks);
+  var title = document.getElementById('empModalTitle');
+  if (title) title.textContent = 'कर्मचारी सम्पादन — ' + (r.full_name_np || '');
+  openEmpModal();
 }
 </script>
 <?php require_once __DIR__ . '/includes/admin-footer.php'; ?>
