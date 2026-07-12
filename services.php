@@ -159,6 +159,9 @@ if (!function_exists('service_anchor_id')) {
                         </div>
                     </div>
                     <?php $catServices = $servicesByCategory[$catId] ?? []; ?>
+                    <?php if (!empty($catServices)): ?>
+                    <div class="col-12">
+                        <div class="row justify-content-center service-cards-row">
                     <?php foreach ($catServices as $index => $service): ?>
                     <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo (($catIndex * 10 + $index) ?? 0) * 30; ?>" id="<?php echo htmlspecialchars(service_anchor_id($service, (int)$index)); ?>">
                         <div class="service-detail-card">
@@ -201,6 +204,9 @@ if (!function_exists('service_anchor_id')) {
                         </div>
                     </div>
                     <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
                 <?php if (!empty($servicesByCategory[0])): ?>
                     <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="200">
@@ -215,6 +221,8 @@ if (!function_exists('service_anchor_id')) {
                             </div>
                         </div>
                     </div>
+                    <div class="col-12">
+                        <div class="row justify-content-center service-cards-row">
                     <?php foreach ($servicesByCategory[0] as $index => $service): ?>
                     <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index ?? 0) * 30; ?>" id="<?php echo htmlspecialchars(service_anchor_id($service, (int)$index)); ?>">
                         <div class="service-detail-card">
@@ -257,9 +265,13 @@ if (!function_exists('service_anchor_id')) {
                         </div>
                     </div>
                     <?php endforeach; ?>
+                        </div>
+                    </div>
                 <?php endif; ?>
             <?php else: ?>
                 <!-- Default Services if none in database -->
+                <div class="col-12">
+                    <div class="row justify-content-center service-cards-row">
                 <div class="col-lg-4 col-md-6 mb-4" id="saving">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
@@ -350,6 +362,8 @@ if (!function_exists('service_anchor_id')) {
                             <li><i class="fas fa-check"></i> बचत बीमा</li>
                             <li><i class="fas fa-check"></i> दुर्घटना बीमा</li>
                         </ul>
+                    </div>
+                </div>
                     </div>
                 </div>
             <?php endif; ?>
