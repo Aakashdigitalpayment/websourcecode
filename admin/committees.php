@@ -14,6 +14,11 @@ try {
     ensureTeamMenuCategoriesTable($db);
 } catch (Throwable $e) { /* best-effort */ }
 
+/* committee_types.icon — सार्वजनिक मेनु item icon */
+try {
+    $db->exec("ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+} catch (Throwable $e) { /* already exists */ }
+
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
 
@@ -47,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             /* नयाँ: navbar/menu drop-down मा यो समिति देखाउने/नदेखाउने */
             $show_in_navbar = isset($_POST['type_show_in_navbar']) ? 1 : 0;
             $menu_category_id = (int)($_POST['type_menu_category_id'] ?? 0) ?: null;
+            $icon = clean_text($_POST['type_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
 
             if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
                 'name' => $name,
@@ -54,12 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ])) {
                 setFlash('warning', '“सञ्चालक समिति / Board” Team मा पहिले नै board को रूपमा छ — दोहोरो समिति प्रकार नबनाउनुहोस्। सदस्य map गर्न Team → सञ्चालक समिति (board) प्रयोग गर्नुहोस्।');
             } elseif ($action === 'add_type') {
-                $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?,?)")
-                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id]);
+                $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar, menu_category_id, icon) VALUES (?,?,?,?,?,?,?,?)")
+                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $icon]);
                 setFlash('success', 'समिति प्रकार थपियो।');
             } else {
-                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=? WHERE id=?")
-                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $id]);
+                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=?")
+                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $icon, $id]);
                 setFlash('success', 'समिति प्रकार अपडेट भयो।');
             }
         }
@@ -249,7 +255,10 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     <tr>
                         <td class="ps-3"><span class="badge bg-light text-dark border"><?php echo $t['display_order']; ?></span></td>
                         <td>
-                            <div class="fw-semibold"><?php echo htmlspecialchars($t['name_np']); ?></div>
+                            <div class="fw-semibold">
+                                <i class="<?php echo htmlspecialchars($t['icon'] ?? 'fas fa-users-gear'); ?> me-1 text-success"></i>
+                                <?php echo htmlspecialchars($t['name_np']); ?>
+                            </div>
                             <small class="text-muted"><?php echo htmlspecialchars($t['name']); ?></small>
                         </td>
                         <td>
@@ -280,7 +289,8 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                                     data-order="<?php echo $t['display_order']; ?>"
                                     data-active="<?php echo $t['is_active']; ?>"
                                     data-show-nav="<?php echo $showNav; ?>"
-                                    data-menu-cat="<?php echo $mcId; ?>">
+                                    data-menu-cat="<?php echo $mcId; ?>"
+                                    data-icon="<?php echo htmlspecialchars($t['icon'] ?? 'fas fa-users-gear', ENT_QUOTES); ?>">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो समिति प्रकार मेटाउने?')">
@@ -323,6 +333,22 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     <input type="text" name="type_description" id="typ_desc" class="form-control admin-fancy-input" placeholder="समितिको संक्षिप्त विवरण">
                 </div>
                 <div class="col-md-6">
+                    <label class="form-label fw-semibold text-success">आइकन</label>
+                    <div class="js-fa-icon-picker fa-ip-wrap">
+                        <div class="fa-ip-row input-group">
+                            <span class="fa-ip-preview input-group-text" data-fa-preview id="typIconPreview">
+                                <i class="fas fa-users-gear"></i>
+                            </span>
+                            <input type="text" name="type_icon" id="typ_icon" class="form-control admin-fancy-input" data-fa-input
+                                   value="fas fa-users-gear" placeholder="fas fa-users-gear">
+                            <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="आइकन छान्नुहोस्">
+                                <i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>
+                            </button>
+                        </div>
+                        <small class="fa-ip-hint">सार्वजनिक मानवीय स्रोत मेनुमा यो समिति item को icon।</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
                     <label class="form-label fw-semibold text-success">मेनु श्रेणी</label>
                     <select name="type_menu_category_id" id="typ_menu_cat" class="form-select admin-fancy-input">
                         <option value="">— छान्नुहोस् —</option>
@@ -339,7 +365,6 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         <i class="fas fa-info-circle me-1"></i>
                         मानवीय स्रोत मेनुमा कुन parent श्रेणी अन्तर्गत यो समिति देखिने —
                         <a href="team.php?tab=menu">मेनु श्रेणी</a> मा बनाइन्छ।
-                        Parent श्रेणीको <strong>आइकन</strong> पनि त्यहीँबाट छान्नुहोस्।
                         <?php if (empty($committeeMenuCategories)): ?>
                         <span class="text-warning d-block mt-1">अहिले समिति स्रोतको श्रेणी छैन — पहिले मेनु श्रेणीमा स्रोत = समिति थप्नुहोस्।</span>
                         <?php endif; ?>
@@ -391,10 +416,16 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('typ_desc').value   = '';
         document.getElementById('typ_order').value  = '0';
         document.getElementById('typ_menu_cat').value = '';
+        document.getElementById('typ_icon').value = 'fas fa-users-gear';
+        var prev = document.getElementById('typIconPreview');
+        if (prev) prev.innerHTML = '<i class="fas fa-users-gear"></i>';
         document.getElementById('typ_active').checked = true;
         document.getElementById('typ_show_nav').checked = false;
         document.getElementById('typ_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
         document.getElementById('typFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ समिति प्रकार';
+        if (window.FaIconPicker && typeof window.FaIconPicker.enhance === 'function') {
+            window.FaIconPicker.enhance(document.getElementById('typFormPanel') || document);
+        }
     }
     var btnAddType = document.getElementById('btnAddType');
     var btnAddCmt  = document.getElementById('btnAddCmt');
@@ -414,11 +445,17 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('typ_desc').value     = d.desc || '';
             document.getElementById('typ_order').value    = d.order;
             document.getElementById('typ_menu_cat').value = d.menuCat || '';
+            document.getElementById('typ_icon').value = d.icon || 'fas fa-users-gear';
+            var prev = document.getElementById('typIconPreview');
+            if (prev) prev.innerHTML = '<i class="' + (d.icon || 'fas fa-users-gear') + '"></i>';
             document.getElementById('typ_active').checked = d.active === '1';
             document.getElementById('typ_show_nav').checked = d.showNav === '1';
             document.getElementById('typ_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
             document.getElementById('typFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>समिति प्रकार सम्पादन';
             showPanel();
+            if (window.FaIconPicker && typeof window.FaIconPicker.enhance === 'function') {
+                window.FaIconPicker.enhance(document.getElementById('typFormPanel') || document);
+            }
         });
     });
 });
