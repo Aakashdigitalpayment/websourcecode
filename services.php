@@ -357,6 +357,61 @@ if (!function_exists('service_anchor_id')) {
     </div>
 </section>
 
+<script>
+(function () {
+    function focusServiceFromHash() {
+        var hash = (location.hash || '').replace(/^#/, '');
+        if (!hash) {
+            document.querySelectorAll('.service-detail-card').forEach(function (card) {
+                var col = card.closest('[id]');
+                if (col) {
+                    col.style.display = '';
+                    col.classList.remove('service-item--focused');
+                }
+                card.classList.remove('is-focused');
+            });
+            document.querySelectorAll('.service-category-header').forEach(function (h) {
+                var wrap = h.closest('.col-12');
+                if (wrap) wrap.style.display = '';
+            });
+            return;
+        }
+        var target = document.getElementById(hash);
+        if (!target) return;
+
+        document.querySelectorAll('.service-detail-card').forEach(function (card) {
+            var col = card.closest('[id]');
+            if (!col) return;
+            var match = col.id === hash;
+            col.style.display = match ? '' : 'none';
+            col.classList.toggle('service-item--focused', match);
+            card.classList.toggle('is-focused', match);
+        });
+
+        /* Hide category headers when focusing a single service */
+        document.querySelectorAll('.service-category-header').forEach(function (h) {
+            var wrap = h.closest('.col-12');
+            if (wrap) wrap.style.display = 'none';
+        });
+
+        setTimeout(function () {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', focusServiceFromHash);
+    else focusServiceFromHash();
+    window.addEventListener('hashchange', focusServiceFromHash);
+})();
+</script>
+<style>
+.service-detail-card.is-focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent), 0 12px 28px rgba(0,0,0,.08);
+    border-radius: 12px;
+}
+.service-item--focused { scroll-margin-top: 110px; }
+</style>
+
 <!-- CTA Section -->
 <section class="cta-section">
     <div class="container">
