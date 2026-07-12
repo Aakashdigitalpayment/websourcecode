@@ -143,6 +143,7 @@ $adminAlertCounts = [
     'kyc_risk'    => 0,
     'vendor'      => 0,
     'appointment' => 0,   /* नयाँ: pending भेटघाट */
+    'attend'      => 0,   /* कार्यक्रम उपस्थिति अनुरोध */
     'survey'      => 0,   /* नयाँ: unread survey */
 ];
 try {
@@ -154,32 +155,45 @@ try {
         $adminAlertCounts['job'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM job_applications WHERE status = 'pending'", '[admin-header job]') : 0;
     }
 } catch (\Throwable $e) {}
-$adminAlertCounts['kyc']         = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM kyc_applications WHERE status IN ('pending','incomplete')", '[admin-header kyc]') : 0;
-$adminAlertCounts['loan']        = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM loan_applications WHERE status = 'pending'", '[admin-header loan]') : 0;
-$adminAlertCounts['feedback']    = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_feedback WHERE status = 'pending'", '[admin-header feedback]') : 0;
-$adminAlertCounts['grievance']   = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM grievances WHERE status = 'pending'", '[admin-header grievance]') : 0;
-$adminAlertCounts['welfare']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_welfare_claims WHERE status = 'pending'", '[admin-header welfare]') : 0;
-$adminAlertCounts['auction']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM auction_bids WHERE status = 'pending'", '[admin-header auction]') : 0;
-$adminAlertCounts['vendor']      = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM vendors WHERE status = 'pending'", '[admin-header vendor]') : 0;
-$adminAlertCounts['account']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM account_applications WHERE status = 'pending'", '[admin-header account]') : 0;
-$adminAlertCounts['digital']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM digital_service_requests WHERE status = 'pending'", '[admin-header digital]') : 0;
-$adminAlertCounts['kyc_risk']    = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]') : 0;
-$adminAlertCounts['appointment'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM appointments WHERE status = 'pending'", '[admin-header appointment]') : 0;
+$__adminCount = static function (string $sql, string $log) use (&$db): int {
+    if (!($db instanceof PDO) || !function_exists('sqCount')) {
+        return 0;
+    }
+    try {
+        return sqCount($db, $sql, $log);
+    } catch (Throwable $e) {
+        error_log($log . ' ' . $e->getMessage());
+        return 0;
+    }
+};
+$adminAlertCounts['kyc']         = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status IN ('pending','incomplete')", '[admin-header kyc]');
+$adminAlertCounts['loan']        = $__adminCount("SELECT COUNT(*) FROM loan_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header loan]');
+$adminAlertCounts['feedback']    = $__adminCount("SELECT COUNT(*) FROM member_feedback WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header feedback]');
+$adminAlertCounts['grievance']   = $__adminCount("SELECT COUNT(*) FROM grievances WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header grievance]');
+$adminAlertCounts['welfare']     = $__adminCount("SELECT COUNT(*) FROM member_welfare_claims WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header welfare]');
+$adminAlertCounts['auction']     = $__adminCount("SELECT COUNT(*) FROM auction_bids WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header auction]');
+$adminAlertCounts['vendor']      = $__adminCount("SELECT COUNT(*) FROM vendors WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header vendor]');
+$adminAlertCounts['account']     = $__adminCount("SELECT COUNT(*) FROM account_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header account]');
+$adminAlertCounts['digital']     = $__adminCount("SELECT COUNT(*) FROM digital_service_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header digital]');
+$adminAlertCounts['kyc_risk']    = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]');
+$adminAlertCounts['appointment'] = $__adminCount("SELECT COUNT(*) FROM appointments WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header appointment]');
+$adminAlertCounts['attend']      = $__adminCount("SELECT COUNT(*) FROM member_program_attendance_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header attend]');
 try {
     /* member_survey पुरानो schema मा is_read नहुन सक्छ — fallback */
     $hasSurveyRead = function_exists('safeColumnExists') ? safeColumnExists('member_survey', 'is_read') : false;
     if ($hasSurveyRead) {
-        $adminAlertCounts['survey'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_survey WHERE is_read = 0", '[admin-header survey]') : 0;
+        $adminAlertCounts['survey'] = $__adminCount("SELECT COUNT(*) FROM member_survey WHERE is_read = 0", '[admin-header survey]');
     } else {
-        $adminAlertCounts['survey'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_survey", '[admin-header survey]') : 0;
+        $adminAlertCounts['survey'] = $__adminCount("SELECT COUNT(*) FROM member_survey", '[admin-header survey]');
     }
 } catch (\Throwable $e) {}
 /* Member Online Portal badges */
 $adminAlertCounts['mem_pending']  = 0;
 $adminAlertCounts['mem_resets']   = 0;
-$adminAlertCounts['mem_pending'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM members WHERE approval_status='pending'", '[admin-header mem-pending]') : 0;
-$adminAlertCounts['mem_resets']  = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_password_reset_requests WHERE status='pending'", '[admin-header mem-resets]') : 0;
+$adminAlertCounts['mem_pending'] = $__adminCount("SELECT COUNT(*) FROM members WHERE approval_status='pending'", '[admin-header mem-pending]');
+$adminAlertCounts['mem_resets']  = $__adminCount("SELECT COUNT(*) FROM member_password_reset_requests WHERE status='pending'", '[admin-header mem-resets]');
 $memPortalBadge = $adminAlertCounts['mem_pending'] + $adminAlertCounts['mem_resets'];
+unset($__adminCount);
 
 /* अस्थायी पासवर्ड — अनिवार्य परिवर्तन (public reset URL छैन)।
  * Superadmin: पासवर्ड `superadmin-config.local.php` मा राखिन्छ — UI बाट change गर्नु पर्दैन। */
@@ -520,10 +534,10 @@ set_exception_handler(function (\Throwable $ex) {
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
-                                <a href="appointments.php">
+                                <a href="appointments.php?status=pending" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
-                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
+                                    <span class="sidebar-link-label"><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
+                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='auctions' ? 'active' : ''; ?>">
@@ -551,9 +565,11 @@ set_exception_handler(function (\Throwable $ex) {
 
                     <!-- ── कार्यक्रम व्यवस्थापन (All program tools) ── -->
                     <li class="nav-group-wrap">
+                        <?php $program_total = (int)($adminAlertCounts['attend'] ?? 0); ?>
                         <div class="nav-group-header <?php echo $activeGroup=='program' ? 'open' : ''; ?>" data-group="program">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('कार्यक्रम व्यवस्थापन', 'Program Management'); ?></span>
+                            <?php if ($program_total > 0): ?><span class="group-badge"><?php echo $program_total; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
                         </div>
                         <ul class="nav-submenu <?php echo $activeGroup=='program' ? 'open' : ''; ?>" id="group-program">
@@ -564,15 +580,17 @@ set_exception_handler(function (\Throwable $ex) {
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-attendance-verify' ? 'active' : ''; ?>">
-                                <a href="../program-attendance-verify.php">
+                                <a href="../program-attendance-verify.php" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i></span>
-                                    <span><?php echo $adminT('उपस्थिति प्रमाणिकरण', 'Attendance Verify'); ?></span>
+                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति प्रमाणिकरण', 'Attendance Verify'); ?></span>
+                                    <?php if (!empty($adminAlertCounts['attend'])): ?><span class="badge"><?php echo (int)$adminAlertCounts['attend']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-attendance' ? 'active' : ''; ?>">
-                                <a href="program-attendance.php">
+                                <a href="program-attendance.php" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i></span>
-                                    <span><?php echo $adminT('उपस्थिति रिपोर्ट', 'Attendance Report'); ?></span>
+                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति रिपोर्ट', 'Attendance Report'); ?></span>
+                                    <?php if (!empty($adminAlertCounts['attend'])): ?><span class="badge"><?php echo (int)$adminAlertCounts['attend']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <?php /* निर्वाचन जानकारी छुट्टै group मा सरेको */ ?>
@@ -641,10 +659,10 @@ set_exception_handler(function (\Throwable $ex) {
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
-                                <a href="appointments.php">
+                                <a href="appointments.php?status=pending" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
-                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
+                                    <span class="sidebar-link-label"><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
+                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='welfare-claims' ? 'active' : ''; ?>">
@@ -929,20 +947,31 @@ set_exception_handler(function (\Throwable $ex) {
                     $notifItems = [
                         ['label'=>$adminT('अपठित सन्देश', 'Unread Messages'),     'count'=>$unreadMessages,                        'href'=>'messages.php',                       'icon'=>'fa-envelope',            'tone'=>'red'],
                         ['label'=>$adminT('KYC आवेदन', 'KYC Applications'),        'count'=>$adminAlertCounts['kyc'],               'href'=>'kyc-applications.php?status=pending', 'icon'=>'fa-id-card',             'tone'=>'orange'],
+                        ['label'=>$adminT('KYC जोखिम समीक्षा', 'KYC Risk Review'), 'count'=>$adminAlertCounts['kyc_risk'],        'href'=>'kyc-risk-reviews.php',                'icon'=>'fa-shield-halved',       'tone'=>'amber'],
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],
                         ['label'=>$adminT('डिजिटल सेवा', 'Digital Services'),      'count'=>$adminAlertCounts['digital'],           'href'=>'digital-service-requests.php?status=pending','icon'=>'fa-mobile-alt', 'tone'=>'cyan'],
+                        ['label'=>$adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'), 'count'=>$adminAlertCounts['appointment'], 'href'=>'appointments.php?status=pending', 'icon'=>'fa-calendar-check', 'tone'=>'red'],
                         ['label'=>$adminT('जागिर आवेदन', 'Job Applications'),      'count'=>$adminAlertCounts['job'],               'href'=>'job-applications.php?status=pending', 'icon'=>'fa-briefcase',           'tone'=>'green'],
                         ['label'=>$adminT('गुनासो', 'Grievances'),            'count'=>$adminAlertCounts['grievance'],         'href'=>'grievances.php?status=pending',       'icon'=>'fa-comment-dots',        'tone'=>'red'],
                         ['label'=>$adminT('सुझाव/प्रतिक्रिया', 'Feedback'), 'count'=>$adminAlertCounts['feedback'],          'href'=>'feedbacks.php?status=pending',        'icon'=>'fa-star',                'tone'=>'orange'],
                         ['label'=>$adminT('कल्याण दाबी', 'Welfare Claims'),      'count'=>$adminAlertCounts['welfare'],           'href'=>'welfare-claims.php?status=pending',   'icon'=>'fa-hand-holding-heart',  'tone'=>'teal'],
                         ['label'=>$adminT('लिलामी बिड', 'Auction Bids'),       'count'=>$adminAlertCounts['auction'],           'href'=>'auction-bids.php',                    'icon'=>'fa-gavel',               'tone'=>'slate'],
                         ['label'=>$adminT('भेन्डर आवेदन', 'Vendor Requests'),      'count'=>$adminAlertCounts['vendor'],            'href'=>'vendor-enlistment.php?status=pending','icon'=>'fa-store',               'tone'=>'blue'],
+                        ['label'=>$adminT('सदस्य दर्ता', 'Member Registrations'),  'count'=>$adminAlertCounts['mem_pending'],       'href'=>'member-online-portal.php?status=pending','icon'=>'fa-user-plus',        'tone'=>'orange'],
+                        ['label'=>$adminT('Password Reset', 'Password Reset'),    'count'=>$adminAlertCounts['mem_resets'],        'href'=>'member-online-portal.php?tab=resets', 'icon'=>'fa-key',                 'tone'=>'red'],
+                        ['label'=>$adminT('उपस्थिति अनुरोध', 'Attendance Requests'), 'count'=>$adminAlertCounts['attend'] ?? 0,   'href'=>'program-attendance.php',              'icon'=>'fa-clipboard-check',     'tone'=>'cyan'],
                     ];
                     /* pending मात्र filter गर्ने — count > 0 भएका मात्र dropdown मा देखाउने */
-                    $activeNotifs = array_filter($notifItems, function ($i) {
+                    $activeNotifs = array_values(array_filter($notifItems, function ($i) {
                         return ($i['count'] ?? 0) > 0;
-                    });
+                    }));
+                    /* Login/session: नयाँ पेन्डिङ बढेको बेला मात्र popup (सजिलो notice) */
+                    $lastSeenPending = (int)($_SESSION['admin_pending_last_total'] ?? 0);
+                    $showPendingNotice = ($totalAlerts > 0) && ($totalAlerts > $lastSeenPending);
+                    if ($showPendingNotice) {
+                        $_SESSION['admin_pending_last_total'] = $totalAlerts;
+                    }
                     ?>
                     <div class="header-item notif-wrapper">
                         <!-- Bell button — सधैं देखिन्छ, count > 0 भए red badge -->
@@ -1044,6 +1073,51 @@ set_exception_handler(function (\Throwable $ex) {
                   <span><?php echo htmlspecialchars($flash['message']); ?></span>
                   <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
               </div>
+              <?php endif; ?>
+
+              <?php if (!empty($showPendingNotice) && !empty($activeNotifs)): ?>
+              <div class="modal fade" id="adminPendingNoticeModal" tabindex="-1" aria-labelledby="adminPendingNoticeTitle" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                      <div class="modal-content border-0 shadow">
+                          <div class="modal-header text-white" style="background:linear-gradient(135deg,#b91c1c,#ef4444);">
+                              <h5 class="modal-title" id="adminPendingNoticeTitle">
+                                  <i class="fas fa-bell me-2"></i><?php echo $adminT('पेन्डिङ अनुरोधहरू', 'Pending Requests'); ?>
+                                  <span class="badge bg-light text-danger ms-2"><?php echo (int)$totalAlerts; ?></span>
+                              </h5>
+                              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                              <p class="text-muted small mb-3"><?php echo $adminT('तलका मेनुमा नयाँ अनुरोध आएका छन् — हेरेर कारबाही गर्नुहोस्।', 'New requests are waiting in the menus below — review and take action.'); ?></p>
+                              <div class="list-group list-group-flush">
+                                  <?php foreach ($activeNotifs as $ni): ?>
+                                  <a href="<?php echo ADMIN_URL . htmlspecialchars($ni['href'], ENT_QUOTES, 'UTF-8'); ?>"
+                                     class="list-group-item list-group-item-action d-flex align-items-center gap-3 px-0">
+                                      <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                            style="width:36px;height:36px;background:rgba(239,68,68,.12);color:#b91c1c;">
+                                          <i class="fas <?php echo htmlspecialchars($ni['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                      </span>
+                                      <span class="flex-grow-1 fw-semibold"><?php echo $ni['label']; ?></span>
+                                      <span class="badge rounded-pill" style="background:#ef4444;"><?php echo (int)$ni['count']; ?></span>
+                                  </a>
+                                  <?php endforeach; ?>
+                              </div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal"><?php echo $adminT('पछि हेर्छु', 'Later'); ?></button>
+                              <a href="<?php echo ADMIN_URL; ?>dashboard.php" class="btn btn-danger btn-sm">
+                                  <i class="fas fa-gauge-high me-1"></i><?php echo $adminT('ड्यासबोर्ड', 'Dashboard'); ?>
+                              </a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                  var el = document.getElementById('adminPendingNoticeModal');
+                  if (!el || typeof bootstrap === 'undefined' || !bootstrap.Modal) return;
+                  try { new bootstrap.Modal(el).show(); } catch (e) {}
+              });
+              </script>
               <?php endif; ?>
 
           <!-- Page content wrapper — admin-footer.php मा </div> छ -->
