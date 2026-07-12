@@ -1019,3 +1019,87 @@ body.dark-mode .text-primary {
 .badge.bg-info-soft {
   color: var(--text-primary, #1f2937) !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Contrast fixes — bell dropdown / login icons / quick-help FAB
+   Topbar once forced ALL nested <a> to white → invisible panel text.
+   ════════════════════════════════════════════════════════════ */
+
+/* Bell notices panel: dark text on white */
+.pfl-top-bar .pfl-bell-drop,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item a,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-body,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-title {
+  color: var(--text-color, #1f2937) !important;
+  -webkit-text-fill-color: var(--text-color, #1f2937) !important;
+  opacity: 1 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-date {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-footer a {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  font-weight: 700 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-footer a:hover {
+  color: var(--primary-dark, #14532d) !important;
+  -webkit-text-fill-color: var(--primary-dark, #14532d) !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-new-dot {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: #e74c3c !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-icon {
+  background: #e8f5e9 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item--new .pfl-bell-item-icon,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item--new .pfl-bell-item-icon i {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.pfl-top-bar .pfl-bell-header {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Login menu: soft icon tiles (match e-banking / app rows) */
+.pfl-login-menu .pfl-lm-member,
+.pfl-login-menu .pfl-lm-verify {
+  background: #e8f5e9 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+.pfl-login-menu .pfl-lm-member i,
+.pfl-login-menu .pfl-lm-verify i,
+.pfl-login-menu .pfl-lm-member svg,
+.pfl-login-menu .pfl-lm-verify svg,
+.pfl-login-menu .pfl-lm-member .lucide-icon,
+.pfl-login-menu .pfl-lm-verify .lucide-icon {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
+/* Quick-help FAB: white glyph on brand green */
+.qh-fab,
+.qh-fab i,
+.qh-fab svg,
+.qh-fab .lucide-icon,
+.qh-fab .fa-bolt,
+.qh-fab .fa-times,
+.qh-fab .fa-comments {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+.qh-fab {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
