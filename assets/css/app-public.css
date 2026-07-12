@@ -1533,6 +1533,7 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     padding: 20px 25px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
 }
 
@@ -11998,6 +11999,9 @@ body.notice-popup-open {
     color: var(--white);
     position: relative;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 @keyframes ratesHeaderShimmer {
@@ -17193,6 +17197,9 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
         var(--primary-color, #1a5f2a));
     padding: 14px 20px;
     color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .rates-header h3,
 .notices-header h3 {
@@ -17205,6 +17212,7 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     justify-content: center;
     text-align: center;
     gap: 8px;
+    width: 100%;
 }
 .rates-header h3 i,
 .notices-header h3 i { font-size: .95rem; }
