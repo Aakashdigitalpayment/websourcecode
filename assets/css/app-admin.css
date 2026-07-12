@@ -17156,3 +17156,196 @@ html.pwa-installed  .mem-pwa-btn { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
     .admin-fancy-input { transition: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   v12 — ADMIN TYPOGRAPHY SYSTEM (Additive-only, zero HTML changes)
+   7-step CSS custom property scale — replaces 35+ chaotic font sizes.
+
+   SCALE:
+   --adm-fs-xxs  0.68rem  — tiny badges, meta
+   --adm-fs-xs   0.75rem  — captions, filter labels, table headers
+   --adm-fs-sm   0.80rem  — form labels, nav tabs
+   --adm-fs-base 0.875rem — body text, td, inputs, buttons
+   --adm-fs-md   0.95rem  — card subtitles, nav links
+   --adm-fs-lg   1.05rem  — card titles, section headings
+   --adm-fs-xl   1.20rem  — page titles, stat numbers
+   ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --adm-fs-xxs:  0.68rem;
+    --adm-fs-xs:   0.75rem;
+    --adm-fs-sm:   0.80rem;
+    --adm-fs-base: 0.875rem;
+    --adm-fs-md:   0.95rem;
+    --adm-fs-lg:   1.05rem;
+    --adm-fs-xl:   1.20rem;
+}
+
+/* ── Page title ───────────────────────────────────────────────────── */
+.main-content .admin-page-title,
+.main-content h1.page-title,
+.main-content .page-header h1 {
+    font-size: var(--adm-fs-xl) !important;
+    font-weight: 800 !important;
+    letter-spacing: -.01em;
+    line-height: 1.25;
+}
+
+/* ── Card / section titles ────────────────────────────────────────── */
+.main-content .card-header h5,
+.main-content .card-header h6,
+.main-content .admin-section-title,
+.main-content .section-title {
+    font-size: var(--adm-fs-lg) !important;
+    font-weight: 700 !important;
+    line-height: 1.3;
+}
+
+/* ── Sidebar nav links ────────────────────────────────────────────── */
+.sidebar-nav a,
+.sidebar-nav .sidebar-link {
+    font-size: var(--adm-fs-base) !important;
+    font-weight: 500 !important;
+    line-height: 1.35 !important;
+}
+.sidebar-nav .nav-section-label,
+.sidebar-nav .sidebar-section-title {
+    font-size: var(--adm-fs-xxs) !important;
+    font-weight: 700 !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Nav tabs ─────────────────────────────────────────────────────── */
+.admin-nav-tabs .nav-link {
+    font-size: var(--adm-fs-sm) !important;
+    font-weight: 600 !important;
+}
+.admin-nav-tabs .nav-link .badge {
+    font-size: var(--adm-fs-xxs) !important;
+}
+
+/* ── Table headers (uppercase xs) ────────────────────────────────── */
+.main-content .table thead th,
+.admin-table-card .table thead th {
+    font-size: var(--adm-fs-xs) !important;
+    font-weight: 700 !important;
+    letter-spacing: .05em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Table body cells ─────────────────────────────────────────────── */
+.main-content .table tbody td,
+.admin-table-card .table tbody td {
+    font-size: var(--adm-fs-base) !important;
+    line-height: 1.45 !important;
+}
+
+/* ── Badges ───────────────────────────────────────────────────────── */
+.main-content .badge,
+.admin-table-card .badge {
+    font-size: var(--adm-fs-xxs) !important;
+    font-weight: 600 !important;
+    letter-spacing: .02em;
+}
+
+/* ── Form labels ──────────────────────────────────────────────────── */
+.main-content .form-label,
+.main-content label.form-label,
+.card .form-label,
+.modal-body .form-label,
+.tab-content .form-label {
+    font-size: var(--adm-fs-sm) !important;
+    font-weight: 700 !important;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────── */
+.admin-fancy-input,
+.form-control.admin-fancy-input,
+.form-select.admin-fancy-input {
+    font-size: var(--adm-fs-base) !important;
+}
+.admin-fancy-input::placeholder {
+    font-size: var(--adm-fs-sm) !important;
+    color: #9eada5 !important;
+}
+
+/* ── Helper text ──────────────────────────────────────────────────── */
+.main-content .form-text,
+.card .form-text,
+.modal-body .form-text,
+.main-content small.text-muted {
+    font-size: var(--adm-fs-xs) !important;
+    line-height: 1.4;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.main-content .btn        { font-size: var(--adm-fs-base) !important; font-weight: 600 !important; }
+.main-content .btn-sm     { font-size: var(--adm-fs-xs)   !important; font-weight: 600 !important; }
+.main-content .btn-lg     { font-size: var(--adm-fs-md)   !important; }
+
+/* ── Alerts ───────────────────────────────────────────────────────── */
+.main-content .alert      { font-size: var(--adm-fs-base) !important; }
+.main-content .alert strong { font-weight: 700 !important; }
+
+/* ── Filter / search bars ─────────────────────────────────────────── */
+.main-content .adm-filter-bar .form-control,
+.main-content .adm-filter-bar .form-select,
+.main-content .filter-bar .form-control,
+.main-content .filter-bar .form-select {
+    font-size: var(--adm-fs-base) !important;
+}
+.main-content .adm-filter-bar label,
+.main-content .filter-bar label {
+    font-size: var(--adm-fs-xs) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: .05em !important;
+}
+
+/* ── Pagination ───────────────────────────────────────────────────── */
+.main-content .pagination .page-link {
+    font-size: var(--adm-fs-sm) !important;
+    font-weight: 600 !important;
+}
+
+/* ── Stat/counter cards ───────────────────────────────────────────── */
+.main-content .stat-value,
+.main-content .counter-value,
+.main-content .stat-number {
+    font-size: var(--adm-fs-xl) !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -.02em;
+}
+.main-content .stat-label,
+.main-content .counter-label {
+    font-size: var(--adm-fs-xs) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    opacity: .75;
+}
+
+/* ── Code / mono ──────────────────────────────────────────────────── */
+.main-content code,
+.main-content pre { font-size: var(--adm-fs-xs) !important; }
+
+/* ── Devanagari text boost (+0.05rem for legibility) ─────────────── */
+.main-content :lang(ne) {
+    font-family: 'Noto Sans Devanagari', 'Mukta', var(--font-primary), sans-serif !important;
+    line-height: 1.6 !important;
+}
+
+/* ── Mobile: scale vars down slightly ────────────────────────────── */
+@media (max-width: 768px) {
+    :root {
+        --adm-fs-xxs:  0.66rem;
+        --adm-fs-xs:   0.72rem;
+        --adm-fs-sm:   0.78rem;
+        --adm-fs-base: 0.85rem;
+        --adm-fs-md:   0.92rem;
+        --adm-fs-lg:   1.00rem;
+        --adm-fs-xl:   1.10rem;
+    }
+}
