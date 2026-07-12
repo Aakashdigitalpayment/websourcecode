@@ -137,6 +137,15 @@ function ensurePublicTables(): void {
             INDEX idx_phone (phone)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        foreach ([
+            "ALTER TABLE appointments ADD COLUMN visit_kind VARCHAR(20) NOT NULL DEFAULT 'member'",
+            'ALTER TABLE appointments ADD COLUMN organization_address VARCHAR(500) NULL',
+            'ALTER TABLE appointments ADD COLUMN organization_website VARCHAR(255) NULL',
+            'ALTER TABLE appointments ADD COLUMN contact_person VARCHAR(120) NULL',
+        ] as $sql) {
+            try { $db->exec($sql); } catch (Throwable $e) {}
+        }
+
         /* ──────────────────────────────────────────────────
            5. LOAN APPLICATIONS (ऋण आवेदन)
         ────────────────────────────────────────────────── */
