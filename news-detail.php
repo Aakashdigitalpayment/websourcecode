@@ -50,7 +50,7 @@ $L = getLangStrings();
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item"><a href="news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
-                <li class="breadcrumb-item active"><?php echo truncateText(getLangField($news, 'title'), 30); ?></li>
+                <li class="breadcrumb-item active"><?php echo e(truncateText((string)getLangField($news, 'title'), 30)); ?></li>
             </ol>
         </nav>
     </div>
@@ -122,7 +122,7 @@ $L = getLangStrings();
                                 <?php endif; ?>
                             </div>
                             <div class="related-news-info">
-                                <h5><a href="news-detail.php?id=<?php echo $related['id']; ?>"><?php echo truncateText(getLangField($related, 'title'), 50); ?></a></h5>
+                                <h5><a href="news-detail.php?id=<?php echo $related['id']; ?>"><?php echo e(truncateText((string)getLangField($related, 'title'), 50)); ?></a></h5>
                                 <span class="date"><?php echo date('Y-m-d', strtotime($related['created_at'])); ?></span>
                             </div>
                         </div>

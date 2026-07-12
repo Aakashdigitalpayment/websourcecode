@@ -336,7 +336,14 @@ function seo_meta_description_from_html(?string $html, int $maxLen = 158): strin
         }
         return $t;
     }
-    return strlen($t) > $maxLen ? substr($t, 0, $maxLen - 1) . '…' : $t;
+    if (strlen($t) <= $maxLen) {
+        return $t;
+    }
+    $cut = substr($t, 0, $maxLen - 1);
+    if (preg_match('/^([\x00-\x7F]|[\xC2-\xF4][\x80-\xBF]*)*/', $cut, $m)) {
+        $cut = $m[0];
+    }
+    return rtrim($cut) . '…';
 }
 
 /**

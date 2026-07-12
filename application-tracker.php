@@ -890,7 +890,7 @@ function getAppTypeLabel($type) {
                                     </h5>
 
                                     <div class="rcp-chips mt-1">
-                                        <span class="rcp-chip"><i class="fas fa-user"></i><?php echo htmlspecialchars(substr($app['full_name'] ?? $app['name'] ?? $app['member_name'] ?? $app['requester_name'] ?? $app['bidder_name'] ?? '-', 0, 30)); ?></span>
+                                        <span class="rcp-chip"><i class="fas fa-user"></i><?php echo htmlspecialchars(mb_substr((string)($app['full_name'] ?? $app['name'] ?? $app['member_name'] ?? $app['requester_name'] ?? $app['bidder_name'] ?? '-'), 0, 30, 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?></span>
                                         <span class="rcp-chip"><i class="fas fa-calendar-alt"></i><?php echo date('Y-m-d', strtotime($app['created_at'])); ?></span>
                                         <?php if (!empty($app['tracking_id'])): ?>
                                         <span class="rcp-chip"><i class="fas fa-hashtag"></i><?php echo htmlspecialchars($app['tracking_id']); ?></span>

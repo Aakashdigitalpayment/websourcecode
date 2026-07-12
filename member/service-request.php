@@ -69,10 +69,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         $errorMsg = $_t('धेरै अनुरोध भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     } else {
         $svcType    = trim($_POST['service_type'] ?? '');
-        $message    = trim(substr($_POST['message'] ?? '', 0, 2000));
+        $message    = trim(mb_substr((string)($_POST['message'] ?? ''), 0, 2000, 'UTF-8'));
         $prefDate   = trim($_POST['preferred_date'] ?? '') ?: null;
         $prefTime   = trim($_POST['preferred_time'] ?? '');
-        $branch     = trim(substr($_POST['branch'] ?? '', 0, 80)) ?: $rBranch;
+        $branch     = trim(mb_substr((string)($_POST['branch'] ?? ''), 0, 80, 'UTF-8')) ?: $rBranch;
 
         if (!isset($serviceTypes[$svcType])) {
             $errorMsg = $_t('सेवा प्रकार छान्नुहोस्।', 'Please select service type.');

@@ -59,7 +59,9 @@ function auditLog(
             $summary = ucfirst(str_replace('_',' ',$action)) . ' on ' . $entityType
                      . ($entityId ? ' #' . $entityId : '');
         }
-        $summary = substr($summary, 0, 255);
+        $summary = function_exists('mb_substr')
+            ? mb_substr((string)$summary, 0, 255, 'UTF-8')
+            : substr((string)$summary, 0, 255);
 
         $st = $db->prepare(
             "INSERT INTO audit_log

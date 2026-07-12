@@ -66,7 +66,7 @@ try {
                     </div>
                     <div class="news-content">
                         <h4><?php echo getLangField($item, 'title'); ?></h4>
-                        <p><?php echo truncateText(getLangField($item, 'content'), 120); ?></p>
+                        <p><?php echo e(truncateText(strip_tags((string)getLangField($item, 'content')), 120)); ?></p>
                         <a href="news-detail.php?id=<?php echo $item['id']; ?>" class="read-more">
                             <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
                         </a>

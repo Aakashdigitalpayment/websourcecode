@@ -307,7 +307,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                 <tr>
                                     <td class="align-middle">
                                         <div class="fw-medium text-truncate" style="max-width: 200px;" title="<?php echo htmlspecialchars($report['title_np'] ?: $report['title']); ?>">
-                                            <?php echo truncateText($report['title_np'] ?: $report['title'], 35); ?>
+                                            <?php echo e(truncateText((string)($report['title_np'] ?: $report['title']), 35)); ?>
                                         </div>
                                     </td>
                                     <td class="align-middle">

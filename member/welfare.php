@@ -63,20 +63,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         exit;
     } else {
         $claimType  = trim($_POST['claim_type'] ?? '');
-        $desc       = trim(substr($_POST['description'] ?? '', 0, 4000));
-        $beneName   = trim(substr($_POST['beneficiary_name'] ?? '', 0, 120));
-        $beneRel    = trim(substr($_POST['beneficiary_relation'] ?? '', 0, 80));
+        $desc       = trim(mb_substr((string)($_POST['description'] ?? ''), 0, 4000, 'UTF-8'));
+        $beneName   = trim(mb_substr((string)($_POST['beneficiary_name'] ?? ''), 0, 120, 'UTF-8'));
+        $beneRel    = trim(mb_substr((string)($_POST['beneficiary_relation'] ?? ''), 0, 80, 'UTF-8'));
         $claimAmt   = max(0, (float)($_POST['claim_amount'] ?? 0));
-        $dcName     = trim(substr($_POST['deceased_name'] ?? '', 0, 120));
-        $dcRel      = trim(substr($_POST['deceased_relation'] ?? '', 0, 80));
+        $dcName     = trim(mb_substr((string)($_POST['deceased_name'] ?? ''), 0, 120, 'UTF-8'));
+        $dcRel      = trim(mb_substr((string)($_POST['deceased_relation'] ?? ''), 0, 80, 'UTF-8'));
         $deathDate  = trim($_POST['death_date'] ?? '') ?: null;
         $delivDate  = trim($_POST['delivery_date'] ?? '') ?: null;
-        $hospName   = trim(substr($_POST['hospital_name'] ?? '', 0, 200));
-        $disease    = trim(substr($_POST['disease_illness'] ?? '', 0, 500));
+        $hospName   = trim(mb_substr((string)($_POST['hospital_name'] ?? ''), 0, 200, 'UTF-8'));
+        $disease    = trim(mb_substr((string)($_POST['disease_illness'] ?? ''), 0, 500, 'UTF-8'));
         $treatDate  = trim($_POST['treatment_date'] ?? '') ?: null;
-        $hospClinic = trim(substr($_POST['hospital_clinic'] ?? '', 0, 200));
-        $policyNo   = trim(substr($_POST['policy_number'] ?? '', 0, 80));
-        $insurerNm  = trim(substr($_POST['insurer_name'] ?? '', 0, 150));
+        $hospClinic = trim(mb_substr((string)($_POST['hospital_clinic'] ?? ''), 0, 200, 'UTF-8'));
+        $policyNo   = trim(mb_substr((string)($_POST['policy_number'] ?? ''), 0, 80, 'UTF-8'));
+        $insurerNm  = trim(mb_substr((string)($_POST['insurer_name'] ?? ''), 0, 150, 'UTF-8'));
 
         $validTypes = ['maternity','death','insurance','medical','accident','other'];
         if (!in_array($claimType, $validTypes, true)) {
