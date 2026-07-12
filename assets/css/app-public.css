@@ -16866,51 +16866,141 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 /* ═══════════════════════════════════════════════════
    19. INSTITUTIONAL PROFILE BAR
    ═══════════════════════════════════════════════════ */
-.institutional-profile-section { padding: 0; }
+.institutional-profile-section {
+    position: relative;
+    isolation: isolate;
+    padding: 18px 0 22px;
+    background:
+        linear-gradient(
+            118deg,
+            color-mix(in srgb, var(--primary-dark, #144a21) 88%, #062010) 0%,
+            var(--primary-color, #1a5f2a) 48%,
+            color-mix(in srgb, var(--primary-color, #1a5f2a) 70%, #0d3d1a) 100%
+        );
+}
+.institutional-profile-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 70% 140% at 8% 50%, rgba(255, 255, 255, 0.12), transparent 58%),
+        radial-gradient(ellipse 55% 120% at 92% 35%, rgba(0, 0, 0, 0.18), transparent 52%),
+        repeating-linear-gradient(
+            -18deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.025) 10px,
+            rgba(255, 255, 255, 0.025) 11px
+        );
+}
+.institutional-profile-section .container {
+    position: relative;
+    z-index: 1;
+}
 .institutional-profile-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
-    background: var(--bg-card, #fff);
-    border-radius: 14px;
-    padding: 16px 24px;
-    margin: 20px 0;
-    box-shadow: 0 4px 20px rgba(var(--primary-rgb,26,95,42), .14), 0 1px 4px rgba(0,0,0,.06);
-    border: 1px solid rgba(var(--primary-rgb,26,95,42), .16);
+    gap: 14px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px 26px;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow:
+        0 14px 32px rgba(0, 0, 0, 0.22),
+        0 4px 12px rgba(0, 0, 0, 0.12),
+        0 1px 0 rgba(255, 255, 255, 0.9) inset;
 }
-.profile-title {
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 700; font-size: 1rem;
+.institutional-profile-bar .profile-title,
+.institutional-profile-bar .profile-title-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.02rem;
     color: var(--primary-dark, #144a21);
     text-decoration: none;
-    transition: color .18s;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    transition: color .18s ease;
 }
-.profile-title:hover { color: var(--primary-color); }
-.profile-title i { font-size: 1.2rem; color: var(--primary-color); }
+.institutional-profile-bar .profile-title:hover,
+.institutional-profile-bar .profile-title-link:hover {
+    color: var(--primary-color, #1a5f2a);
+    background: transparent;
+    transform: none;
+    box-shadow: none;
+}
+.institutional-profile-bar .profile-title i,
+.institutional-profile-bar .profile-title-link i {
+    font-size: 1.25rem;
+    color: var(--primary-color, #1a5f2a);
+}
+.institutional-profile-bar .profile-title-link .latest-badge {
+    position: static;
+    margin-left: 4px;
+    top: auto;
+    right: auto;
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff);
+    color: var(--primary-dark, #144a21);
+    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+    animation: none;
+    font-size: 0.68rem;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
 .profile-reports {
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
 }
-.report-quick-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: .85rem; font-weight: 600;
+.institutional-profile-bar .report-quick-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: .85rem;
+    font-weight: 600;
     text-decoration: none;
     transition: all .2s ease;
-    border: 1.5px solid var(--border-color, #e5e7eb);
-    color: var(--text-secondary, #4a5568);
-    background: #fff;
+    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #d1d5db);
+    color: var(--text-secondary, #374151);
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-.report-quick-link:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background: rgba(var(--primary-rgb,26,95,42), .05);
+.institutional-profile-bar .report-quick-link:hover {
+    border-color: var(--primary-color, #1a5f2a);
+    color: var(--primary-color, #1a5f2a);
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 9%, #fff);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb, 26, 95, 42), 0.14);
 }
-.report-quick-link i { font-size: .9rem; }
+.institutional-profile-bar .report-quick-link i { font-size: .9rem; }
+.institutional-profile-bar .report-quick-link .latest-badge {
+    position: static;
+    margin-left: 2px;
+    top: auto;
+    right: auto;
+    background: #e11d48;
+    animation: none;
+}
 @media (max-width: 575px) {
-    .institutional-profile-bar { flex-direction: column; align-items: flex-start; padding: 14px 16px; }
+    .institutional-profile-section { padding: 14px 0 16px; }
+    .institutional-profile-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 16px;
+        gap: 12px;
+    }
 }
 
 /* ═══════════════════════════════════════════════════
