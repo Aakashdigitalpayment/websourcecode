@@ -19,6 +19,31 @@ $departments  = hrmListDepartments($db);
 $branches     = hrmListBranches($db);
 $designations = fetchDesignations($db, ['staff','admin']);
 
+/* Website टोली (कर्मचारी / व्यवस्थापन) — HRM फारममा select गरेर fill गर्न */
+$teamStaffForHrm = [];
+try {
+    $teamStaffForHrm = $db->query(
+        "SELECT id, name, name_en, position, position_np, position_en, phone, email, photo, category
+           FROM team_members
+          WHERE is_active = 1
+            AND category NOT IN ('board')
+            AND category NOT LIKE 'cmt_%'
+          ORDER BY category, display_order, name"
+    )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $e) {
+    $teamStaffForHrm = [];
+}
+
+$teamStaffGroupLabels = [];
+try {
+    require_once __DIR__ . '/../includes/team-staff-groups.php';
+    foreach (fetchTeamStaffGroups($db, false) as $_sg) {
+        $slug = (string)($_sg['slug'] ?? '');
+        if ($slug === '') continue;
+        $teamStaffGroupLabels[$slug] = (string)(($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
+    }
+} catch (Throwable $e) { /* optional */ }
+
 /* ── POST ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
@@ -138,7 +163,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="d-flex gap-2">
           <a class="btn-coop" href="hrm-dashboard.php"><i class="fas fa-gauge"></i> ड्यासबोर्ड</a>
-          <button type="button" class="btn-coop" onclick="openEmpModal()">
+          <button type="button" class="btn-coop" onclick="openEmpModal(true)">
               <i class="fas fa-user-plus"></i> नयाँ कर्मचारी
           </button>
         </div>
@@ -249,41 +274,77 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <!-- Add/Edit modal -->
 <div id="empModal" class="stf-modal-backdrop">
-  <div class="card-coop stf-modal-card stf-modal-card-lg" style="max-width:880px;width:96%;">
-    <h3 class="stf-section-title" id="empModalTitle">नयाँ कर्मचारी</h3>
+  <div class="card-coop stf-modal-card stf-modal-card-lg" style="max-width:920px;width:96%;">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+      <div>
+        <h3 class="stf-section-title mb-1" id="empModalTitle">नयाँ कर्मचारी</h3>
+        <p class="small text-muted mb-0">Website टोलीबाट छानेर fill गर्न सकिन्छ, वा सिधै टाइप गर्नुहोस्।</p>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="closeEmpModal()" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
     <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
       <?= csrfField() ?>
       <input type="hidden" name="action" value="save">
       <input type="hidden" name="id" id="f_id" value="0">
 
-      <div class="row g-2">
-        <div class="col-md-3"><label class="small">कर्मचारी कोड</label><input class="field-coop" name="employee_code" id="f_code" placeholder="EMP-2082-0001"></div>
-        <div class="col-md-5"><label class="small">पूरा नाम (नेपाली) *</label><input class="field-coop" name="full_name_np" id="f_name_np" required></div>
-        <div class="col-md-4"><label class="small">Full Name (English)</label><input class="field-coop" name="full_name_en" id="f_name_en"></div>
+      <div class="hrm-form-section mb-3 p-3 border rounded-3 bg-light bg-opacity-50">
+        <div class="fw-semibold text-success mb-2"><i class="fas fa-users me-1"></i> Website टोलीबाट ल्याउनुहोस् <span class="badge bg-success-subtle text-success border border-success border-opacity-25 fw-normal">ऐच्छिक</span></div>
+        <label class="small" for="f_team_pick">कर्मचारी / व्यवस्थापन (team.php) मा भएका नाम</label>
+        <select class="field-coop" id="f_team_pick" onchange="fillFromTeamMember(this)">
+          <option value="">— नयाँ / आफैं टाइप गर्ने —</option>
+          <?php foreach ($teamStaffForHrm as $tm):
+              $tmPos = trim((string)(($tm['position_np'] ?: $tm['position']) ?: ''));
+              $tmGroup = $teamStaffGroupLabels[$tm['category'] ?? ''] ?? (string)($tm['category'] ?? '');
+              $tmLabel = trim(($tm['name'] ?? '') . ($tmPos !== '' ? ' — ' . $tmPos : '') . ($tmGroup !== '' ? ' (' . $tmGroup . ')' : ''));
+          ?>
+          <option value="<?= (int)$tm['id'] ?>"
+                  data-name="<?= e($tm['name'] ?? '') ?>"
+                  data-name-en="<?= e($tm['name_en'] ?? '') ?>"
+                  data-phone="<?= e($tm['phone'] ?? '') ?>"
+                  data-email="<?= e($tm['email'] ?? '') ?>"
+                  data-position="<?= e($tmPos) ?>"
+                  data-photo="<?= e($tm['photo'] ?? '') ?>">
+            <?= e($tmLabel) ?>
+          </option>
+          <?php endforeach; ?>
+        </select>
+        <small class="text-muted d-block mt-1">
+          छानेपछि नाम, मोबाइल, इमेल, पद auto-fill हुन्छ — चाहे अनुसार फेरि टाइप/सच्याउन सकिन्छ।
+          <?php if (empty($teamStaffForHrm)): ?>
+          <span class="text-warning">अहिले टोलीमा कर्मचारी/व्यवस्थापन सदस्य छैनन् — <a href="team-karmachari.php" target="_blank">यहाँ थप्नुहोस्</a>।</span>
+          <?php endif; ?>
+        </small>
+      </div>
 
-        <div class="col-md-3"><label class="small">लिङ्ग</label>
+      <div class="row g-2">
+        <div class="col-12"><div class="fw-semibold text-success small mb-1"><i class="fas fa-id-card me-1"></i> व्यक्तिगत विवरण</div></div>
+        <div class="col-md-3"><label class="small" for="f_code">कर्मचारी कोड</label><input class="field-coop" name="employee_code" id="f_code" placeholder="खाली = auto"></div>
+        <div class="col-md-5"><label class="small" for="f_name_np">पूरा नाम (नेपाली) *</label><input class="field-coop" name="full_name_np" id="f_name_np" required placeholder="नाम टाइप गर्नुहोस्"></div>
+        <div class="col-md-4"><label class="small" for="f_name_en">Full Name (English)</label><input class="field-coop" name="full_name_en" id="f_name_en" placeholder="Optional"></div>
+
+        <div class="col-md-3"><label class="small" for="f_gender">लिङ्ग</label>
           <select class="field-coop" name="gender" id="f_gender">
             <option value="male">पुरुष</option><option value="female">महिला</option><option value="other">अन्य</option>
           </select>
         </div>
-        <div class="col-md-3"><label class="small">जन्म मिति (BS)</label><input class="field-coop nepali-datepicker hrm-bs-date" name="dob_bs" id="f_dob_bs" placeholder="YYYY-MM-DD" autocomplete="off"></div>
-        <div class="col-md-3"><label class="small">जन्म मिति (AD)</label><input class="field-coop" type="date" name="dob_ad" id="f_dob_ad"></div>
-        <div class="col-md-3"><label class="small">रक्त समूह</label><input class="field-coop" name="blood_group" id="f_blood"></div>
+        <div class="col-md-3"><label class="small" for="f_dob_bs">जन्म मिति (BS)</label><input class="field-coop nepali-datepicker hrm-bs-date" name="dob_bs" id="f_dob_bs" placeholder="YYYY-MM-DD" autocomplete="off"></div>
+        <div class="col-md-3"><label class="small" for="f_dob_ad">जन्म मिति (AD)</label><input class="field-coop" type="date" name="dob_ad" id="f_dob_ad"></div>
+        <div class="col-md-3"><label class="small" for="f_blood">रक्त समूह</label><input class="field-coop" name="blood_group" id="f_blood" placeholder="जस्तै: O+"></div>
 
-        <div class="col-md-3"><label class="small">वैवाहिक स्थिति</label>
+        <div class="col-md-3"><label class="small" for="f_ms">वैवाहिक स्थिति</label>
           <select class="field-coop" name="marital_status" id="f_ms">
             <?php foreach (['single'=>'अविवाहित','married'=>'विवाहित','widow'=>'विधवा/विधुर','divorced'=>'पारपाचुके'] as $k=>$v): ?>
               <option value="<?= $k ?>"><?= $v ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-3"><label class="small">मोबाइल</label><input class="field-coop" name="mobile" id="f_mobile"></div>
-        <div class="col-md-3"><label class="small">Email</label><input class="field-coop" type="email" name="email" id="f_email"></div>
-        <div class="col-md-3"><label class="small">फोटो</label><input class="field-coop" type="file" name="photo" accept="image/*"></div>
+        <div class="col-md-3"><label class="small" for="f_mobile">मोबाइल</label><input class="field-coop" name="mobile" id="f_mobile" placeholder="98XXXXXXXX"></div>
+        <div class="col-md-3"><label class="small" for="f_email">Email</label><input class="field-coop" type="email" name="email" id="f_email" placeholder="name@example.com"></div>
+        <div class="col-md-3"><label class="small" for="f_photo">फोटो</label><input class="field-coop" type="file" name="photo" id="f_photo" accept="image/*"></div>
 
-        <div class="col-md-4"><label class="small">नागरिकता नं.</label><input class="field-coop" name="citizenship_no" id="f_citi"></div>
-        <div class="col-md-4"><label class="small">PAN नं.</label><input class="field-coop" name="pan_no" id="f_pan"></div>
-        <div class="col-md-4"><label class="small">स्थायी जिल्ला/नगर/वडा</label>
+        <div class="col-md-4"><label class="small" for="f_citi">नागरिकता नं.</label><input class="field-coop" name="citizenship_no" id="f_citi"></div>
+        <div class="col-md-4"><label class="small" for="f_pan">PAN नं.</label><input class="field-coop" name="pan_no" id="f_pan"></div>
+        <div class="col-md-4"><label class="small">स्थायी ठेगाना</label>
           <div class="d-flex gap-1">
             <input class="field-coop" name="perm_district" id="f_pdist" placeholder="जिल्ला" list="hrmDistrictOptions">
             <input class="field-coop" name="perm_municipality" id="f_pmun" placeholder="न.पा./गा.पा." list="hrmLocalGovOptions">
@@ -297,17 +358,18 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </datalist>
         </div>
 
-        <hr class="my-2">
+        <div class="col-12 mt-2"><hr class="my-2"><div class="fw-semibold text-success small mb-1"><i class="fas fa-briefcase me-1"></i> पद / कार्यालय</div></div>
 
-        <div class="col-md-4"><label class="small">पद</label>
-          <select class="field-coop" name="designation" id="f_desig">
-            <option value="">— छान्नुहोस् —</option>
+        <div class="col-md-4"><label class="small" for="f_desig">पद <span class="text-muted fw-normal">(छान्नुहोस् वा टाइप)</span></label>
+          <input class="field-coop" name="designation" id="f_desig" list="hrmDesigOptions" placeholder="पद छान्नुहोस् वा लेख्नुहोस्" autocomplete="off">
+          <datalist id="hrmDesigOptions">
             <?php foreach ($designations as $d): ?>
-              <option value="<?= e($d['title_np']) ?>"><?= e($d['title_np']) ?></option>
+              <option value="<?= e($d['title_np']) ?>"><?= e($d['title_np']) ?><?= !empty($d['title_en']) ? ' / ' . e($d['title_en']) : '' ?></option>
             <?php endforeach; ?>
-          </select>
+          </datalist>
+          <small class="text-muted">मास्टर: <a href="designations.php" target="_blank">पद मास्टर</a></small>
         </div>
-        <div class="col-md-4"><label class="small">विभाग</label>
+        <div class="col-md-4"><label class="small" for="f_dept">विभाग</label>
           <select class="field-coop" name="department_id" id="f_dept">
             <option value="0">— छान्नुहोस् —</option>
             <?php foreach ($departments as $d): ?>
@@ -315,7 +377,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-4"><label class="small">शाखा</label>
+        <div class="col-md-4"><label class="small" for="f_branch">शाखा</label>
           <select class="field-coop" name="branch_id" id="f_branch">
             <option value="0">— केन्द्रीय कार्यालय —</option>
             <?php foreach ($branches as $b): ?>
@@ -330,17 +392,17 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </small>
         </div>
 
-        <div class="col-md-3"><label class="small">सेवा प्रकार</label>
+        <div class="col-md-3"><label class="small" for="f_etype">सेवा प्रकार</label>
           <select class="field-coop" name="employment_type" id="f_etype">
             <?php foreach (['permanent'=>'स्थायी','contract'=>'करार','probation'=>'परीक्षणकाल','temporary'=>'अस्थायी','intern'=>'इन्टर्न','consultant'=>'परामर्शदाता'] as $k=>$v): ?>
               <option value="<?= $k ?>"><?= $v ?></option>
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-2"><label class="small">तह</label><input class="field-coop" name="level" id="f_level"></div>
-        <div class="col-md-2"><label class="small">श्रेणी</label><input class="field-coop" name="grade" id="f_grade"></div>
-        <div class="col-md-2"><label class="small">नियुक्ति (BS)</label><input class="field-coop nepali-datepicker hrm-bs-date" name="join_date_bs" id="f_jdbs" placeholder="YYYY-MM-DD" autocomplete="off"></div>
-        <div class="col-md-3"><label class="small">नियुक्ति (AD)</label><input class="field-coop" type="date" name="join_date_ad" id="f_jdad"></div>
+        <div class="col-md-2"><label class="small" for="f_level">तह</label><input class="field-coop" name="level" id="f_level"></div>
+        <div class="col-md-2"><label class="small" for="f_grade">श्रेणी</label><input class="field-coop" name="grade" id="f_grade"></div>
+        <div class="col-md-2"><label class="small" for="f_jdbs">नियुक्ति (BS)</label><input class="field-coop nepali-datepicker hrm-bs-date" name="join_date_bs" id="f_jdbs" placeholder="YYYY-MM-DD" autocomplete="off"></div>
+        <div class="col-md-3"><label class="small" for="f_jdad">नियुक्ति (AD)</label><input class="field-coop" type="date" name="join_date_ad" id="f_jdad"></div>
 
         <div class="col-md-4">
           <label class="small" for="f_status">अवस्था</label>
@@ -358,16 +420,39 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
       <div class="stf-actions-row stf-actions-row-lg mt-3">
         <button type="button" class="btn-coop btn-outline" onclick="closeEmpModal()">रद्द</button>
-        <button type="submit" class="btn-coop">Save / सुरक्षित गर्नुहोस्</button>
+        <button type="submit" class="btn-coop"><i class="fas fa-save me-1"></i> Save / सुरक्षित गर्नुहोस्</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-function openEmpModal(){
+function fillFromTeamMember(sel){
+  var opt = sel && sel.options ? sel.options[sel.selectedIndex] : null;
+  if (!opt || !opt.value) return;
+  var set = function(id, v){ var el = document.getElementById(id); if (el && v) el.value = v; };
+  set('f_name_np', opt.getAttribute('data-name') || '');
+  set('f_name_en', opt.getAttribute('data-name-en') || '');
+  set('f_mobile', opt.getAttribute('data-phone') || '');
+  set('f_email', opt.getAttribute('data-email') || '');
+  var pos = opt.getAttribute('data-position') || '';
+  if (pos) set('f_desig', pos);
+  var np = document.getElementById('f_name_np');
+  if (np) np.focus();
+}
+function openEmpModal(isNew){
   var m = document.getElementById('empModal');
   if (!m) return;
+  if (isNew) {
+    var form = m.querySelector('form');
+    if (form) form.reset();
+    var idEl = document.getElementById('f_id');
+    if (idEl) idEl.value = '0';
+    var pick = document.getElementById('f_team_pick');
+    if (pick) pick.value = '';
+    var title = document.getElementById('empModalTitle');
+    if (title) title.textContent = 'नयाँ कर्मचारी';
+  }
   m.style.display = 'flex';
   m.classList.add('open');
   m.scrollIntoView({behavior:'smooth', block:'start'});
@@ -402,9 +487,11 @@ function editEmp(r){
   set('f_etype', r.employment_type || 'permanent'); set('f_level', r.level); set('f_grade', r.grade);
   set('f_jdbs', r.join_date_bs); set('f_jdad', r.join_date_ad);
   set('f_status', r.status || 'active'); set('f_remarks', r.remarks);
+  var pick = document.getElementById('f_team_pick');
+  if (pick) pick.value = '';
   var title = document.getElementById('empModalTitle');
   if (title) title.textContent = 'कर्मचारी सम्पादन — ' + (r.full_name_np || '');
-  openEmpModal();
+  openEmpModal(false);
 }
 </script>
 <?php require_once __DIR__ . '/includes/admin-footer.php'; ?>
