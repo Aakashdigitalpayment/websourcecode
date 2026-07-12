@@ -16274,6 +16274,7 @@ a:hover { color: var(--primary-dark, #144a21); }
     font-size: 1rem !important;
     font-weight: 700 !important;
     color: var(--primary-dark, #144a21) !important;
+    background: transparent !important;
     border-bottom: 2px solid #f0f8f2 !important;
     padding-bottom: .65rem !important;
     margin-bottom: 1.25rem !important;
@@ -19489,8 +19490,9 @@ body.auth-portal-page.verify-auth-page .vp-card { background: transparent !impor
 
 /* ═══════════════════════════════════════════════════
    51. APPOINTMENT PAGE (appointment.php)
-   Global .card / .card-header use background:#fff/#f9fafb !important —
-   appointment panels must win that fight or white-on-light text disappears.
+   Keep form header green+white; steps sidebar uses a light
+   readable panel so global .card { background:#fff !important }
+   cannot create white-on-white copy again.
    ═══════════════════════════════════════════════════ */
 .appt-form-card {
     border-radius: 16px !important;
@@ -19506,52 +19508,78 @@ body.auth-portal-page.verify-auth-page .vp-card { background: transparent !impor
     color: #fff !important;
 }
 
-.appt-steps-card {
-    background: linear-gradient(160deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
-    border: 0 !important;
+.appt-form-card .form-card-title {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #f3faf5 !important;
+    border: 1px solid rgba(26, 95, 42, 0.14) !important;
+    border-left: 4px solid var(--primary-color, #1a5f2a) !important;
+    border-radius: 10px !important;
+    color: var(--primary-dark, #145021) !important;
+    padding: 12px 14px !important;
+    margin-bottom: 1rem !important;
+}
+.appt-form-card .form-card-title i {
+    color: var(--primary-color, #1a5f2a) !important;
+}
+
+.card.appt-steps-card {
+    background: #fff !important;
+    border: 1px solid #e5e7eb !important;
     border-radius: 16px !important;
-    color: #fff !important;
+    color: #1f2937 !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05) !important;
 }
-.appt-steps-card .card-body,
-.appt-steps-card h5,
-.appt-steps-card .fw-semibold,
-.appt-steps-card .appt-step-help,
-.appt-steps-card i {
-    color: #fff !important;
+.card.appt-steps-card .card-body,
+.card.appt-steps-card h5,
+.card.appt-steps-card .fw-semibold,
+.card.appt-steps-card .appt-step-help,
+.card.appt-steps-card i {
+    color: #1f2937 !important;
 }
-.appt-steps-card .fw-semibold + div {
-    color: rgba(255, 255, 255, 0.88) !important;
+.card.appt-steps-card h5 {
+    color: var(--primary-dark, #145021) !important;
+}
+.card.appt-steps-card h5 i {
+    color: var(--primary-color, #1a5f2a) !important;
+}
+.card.appt-steps-card .fw-semibold + div {
+    color: #4b5563 !important;
     opacity: 1 !important;
 }
 .appt-step-icon-wrap {
     width: 36px;
     height: 36px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(26, 95, 42, 0.12);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: #fff;
+    color: var(--primary-color, #1a5f2a);
+}
+.appt-step-icon-wrap i {
+    color: var(--primary-color, #1a5f2a) !important;
 }
 .appt-step-divider {
-    border-color: rgba(255, 255, 255, 0.28);
+    border-color: #e5e7eb;
     margin: 20px 0 16px;
     opacity: 1;
 }
 .appt-step-help {
     font-size: 12.5px;
     line-height: 1.55;
-    color: rgba(255, 255, 255, 0.92) !important;
+    color: #374151 !important;
 }
 .appt-step-link {
-    color: #ffe08a !important;
+    color: var(--primary-color, #1a5f2a) !important;
     font-weight: 700;
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 .appt-step-link:hover {
-    color: #fff !important;
+    color: var(--primary-dark, #145021) !important;
 }
 
 .appt-kind-tabs .nav-link {
@@ -19570,14 +19598,27 @@ body.dark-mode .appt-form-card > .card-header {
     background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
     color: #fff !important;
 }
-body.dark-mode .appt-steps-card {
-    background: linear-gradient(160deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
-    color: #fff !important;
+body.dark-mode .card.appt-steps-card {
+    background: var(--dark-bg, #1a2535) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #e5e7eb !important;
 }
-body.dark-mode .appt-steps-card h5,
-body.dark-mode .appt-steps-card .fw-semibold,
-body.dark-mode .appt-steps-card .appt-step-help {
-    color: #fff !important;
+body.dark-mode .card.appt-steps-card h5,
+body.dark-mode .card.appt-steps-card .fw-semibold,
+body.dark-mode .card.appt-steps-card .appt-step-help,
+body.dark-mode .card.appt-steps-card .fw-semibold + div {
+    color: #e5e7eb !important;
+}
+body.dark-mode .appt-step-link {
+    color: #86efac !important;
+}
+body.dark-mode .appt-form-card .form-card-title {
+    background: rgba(26, 95, 42, 0.18) !important;
+    border-color: rgba(134, 239, 172, 0.25) !important;
+    color: #d1fae5 !important;
+}
+body.dark-mode .appt-form-card .form-card-title i {
+    color: #86efac !important;
 }
 
 /* ═══════════════════════════════════════════════════

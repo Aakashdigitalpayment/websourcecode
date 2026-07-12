@@ -3386,9 +3386,8 @@ nav.sidebar {
     border-color: color-mix(in srgb, var(--primary-color) 25%, #e5e7eb) !important;
 }
 
-/* ·· 2j. Card headers — plain white/grey, no gradient ···· */
+/* ·· 2j. Card headers — brand green bar (text must stay light) ···· */
 .card-header,
-.form-card-title,
 .svc-form-header-grad,
 .appfeat-form-header,
 .slb-card-head,
@@ -3396,6 +3395,30 @@ nav.sidebar {
 .hg-card-head {
     background: var(--primary-color) !important;
     background-image: none !important;
+    color: #fff !important;
+}
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6,
+.card-header i,
+.svc-form-header-grad,
+.appfeat-form-header,
+.slb-card-head,
+.cred-top-bar,
+.hg-card-head {
+    color: #fff !important;
+}
+/* Public form section titles — heading on light surface, NOT a green bar */
+.form-card-title {
+    background: transparent !important;
+    background-image: none !important;
+    color: var(--primary-dark, #144a21) !important;
+}
+.form-card-title i {
+    color: var(--primary-color, #1a5f2a) !important;
 }
 /* Admin panel card-header already set to light — keep light */
 .main-content .card-header,
@@ -3403,6 +3426,29 @@ nav.sidebar {
 .admin-page .card-header {
     background: #f8faf9 !important;
     background-image: none !important;
+    color: #1f2937 !important;
+}
+.main-content .card-header h1,
+.main-content .card-header h2,
+.main-content .card-header h3,
+.main-content .card-header h4,
+.main-content .card-header h5,
+.main-content .card-header h6,
+.main-content .card-header i,
+.admin-shell .card-header h1,
+.admin-shell .card-header h2,
+.admin-shell .card-header h3,
+.admin-shell .card-header h4,
+.admin-shell .card-header h5,
+.admin-shell .card-header h6,
+.admin-shell .card-header i,
+.admin-page .card-header h1,
+.admin-page .card-header h2,
+.admin-page .card-header h3,
+.admin-page .card-header h4,
+.admin-page .card-header h5,
+.admin-page .card-header h6,
+.admin-page .card-header i {
     color: #1f2937 !important;
 }
 
