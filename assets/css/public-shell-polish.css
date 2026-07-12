@@ -84,7 +84,6 @@ h1, h2, h3, h4, h5, h6,
 .team-card,
 .team-card-circular,
 .officer-card,
-.contact-info-box,
 .rates-box,
 .notices-box,
 .ct-quick-card,
@@ -675,7 +674,6 @@ body.dark-mode .rates-box-enhanced,
 body.dark-mode .notices-box-enhanced,
 body.dark-mode .tools-category-card,
 body.dark-mode .tools-mini-link,
-body.dark-mode .contact-info-box,
 body.dark-mode .loan-card,
 body.dark-mode .product-card,
 body.dark-mode .branch-card,
@@ -1214,4 +1212,46 @@ body.dark-mode .text-primary {
   html[lang="en"] .pfl-since-badge .since-year {
     font-size: 10px !important;
   }
+}
+
+/* Contact left panel: brand green + white text (never white-on-white) */
+.contact-info-box {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-dark, #14532d)) !important;
+  border: none !important;
+  border-radius: var(--pub-radius, 12px) !important;
+  box-shadow: var(--pub-shadow, 0 4px 18px rgba(15, 31, 23, 0.06)) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.contact-info-box h4,
+.contact-info-box > p,
+.contact-info-box .contact-details,
+.contact-info-box .contact-details h6,
+.contact-info-box .contact-details p,
+.contact-info-box .contact-details p a,
+.contact-info-box .contact-social h6,
+.contact-info-box .contact-social a,
+.contact-info-box .ct-link-dark,
+.contact-info-box .contact-icon,
+.contact-info-box .contact-icon i {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  opacity: 1 !important;
+}
+.contact-info-box > p,
+.contact-info-box .contact-details h6 {
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+}
+.contact-info-box .contact-icon {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.contact-info-box .contact-icon i {
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+}
+.contact-info-box .contact-details p a:hover,
+.contact-info-box .ct-link-dark:hover {
+  color: #fef3c7 !important;
+  -webkit-text-fill-color: #fef3c7 !important;
 }
