@@ -1269,7 +1269,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                         foreach ($_catCommittees as $_nc):
                                         ?>
                                         <li>
-                                            <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees">
+                                            <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>">
                                                 <i class="fas fa-users-gear"></i>
                                                 <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
                                             </a>
@@ -1619,7 +1619,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                         }
                                         foreach ($_catCommittees as $_nc):
                                         ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#committees"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                         <?php endforeach; ?>
                                         <?php if (empty($_catCommittees) && empty($_tmc['include_board'])): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?></a></li>

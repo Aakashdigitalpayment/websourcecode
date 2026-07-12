@@ -205,7 +205,7 @@ foreach ($menuCategoriesPublic as $_mc) {
                 'key' => 'cmt-' . $ctId,
                 'label' => isEnglish() ? ($_ct['name'] ?: $_ct['name_np']) : ($_ct['name_np'] ?: $_ct['name']),
                 'type' => 'committee',
-                'filter' => 'committees',
+                'filter' => 'cmt-' . $ctId,
                 'cmt' => $ctId,
             ];
         }
@@ -221,7 +221,7 @@ foreach ($menuCategoriesPublic as $_mc) {
     ];
 }
 
-/* Resolve selection: menu → item */
+/* Resolve selection: menu → item (one item = one page section) */
 $viewMenuSlug = $selectedMenuSlug;
 if ($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) {
     if ($selectedItemKey !== '') {
@@ -264,31 +264,31 @@ if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
             }
         }
     }
+    /* Menu item missing/invalid → first item in that श्रेणी (never fall back to whole page) */
     if (!$viewItem && !empty($menuTree[$viewMenuSlug]['items'])) {
         $viewItem = $menuTree[$viewMenuSlug]['items'][0];
         $viewItemKey = $viewItem['key'];
     }
 }
 
-$viewCat = 'all';
+$isTeamOverview = ($viewMenuSlug === 'all');
 $viewCommitteeId = 0;
+$isCommitteeView = false;
+$activeSectionKey = '';
 if ($viewItem) {
-    $viewCat = (string)($viewItem['filter'] ?? 'all');
+    $activeSectionKey = (string)($viewItem['key'] ?? '');
     if (($viewItem['type'] ?? '') === 'committee') {
         $viewCommitteeId = (int)($viewItem['cmt'] ?? 0);
-        $viewCat = 'committees';
+        $isCommitteeView = $viewCommitteeId > 0;
+        $activeSectionKey = 'cmt-' . $viewCommitteeId;
+        $viewItemKey = $activeSectionKey;
     }
-} elseif ($viewMenuSlug === 'all') {
-    $viewCat = 'all';
 }
 
 $allowedFiltersForMenu = [];
-if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
+if (!$isTeamOverview && isset($menuTree[$viewMenuSlug])) {
     foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
-        $allowedFiltersForMenu[] = (string)$_it['filter'];
-        if (($_it['type'] ?? '') === 'committee') {
-            $allowedFiltersForMenu[] = 'committees';
-        }
+        $allowedFiltersForMenu[] = (string)$_it['key'];
     }
     $allowedFiltersForMenu = array_values(array_unique($allowedFiltersForMenu));
 }
@@ -300,19 +300,19 @@ foreach ($committeeTypes as $_ct) {
         break;
     }
 }
-$viewTenures = ($viewCat === 'committees') ? ($committeeTenures[$viewCommitteeId] ?? []) : [];
-$viewTenureId = ($viewCat === 'committees') ? (int)($committeeActiveTenure[$viewCommitteeId] ?? 0) : 0;
-if ($viewCat === 'committees' && $selectedTenureId > 0) {
+$viewTenures = $isCommitteeView ? ($committeeTenures[$viewCommitteeId] ?? []) : [];
+$viewTenureId = $isCommitteeView ? (int)($committeeActiveTenure[$viewCommitteeId] ?? 0) : 0;
+if ($isCommitteeView && $selectedTenureId > 0) {
     $viewTenureId = $selectedTenureId;
 }
-if ($viewCat === 'committees' && $viewTenureId <= 0 && !empty($viewTenures)) {
+if ($isCommitteeView && $viewTenureId <= 0 && !empty($viewTenures)) {
     foreach ($viewTenures as $tn) {
         if (!empty($tn['is_current'])) { $viewTenureId = (int)$tn['id']; break; }
     }
     if ($viewTenureId <= 0) $viewTenureId = (int)($viewTenures[0]['id'] ?? 0);
 }
 /* Reload members if tenure overridden via GET */
-if ($viewCat === 'committees' && $viewCommitteeId > 0 && $viewTenureId > 0
+if ($isCommitteeView && $viewCommitteeId > 0 && $viewTenureId > 0
     && $viewTenureId !== (int)($committeeActiveTenure[$viewCommitteeId] ?? 0)) {
     try {
         $mStmt = getDB()->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
@@ -325,7 +325,7 @@ if ($viewCat === 'committees' && $viewCommitteeId > 0 && $viewTenureId > 0
         $viewMembers = $committeeMembers[$viewCommitteeId] ?? [];
     }
 } else {
-    $viewMembers = ($viewCat === 'committees') ? ($committeeMembers[$viewCommitteeId] ?? []) : [];
+    $viewMembers = $isCommitteeView ? ($committeeMembers[$viewCommitteeId] ?? []) : [];
 }
 $viewCommitteeLabel = '';
 if ($viewCommittee) {
@@ -334,11 +334,16 @@ if ($viewCommittee) {
         : (($viewCommittee['name_np'] ?: $viewCommittee['name']) ?: '');
 }
 
-$hasCommitteeFilters = $viewCat === 'committees' && $viewCommitteeId > 0;
-$focusFilter = ($viewCat === 'all') ? 'all' : $viewCat;
-$menuItemsForSelect = ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug]))
+$focusFilter = $isTeamOverview ? 'all' : ($activeSectionKey !== '' ? $activeSectionKey : 'all');
+$menuItemsForSelect = (!$isTeamOverview && isset($menuTree[$viewMenuSlug]))
     ? $menuTree[$viewMenuSlug]['items']
     : [];
+
+/** Only render matching section unless overview (सबै श्रेणी). */
+$teamShowSection = static function (string $key) use ($isTeamOverview, $activeSectionKey): bool {
+    if ($isTeamOverview) return true;
+    return $activeSectionKey !== '' && $activeSectionKey === $key;
+};
 ?>
 
 <!-- Page Banner -->
@@ -394,7 +399,7 @@ $menuItemsForSelect = ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug]
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="col-md-4 col-lg-3" id="teamTenureWrap" style="<?php echo ($viewCat === 'committees' && !empty($viewTenures)) ? '' : 'display:none'; ?>">
+                <div class="col-md-4 col-lg-3" id="teamTenureWrap" style="<?php echo ($isCommitteeView && !empty($viewTenures)) ? '' : 'display:none'; ?>">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
                         <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i>
                         3. <?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
@@ -450,7 +455,7 @@ $menuItemsForSelect = ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug]
 <?php endif; ?>
 
 <!-- Information & Grievance Officers Section -->
-<?php if ($chairman || $ceo || $informationOfficer || $grievanceOfficer): ?>
+<?php if ($teamShowSection('contact-officers') && ($chairman || $ceo || $informationOfficer || $grievanceOfficer)): ?>
 <section id="contact-officers" class="team-section officers-section section-padding bg-light" data-filter="contact-officers">
     <div class="container">
         <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
@@ -626,7 +631,7 @@ $menuItemsForSelect = ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug]
 </section>
 <?php endif; ?>
 
-<?php if (!empty($boardMembers)): ?>
+<?php if ($teamShowSection('board') && !empty($boardMembers)): ?>
 <section id="board" class="team-section section-padding" data-filter="board">
     <div class="container">
         <div class="section-header section-header-unified text-center">
@@ -679,6 +684,7 @@ foreach ($staffGroups as $_sg):
     $members = $staffMembersBySlug[$slug] ?? [];
     if (empty($members)) continue;
     $anchor = teamStaffGroupAnchor($slug);
+    if (!$teamShowSection($anchor)) continue;
     $title = isEnglish()
         ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
         : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
@@ -732,10 +738,11 @@ foreach ($staffGroups as $_sg):
 </section>
 <?php endforeach; ?>
 
-<!-- Committees viewer: one section + committee/tenure dropdowns -->
-<?php if ($viewCat === 'committees' && $viewCommittee): ?>
-<section id="committees" class="team-section section-padding bg-light" data-filter="committees"
+<!-- Committees viewer: one committee section only -->
+<?php if ($isCommitteeView && $viewCommittee && $teamShowSection($activeSectionKey)): ?>
+<section id="<?php echo htmlspecialchars($activeSectionKey); ?>" class="team-section section-padding bg-light" data-filter="<?php echo htmlspecialchars($activeSectionKey); ?>"
          data-active-cmt="<?php echo (int)$viewCommitteeId; ?>">
+    <div id="committees" class="visually-hidden" aria-hidden="true"></div>
     <?php if ($viewCommitteeId > 0): ?>
     <div id="committee-<?php echo (int)$viewCommitteeId; ?>" class="visually-hidden" aria-hidden="true"></div>
     <?php endif; ?>
@@ -861,11 +868,11 @@ function teamBuildUrl(menuSlug, itemKey, tenureId) {
     if (!item) return 'team.php?menu=' + encodeURIComponent(menuSlug);
 
     var url = 'team.php?menu=' + encodeURIComponent(menuSlug) + '&item=' + encodeURIComponent(item.key);
-    var hash = item.filter || item.key;
+    var hash = item.key;
     if (item.type === 'committee') {
         url += '&cat=committees&cmt=' + encodeURIComponent(item.cmt || 0);
         if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
-        hash = 'committees';
+        hash = 'cmt-' + (item.cmt || 0);
     } else {
         url += '&cat=' + encodeURIComponent(item.filter || item.key);
     }
@@ -905,7 +912,7 @@ function teamBuildUrl(menuSlug, itemKey, tenureId) {
             opt.value = it.key;
             opt.textContent = it.label;
             opt.setAttribute('data-type', it.type || '');
-            opt.setAttribute('data-filter', it.filter || '');
+            opt.setAttribute('data-filter', it.filter || it.key);
             opt.setAttribute('data-cmt', String(it.cmt || 0));
             itemSelect.appendChild(opt);
             if (preferredKey && it.key === preferredKey) selected = it;
@@ -1009,18 +1016,29 @@ function teamBuildUrl(menuSlug, itemKey, tenureId) {
                 return;
             }
         }
-        var focus = window.__teamFocusFilter || params.get('cat') || hash || 'all';
-        if (params.get('cmt') && !params.get('cat') && !params.get('item')) focus = 'committees';
-        if (hash === 'committees' || focus === 'committees') focus = 'committees';
-        if (focus === 'all' && hash && hash !== 'all') focus = hash;
+        /* Server already rendered only the selected item; keep JS hide as backup for overview */
+        var focus = window.__teamFocusFilter || 'all';
+        var cmtId = parseInt(params.get('cmt') || '0', 10) || 0;
+        if (cmtId > 0 && (focus === 'all' || focus === 'committees')) {
+            focus = 'cmt-' + cmtId;
+        }
+        if (/^cmt-\d+$/.test(hash)) focus = hash;
+        if (params.get('item') && /^[a-z0-9\-_]+$/.test(params.get('item'))) {
+            focus = params.get('item');
+        }
+        if (window.__teamFocusFilter && window.__teamFocusFilter !== 'all') {
+            focus = window.__teamFocusFilter;
+        }
         var allowed = window.__teamAllowedFilters || [];
-        if (window.__teamMenuSlug && window.__teamMenuSlug !== 'all' && (!allowed || !allowed.length)) {
-            allowed = [];
+        if (window.__teamMenuSlug && window.__teamMenuSlug !== 'all') {
+            /* Never show whole page when a menu श्रेणी is active */
+            if (focus === 'all' || focus === 'committees') {
+                focus = (allowed && allowed[0]) ? allowed[0] : focus;
+            }
+            teamFilter(null, focus, null);
+            return;
         }
-        teamFilter(null, focus === 'all' && !(allowed && allowed.length) ? 'all' : focus, allowed);
-        if (focus === 'all' && allowed && allowed.length) {
-            teamFilter(null, 'all', allowed);
-        }
+        teamFilter(null, 'all', null);
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
