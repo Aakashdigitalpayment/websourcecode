@@ -1235,10 +1235,8 @@ if ($__uiTestMode):
   }
 </style>
 
-<?php /* ═══════════════════════════════════════════════════════════
-        PUBLIC WEBSITE: Mobile Footer Navigation (मोबाइल मेनू)
-        ═══════════════════════════════════════════════════════════ */ ?>
-<?php require_once __DIR__ . '/mobile-footer-nav.php'; ?>
+<?php /* Duplicate public-mobile-footer disabled — .mob-bottomnav above is the single mobile bar */ ?>
+<?php /* require_once __DIR__ . '/mobile-footer-nav.php'; */ ?>
 
 <?php if (function_exists("coopThemeLucideInit")) { coopThemeLucideInit(); } ?>
 </body>
