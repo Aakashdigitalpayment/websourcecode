@@ -110,16 +110,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q       = trim($_GET['q'] ?? '');
 $fStatus = $_GET['status'] ?? '';
 $fDept   = (int)($_GET['dept'] ?? 0);
+$fBranch = (int)($_GET['branch'] ?? 0);
 
 $where = []; $args = [];
-if ($q !== '')      { $where[] = "(full_name_np LIKE ? OR employee_code LIKE ? OR mobile LIKE ?)"; $args[]="%$q%"; $args[]="%$q%"; $args[]="%$q%"; }
-if ($fStatus !== ''){ $where[] = "status=?"; $args[]=$fStatus; }
-if ($fDept > 0)    { $where[] = "department_id=?"; $args[]=$fDept; }
+if ($q !== '')      { $where[] = "(e.full_name_np LIKE ? OR e.employee_code LIKE ? OR e.mobile LIKE ?)"; $args[]="%$q%"; $args[]="%$q%"; $args[]="%$q%"; }
+if ($fStatus !== ''){ $where[] = "e.status=?"; $args[]=$fStatus; }
+if ($fDept > 0)    { $where[] = "e.department_id=?"; $args[]=$fDept; }
+if ($fBranch > 0)  { $where[] = "e.branch_id=?"; $args[]=$fBranch; }
 $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
 
-$stmt = $db->prepare("SELECT e.*, d.name_np AS dept_name
+$stmt = $db->prepare("SELECT e.*, d.name_np AS dept_name, sc.name_np AS branch_name
                         FROM hrm_employees e
                         LEFT JOIN hrm_departments d ON d.id = e.department_id
+                        LEFT JOIN service_centers sc ON sc.id = e.branch_id
                         $whereSql
                         ORDER BY e.id DESC");
 $stmt->execute($args);
@@ -166,6 +169,15 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
           </select>
         </div>
+        <div>
+          <label class="small text-muted">शाखा / ब्रान्च</label>
+          <select class="field-coop" name="branch">
+            <option value="0">— सबै —</option>
+            <?php foreach ($branches as $b): ?>
+              <option value="<?= (int)$b['id'] ?>" <?= $fBranch===(int)$b['id']?'selected':'' ?>><?= e($b['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
         <button class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
     </form>
 
@@ -173,17 +185,17 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="table table-hover mb-0 stf-table table-responsive-stack">
             <thead class="stf-soft-head">
                 <tr>
-                    <th>कोड</th><th>नाम</th><th>पद</th><th>विभाग</th><th>नियुक्ति</th><th>प्रकार</th><th>अवस्था</th><th class="stf-align-right">कार्य</th>
+                    <th>कोड</th><th>नाम</th><th>पद</th><th>विभाग</th><th>शाखा</th><th>नियुक्ति</th><th>प्रकार</th><th>अवस्था</th><th class="stf-align-right">कार्य</th>
                 </tr>
             </thead>
             <tbody>
             <?php if (!$rows): ?>
-                <tr><td colspan="8" class="text-center text-muted py-4">कुनै कर्मचारी फेला परेन।</td></tr>
+                <tr><td colspan="9" class="text-center text-muted py-4">कुनै कर्मचारी फेला परेन।</td></tr>
             <?php endif; ?>
             <?php foreach ($rows as $r): ?>
                 <tr>
-                    <td><code><?= e($r['employee_code']) ?></code></td>
-                    <td>
+                    <td data-label="कोड"><code><?= e($r['employee_code']) ?></code></td>
+                    <td data-label="नाम">
                         <div class="d-flex align-items-center gap-2">
                           <img src="<?= e(hrmEmployeePhotoUrl($r['photo'])) ?>" alt="" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#eee">
                           <div>
@@ -192,12 +204,13 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                           </div>
                         </div>
                     </td>
-                    <td><small><?= e($r['designation']) ?></small></td>
-                    <td><small><?= e($r['dept_name']) ?></small></td>
-                    <td><small><?= e($r['join_date_ad'] ?: $r['join_date_bs']) ?></small></td>
-                    <td><small><?= e($r['employment_type']) ?></small></td>
-                    <td><?= hrmStatusBadge($r['status']) ?></td>
-                    <td class="stf-align-right">
+                    <td data-label="पद"><small><?= e($r['designation']) ?></small></td>
+                    <td data-label="विभाग"><small><?= e($r['dept_name']) ?></small></td>
+                    <td data-label="शाखा"><small><?= e($r['branch_name'] ?? '—') ?></small></td>
+                    <td data-label="नियुक्ति"><small><?= e($r['join_date_ad'] ?: $r['join_date_bs']) ?></small></td>
+                    <td data-label="प्रकार"><small><?= e($r['employment_type']) ?></small></td>
+                    <td data-label="अवस्था"><?= hrmStatusBadge($r['status']) ?></td>
+                    <td class="stf-align-right" data-label="कार्य">
                         <a class="btn btn-sm btn-outline-primary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a>
                         <a class="btn btn-sm btn-outline-success" target="_blank" title="Digital ID Card" href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-id-card"></i></a>
                         <button class="btn btn-sm btn-outline-secondary" onclick='editEmp(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'><i class="fas fa-pen"></i></button>
