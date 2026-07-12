@@ -23999,6 +23999,11 @@ body.auth-page,
         top: -6px;
         min-width: 220px;
         max-width: min(320px, calc(100vw - 40px));
+        max-height: min(55vh, calc(100vh - 160px));
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
         margin: 0;
         padding: 8px 0;
         list-style: none;
@@ -24012,6 +24017,28 @@ body.auth-page,
         transition: opacity .18s ease, transform .18s ease, visibility .18s;
         z-index: 10000;
         pointer-events: none;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(26,95,42,.45) rgba(26,95,42,.08);
+    }
+
+    .nav-menu .dropdown > li.has-sub > .sub-menu::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .nav-menu .dropdown > li.has-sub > .sub-menu::-webkit-scrollbar-thumb {
+        background: rgba(26,95,42,.45);
+        border-radius: 999px;
+    }
+
+    .nav-menu .dropdown > li.has-sub > .sub-menu::-webkit-scrollbar-track {
+        background: rgba(26,95,42,.08);
+    }
+
+    /* Stronger header-v2 selectors so flyout scroll cannot be overridden */
+    body.header-v2 #mainNavV2 .nav-menu .dropdown > li.has-sub > .sub-menu {
+        max-height: min(55vh, calc(100vh - 160px)) !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
     }
 
     .nav-menu .dropdown > li.has-sub:hover > .sub-menu,
