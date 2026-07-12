@@ -17060,3 +17060,99 @@ html.pwa-installed  .mem-pwa-btn { display: none !important; }
         display: none !important;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   ADMIN FORM POLISH — single authoritative source, additive-only.
+   Resolves 7 conflicting .form-label rules (sizes 0.77–0.9rem,
+   5 different colors). No HTML changed, no existing rule deleted.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* 1. Unified form-label — consistent across all admin cards/modals/tabs */
+.main-content .form-label,
+.main-content label.form-label,
+.card .form-label,
+.modal-body .form-label,
+.tab-content .form-label,
+.admin-form-grid .form-label {
+    font-size:   0.82rem !important;
+    font-weight: 600     !important;
+    color:       #2b4a32 !important;   /* single dark-green, readable */
+    margin-bottom: 5px   !important;
+    letter-spacing: .01em;
+    line-height: 1.3;
+}
+
+/* 2. Required asterisk — uniform */
+.main-content .form-label .text-danger,
+.main-content .form-label .required,
+.card .form-label .text-danger,
+.modal-body .form-label .text-danger {
+    color: #dc3545 !important;
+    font-weight: 700 !important;
+    font-size: inherit !important;
+}
+
+/* 3. admin-fancy-input — consistent height, font, border */
+.admin-fancy-input,
+.form-control.admin-fancy-input,
+.form-select.admin-fancy-input {
+    font-size: 0.9rem  !important;
+    min-height: 42px   !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #cdd8d1 !important;
+    color: #1a2e1f !important;
+    padding: 9px 13px  !important;
+    transition: border-color .18s, box-shadow .18s !important;
+}
+.admin-fancy-input:focus,
+.form-control.admin-fancy-input:focus,
+.form-select.admin-fancy-input:focus {
+    border-color: var(--primary-color, #1a5f2a) !important;
+    box-shadow: 0 0 0 3px rgba(26,95,42,.12) !important;
+    outline: none !important;
+}
+
+/* 4. input-group-text uniform alignment */
+.main-content .input-group-text {
+    font-size: 0.88rem;
+    min-height: 42px;
+    padding: 0 13px;
+    border-radius: 9px 0 0 9px !important;
+}
+
+/* 5. form-check-label (toggle/checkbox labels) */
+.main-content .form-check-label,
+.card .form-check-label {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #2b4a32;
+    line-height: 1.4;
+}
+
+/* 6. Section heading labels (stg-title-*, tm-form-label, appfeat-label) */
+.stg-title-primary, .stg-title-accent, .stg-section-title,
+.tm-form-label, .appfeat-label {
+    font-size: 0.82rem !important;
+    font-weight: 600   !important;
+    color: #2b4a32     !important;
+}
+
+/* 7. Small helper text below fields */
+.main-content .form-text,
+.card .form-text,
+.modal-body .form-text {
+    font-size: 0.76rem;
+    color: #6b7280;
+    margin-top: 3px;
+}
+
+/* 8. Row/column gutter consistency inside card bodies */
+.card-body .row.g-3 { row-gap: 1rem !important; }
+
+/* 9. Fieldset/section dividers */
+.card-body hr.my-4 { border-color: #e8f0e9; opacity: 1; margin: 1.25rem 0 !important; }
+
+/* Reduced-motion respect */
+@media (prefers-reduced-motion: reduce) {
+    .admin-fancy-input { transition: none !important; }
+}
