@@ -7,8 +7,12 @@ require_once __DIR__ . '/../includes/election-tables.php';
 $pageTitle = 'समिति व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/team-menu-categories.php';
 
 $db        = getDB();
+try {
+    ensureTeamMenuCategoriesTable($db);
+} catch (Throwable $e) { /* best-effort */ }
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
@@ -16,6 +20,16 @@ checkCSRF();
 $activeTab = $_GET['tab'] ?? 'types';
 if (!in_array($activeTab, ['types', 'tenures', 'members'], true)) {
     $activeTab = 'types';
+}
+
+$committeeMenuCategories = [];
+try {
+    $committeeMenuCategories = array_values(array_filter(
+        fetchAllTeamMenuCategories($db),
+        static fn($c) => ($c['source_type'] ?? '') === 'committees'
+    ));
+} catch (Throwable $e) {
+    $committeeMenuCategories = [];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -32,14 +46,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $is_active    = isset($_POST['type_active']) ? 1 : 0;
             /* नयाँ: navbar/menu drop-down मा यो समिति देखाउने/नदेखाउने */
             $show_in_navbar = isset($_POST['type_show_in_navbar']) ? 1 : 0;
+            $menu_category_id = (int)($_POST['type_menu_category_id'] ?? 0) ?: null;
 
             if ($action === 'add_type') {
-                $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar) VALUES (?,?,?,?,?,?)")
-                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar]);
+                $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?,?)")
+                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id]);
                 setFlash('success', 'समिति प्रकार थपियो।');
             } else {
-                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=? WHERE id=?")
-                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $id]);
+                $db->prepare("UPDATE committee_types SET name=?, name_np=?, description=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=? WHERE id=?")
+                   ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id, $id]);
                 setFlash('success', 'समिति प्रकार अपडेट भयो।');
             }
         }
@@ -206,6 +221,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                 <thead><tr>
                     <th class="ps-3" width="60">क्रम</th>
                     <th>नाम</th>
+                    <th>श्रेणी</th>
                     <th>विवरण</th>
                     <th width="110" class="text-center">Navbar मा</th>
                     <th width="90" class="text-center">स्थिति</th>
@@ -213,14 +229,33 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                 </tr></thead>
                 <tbody>
                     <?php if (empty($committeeTypes)): ?>
-                    <tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-layer-group fa-3x mb-2 d-block opacity-25"></i>कुनै समिति प्रकार छैन।</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-layer-group fa-3x mb-2 d-block opacity-25"></i>कुनै समिति प्रकार छैन।</td></tr>
                     <?php endif; ?>
-                    <?php foreach ($committeeTypes as $t): $showNav = (int)($t['show_in_navbar'] ?? 0); ?>
+                    <?php
+                    $menuCatById = [];
+                    foreach ($committeeMenuCategories as $_mc) {
+                        $menuCatById[(int)$_mc['id']] = $_mc;
+                    }
+                    foreach ($committeeTypes as $t):
+                        $showNav = (int)($t['show_in_navbar'] ?? 0);
+                        $mcId = (int)($t['menu_category_id'] ?? 0);
+                        $mcRow = $menuCatById[$mcId] ?? null;
+                    ?>
                     <tr>
                         <td class="ps-3"><span class="badge bg-light text-dark border"><?php echo $t['display_order']; ?></span></td>
                         <td>
                             <div class="fw-semibold"><?php echo htmlspecialchars($t['name_np']); ?></div>
                             <small class="text-muted"><?php echo htmlspecialchars($t['name']); ?></small>
+                        </td>
+                        <td>
+                            <?php if ($mcRow): ?>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="<?php echo htmlspecialchars($mcRow['icon'] ?? 'fas fa-folder'); ?> me-1"></i>
+                                    <?php echo htmlspecialchars($mcRow['name_np'] ?: ($mcRow['name_en'] ?? '')); ?>
+                                </span>
+                            <?php else: ?>
+                                <span class="text-muted small">—</span>
+                            <?php endif; ?>
                         </td>
                         <td><small class="text-muted"><?php echo htmlspecialchars($t['description'] ?? ''); ?></small></td>
                         <td class="text-center">
@@ -239,7 +274,8 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                                     data-desc="<?php echo htmlspecialchars($t['description'] ?? '', ENT_QUOTES); ?>"
                                     data-order="<?php echo $t['display_order']; ?>"
                                     data-active="<?php echo $t['is_active']; ?>"
-                                    data-show-nav="<?php echo $showNav; ?>">
+                                    data-show-nav="<?php echo $showNav; ?>"
+                                    data-menu-cat="<?php echo $mcId; ?>">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो समिति प्रकार मेटाउने?')">
@@ -281,17 +317,39 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     <label class="form-label fw-semibold text-success">विवरण</label>
                     <input type="text" name="type_description" id="typ_desc" class="form-control admin-fancy-input" placeholder="समितिको संक्षिप्त विवरण">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold text-success">मेनु श्रेणी</label>
+                    <select name="type_menu_category_id" id="typ_menu_cat" class="form-select admin-fancy-input">
+                        <option value="">— छान्नुहोस् —</option>
+                        <?php foreach ($committeeMenuCategories as $_mc): ?>
+                        <option value="<?php echo (int)$_mc['id']; ?>">
+                            <?php echo htmlspecialchars($_mc['name_np'] ?: ($_mc['name_en'] ?? '')); ?>
+                            <?php if (!empty($_mc['name_en']) && ($_mc['name_en'] !== ($_mc['name_np'] ?? ''))): ?>
+                                / <?php echo htmlspecialchars($_mc['name_en']); ?>
+                            <?php endif; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="text-muted d-block mt-1">
+                        <i class="fas fa-info-circle me-1"></i>
+                        मानवीय श्रोत मेनुमा कुन parent श्रेणी अन्तर्गत यो समिति देखिने —
+                        <a href="team.php?tab=menu">मेनु श्रेणी</a> मा बनाइन्छ।
+                        <?php if (empty($committeeMenuCategories)): ?>
+                        <span class="text-warning d-block mt-1">अहिले समिति स्रोतको श्रेणी छैन — पहिले मेनु श्रेणीमा स्रोत = समिति थप्नुहोस्।</span>
+                        <?php endif; ?>
+                    </small>
+                </div>
+                <div class="col-md-2">
                     <label class="form-label fw-semibold text-success">क्रम</label>
                     <input type="number" name="type_order" id="typ_order" class="form-control admin-fancy-input" value="0" min="0">
                 </div>
-                <div class="col-md-4 d-flex align-items-end pb-1">
+                <div class="col-md-2 d-flex align-items-end pb-1">
                     <div class="form-check form-switch fs-5">
                         <input class="form-check-input" type="checkbox" name="type_active" id="typ_active" checked>
                         <label class="form-check-label fw-semibold" for="typ_active">सक्रिय</label>
                     </div>
                 </div>
-                <div class="col-md-4 d-flex align-items-end pb-1">
+                <div class="col-md-2 d-flex align-items-end pb-1">
                     <div>
                         <div class="form-check form-switch fs-5 mb-0">
                             <input class="form-check-input" type="checkbox" name="type_show_in_navbar" id="typ_show_nav">
@@ -326,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('typ_name_np').value = '';
         document.getElementById('typ_desc').value   = '';
         document.getElementById('typ_order').value  = '0';
+        document.getElementById('typ_menu_cat').value = '';
         document.getElementById('typ_active').checked = true;
         document.getElementById('typ_show_nav').checked = false;
         document.getElementById('typ_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
@@ -348,6 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('typ_name_np').value  = d.nameNp;
             document.getElementById('typ_desc').value     = d.desc || '';
             document.getElementById('typ_order').value    = d.order;
+            document.getElementById('typ_menu_cat').value = d.menuCat || '';
             document.getElementById('typ_active').checked = d.active === '1';
             document.getElementById('typ_show_nav').checked = d.showNav === '1';
             document.getElementById('typ_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';

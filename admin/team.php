@@ -172,13 +172,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new InvalidArgumentException('Group name required');
                 }
                 if ($teamListSection === 'governance') {
+                    ensureTeamMenuCategoriesTable($db);
+                    $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
                     if (($_POST['action'] ?? '') === 'group_add') {
-                        $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar) VALUES (?,?,?,?,?)")
-                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav]);
+                        $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?)")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat]);
                         $success = $__t('समिति समूह थपियो। अब सदस्य फारमको वर्गमा map गर्न सकिन्छ।', 'Committee group added. You can map members to it in the form.');
                     } else {
-                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=? WHERE id=?")
-                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gid]);
+                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=? WHERE id=?")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gid]);
                         $success = $__t('समिति समूह अपडेट भयो।', 'Committee group updated.');
                     }
                 } elseif ($teamListSection === 'karmachari') {
@@ -319,6 +321,13 @@ try {
 $staffMenuCategories = array_values(array_filter($allMenuCategories, static function ($c) {
     return ($c['source_type'] ?? '') === 'staff';
 }));
+$committeeMenuCategories = array_values(array_filter($allMenuCategories, static function ($c) {
+    return ($c['source_type'] ?? '') === 'committees';
+}));
+$menuCatById = [];
+foreach ($allMenuCategories as $_mc) {
+    $menuCatById[(int)$_mc['id']] = $_mc;
+}
 
 if (isset($_GET['edit_group'])) {
     try {
@@ -913,6 +922,23 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 <input type="number" name="group_order" class="form-control" min="0"
                                        value="<?php echo (int)($editGroup['display_order'] ?? 0); ?>">
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
+                                <select name="group_menu_category_id" class="form-select">
+                                    <option value=""><?php echo $__t('— छान्नुहोस् —', '— Choose —'); ?></option>
+                                    <?php foreach ($committeeMenuCategories as $_mc): ?>
+                                    <option value="<?php echo (int)$_mc['id']; ?>" <?php echo (int)($editGroup['menu_category_id'] ?? 0) === (int)$_mc['id'] ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars(isEnglish() ? ($_mc['name_en'] ?: $_mc['name_np']) : ($_mc['name_np'] ?: $_mc['name_en'])); ?>
+                                    </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted"><?php echo $__t('मानवीय श्रोत मेनुमा कुन parent श्रेणी अन्तर्गत', 'Which parent category under Human Resources'); ?> —
+                                    <a href="#team-menu" onclick="document.getElementById('team-menu-btn')?.click(); return false;"><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?></a>
+                                    <?php if (empty($committeeMenuCategories)): ?>
+                                    <span class="text-warning d-block mt-1"><?php echo $__t('समिति स्रोतको श्रेणी छैन — पहिले मेनु श्रेणीमा स्रोत = समिति थप्नुहोस्।', 'No committee-source categories yet — add one with Source = Committees first.'); ?></span>
+                                    <?php endif; ?>
+                                </small>
+                            </div>
                             <div class="col-md-2 d-flex flex-column justify-content-end gap-2 pb-1">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="group_is_active" id="grp_active" value="1" <?php echo ($editGroup['is_active'] ?? 1) ? 'checked' : ''; ?>>
@@ -947,6 +973,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                     <tr>
                         <th><?php echo $__t('समूह', 'Group'); ?></th>
                         <th><?php echo $__t('अंग्रेजी', 'English'); ?></th>
+                        <th><?php echo $__t('श्रेणी', 'Category'); ?></th>
                         <th class="text-center"><?php echo $__t('Map key', 'Map key'); ?></th>
                         <th class="text-center"><?php echo $__t('मेनु', 'Menu'); ?></th>
                         <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
@@ -954,10 +981,19 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                     </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($allCommitteeGroups as $g): ?>
+                <?php foreach ($allCommitteeGroups as $g):
+                    $gMc = $menuCatById[(int)($g['menu_category_id'] ?? 0)] ?? null;
+                ?>
                     <tr>
                         <td><?php echo htmlspecialchars($g['name_np'] ?: $g['name']); ?></td>
                         <td><?php echo htmlspecialchars($g['name'] ?? ''); ?></td>
+                        <td>
+                            <?php if ($gMc): ?>
+                                <span class="badge bg-light text-dark border"><?php echo htmlspecialchars(isEnglish() ? ($gMc['name_en'] ?: $gMc['name_np']) : ($gMc['name_np'] ?: $gMc['name_en'])); ?></span>
+                            <?php else: ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
+                        </td>
                         <td class="text-center"><code class="small">cmt_<?php echo (int)$g['id']; ?></code></td>
                         <td class="text-center"><?php echo !empty($g['show_in_navbar']) ? '✓' : '—'; ?></td>
                         <td class="text-center">
