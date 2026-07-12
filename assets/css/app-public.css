@@ -2514,9 +2514,7 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     }
 
     .page-banner h1 { font-size: 1.42rem; }
-        width: 18px !important;
-        min-width: 18px !important;
-        height: 18px !important;
+}
 /* ==============================================
    UNIFORM SUCCESS / TRACKING UI (Public Forms)
    ============================================== */
