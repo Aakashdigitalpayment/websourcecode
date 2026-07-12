@@ -1223,7 +1223,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <?php if ($_tmcSource === 'staff'): ?>
                                         <?php if (!empty($_tmc['include_contact_officers'])): ?>
                                         <li>
-                                            <a href="<?php echo SITE_URL; ?>team.php#contact-officers">
+                                            <a href="<?php echo SITE_URL; ?>team.php?cat=contact-officers#contact-officers">
                                                 <i class="fas fa-id-card-clip"></i>
                                                 <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
                                             </a>
@@ -1241,7 +1241,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                             elseif ($_slug === 'staff') $_icon = 'fas fa-users';
                                         ?>
                                         <li>
-                                            <a href="<?php echo SITE_URL; ?>team.php#<?php echo htmlspecialchars($_anchor); ?>">
+                                            <a href="<?php echo SITE_URL; ?>team.php?cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>">
                                                 <i class="<?php echo $_icon; ?>"></i>
                                                 <?php echo htmlspecialchars($_label); ?>
                                             </a>
@@ -1250,7 +1250,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <?php else: ?>
                                         <?php if (!empty($_tmc['include_board'])): ?>
                                         <li>
-                                            <a href="<?php echo SITE_URL; ?>team.php#board">
+                                            <a href="<?php echo SITE_URL; ?>team.php?cat=board#board">
                                                 <i class="fas fa-landmark"></i>
                                                 <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
                                             </a>
@@ -1584,7 +1584,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <li class="dropdown-header"><?php echo htmlspecialchars($_tmcLabel); ?></li>
                                     <?php if ($_tmcSource === 'staff'): ?>
                                         <?php if (!empty($_tmc['include_contact_officers'])): ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?cat=contact-officers#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                                         <?php endif; ?>
                                         <?php foreach ($navStaffGroups as $_sg):
                                             if ($_tmcId > 0 && (int)($_sg['menu_category_id'] ?? 0) !== $_tmcId) continue;
@@ -1597,11 +1597,11 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                             if ($_slug === 'top_management' || $_slug === 'admin') $_icon = 'fas fa-user-shield';
                                             elseif ($_slug === 'staff') $_icon = 'fas fa-users';
                                         ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#<?php echo htmlspecialchars($_anchor); ?>"><i class="<?php echo $_icon; ?>"></i> <?php echo htmlspecialchars($_label); ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?cat=<?php echo urlencode($_anchor); ?>#<?php echo htmlspecialchars($_anchor); ?>"><i class="<?php echo $_icon; ?>"></i> <?php echo htmlspecialchars($_label); ?></a></li>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <?php if (!empty($_tmc['include_board'])): ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?cat=board#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
                                         <?php endif; ?>
                                         <?php
                                         $_catCommittees = [];
