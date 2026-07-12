@@ -337,8 +337,9 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     </select>
                     <small class="text-muted d-block mt-1">
                         <i class="fas fa-info-circle me-1"></i>
-                        मानवीय श्रोत मेनुमा कुन parent श्रेणी अन्तर्गत यो समिति देखिने —
+                        मानवीय स्रोत मेनुमा कुन parent श्रेणी अन्तर्गत यो समिति देखिने —
                         <a href="team.php?tab=menu">मेनु श्रेणी</a> मा बनाइन्छ।
+                        Parent श्रेणीको <strong>आइकन</strong> पनि त्यहीँबाट छान्नुहोस्।
                         <?php if (empty($committeeMenuCategories)): ?>
                         <span class="text-warning d-block mt-1">अहिले समिति स्रोतको श्रेणी छैन — पहिले मेनु श्रेणीमा स्रोत = समिति थप्नुहोस्।</span>
                         <?php endif; ?>

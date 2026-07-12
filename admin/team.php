@@ -1233,15 +1233,29 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <option value="committees" <?php echo ($editMenuCat['source_type'] ?? '') === 'committees' ? 'selected' : ''; ?>><?php echo $__t('समितिहरू', 'Committees'); ?></option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-6">
                                 <label class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
-                                <input type="text" name="menu_icon" class="form-control" value="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder'); ?>" placeholder="fas fa-briefcase">
+                                <div class="js-fa-icon-picker fa-ip-wrap">
+                                    <div class="fa-ip-row input-group">
+                                        <span class="fa-ip-preview input-group-text" data-fa-preview>
+                                            <i class="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                        </span>
+                                        <input type="text" name="menu_icon" class="form-control" data-fa-input
+                                               value="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"
+                                               placeholder="fas fa-briefcase">
+                                        <button type="button" class="btn btn-success fa-ip-open" data-fa-open
+                                                title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
+                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                        </button>
+                                    </div>
+                                    <small class="fa-ip-hint"><?php echo $__t('दायाँ बटनबाट आइकन छान्नुहोस् वा class टाइप गर्नुहोस्। सार्वजनिक मेनुमा यही icon देखिन्छ।', 'Pick an icon with the button, or type a class. This icon appears in the public menu.'); ?></small>
+                                </div>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
                                 <input type="number" name="menu_order" class="form-control" min="0" value="<?php echo (int)($editMenuCat['display_order'] ?? 0); ?>">
                             </div>
-                            <div class="col-md-10 d-flex flex-wrap align-items-end gap-4 pb-1">
+                            <div class="col-md-4 d-flex flex-wrap align-items-end gap-4 pb-1">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="menu_is_active" id="menu_active" value="1" <?php echo ($editMenuCat['is_active'] ?? 1) ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="menu_active"><?php echo $__t('सक्रिय', 'Active'); ?></label>

@@ -398,7 +398,7 @@ $servicesArch = $svcPart['archived'];
                                     <input type="text" name="icon" id="svcf_icon" class="form-control admin-fancy-input" data-fa-input
                                            value="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>" placeholder="fas fa-star">
                                     <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                        <i class="fas fa-th"></i>
+                                        <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                     </button>
                                 </div>
                                 <small class="fa-ip-hint"><?php echo $__t('दायाँ बटन थिचेर आइकन छान्नुहोस्, वा class टाइप गर्नुहोस्।', 'Click the grid button to pick an icon, or type a class.'); ?></small>
@@ -588,7 +588,7 @@ $servicesArch = $svcPart['archived'];
                                         <span class="fa-ip-preview input-group-text" data-fa-preview><i class="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>"></i></span>
                                         <input type="text" name="cat_icon" class="form-control" data-fa-input value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                            <i class="fas fa-th"></i>
+                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                         </button>
                                     </div>
                                     <small class="fa-ip-hint"><?php echo $__t('Grid बाट छान्नुहोस् वा class टाइप गर्नुहोस्।', 'Pick from grid or type a class.'); ?></small>
