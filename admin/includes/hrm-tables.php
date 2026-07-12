@@ -39,11 +39,41 @@ if (!function_exists('hrmListDepartments')) {
 }
 
 if (!function_exists('hrmListBranches')) {
+    /**
+     * Branches from service_centers (सेवा केन्द्र / शाखा).
+     * @return list<array{id:int,name:string,name_np?:string,name_en?:string,is_main_branch?:int}>
+     */
     function hrmListBranches(PDO $db): array {
         try {
-            return $db->query("SELECT id, name_np AS name FROM service_centers WHERE is_active=1 ORDER BY sort_order, id")
-                      ->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        } catch (\Throwable $e) { return []; }
+            $rows = $db->query(
+                "SELECT id,
+                        COALESCE(NULLIF(TRIM(name_np), ''), NULLIF(TRIM(name), ''), CONCAT('शाखा #', id)) AS name,
+                        name_np,
+                        name AS name_en,
+                        is_main_branch,
+                        display_order
+                 FROM service_centers
+                 WHERE is_active = 1
+                 ORDER BY is_main_branch DESC, display_order ASC, name ASC"
+            )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            return $rows;
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+}
+
+if (!function_exists('hrmEmploymentTypeLabel')) {
+    function hrmEmploymentTypeLabel(string $type): string {
+        $map = [
+            'permanent'  => 'स्थायी',
+            'contract'   => 'करार',
+            'probation'  => 'परीक्षणकाल',
+            'temporary'  => 'अस्थायी',
+            'intern'     => 'इन्टर्न',
+            'consultant' => 'परामर्शदाता',
+        ];
+        return $map[$type] ?? $type;
     }
 }
 
