@@ -451,7 +451,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
 
 <?php if (function_exists('portalLangToggleUrl') && function_exists('portalLangToggleBadge')): ?>
 <?php $__lt = function_exists('appGetText') ? appGetText('भाषा परिवर्तन', 'Switch language') : (function_exists('isEnglish') && isEnglish() ? 'Switch language' : 'भाषा परिवर्तन'); ?>
-<a href="<?php echo htmlspecialchars(portalLangToggleUrl(), ENT_QUOTES, 'UTF-8'); ?>" class="auth-lang-toggle" title="<?php echo htmlspecialchars($__lt, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($__lt, ENT_QUOTES, 'UTF-8'); ?>">
+<a href="<?php echo htmlspecialchars(portalLangToggleUrl(), ENT_QUOTES, 'UTF-8'); ?>" class="auth-lang-toggle notranslate" translate="no" title="<?php echo htmlspecialchars($__lt, ENT_QUOTES, 'UTF-8'); ?>" aria-label="<?php echo htmlspecialchars($__lt, ENT_QUOTES, 'UTF-8'); ?>">
     <i class="lucide-icon" aria-hidden="true" data-lucide="languages"></i> <?php echo htmlspecialchars(portalLangToggleBadge()); ?>
 </a>
 <?php endif; ?>

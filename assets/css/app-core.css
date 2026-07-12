@@ -2805,9 +2805,10 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
     color: var(--primary-color); text-decoration: none;
     box-shadow: 0 1px 6px color-mix(in srgb, var(--text-primary) 8%, transparent);
     transition: background .15s, transform .15s;
+    width: auto; max-width: calc(100vw - 120px); white-space: nowrap;
 }
-body.auth-portal-page:not(.verify-auth-page) .page-back { right: 20px; }
-body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { left: 20px; }
+body.auth-portal-page:not(.verify-auth-page) .page-back { left: auto; right: 20px; }
+body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; left: 20px; }
 
 
 /* ════════════════════════════════════════════════════════════════

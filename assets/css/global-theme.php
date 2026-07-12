@@ -1623,7 +1623,7 @@ body.auth-portal-page .security-note i              {
     color: var(--primary-color,#1a5f2a) !important;
 }
 
-/* Back link + lang toggle */
+/* Back link + lang toggle — explicit left/right so pills do not stretch full-width */
 body.auth-portal-page:not(.verify-auth-page) .page-back,
 body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
     position: fixed !important;
@@ -1643,9 +1643,18 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
     box-shadow: 0 1px 4px rgba(0,0,0,.07) !important;
     color: var(--primary-color,#1a5f2a) !important;
     transition: background 0.15s !important;
+    width: auto !important;
+    max-width: calc(100vw - 120px) !important;
+    white-space: nowrap !important;
 }
-body.auth-portal-page:not(.verify-auth-page) .page-back   { right: 20px !important; }
-body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { left: 20px !important; }
+body.auth-portal-page:not(.verify-auth-page) .page-back {
+    left: auto !important;
+    right: 16px !important;
+}
+body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle {
+    right: auto !important;
+    left: 16px !important;
+}
 body.auth-portal-page:not(.verify-auth-page) .page-back:hover,
 body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle:hover {
     background: var(--bg-card,#fff) !important;

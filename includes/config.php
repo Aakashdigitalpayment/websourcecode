@@ -1277,23 +1277,99 @@ if (DB_NAME !== '' && DB_USER !== '') {
 
 /**
  * =====================================================
- * LANGUAGE FUNCTIONS
+ * LANGUAGE — per browser only (session + cookie).
+ * Never write language to DB/settings — one visitor's
+ * EN/NP choice must not change the site for everyone.
+ * Default for new visitors: Nepali (np).
  * =====================================================
  */
 
-// Handle language switch
-if (isset($_GET['lang']) && in_array($_GET['lang'], ['en', 'np'])) {
-    $_SESSION['lang'] = $_GET['lang'];
+if (!defined('UI_LANG_COOKIE')) {
+    define('UI_LANG_COOKIE', 'coop_ui_lang');
 }
 
-// Set default language to Nepali
-if (!isset($_SESSION['lang'])) {
-    $_SESSION['lang'] = 'np';
+if (!function_exists('coopUiLangIsSecureRequest')) {
+    function coopUiLangIsSecureRequest(): bool
+    {
+        if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0') {
+            return true;
+        }
+        if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+            return true;
+        }
+        if (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL']) === 'on') {
+            return true;
+        }
+        return isset($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] === '443';
+    }
+}
+
+if (!function_exists('coopSetUiLang')) {
+    /** Store UI language for this browser only (session + cookie). */
+    function coopSetUiLang(string $lang): void
+    {
+        if (!in_array($lang, ['en', 'np'], true)) {
+            return;
+        }
+        $_SESSION['lang'] = $lang;
+        if (headers_sent()) {
+            return;
+        }
+        setcookie(UI_LANG_COOKIE, $lang, [
+            'expires'  => time() + (86400 * 400),
+            'path'     => '/',
+            'secure'   => coopUiLangIsSecureRequest(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+}
+
+if (!function_exists('coopResolveUiLang')) {
+    /** Resolve language for this request: session → cookie → default np. */
+    function coopResolveUiLang(): string
+    {
+        $sessionLang = (string)($_SESSION['lang'] ?? '');
+        if (in_array($sessionLang, ['en', 'np'], true)) {
+            return $sessionLang;
+        }
+        $cookieLang = (string)($_COOKIE[UI_LANG_COOKIE] ?? '');
+        if (in_array($cookieLang, ['en', 'np'], true)) {
+            $_SESSION['lang'] = $cookieLang;
+            return $cookieLang;
+        }
+        return 'np';
+    }
+}
+
+// Apply ?lang= for THIS browser only, then strip it from the URL (so shared
+// links / caches do not force English onto other visitors).
+if (
+    isset($_GET['lang'])
+    && in_array($_GET['lang'], ['en', 'np'], true)
+    && strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'GET'
+) {
+    coopSetUiLang((string)$_GET['lang']);
+    if (!headers_sent()) {
+        $uri  = (string)($_SERVER['REQUEST_URI'] ?? '/');
+        $path = parse_url($uri, PHP_URL_PATH);
+        if (!is_string($path) || $path === '') {
+            $path = '/';
+        }
+        $q = $_GET;
+        unset($q['lang']);
+        $target = $path . ($q !== [] ? ('?' . http_build_query($q)) : '');
+        header('Cache-Control: private, no-store');
+        header('Location: ' . $target, true, 303);
+        exit;
+    }
+} else {
+    $_SESSION['lang'] = coopResolveUiLang();
 }
 
 // Get current language
 function getCurrentLang() {
-    return $_SESSION['lang'] ?? 'np';
+    return coopResolveUiLang();
 }
 
 // Check if current language is English
