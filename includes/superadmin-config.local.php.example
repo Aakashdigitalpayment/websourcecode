@@ -1,14 +1,19 @@
 <?php
 /**
- * कपी गरेर `superadmin-config.local.php` बनाउनुहोस् (gitignore)।
+ * कपी: cp includes/superadmin-config.local.php.example includes/superadmin-config.local.php
  *
- * फ्लो: तलका define → `admin/index.php` मा login → panel → `manage-admins.php` मा अरू admin/editor।
- * Superadmin पासवर्ड बदल्न: cPanel मा यही फाइल edit (अलग setup URL छैन)।
+ * ⚠️ यो `.local.php` Git मा जाँदैन (`*.local.php` gitignore)।
+ *    प्रत्येक project/cPanel मा छुट्टै फाइल + छुट्टै पासवर्ड राख्नुहोस्।
+ *    Example वा real password कहिल्यै commit नगर्नुहोस्।
  *
- * SUPER_ADMIN_INITIAL_PASSWORD खाली ('') पारेपछि superadmin पनि change-password / DB मार्फत।
+ * डिजाइन (जानीजानी plain text):
+ *   SUPER_ADMIN_INITIAL_PASSWORD यहीं plain राख्नु सजिलो login/sync का लागि हो।
+ *   Login ले DB मा hash बनाउँछ; पासवर्ड बदल्न यही फाइल edit + फेरि login।
+ *   खाली ('') पारेपछि change-password / DB मार्फत मात्र।
  */
 declare(strict_types=1);
 
 define('SUPER_ADMIN_USERNAME', 'myadmin');
 define('SUPER_ADMIN_DISPLAY_NAME', 'Super Admin');
-define('SUPER_ADMIN_INITIAL_PASSWORD', 'तपाईंको-बलियो-पासवर्ड-यहाँ');
+// तल आफ्नो बलियो पासवर्ड लेख्नुहोस् — यो फाइल मात्र server मा रहन्छ
+define('SUPER_ADMIN_INITIAL_PASSWORD', 'CHANGE-ME-strong-password');

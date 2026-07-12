@@ -5,6 +5,10 @@
 includes/.cred-master.key
 includes/database.local.php
 includes/database.php
+includes/superadmin-config.local.php
 *.local.php
 .env
 .env.*
+!.env.example
+!*.local.php.example
+!includes/.cred-master.key.example
