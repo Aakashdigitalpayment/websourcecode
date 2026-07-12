@@ -318,7 +318,8 @@ $L = getLangStrings();
 <section class="form-success-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-7 form-success-card">
+            <div class="col-lg-7 col-md-9">
+                <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
                 <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
                 <h3 class="mt-3 fw-bold text-success"><?php
                     if ($successVisitKind === 'cooperative') {
@@ -335,9 +336,9 @@ $L = getLangStrings();
                     }
                 ?></p>
                 <?php if ($apptTrackingId): ?>
-                <div class="form-tracking-box mb-4">
+                <div class="form-tracking-box mb-4 mx-auto">
                     <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID — save this!' : 'तपाईंको Tracking ID — सुरक्षित राख्नुहोस्!'; ?></div>
-                    <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
                         <div class="form-tracking-id" id="apptTrkId"><?php echo e($apptTrackingId); ?></div>
                         <button type="button" onclick="copyTrk('apptTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>
                     </div>
@@ -348,6 +349,7 @@ $L = getLangStrings();
                 <a href="appointment.php<?php echo $isEmbed ? '?embed=1' : ''; ?>" class="btn btn-success px-4"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Request' : 'नयाँ अनुरोध'; ?></a>
                 <a href="<?php echo e($trackerUrl); ?>" class="btn btn-outline-primary px-4"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Status' : 'स्थिति ट्र्याक'; ?></a>
                 <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary px-4"><i class="fas fa-home me-1"></i><?php echo isEnglish() ? 'Home' : 'गृहपृष्ठ'; ?></a>
+                </div>
                 </div>
             </div>
         </div>
