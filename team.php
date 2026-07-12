@@ -184,12 +184,29 @@ foreach ($menuCategoriesPublic as $_mc) {
             ];
         }
     } else {
-        if (!empty($_mc['include_board']) && !empty($boardMembers)) {
+        $boardAliasCmtId = 0;
+        $boardAliasLabel = isEnglish() ? 'Board Committee' : 'सञ्चालक समिति';
+        foreach ($committeeTypes as $_ct) {
+            $ctMenu = (int)($_ct['menu_category_id'] ?? 0);
+            $belongs = ($ctMenu === $mid) || ($ctMenu === 0 && $mid === $fallbackCommitteesMenuId);
+            if (!$belongs) continue;
+            if (!function_exists('isBoardCommitteeTypeAlias') || !isBoardCommitteeTypeAlias($_ct)) {
+                continue;
+            }
+            $boardAliasCmtId = (int)$_ct['id'];
+            $boardAliasLabel = isEnglish()
+                ? (($_ct['name'] ?: $_ct['name_np']) ?: $boardAliasLabel)
+                : (($_ct['name_np'] ?: $_ct['name']) ?: $boardAliasLabel);
+            break;
+        }
+        /* Board is always team_members.category=board — never a separate cmt_* page */
+        if ((!empty($_mc['include_board']) || $boardAliasCmtId > 0) && !empty($boardMembers)) {
             $items[] = [
                 'key' => 'board',
-                'label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति',
+                'label' => $boardAliasLabel,
                 'type' => 'board',
                 'filter' => 'board',
+                'alias_cmt' => $boardAliasCmtId,
             ];
         }
         foreach ($committeeTypes as $_ct) {
@@ -222,17 +239,26 @@ foreach ($menuCategoriesPublic as $_mc) {
 }
 
 /* Resolve selection: menu → item (one item = one page section) */
+$boardAliasRequest = ($selectedCommitteeId > 0 && function_exists('findBoardCommitteeTypeAlias'))
+    ? findBoardCommitteeTypeAlias($committeeTypes, $selectedCommitteeId)
+    : null;
+if ($boardAliasRequest) {
+    $selectedItemKey = 'board';
+}
+
 $viewMenuSlug = $selectedMenuSlug;
 if ($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) {
-    if ($selectedItemKey !== '') {
+    if ($selectedItemKey !== '' || $selectedCommitteeId > 0) {
         foreach ($menuTree as $_slug => $_node) {
             foreach ($_node['items'] as $_it) {
                 if ($_it['key'] === $selectedItemKey
-                    || ($selectedCommitteeId > 0 && ($_it['cmt'] ?? 0) === $selectedCommitteeId)
+                    || ($boardAliasRequest && ($_it['type'] ?? '') === 'board')
+                    || ($selectedCommitteeId > 0 && (int)($_it['cmt'] ?? 0) === $selectedCommitteeId)
+                    || ($selectedCommitteeId > 0 && (int)($_it['alias_cmt'] ?? 0) === $selectedCommitteeId)
                     || ($selectedItemKey === 'committees' && ($_it['type'] ?? '') === 'committee')
                 ) {
                     $viewMenuSlug = $_slug;
-                    if ($selectedItemKey === 'committees' && $selectedCommitteeId > 0) {
+                    if ($selectedItemKey === 'committees' && $selectedCommitteeId > 0 && !$boardAliasRequest) {
                         $selectedItemKey = 'cmt-' . $selectedCommitteeId;
                     } elseif ($selectedItemKey === 'committees') {
                         $selectedItemKey = (string)$_it['key'];
@@ -251,11 +277,22 @@ if (($viewMenuSlug === '' || !isset($menuTree[$viewMenuSlug])) && $selectedItemK
 
 $viewItemKey = $selectedItemKey;
 $viewItem = null;
+$requestedBoardAlias = $boardAliasRequest;
 if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
     foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
         if ($_it['key'] === $viewItemKey) { $viewItem = $_it; break; }
+        if ($requestedBoardAlias && ($_it['type'] ?? '') === 'board') {
+            $viewItem = $_it;
+            $viewItemKey = 'board';
+            break;
+        }
+        if ($selectedCommitteeId > 0 && (int)($_it['alias_cmt'] ?? 0) === $selectedCommitteeId) {
+            $viewItem = $_it;
+            $viewItemKey = (string)$_it['key'];
+            break;
+        }
     }
-    if (!$viewItem && $selectedCommitteeId > 0) {
+    if (!$viewItem && $selectedCommitteeId > 0 && !$requestedBoardAlias) {
         foreach ($menuTree[$viewMenuSlug]['items'] as $_it) {
             if ((int)($_it['cmt'] ?? 0) === $selectedCommitteeId) {
                 $viewItem = $_it;
@@ -263,6 +300,18 @@ if ($viewMenuSlug !== 'all' && isset($menuTree[$viewMenuSlug])) {
                 break;
             }
         }
+    }
+    if (!$viewItem && $requestedBoardAlias && !empty($boardMembers)) {
+        $viewItem = [
+            'key' => 'board',
+            'label' => isEnglish()
+                ? (($requestedBoardAlias['name'] ?: $requestedBoardAlias['name_np']) ?: 'Board Committee')
+                : (($requestedBoardAlias['name_np'] ?: $requestedBoardAlias['name']) ?: 'सञ्चालक समिति'),
+            'type' => 'board',
+            'filter' => 'board',
+            'alias_cmt' => $selectedCommitteeId,
+        ];
+        $viewItemKey = 'board';
     }
     /* Menu item missing/invalid → first item in that श्रेणी (never fall back to whole page) */
     if (!$viewItem && !empty($menuTree[$viewMenuSlug]['items'])) {

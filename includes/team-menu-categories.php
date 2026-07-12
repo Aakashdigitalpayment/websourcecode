@@ -132,3 +132,22 @@ if (!function_exists('isBoardCommitteeTypeAlias')) {
         return false;
     }
 }
+
+if (!function_exists('findBoardCommitteeTypeAlias')) {
+    /** @param list<array<string,mixed>> $committeeTypes */
+    function findBoardCommitteeTypeAlias(array $committeeTypes, int $id = 0): ?array
+    {
+        foreach ($committeeTypes as $ct) {
+            if ($id > 0 && (int)($ct['id'] ?? 0) !== $id) {
+                continue;
+            }
+            if (isBoardCommitteeTypeAlias($ct)) {
+                return $ct;
+            }
+            if ($id > 0) {
+                return null;
+            }
+        }
+        return null;
+    }
+}
