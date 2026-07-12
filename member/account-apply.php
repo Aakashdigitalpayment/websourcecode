@@ -249,13 +249,13 @@ require __DIR__ . '/includes/chrome.php';
         </select>
       </div>
 
-      <!-- Nominee -->
+      <!-- Guarantor (धन जमानी) -->
       <div class="mp-section-divider">
-        <i class="fas fa-user-friends ico-primary"></i><?php echo $_t('नमिनी विवरण (Optional)', 'Nominee Details (Optional)'); ?>
+        <i class="fas fa-user-shield ico-primary"></i><?php echo $_t('धन जमानी विवरण (Optional)', 'Guarantor Details (Optional)'); ?>
       </div>
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('नमिनीको नाम', 'Nominee Name'); ?></label>
+          <label class="mem-form-label"><?php echo $_t('धन जमानीको नाम', 'Guarantor Name'); ?></label>
           <input type="text" name="nominee_name" class="mem-form-control" value="<?= htmlspecialchars($_POST['nominee_name'] ?? '') ?>" placeholder="<?php echo $_t('पूरा नाम', 'Full name'); ?>">
         </div>
         <div class="mem-form-group">
@@ -272,7 +272,7 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('नमिनीको फोन', 'Nominee Phone'); ?></label>
+          <label class="mem-form-label"><?php echo $_t('धन जमानीको फोन', 'Guarantor Phone'); ?></label>
           <input type="tel" name="nominee_phone" class="mem-form-control" maxlength="10" placeholder="98XXXXXXXX" value="<?= htmlspecialchars($_POST['nominee_phone'] ?? '') ?>">
         </div>
       </div>
@@ -330,5 +330,18 @@ function accShowTab(btn, paneId) {
     var pane = document.getElementById(paneId);
     if (pane) pane.classList.add('active');
 }
+(function () {
+    var form = document.querySelector('#acc-pane-new form, .wf-pane form');
+    if (!form) return;
+    form.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (!t) return;
+        var tag = (t.tagName || '').toLowerCase();
+        if (tag === 'textarea') return;
+        if (tag === 'button' || (tag === 'input' && (t.type === 'submit' || t.type === 'button'))) return;
+        e.preventDefault();
+    });
+})();
 </script>
 <?php require __DIR__ . '/includes/chrome-foot.php'; ?>

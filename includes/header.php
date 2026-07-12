@@ -843,8 +843,8 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     body.embed-in-member-portal .main-footer { display: none !important; }
     </style>
     <?php endif; ?>
-<script src="<?= SITE_URL ?>assets/js/pwa-register.js" defer></script>
-<script src="<?= SITE_URL ?>assets/js/pull-to-refresh.js?v=1.0" defer></script>
+<script src="<?= SITE_URL ?>assets/js/pwa-register.js?v=1.1" defer></script>
+<script src="<?= SITE_URL ?>assets/js/pull-to-refresh.js?v=1.1" defer></script>
 </head>
 <?php $useHeaderV2 = true; ?>
 <body class="<?php echo $useHeaderV2 ? 'header-v2' : ''; ?><?php echo !empty($__embed_frame) ? ' embed-in-member-portal' : ''; ?>">

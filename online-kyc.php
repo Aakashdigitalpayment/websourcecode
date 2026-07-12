@@ -2168,6 +2168,16 @@ document.addEventListener('DOMContentLoaded', function () {
 (function () {
     var form = document.getElementById('fullKymForm');
     if (!form) return;
+    /* Mobile soft-keyboard Enter should not submit the whole wizard early */
+    form.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter') return;
+        var t = e.target;
+        if (!t) return;
+        var tag = (t.tagName || '').toLowerCase();
+        if (tag === 'textarea') return;
+        if (tag === 'button' || (tag === 'input' && (t.type === 'submit' || t.type === 'button'))) return;
+        e.preventDefault();
+    });
     var sections    = Array.prototype.slice.call(form.querySelectorAll('.form-section'));
     if (sections.length < 2) return;
     var nav         = document.getElementById('kymWizardNav');

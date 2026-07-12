@@ -290,8 +290,8 @@ case 'account':
         ]],
     ];
     if (!empty($data['nominee_name'])) {
-        $sections[] = ['title'=>'नामिनी विवरण / Nominee Details', 'rows'=>[
-            ['नामिनीको नाम',       'Nominee Name',          pf_e($data['nominee_name'])],
+        $sections[] = ['title'=>'धन जमानी विवरण / Guarantor Details', 'rows'=>[
+            ['धन जमानीको नाम',    'Guarantor Name',        pf_e($data['nominee_name'])],
             ['सम्बन्ध',            'Relation',              pf_e($data['nominee_relation'])],
             ['फोन',               'Phone',                 pf_e($data['nominee_phone'])],
         ]];

@@ -1,6 +1,9 @@
 /*
   ══════════════════════════════════════════════════════════════════════
-  SERVICE WORKER — Aakash Cooperative CMS  v4
+  SERVICE WORKER — Aakash Cooperative CMS  v5
+  New in v5:
+    • Cache bump for pull-to-refresh + PWA register fixes
+    • Install no longer auto skipWaiting (avoids mid-form reload)
   New in v4 (2026-06-25 — Premium UI 7.0):
     • Cache version bumped to force re-fetch of updated CSS/fonts
       (Inter + Plus Jakarta Sans replace Mukta; premium-ui.css added)
@@ -14,9 +17,9 @@
   ══════════════════════════════════════════════════════════════════════
 */
 
-const STATIC_CACHE = 'coop-static-v4';
-const PAGES_CACHE  = 'coop-pages-v4';
-const API_CACHE    = 'coop-api-v4';
+const STATIC_CACHE = 'coop-static-v5';
+const PAGES_CACHE  = 'coop-pages-v5';
+const API_CACHE    = 'coop-api-v5';
 const ALL_CACHES   = [STATIC_CACHE, PAGES_CACHE, API_CACHE];
 
 /* Pre-cache at install — must be publicly accessible (no auth required) */
@@ -54,7 +57,9 @@ self.addEventListener('install', event => {
           )
           .catch(err => console.warn('[SW] Pre-cache partial fail:', err))
       )
-      .then(() => self.skipWaiting())
+      /* Do not skipWaiting here — waiting SW activates only after
+         explicit SKIP_WAITING from the update bar, so mid-form
+         pages are not force-reloaded by a background SW update. */
   );
 });
 
