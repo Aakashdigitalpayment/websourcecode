@@ -27,8 +27,8 @@ $branches = [];
 $loanRates = [];
 try {
     $db = getDB();
-    $brStmt = $db->query("SELECT * FROM service_centers WHERE is_active = 1 ORDER BY is_main_branch DESC, display_order ASC, name ASC LIMIT 20");
-    if ($brStmt) $branches = $brStmt->fetchAll() ?: [];
+    require_once __DIR__ . '/includes/service-centers-helpers.php';
+    $branches = fetchActiveServiceCenters($db, 20);
     $lrStmt = $db->query("SELECT * FROM interest_rates WHERE category = 'loan' AND is_active = 1 ORDER BY display_order ASC LIMIT 10");
     if ($lrStmt) $loanRates = $lrStmt->fetchAll() ?: [];
 } catch (\Throwable $e) {

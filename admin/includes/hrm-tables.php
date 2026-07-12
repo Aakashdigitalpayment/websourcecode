@@ -40,26 +40,17 @@ if (!function_exists('hrmListDepartments')) {
 
 if (!function_exists('hrmListBranches')) {
     /**
-     * Branches from service_centers (सेवा केन्द्र / शाखा).
-     * @return list<array{id:int,name:string,name_np?:string,name_en?:string,is_main_branch?:int}>
+     * Branches from service_centers (सेवा केन्द्र / शाखा) — shared helper.
+     * @return list<array<string,mixed>>
      */
     function hrmListBranches(PDO $db): array {
-        try {
-            $rows = $db->query(
-                "SELECT id,
-                        COALESCE(NULLIF(TRIM(name_np), ''), NULLIF(TRIM(name), ''), CONCAT('शाखा #', id)) AS name,
-                        name_np,
-                        name AS name_en,
-                        is_main_branch,
-                        display_order
-                 FROM service_centers
-                 WHERE is_active = 1
-                 ORDER BY is_main_branch DESC, display_order ASC, name ASC"
-            )->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            return $rows;
-        } catch (\Throwable $e) {
-            return [];
+        require_once dirname(__DIR__, 2) . '/includes/service-centers-helpers.php';
+        $rows = fetchActiveServiceCenters($db);
+        foreach ($rows as &$r) {
+            $r['name'] = serviceCenterDisplayName($r);
         }
+        unset($r);
+        return $rows;
     }
 }
 

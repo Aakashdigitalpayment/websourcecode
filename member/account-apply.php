@@ -135,7 +135,8 @@ $accountTypeLabels = [
 /* Branches */
 $branches = [];
 try {
-    $branches = $db->query("SELECT * FROM service_centers WHERE is_active=1 ORDER BY is_main_branch DESC, display_order ASC, name ASC LIMIT 20")->fetchAll(PDO::FETCH_ASSOC);
+    require_once dirname(__DIR__) . '/includes/service-centers-helpers.php';
+    $branches = fetchActiveServiceCenters($db, 20);
 } catch (Throwable $e) {}
 
 $siteName  = getSetting('site_name', 'सहकारी');

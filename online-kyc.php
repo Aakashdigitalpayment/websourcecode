@@ -568,7 +568,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get branches for dropdown
 try {
     $db = getDB();
-    $branches = $db->query("SELECT * FROM service_centers WHERE is_active = 1 ORDER BY name LIMIT 20")->fetchAll();
+    require_once __DIR__ . '/includes/service-centers-helpers.php';
+    $branches = fetchActiveServiceCenters($db, 20);
 } catch (Exception $e) {
     $branches = [];
 }

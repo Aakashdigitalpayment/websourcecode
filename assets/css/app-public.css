@@ -20754,28 +20754,7 @@ html body .useful-links-float .useful-links-close{
   border-color: color-mix(in srgb, var(--primary-color) 28%, #fff) !important;
 }
 
-/* 7. HRM Employee modal -> inline admin panel (no popup overlay) */
-#empModal.stf-modal-backdrop{
-  position:static !important;
-  background:transparent !important;
-  inset:auto !important;
-  padding:0 !important; margin:0 0 1.25rem 0 !important;
-  z-index:auto !important;
-  display:none;
-}
-#empModal.stf-modal-backdrop.open,
-#empModal.stf-modal-backdrop[style*="display:flex"],
-#empModal.stf-modal-backdrop[style*="display: flex"]{
-  display:block !important;
-}
-#empModal .stf-modal-card,
-#empModal .card-coop.stf-modal-card{
-  max-width:100% !important; width:100% !important;
-  margin:0 !important;
-  box-shadow:0 4px 14px rgba(15,23,42,.06) !important;
-  border:1px solid #e5e7eb !important; border-radius:14px !important;
-  background:#fff !important;
-}
+/* (empModal styles live only in app-admin.css — admin HRM page) */
 
 /* ════════════════════════════════════════════════════════════
  * v11.6 — Footer/CTA auto contrast (2026-05-15)
