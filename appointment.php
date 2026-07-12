@@ -17,12 +17,70 @@ $activeApptTab = (($_GET['tab'] ?? $_POST['visit_kind'] ?? 'member') === 'cooper
 /* Extra columns for सहकारी भ्रमण (safe if already present) */
 try {
     $_dbMig = getDB();
+    safeAddColumn($_dbMig, 'appointments', 'tracking_id', 'VARCHAR(60) NULL DEFAULT NULL');
     safeAddColumn($_dbMig, 'appointments', 'visit_kind', "VARCHAR(20) NOT NULL DEFAULT 'member'");
     safeAddColumn($_dbMig, 'appointments', 'organization_address', 'VARCHAR(500) NULL DEFAULT NULL');
     safeAddColumn($_dbMig, 'appointments', 'organization_website', 'VARCHAR(255) NULL DEFAULT NULL');
     safeAddColumn($_dbMig, 'appointments', 'contact_person', 'VARCHAR(120) NULL DEFAULT NULL');
+    /* Coop names / times can exceed original schema */
+    try { $_dbMig->exec('ALTER TABLE appointments MODIFY name VARCHAR(200) NOT NULL'); } catch (Throwable $e) {}
+    try { $_dbMig->exec('ALTER TABLE appointments MODIFY preferred_time VARCHAR(50) NOT NULL'); } catch (Throwable $e) {}
+    try { $_dbMig->exec('ALTER TABLE appointments MODIFY branch VARCHAR(200) NULL'); } catch (Throwable $e) {}
     unset($_dbMig);
 } catch (Throwable $e) { /* best-effort */ }
+
+if (!function_exists('appointmentInsertRow')) {
+    /**
+     * Insert into appointments using only columns that exist (avoids hard fail on older DBs).
+     * @param array<string,mixed> $data
+     */
+    function appointmentInsertRow(PDO $db, array $data): void
+    {
+        static $cols = null;
+        if ($cols === null) {
+            $cols = [];
+            try {
+                foreach ($db->query('SHOW COLUMNS FROM appointments') as $row) {
+                    $cols[strtolower((string)($row['Field'] ?? ''))] = true;
+                }
+            } catch (Throwable $e) {
+                $cols = [];
+            }
+        }
+        $use = [];
+        $vals = [];
+        foreach ($data as $col => $val) {
+            $key = strtolower((string)$col);
+            if (!isset($cols[$key])) {
+                continue;
+            }
+            $use[] = '`' . str_replace('`', '', (string)$col) . '`';
+            $vals[] = $val;
+        }
+        if ($use === []) {
+            throw new RuntimeException('appointments table has no matching columns');
+        }
+        $placeholders = implode(',', array_fill(0, count($use), '?'));
+        $sql = 'INSERT INTO appointments (' . implode(',', $use) . ') VALUES (' . $placeholders . ')';
+        $db->prepare($sql)->execute($vals);
+    }
+}
+
+if (!function_exists('appointmentNormalizeDate')) {
+    function appointmentNormalizeDate(string $raw): string
+    {
+        $s = trim($raw);
+        /* Devanagari digits → Latin */
+        $s = strtr($s, [
+            '०'=>'0','१'=>'1','२'=>'2','३'=>'3','४'=>'4','५'=>'5','६'=>'6','७'=>'7','८'=>'8','९'=>'9',
+        ]);
+        $s = str_replace(['/', '.'], '-', $s);
+        if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $s, $m)) {
+            return sprintf('%04d-%02d-%02d', (int)$m[1], (int)$m[2], (int)$m[3]);
+        }
+        return $s;
+    }
+}
 
 /* =============================================
    फारम submit भएमा process गर्नुहोस्
@@ -73,55 +131,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (empty($preferred_time)) {
                 $error = isEnglish() ? 'Please select a preferred time.' : 'कृपया समय छान्नुहोस्।';
             } else {
+                $preferred_date = appointmentNormalizeDate($preferred_date);
+                $preferred_time = mb_substr($preferred_time, 0, 50, 'UTF-8');
+                $name = mb_substr($name, 0, 200, 'UTF-8');
+                $branch = mb_substr($branch, 0, 200, 'UTF-8');
                 try {
                     $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
-                    try {
-                        $stmt = $db->prepare("INSERT INTO appointments
-                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch,
-                             visit_kind, organization_address, organization_website, contact_person)
-                            VALUES (?, ?, ?, ?, '', 'other', ?, ?, ?, ?, 'cooperative', ?, ?, ?)");
-                        $stmt->execute([
-                            $apptTrackingId, $name, $phone, $email, $purpose_detail,
-                            $preferred_date, $preferred_time, $branch, $orgAddress, $orgWebsite, $contactPerson,
-                        ]);
-                    } catch (Throwable $insEx) {
-                        /* Fallback if visit_kind columns not migrated yet */
-                        $detailPacked = trim(
-                            "सहकारी भ्रमण\n"
-                            . "सम्पर्क: {$contactPerson}\n"
-                            . "ठेगाना: {$orgAddress}\n"
-                            . ($orgWebsite !== '' ? "वेबसाइट: {$orgWebsite}\n" : '')
-                            . $purpose_detail
-                        );
-                        $stmt = $db->prepare("INSERT INTO appointments
-                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch)
-                            VALUES (?, ?, ?, ?, '', 'other', ?, ?, ?, ?)");
-                        $stmt->execute([
-                            $apptTrackingId, $name, $phone, $email, $detailPacked,
-                            $preferred_date, $preferred_time, $branch,
-                        ]);
-                        error_log('[appointment cooperative] fallback insert: ' . $insEx->getMessage());
-                    }
+                    appointmentInsertRow($db, [
+                        'tracking_id' => $apptTrackingId,
+                        'name' => $name,
+                        'phone' => $phone,
+                        'email' => $email,
+                        'member_id' => '',
+                        'purpose' => 'other',
+                        'purpose_detail' => $purpose_detail,
+                        'preferred_date' => $preferred_date,
+                        'preferred_time' => $preferred_time,
+                        'branch' => $branch,
+                        'visit_kind' => 'cooperative',
+                        'organization_address' => $orgAddress,
+                        'organization_website' => $orgWebsite,
+                        'contact_person' => $contactPerson,
+                        'status' => 'pending',
+                    ]);
                     $success = true;
                     $successVisitKind = 'cooperative';
                     logSecurityEvent('appointment_booking', 'Cooperative visit booked: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
-
-                    $__nf = __DIR__ . '/includes/notifications.php';
-                    if (is_file($__nf)) { require_once $__nf; }
-                    unset($__nf);
-                    sendAdminNotification('appointment', [
-                        'नाम'            => $name,
-                        'प्रकार'         => 'सहकारी भ्रमण',
-                        'सहकारी'         => $name,
-                        'सम्पर्क व्यक्ति' => $contactPerson,
-                        'फोन'            => $phone,
-                        'ठेगाना'         => $orgAddress,
-                        'वेबसाइट'        => $orgWebsite ?: 'N/A',
-                        'मिति'           => $preferred_date . ' ' . $preferred_time,
-                    ], $apptTrackingId);
                 } catch (Throwable $e) {
                     error_log('[appointment cooperative] ' . $e->getMessage());
-                    $error = isEnglish() ? 'Failed to book appointment. Please try again.' : 'भेटघाट बुक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।';
+                    $error = isEnglish()
+                        ? ('Failed to book appointment. Please try again. (' . $e->getCode() . ')')
+                        : ('भेटघाट बुक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्। (' . $e->getCode() . ')');
+                }
+                if ($success) {
+                    try {
+                        $__nf = __DIR__ . '/includes/notifications.php';
+                        if (is_file($__nf)) { require_once $__nf; }
+                        unset($__nf);
+                        sendAdminNotification('appointment', [
+                            'नाम'            => $name,
+                            'प्रकार'         => 'सहकारी भ्रमण',
+                            'सहकारी'         => $name,
+                            'सम्पर्क व्यक्ति' => $contactPerson,
+                            'फोन'            => $phone,
+                            'ठेगाना'         => $orgAddress,
+                            'वेबसाइट'        => $orgWebsite ?: 'N/A',
+                            'मिति'           => $preferred_date . ' ' . $preferred_time,
+                        ], $apptTrackingId);
+                    } catch (Throwable $e) {
+                        error_log('[appointment cooperative notify] ' . $e->getMessage());
+                    }
                 }
             }
         } elseif (!$error) {
@@ -179,39 +238,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!$error && empty($preferred_time)) {
                 $error = isEnglish() ? 'Please select a preferred time.' : 'कृपया समय छान्नुहोस्।';
             } elseif (!$error) {
+                $preferred_date = appointmentNormalizeDate($preferred_date);
+                $preferred_time = mb_substr($preferred_time, 0, 50, 'UTF-8');
+                $name = mb_substr($name, 0, 200, 'UTF-8');
+                $branch = mb_substr($branch, 0, 200, 'UTF-8');
                 try {
                     $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
-                    try {
-                        $stmt = $db->prepare("INSERT INTO appointments
-                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch, visit_kind)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'member')");
-                        $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
-                    } catch (Throwable $insEx) {
-                        $stmt = $db->prepare("INSERT INTO appointments
-                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
-                        error_log('[appointment member] fallback insert: ' . $insEx->getMessage());
-                    }
+                    appointmentInsertRow($db, [
+                        'tracking_id' => $apptTrackingId,
+                        'name' => $name,
+                        'phone' => $phone,
+                        'email' => $email,
+                        'member_id' => $member_id,
+                        'purpose' => $purpose,
+                        'purpose_detail' => $purpose_detail,
+                        'preferred_date' => $preferred_date,
+                        'preferred_time' => $preferred_time,
+                        'branch' => $branch,
+                        'visit_kind' => 'member',
+                        'status' => 'pending',
+                    ]);
                     $success = true;
                     $successVisitKind = 'member';
                     logSecurityEvent('appointment_booking', 'Appointment booked by: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
-
-                    $__nf = __DIR__ . '/includes/notifications.php';
-                    if (is_file($__nf)) { require_once $__nf; }
-                    unset($__nf);
-                    sendAdminNotification('appointment', [
-                        'नाम'       => $name,
-                        'फोन'       => $phone,
-                        'इमेल'      => $email ?: 'N/A',
-                        'सदस्य नं.' => $member_id ?: 'N/A',
-                        'उद्देश्य'   => $purpose,
-                        'मिति'      => $preferred_date . ' ' . $preferred_time,
-                        'शाखा'      => $branch ?: 'N/A',
-                    ], $apptTrackingId);
                 } catch (Throwable $e) {
                     error_log('[appointment member] ' . $e->getMessage());
                     $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
+                }
+                if ($success) {
+                    try {
+                        $__nf = __DIR__ . '/includes/notifications.php';
+                        if (is_file($__nf)) { require_once $__nf; }
+                        unset($__nf);
+                        sendAdminNotification('appointment', [
+                            'नाम'       => $name,
+                            'फोन'       => $phone,
+                            'इमेल'      => $email ?: 'N/A',
+                            'सदस्य नं.' => $member_id ?: 'N/A',
+                            'उद्देश्य'   => $purpose,
+                            'मिति'      => $preferred_date . ' ' . $preferred_time,
+                            'शाखा'      => $branch ?: 'N/A',
+                        ], $apptTrackingId);
+                    } catch (Throwable $e) {
+                        error_log('[appointment member notify] ' . $e->getMessage());
+                    }
                 }
             }
         }
