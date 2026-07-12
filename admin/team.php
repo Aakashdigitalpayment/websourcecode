@@ -185,7 +185,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if ($teamListSection === 'governance') {
                     ensureTeamMenuCategoriesTable($db);
+                    try {
+                        $db->exec("ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+                    } catch (Throwable $e) { /* already exists */ }
                     $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
+                    $gIcon = clean_text($_POST['group_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
                     if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
                         'name' => $gName,
                         'name_np' => $gNameNp,
@@ -196,12 +200,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ));
                     }
                     if (($_POST['action'] ?? '') === 'group_add') {
-                        $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?)")
-                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat]);
+                        $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar, menu_category_id, icon) VALUES (?,?,?,?,?,?,?)")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gIcon]);
                         $success = $__t('समिति समूह थपियो। अब सदस्य फारमको वर्गमा map गर्न सकिन्छ।', 'Committee group added. You can map members to it in the form.');
                     } else {
-                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=? WHERE id=?")
-                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gid]);
+                        $db->prepare("UPDATE committee_types SET name=?, name_np=?, display_order=?, is_active=?, show_in_navbar=?, menu_category_id=?, icon=? WHERE id=?")
+                           ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat, $gIcon, $gid]);
                         $success = $__t('समिति समूह अपडेट भयो।', 'Committee group updated.');
                     }
                 } elseif ($teamListSection === 'karmachari') {
@@ -990,6 +994,25 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <?php endif; ?>
                                 </small>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
+                                <?php $_gIcon = trim((string)($editGroup['icon'] ?? '')) ?: 'fas fa-users-gear'; ?>
+                                <div class="js-fa-icon-picker fa-ip-wrap">
+                                    <div class="fa-ip-row input-group">
+                                        <span class="fa-ip-preview input-group-text" data-fa-preview>
+                                            <i class="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                        </span>
+                                        <input type="text" name="group_icon" class="form-control" data-fa-input
+                                               value="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"
+                                               placeholder="fas fa-users-gear">
+                                        <button type="button" class="btn btn-success fa-ip-open" data-fa-open
+                                                title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
+                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                        </button>
+                                    </div>
+                                    <small class="fa-ip-hint"><?php echo $__t('सार्वजनिक मेनुमा यो समिति item को icon।', 'This icon appears for the committee item in the public menu.'); ?></small>
+                                </div>
+                            </div>
                             <div class="col-md-2 d-flex flex-column justify-content-end gap-2 pb-1">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="group_is_active" id="grp_active" value="1" <?php echo ($editGroup['is_active'] ?? 1) ? 'checked' : ''; ?>>
@@ -1036,7 +1059,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                     $gMc = $menuCatById[(int)($g['menu_category_id'] ?? 0)] ?? null;
                 ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($g['name_np'] ?: $g['name']); ?></td>
+                        <td>
+                            <i class="<?php echo htmlspecialchars(trim((string)($g['icon'] ?? '')) ?: 'fas fa-users-gear'); ?> me-1 text-success"></i>
+                            <?php echo htmlspecialchars($g['name_np'] ?: $g['name']); ?>
+                        </td>
                         <td><?php echo htmlspecialchars($g['name'] ?? ''); ?></td>
                         <td>
                             <?php if ($gMc): ?>

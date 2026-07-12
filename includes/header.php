@@ -89,7 +89,7 @@ $navCommittees = [];
 try {
     if ($db) {
         $navCommittees = $db->query(
-            "SELECT id, name, name_np, menu_category_id FROM committee_types
+            "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
              WHERE is_active = 1 AND show_in_navbar = 1
              ORDER BY display_order, id"
         )->fetchAll();
@@ -98,14 +98,31 @@ try {
     try {
         if ($db) {
             $navCommittees = $db->query(
-                "SELECT id, name, name_np FROM committee_types
+                "SELECT id, name, name_np, menu_category_id FROM committee_types
                  WHERE is_active = 1 AND show_in_navbar = 1
                  ORDER BY display_order, id"
             )->fetchAll();
-            foreach ($navCommittees as &$_ncRow) { $_ncRow['menu_category_id'] = null; }
+            foreach ($navCommittees as &$_ncRow) {
+                $_ncRow['icon'] = 'fas fa-users-gear';
+            }
             unset($_ncRow);
         }
-    } catch (Exception $e2) { $navCommittees = []; }
+    } catch (Exception $e2) {
+        try {
+            if ($db) {
+                $navCommittees = $db->query(
+                    "SELECT id, name, name_np FROM committee_types
+                     WHERE is_active = 1 AND show_in_navbar = 1
+                     ORDER BY display_order, id"
+                )->fetchAll();
+                foreach ($navCommittees as &$_ncRow) {
+                    $_ncRow['menu_category_id'] = null;
+                    $_ncRow['icon'] = 'fas fa-users-gear';
+                }
+                unset($_ncRow);
+            }
+        } catch (Exception $e3) { $navCommittees = []; }
+    }
 }
 
 /* ── कर्मचारी वर्ग / समूह (team_staff_groups, show_in_nav) ── */
@@ -1267,10 +1284,11 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                             }
                                         }
                                         foreach ($_catCommittees as $_nc):
+                                            $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
                                         <li>
                                             <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>">
-                                                <i class="fas fa-users-gear"></i>
+                                                <i class="<?php echo htmlspecialchars($_ncIcon); ?>"></i>
                                                 <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?>
                                             </a>
                                         </li>
@@ -1618,8 +1636,9 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                             }
                                         }
                                         foreach ($_catCommittees as $_nc):
+                                            $_ncIcon = trim((string)($_nc['icon'] ?? '')) ?: 'fas fa-users-gear';
                                         ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><i class="fas fa-users-gear"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=cmt-<?php echo (int)$_nc['id']; ?>&cat=committees&cmt=<?php echo (int)$_nc['id']; ?>#cmt-<?php echo (int)$_nc['id']; ?>"><i class="<?php echo htmlspecialchars($_ncIcon); ?>"></i> <?php echo isEnglish() ? htmlspecialchars($_nc['name']) : htmlspecialchars($_nc['name_np']); ?></a></li>
                                         <?php endforeach; ?>
                                         <?php if (empty($_catCommittees) && empty($_tmc['include_board'])): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>"><i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'View category' : 'श्रेणी हेर्नुहोस्'; ?></a></li>
