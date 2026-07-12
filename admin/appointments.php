@@ -26,7 +26,11 @@ ensureRequestStatusHistoryTable($db);
 if (isset($_POST['update_status'])) {
     checkCSRF();
     $id      = intval($_POST['id']);
-    $status  = clean_text($_POST['status']);
+    $status  = clean_text($_POST['status'] ?? '');
+    if (!in_array($status, $appointmentListStatuses, true)) {
+        setFlash('error', 'अमान्य स्थिति।');
+        redirect('appointments.php' . ($id ? '?view=' . $id : ''));
+    }
     $remarks = clean_text($_POST['remarks'] ?? '');
     $newFile = adminUploadFile('admin_attachment');
     $oldStatus = '';
@@ -86,17 +90,21 @@ if (isset($_POST['update_status'])) {
 
 /* ─── Delete ─── */
 if (isset($_POST['delete'])) {
+    checkCSRF();
     $id = intval($_POST['delete_id'] ?? 0);
-    $db->prepare("DELETE FROM appointments WHERE id=?")->execute([$id]);
-    setFlash('success', 'भेटघाट मेटाइयो।');
+    if ($id > 0) {
+        $db->prepare("DELETE FROM appointments WHERE id=?")->execute([$id]);
+        setFlash('success', 'भेटघाट मेटाइयो।');
+    }
     redirect('appointments.php');
 }
 
 /* ─── Quick Status (list view बाट सिधै) ─── */
 if (isset($_POST['quick_status'])) {
+    checkCSRF();
     $qid = (int)($_POST['quick_id'] ?? 0);
-    $allowed = ['pending','confirmed','completed','cancelled'];
-    $qst = in_array($_POST['quick_status_val'] ?? '', $allowed) ? $_POST['quick_status_val'] : 'pending';
+    $allowed = $appointmentListStatuses;
+    $qst = in_array($_POST['quick_status_val'] ?? '', $allowed, true) ? $_POST['quick_status_val'] : 'pending';
     $oldStatus = '';
     $notifySent = false;
     try {

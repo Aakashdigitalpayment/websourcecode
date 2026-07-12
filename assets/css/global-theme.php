@@ -184,11 +184,14 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --primary-xlight:   <?= $__pXLight ?>;
     --primary-rgb:      <?= $__pRgb ?>;
     --primary-ink:      <?= $__pInk ?>;
+    /* Alias used by global.css / ui-ux sheets so DB brand applies everywhere */
+    --primary:          <?= $__p ?>;
 
     --secondary-color:  <?= $__s ?>;
     --secondary-dark:   <?= $__sDark ?>;
     --secondary-rgb:    <?= $__sRgb ?>;
     --secondary-ink:    <?= $__sInk ?>;
+    --secondary:        <?= $__s ?>;
 
     --header-color:     <?= $__h ?>;
     --header-dark:      <?= $__hDark ?>;
@@ -485,9 +488,8 @@ table.table-primary thead th,
     transform: rotate(90deg) !important;
 }
 
-/* Badges & pills */
-.badge.bg-primary, .badge-primary          { color: var(--text-on-primary) !important; }
-.badge.bg-secondary, .badge-secondary      { color: var(--text-on-secondary) !important; }
+/* Badges & pills — color only when solid brand bg is also applied (see section L) */
+/* (avoid white text on soft-tint badges from earlier sheets) */
 
 /* stat-card — white background, so use dark text (not --text-on-primary which is for brand-bg) */
 /* Only stat-card variants with explicit brand background get light text */
@@ -2108,14 +2110,25 @@ body, .admin-shell, .member-page                   {
     opacity: 1 !important;
 }
 
-/* ── 12. CARD-HEADER GRADIENT — text/icon always white ────────── */
+/* ── 12. CARD-HEADER GRADIENT — white text only on brand/gradient headers ── */
 .main-content .card-header.bg-gradient-primary,
-.admin-card .card-header                           {
+.main-content .card-header[class*="bg-primary"],
+.admin-card .card-header.bg-gradient-primary,
+.admin-card .card-header[class*="bg-primary"],
+.admin-card .card-header.gradient-card-header {
     color: var(--text-on-primary, #fff) !important;
 }
 .main-content .card-header.bg-gradient-primary *,
-.admin-card .card-header *                         {
+.main-content .card-header[class*="bg-primary"] *,
+.admin-card .card-header.bg-gradient-primary *,
+.admin-card .card-header[class*="bg-primary"] *,
+.admin-card .card-header.gradient-card-header * {
     color: var(--text-on-primary, #fff) !important;
+}
+/* Light admin headers keep dark text (do not inherit white from old * rule) */
+.admin-card .card-header:not([class*="bg-"]):not(.bg-gradient-primary):not(.gradient-card-header),
+.admin-card .card-header:not([class*="bg-"]):not(.bg-gradient-primary):not(.gradient-card-header) * {
+    color: var(--text-primary, #1f2937) !important;
 }
 .admin-card .card-header i, .main-content .card-header i {
     opacity: 1 !important;
