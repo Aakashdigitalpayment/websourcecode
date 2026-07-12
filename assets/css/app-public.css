@@ -12161,15 +12161,17 @@ body.notice-popup-open {
 }
 
 .rate-card-enhanced .rate-value {
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 600;
     color: var(--white);
     background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-    padding: 8px 16px;
-    border-radius: 25px;
-    box-shadow: 0 4px 12px rgba(26, 95, 42, 0.25);
-    min-width: 70px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    box-shadow: 0 1px 4px rgba(26, 95, 42, 0.18);
+    min-width: 0;
     text-align: center;
+    line-height: 1.25;
+    letter-spacing: 0;
 }
 
 /* Empty state for rates */
@@ -13385,10 +13387,12 @@ body.dark-mode .success-card {
 }
 
 .rate-card-enhanced .rate-value {
-    font-size: 0.95rem;
-    padding: 5px 12px;
-    border-radius: 15px;
-    min-width: 60px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    min-width: 0;
+    line-height: 1.25;
 }
 
 /* Compact notices */

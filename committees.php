@@ -312,8 +312,7 @@ $currentHeroDesc = $isManagementView
 <style>
 .coop-select-wrap {
     position: relative !important;
-    display: flex !important;
-    align-items: center !important;
+    display: block !important;
 }
 .coop-select-icon {
     position: absolute !important;
@@ -325,20 +324,23 @@ $currentHeroDesc = $isManagementView
     pointer-events: none !important;
     z-index: 2 !important;
 }
+.coop-select-field.form-select,
 .coop-select-field {
-    padding-left: 42px !important;
+    padding: .5rem 2.25rem .5rem 2.75rem !important;
     border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb) !important;
     border-radius: 10px !important;
     font-size: .93rem !important;
     color: var(--text-primary, #1a2e1f) !important;
-    background: #fff !important;
+    background-color: #fff !important;
+    background-position: right .75rem center !important;
     cursor: pointer !important;
     box-shadow: 0 1px 4px rgba(0,0,0,.05) !important;
     transition: border-color .18s, box-shadow .18s;
+    min-height: 44px !important;
 }
 .coop-select-field:focus {
     border-color: var(--primary-color, #1a5f2a) !important;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, transparent) !important;
+    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent) !important;
     outline: none !important;
 }
 </style>
