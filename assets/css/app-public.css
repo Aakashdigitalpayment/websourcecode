@@ -16954,42 +16954,44 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .institutional-profile-bar .profile-title-link {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    font-size: 1.02rem;
-    color: var(--primary-dark, #144a21);
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: .85rem;
+    font-weight: 600;
     text-decoration: none;
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-    transition: color .18s ease;
+    transition: all .2s ease;
+    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #d1d5db);
+    color: var(--text-secondary, #374151);
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .institutional-profile-bar .profile-title:hover,
 .institutional-profile-bar .profile-title-link:hover {
+    border-color: var(--primary-color, #1a5f2a);
     color: var(--primary-color, #1a5f2a);
-    background: transparent;
-    transform: none;
-    box-shadow: none;
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 9%, #fff);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--primary-rgb, 26, 95, 42), 0.14);
 }
 .institutional-profile-bar .profile-title i,
 .institutional-profile-bar .profile-title-link i {
-    font-size: 1.25rem;
-    color: var(--primary-color, #1a5f2a);
+    font-size: .9rem;
+    color: inherit;
 }
 .institutional-profile-bar .profile-title-link .latest-badge {
     position: static;
-    margin-left: 4px;
+    margin-left: 2px;
     top: auto;
     right: auto;
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff);
-    color: var(--primary-dark, #144a21);
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+    background: #e11d48;
+    color: #fff;
+    border: 0;
     animation: none;
-    font-size: 0.68rem;
-    padding: 2px 7px;
-    border-radius: 6px;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
 }
 .profile-reports {
     display: flex;
