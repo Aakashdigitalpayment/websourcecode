@@ -391,14 +391,18 @@ $servicesArch = $svcPart['archived'];
                             <textarea name="description" id="svcf_desc" class="form-control admin-fancy-input" rows="3" placeholder="<?php echo $__t('सेवाको संक्षिप्त विवरण...', 'Short service description...'); ?>"><?php echo htmlspecialchars($editService['description_np'] ?? ($editService['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label fw-semibold text-success">आइकन क्लास (Font Awesome)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-success text-white border-success" id="svcIconPreview"><i class="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>"></i></span>
-                                <input type="text" name="icon" id="svcf_icon" class="form-control admin-fancy-input"
-                                       value="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>" placeholder="fas fa-star"
-                                       oninput="document.getElementById('svcIconPreview').innerHTML='<i class=\''+this.value+'\'></i>'">
+                            <label class="form-label fw-semibold text-success"><?php echo $__t('आइकन', 'Icon'); ?> (Font Awesome)</label>
+                            <div class="js-fa-icon-picker fa-ip-wrap">
+                                <div class="fa-ip-row input-group">
+                                    <span class="input-group-text bg-success text-white border-success" data-fa-preview id="svcIconPreview"><i class="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>"></i></span>
+                                    <input type="text" name="icon" id="svcf_icon" class="form-control admin-fancy-input" data-fa-input
+                                           value="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>" placeholder="fas fa-star">
+                                    <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
+                                        <i class="fas fa-th"></i>
+                                    </button>
+                                </div>
+                                <small class="fa-ip-hint"><?php echo $__t('दायाँ बटन थिचेर आइकन छान्नुहोस्, वा class टाइप गर्नुहोस्।', 'Click the grid button to pick an icon, or type a class.'); ?></small>
                             </div>
-                            <small class="text-muted"><?php echo $__t('FontAwesome class — जस्तै', 'FontAwesome class — e.g.'); ?>: fas fa-piggy-bank, fas fa-hand-holding-usd</small>
                         </div>
                         <div class="col-md-2">
                             <label class="form-label fw-semibold text-success"><?php echo $__t('मेनु श्रेणी', 'Menu Category'); ?></label>
@@ -579,8 +583,16 @@ $servicesArch = $svcPart['archived'];
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label fw-semibold"><?php echo $__t('आइकन (Font Awesome)', 'Icon (Font Awesome)'); ?></label>
-                                <input type="text" name="cat_icon" class="form-control" value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
-                                <small class="text-muted"><a href="https://fontawesome.com/icons" target="_blank">FA Icons</a></small>
+                                <div class="js-fa-icon-picker fa-ip-wrap">
+                                    <div class="fa-ip-row input-group">
+                                        <span class="fa-ip-preview input-group-text" data-fa-preview><i class="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>"></i></span>
+                                        <input type="text" name="cat_icon" class="form-control" data-fa-input value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
+                                        <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
+                                            <i class="fas fa-th"></i>
+                                        </button>
+                                    </div>
+                                    <small class="fa-ip-hint"><?php echo $__t('Grid बाट छान्नुहोस् वा class टाइप गर्नुहोस्।', 'Pick from grid or type a class.'); ?></small>
+                                </div>
                             </div>
                             <div class="col-md-1">
                                 <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>

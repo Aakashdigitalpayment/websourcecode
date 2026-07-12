@@ -3,6 +3,9 @@ require_once __DIR__ . '/_bootstrap.php';
 $pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once 'includes/header.php';
 
+$selectedCommitteeId = isset($_GET['cmt']) ? (int)$_GET['cmt'] : 0;
+$selectedTenureId = isset($_GET['tenure']) ? (int)$_GET['tenure'] : 0;
+
 // Get team members
 try {
     $db = getDB();
@@ -14,16 +17,69 @@ try {
 
     $committeeTypes = [];
     $committeeMembers = [];
+    $committeeTenures = [];
+    $committeeActiveTenure = [];
     try {
         $committeeTypes = $db->query("SELECT id, name, name_np FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
         foreach ($committeeTypes as $_ct) {
-            $committeeMembers[(int)$_ct['id']] = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
-            $committeeMembers[(int)$_ct['id']]->execute(['cmt_' . (int)$_ct['id']]);
-            $committeeMembers[(int)$_ct['id']] = $committeeMembers[(int)$_ct['id']]->fetchAll();
+            $ctId = (int)$_ct['id'];
+            $tenures = [];
+            try {
+                $tStmt = $db->prepare("SELECT id, tenure_name, tenure_name_np, start_date, end_date, is_current
+                    FROM committee_tenures
+                    WHERE committee_type_id = ? AND is_active = 1
+                    ORDER BY is_current DESC, start_date DESC, id DESC");
+                $tStmt->execute([$ctId]);
+                $tenures = $tStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e) {
+                $tenures = [];
+            }
+            $committeeTenures[$ctId] = $tenures;
+
+            $members = [];
+            $useTenureId = 0;
+            if ($selectedCommitteeId === $ctId && $selectedTenureId > 0) {
+                $useTenureId = $selectedTenureId;
+            } else {
+                foreach ($tenures as $tn) {
+                    if (!empty($tn['is_current'])) {
+                        $useTenureId = (int)$tn['id'];
+                        break;
+                    }
+                }
+            }
+
+            if ($useTenureId > 0) {
+                try {
+                    $mStmt = $db->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
+                        FROM committee_members
+                        WHERE tenure_id = ? AND is_active = 1
+                        ORDER BY display_order, id");
+                    $mStmt->execute([$useTenureId]);
+                    $members = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                    foreach ($members as &$mm) {
+                        $mm['position_np'] = $mm['position'] ?? '';
+                    }
+                    unset($mm);
+                } catch (Throwable $e) {
+                    $members = [];
+                }
+            }
+
+            if (empty($members)) {
+                $fallback = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+                $fallback->execute(['cmt_' . $ctId]);
+                $members = $fallback->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            }
+
+            $committeeMembers[$ctId] = $members;
+            $committeeActiveTenure[$ctId] = $useTenureId;
         }
     } catch (Throwable $e) {
         $committeeTypes = [];
         $committeeMembers = [];
+        $committeeTenures = [];
+        $committeeActiveTenure = [];
     }
 
     // Get Information Officer and Grievance Officer
@@ -33,7 +89,12 @@ try {
     $ceo = $db->query("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1")->fetch();
 } catch (Throwable $e) {
     $boardMembers = $managementMembers = $staffMembers = $adminMembers = [];
+    $topManagementMembers = [];
     $informationOfficer = $grievanceOfficer = null;
+    $committeeTypes = [];
+    $committeeMembers = [];
+    $committeeTenures = [];
+    $committeeActiveTenure = [];
 }
 ?>
 
@@ -55,7 +116,7 @@ $hasCommitteeFilters = false;
 $committeeFilterButtons = [];
 foreach ($committeeTypes as $_ct) {
     $ctId = (int)$_ct['id'];
-    if (!empty($committeeMembers[$ctId])) {
+    if (!empty($committeeMembers[$ctId]) || !empty($committeeTenures[$ctId])) {
         $hasCommitteeFilters = true;
         $committeeFilterButtons[] = [
             'id' => $ctId,
@@ -303,7 +364,7 @@ foreach ($committeeTypes as $_ct) {
 <?php endif; ?>
 
 <?php if (!empty($boardMembers)): ?>
-<section id="board" class="team-section section-padding">
+<section id="board" class="team-section section-padding" data-filter="board">
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2>सञ्चालक समिति</h2>
@@ -424,7 +485,11 @@ foreach ($committeeTypes as $_ct) {
 
 <?php foreach ($committeeTypes as $_ct): ?>
     <?php $ctId = (int)$_ct['id']; ?>
-    <?php if (empty($committeeMembers[$ctId])) continue; ?>
+    <?php
+    $hasMembers = !empty($committeeMembers[$ctId]);
+    $hasTenures = !empty($committeeTenures[$ctId]);
+    if (!$hasMembers && !$hasTenures) continue;
+    ?>
     <section id="committee-<?php echo $ctId; ?>" class="team-section section-padding bg-light" data-filter="committee-<?php echo $ctId; ?>">
         <div class="container">
             <div class="section-header section-header-unified text-center">
@@ -432,12 +497,47 @@ foreach ($committeeTypes as $_ct) {
                 <p><?php echo isEnglish() ? 'Committee members for this group' : 'यस समूहका समिति सदस्यहरू'; ?></p>
             </div>
 
+            <?php $tenuresForCmt = $committeeTenures[$ctId] ?? []; ?>
+            <?php if (count($tenuresForCmt) > 0): ?>
+            <div class="d-flex justify-content-center mb-4">
+                <div class="coop-select-wrap" style="min-width:min(360px,100%);">
+                    <i class="fas fa-calendar-alt coop-select-icon"></i>
+                    <select class="form-select coop-select-field"
+                            aria-label="<?php echo isEnglish() ? 'Select tenure' : 'कार्यकाल छान्नुहोस्'; ?>"
+                            onchange="if(this.value) location.href=this.value;">
+                        <?php foreach ($tenuresForCmt as $tn):
+                            $tid = (int)$tn['id'];
+                            $label = isEnglish()
+                                ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
+                                : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
+                            $period = '';
+                            if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
+                                $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
+                            }
+                            $url = SITE_URL . 'team.php?cmt=' . $ctId . '&tenure=' . $tid . '#committee-' . $ctId;
+                            $isSel = ((int)($committeeActiveTenure[$ctId] ?? 0) === $tid);
+                        ?>
+                        <option value="<?php echo htmlspecialchars($url, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $isSel ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
+                            <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Current)' : '(हालको)'; ?><?php endif; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <style>
+            .coop-select-wrap{position:relative;display:flex;align-items:center}
+            .coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
+            .coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff}
+            </style>
+            <?php endif; ?>
+
             <div class="row justify-content-center">
                 <?php foreach ($committeeMembers[$ctId] as $index => $member): ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
                     <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
                         <div class="team-photo-circular">
-                            <?php if ($member['photo']): ?>
+                            <?php if (!empty($member['photo'])): ?>
                                 <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
                             <?php else: ?>
                                 <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
@@ -445,16 +545,16 @@ foreach ($committeeTypes as $_ct) {
                         </div>
                         <div class="team-info-circular">
                             <h5><?php echo e($member['name']); ?></h5>
-                            <?php if ($member['name_en']): ?>
+                            <?php if (!empty($member['name_en'])): ?>
                             <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
                             <?php endif; ?>
-                            <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                            <?php if ($member['phone'] || $member['email']): ?>
+                            <span class="team-position-badge"><?php echo e($member['position_np'] ?: ($member['position'] ?? '')); ?></span>
+                            <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
                             <div class="team-contact-circular">
-                                <?php if ($member['phone']): ?>
+                                <?php if (!empty($member['phone'])): ?>
                                     <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
                                 <?php endif; ?>
-                                <?php if ($member['email']): ?>
+                                <?php if (!empty($member['email'])): ?>
                                     <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
                                 <?php endif; ?>
                             </div>
@@ -464,13 +564,16 @@ foreach ($committeeTypes as $_ct) {
                 </div>
                 <?php endforeach; ?>
             </div>
+            <?php if (empty($committeeMembers[$ctId])): ?>
+            <p class="text-center text-muted"><?php echo isEnglish() ? 'No members found for this tenure.' : 'यो कार्यकालका लागि सदस्य भेटिएन।'; ?></p>
+            <?php endif; ?>
         </div>
     </section>
 <?php endforeach; ?>
 
 <!-- Staff -->
 <?php if (!empty($staffMembers)): ?>
-<section class="team-section section-padding" data-filter="staff">
+<section id="staff" class="team-section section-padding" data-filter="staff">
     <div class="container">
         <div class="section-header section-header-unified text-center">
             <h2>कर्मचारीहरू</h2>
@@ -547,11 +650,56 @@ foreach ($committeeTypes as $_ct) {
 <script>
 function teamFilter(btn, filter) {
     document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
-        el.classList.toggle('active', el === btn);
+        el.classList.toggle('active', el === btn || (btn && btn.classList && btn.classList.contains('dropdown-item') && el.id === 'committeeDropdown' && filter.indexOf('committee-') === 0));
     });
+    if (btn && btn.classList && !btn.classList.contains('dropdown-item')) {
+        document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
+            el.classList.toggle('active', el === btn);
+        });
+    }
     document.querySelectorAll('.team-section[data-filter]').forEach(function (section) {
-        section.style.display = filter === 'all' || section.getAttribute('data-filter') === filter ? '' : 'none';
+        var match = filter === 'all' || section.getAttribute('data-filter') === filter;
+        section.style.display = match ? '' : 'none';
+        section.classList.toggle('team-section--focused', match && filter !== 'all');
     });
+    if (filter !== 'all') {
+        var target = document.querySelector('.team-section[data-filter="' + filter + '"]');
+        if (target) {
+            setTimeout(function () {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 40);
+        }
+    }
 }
+
+(function () {
+    function applyHashFocus() {
+        var hash = (location.hash || '').replace(/^#/, '');
+        if (!hash) return;
+        var section = document.getElementById(hash);
+        if (!section || !section.classList.contains('team-section')) return;
+        var filter = section.getAttribute('data-filter') || hash;
+        var btn = document.querySelector('.team-filter-bar .filter-btn[onclick*="' + filter + '"]')
+            || document.querySelector('.team-filter-bar .dropdown-item[onclick*="' + filter + '"]');
+        teamFilter(btn || null, filter);
+        document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
+            if (el.getAttribute('onclick') && el.getAttribute('onclick').indexOf("'" + filter + "'") !== -1) {
+                el.classList.add('active');
+            } else if (!el.classList.contains('dropdown-toggle')) {
+                el.classList.remove('active');
+            }
+        });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyHashFocus);
+    else applyHashFocus();
+    window.addEventListener('hashchange', applyHashFocus);
+})();
 </script>
+<style>
+.team-section--focused {
+    outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
+    outline-offset: 6px;
+    border-radius: 12px;
+}
+</style>
 <?php require_once 'includes/footer.php'; ?>
