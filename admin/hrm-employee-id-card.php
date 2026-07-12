@@ -393,7 +393,7 @@ body {
     <div class="card-body">
       <div class="photo-frame">
         <img src="<?= htmlspecialchars($photoSrc) ?>" alt="photo"
-             onerror="this.src='../assets/images/default-avatar.png'">
+             onerror="this.onerror=null;this.src='<?= htmlspecialchars(hrmEmployeePhotoUrl(null), ENT_QUOTES) ?>'">
       </div>
       <div class="info">
         <div class="emp-name"><?= htmlspecialchars($emp['full_name_np']) ?></div>
