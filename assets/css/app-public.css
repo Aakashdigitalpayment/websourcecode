@@ -20725,14 +20725,14 @@ body{ background: var(--bg-soft, #f6faf7); }
 }
 @media (min-width:900px){ .qh-launcher{ bottom:24px; } }
 .qh-fab{
-  width:56px; height:56px; border-radius:50%;
+  width:44px; height:44px; border-radius:50%;
   background:var(--primary-color,#1a5f2a); color:#fff; border:0;
-  box-shadow:0 12px 28px rgba(15,23,42,.22);
+  box-shadow:0 8px 20px rgba(15,23,42,.18);
   display:inline-flex; align-items:center; justify-content:center;
   cursor:pointer; transition:transform .15s ease;
 }
 .qh-fab:hover{ transform:translateY(-2px); }
-.qh-fab i{ font-size:22px; }
+.qh-fab i{ font-size:16px; }
 .qh-menu{
   display:none; flex-direction:column; gap:4px;
   background:#fff; border:1px solid #e5e7eb; border-radius:12px;
@@ -21482,7 +21482,7 @@ select:focus{
     -webkit-overflow-scrolling:touch;
   }
   .qh-launcher{ right:14px !important; bottom:86px !important; }
-  .qh-fab{ width:52px !important; height:52px !important; }
+  .qh-fab{ width:42px !important; height:42px !important; }
 }
 @media (prefers-reduced-motion:reduce){
   *,
@@ -23306,8 +23306,8 @@ body.auth-page,
   overscroll-behavior: contain;
 }
 
-/* FAB bolt icon: slightly smaller than headset */
-.qh-fab .fa-bolt { font-size: 20px; }
+/* FAB bolt icon: match compact FAB size */
+.qh-fab .fa-bolt { font-size: 16px; }
 
 /* Active item highlight matches icon colour via CSS class on hover */
 .qh-item:hover .qh-ic.qh-loan    { filter: brightness(1.12); }
@@ -23375,14 +23375,14 @@ body.auth-page,
 }
 
 .qh-fab {
-    width: 50px;
-    height: 50px;
-    box-shadow: 0 10px 22px rgba(15,23,42,.2);
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 8px 18px rgba(15,23,42,.18);
 }
 
 .qh-fab i,
 .qh-fab .fa-bolt {
-    font-size: 18px !important;
+    font-size: 16px !important;
 }
 
 .qh-menu {
