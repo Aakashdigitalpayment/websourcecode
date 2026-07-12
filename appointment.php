@@ -67,18 +67,62 @@ if (!function_exists('appointmentInsertRow')) {
 }
 
 if (!function_exists('appointmentNormalizeDate')) {
+    /**
+     * Public form uses Nepali (BS) datepicker. MySQL DATE needs valid Gregorian (AD).
+     * SQLSTATE 22007 = invalid datetime when BS day/month is not a valid AD calendar date.
+     */
     function appointmentNormalizeDate(string $raw): string
     {
         $s = trim($raw);
-        /* Devanagari digits → Latin */
         $s = strtr($s, [
             '०'=>'0','१'=>'1','२'=>'2','३'=>'3','४'=>'4','५'=>'5','६'=>'6','७'=>'7','८'=>'8','९'=>'9',
         ]);
         $s = str_replace(['/', '.'], '-', $s);
-        if (preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $s, $m)) {
-            return sprintf('%04d-%02d-%02d', (int)$m[1], (int)$m[2], (int)$m[3]);
+        if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $s, $m)) {
+            return $s;
         }
-        return $s;
+        $y = (int)$m[1];
+        $mo = (int)$m[2];
+        $d = (int)$m[3];
+        $ymd = sprintf('%04d-%02d-%02d', $y, $mo, $d);
+
+        /* BS years used by the public datepicker are typically 2070+ */
+        $looksLikeBs = ($y >= 2070 && $y <= 2100);
+        if ($looksLikeBs) {
+            if (!function_exists('nepali_bs_to_ad_string')) {
+                $conv = __DIR__ . '/includes/nepali-bs-convert.php';
+                if (is_file($conv)) {
+                    require_once $conv;
+                }
+            }
+            if (function_exists('nepali_bs_to_ad_string')) {
+                $ad = nepali_bs_to_ad_string($ymd);
+                if ($ad) {
+                    return $ad;
+                }
+            }
+            if (function_exists('bsToAd')) {
+                $ad = bsToAd($ymd);
+                if ($ad && $ad !== $ymd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+                    return $ad;
+                }
+            }
+        }
+
+        /* Already AD / Gregorian */
+        if (checkdate($mo, $d, $y)) {
+            return $ymd;
+        }
+
+        /* Last resort: still try BS→AD even for lower years */
+        if (function_exists('nepali_bs_to_ad_string')) {
+            $ad = nepali_bs_to_ad_string($ymd);
+            if ($ad) {
+                return $ad;
+            }
+        }
+
+        return $ymd;
     }
 }
 
