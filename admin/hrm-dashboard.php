@@ -101,11 +101,11 @@ try {
       <i class="fas fa-info-circle text-success me-1"></i>
       <strong>छुट्याएर बुझ्नुहोस्:</strong>
       HRM = आन्तरिक कर्मचारी रेकर्ड ·
-      <a href="team-karmachari.php">कर्मचारी / व्यवस्थापन</a> = website मा देखिने टोली ·
+      <a href="team-karmachari.php">कर्मचारी / व्यवस्थापन</a> = website मा देखिने टोली (HRM फारममा नाम select गरेर fill गर्न मिल्छ) ·
       <a href="manage-admins.php">Manage Admins</a> = panel login user ·
       <a href="service-centers.php">शाखाहरू</a> = सेवा केन्द्र (शाखा dropdown को स्रोत) ·
-      <a href="designations.php">पद मास्टर</a> = पदको नाम
-    </div>
+      <a href="designations.php">पद मास्टर</a> = पदको नाम ·
+      <a href="hrm-employees.php">नयाँ कर्मचारी</a> मा टोलीबाट छानेर वा टाइप गरेर थप्न सकिन्छ।
 
     <?php
     $statCards = [
