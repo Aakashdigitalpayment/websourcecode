@@ -1,0 +1,407 @@
+/**
+ * Member + Auth + Verify shell polish — loaded last for those panels.
+ * Unifies fonts, forms, cards, bottom nav, and chrome icons.
+ * Safe rules only: never force display:flex on generic .alert.
+ */
+
+:root {
+  --mem-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --mem-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --mem-radius: 12px;
+  --mem-radius-sm: 9px;
+  --mem-border: #d7e0db;
+  --mem-border-focus: var(--primary-color, #1a5f2a);
+  --mem-surface: #ffffff;
+  --mem-surface-soft: #f6f9f7;
+  --mem-text: #0f1a15;
+  --mem-muted: #5b6b62;
+  --mem-bottom-nav-h: 64px;
+  --mem-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
+  --mem-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
+}
+
+/* ── Fonts ─────────────────────────────────────────────────────────── */
+body,
+.mem-wrapper,
+.mem-container,
+.auth-portal-page,
+.verify-auth-page {
+  font-family: var(--mem-font-body) !important;
+  color: var(--mem-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mem-container h1,
+.mem-container h2,
+.mem-container h3,
+.mem-card-title,
+.mp-page-head .mem-page-title,
+.auth-portal-page h1,
+.auth-portal-page h2,
+.vp-site-name,
+.vp-card-head-title {
+  font-family: var(--mem-font-head) !important;
+  letter-spacing: -0.015em;
+}
+
+.form-label,
+.form-control,
+.form-select,
+.btn,
+.mp-bottom-nav,
+.member-mobile-footer,
+.mem-nav-item,
+.vp-label,
+.vp-input,
+.vp-btn {
+  font-family: var(--mem-font-body) !important;
+}
+
+/* ── Member cards / sections ───────────────────────────────────────── */
+.mem-card,
+.mp-card,
+.auth-card,
+.vp-main-card {
+  border-radius: var(--mem-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb) !important;
+  box-shadow: var(--mem-shadow) !important;
+  background: var(--mem-surface);
+}
+
+.mem-card-header {
+  border-bottom: 1px solid #eef3f0;
+  padding: 0.9rem 1.1rem !important;
+}
+
+.mem-card-title {
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+  color: var(--mem-text) !important;
+}
+
+.mem-card-body {
+  padding: 1.05rem 1.15rem !important;
+}
+
+.mp-page-head {
+  margin-bottom: 1rem;
+}
+
+.mp-page-head .mem-page-title {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ── Forms (member + auth + verify) ────────────────────────────────── */
+.mem-container .form-label,
+.auth-portal-page .form-label,
+.auth-card label,
+.vp-label {
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  color: var(--mem-text) !important;
+  margin-bottom: 0.4rem !important;
+  display: block;
+}
+
+.mem-container .form-control,
+.mem-container .form-select,
+.auth-portal-page .form-control,
+.auth-portal-page .form-select,
+.auth-card input:not([type="checkbox"]):not([type="radio"]),
+.auth-card select,
+.auth-card textarea,
+.vp-input {
+  border: 1.5px solid var(--mem-border) !important;
+  border-radius: var(--mem-radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-size: 0.94rem !important;
+  line-height: 1.4 !important;
+  background: var(--mem-surface) !important;
+  color: var(--mem-text) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.mem-container .form-control:hover,
+.mem-container .form-select:hover,
+.auth-card input:hover,
+.vp-input:hover {
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--mem-border)) !important;
+}
+
+.mem-container .form-control:focus,
+.mem-container .form-select:focus,
+.auth-portal-page .form-control:focus,
+.auth-card input:focus,
+.auth-card select:focus,
+.auth-card textarea:focus,
+.vp-input:focus {
+  border-color: var(--mem-border-focus) !important;
+  box-shadow: var(--mem-focus-ring) !important;
+  outline: none !important;
+}
+
+.mem-container .form-control::placeholder,
+.auth-card input::placeholder,
+.vp-input::placeholder {
+  color: #9aa8a0 !important;
+}
+
+.mem-container textarea.form-control,
+.auth-card textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────── */
+.mem-container .btn,
+.auth-portal-page .btn,
+.vp-btn,
+.auth-card button[type="submit"] {
+  border-radius: var(--mem-radius-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.mem-container .btn:not(.btn-sm):not(.btn-lg) {
+  padding: 0.52rem 1.05rem !important;
+}
+
+.vp-btn {
+  min-height: 46px;
+}
+
+/* ── Alerts — block layout only (avoid swallowing nested content) ──── */
+.mem-container .alert,
+.auth-portal-page .alert,
+.mem-alert {
+  border-radius: var(--mem-radius-sm) !important;
+  border-width: 0 0 0 3px !important;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.9rem !important;
+}
+
+.mem-container .alert.alert-dismissible,
+.auth-portal-page .alert.alert-dismissible {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.vp-alert-error {
+  border-radius: var(--mem-radius-sm) !important;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────── */
+.mem-container .table {
+  font-size: 0.9rem;
+}
+
+.mem-container .table thead th {
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+  background: var(--mem-surface-soft) !important;
+  color: #33453c !important;
+  border-color: #e2ebe5 !important;
+  padding: 0.7rem 0.85rem !important;
+  white-space: nowrap;
+}
+
+.mem-container .table tbody td {
+  padding: 0.7rem 0.85rem !important;
+  border-color: #eef3f0 !important;
+  vertical-align: middle;
+}
+
+/* ── Top chrome icons ──────────────────────────────────────────────── */
+.mem-topbar .lucide-icon,
+.mem-topbar svg.lucide,
+.mem-nav-item .lucide-icon,
+.mem-nav-item svg.lucide,
+.mem-topbar-btn .lucide-icon,
+.mem-topbar-btn svg.lucide {
+  width: 17px !important;
+  height: 17px !important;
+  stroke-width: 1.9 !important;
+}
+
+.mem-nav-item {
+  font-weight: 500;
+  gap: 0.4rem !important;
+}
+
+.mem-nav-item.active {
+  font-weight: 600;
+}
+
+/* ── Member mobile bottom nav ──────────────────────────────────────── */
+.mp-bottom-nav,
+.member-mobile-footer {
+  height: calc(var(--mem-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb) !important;
+  box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.08) !important;
+  border-radius: 14px 14px 0 0;
+  z-index: 8999;
+}
+
+.mp-bottom-nav a,
+.mp-bottom-nav__item,
+.mp-bn-more,
+.member-mobile-footer a,
+.member-mobile-footer button {
+  font-weight: 600 !important;
+  font-size: 10px !important;
+  color: #6b7280 !important;
+  position: relative;
+}
+
+.mp-bottom-nav a .lucide-icon,
+.mp-bottom-nav a svg,
+.mp-bottom-nav__item .lucide-icon,
+.mp-bottom-nav__item svg,
+.mp-bn-more .lucide-icon,
+.mp-bn-more svg,
+.member-mobile-footer .lucide-icon,
+.member-mobile-footer svg,
+.member-mobile-footer i.fas {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 17px !important;
+  stroke-width: 2 !important;
+  line-height: 1 !important;
+}
+
+.mp-bottom-nav a.active,
+.mp-bottom-nav__item.active,
+.mp-bn-more.open,
+.member-mobile-footer a.active {
+  color: var(--primary-color, #1a5f2a) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff) !important;
+}
+
+.mp-bottom-nav a.active::before,
+.mp-bottom-nav__item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  right: 18%;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: var(--primary-color, #1a5f2a);
+}
+
+body.has-member-footer,
+body:has(.mp-bottom-nav) {
+  padding-bottom: calc(var(--mem-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* More drawer */
+.mp-more-drawer {
+  border-radius: 18px 18px 0 0 !important;
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.16) !important;
+}
+
+.mp-more-item {
+  border-radius: 12px !important;
+  font-weight: 500;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.mp-more-item:hover,
+.mp-more-item.active {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
+}
+
+.mp-mi-icon {
+  border-radius: 10px !important;
+}
+
+.mp-mi-icon .lucide-icon,
+.mp-mi-icon svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+@media (min-width: 900px) {
+  .mp-bottom-nav,
+  .member-mobile-footer {
+    display: none !important;
+  }
+
+  body.has-member-footer,
+  body:has(.mp-bottom-nav) {
+    padding-bottom: 0 !important;
+  }
+}
+
+/* ── Auth / login polish ───────────────────────────────────────────── */
+body.auth-portal-page {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, transparent), transparent 60%),
+    var(--mem-surface-soft) !important;
+}
+
+.auth-card {
+  padding: 1.35rem 1.4rem !important;
+}
+
+.auth-card h1,
+.auth-card .auth-title {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ── Verify page polish ────────────────────────────────────────────── */
+body.verify-auth-page {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, transparent), transparent 60%),
+    var(--mem-surface-soft) !important;
+  min-height: 100dvh;
+}
+
+.vp-outer {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+}
+
+.vp-main-card {
+  overflow: hidden;
+}
+
+.vp-card-head {
+  padding: 1.05rem 1.25rem !important;
+}
+
+.vp-card-body {
+  padding: 1.25rem 1.35rem !important;
+}
+
+.vp-back-link {
+  font-family: var(--mem-font-body) !important;
+}
+
+.vp-secure {
+  color: var(--mem-muted) !important;
+}
+
+/* ── Mobile breathing room ─────────────────────────────────────────── */
+@media (max-width: 899.98px) {
+  .mem-container {
+    padding-left: 0.9rem !important;
+    padding-right: 0.9rem !important;
+  }
+
+  .mem-card-body {
+    padding: 0.95rem 1rem !important;
+  }
+}

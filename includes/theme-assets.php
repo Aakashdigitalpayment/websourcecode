@@ -270,7 +270,13 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/admin-shell-polish.css');
         }
 
-        /* ── 10. Public shell polish — cards/forms/bottom-nav/icons/fonts (LAST) ── */
+        /* ── 10. Member / auth / verify shell polish (LAST for those panels) ── */
+        if (in_array($panel, ['member', 'auth', 'verify'], true)
+            || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'))) {
+            coopThemeLink('assets/css/member-shell-polish.css');
+        }
+
+        /* ── 11. Public shell polish — cards/forms/bottom-nav/icons/fonts (LAST) ── */
         if (in_array($panel, ['public', 'minimal'], true)
             || ($panel === 'shell' && !$isAdminShell && !str_contains($script, '/member/'))) {
             coopThemeLink('assets/css/public-shell-polish.css');
