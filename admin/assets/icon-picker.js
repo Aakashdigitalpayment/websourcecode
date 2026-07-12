@@ -206,53 +206,86 @@
     activePreview = null;
   }
 
-  function enhance(root) {
-    var scope = root || document;
-    scope.querySelectorAll('.js-fa-icon-picker').forEach(function (wrap) {
-      if (wrap.dataset.faReady === '1') return;
-      wrap.dataset.faReady = '1';
+  function wireField(input, preview, openBtn) {
+    if (!input || input.dataset.faReady === '1') return;
+    input.dataset.faReady = '1';
+    input.setAttribute('data-fa-input', '');
 
-      var input = wrap.querySelector('[data-fa-input]') || wrap.querySelector('input[type="text"]');
-      if (!input) return;
-      input.setAttribute('data-fa-input', '');
-
-      var preview = wrap.querySelector('[data-fa-preview]');
-      if (!preview) {
-        preview = document.createElement('span');
-        preview.className = 'fa-ip-preview';
-        preview.setAttribute('data-fa-preview', '');
-        wrap.insertBefore(preview, wrap.firstChild);
+    if (!preview) {
+      preview = document.createElement('span');
+      preview.className = 'fa-ip-preview input-group-text';
+      preview.setAttribute('data-fa-preview', '');
+      if (input.parentElement && input.parentElement.classList.contains('input-group')) {
+        input.parentElement.insertBefore(preview, input);
+      } else {
+        input.parentElement.insertBefore(preview, input);
       }
+    } else {
+      preview.setAttribute('data-fa-preview', '');
+    }
+    setPreview(preview, input.value || 'fas fa-th-large');
+
+    if (!openBtn) {
+      openBtn = document.createElement('button');
+      openBtn.type = 'button';
+      openBtn.className = 'btn btn-success fa-ip-open';
+      openBtn.setAttribute('data-fa-open', '');
+      openBtn.setAttribute('title', 'Select icon');
+      openBtn.innerHTML = '<i class="fas fa-th"></i>';
+      if (input.parentElement && input.parentElement.classList.contains('input-group')) {
+        input.parentElement.appendChild(openBtn);
+      } else {
+        var row = document.createElement('div');
+        row.className = 'input-group fa-ip-row';
+        input.parentNode.insertBefore(row, input);
+        row.appendChild(preview);
+        row.appendChild(input);
+        row.appendChild(openBtn);
+      }
+    }
+
+    openBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      openModal(input, preview);
+    });
+
+    input.addEventListener('input', function () {
       setPreview(preview, input.value || 'fas fa-th-large');
-
-      var openBtn = wrap.querySelector('[data-fa-open]');
-      if (!openBtn) {
-        openBtn = document.createElement('button');
-        openBtn.type = 'button';
-        openBtn.className = 'btn btn-success fa-ip-open';
-        openBtn.setAttribute('data-fa-open', '');
-        openBtn.innerHTML = '<i class="fas fa-th"></i> Icons';
-        if (input.parentElement && input.parentElement.classList.contains('input-group')) {
-          input.parentElement.appendChild(openBtn);
-        } else {
-          wrap.appendChild(openBtn);
-        }
-      }
-
-      openBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        openModal(input, preview);
-      });
-
-      input.addEventListener('input', function () {
-        setPreview(preview, input.value || 'fas fa-th-large');
-      });
     });
   }
 
-  function mountField(options) {
-    /* Helper if needed by other pages later */
-    return options;
+  function looksLikeFaIconField(input) {
+    if (!input || input.disabled || input.readOnly) return false;
+    if (input.type && input.type !== 'text' && input.type !== 'search') return false;
+    var sample = ((input.value || '') + ' ' + (input.placeholder || '')).toLowerCase();
+    return /(^|\s)(fas|far|fab|fal|fad)\s+fa-/.test(sample) || sample.indexOf('fa-') !== -1;
+  }
+
+  function enhance(root) {
+    var scope = root || document;
+
+    scope.querySelectorAll('.js-fa-icon-picker').forEach(function (wrap) {
+      if (wrap.dataset.faReady === '1') return;
+      wrap.dataset.faReady = '1';
+      var input = wrap.querySelector('[data-fa-input]') || wrap.querySelector('input[type="text"]');
+      if (!input) return;
+      var preview = wrap.querySelector('[data-fa-preview]');
+      var openBtn = wrap.querySelector('[data-fa-open]');
+      wireField(input, preview, openBtn);
+    });
+
+    /* Auto-wire every admin FA icon text field (services, links, why-choose, etc.) */
+    scope.querySelectorAll('input[name="icon"], input[name="cat_icon"], input[name$="_icon"]').forEach(function (input) {
+      if (input.dataset.faReady === '1') return;
+      if (input.closest('.js-fa-icon-picker')) return;
+      if (!looksLikeFaIconField(input) && input.name !== 'icon' && input.name !== 'cat_icon') return;
+      if (input.name !== 'icon' && input.name !== 'cat_icon' && !looksLikeFaIconField(input)) return;
+
+      var group = input.closest('.input-group');
+      var preview = group ? group.querySelector('[data-fa-preview], .input-group-text') : null;
+      var openBtn = group ? group.querySelector('[data-fa-open]') : null;
+      wireField(input, preview, openBtn);
+    });
   }
 
   window.FaIconPicker = {
