@@ -14380,8 +14380,9 @@ body.dark-mode .scroll-btn.down {
 /* ── 3. Hero Slider — Full-impact mobile experience ── */
 @media (max-width: 767px) {
     .slider-bg {
-        height: 420px !important;
-        align-items: center;
+        height: auto !important;
+        min-height: clamp(300px, 52vh, 400px) !important;
+        align-items: flex-end;
     }
     .slider-overlay {
         background: linear-gradient(160deg,
@@ -14444,8 +14445,8 @@ body.dark-mode .scroll-btn.down {
     }
 }
 @media (max-width: 480px) {
-    .slider-bg { height: 360px !important; }
-    .slider-content h1 { font-size: 1.5rem !important; }
+    .slider-bg { height: auto !important; min-height: clamp(280px, 50vh, 380px) !important; }
+    .slider-content h1 { font-size: 1.2rem !important; }
 }
 
 /* ── 4. Notice Ticker — More vibrant on mobile ── */
@@ -16362,7 +16363,12 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .table-hover > tbody > tr:hover > * {
     background: rgba(var(--primary-rgb,26,95,42),.055) !important;
 }
-.table-responsive { border-radius: 12px !important; overflow: hidden !important; }
+.table-responsive {
+    border-radius: 12px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
+}
 
 /* ═══════════════════════════════════════════════════
    8. ALERTS & BADGES — Soft pill style
@@ -16562,8 +16568,8 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     margin-top: 1rem !important;
 }
 .footer-social a {
-    width: 34px !important;
-    height: 34px !important;
+    width: 44px !important;
+    height: 44px !important;
     border-radius: 8px !important;
     display: flex !important;
     align-items: center !important;
@@ -16842,13 +16848,19 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .hero-indicator-btn.active .indicator-dot { display: none; }
 
 @media (max-width: 768px) {
-    .hero-inner-modern, .hero-slide-modern { height: 380px; }
-    .hero-content-modern { padding: 1.5rem; }
+    .hero-inner-modern, .hero-slide-modern {
+        height: auto !important;
+        min-height: clamp(300px, 52vh, 400px) !important;
+    }
+    .hero-content-modern { padding: 1.15rem 1rem 2.75rem; }
     .hero-indicators-modern { bottom: 14px; }
 }
 @media (max-width: 480px) {
-    .hero-inner-modern, .hero-slide-modern { height: 320px; }
-    .hero-content-modern { padding: 1rem; }
+    .hero-inner-modern, .hero-slide-modern {
+        height: auto !important;
+        min-height: clamp(280px, 50vh, 380px) !important;
+    }
+    .hero-content-modern { padding: 1rem 0.85rem 2.5rem; }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -22321,9 +22333,9 @@ footer.main-footer,
     .pfl-bell-btn,
     .pfl-pwa-wrap a.pwa-install-btn,
     .pfl-dark-wrap > a {
-        padding: 4px 6px !important;
-        min-width: 30px !important;
-        min-height: 30px !important;
+        padding: 8px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
         font-size: 13px !important;
     }
     .pfl-lang-wrap {

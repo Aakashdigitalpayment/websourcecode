@@ -413,10 +413,10 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
             /* Brand area — compact on mobile */
             .pfl-brand-area { padding: 8px 12px; flex: 1; min-width: 0; }
             .pfl-brand-content.has-logo .pfl-brand-logo {
-                max-height: 48px !important;
+                max-height: 44px !important;
                 height: auto !important;
                 width: auto !important;
-                max-width: min(330px, 86vw) !important;
+                max-width: min(220px, calc(100vw - 120px)) !important;
                 object-fit: contain !important;
             }
             .pfl-brand-content.no-logo .pfl-brand-logo { height: 42px !important; width: auto !important; }
@@ -428,7 +428,8 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
             .pfl-mobile-toggle {
                 display: flex !important;
                 align-items: center; justify-content: center;
-                width: 40px; height: 40px;
+                width: 44px; height: 44px;
+                min-width: 44px; min-height: 44px;
                 background: var(--primary-color);
                 color: #fff;
                 border: none;
@@ -667,12 +668,14 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                 border-radius: 0 !important;
                 transition: background .15s !important;
                 text-align: left !important;
-                white-space: nowrap !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
                 position: relative !important;
             }
             .main-nav .nav-menu > li > a > .mnav-main-label {
                 text-align: left !important;
-                white-space: nowrap !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
             }
             .main-nav .nav-menu > li > a .mnav-main-icon,
             .main-nav .nav-menu > li > a > .lucide-icon:first-child,
@@ -757,10 +760,10 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
         @media (max-width: 575px) {
             /* Very small screens */
             .pfl-brand-content.has-logo .pfl-brand-logo {
-                max-height: 42px !important;
+                max-height: 38px !important;
                 height: auto !important;
                 width: auto !important;
-                max-width: min(300px, 84vw) !important;
+                max-width: min(190px, calc(100vw - 112px)) !important;
             }
             .pfl-brand-content.no-logo .pfl-brand-logo { height: 36px !important; }
             .pfl-brand-name-np { font-size: 0.88rem !important; }
@@ -769,29 +772,32 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
             .pfl-top-right .pfl-lang-wrap .pfl-lang-divider { display: none !important; }
             .pfl-top-right .pfl-lang-wrap { padding: 0 !important; gap: 4px !important; }
             .pfl-top-right .pfl-lang-wrap a {
-                width: 28px !important;
-                min-width: 28px !important;
-                height: 28px !important;
-                min-height: 28px !important;
-                font-size: 9px !important;
-                padding: 0 !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
+                width: auto !important;
+                height: auto !important;
+                font-size: 11px !important;
+                padding: 8px 6px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
                 gap: 0 !important;
                 border-radius: 999px !important;
-                min-height: 28px !important;
+                min-height: 40px !important;
             }
             .pfl-top-right .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot) {
                 display: inline !important;
-                font-size: 9px !important;
+                font-size: 11px !important;
                 line-height: 1 !important;
             }
-            .pfl-top-right .pfl-login-toggle { padding: 0 8px; }
+            .pfl-top-right .pfl-login-toggle { padding: 0 10px; min-height: 40px; }
             .pfl-top-right .pfl-login-toggle .pfl-login-caret { display: none; }
             .pfl-top-right .pfl-login-toggle { font-size: 0; }
             .pfl-top-right .pfl-login-toggle i { font-size: 15px; margin: 0; }
             .pfl-top-right #topbarSearchBtn { display: none !important; }
-            .pfl-mobile-toggle { width: 38px; height: 38px; }
+            .pfl-mobile-toggle { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
             .pfl-main-header { padding: 4px 8px !important; }
 
             /* Login dropdown: mobile मा full visible panel (no awkward overlap/cutoff) */
