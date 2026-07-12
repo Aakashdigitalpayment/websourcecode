@@ -177,6 +177,7 @@ $departments = hrmListDepartments($db);
 <div class="modal fade" id="msgModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <form method="post" class="modal-content">
+      <?= csrfField() ?>
       <input type="hidden" name="action" value="send_message">
       <input type="hidden" name="receiver_employee_id" id="msg_rid">
       <div class="modal-header">

@@ -1,0 +1,9 @@
+# Coop site — minimal Apache helpers (ignored on nginx)
+# Keep this file small: do not block public assets.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Crawlers expect /sitemap.xml and /robots.txt
+    RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+    RewriteRule ^robots\.txt$ robots.php [L,QSA]
+</IfModule>

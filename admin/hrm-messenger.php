@@ -129,6 +129,7 @@ if ($conv > 0) {
           <?php endforeach; ?>
         </div>
         <form method="post" class="msg-form">
+          <?= csrfField() ?>
           <input type="hidden" name="action" value="reply">
           <textarea name="body" rows="2" placeholder="जवाफ लेख्नुहोस् ..." required></textarea>
           <button class="btn btn-primary" type="submit" aria-label="Send" title="Send"><i class="fas fa-paper-plane"></i></button>
