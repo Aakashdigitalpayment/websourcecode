@@ -30,12 +30,12 @@ if (!isset($statCards) || !is_array($statCards)) $statCards = [];
 
 /* v12 — stat-mini layout: uniform with kyc-applications.php reference design */
 $_iconMap = [
-    'primary'   => ['bg' => 'color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, white)', 'color' => 'var(--primary-color, #1a5f2a)'],
-    'success'   => ['bg' => '#dcfce7',  'color' => '#15803d'],
-    'danger'    => ['bg' => '#fee2e2',  'color' => '#b91c1c'],
-    'warning'   => ['bg' => '#fef9c3',  'color' => '#b45309'],
-    'info'      => ['bg' => '#e0f2fe',  'color' => '#0369a1'],
-    'secondary' => ['bg' => '#f3f4f6',  'color' => '#6b7280'],
+    'primary'   => ['bg' => 'color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, var(--bg-card, white))', 'color' => 'var(--primary-ink, var(--primary-color, #1a5f2a))'],
+    'success'   => ['bg' => 'var(--color-success-bg, #dcfce7)',  'color' => 'var(--color-success, #15803d)'],
+    'danger'    => ['bg' => 'var(--color-danger-bg, #fee2e2)',  'color' => 'var(--color-danger, #b91c1c)'],
+    'warning'   => ['bg' => 'var(--color-warning-bg, #fef9c3)',  'color' => 'var(--color-warning, #b45309)'],
+    'info'      => ['bg' => 'var(--color-info-bg, #e0f2fe)',  'color' => 'var(--color-info, #0369a1)'],
+    'secondary' => ['bg' => 'color-mix(in srgb, var(--secondary-color, #c0392b) 12%, var(--bg-card, #f3f4f6))',  'color' => 'var(--secondary-ink, var(--secondary-color, #6b7280))'],
 ];
 ?>
 <div class="stat-mini-row mb-4">
@@ -65,7 +65,7 @@ $_iconMap = [
         <div class="sm-lbl">
             <?php echo $_label; ?>
             <?php if ($_badge): ?><span class="stat-card-badge"><?php echo $_badge; ?></span><?php endif; ?>
-            <?php if ($_trend): ?><small class="d-block" style="color:#9ca3af;font-size:.65rem;margin-top:1px;"><?php echo $_trend; ?></small><?php endif; ?>
+            <?php if ($_trend): ?><small class="d-block" style="color:var(--text-muted,#9ca3af);font-size:.65rem;margin-top:1px;"><?php echo $_trend; ?></small><?php endif; ?>
         </div>
     </<?php echo $_tag; ?>>
 <?php endforeach; ?>

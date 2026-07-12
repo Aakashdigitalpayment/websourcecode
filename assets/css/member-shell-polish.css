@@ -242,10 +242,10 @@ body,
 .member-mobile-footer {
   height: calc(var(--mem-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
   padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-  background: rgba(255, 255, 255, 0.96) !important;
+  background: color-mix(in srgb, var(--bg-card, #fff) 96%, transparent) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb) !important;
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb)) !important;
   box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.08) !important;
   border-radius: 14px 14px 0 0;
   z-index: 8999;
@@ -258,7 +258,7 @@ body,
 .member-mobile-footer button {
   font-weight: 600 !important;
   font-size: 10px !important;
-  color: #6b7280 !important;
+  color: var(--text-muted, #6b7280) !important;
   position: relative;
 }
 
@@ -282,8 +282,8 @@ body,
 .mp-bottom-nav__item.active,
 .mp-bn-more.open,
 .member-mobile-footer a.active {
-  color: var(--primary-color, #1a5f2a) !important;
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, var(--bg-card, #fff)) !important;
 }
 
 .mp-bottom-nav a.active::before,
@@ -295,7 +295,7 @@ body,
   right: 18%;
   height: 2.5px;
   border-radius: 0 0 3px 3px;
-  background: var(--primary-color, #1a5f2a);
+  background: var(--primary-ink, var(--primary-color, #1a5f2a));
 }
 
 body.has-member-footer,
@@ -317,7 +317,7 @@ body:has(.mp-bottom-nav) {
 
 .mp-more-item:hover,
 .mp-more-item.active {
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, var(--bg-card, #fff)) !important;
 }
 
 .mp-mi-icon {
