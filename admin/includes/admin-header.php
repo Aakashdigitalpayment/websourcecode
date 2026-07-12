@@ -204,9 +204,10 @@ $pageGroups = [
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
-    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','auctions','auction-bids','vendor-enlistment'],
+    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
+    /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
     'memportal'=> ['member-online-portal'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings'],
@@ -475,7 +476,7 @@ set_exception_handler(function (\Throwable $ex) {
 
                     <!-- ── आवेदनहरू ── -->
                     <li class="nav-group-wrap">
-                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
+                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('आवेदनहरू', 'Applications'); ?></span>
@@ -516,6 +517,13 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="laptop-code"></i></span>
                                     <span><?php echo $adminT('डिजिटल सेवा', 'Digital Services'); ?></span>
                                     <?php if ($adminAlertCounts['digital'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['digital']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
+                                <a href="appointments.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
+                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
+                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='auctions' ? 'active' : ''; ?>">
@@ -635,7 +643,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
                                 <a href="appointments.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('भेटघाट', 'Appointments'); ?></span>
+                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
                                     <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
