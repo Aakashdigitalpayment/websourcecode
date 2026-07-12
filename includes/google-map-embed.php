@@ -31,7 +31,6 @@ if (!function_exists('resolveHttpRedirectUrl')) {
             curl_exec($ch);
             $final = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
             $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
             if (is_string($final) && $final !== '' && $code > 0) {
                 return $final;
             }
