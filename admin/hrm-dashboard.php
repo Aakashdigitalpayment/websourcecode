@@ -106,6 +106,7 @@ try {
       <a href="service-centers.php">शाखाहरू</a> = सेवा केन्द्र (शाखा dropdown को स्रोत) ·
       <a href="designations.php">पद मास्टर</a> = पदको नाम ·
       <a href="hrm-employees.php">नयाँ कर्मचारी</a> मा टोलीबाट छानेर वा टाइप गरेर थप्न सकिन्छ।
+    </div>
 
     <?php
     $statCards = [

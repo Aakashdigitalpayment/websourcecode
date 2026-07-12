@@ -275,6 +275,12 @@ if (!function_exists('coopThemeCssUrl')) {
             || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'))) {
             coopThemeLink('assets/css/member-shell-polish.css');
         }
+
+        /* ── 11. Public shell polish — cards/forms/bottom-nav/icons/fonts (LAST) ── */
+        if (in_array($panel, ['public', 'minimal'], true)
+            || ($panel === 'shell' && !$isAdminShell && !str_contains($script, '/member/'))) {
+            coopThemeLink('assets/css/public-shell-polish.css');
+        }
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */

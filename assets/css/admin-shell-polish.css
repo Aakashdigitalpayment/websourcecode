@@ -279,14 +279,18 @@ body[class*="admin-page-"],
 }
 
 /* ── Alerts / page chrome ──────────────────────────────────────────── */
+/* Alerts — keep block layout so nested page content is never swallowed */
 .main-content .alert {
   border-radius: var(--admin-radius) !important;
   border-width: 0 0 0 3px !important;
+  padding: 0.85rem 1rem !important;
+  font-size: 0.9rem !important;
+}
+
+.main-content .alert.alert-dismissible {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
-  padding: 0.85rem 1rem !important;
-  font-size: 0.9rem !important;
 }
 
 .main-content .admin-page-header {
