@@ -105,12 +105,12 @@ app-member.css         ← member portal (6 782 lines)
 global.css             ← shared CSS variables + base resets
 forms-tables.css       ← form + table shared styles
 admin-ui-unified.css   ← admin UI component system
-admin-serious-fix.css  ← admin-only high-priority fixes    (admin/shell only)
 admin-auth-login-fixes.css  ← admin login page fixes       (admin-auth only)
 ui-ux-enhancements.css ← cross-panel UX polish
 admin-layout-icon-fixes.css ← admin icon layout            (admin/shell only)
 bootstrap-admin-overrides.css ← Bootstrap reset for admin  (admin/shell only)
 admin-icon-colors-priority.css ← icon colour patch         (admin/shell only)
+*-shell-polish.css     ← public / member / admin shell polish (panel-specific)
 global-theme.php       ← ⭐ DB-driven brand colours (inline <style>, LAST-1)
 premium-ui.css         ← ⭐⭐ Premium font + shape polish (LAST — wins all)
 ```
@@ -120,8 +120,7 @@ premium-ui.css         ← ⭐⭐ Premium font + shape polish (LAST — wins all
 | File | Owns |
 |------|------|
 | `global.css` | `--primary`, `--secondary`, `--bg-page`, `--font-primary`, `--radius-md`… |
-| `global-theme.css` | `--font-heading`, `--font-body`, `--text-*` scale, shadow tokens |
-| `assets/css/global-theme.php` | DB-driven `--primary-color`, `--header-color`, `--footer-color` (inline, dynamic) |
+| `assets/css/global-theme.php` | DB-driven `--primary-color`, `--text-on-*`, surface/text tokens (inline, dynamic) |
 | `premium-ui.css` | `--prem-font-head`, `--prem-font-body`, `--prem-sh-*` (own namespace, never conflicts) |
 
 ### Rules
