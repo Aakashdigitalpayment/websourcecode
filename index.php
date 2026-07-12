@@ -915,7 +915,7 @@ if (empty($appFeatures)) {
                     </div>
                     <div class="news-content">
                         <h4><?php echo getLangField($news, 'title'); ?></h4>
-                        <p><?php echo truncateText(strip_tags(getLangField($news, 'content')), 100); ?></p>
+                        <p><?php echo e(truncateText(strip_tags(getLangField($news, 'content')), 100)); ?></p>
                         <a href="news-detail.php?id=<?php echo $news['id']; ?>" class="read-more">
                             <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
                         </a>

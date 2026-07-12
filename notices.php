@@ -96,7 +96,7 @@ try {
                                 <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?>
                             </span>
                             <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo $notice['title']; ?></a></h5>
-                            <p><?php echo truncateText($notice['content'], 100); ?></p>
+                            <p><?php echo e(truncateText(strip_tags((string)($notice['content'] ?? '')), 100)); ?></p>
                             <a href="notices.php?id=<?php echo $notice['id']; ?>" class="read-more">
                                 थप पढ्नुहोस् <i class="fas fa-arrow-right"></i>
                             </a>

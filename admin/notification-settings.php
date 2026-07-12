@@ -233,7 +233,7 @@ require_once 'includes/admin-ui.php';
                                 <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Failed</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="small text-muted"><?php echo htmlspecialchars(substr($log['error_msg'] ?? '', 0, 60)); ?></td>
+                            <td class="small text-muted"><?php echo htmlspecialchars(mb_substr((string)($log['error_msg'] ?? ''), 0, 60, 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
