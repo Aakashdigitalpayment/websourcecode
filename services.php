@@ -147,11 +147,11 @@ if (!function_exists('service_anchor_id')) {
                     <?php $catId = (int)($category['id'] ?? 0); ?>
                     <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="<?php echo ($catIndex ?? 0) * 70; ?>" id="category-<?php echo $catId; ?>">
                         <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="service-category-header-inner d-flex align-items-center justify-content-center gap-3">
                                 <div class="service-category-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
                                     <i class="<?php echo htmlspecialchars($category['icon'] ?: 'fas fa-th-large'); ?> fs-4"></i>
                                 </div>
-                                <div>
+                                <div class="service-category-header-text">
                                     <h3 class="mb-1"><?php echo isEnglish() ? ($category['name_en'] ?: $category['name']) : ($category['name_np'] ?: $category['name']); ?></h3>
                                     <?php if (!empty($category['description'])): ?><p class="mb-0 text-muted"><?php echo htmlspecialchars(isEnglish() ? ($category['description'] ?? '') : ($category['description_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></p><?php endif; ?>
                                 </div>
@@ -205,11 +205,11 @@ if (!function_exists('service_anchor_id')) {
                 <?php if (!empty($servicesByCategory[0])): ?>
                     <div class="col-12 mb-5" data-aos="fade-up" data-aos-delay="200">
                         <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
-                            <div class="d-flex align-items-center gap-3">
+                            <div class="service-category-header-inner d-flex align-items-center justify-content-center gap-3">
                                 <div class="service-category-icon rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
                                     <i class="fas fa-list"></i>
                                 </div>
-                                <div>
+                                <div class="service-category-header-text">
                                     <h3 class="mb-1"><?php echo isEnglish() ? 'Other Services' : 'अन्य सेवाहरू'; ?></h3>
                                 </div>
                             </div>
