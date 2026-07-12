@@ -52,10 +52,18 @@ if ($tableExists) {
         "ALTER TABLE institutional_profile ADD COLUMN bank_cash_balance DECIMAL(18,2) DEFAULT 0 COMMENT 'बैंक तथा नगद मौज्दात'",
         "ALTER TABLE institutional_profile ADD COLUMN fixed_assets DECIMAL(18,2) DEFAULT 0 COMMENT 'स्थिर सम्पत्ति'",
         "ALTER TABLE institutional_profile ADD COLUMN total_loan_members INT DEFAULT 0 COMMENT 'कुल ऋणी सदस्य'",
+        "ALTER TABLE institutional_profile ADD COLUMN report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12; 0=annual/unset'",
     ];
     foreach ($alters as $sql) {
         try { $db->exec($sql); } catch (Exception $e) { /* Column exists or other ignorable error */ }
     }
+    /* Allow multiple months per fiscal year (old unique FY key blocks monthly updates) */
+    foreach (['uniq_fiscal_year', 'fiscal_year'] as $idx) {
+        try { $db->exec("ALTER TABLE institutional_profile DROP INDEX `{$idx}`"); } catch (Exception $e) { /* ignore */ }
+    }
+    try {
+        $db->exec("CREATE INDEX idx_ip_fy_month ON institutional_profile (fiscal_year, report_month)");
+    } catch (Exception $e) { /* exists */ }
 }
 
 /* ─── 4. POST handler (runs before HTML; config.php starts session) ─── */
@@ -77,9 +85,17 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (in_array($action, ['add', 'edit'])) {
         $id                         = (int)($_POST['id'] ?? 0);
         $fiscal_year                = clean_text($_POST['fiscal_year']               ?? '');
+        $report_month               = (int)($_POST['report_month']                 ?? 0);
+        if ($report_month < 0 || $report_month > 12) {
+            $report_month = 0;
+        }
         $report_date_bs             = clean_text($_POST['report_date_bs']            ?? '');
         $report_date_ad_raw         = clean_text($_POST['report_date_ad']            ?? '');
         $report_date_ad             = ($report_date_ad_raw !== '') ? $report_date_ad_raw : null;
+        /* Auto-fill month from BS date when admin left month blank */
+        if ($report_month === 0 && $report_date_bs !== '' && preg_match('/^(\d{4})-(\d{2})/', $report_date_bs, $bm)) {
+            $report_month = max(0, min(12, (int)$bm[2]));
+        }
         $total_members              = (int)($_POST['total_members']                ?? 0);
         $total_balance_member       = (int)($_POST['total_balance_member']         ?? 0);
         $total_assets               = (float)($_POST['total_assets']               ?? 0);
@@ -111,6 +127,26 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        /* One record per fiscal year + month (0 = annual/unset) */
+        try {
+            if ($action === 'add') {
+                $dup = $db->prepare("SELECT id FROM institutional_profile WHERE fiscal_year = ? AND report_month = ? LIMIT 1");
+                $dup->execute([$fiscal_year, $report_month]);
+            } else {
+                $dup = $db->prepare("SELECT id FROM institutional_profile WHERE fiscal_year = ? AND report_month = ? AND id <> ? LIMIT 1");
+                $dup->execute([$fiscal_year, $report_month, $id]);
+            }
+            if ($dup->fetch()) {
+                $mLabel = $report_month > 0
+                    ? (function_exists('getNepaliMonthName') ? getNepaliMonthName((string)$report_month) : ('महिना ' . $report_month))
+                    : 'वार्षिक / महिना नखुलेको';
+                $_SESSION['flash_error'] = 'आ.व. ' . $fiscal_year . ' — ' . $mLabel . ' को प्रोफाइल पहिले नै छ।';
+                $redirect = $action === 'add' ? $selfUrl . '?action=add' : $selfUrl . '?action=edit&id=' . $id;
+                header('Location: ' . $redirect);
+                exit;
+            }
+        } catch (Exception $e) { /* column may be missing on very old DB mid-migrate */ }
+
         if (!empty($_FILES['attachment_file']['name']) && ($_FILES['attachment_file']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
             $upload = uploadFile($_FILES['attachment_file'], 'institutional_profile');
             if (!empty($upload['success']) && !empty($upload['path'])) {
@@ -121,7 +157,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $fields = compact(
-            'fiscal_year','report_date_bs','report_date_ad',
+            'fiscal_year','report_month','report_date_bs','report_date_ad',
             'total_members','total_balance_member','total_assets',
             'share_capital','share_capital_percent',
             'reserved_fund','reserved_fund_percent','other_fund',
@@ -150,7 +186,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } catch (Exception $e) {
             $msg = str_contains($e->getMessage(), 'Duplicate')
-                ? 'यो आर्थिक वर्षको प्रोफाइल पहिले नै छ।'
+                ? 'यो आ.व. / महिनाको प्रोफाइल पहिले नै छ।'
                 : 'त्रुटि: ' . $e->getMessage();
             $_SESSION['flash_error'] = $msg;
             $redirect = $action === 'add' ? $selfUrl . '?action=add' : $selfUrl . '?action=edit&id=' . $id;
@@ -221,8 +257,14 @@ if ($viewAction === 'edit' && $editId && $tableExists) {
 $profiles = [];
 if ($tableExists && $viewAction === 'list') {
     try {
-        $profiles = $db->query("SELECT * FROM institutional_profile ORDER BY fiscal_year DESC")->fetchAll();
-    } catch (Exception $e) {}
+        $profiles = $db->query(
+            "SELECT * FROM institutional_profile ORDER BY fiscal_year DESC, report_month DESC, id DESC"
+        )->fetchAll();
+    } catch (Exception $e) {
+        try {
+            $profiles = $db->query("SELECT * FROM institutional_profile ORDER BY fiscal_year DESC")->fetchAll();
+        } catch (Exception $e2) {}
+    }
 }
 
 /* ─── 8. Fiscal year options ─── */
@@ -251,6 +293,24 @@ function shortAmt(float $v): string {
     return 'रू. ' . number_format($v);
 }
 
+/** BS month 1–12 → Nepali name; 0 = वार्षिक */
+function ipAdminMonthLabel(int $m): string {
+    if ($m < 1 || $m > 12) {
+        return 'वार्षिक / नखुलेको';
+    }
+    return function_exists('getNepaliMonthName') ? (string) getNepaliMonthName((string) $m) : ('महिना ' . $m);
+}
+
+function ipAdminMonthSelectHtml(int $selected = 0): string {
+    $opts = '<option value="0"' . ($selected === 0 ? ' selected' : '') . '>वार्षिक / महिना नखुलेको</option>';
+    for ($i = 1; $i <= 12; $i++) {
+        $lab = htmlspecialchars(ipAdminMonthLabel($i), ENT_QUOTES, 'UTF-8');
+        $sel = $selected === $i ? ' selected' : '';
+        $opts .= '<option value="' . $i . '"' . $sel . '>' . $lab . ' (' . $i . ')</option>';
+    }
+    return '<select name="report_month" id="fieldReportMonth" class="form-select" data-testid="institutional-profile-report-month-select">' . $opts . '</select>';
+}
+
 /* ─── CSRF token (set by admin-header.php) ─── */
 $csrf = $csrfToken;
 ?>
@@ -273,10 +333,10 @@ $activeCount  = count(array_filter($profiles, function ($p) {
 echo adminPageHeader(
     'संस्थागत प्रोफाइल व्यवस्थापन',
     'fa-building-columns',
-    'हरेक आर्थिक वर्षको financial data — थप्नुहोस्, सम्पादन गर्नुहोस्, active/inactive गर्नुहोस्।',
+    'आर्थिक वर्ष + महिना अनुसार financial data — थप्नुहोस्, सम्पादन गर्नुहोस्, filter गर्नुहोस्।',
     adminStatLink($selfUrl, 'secondary', 'जम्मा', $totalRecords)
     . adminStatLink($selfUrl, 'success', 'Active', $activeCount, false)
-    . adminAddBtn('नयाँ आर्थिक वर्ष थप्नुहोस्', $selfUrl . '?action=add')
+    . adminAddBtn('नयाँ महिनाको प्रोफाइल', $selfUrl . '?action=add')
 );
 ?>
 
@@ -289,9 +349,29 @@ echo adminPageHeader(
       </span>
       <input type="text" id="ipSearchFY"
              class="form-control border-start-0 ip-search-input"
-             placeholder="आ.व. खोज्नुहोस् (जस्तै: 2080/81)"
+             placeholder="आ.व. खोज्नुहोस् (जस्तै: 2081/82)"
              autocomplete="off">
     </div>
+    <select id="ipFilterFY" class="form-select ip-filter-select" style="max-width:160px;" aria-label="Fiscal year filter">
+      <option value="">सबै आ.व.</option>
+      <?php
+      $fyOpts = [];
+      foreach ($profiles as $_fp) {
+          $fy = trim((string)($_fp['fiscal_year'] ?? ''));
+          if ($fy !== '') $fyOpts[$fy] = true;
+      }
+      foreach (array_keys($fyOpts) as $fyOpt):
+      ?>
+      <option value="<?php echo htmlspecialchars(strtolower($fyOpt), ENT_QUOTES); ?>"><?php echo htmlspecialchars($fyOpt); ?></option>
+      <?php endforeach; ?>
+    </select>
+    <select id="ipFilterMonth" class="form-select ip-filter-select" style="max-width:170px;" aria-label="Month filter">
+      <option value="">सबै महिना</option>
+      <option value="0">वार्षिक / नखुलेको</option>
+      <?php for ($mi = 1; $mi <= 12; $mi++): ?>
+      <option value="<?php echo $mi; ?>"><?php echo htmlspecialchars(ipAdminMonthLabel($mi)); ?></option>
+      <?php endfor; ?>
+    </select>
     <select id="ipFilterStatus" class="form-select ip-filter-select">
       <option value="">सबै स्थिति</option>
       <option value="active">Active मात्र</option>
@@ -325,7 +405,7 @@ echo adminPageHeader(
     <table class="table table-hover align-middle mb-0" id="ipTable">
       <thead>
         <tr>
-          <th class="ip-col ip-col-shared">आ.व.</th>
+          <th class="ip-col ip-col-shared">आ.व. / महिना</th>
           <th class="ip-col ip-col-main">मिति (बि.सं.)</th>
           <th class="ip-col ip-col-main">मिति (A.D.)</th>
           <th class="ip-col ip-col-main">सदस्य</th>
@@ -351,14 +431,23 @@ echo adminPageHeader(
           </td>
         </tr>
         <?php if (empty($profiles)): ?>
-        <?php echo adminEmptyRow(11, 'कुनै डाटा उपलब्ध छैन। "नयाँ आर्थिक वर्ष थप्नुहोस्" बटनबाट सुरु गर्नुहोस्।'); ?>
+        <?php echo adminEmptyRow(11, 'कुनै डाटा उपलब्ध छैन। "नयाँ महिनाको प्रोफाइल" बाट सुरु गर्नुहोस्।'); ?>
         <?php else: ?>
-        <?php foreach ($profiles as $p): ?>
+        <?php foreach ($profiles as $p):
+            $rm = (int)($p['report_month'] ?? 0);
+            if ($rm === 0 && !empty($p['report_date_bs']) && preg_match('/^\d{4}-(\d{2})/', (string)$p['report_date_bs'], $mm)) {
+                $rm = (int)$mm[1];
+            }
+        ?>
         <tr class="ip-data-row"
             data-fy="<?php echo strtolower(htmlspecialchars($p['fiscal_year'], ENT_QUOTES)); ?>"
+            data-month="<?php echo (int)$rm; ?>"
             data-status="<?php echo $p['is_active'] ? 'active' : 'inactive'; ?>">
           <td class="ip-col ip-col-shared">
-            <strong class="text-primary"><?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
+            <strong class="text-primary d-block"><?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
+            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 mt-1">
+              <i class="fas fa-calendar-week me-1"></i><?php echo htmlspecialchars(ipAdminMonthLabel($rm)); ?>
+            </span>
           </td>
           <td class="ip-col ip-col-main">
             <?php if (!empty($p['report_date_bs'])): ?>
@@ -400,7 +489,7 @@ echo adminPageHeader(
           <td class="ip-col ip-col-shared">
             <div class="d-flex gap-1">
               <?php echo adminEditBtn('', $selfUrl . '?action=edit&id=' . $p['id']); ?>
-              <?php echo adminDeleteBtn((int)$p['id'], $csrf, $p['fiscal_year'] . ' को record हटाउने?'); ?>
+              <?php echo adminDeleteBtn((int)$p['id'], $csrf, $p['fiscal_year'] . ' — ' . ipAdminMonthLabel((int)($p['report_month'] ?? 0)) . ' को record हटाउने?'); ?>
             </div>
           </td>
         </tr>
@@ -419,19 +508,25 @@ elseif ($viewAction === 'add' || ($viewAction === 'edit' && $editRecord)):
 
 $isEdit  = ($viewAction === 'edit');
 $r       = $editRecord ?? [];
-$formTitle = $isEdit
-    ? '<i class="fas fa-pen me-2"></i>' . htmlspecialchars($r['fiscal_year']) . ' — सम्पादन'
-    : '<i class="fas fa-plus-circle me-2"></i>नयाँ संस्थागत प्रोफाइल थप्नुहोस्';
 
 /* Helper: pre-fill value or default */
 $v = function (string $key, $default = '') use ($isEdit, $r) {
     return $isEdit ? ($r[$key] ?? $default) : $default;
 };
 
+$editMonth = (int)$v('report_month', 0);
+if ($editMonth === 0 && $isEdit && !empty($r['report_date_bs']) && preg_match('/^\d{4}-(\d{2})/', (string)$r['report_date_bs'], $emm)) {
+    $editMonth = (int)$emm[1];
+}
+$formPeriod = htmlspecialchars((string)$v('fiscal_year', 'नयाँ'), ENT_QUOTES) . ' — ' . htmlspecialchars(ipAdminMonthLabel($editMonth), ENT_QUOTES);
+$formTitle = $isEdit
+    ? '<i class="fas fa-pen me-2"></i>' . $formPeriod . ' — सम्पादन'
+    : '<i class="fas fa-plus-circle me-2"></i>नयाँ महिनाको संस्थागत प्रोफाइल';
+
 echo adminPageHeader(
     $isEdit ? 'प्रोफाइल सम्पादन' : 'नयाँ प्रोफाइल',
     'fa-building-columns',
-    $isEdit ? $r['fiscal_year'] . ' को financial data अद्यावधिक गर्नुहोस्' : 'हरेक आर्थिक वर्षको financial data राख्नुहोस्',
+    $isEdit ? $formPeriod . ' को financial data अद्यावधिक गर्नुहोस्' : 'आ.व. र महिना छानेर financial data राख्नुहोस्',
     adminBackBtn($selfUrl)
 );
 ?>
@@ -440,9 +535,11 @@ echo adminPageHeader(
   <div class="card mb-3 ip-admin-form-card">
     <div class="card-header ip-admin-form-hero">
       <div>
-        <span class="ip-admin-kicker"><i class="fas fa-chart-line"></i> आर्थिक विवरण</span>
+        <span class="ip-admin-kicker"><i class="fas fa-chart-line"></i> आर्थिक विवरण · महिनागत</span>
         <h5><?php echo $formTitle; ?></h5>
-        <p><?php echo $isEdit ? 'सार्वजनिक प्रोफाइलमा देखिने वार्षिक विवरण यहाँबाट अद्यावधिक गर्नुहोस्।' : 'नयाँ आर्थिक वर्षको प्रोफाइल compact रूपमा भर्नुहोस्।'; ?></p>
+        <p><?php echo $isEdit
+            ? 'सार्वजनिक प्रोफाइलमा देखिने <strong>' . $formPeriod . '</strong> को विवरण यहाँबाट अद्यावधिक गर्नुहोस्।'
+            : 'कुन आ.व. र कुन महिनाको तथ्याङ्क हो स्पष्ट छानेर भर्नुहोस् — public मा महिना अनुसार filter हुन्छ।'; ?></p>
       </div>
       <a href="<?php echo $selfUrl; ?>" class="btn btn-light btn-sm ip-admin-list-link" data-testid="institutional-profile-back-to-list-link">
         <i class="fas fa-list me-1"></i>सूची
@@ -457,14 +554,19 @@ echo adminPageHeader(
       <div class="card-body">
 
         <!-- ── SECTION 1: आर्थिक वर्ष + मिति ── -->
-        <?php echo adminSectionCard('आर्थिक वर्ष र मिति', 'fa-calendar', 'primary', '
+        <?php echo adminSectionCard('आर्थिक वर्ष र महिना', 'fa-calendar', 'primary', '
           <div class="row g-3">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label">आर्थिक वर्ष <span class="text-danger">*</span></label>
               ' . str_replace('<select ', '<select data-testid="institutional-profile-fiscal-year-select" ', adminFiscalYearSelect('fiscal_year', (string)$v('fiscal_year'), true, 'fieldFiscalYear')) . '
-              <small class="text-muted">उदाहरण: 2080/81</small>
+              <small class="text-muted">उदाहरण: 2081/82</small>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+              <label class="form-label">रिपोर्ट महिना (बि.सं.) <span class="text-danger">*</span></label>
+              ' . ipAdminMonthSelectHtml($editMonth) . '
+              <small class="text-muted">यो महिनाको तथ्याङ्क हो भनी स्पष्ट छान्नुहोस्</small>
+            </div>
+            <div class="col-md-3">
               <label class="form-label">मिति (बि.सं.) <small class="text-muted">(optional)</small></label>
               <div class="input-group">
                 <input type="text" name="report_date_bs" id="fieldDateBs"
@@ -476,9 +578,9 @@ echo adminPageHeader(
                   <i class="fas fa-calendar-alt"></i>
                 </span>
               </div>
-              <small class="text-muted">BS मिति — क्यालेन्डर आइकनमा क्लिक गर्नुहोस्</small>
+              <small class="text-muted">BS मिति — महिना खाली छ भने यसबाट auto</small>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <label class="form-label">मिति (A.D.) <small class="text-muted">(optional)</small></label>
               <input type="date" name="report_date_ad" id="fieldDateAd"
                      class="form-control"
@@ -486,6 +588,10 @@ echo adminPageHeader(
                      value="' . htmlspecialchars((string)$v('report_date_ad')) . '">
               <small class="text-muted">Same मिति — Gregorian format</small>
             </div>
+          </div>
+          <div class="alert alert-success border-0 mt-3 mb-0 py-2 px-3 small" id="ipPeriodHint" role="status">
+            <i class="fas fa-circle-info me-1"></i>
+            सार्वजनिक पेजमा <strong>आ.व. + महिना</strong> लेबलसहित देखिन्छ। अहिलेको र अघिल्लो महिना विशेष रूपमा देखाउँछ।
           </div>
         '); ?>
 
@@ -728,7 +834,7 @@ echo adminPageHeader(
         </a>
         <?php if ($isEdit): ?>
         <div class="ms-auto">
-          <?php echo adminDeleteBtn((int)$r['id'], $csrf, $r['fiscal_year'] . ' को record पूरै हटाउने?'); ?>
+          <?php echo adminDeleteBtn((int)$r['id'], $csrf, $r['fiscal_year'] . ' — ' . ipAdminMonthLabel((int)($r['report_month'] ?? 0)) . ' को record पूरै हटाउने?'); ?>
         </div>
         <?php endif; ?>
     </div>
@@ -755,6 +861,8 @@ elseif (!$tableExists): ?>
 (function () {
     var searchInput  = document.getElementById('ipSearchFY');
     var statusSelect = document.getElementById('ipFilterStatus');
+    var fySelect     = document.getElementById('ipFilterFY');
+    var monthSelect  = document.getElementById('ipFilterMonth');
     var clearBtn     = document.getElementById('ipClearFilter');
     var countBadge   = document.getElementById('ipCountBadge');
     var noResults    = document.getElementById('ipNoResults');
@@ -766,16 +874,21 @@ elseif (!$tableExists): ?>
     function runFilter() {
         var query  = searchInput.value.trim().toLowerCase();
         var status = statusSelect ? statusSelect.value : '';
+        var fyPick = fySelect ? (fySelect.value || '') : '';
+        var month  = monthSelect ? monthSelect.value : '';
         var visible = 0;
 
         document.querySelectorAll('tr.ip-data-row').forEach(function (row) {
             var fy  = (row.getAttribute('data-fy') || '').toLowerCase();
             var st  = row.getAttribute('data-status') || '';
+            var mo  = row.getAttribute('data-month') || '';
 
             var matchFY     = !query  || fy.indexOf(query) !== -1;
+            var matchFySel  = !fyPick || fy === fyPick;
+            var matchMonth  = month === '' || mo === String(month);
             var matchStatus = !status || st === status;
 
-            if (matchFY && matchStatus) {
+            if (matchFY && matchFySel && matchMonth && matchStatus) {
                 row.style.display = '';
                 visible++;
             } else {
@@ -783,14 +896,12 @@ elseif (!$tableExists): ?>
             }
         });
 
-        /* No-results row */
         if (noResults) {
             noResults.style.display = (visible === 0 && totalRows > 0) ? '' : 'none';
         }
 
-        /* Count badge */
         if (countBadge) {
-            if (query || status) {
+            if (query || status || fyPick || month !== '') {
                 countBadge.textContent = visible + ' / ' + totalRows + ' records';
                 countBadge.classList.remove('ip-count-default', 'ip-count-empty');
                 countBadge.classList.add(visible === 0 ? 'ip-count-empty' : 'ip-count-default');
@@ -801,18 +912,17 @@ elseif (!$tableExists): ?>
             }
         }
 
-        /* Clear button visibility */
         if (clearBtn) {
-            clearBtn.style.display = (query || status) ? '' : 'none';
+            clearBtn.style.display = (query || status || fyPick || month !== '') ? '' : 'none';
         }
     }
 
-    /* Event listeners */
     if (searchInput)  searchInput.addEventListener('input', runFilter);
     if (statusSelect) statusSelect.addEventListener('change', runFilter);
+    if (fySelect)     fySelect.addEventListener('change', runFilter);
+    if (monthSelect)  monthSelect.addEventListener('change', runFilter);
     if (clearBtn)     clearBtn.addEventListener('click', clearIPFilter);
 
-    /* Keyboard shortcut: / key focuses search */
     document.addEventListener('keydown', function (e) {
         if (e.key === '/' && document.activeElement.tagName !== 'INPUT'
                           && document.activeElement.tagName !== 'TEXTAREA') {
@@ -856,8 +966,12 @@ elseif (!$tableExists): ?>
 function clearIPFilter() {
     var s = document.getElementById('ipSearchFY');
     var f = document.getElementById('ipFilterStatus');
+    var fy = document.getElementById('ipFilterFY');
+    var mo = document.getElementById('ipFilterMonth');
     if (s) { s.value = ''; }
     if (f) { f.value = ''; }
+    if (fy) { fy.value = ''; }
+    if (mo) { mo.value = ''; }
     document.querySelectorAll('tr.ip-data-row').forEach(function (r) {
         r.style.display = '';
     });
@@ -871,10 +985,25 @@ function clearIPFilter() {
     if (s) s.focus();
 }
 
-/* AD date → BS approximate auto-fill */
+/* AD date → BS approximate auto-fill + sync report_month from BS */
 document.addEventListener('DOMContentLoaded', function () {
     var adField = document.getElementById('fieldDateAd');
     var bsField = document.getElementById('fieldDateBs');
+    var monthField = document.getElementById('fieldReportMonth');
+
+    function syncMonthFromBs() {
+        if (!bsField || !monthField) return;
+        var m = String(bsField.value || '').match(/^(\d{4})-(\d{2})/);
+        if (!m) return;
+        var mo = parseInt(m[2], 10);
+        if (mo >= 1 && mo <= 12) monthField.value = String(mo);
+    }
+
+    if (bsField) {
+        bsField.addEventListener('change', syncMonthFromBs);
+        bsField.addEventListener('blur', syncMonthFromBs);
+    }
+
     if (adField && bsField) {
         adField.addEventListener('change', function () {
             if (!adField.value || bsField.value) return;
@@ -886,6 +1015,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     bsField.value = bs.year + '-'
                         + String(bs.month).padStart(2,'0') + '-'
                         + String(bs.day).padStart(2,'0');
+                    syncMonthFromBs();
                     return;
                 }
             } catch(e) {}
@@ -893,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var m = String(d.getMonth() + 1).padStart(2,'0');
             var day = String(d.getDate()).padStart(2,'0');
             bsField.value = (d.getFullYear() + 57) + '-' + m + '-' + day + ' (approx)';
+            syncMonthFromBs();
         });
     }
     /* Bootstrap tooltip init */

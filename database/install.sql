@@ -999,6 +999,7 @@ CREATE TABLE IF NOT EXISTS app_features (
 CREATE TABLE IF NOT EXISTS institutional_profile (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fiscal_year VARCHAR(20) NOT NULL,
+    report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12; 0=annual/unset',
     total_members INT DEFAULT 0,
     share_capital DECIMAL(18,2) DEFAULT 0,
     deposit DECIMAL(18,2) DEFAULT 0,
@@ -1014,7 +1015,8 @@ CREATE TABLE IF NOT EXISTS institutional_profile (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
-    INDEX idx_year (fiscal_year)
+    INDEX idx_year (fiscal_year),
+    INDEX idx_fy_month (fiscal_year, report_month)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Upgrade-safe: पुरानो DB मा यदि profit_loss column छैन भने थप्ने
