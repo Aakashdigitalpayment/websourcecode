@@ -15159,8 +15159,9 @@ body.dark-mode .scroll-btn.down {
 .pfl-lm-android{ background: #e8f5e9; color: #2e7d32; }
 .pfl-lm-ios    { background: #f3e5f5; color: #6a1b9a; }
 .pfl-lm-admin  { background: #fef2f2; color: var(--secondary-color, #c0392b); }
-.pfl-lm-member { background: linear-gradient(135deg, var(--primary-color), var(--primary-light)); color: var(--text-on-primary, #fff); }
-.pfl-lm-verify { background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark, var(--secondary-color))); color: var(--text-on-secondary, #fff); }
+/* Soft tiles — dark-on-dark avoided (topbar rules force primary icon color) */
+.pfl-lm-member { background: #e8f5e9; color: var(--primary-color, #1a5f2a); }
+.pfl-lm-verify { background: #ecfdf5; color: var(--primary-color, #1a5f2a); }
 
 /* ── Text block ── */
 .pfl-lm-text {
@@ -20553,7 +20554,15 @@ body{ background: var(--bg-soft, #f6faf7); }
   background: var(--primary-color, #1a5f2a) !important;
   color: var(--text-on-primary, #fff) !important;
 }
-.pfl-top-bar a{ color: var(--text-on-primary, #fff) !important; }
+/* Inline topbar links only — white panels (login/bell/drop) keep dark text */
+.pfl-top-bar > .container a,
+.pfl-top-bar .pfl-top-right > li > a,
+.pfl-top-bar .pfl-top-right > li > button,
+.pfl-top-bar .pfl-quick-links > li > a,
+.pfl-top-bar .pfl-login-toggle,
+.pfl-top-bar .pfl-bell-btn {
+  color: var(--text-on-primary, #fff) !important;
+}
 .pfl-drop,
 .main-nav .dropdown,
 .nav-menu .dropdown{
@@ -22104,14 +22113,23 @@ select:focus{
   text-align: start !important;
   text-wrap: pretty;
 }
+/* Topbar chrome only — do NOT paint white onto white dropdown panels */
 .pfl-top-bar,
-.pfl-top-bar a,
-.pfl-top-bar span,
 .pfl-quick-links > li > a,
 .main-header,
-.main-header a,
+.main-header > a,
 .site-header,
-.site-header a{
+.site-header > a{
+  color: var(--text-on-header, #fff) !important;
+}
+.pfl-top-bar > .container > ul > li > a,
+.pfl-top-bar .pfl-top-right > li > a,
+.pfl-top-bar .pfl-top-right > li > button,
+.pfl-top-bar .pfl-login-toggle,
+.pfl-top-bar .pfl-bell-btn,
+.pfl-top-bar .pfl-lang-wrap > a,
+.pfl-top-bar .pfl-lang-wrap > span,
+.pfl-top-bar .pfl-quick-links > li > a {
   color: var(--text-on-header, #fff) !important;
 }
 .main-footer,
@@ -23499,9 +23517,10 @@ body.auth-page,
      2) oversized quick-help/chat launcher and menu tile sizing
      ════════════════════════════════════════════════════════════ */
 
-/* Keep topbar inline links white, but force dropdown/login panels readable */
+/* Keep topbar inline links white, but force dropdown/login/bell panels readable */
 .pfl-top-bar .pfl-quick-links > li.has-drop .pfl-drop,
-.pfl-top-bar .pfl-login-menu {
+.pfl-top-bar .pfl-login-menu,
+.pfl-top-bar .pfl-bell-drop {
     background: var(--bg-card, #fff) !important;
     color: var(--text-color, #1f2937) !important;
 }
@@ -23510,7 +23529,11 @@ body.auth-page,
 .pfl-top-bar .pfl-login-menu li a,
 .pfl-top-bar .pfl-login-menu li a .pfl-lm-text,
 .pfl-top-bar .pfl-login-menu li a .pfl-lm-text strong,
-.pfl-top-bar .pfl-login-menu li a .pfl-lm-text small {
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-text small,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item a,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-title,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-body,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-body span {
     color: var(--text-color, #1f2937) !important;
     opacity: 1 !important;
     -webkit-text-fill-color: var(--text-color, #1f2937) !important;
@@ -23520,11 +23543,49 @@ body.auth-page,
     color: var(--text-secondary, #6b7280) !important;
 }
 
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-date {
+    color: #6b7280 !important;
+    -webkit-text-fill-color: #6b7280 !important;
+}
+
+.pfl-top-bar .pfl-bell-drop .pfl-bell-footer a {
+    color: var(--primary-color, #1a5f2a) !important;
+    -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.pfl-top-bar .pfl-bell-drop .pfl-bell-header,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-header span {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
+.pfl-top-bar .pfl-bell-drop .pfl-bell-new-dot {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
 .pfl-top-bar .pfl-quick-links > li.has-drop .pfl-drop a i,
-.pfl-top-bar .pfl-login-menu li a .pfl-lm-icon,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-web,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-android,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-ios,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-admin,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-member,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-verify,
 .pfl-top-bar .pfl-login-menu li a .pfl-lm-icon i,
 .pfl-top-bar .pfl-login-menu li a .pfl-lm-icon svg {
     color: var(--primary-color, #1a5f2a) !important;
+    stroke: var(--primary-color, #1a5f2a) !important;
+}
+
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-ios,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-ios i {
+    color: #6a1b9a !important;
+    stroke: #6a1b9a !important;
+}
+
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-admin,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-admin i {
+    color: var(--secondary-color, #c0392b) !important;
 }
 
 .pfl-top-bar .pfl-quick-links > li.has-drop .pfl-drop a:hover,
