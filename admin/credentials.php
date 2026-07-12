@@ -13,10 +13,14 @@ require_role('staff');  /* staff+ allowed to view; mutate चाहिँ admin+
 
 $db = getDB();
 
-/* ── AJAX: reveal password ── */
-if (($_GET['ajax'] ?? '') === 'reveal') {
+/* ── AJAX: reveal password (POST + CSRF only — GET ले password नदिनु) ── */
+if (($_SERVER['REQUEST_METHOD'] === 'POST') && (($_POST['ajax'] ?? '') === 'reveal')) {
     header('Content-Type: application/json');
-    $id = (int)($_GET['id'] ?? 0);
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        echo json_encode(['ok' => false, 'error' => 'सुरक्षा जाँच असफल।']);
+        exit;
+    }
+    $id = (int)($_POST['id'] ?? 0);
     try {
         $row = $db->prepare("SELECT password_enc, password_iv FROM office_credentials WHERE id = ?");
         $row->execute([$id]);
@@ -49,6 +53,7 @@ if (($_GET['ajax'] ?? '') === 'log') {
 
 /* ── POST handlers (admin+ only for mutations) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkCSRF();
     require_role('admin');
     $action = $_POST['action'] ?? '';
     $me     = (int)($_SESSION['admin_id'] ?? 0);
@@ -270,6 +275,22 @@ $rows = $db->query(
 </div>
 
 <script>
+const CRED_CSRF = <?= json_encode(generateCSRFToken(), JSON_UNESCAPED_UNICODE) ?>;
+
+async function credRevealFetch(id) {
+    const body = new URLSearchParams();
+    body.set('ajax', 'reveal');
+    body.set('id', String(id));
+    body.set('csrf_token', CRED_CSRF);
+    const res = await fetch('credentials.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+        credentials: 'same-origin'
+    });
+    return res.json();
+}
+
 function openCredModal() {
     document.getElementById('credAction').value = 'create';
     document.getElementById('credId').value = '';
@@ -315,8 +336,7 @@ async function revealPw(id) {
         eyeEl.className = 'far fa-eye';
         return;
     }
-    const res = await fetch('credentials.php?ajax=reveal&id=' + id);
-    const j = await res.json();
+    const j = await credRevealFetch(id);
     if (j.ok) {
         pwEl.textContent = j.password;
         pwEl.dataset.shown = '1';
@@ -331,8 +351,7 @@ async function copyText(id, type, txt) {
     showToast(type === 'user' ? 'Username copy भयो ✓' : 'Copy भयो ✓');
 }
 async function copyPw(id) {
-    const res = await fetch('credentials.php?ajax=reveal&id=' + id);
-    const j = await res.json();
+    const j = await credRevealFetch(id);
     if (j.ok) {
         await navigator.clipboard.writeText(j.password);
         logAction(id, 'copy_pass');

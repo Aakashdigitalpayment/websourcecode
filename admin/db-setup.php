@@ -289,6 +289,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     $newPass    = $_POST['db_pass']           ?? '';
     $newSiteUrl = rtrim(trim($_POST['site_url'] ?? ''), '/') . '/';
 
+    // Form मा password echo गर्दैनौं — खाली = अहिलेको DB_PASS राख्ने (multi-project / HTML leak safe)
+    if ($newPass === '' && defined('DB_PASS')) {
+        $newPass = (string) DB_PASS;
+    }
+
     if (empty($newHost) || empty($newName) || empty($newUser)) {
         setFlash('error', 'Host, DB Name र DB User अनिवार्य छ।');
         redirect('db-setup.php');
@@ -1245,8 +1250,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                             <div class="input-group input-group-sm">
                                 <input type="password" name="db_pass" id="dbPassInput"
                                        class="form-control form-control-sm"
-                                       value="<?php echo htmlspecialchars(defined('DB_PASS') ? DB_PASS : ''); ?>"
-                                       placeholder="DB password" autocomplete="new-password">
+                                       value=""
+                                       placeholder="<?php echo (defined('DB_PASS') && (string)DB_PASS !== '') ? 'खाली = अहिलेको password राख्ने' : 'DB password'; ?>"
+                                       autocomplete="new-password">
                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                         onclick="var i=document.getElementById('dbPassInput');i.type=i.type==='password'?'text':'password';" aria-label="View" title="View">
                                     <i class="fas fa-eye"></i>

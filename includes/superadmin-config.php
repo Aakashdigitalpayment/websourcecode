@@ -3,7 +3,8 @@
  * Superadmin — तपाईंको “पहिले जस्तै” मोडेल (admin login नै प्रवेशद्वार)
  *
  * १) cPanel → `includes/superadmin-config.local.php` (example बाट कपी)।
- * २) त्यसमा `SUPER_ADMIN_USERNAME` + `SUPER_ADMIN_INITIAL_PASSWORD` — यही superadmin को hardcode।
+ * २) त्यसमा `SUPER_ADMIN_USERNAME` + `SUPER_ADMIN_INITIAL_PASSWORD` — plain text local फाइलमा
+ *    (जानीजानी सजिलोका लागि)। Gitignore: `*.local.php` — अरू project मा यो फाइल कपी/commit नहुने।
  * ३) DB पहिले नमिलेको: `includes/database.local.php` भरिसकेको छ भने `…/admin/db-setup.php` सिधै खुल्छ;
  *    नभए `superadmin-config.local.php` को user/pass ले unlock। install.sql पछि `admin/index.php` login।
  * ४) Login ले DB मा super_admin row बनाउँछ/मिलाउँछ; पछि panel खुल्छ।
@@ -11,6 +12,7 @@
  * ६) Superadmin पासवर्ड बदल्न फेरि मात्र फाइल edit + login (hash sync)।
  * ७) `SUPER_ADMIN_INITIAL_PASSWORD` खाली नभएसम्म यो username admin सूची/UI मा देखिँदैन।
  *
+ * Multi-project: हरेक install मा आफ्नै `.local.php` + आफ्नै `.cred-master.key` (auto)।
  * Local फाइल छैन भने: `install.sql` को `admin` / `password` (backup) प्रयोग हुन सक्छ।
  */
 declare(strict_types=1);

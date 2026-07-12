@@ -85,9 +85,11 @@ date_default_timezone_set('Asia/Kathmandu');
  * Office Credential Vault — Master Key (auto-init)
  * =====================================================
  * Encrypted vault को लागि 32+ char random key चाहिन्छ।
- * पहिलो पटक web request मा file मा generate हुन्छ; पछि सधैं उही key।
+ * पहिलो पटक web request मा `.cred-master.key` generate हुन्छ; पछि सधैं उही key।
  * ⚠️ यो file कहिल्यै नहटाउनुहोस् — हटायो भने पुराना saved passwords
  *    decrypt हुन्न (पुनः थप्नुपर्छ)।
+ * ⚠️ Git मा commit नगर्नुहोस् (gitignore) — अर्को project/clone ले आफ्नै key बनाउँछ;
+ *    एउटै key सबै site मा share गर्दा security + decrypt mismatch हुन्छ।
  */
 if (!defined('CRED_MASTER_KEY')) {
     $_cred_key_file = __DIR__ . '/.cred-master.key';
