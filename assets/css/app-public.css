@@ -2524,9 +2524,6 @@ body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
     padding: 3rem 0;
     background: linear-gradient(135deg,#e8f5e9,#f1f8e9);
 }
-        font-size: .72rem !important;
-        flex: 0 0 18px !important;
-}
 .form-success-icon {
     font-size: 3.6rem;
     color: #2d8b47;
