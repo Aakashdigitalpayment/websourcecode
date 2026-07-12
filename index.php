@@ -647,7 +647,7 @@ if ($ceoMember) {
                     <div class="profile-info">
                         <h4><?php echo $chairmanName; ?></h4>
                         <span class="profile-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
-                        <p class="profile-message"><?php echo truncateText(strip_tags($chairmanMessage), 120); ?></p>
+                        <p class="profile-message"><?php echo e(truncateText(strip_tags($chairmanMessage), 120)); ?></p>
                     </div>
                     <a href="about.php#chairman-message" class="profile-btn">
                         <?php echo isEnglish() ? 'Read More' : 'थप विवरण'; ?> <i class="fas fa-arrow-right"></i>
@@ -671,7 +671,7 @@ if ($ceoMember) {
                     <div class="profile-info">
                         <h4><?php echo $ceoName; ?></h4>
                         <span class="profile-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
-                        <p class="profile-message"><?php echo truncateText(strip_tags($ceoMessage), 120); ?></p>
+                        <p class="profile-message"><?php echo e(truncateText(strip_tags($ceoMessage), 120)); ?></p>
                     </div>
                     <a href="about.php#ceo-message" class="profile-btn">
                         <?php echo isEnglish() ? 'Read More' : 'थप विवरण'; ?> <i class="fas fa-arrow-right"></i>
