@@ -61,6 +61,14 @@ checkCSRF();
                     $value = $sanitizeHexColor($value, '#1a5f2a');
                 } elseif ($key === 'topbar_color') {
                     $value = $sanitizeHexColor($value, '#c0392b');
+                } elseif ($key === 'google_map_url') {
+                    require_once dirname(__DIR__) . '/includes/google-map-embed.php';
+                    $value = trim((string)$value);
+                    $normalized = normalizeGoogleMapEmbedUrl($value);
+                    /* Prefer embed URL when convertible; keep original share link if resolve fails */
+                    if ($normalized !== '') {
+                        $value = $normalized;
+                    }
                 }
                 updateSetting($key, $value);
             }
@@ -630,9 +638,26 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="mb-3">
                         <label class="form-label">Google Map Embed URL</label>
                         <input type="url" name="google_map_url" class="form-control"
-                               value="<?php echo $settings['google_map_url'] ?? ''; ?>"
+                               value="<?php echo htmlspecialchars($settings['google_map_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="https://www.google.com/maps/embed?pb=...">
-                        <small class="stg-muted"><?php echo $__t('Google Maps बाट Embed URL copy गर्नुहोस्', 'Copy embed URL from Google Maps'); ?></small>
+                        <small class="stg-muted d-block mt-1">
+                            <?php echo $__t(
+                                'Google Maps → Share → Embed a map बाट src URL copy गर्नुहोस् (…/maps/embed?pb=…)। maps.app.goo.gl share link iframe मा चल्दैन — save गर्दा स्वतः embed मा बदल्ने प्रयास हुन्छ।',
+                                'Copy the Embed map src from Google Maps → Share → Embed a map (…/maps/embed?pb=…). Short maps.app.goo.gl links cannot load in an iframe — save will try to convert them automatically.'
+                            ); ?>
+                        </small>
+                        <?php
+                        $_gmapSaved = trim((string)($settings['google_map_url'] ?? ''));
+                        if ($_gmapSaved !== '' && preg_match('#(?:maps\.app\.goo\.gl|goo\.gl/maps)/#i', $_gmapSaved)):
+                        ?>
+                        <div class="alert alert-warning small py-2 mt-2 mb-0">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <?php echo $__t(
+                                'अहिले share link सेभ छ। Save Settings थिच्नुहोस् — सिस्टमले embed URL मा बदल्नेछ। नभए Google Maps बाट Embed URL राख्नुहोस्।',
+                                'A share link is saved. Click Save Settings to convert it, or paste a real Embed URL from Google Maps.'
+                            ); ?>
+                        </div>
+                        <?php endif; ?>
                     </div>
                     <h6 class="stg-title-accent fw-bold mb-2"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="eye"></i><?php echo $__t('सार्वजनिक प्रदर्शन समय (वेबसाइटमा देखिने)', 'Public Display Hours (shown on website)'); ?></h6>
                     <div class="alert alert-light border small py-2 mb-3"><i class="fas fa-info-circle me-1 text-primary"></i><?php echo $__t('यो text Footer / Contact पेजमा जस्ताको तस्तै देखिन्छ। मानिसले पढ्नका लागि — कुनै time-picker मा प्रयोग हुँदैन।', 'This text is shown as-is on the Footer / Contact page. For human reading only — not used by any time-picker.'); ?></div>

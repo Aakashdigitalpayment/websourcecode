@@ -320,9 +320,12 @@ require_once 'includes/header.php';
 
 <!-- Map Section -->
 <?php
-$_mapEmbedUrl = function_exists('getSetting')
+require_once __DIR__ . '/includes/google-map-embed.php';
+$_mapRaw = function_exists('getSetting')
     ? trim((string) getSetting('google_map_url', ''))
     : '';
+$_mapEmbedUrl = $_mapRaw !== '' ? normalizeGoogleMapEmbedUrl($_mapRaw) : '';
+$_mapShareUrl = $_mapRaw;
 if ($_mapEmbedUrl === '') {
     // Fallback: try composing from lat/lng settings
     $_mapLat = trim((string)(function_exists('getSetting') ? getSetting('map_lat', '') : ''));
@@ -339,9 +342,23 @@ if ($_mapEmbedUrl === '') {
             <iframe
                 src="<?php echo htmlspecialchars($_mapEmbedUrl, ENT_QUOTES, 'UTF-8'); ?>"
                 width="100%" height="400" class="ct-map-frame" allowfullscreen="" loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade">
+                referrerpolicy="no-referrer-when-downgrade"
+                title="<?php echo isEnglish() ? 'Office location map' : 'कार्यालय स्थान नक्सा'; ?>">
             </iframe>
         </div>
+    </div>
+</section>
+<?php elseif ($_mapShareUrl !== ''): ?>
+<section class="map-section">
+    <div class="container py-4 text-center">
+        <p class="mb-2 text-muted">
+            <?php echo isEnglish()
+                ? 'Map preview needs an Embed URL. Open location in Google Maps:'
+                : 'नक्सा देखाउन Embed URL चाहिन्छ। Google Maps मा स्थान खोल्नुहोस्:'; ?>
+        </p>
+        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars($_mapShareUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
+            <i class="fas fa-map-marker-alt me-1"></i><?php echo isEnglish() ? 'Open in Google Maps' : 'Google Maps मा खोल्नुहोस्'; ?>
+        </a>
     </div>
 </section>
 <?php endif; ?>
