@@ -392,11 +392,11 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
-                    <!-- ── टोली ── -->
+                    <!-- ── मानवीय स्रोत ── -->
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" data-group="toli">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('टोली', 'Team'); ?></span>
+                            <span class="nav-group-label"><?php echo $adminT('मानवीय स्रोत', 'Human Resources'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
                         </div>
                         <ul class="nav-submenu <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" id="group-toli">

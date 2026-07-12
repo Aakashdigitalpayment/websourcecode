@@ -231,7 +231,7 @@
       openBtn.className = 'btn btn-success fa-ip-open';
       openBtn.setAttribute('data-fa-open', '');
       openBtn.setAttribute('title', 'Select icon');
-      openBtn.innerHTML = '<i class="fas fa-th"></i>';
+      openBtn.innerHTML = '<i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>';
       if (input.parentElement && input.parentElement.classList.contains('input-group')) {
         input.parentElement.appendChild(openBtn);
       } else {
@@ -242,6 +242,8 @@
         row.appendChild(input);
         row.appendChild(openBtn);
       }
+    } else if (!openBtn.querySelector('span') && openBtn.textContent.trim() === '') {
+      openBtn.innerHTML = '<i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>';
     }
 
     openBtn.addEventListener('click', function (e) {
@@ -274,12 +276,12 @@
       wireField(input, preview, openBtn);
     });
 
-    /* Auto-wire every admin FA icon text field (services, links, why-choose, etc.) */
-    scope.querySelectorAll('input[name="icon"], input[name="cat_icon"], input[name$="_icon"]').forEach(function (input) {
+    /* Auto-wire every admin FA icon text field (services, menu categories, links, etc.) */
+    scope.querySelectorAll('input[name="icon"], input[name="cat_icon"], input[name="menu_icon"], input[name$="_icon"]').forEach(function (input) {
       if (input.dataset.faReady === '1') return;
       if (input.closest('.js-fa-icon-picker')) return;
-      if (!looksLikeFaIconField(input) && input.name !== 'icon' && input.name !== 'cat_icon') return;
-      if (input.name !== 'icon' && input.name !== 'cat_icon' && !looksLikeFaIconField(input)) return;
+      var force = (input.name === 'icon' || input.name === 'cat_icon' || input.name === 'menu_icon');
+      if (!force && !looksLikeFaIconField(input)) return;
 
       var group = input.closest('.input-group');
       var preview = group ? group.querySelector('[data-fa-preview], .input-group-text') : null;
@@ -295,9 +297,16 @@
     groups: ICON_GROUPS
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { enhance(document); });
-  } else {
+  function boot() {
     enhance(document);
+    /* Re-wire when Bootstrap tabs/panels become visible */
+    document.addEventListener('shown.bs.tab', function () { enhance(document); });
+    document.addEventListener('shown.bs.collapse', function () { enhance(document); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 })(window, document);
