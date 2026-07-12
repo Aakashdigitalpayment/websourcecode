@@ -7630,6 +7630,8 @@ body.chatbot-open {
     border-radius: 12px 12px 0 0;
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 8px;
     position: relative;
     overflow: hidden;
@@ -12035,6 +12037,8 @@ body.notice-popup-open {
     font-weight: 700;
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 10px;
     position: relative;
     z-index: 1;
@@ -12340,6 +12344,8 @@ body.notice-popup-open {
     font-weight: 700;
     display: flex;
     align-items: center;
+    justify-content: center;
+    text-align: center;
     gap: 10px;
     position: relative;
     z-index: 1;
@@ -17092,6 +17098,11 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     border-radius: 8px !important;
     border-bottom: none !important;
     animation: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 8px !important;
 }
 .tools-category-card h5 i {
     background: var(--primary-color) !important;
@@ -17186,7 +17197,11 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     font-size: 1rem !important;
     font-weight: 700 !important;
     color: #fff !important;
-    display: flex; align-items: center; gap: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
 }
 .rates-header h3 i,
 .notices-header h3 i { font-size: .95rem; }
