@@ -995,3 +995,27 @@ body.dark-mode .text-muted {
 body.dark-mode .text-primary {
   color: var(--primary-on-dark, #86efac) !important;
 }
+
+/* ── Safe theme: light card-headers keep dark text (no white-on-white) ── */
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header),
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h1,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h2,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h3,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h4,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h5,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h6,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) .card-title,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) .btn-link,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) a:not(.btn):not(.badge) {
+  color: var(--text-primary, #1f2937) !important;
+}
+
+/* Soft badges: keep dark/readable text (solid brand badges set their own) */
+.badge.bg-primary-soft,
+.badge.bg-secondary-soft,
+.badge.bg-success-soft,
+.badge.bg-danger-soft,
+.badge.bg-warning-soft,
+.badge.bg-info-soft {
+  color: var(--text-primary, #1f2937) !important;
+}
