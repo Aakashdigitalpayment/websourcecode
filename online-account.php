@@ -199,7 +199,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Get branches
 try {
     $db = getDB();
-    $branches = $db->query("SELECT * FROM service_centers WHERE is_active = 1 ORDER BY name")->fetchAll();
+    require_once __DIR__ . '/includes/service-centers-helpers.php';
+    $branches = fetchActiveServiceCenters($db);
 } catch (Throwable $e) {
     $branches = [];
 }

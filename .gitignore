@@ -1,2 +1,10 @@
 .DS_Store
 *.log
+
+# Local / secret config — never commit
+includes/.cred-master.key
+includes/database.local.php
+includes/database.php
+*.local.php
+.env
+.env.*

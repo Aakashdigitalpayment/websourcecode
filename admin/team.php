@@ -75,6 +75,7 @@ try {
 } catch (\Throwable $e) { /* best-effort */ }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkCSRF();
     $db = getDB();
     try {
         switch ($_POST['action'] ?? '') {
@@ -478,6 +479,25 @@ $teamHeaderActions .= '<a href="info-officer.php" class="btn btn-sm btn-outline-
     . '<a href="grievance-officer.php" class="btn btn-sm btn-outline-secondary ms-1 mb-1"><i class="fas fa-user-tie me-1"></i>' . $__t('गुनासो तोकाइ', 'Grievance Assignment') . '</a>';
 echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHeaderActions);
 ?>
+
+<div class="alert alert-light border small mb-3 py-2">
+  <i class="fas fa-sitemap me-1 text-success"></i>
+  <?php if ($teamListSection === 'karmachari'): ?>
+    <strong><?php echo $__t('कहाँ के?', 'Where is what?'); ?></strong>
+    <?php echo $__t('यहाँ = website मा देखिने व्यवस्थापन/कर्मचारी। पद =', 'Here = public staff/management. Posts ='); ?>
+    <a href="designations.php"><?php echo $__t('पद मास्टर', 'Post Master'); ?></a> ·
+    <?php echo $__t('HR रेकर्ड =', 'HR records ='); ?>
+    <a href="hrm-employees.php"><?php echo $__t('HRM कर्मचारी', 'HRM Employees'); ?></a> ·
+    <?php echo $__t('शाखा =', 'Branches ='); ?>
+    <a href="service-centers.php"><?php echo $__t('शाखाहरू', 'Branches'); ?></a>
+  <?php else: ?>
+    <strong><?php echo $__t('कहाँ के?', 'Where is what?'); ?></strong>
+    <?php echo $__t('यहाँ = सञ्चालक/समिति सदस्य। कार्यकाल इतिहास =', 'Here = board/committee members. Tenure history ='); ?>
+    <a href="committees.php"><?php echo $__t('समिति व्यवस्थापन', 'Committee Management'); ?></a> ·
+    <?php echo $__t('कर्मचारी/व्यवस्थापन =', 'Staff/Management ='); ?>
+    <a href="team-karmachari.php"><?php echo $__t('कर्मचारी पृष्ठ', 'Staff page'); ?></a>
+  <?php endif; ?>
+</div>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
 

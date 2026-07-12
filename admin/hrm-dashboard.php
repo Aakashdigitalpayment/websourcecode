@@ -97,6 +97,15 @@ try {
         <a class="btn-coop" href="hrm-employees.php"><i class="fas fa-users"></i> कर्मचारी सूची</a>
     </div>
 
+    <div class="alert alert-light border small py-2 mb-3">
+      <i class="fas fa-info-circle text-success me-1"></i>
+      <strong>छुट्याएर बुझ्नुहोस्:</strong>
+      HRM = आन्तरिक कर्मचारी रेकर्ड ·
+      <a href="team-karmachari.php">कर्मचारी / व्यवस्थापन</a> = website मा देखिने टोली ·
+      <a href="service-centers.php">शाखाहरू</a> = सेवा केन्द्र (शाखा dropdown को स्रोत) ·
+      <a href="designations.php">पद मास्टर</a> = पदको नाम
+    </div>
+
     <?php
     $statCards = [
       ['icon'=>'fa-users',        'label'=>'कुल कर्मचारी', 'value'=>$total,     'color'=>'primary',   'link'=>'hrm-employees.php'],

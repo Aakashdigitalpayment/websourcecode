@@ -21,6 +21,7 @@ $designations = fetchDesignations($db, ['staff','admin']);
 
 /* ── POST ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkCSRF();
     $action = $_POST['action'] ?? '';
 
     if ($action === 'save') {
