@@ -601,3 +601,134 @@ body.has-bottomnav {
   align-items: center;
   justify-content: center;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE — homepage cards / icons / links (readable contrast)
+   Screenshots: service titles, faint icons, app-feature "नयाँ" cards
+   ═══════════════════════════════════════════════════════════════════ */
+body.dark-mode {
+  --pub-surface: var(--bg-card, #1a2535);
+  --pub-border: var(--border-color, #2a3a50);
+}
+
+body.dark-mode .service-card,
+body.dark-mode .service-card-modern,
+body.dark-mode .feature-box,
+body.dark-mode .quick-service-card,
+body.dark-mode .app-feature-item,
+body.dark-mode .app-feature-item:hover,
+body.dark-mode .app-feature-item.has-new-badge {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.dark-mode .services-section,
+body.dark-mode .app-features-section,
+body.dark-mode .features-section,
+body.dark-mode .why-choose-section {
+  background: var(--bg-page, #111825) !important;
+}
+
+/* Service card titles + body */
+body.dark-mode .service-title-modern,
+body.dark-mode .service-card h4,
+body.dark-mode .service-card h5,
+body.dark-mode .service-card-modern h4 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .service-description-modern,
+body.dark-mode .service-card p,
+body.dark-mode .service-card-modern p,
+body.dark-mode .feature-box p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .feature-box h5 {
+  color: #f3f6f9 !important;
+}
+
+/* Brand links / learn-more — light green on dark, not dark primary */
+body.dark-mode .service-link,
+body.dark-mode .service-link-modern,
+body.dark-mode .service-link-modern:hover,
+body.dark-mode .quick-service-card .btn-link,
+body.dark-mode .read-more,
+body.dark-mode .read-more-link,
+body.dark-mode a.service-link-modern .link-text {
+  color: var(--primary-on-dark, var(--primary-ink, #86efac)) !important;
+}
+
+/* Service / feature icons — visible wells + bright glyph */
+body.dark-mode .service-icon,
+body.dark-mode .service-icon-modern,
+body.dark-mode .quick-service-card .service-icon,
+body.dark-mode .feature-icon {
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.dark-mode .service-icon i,
+body.dark-mode .service-icon-modern i,
+body.dark-mode .service-icon .lucide-icon,
+body.dark-mode .service-icon-modern .lucide-icon,
+body.dark-mode .quick-service-card .service-icon i,
+body.dark-mode .feature-icon i,
+body.dark-mode .feature-icon .lucide-icon {
+  color: var(--primary-on-dark, #86efac) !important;
+  opacity: 1 !important;
+  stroke: currentColor;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern,
+body.dark-mode .quick-service-card:hover .service-icon,
+body.dark-mode .feature-box:hover .feature-icon {
+  background: var(--primary-color) !important;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern i,
+body.dark-mode .quick-service-card:hover .service-icon i,
+body.dark-mode .feature-box:hover .feature-icon i {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* App features — unify cards; fix dark-label-on-dark (has-new-badge) */
+body.dark-mode .app-feature-item h5 {
+  color: #f3f6f9 !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  box-shadow: 0 6px 18px rgba(var(--primary-rgb, 26, 95, 42), 0.35);
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap i,
+body.dark-mode .app-feature-item .feature-icon-wrap .lucide-icon {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .app-feature-item.has-new-badge {
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-card, #1a2535)) !important;
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent) !important;
+}
+
+body.dark-mode .new-badge,
+body.dark-mode .new-badge-modern {
+  color: var(--text-on-secondary, #fff) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .section-header h2,
+body.dark-mode .section-header h3,
+body.dark-mode .ip-section-intro h2 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .section-header p,
+body.dark-mode .ip-section-intro p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
