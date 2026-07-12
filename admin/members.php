@@ -88,7 +88,7 @@ if ($viewId) {
     $st->execute([$viewId]);
     $viewMember = $st->fetch(PDO::FETCH_ASSOC);
     if ($viewMember) {
-        $viewApps   = getMemberApplications($viewMember['email'] ?? '', $viewMember['phone'] ?? '', 30);
+        $viewApps   = getMemberApplications($viewMember['email'] ?? '', $viewMember['phone'] ?? '', 30, $viewMember['id'] ?? null);
         $nst = $db->prepare("SELECT * FROM member_notifications WHERE member_id=? ORDER BY created_at DESC LIMIT 20");
         $nst->execute([$viewId]);
         $viewNotifs = $nst->fetchAll(PDO::FETCH_ASSOC);
@@ -318,11 +318,13 @@ try {
                     <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
                     <div class="row g-2">
                         <div class="col-md-8">
-                            <input type="text" name="notif_title" class="form-control" required
+                            <label class="form-label small fw-semibold" for="mem_notif_title">शीर्षक <span class="text-danger">*</span></label>
+                            <input type="text" name="notif_title" id="mem_notif_title" class="form-control" required
                                    placeholder="Notification शीर्षक" maxlength="200">
                         </div>
                         <div class="col-md-4">
-                            <select name="notif_type" class="form-select">
+                            <label class="form-label small fw-semibold" for="mem_notif_type">प्रकार</label>
+                            <select name="notif_type" id="mem_notif_type" class="form-select">
                                 <option value="info">📘 सूचना</option>
                                 <option value="success">✅ सफलता</option>
                                 <option value="warning">⚠️ सतर्कता</option>
@@ -330,8 +332,9 @@ try {
                             </select>
                         </div>
                         <div class="col-12">
-                            <textarea name="notif_message" class="form-control" rows="2"
-                                      placeholder="विस्तृत सन्देश (ऐच्छिक)"></textarea>
+                            <label class="form-label small fw-semibold" for="mem_notif_msg">सन्देश (ऐच्छिक)</label>
+                            <textarea name="notif_message" id="mem_notif_msg" class="form-control" rows="2"
+                                      placeholder="विस्तृत सन्देश"></textarea>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-success btn-sm">

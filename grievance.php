@@ -12,6 +12,10 @@ $trackingId = '';
 $trackingResult = null;
 $loggedMember = getLoggedInMemberProfile();
 $lockedMemberFields = $loggedMember ? 'readonly' : '';
+$isEmbed = !empty($_GET['embed']);
+$trackerUrl = $isEmbed
+    ? (rtrim(SITE_URL, '/') . '/member/tracker.php')
+    : 'application-tracker.php';
 
 // Handle tracking lookup
 if (isset($_GET['track']) && !empty($_GET['track'])) {
@@ -204,14 +208,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="form-tracking-id" id="grvTrkId"><?php echo e($trackingId); ?></div>
                             <button type="button" onclick="copyTrk('grvTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>
                         </div>
-                        <div class="form-tracking-help"><a href="grievance.php?track=<?php echo urlencode($trackingId); ?>" class="text-success text-decoration-none fw-semibold">यहाँ बाट</a> आफ्नो उजुरीको स्थिति हेर्नुहोस्।</div>
+                        <div class="form-tracking-help"><a href="<?php echo e($trackerUrl); ?>" class="text-success text-decoration-none fw-semibold"><?php echo isEnglish() ? 'Open Tracker' : 'ट्र्याकर खोल्नुहोस्'; ?></a> <?php echo isEnglish() ? 'or track this ID below.' : 'वा तलबाट यो ID ट्र्याक गर्नुहोस्।'; ?></div>
                     </div>
                     <?php endif; ?>
                     <div class="mt-3">
-                        <a href="grievance.php?track=<?php echo urlencode($trackingId); ?>" class="btn btn-success px-4 me-2">
-                            <i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Grievance' : 'गुनासो ट्र्याक'; ?>
+                        <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2">
+                            <i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Application Tracker' : 'आवेदन ट्र्याकर'; ?>
                         </a>
-                        <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-success px-4">
+                        <?php if ($trackingId): ?>
+                        <a href="grievance.php?track=<?php echo urlencode($trackingId); ?>" class="btn btn-outline-success px-4 me-2">
+                            <i class="fas fa-clipboard-list me-1"></i><?php echo isEnglish() ? 'This grievance' : 'यो गुनासो'; ?>
+                        </a>
+                        <?php endif; ?>
+                        <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary px-4">
                             <i class="fas fa-home me-1"></i><?php echo $L['home']; ?>
                         </a>
                     </div>

@@ -52,7 +52,7 @@ try {
 } catch (Throwable $e) { /* fail-safe */ }
 
 $unread   = getMemberUnreadCount($memberId);
-$apps     = getMemberApplications($memEmail, $memPhone, 100);
+$apps     = getMemberApplications($memEmail, $memPhone, 100, $memberId);
 
 /* Filter */
 $allowedTrackerFilters = ['all', 'appointment', 'kyc', 'loan', 'account', 'grievance', 'welfare', 'job'];
@@ -97,7 +97,11 @@ if ($viewId > 0 && $viewTbl !== '') {
             $myEmail  = strtolower(trim((string)$memEmail));
             $myPhone  = preg_replace('/[^0-9]/', '', (string)$memPhone);
             if ($viewApp && $appEmail !== $myEmail && $appPhone !== $myPhone) {
-                $viewApp = null;
+                $appMemberId = (string)($viewApp['member_id'] ?? '');
+                $myId = (string)$memberId;
+                if ($appMemberId === '' || $appMemberId !== $myId) {
+                    $viewApp = null;
+                }
             }
         } catch (Exception $e) { $viewApp = null; }
     }
@@ -302,6 +306,27 @@ require __DIR__ . '/includes/chrome.php';
             <div class="mem-empty">
                 <span class="mem-empty-icon">📭</span>
                 <div><?php echo $_t('यस श्रेणीमा कुनै आवेदन छैन।', 'No applications in this category.'); ?></div>
+                <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+                    <?php
+                    $emptyLinks = [
+                        'loan' => ['href' => 'loan-apply.php', 'label' => $_t('ऋण आवेदन', 'Loan apply')],
+                        'appointment' => ['href' => 'appointment.php', 'label' => $_t('भेटघाट', 'Appointment')],
+                        'kyc' => ['href' => 'kyc.php', 'label' => 'KYC'],
+                        'account' => ['href' => 'account-apply.php', 'label' => $_t('खाता खोल्ने', 'Open account')],
+                        'grievance' => ['href' => 'grievance.php', 'label' => $_t('गुनासो', 'Grievance')],
+                    ];
+                    $show = ($filter === 'all')
+                        ? ['loan', 'appointment', 'kyc']
+                        : (isset($emptyLinks[$filter]) ? [$filter] : ['loan', 'appointment', 'kyc']);
+                    foreach ($show as $sk):
+                        if (!isset($emptyLinks[$sk])) continue;
+                        $lk = $emptyLinks[$sk];
+                    ?>
+                    <a href="<?php echo htmlspecialchars($lk['href']); ?>" class="mem-btn mem-btn-outline" style="font-size:.8rem;padding:6px 12px;">
+                        <?php echo htmlspecialchars($lk['label']); ?> →
+                    </a>
+                    <?php endforeach; ?>
+                </div>
             </div>
             <?php else: ?>
             <?php foreach ($apps as $app): ?>

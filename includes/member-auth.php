@@ -888,36 +888,55 @@ function getMemberUnreadCount($memberId) {
 }
 
 /* ─── Cross-table application fetch ─── */
-function getMemberApplications($email, $phone, $limit = 50) {
+function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
     global $db;
     if (!$db) return [];
     $results = [];
+    $email = trim((string)$email);
+    $phone = preg_replace('/[^0-9]/', '', (string)$phone);
+    $memberIdStr = ($memberId !== null && (string)$memberId !== '') ? (string)$memberId : '';
 
+    /* contact_col: real DB column for phone/mobile match (not always "phone") */
     $queries = [
         ['table' => 'appointments',        'service' => 'भेटघाट',         'icon' => 'fa-calendar-check',    'color' => 'var(--primary-color)',
+         'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, name as full_name, phone, email, preferred_date as app_date, purpose as detail, status, tracking_id, created_at, branch'],
         ['table' => 'kyc_applications',    'service' => 'KYC दर्ता',      'icon' => 'fa-id-card',            'color' => 'var(--secondary-color,#c0392b)',
-         'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, account_type as detail, status, tracking_id, created_at, branch'],
+         'contact' => 'mobile', 'member_col' => 'member_id',
+         'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, account_type as detail, status, tracking_id, created_at, branch, member_id'],
         ['table' => 'loan_applications',   'service' => 'ऋण आवेदन',      'icon' => 'fa-hand-holding-usd',   'color' => '#6a1b9a',
-         'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, loan_type as detail, status, tracking_id, created_at, NULL as branch'],
+         'contact' => 'mobile', 'member_col' => 'member_id',
+         'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, loan_type as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'account_applications','service' => 'खाता खोल्ने',   'icon' => 'fa-university',         'color' => '#00695c',
-         'fields' => 'id, full_name, phone, email, NULL as app_date, account_type as detail, status, tracking_id, created_at, branch'],
+         'contact' => 'mobile', 'member_col' => null,
+         'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, account_type as detail, status, tracking_id, created_at, branch'],
         ['table' => 'grievances',          'service' => 'गुनासो',         'icon' => 'fa-comment-exclamation','color' => '#c62828',
+         'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, name as full_name, phone, email, NULL as app_date, subject as detail, status, tracking_id, created_at, NULL as branch'],
         /* Welfare claims: support both legacy (welfare_claims) AND new (member_welfare_claims) table names */
         ['table' => 'welfare_claims',          'service' => 'कल्याण दाबी',  'icon' => 'fa-heart', 'color' => '#e65100',
+         'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, claim_type as detail, status, tracking_id, created_at, NULL as branch'],
         ['table' => 'member_welfare_claims',   'service' => 'कल्याण दाबी',  'icon' => 'fa-heart', 'color' => '#e65100',
+         'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, claim_type as detail, status, tracking_id, created_at, NULL as branch'],
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
+         'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, position_applied as detail, status, tracking_id, created_at, NULL as branch'],
     ];
 
     foreach ($queries as $q) {
         try {
             $conds = []; $params = [];
-            if ($email) { $conds[] = 'email=?'; $params[] = $email; }
-            if ($phone) { $conds[] = 'phone=?'; $params[] = $phone; }
+            if ($email !== '') { $conds[] = 'email=?'; $params[] = $email; }
+            if ($phone !== '') {
+                $conds[] = $q['contact'] . '=?';
+                $params[] = $phone;
+            }
+            if ($memberIdStr !== '' && !empty($q['member_col'])) {
+                $conds[] = $q['member_col'] . '=?';
+                $params[] = $memberIdStr;
+            }
             if (empty($conds)) continue;
             $where = implode(' OR ', $conds);
             $st = $db->prepare("SELECT {$q['fields']}, '{$q['service']}' as service_name,

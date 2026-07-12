@@ -38,6 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
     $attachment        = null;
     $popupImage        = null;
 
+    if ($title === '') {
+        setFlash('error', $__t('शीर्षक अनिवार्य छ।', 'Title is required.'));
+        redirect('notices.php');
+    }
+
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
         $upload = uploadFile($_FILES['attachment'], 'notices');
         if ($upload['success']) $attachment = $upload['path'];
@@ -277,7 +282,7 @@ $flash = getFlash();
                             </div>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold ntc-label ntc-content-label">
-                                    <i class="fas fa-align-left me-1"></i><?php echo $__t('विवरण', 'Description'); ?>
+                                    <i class="fas fa-align-left me-1"></i><?php echo $__t('विवरण (वैकल्पिक)', 'Description (optional)'); ?>
                                 </label>
                                 <textarea name="content" id="ntf_content" class="form-control admin-fancy-input" rows="6" placeholder="<?php echo $__t('सूचनाको विवरण...', 'Notice details...'); ?>"></textarea>
                             </div>

@@ -28,6 +28,18 @@ $error = '';
 $kycTrackingId = '';
 $oldInput = [];
 $prefillInput = [];
+$kycWasUpdate = false;
+$isEmbed = !empty($_GET['embed']);
+$trackerUrl = ($isEmbed || $isMemberLoggedIn)
+    ? (rtrim(SITE_URL, '/') . '/member/tracker.php')
+    : 'application-tracker.php';
+$kycFollowUpUrl = ($isEmbed || $isMemberLoggedIn)
+    ? (rtrim(SITE_URL, '/') . '/member/profile.php')
+    : 'online-kyc.php';
+$kycFollowUpLabel = ($isEmbed || $isMemberLoggedIn)
+    ? (isEnglish() ? 'Back to Profile' : 'प्रोफाइलमा फर्कनुहोस्')
+    : (isEnglish() ? 'New KYC' : 'नयाँ KYC');
+$kycFollowUpIcon = ($isEmbed || $isMemberLoggedIn) ? 'fa-user' : 'fa-plus';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -73,6 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
                     if ($existingKyc) {
+                        $kycWasUpdate = true;
                         $u = $db->prepare("UPDATE kyc_applications SET
                             tracking_id=?, member_id=?, full_name=?, mobile=?, email=?, national_id_number=?,
                             status='partial', risk_category='medium', updated_at=NOW()
@@ -442,6 +455,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $tTole = $sameAddress ? clean_text($_POST['permanent_tole'] ?? '')          : clean_text($_POST['temporary_tole'] ?? '');
 
                     if ($existingKyc) {
+                        $kycWasUpdate = true;
                         $update = $db->prepare("UPDATE kyc_applications SET
                             tracking_id=?, want_id_card=?, member_id=?,
                             full_name=?, full_name_en=?, dob_bs=?, dob_ad=?, gender=?, marital_status=?, nationality=?,
@@ -767,7 +781,13 @@ try {
           <div class="col-lg-7">
             <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
               <div class="form-success-icon"><i class="fas fa-id-card-alt"></i></div>
-              <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'KYC Application Submitted!' : 'KYC आवेदन सफलतापूर्वक पेश भयो!'; ?></h3>
+              <h3 class="mt-3 fw-bold text-success"><?php
+                if (!empty($kycWasUpdate)) {
+                    echo isEnglish() ? 'KYC Updated Successfully!' : 'KYC सफलतापूर्वक अपडेट भयो!';
+                } else {
+                    echo isEnglish() ? 'KYC Application Submitted!' : 'KYC आवेदन सफलतापूर्वक पेश भयो!';
+                }
+              ?></h3>
               <p class="text-muted mb-3"><?php echo isEnglish() ? 'Our team will verify your KYC and notify you soon.' : 'हाम्रो टोलीले तपाईंको KYC प्रमाणित गरी सूचना दिनेछ।'; ?></p>
               <?php if ($kycTrackingId): ?>
               <div class="form-tracking-box">
@@ -776,12 +796,12 @@ try {
                   <div class="form-tracking-id" id="kycTrkId"><?php echo e($kycTrackingId); ?></div>
                   <button type="button" onclick="copyTrk('kycTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>
                 </div>
-                <div class="form-tracking-help"><a href="application-tracker.php" class="text-success text-decoration-none fw-semibold">यहाँ बाट</a> Application Tracker मा स्थिति हेर्नुहोस्।</div>
+                <div class="form-tracking-help"><a href="<?php echo e($trackerUrl); ?>" class="text-success text-decoration-none fw-semibold"><?php echo isEnglish() ? 'Open Tracker' : 'ट्र्याकर खोल्नुहोस्'; ?></a> — <?php echo isEnglish() ? 'check status anytime.' : 'स्थिति जुनसुकै बेला हेर्नुहोस्।'; ?></div>
               </div>
               <?php endif; ?>
               <div class="mt-3">
-                <a href="application-tracker.php" class="btn btn-success px-4 me-2"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
-                <a href="online-kyc.php" class="btn btn-outline-secondary px-4"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New KYC' : 'नयाँ KYC'; ?></a>
+                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
+                <a href="<?php echo e($kycFollowUpUrl); ?>" class="btn btn-outline-secondary px-4"><i class="fas <?php echo e($kycFollowUpIcon); ?> me-1"></i><?php echo e($kycFollowUpLabel); ?></a>
               </div>
             </div>
           </div>
