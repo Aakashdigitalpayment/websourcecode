@@ -16869,7 +16869,7 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .institutional-profile-section {
     position: relative;
     isolation: isolate;
-    padding: 18px 0 22px;
+    padding: 20px 0 26px;
     background:
         linear-gradient(
             118deg,
@@ -16877,6 +16877,10 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
             var(--primary-color, #1a5f2a) 48%,
             color-mix(in srgb, var(--primary-color, #1a5f2a) 70%, #0d3d1a) 100%
         );
+    border-bottom: 5px solid color-mix(in srgb, var(--primary-dark, #144a21) 82%, #000);
+    box-shadow:
+        inset 0 -10px 18px rgba(0, 0, 0, 0.16),
+        0 8px 18px rgba(0, 0, 0, 0.12);
 }
 .institutional-profile-section::before {
     content: '';
@@ -16895,6 +16899,22 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
             rgba(255, 255, 255, 0.025) 11px
         );
 }
+.institutional-profile-section::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.18) 55%,
+        color-mix(in srgb, var(--primary-dark, #144a21) 75%, #000) 100%
+    );
+}
 .institutional-profile-section .container {
     position: relative;
     z-index: 1;
@@ -16906,14 +16926,16 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     flex-wrap: wrap;
     gap: 14px;
     background: #fff;
-    border-radius: 16px;
-    padding: 18px 26px;
+    border-radius: 16px 16px 14px 14px;
+    padding: 18px 26px 16px;
     margin: 0;
-    border: 1px solid rgba(255, 255, 255, 0.75);
+    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #fff);
+    border-bottom: 4px solid var(--primary-dark, #144a21);
     box-shadow:
-        0 14px 32px rgba(0, 0, 0, 0.22),
-        0 4px 12px rgba(0, 0, 0, 0.12),
-        0 1px 0 rgba(255, 255, 255, 0.9) inset;
+        0 16px 34px rgba(0, 0, 0, 0.24),
+        0 6px 14px rgba(0, 0, 0, 0.14),
+        0 1px 0 rgba(255, 255, 255, 0.95) inset,
+        0 -1px 0 rgba(var(--primary-rgb, 26, 95, 42), 0.08) inset;
 }
 .institutional-profile-bar .profile-title,
 .institutional-profile-bar .profile-title-link {
@@ -16994,11 +17016,11 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     animation: none;
 }
 @media (max-width: 575px) {
-    .institutional-profile-section { padding: 14px 0 16px; }
+    .institutional-profile-section { padding: 14px 0 20px; }
     .institutional-profile-bar {
         flex-direction: column;
         align-items: flex-start;
-        padding: 16px 16px;
+        padding: 16px 16px 14px;
         gap: 12px;
     }
 }
