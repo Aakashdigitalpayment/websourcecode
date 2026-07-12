@@ -226,9 +226,9 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
     <!-- ════ TAB 1: ADMIN LIST ════ -->
     <div class="tab-pane fade <?php echo $activeTab==='list'?'show active':''; ?>" id="tab-list">
-        <div class="card border-0 shadow-sm">
+        <div class="card border-0 shadow-sm admin-table-card">
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive table-responsive-stack">
                     <table class="table table-hover align-middle mb-0" id="adminTable">
                         <thead>
                             <tr class="ma-table-head-row">
@@ -261,10 +261,10 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             ?>
                             <tr class="<?php echo !$adm['is_active'] ? 'table-secondary' : ''; ?>">
 
-                                <td class="ps-3 text-muted small"><?php echo $adm['id']; ?></td>
+                                <td class="ps-3 text-muted small" data-label="#">#<?php echo $adm['id']; ?></td>
 
                                 <!-- नाम -->
-                                <td>
+                                <td data-label="पूरा नाम">
                                     <div class="d-flex align-items-center gap-2">
                                         <!-- Avatar circle -->
                                         <div class="ma-avatar-chip">
@@ -285,14 +285,14 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 </td>
 
                                 <!-- username -->
-                                <td>
+                                <td data-label="युजरनेम">
                                     <code class="small px-2 py-1 rounded ma-username-chip">
                                         <?php echo htmlspecialchars($adm['username'], ENT_QUOTES, 'UTF-8'); ?>
                                     </code>
                                 </td>
 
                                 <!-- email -->
-                                <td class="small text-muted">
+                                <td class="small text-muted" data-label="इमेल">
                                     <?php if (!empty($adm['email'])): ?>
                                         <i class="fas fa-envelope me-1 opacity-50"></i>
                                         <?php echo htmlspecialchars($adm['email'], ENT_QUOTES, 'UTF-8'); ?>
@@ -302,7 +302,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 </td>
 
                                 <!-- role -->
-                                <td>
+                                <td data-label="Role">
                                     <?php if (function_exists('admin_db_role_is_superadmin') && admin_db_role_is_superadmin((string) ($adm['role'] ?? ''))): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-role-super">
                                         <i class="fas fa-crown me-1"></i>Super Admin
@@ -319,7 +319,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 </td>
 
                                 <!-- status -->
-                                <td>
+                                <td data-label="अवस्था">
                                     <?php if ($adm['is_active']): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-status-active">
                                         <i class="fas fa-circle me-1 ma-status-dot"></i>सक्रिय
@@ -332,7 +332,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 </td>
 
                                 <!-- last login -->
-                                <td class="small text-muted">
+                                <td class="small text-muted" data-label="अन्तिम Login">
                                     <?php if (!empty($adm['last_login'])): ?>
                                         <i class="fas fa-clock me-1 opacity-50"></i>
                                         <?php echo date('Y-m-d H:i', strtotime($adm['last_login'])); ?>
@@ -342,7 +342,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="pe-3">
+                                <td class="pe-3" data-label="कार्यहरू">
                                     <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
 
                                         <!-- Password Reset button -->

@@ -151,7 +151,7 @@ $flash = getFlash();
     <div class="tab-pane fade show active" id="tab-list">
         <div class="card admin-table-card svc-flat-top-card">
             <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive table-responsive-stack">
                     <form method="POST">
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="action" value="bulk_status">

@@ -16,7 +16,28 @@ $status = $_GET['status'] ?? 'all';
 if (!in_array($status, ['all', 'pending', 'approved', 'rejected'], true)) {
     $status = 'all';
 }
-$where = ($status === 'all') ? '' : 'WHERE status = ' . $pdo->quote($status);
+$q = trim((string)($_GET['q'] ?? ''));
+$whereParts = [];
+if ($status !== 'all') {
+    $whereParts[] = 'status = ' . $pdo->quote($status);
+}
+if ($q !== '') {
+    $like = '%' . $q . '%';
+    $ql = $pdo->quote($like);
+    $qCols = ['full_name', 'full_name_en', 'mobile', 'email', 'citizenship_no', 'member_id'];
+    try {
+        $colCheck = $pdo->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
+        if ($colCheck && $colCheck->fetch()) {
+            $qCols[] = 'tracking_id';
+        }
+    } catch (Throwable $e) { /* ignore */ }
+    $or = [];
+    foreach ($qCols as $col) {
+        $or[] = $col . ' LIKE ' . $ql;
+    }
+    $whereParts[] = '(' . implode(' OR ', $or) . ')';
+}
+$where = $whereParts ? ('WHERE ' . implode(' AND ', $whereParts)) : '';
 $rows = $pdo->query("SELECT * FROM kyc_applications {$where} ORDER BY created_at DESC LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
 
 $counts = $pdo->query("SELECT
@@ -34,6 +55,16 @@ include __DIR__ . '/../_partials/header.php';
 <div class="admin-page-header">
   <h1 class="admin-page-title"><i class="fas fa-id-card-clip"></i> KYC आवेदन</h1>
   <a href="/admin/" class="admin-btn admin-btn-ghost"><i class="fas fa-arrow-left"></i> ड्यासबोर्डमा फर्क</a>
+</div>
+
+<div class="admin-card" style="margin-bottom:12px;border-left:3px solid var(--primary,#1a5f2a);">
+  <p style="margin:0 0 8px;font-size:.9rem;">
+    <strong>पूर्ण KYC व्यवस्थापन</strong> मुख्य Admin मा छ (फिल्टर, विवरण, approve/reject)।
+    यो पृष्ठ छोटो सूची + सदस्य बनाउने shortcut हो।
+  </p>
+  <a href="/admin/kyc-applications.php" class="admin-btn admin-btn-primary">
+    <i class="fas fa-external-link-alt"></i> पूर्ण KYC व्यवस्थापन खोल्नुहोस्
+  </a>
 </div>
 
 <?php
@@ -56,7 +87,8 @@ include __DIR__ . '/../_partials/header.php';
       <option value="approved" <?= $status==='approved'?'selected':'' ?>>स्वीकृत</option>
       <option value="rejected" <?= $status==='rejected'?'selected':'' ?>>अस्वीकृत</option>
     </select>
-    <input type="search" name="q" placeholder="नाम, मोबाइल, Tracking ID..." class="admin-input" style="max-width:300px;">
+    <input type="search" name="q" value="<?= htmlspecialchars($q, ENT_QUOTES, 'UTF-8') ?>"
+           placeholder="नाम, मोबाइल, Tracking ID..." class="admin-input" style="max-width:300px;">
     <button class="admin-btn admin-btn-primary"><i class="fas fa-search"></i> खोज</button>
   </form>
 </div>

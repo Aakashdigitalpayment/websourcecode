@@ -142,6 +142,13 @@ $users = filter_out_file_managed_superadmin_rows($users);
         </button>
     </div>
 
+    <div class="alert alert-light border small py-2 mb-3">
+        <i class="fas fa-info-circle text-warning me-1"></i>
+        <strong>सुझाव:</strong> Admin login users को मुख्य पृष्ठ
+        <a href="manage-admins.php"><strong>Manage Admins</strong></a> हो।
+        यो <code>staff.php</code> advanced/legacy विकल्प हो (HRM link सहित) — नयाँ कामका लागि Manage Admins प्रयोग गर्नुहोस्।
+    </div>
+
     <?php echo adminHelpTip('यो पृष्ठबाट Admin र Staff Users व्यवस्थापन गर्न सकिन्छ।', ['नयाँ User थप्न: माथिको "नयाँ User थप्नुहोस्" बटन थिच्नुहोस्।', 'Role: Admin = सबै access; Staff = सीमित access।', 'Password बदल्न: सम्बन्धित user को Edit icon थिच्नुहोस्।']); ?>
 
     <?php if ($f = getFlash()): ?>

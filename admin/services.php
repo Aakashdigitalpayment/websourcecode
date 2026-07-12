@@ -244,7 +244,7 @@ $servicesArch = $svcPart['archived'];
                     <?php echo adminListSubtabPills('svc-sub', count($servicesLive), count($servicesArch)); ?>
                     <div class="tab-content admin-table-subtab-content">
                     <div class="tab-pane fade show active" id="svc-sub-live" role="tabpanel">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-responsive-stack">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -271,20 +271,20 @@ $servicesArch = $svcPart['archived'];
                             <?php endif; ?>
                             <?php foreach ($servicesLive as $s): ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
-                                <td class="ps-3">
+                                <td class="text-center" data-label=""><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
+                                <td class="ps-3" data-label="<?php echo $__t('आइकन', 'Icon'); ?>">
                                     <div class="admin-icon-cell">
                                         <i class="<?php echo htmlspecialchars($s['icon']); ?> svc-icon-mark"></i>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="<?php echo $__t('शीर्षक', 'Title'); ?>">
                                     <div class="fw-semibold"><?php echo htmlspecialchars($s['title_np'] ?: $s['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($s['title_en'] ?? $s['title']); ?></small>
                                 </td>
-                                <td><span class="text-muted"><?php echo htmlspecialchars(mb_substr($s['description_np'] ?: ($s['description'] ?? ''), 0, 60)); ?>…</span></td>
-                                <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $s['display_order']; ?></span></td>
-                                <td class="text-center"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
-                                <td class="text-center">
+                                <td data-label="<?php echo $__t('विवरण', 'Description'); ?>"><span class="text-muted"><?php echo htmlspecialchars(mb_substr($s['description_np'] ?: ($s['description'] ?? ''), 0, 60)); ?>…</span></td>
+                                <td class="text-center" data-label="<?php echo $__t('क्रम', 'Order'); ?>"><span class="badge bg-light text-dark border"><?php echo $s['display_order']; ?></span></td>
+                                <td class="text-center" data-label="<?php echo $__t('स्थिति', 'Status'); ?>"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
+                                <td class="text-center" data-label="<?php echo $__t('कार्य', 'Actions'); ?>">
                                     <a href="services.php?edit=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary me-1" title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
                                         <i class="fas fa-edit"></i>
                                     </a>
@@ -302,7 +302,7 @@ $servicesArch = $svcPart['archived'];
                     </div>
                     </div>
                     <div class="tab-pane fade" id="svc-sub-arch" role="tabpanel">
-                    <div class="table-responsive">
+                    <div class="table-responsive table-responsive-stack">
                     <table class="table table-hover align-middle mb-0">
                         <thead>
                             <tr>
@@ -324,20 +324,20 @@ $servicesArch = $svcPart['archived'];
                             <?php endif; ?>
                             <?php foreach ($servicesArch as $s): ?>
                             <tr>
-                                <td class="text-center"><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
-                                <td class="ps-3">
+                                <td class="text-center" data-label=""><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
+                                <td class="ps-3" data-label="<?php echo $__t('आइकन', 'Icon'); ?>">
                                     <div class="admin-icon-cell">
                                         <i class="<?php echo htmlspecialchars($s['icon']); ?> svc-icon-mark"></i>
                                     </div>
                                 </td>
-                                <td>
+                                <td data-label="<?php echo $__t('शीर्षक', 'Title'); ?>">
                                     <div class="fw-semibold"><?php echo htmlspecialchars($s['title_np'] ?: $s['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($s['title_en'] ?? $s['title']); ?></small>
                                 </td>
-                                <td><span class="text-muted"><?php echo htmlspecialchars(mb_substr($s['description_np'] ?: ($s['description'] ?? ''), 0, 60)); ?>…</span></td>
-                                <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $s['display_order']; ?></span></td>
-                                <td class="text-center"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
-                                <td class="text-center">
+                                <td data-label="<?php echo $__t('विवरण', 'Description'); ?>"><span class="text-muted"><?php echo htmlspecialchars(mb_substr($s['description_np'] ?: ($s['description'] ?? ''), 0, 60)); ?>…</span></td>
+                                <td class="text-center" data-label="<?php echo $__t('क्रम', 'Order'); ?>"><span class="badge bg-light text-dark border"><?php echo $s['display_order']; ?></span></td>
+                                <td class="text-center" data-label="<?php echo $__t('स्थिति', 'Status'); ?>"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
+                                <td class="text-center" data-label="<?php echo $__t('कार्य', 'Actions'); ?>">
                                     <a href="services.php?edit=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary me-1" title="सम्पादन">
                                         <i class="fas fa-edit"></i>
                                     </a>
