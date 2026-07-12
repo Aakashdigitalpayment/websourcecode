@@ -17060,3 +17060,235 @@ html.pwa-installed  .mem-pwa-btn { display: none !important; }
         display: none !important;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   v11 — ADMIN UI POLISH (Additive-only. No HTML changed. No breaks.)
+   Covers: buttons, tables, filters, badges, show/edit/delete actions,
+           form labels, list items, icons, pagination.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. FORM LABELS — single source of truth ─────────────────────── */
+.main-content .form-label,
+.main-content label.form-label,
+.card .form-label,
+.modal-body .form-label,
+.tab-content .form-label,
+.admin-form-grid .form-label {
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    color: #2b4738 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: .01em;
+    line-height: 1.35;
+    text-transform: none !important;
+}
+.main-content .form-label .text-danger,
+.card .form-label .text-danger,
+.modal-body .form-label .text-danger {
+    color: #dc3545 !important;
+    font-weight: 700 !important;
+}
+
+/* ── 2. FORM INPUTS — uniform height, radius, border ─────────────── */
+.admin-fancy-input,
+.form-control.admin-fancy-input,
+.form-select.admin-fancy-input {
+    font-size: 0.9rem !important;
+    min-height: 42px !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #d1dbd4 !important;
+    color: #1a2e1f !important;
+    padding: 8px 13px !important;
+    background: #fff !important;
+}
+.admin-fancy-input:focus,
+.form-control.admin-fancy-input:focus,
+.form-select.admin-fancy-input:focus {
+    border-color: var(--primary-color, #1a5f2a) !important;
+    box-shadow: 0 0 0 3px rgba(26,95,42,.1) !important;
+    outline: none !important;
+}
+.admin-fancy-input::placeholder { color: #9eada5 !important; }
+.main-content .input-group-text {
+    min-height: 42px;
+    font-size: 0.86rem;
+    border: 1.5px solid #d1dbd4;
+    background: #f5faf6;
+    color: #2b4738;
+}
+
+/* ── 3. BUTTONS — consistent sizing, icon alignment ──────────────── */
+.main-content .btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all .18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.main-content .btn i,
+.main-content .btn .lucide-icon,
+.main-content .btn svg {
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    line-height: 1;
+}
+.main-content .btn-sm {
+    font-size: 0.78rem !important;
+    padding: 5px 10px !important;
+    border-radius: 7px !important;
+    min-height: 32px;
+    gap: 4px;
+}
+.main-content .btn-sm i { font-size: 0.75rem !important; }
+
+/* Action icon buttons (edit/delete/view in tables) */
+.main-content .btn-icon,
+.admin-table-card .btn-sm.btn-primary:not(:has(span)),
+.admin-table-card .btn-sm.btn-danger:not(:has(span)),
+.admin-table-card .btn-sm.btn-outline-primary:not(:has(span)) {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+}
+
+/* ── 4. TABLE — readable headers, row hover, action cell ─────────── */
+.main-content .table thead th,
+.admin-table-card .table thead th {
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    letter-spacing: .05em !important;
+    text-transform: uppercase !important;
+    color: var(--primary-color, #1a5f2a) !important;
+    background: #f5faf6 !important;
+    border-bottom: 2px solid #d5e8da !important;
+    padding: 10px 14px !important;
+    white-space: nowrap;
+}
+.main-content .table tbody td,
+.admin-table-card .table tbody td {
+    font-size: 0.875rem !important;
+    padding: 10px 14px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f0f5f1 !important;
+    color: #1a2e1f;
+}
+.main-content .table tbody tr:hover td,
+.admin-table-card .table tbody tr:hover td {
+    background: rgba(26,95,42,.035) !important;
+}
+/* First/last cell padding */
+.main-content .table td:first-child,
+.main-content .table th:first-child { padding-left: 18px !important; }
+.main-content .table td:last-child,
+.main-content .table th:last-child  { padding-right: 18px !important; }
+
+/* ── 5. BADGES — uniform size, pill style ────────────────────────── */
+.main-content .badge {
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    padding: 4px 9px !important;
+    border-radius: 20px !important;
+    letter-spacing: .02em;
+}
+
+/* ── 6. FILTER / SEARCH BAR ─────────────────────────────────────── */
+.main-content .adm-filter-bar .form-control,
+.main-content .adm-filter-bar .form-select,
+.main-content .filter-bar .form-control,
+.main-content .filter-bar .form-select {
+    font-size: 0.875rem !important;
+    border-radius: 9px !important;
+    border: 1.5px solid #d1dbd4 !important;
+    min-height: 38px !important;
+    padding: 6px 12px !important;
+}
+.main-content .adm-filter-bar .form-control:focus,
+.main-content .adm-filter-bar .form-select:focus {
+    border-color: var(--primary-color, #1a5f2a) !important;
+    box-shadow: 0 0 0 3px rgba(26,95,42,.1) !important;
+}
+.main-content .adm-filter-bar label,
+.main-content .filter-bar label {
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    color: #4b6358 !important;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 3px;
+}
+
+/* ── 7. ADMIN NAV TABS — consistent active/hover ─────────────────── */
+.admin-nav-tabs .nav-link {
+    font-size: 0.83rem !important;
+    font-weight: 600 !important;
+    color: #4b6358 !important;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 9px 16px !important;
+    border: none !important;
+    background: transparent !important;
+}
+.admin-nav-tabs .nav-link.active {
+    color: var(--primary-color, #1a5f2a) !important;
+    border-bottom: 2.5px solid var(--primary-color, #1a5f2a) !important;
+    background: #fff !important;
+}
+.admin-nav-tabs .nav-link:hover:not(.active) {
+    background: rgba(26,95,42,.06) !important;
+    color: #1a5f2a !important;
+}
+
+/* ── 8. PAGINATION ────────────────────────────────────────────────── */
+.main-content .pagination .page-link {
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 8px !important;
+    margin: 0 2px;
+    border: 1.5px solid #d1dbd4;
+    color: #2b4738;
+    min-width: 34px;
+    text-align: center;
+}
+.main-content .pagination .page-item.active .page-link {
+    background: var(--primary-color, #1a5f2a) !important;
+    border-color: var(--primary-color, #1a5f2a) !important;
+    color: #fff !important;
+}
+
+/* ── 9. CARD HEADERS — consistent section heading style ──────────── */
+.main-content .card-header {
+    font-size: 0.88rem;
+    font-weight: 700;
+    border-bottom: 1px solid #e6ede8;
+    background: #f9fbf9;
+    padding: 12px 18px;
+}
+.main-content .card-header h5,
+.main-content .card-header h6 {
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* ── 10. EMPTY STATE rows ──────────────────────────────────────────── */
+.main-content .table tbody td[colspan],
+.main-content .empty-state-row td {
+    text-align: center !important;
+    color: #6b7280 !important;
+    font-style: italic;
+    font-size: 0.875rem !important;
+    padding: 28px 16px !important;
+}
+
+/* ── Reduced-motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .main-content .btn { transition: none !important; }
+}
