@@ -402,6 +402,17 @@ try {
                           }
                           document.querySelectorAll('#accountOpenForm input.js-acc-coop').forEach(function(r){ r.addEventListener('change',syncAccCoop); });
                           document.addEventListener('DOMContentLoaded',syncAccCoop);
+                          var accForm=document.getElementById('accountOpenForm');
+                          if(accForm){
+                            accForm.addEventListener('keydown',function(e){
+                              if(e.key!=='Enter') return;
+                              var t=e.target; if(!t) return;
+                              var tag=(t.tagName||'').toLowerCase();
+                              if(tag==='textarea') return;
+                              if(tag==='button'||(tag==='input'&&(t.type==='submit'||t.type==='button'))) return;
+                              e.preventDefault();
+                            });
+                          }
                         })();
                         </script>
                         
@@ -439,10 +450,10 @@ try {
 
                         <!-- Nominee Info -->
                         <div class="form-section">
-                            <h5><i class="fas fa-user-friends"></i> <?php echo isEnglish() ? 'Nominee Details' : 'नामिनी विवरण'; ?></h5>
+                            <h5><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Guarantor Details' : 'धन जमानी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Nominee Name' : 'नामिनी नाम'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धन जमानीको नाम'; ?></label>
                                     <input type="text" name="nominee_name" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -450,7 +461,7 @@ try {
                                     <input type="text" name="nominee_relation" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Nominee Phone' : 'नामिनी फोन'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Guarantor Phone' : 'धन जमानीको फोन'; ?></label>
                                     <input type="tel" name="nominee_phone" class="form-control">
                                 </div>
                             </div>

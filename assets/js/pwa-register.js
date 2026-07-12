@@ -1,9 +1,10 @@
 /* ═════════════════════════════════════════════════════════════════════
-   Sahakari CMS — PWA Install Handler  v3
+   Sahakari CMS — PWA Install Handler  v3.1
    - Buttons are visible by default (not waiting for beforeinstallprompt)
    - Works on iOS Safari (manual guide) and Chrome/Android (native prompt)
    - Dismissible slide-up install banner with sessionStorage memory
    - Early standalone detection so no flash on installed devices
+   - v3.1: controllerchange reload only after explicit Update tap
    ═════════════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
@@ -81,6 +82,7 @@
   if (!navigator.onLine) document.body.classList.add('is-offline');
 
   /* ── 8. Service Worker registration ─────────────────────────────── */
+  var _reloadOnControllerChange = false;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('/sw.js', { scope: '/' })
@@ -97,7 +99,9 @@
         })
         .catch(function () { /* silent — SW not available in dev/http */ });
       navigator.serviceWorker.addEventListener('controllerchange', function () {
-        window.location.reload();
+        /* Only reload after the user taps "Update गर्नुहोस्" — never
+           wipe an in-progress KYC / account form on a silent SW swap. */
+        if (_reloadOnControllerChange) window.location.reload();
       });
     });
   }
@@ -228,6 +232,7 @@
     ].join('');
     document.body.appendChild(bar);
     document.getElementById('pwa-upd-now').onclick = function () {
+      _reloadOnControllerChange = true;
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       bar.remove();
     };

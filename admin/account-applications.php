@@ -300,9 +300,9 @@ if ($viewApp):
 
                 <?php if (!empty($viewApp['nominee_name'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-user-friends"></i><?php echo $__t('नामिनी विवरण', 'Nominee Details'); ?></div>
+                    <div class="adm-info-group-header"><i class="fas fa-user-shield"></i><?php echo $__t('धन जमानी विवरण', 'Guarantor Details'); ?></div>
                     <table class="table adm-detail-table">
-                        <tr><th><?php echo $__t('नामिनीको नाम', 'Nominee Name'); ?></th>
+                        <tr><th><?php echo $__t('धन जमानीको नाम', 'Guarantor Name'); ?></th>
                             <td><strong><?php echo htmlspecialchars($viewApp['nominee_name']); ?></strong></td></tr>
                         <tr><th><?php echo $__t('सम्बन्ध', 'Relation'); ?></th>
                             <td><?php echo htmlspecialchars($viewApp['nominee_relation'] ?: '—'); ?></td></tr>

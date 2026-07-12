@@ -1,7 +1,8 @@
 /* ══════════════════════════════════════════════════════════
-   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.0
+   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.1
    Touch-only. Fires window.location.reload() after threshold.
    Does NOT activate inside member portal embed frames.
+   v1.1: disabled on long forms + while editing inputs.
    ══════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
@@ -10,6 +11,30 @@
     if (document.body.classList.contains('embed-in-member-portal')) return;
     /* Skip on non-touch devices */
     if (!('ontouchstart' in window)) return;
+
+    /* Long public/member forms — pull-to-refresh wipes in-progress input */
+    var path = (location.pathname || '').toLowerCase();
+    var FORM_PATHS = [
+        '/online-kyc.php',
+        '/online-account.php',
+        '/loan-apply.php',
+        '/member/account-apply.php',
+        '/member/loan-apply.php',
+        '/member/kyc'
+    ];
+    for (var i = 0; i < FORM_PATHS.length; i++) {
+        if (path.indexOf(FORM_PATHS[i]) !== -1) return;
+    }
+
+    function isFormInteraction() {
+        var el = document.activeElement;
+        if (!el) return false;
+        var tag = (el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'button') return true;
+        if (el.isContentEditable) return true;
+        if (el.closest && el.closest('form')) return true;
+        return false;
+    }
 
     /* ── Config ─────────────────────────────────────── */
     var THRESHOLD = 72;   /* px of pull needed to trigger */
@@ -135,6 +160,7 @@
     document.addEventListener('touchstart', function (e) {
         if (window.scrollY > 4)      return;
         if (e.touches.length !== 1)  return;
+        if (isFormInteraction())     return;
         startY    = e.touches[0].clientY;
         pulling   = false;
         triggered = false;
@@ -142,6 +168,7 @@
 
     document.addEventListener('touchmove', function (e) {
         if (triggered) return;
+        if (isFormInteraction()) return;
         var dy = e.touches[0].clientY - startY;
         if (dy < 6) return;
 
