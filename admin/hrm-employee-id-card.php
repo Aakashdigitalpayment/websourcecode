@@ -34,7 +34,7 @@ $logoPath    = function_exists('getLocalizedLogoPath') ? getLocalizedLogoPath('a
 $logoSrc     = '../' . ltrim($logoPath, '/');
 
 /* Photo */
-$photoSrc = !empty($emp['photo']) ? '../' . ltrim($emp['photo'], '/') : '../assets/images/default-avatar.png';
+$photoSrc = hrmEmployeePhotoUrl($emp['photo'] ?? null);
 
 /* Validity */
 $joinAd = $emp['join_date_ad'] ?: date('Y-m-d');
