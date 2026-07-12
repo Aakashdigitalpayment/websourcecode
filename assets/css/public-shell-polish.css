@@ -443,10 +443,16 @@ body.has-bottomnav {
 }
 
 .qh-fab {
-  width: 54px !important;
-  height: 54px !important;
+  width: 44px !important;
+  height: 44px !important;
   border-radius: 50% !important;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16) !important;
+}
+
+.qh-fab i,
+.qh-fab .fa-bolt,
+.qh-fab .fa-times {
+  font-size: 16px !important;
 }
 
 .qh-menu {
