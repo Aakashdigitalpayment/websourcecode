@@ -125,11 +125,48 @@ foreach ($committeeTypes as $_ct) {
     }
 }
 
-/* Default committee for the single picker viewer */
-$viewCommitteeId = $selectedCommitteeId;
-if ($viewCommitteeId <= 0 && !empty($committeeFilterButtons)) {
-    $viewCommitteeId = (int)$committeeFilterButtons[0]['id'];
+/* Category → Item → Tenure */
+$teamCategories = [];
+if ($chairman || $ceo || $informationOfficer || $grievanceOfficer) {
+    $teamCategories['contact-officers'] = isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी';
 }
+if (!empty($topManagementMembers)) {
+    $teamCategories['top-management'] = isEnglish() ? 'Top Management' : 'शीर्ष व्यवस्थापन';
+}
+if (!empty($boardMembers)) {
+    $teamCategories['board'] = isEnglish() ? 'Board Committee' : 'सञ्चालक समिति';
+}
+if (!empty($managementMembers)) {
+    $teamCategories['management'] = isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली';
+}
+if (!empty($staffMembers)) {
+    $teamCategories['staff'] = isEnglish() ? 'Staff' : 'कर्मचारीहरू';
+}
+if (!empty($adminMembers)) {
+    $teamCategories['admin'] = isEnglish() ? 'Admin' : 'एडमिन';
+}
+if ($hasCommitteeFilters) {
+    $teamCategories['committees'] = isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति';
+}
+
+$viewCat = preg_replace('/[^a-z0-9\-]/', '', strtolower((string)($_GET['cat'] ?? '')));
+$hasExplicitFilter = ($viewCat !== '' && isset($teamCategories[$viewCat])) || $selectedCommitteeId > 0;
+if ($viewCat === '' && $selectedCommitteeId > 0) {
+    $viewCat = 'committees';
+}
+if ($viewCat === '' || !isset($teamCategories[$viewCat])) {
+    $viewCat = $hasExplicitFilter ? (array_key_first($teamCategories) ?: 'all') : 'all';
+}
+
+$viewCommitteeId = $selectedCommitteeId;
+if ($viewCat === 'committees') {
+    if ($viewCommitteeId <= 0 && !empty($committeeFilterButtons)) {
+        $viewCommitteeId = (int)$committeeFilterButtons[0]['id'];
+    }
+} else {
+    $viewCommitteeId = 0;
+}
+
 $viewCommittee = null;
 foreach ($committeeTypes as $_ct) {
     if ((int)$_ct['id'] === $viewCommitteeId) {
@@ -137,52 +174,112 @@ foreach ($committeeTypes as $_ct) {
         break;
     }
 }
-$viewTenures = $committeeTenures[$viewCommitteeId] ?? [];
-$viewTenureId = (int)($committeeActiveTenure[$viewCommitteeId] ?? 0);
-$viewMembers = $committeeMembers[$viewCommitteeId] ?? [];
+$viewTenures = ($viewCat === 'committees') ? ($committeeTenures[$viewCommitteeId] ?? []) : [];
+$viewTenureId = ($viewCat === 'committees') ? (int)($committeeActiveTenure[$viewCommitteeId] ?? 0) : 0;
+/* Prefer current tenure; else newest by list order (already sorted) */
+if ($viewCat === 'committees' && $viewTenureId <= 0 && !empty($viewTenures)) {
+    foreach ($viewTenures as $tn) {
+        if (!empty($tn['is_current'])) { $viewTenureId = (int)$tn['id']; break; }
+    }
+    if ($viewTenureId <= 0) $viewTenureId = (int)($viewTenures[0]['id'] ?? 0);
+}
+$viewMembers = ($viewCat === 'committees') ? ($committeeMembers[$viewCommitteeId] ?? []) : [];
 $viewCommitteeLabel = '';
 if ($viewCommittee) {
     $viewCommitteeLabel = isEnglish()
         ? (($viewCommittee['name'] ?: $viewCommittee['name_np']) ?: '')
         : (($viewCommittee['name_np'] ?: $viewCommittee['name']) ?: '');
 }
+
+$focusFilter = ($viewCat === 'all') ? 'all' : (($viewCat === 'committees') ? 'committees' : $viewCat);
 ?>
 
-<?php if (!empty($boardMembers) || !empty($topManagementMembers) || !empty($managementMembers) || !empty($staffMembers) || !empty($adminMembers) || $hasCommitteeFilters): ?>
-<section class="team-filter-bar section-padding bg-white">
+<?php if (!empty($teamCategories)): ?>
+<section class="team-filter-bar section-padding bg-white border-bottom">
     <div class="container">
-        <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
-            <button type="button" class="filter-btn active" onclick="teamFilter(this, 'all')">
-                <i class="fas fa-th-large"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
-            </button>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'contact-officers')">
-                <i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?>
-            </button>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'top-management')">
-                <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Top Management Team' : 'शीर्ष व्यवस्थापन टोली'; ?>
-            </button>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'board')">
-                <i class="lucide-icon" aria-hidden="true" data-lucide="building-columns"></i> <?php echo isEnglish() ? 'Board' : 'सञ्चालक समिति'; ?>
-            </button>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'management')">
-                <i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Management Team' : 'व्यवस्थापन टोली'; ?>
-            </button>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'staff')">
-                <i class="lucide-icon" aria-hidden="true" data-lucide="users"></i> <?php echo isEnglish() ? 'Staff' : 'कर्मचारीहरू'; ?>
-            </button>
-            <?php if (!empty($adminMembers)): ?>
-            <button type="button" class="filter-btn" onclick="teamFilter(this, 'admin')">
-                <i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Admin' : 'एडमिन'; ?>
-            </button>
-            <?php endif; ?>
-            <?php if ($hasCommitteeFilters): ?>
-            <button type="button" class="filter-btn" id="committeeFilterBtn" onclick="teamFilter(this, 'committees')">
-                <i class="fas fa-sitemap"></i> <?php echo isEnglish() ? 'Committees' : 'समिति / उपसमिति'; ?>
-            </button>
-            <?php endif; ?>
+        <div class="team-triple-filter">
+            <div class="team-triple-title">
+                <i class="fas fa-filter"></i>
+                <span><?php echo isEnglish() ? 'Filter people' : 'मानवीय स्रोत फिल्टर'; ?></span>
+            </div>
+            <div class="row g-3 align-items-end justify-content-center">
+                <div class="col-md-4 col-lg-3">
+                    <label class="form-label small fw-semibold text-success mb-1" for="teamCatSelect">
+                        1. <?php echo isEnglish() ? 'Category' : 'श्रेणी'; ?>
+                    </label>
+                    <div class="coop-select-wrap">
+                        <i class="fas fa-layer-group coop-select-icon"></i>
+                        <select id="teamCatSelect" class="form-select coop-select-field">
+                            <option value="all" <?php echo $viewCat === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All categories' : 'सबै श्रेणी'; ?></option>
+                            <?php foreach ($teamCategories as $catKey => $catLabel): ?>
+                            <option value="<?php echo htmlspecialchars($catKey); ?>" <?php echo $viewCat === $catKey ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($catLabel); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3" id="teamItemWrap" style="<?php echo $viewCat === 'committees' ? '' : 'display:none'; ?>">
+                    <label class="form-label small fw-semibold text-success mb-1" for="teamCmtSelect">
+                        2. <?php echo isEnglish() ? 'Item' : 'विवरण'; ?>
+                    </label>
+                    <div class="coop-select-wrap">
+                        <i class="fas fa-sitemap coop-select-icon"></i>
+                        <select id="teamCmtSelect" class="form-select coop-select-field">
+                            <?php foreach ($committeeFilterButtons as $_cf): ?>
+                            <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($_cf['label']); ?>
+                            </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 col-lg-3" id="teamTenureWrap" style="<?php echo ($viewCat === 'committees' && !empty($viewTenures)) ? '' : 'display:none'; ?>">
+                    <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
+                        3. <?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
+                    </label>
+                    <div class="coop-select-wrap">
+                        <i class="fas fa-calendar-alt coop-select-icon"></i>
+                        <select id="teamTenureSelect" class="form-select coop-select-field" <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
+                            <?php if (empty($viewTenures)): ?>
+                            <option value="0"><?php echo isEnglish() ? 'Latest / current' : 'हालको / पछिल्लो'; ?></option>
+                            <?php else: ?>
+                                <?php foreach ($viewTenures as $tn):
+                                    $tid = (int)$tn['id'];
+                                    $label = isEnglish()
+                                        ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
+                                        : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
+                                    $period = '';
+                                    if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
+                                        $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
+                                    }
+                                ?>
+                                <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
+                                    <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Latest)' : '(हालको)'; ?><?php endif; ?>
+                                </option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-muted small mt-3 mb-0">
+                <?php echo isEnglish()
+                    ? 'Pick category → item → tenure. Menu links open the chosen item with the latest tenure.'
+                    : 'श्रेणी → विवरण → कार्यकाल छान्नुहोस्। मेनुबाट आएको विवरणमा हालको/पछिल्लो कार्यकाल default देखिन्छ।'; ?>
+            </p>
         </div>
     </div>
 </section>
+<style>
+.team-triple-filter{max-width:980px;margin:0 auto;padding:8px 4px 4px}
+.team-triple-title{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:var(--primary-color,#1a5f2a);margin-bottom:14px}
+.team-triple-title i{opacity:.85}
+.coop-select-wrap{position:relative;display:flex;align-items:center}
+.coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
+.coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff;min-height:44px}
+</style>
 <?php endif; ?>
 
 <!-- Information & Grievance Officers Section -->
@@ -491,66 +588,10 @@ if ($viewCommittee) {
     <?php endforeach; ?>
     <div class="container">
         <div class="section-header section-header-unified text-center">
-            <h2><?php echo isEnglish() ? 'Committees / Subcommittees' : 'समिति / उपसमिति'; ?></h2>
+            <h2><?php echo htmlspecialchars($viewCommitteeLabel ?: (isEnglish() ? 'Committees' : 'समिति')); ?></h2>
             <p><?php echo isEnglish()
-                ? 'Choose a committee and tenure to view members.'
-                : 'समिति र कार्यकाल छानेर सदस्यहरू हेर्नुहोस्।'; ?></p>
-        </div>
-
-        <div class="team-cmt-picker row g-3 justify-content-center mb-4">
-            <div class="col-md-5 col-lg-4">
-                <label class="form-label small fw-semibold text-success mb-1" for="teamCmtSelect">
-                    <i class="fas fa-sitemap me-1"></i><?php echo isEnglish() ? 'Committee' : 'समिति'; ?>
-                </label>
-                <div class="coop-select-wrap">
-                    <i class="fas fa-sitemap coop-select-icon"></i>
-                    <select id="teamCmtSelect" class="form-select coop-select-field"
-                            aria-label="<?php echo isEnglish() ? 'Select committee' : 'समिति छान्नुहोस्'; ?>">
-                        <?php foreach ($committeeFilterButtons as $_cf): ?>
-                        <option value="<?php echo (int)$_cf['id']; ?>" <?php echo (int)$_cf['id'] === $viewCommitteeId ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($_cf['label']); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-5 col-lg-4">
-                <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
-                    <i class="fas fa-calendar-alt me-1"></i><?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
-                </label>
-                <div class="coop-select-wrap">
-                    <i class="fas fa-calendar-alt coop-select-icon"></i>
-                    <select id="teamTenureSelect" class="form-select coop-select-field"
-                            aria-label="<?php echo isEnglish() ? 'Select tenure' : 'कार्यकाल छान्नुहोस्'; ?>"
-                            <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
-                        <?php if (empty($viewTenures)): ?>
-                        <option value="0"><?php echo isEnglish() ? 'Current members' : 'हालका सदस्यहरू'; ?></option>
-                        <?php else: ?>
-                            <?php foreach ($viewTenures as $tn):
-                                $tid = (int)$tn['id'];
-                                $label = isEnglish()
-                                    ? (($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('Tenure #' . $tid))
-                                    : (($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('कार्यकाल #' . $tid));
-                                $period = '';
-                                if (!empty($tn['start_date']) || !empty($tn['end_date'])) {
-                                    $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
-                                }
-                            ?>
-                            <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
-                                <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Current)' : '(हालको)'; ?><?php endif; ?>
-                            </option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center mb-3">
-            <span class="badge rounded-pill px-3 py-2" style="background:rgba(26,95,42,.1);color:var(--primary-color,#1a5f2a);font-weight:600;">
-                <?php echo htmlspecialchars($viewCommitteeLabel); ?>
-            </span>
+                ? 'Members for the selected committee and tenure.'
+                : 'चयनित समिति र कार्यकालका सदस्यहरू।'; ?></p>
         </div>
 
         <div class="row justify-content-center" id="teamCmtMembers">
@@ -590,31 +631,6 @@ if ($viewCommittee) {
         <?php endif; ?>
     </div>
 </section>
-<style>
-.coop-select-wrap{position:relative;display:flex;align-items:center}
-.coop-select-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--primary-color,#1a5f2a);font-size:.85rem;pointer-events:none;z-index:2}
-.coop-select-field{padding-left:42px;border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);border-radius:10px;font-size:.93rem;background:#fff;min-height:44px}
-.team-cmt-picker .form-label{letter-spacing:.02em}
-</style>
-<script>
-window.__teamCmtTenures = <?php
-    $tenureMap = [];
-    foreach ($committeeTenures as $cid => $rows) {
-        if (!is_numeric($cid)) continue;
-        $tenureMap[(int)$cid] = array_map(static function ($tn) {
-            return [
-                'id' => (int)$tn['id'],
-                'label' => (string)(($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('#' . $tn['id'])),
-                'label_en' => (string)(($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('#' . $tn['id'])),
-                'period' => trim(($tn['start_date'] ?? '') . ((!empty($tn['start_date']) || !empty($tn['end_date'])) ? ' – ' : '') . ($tn['end_date'] ?? '')),
-                'is_current' => !empty($tn['is_current']) ? 1 : 0,
-            ];
-        }, $rows ?: []);
-    }
-    echo json_encode($tenureMap, JSON_UNESCAPED_UNICODE);
-?>;
-window.__teamCmtIsEn = <?php echo isEnglish() ? 'true' : 'false'; ?>;
-</script>
 <?php endif; ?>
 
 <!-- Staff -->
@@ -694,10 +710,26 @@ window.__teamCmtIsEn = <?php echo isEnglish() ? 'true' : 'false'; ?>;
 <?php endif; ?>
 
 <script>
+window.__teamCmtTenures = window.__teamCmtTenures || <?php
+    $tenureMap = [];
+    foreach ($committeeTenures as $cid => $rows) {
+        if (!is_numeric($cid)) continue;
+        $tenureMap[(int)$cid] = array_map(static function ($tn) {
+            return [
+                'id' => (int)$tn['id'],
+                'label' => (string)(($tn['tenure_name_np'] ?: $tn['tenure_name']) ?: ('#' . $tn['id'])),
+                'label_en' => (string)(($tn['tenure_name'] ?: $tn['tenure_name_np']) ?: ('#' . $tn['id'])),
+                'period' => trim(($tn['start_date'] ?? '') . ((!empty($tn['start_date']) || !empty($tn['end_date'])) ? ' – ' : '') . ($tn['end_date'] ?? '')),
+                'is_current' => !empty($tn['is_current']) ? 1 : 0,
+            ];
+        }, $rows ?: []);
+    }
+    echo json_encode($tenureMap, JSON_UNESCAPED_UNICODE);
+?>;
+window.__teamCmtIsEn = <?php echo isEnglish() ? 'true' : 'false'; ?>;
+window.__teamFocusFilter = <?php echo json_encode($focusFilter); ?>;
+
 function teamFilter(btn, filter) {
-    document.querySelectorAll('.team-filter-bar .filter-btn').forEach(function (el) {
-        el.classList.toggle('active', el === btn);
-    });
     document.querySelectorAll('.team-section[data-filter]').forEach(function (section) {
         var match = filter === 'all' || section.getAttribute('data-filter') === filter;
         section.style.display = match ? '' : 'none';
@@ -708,100 +740,121 @@ function teamFilter(btn, filter) {
         if (target) {
             setTimeout(function () {
                 target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 40);
+            }, 60);
         }
     }
 }
 
-function teamGoCommittee(cmtId, tenureId) {
-    var url = 'team.php?cmt=' + encodeURIComponent(cmtId || 0);
-    if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
-    url += '#committees';
-    location.href = url;
+function teamBuildUrl(cat, itemId, tenureId) {
+    if (!cat || cat === 'all') return 'team.php';
+    var url = 'team.php?cat=' + encodeURIComponent(cat);
+    if (cat === 'committees') {
+        if (itemId) url += '&cmt=' + encodeURIComponent(itemId);
+        if (tenureId) url += '&tenure=' + encodeURIComponent(tenureId);
+        url += '#committees';
+    } else {
+        url += '#' + encodeURIComponent(cat);
+    }
+    return url;
 }
 
 (function () {
+    var catSelect = document.getElementById('teamCatSelect');
     var cmtSelect = document.getElementById('teamCmtSelect');
     var tenureSelect = document.getElementById('teamTenureSelect');
+    var itemWrap = document.getElementById('teamItemWrap');
+    var tenureWrap = document.getElementById('teamTenureWrap');
     var tenureData = window.__teamCmtTenures || {};
     var isEn = !!window.__teamCmtIsEn;
+
+    function latestTenureId(rows) {
+        if (!rows || !rows.length) return 0;
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].is_current) return rows[i].id;
+        }
+        return rows[0].id;
+    }
 
     function fillTenures(cmtId, preferredTenure) {
         if (!tenureSelect) return;
         var rows = tenureData[String(cmtId)] || tenureData[cmtId] || [];
         tenureSelect.innerHTML = '';
         if (!rows.length) {
-            var opt = document.createElement('option');
-            opt.value = '0';
-            opt.textContent = isEn ? 'Current members' : 'हालका सदस्यहरू';
-            tenureSelect.appendChild(opt);
+            if (tenureWrap) tenureWrap.style.display = 'none';
             tenureSelect.disabled = true;
             return;
         }
+        if (tenureWrap) tenureWrap.style.display = '';
         tenureSelect.disabled = false;
-        var currentId = preferredTenure || 0;
+        var currentId = preferredTenure || latestTenureId(rows);
         rows.forEach(function (tn) {
-            if (!currentId && tn.is_current) currentId = tn.id;
             var opt = document.createElement('option');
             opt.value = String(tn.id);
             var label = isEn ? (tn.label_en || tn.label) : (tn.label || tn.label_en);
             if (tn.period) label += ' (' + tn.period + ')';
-            if (tn.is_current) label += isEn ? ' (Current)' : ' (हालको)';
+            if (tn.is_current) label += isEn ? ' (Latest)' : ' (हालको)';
             opt.textContent = label;
             tenureSelect.appendChild(opt);
         });
-        if (!currentId && rows[0]) currentId = rows[0].id;
         tenureSelect.value = String(currentId);
     }
 
+    function go() {
+        var cat = catSelect ? catSelect.value : '';
+        var itemId = 0;
+        var tid = 0;
+        if (cat === 'committees') {
+            itemId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
+            tid = tenureSelect && !tenureSelect.disabled ? (parseInt(tenureSelect.value, 10) || 0) : 0;
+            if (!tid) tid = latestTenureId(tenureData[String(itemId)] || []);
+        }
+        location.href = teamBuildUrl(cat, itemId, tid);
+    }
+
+    if (catSelect) {
+        catSelect.addEventListener('change', function () {
+            var cat = catSelect.value;
+            if (itemWrap) itemWrap.style.display = cat === 'committees' ? '' : 'none';
+            if (cat !== 'committees') {
+                if (tenureWrap) tenureWrap.style.display = 'none';
+                go();
+                return;
+            }
+            var itemId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
+            fillTenures(itemId, 0);
+            go();
+        });
+    }
     if (cmtSelect) {
         cmtSelect.addEventListener('change', function () {
-            var cmtId = parseInt(cmtSelect.value, 10) || 0;
-            fillTenures(cmtId, 0);
-            var tid = tenureSelect && !tenureSelect.disabled ? (parseInt(tenureSelect.value, 10) || 0) : 0;
-            teamGoCommittee(cmtId, tid);
+            var itemId = parseInt(cmtSelect.value, 10) || 0;
+            fillTenures(itemId, 0);
+            go();
         });
     }
     if (tenureSelect) {
-        tenureSelect.addEventListener('change', function () {
-            var cmtId = cmtSelect ? (parseInt(cmtSelect.value, 10) || 0) : 0;
-            var tid = parseInt(tenureSelect.value, 10) || 0;
-            teamGoCommittee(cmtId, tid);
-        });
+        tenureSelect.addEventListener('change', go);
     }
 
-    function applyHashFocus() {
-        var hash = (location.hash || '').replace(/^#/, '');
+    function boot() {
         var params = new URLSearchParams(location.search);
-        var cmtParam = parseInt(params.get('cmt') || '0', 10) || 0;
-
+        var hash = (location.hash || '').replace(/^#/, '');
         if (/^committee-\d+$/.test(hash)) {
             var id = parseInt(hash.replace('committee-', ''), 10) || 0;
-            if (id && (!cmtParam || cmtParam !== id)) {
-                teamGoCommittee(id, parseInt(params.get('tenure') || '0', 10) || 0);
+            if (id) {
+                location.replace(teamBuildUrl('committees', id, parseInt(params.get('tenure') || '0', 10) || 0));
                 return;
             }
-            hash = 'committees';
-            if (cmtSelect && id) cmtSelect.value = String(id);
         }
-
-        if (hash === 'committees' || cmtParam > 0) {
-            var btn = document.getElementById('committeeFilterBtn');
-            teamFilter(btn, 'committees');
-            return;
-        }
-
-        if (!hash) return;
-        var section = document.getElementById(hash);
-        if (!section || !section.classList.contains('team-section')) return;
-        var filter = section.getAttribute('data-filter') || hash;
-        var matchBtn = document.querySelector('.team-filter-bar .filter-btn[onclick*="' + filter + '"]');
-        teamFilter(matchBtn, filter);
+        var focus = window.__teamFocusFilter || params.get('cat') || hash || 'all';
+        if (params.get('cmt') && !params.get('cat')) focus = 'committees';
+        if (focus === 'committees' || hash === 'committees') focus = 'committees';
+        teamFilter(null, focus === 'all' ? 'all' : focus);
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyHashFocus);
-    else applyHashFocus();
-    window.addEventListener('hashchange', applyHashFocus);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+    window.addEventListener('hashchange', boot);
 })();
 </script>
 <style>
