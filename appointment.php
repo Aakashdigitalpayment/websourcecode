@@ -75,14 +75,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
-                    $stmt = $db->prepare("INSERT INTO appointments
-                        (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch,
-                         visit_kind, organization_address, organization_website, contact_person)
-                        VALUES (?, ?, ?, ?, '', 'other', ?, ?, ?, ?, 'cooperative', ?, ?, ?)");
-                    $stmt->execute([
-                        $apptTrackingId, $name, $phone, $email, $purpose_detail,
-                        $preferred_date, $preferred_time, $branch, $orgAddress, $orgWebsite, $contactPerson,
-                    ]);
+                    try {
+                        $stmt = $db->prepare("INSERT INTO appointments
+                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch,
+                             visit_kind, organization_address, organization_website, contact_person)
+                            VALUES (?, ?, ?, ?, '', 'other', ?, ?, ?, ?, 'cooperative', ?, ?, ?)");
+                        $stmt->execute([
+                            $apptTrackingId, $name, $phone, $email, $purpose_detail,
+                            $preferred_date, $preferred_time, $branch, $orgAddress, $orgWebsite, $contactPerson,
+                        ]);
+                    } catch (Throwable $insEx) {
+                        /* Fallback if visit_kind columns not migrated yet */
+                        $detailPacked = trim(
+                            "सहकारी भ्रमण\n"
+                            . "सम्पर्क: {$contactPerson}\n"
+                            . "ठेगाना: {$orgAddress}\n"
+                            . ($orgWebsite !== '' ? "वेबसाइट: {$orgWebsite}\n" : '')
+                            . $purpose_detail
+                        );
+                        $stmt = $db->prepare("INSERT INTO appointments
+                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch)
+                            VALUES (?, ?, ?, ?, '', 'other', ?, ?, ?, ?)");
+                        $stmt->execute([
+                            $apptTrackingId, $name, $phone, $email, $detailPacked,
+                            $preferred_date, $preferred_time, $branch,
+                        ]);
+                        error_log('[appointment cooperative] fallback insert: ' . $insEx->getMessage());
+                    }
                     $success = true;
                     $successVisitKind = 'cooperative';
                     logSecurityEvent('appointment_booking', 'Cooperative visit booked: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
@@ -101,7 +120,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'मिति'           => $preferred_date . ' ' . $preferred_time,
                     ], $apptTrackingId);
                 } catch (Throwable $e) {
-                    $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
+                    error_log('[appointment cooperative] ' . $e->getMessage());
+                    $error = isEnglish() ? 'Failed to book appointment. Please try again.' : 'भेटघाट बुक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्।';
                 }
             }
         } elseif (!$error) {
@@ -161,10 +181,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!$error) {
                 try {
                     $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
-                    $stmt = $db->prepare("INSERT INTO appointments
-                        (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch, visit_kind)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'member')");
-                    $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
+                    try {
+                        $stmt = $db->prepare("INSERT INTO appointments
+                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch, visit_kind)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'member')");
+                        $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
+                    } catch (Throwable $insEx) {
+                        $stmt = $db->prepare("INSERT INTO appointments
+                            (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->execute([$apptTrackingId, $name, $phone, $email, $member_id, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
+                        error_log('[appointment member] fallback insert: ' . $insEx->getMessage());
+                    }
                     $success = true;
                     $successVisitKind = 'member';
                     logSecurityEvent('appointment_booking', 'Appointment booked by: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
@@ -182,6 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'शाखा'      => $branch ?: 'N/A',
                     ], $apptTrackingId);
                 } catch (Throwable $e) {
+                    error_log('[appointment member] ' . $e->getMessage());
                     $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
                 }
             }
@@ -525,37 +554,38 @@ $L = getLangStrings();
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
                                     <label class="form-label"><?php echo isEnglish() ? 'Cooperative Name' : 'सहकारीको नाम'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="organization_name" class="form-control" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
+                                    <input type="text" name="organization_name" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_name'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Cooperative / institution name' : 'सहकारी / संस्थाको नाम'; ?>">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><?php echo isEnglish() ? 'Contact Person' : 'सम्पर्क व्यक्ति'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="contact_person" class="form-control" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
+                                    <input type="text" name="contact_person" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['contact_person'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Full name of contact person' : 'सम्पर्क व्यक्तिको पूरा नाम'; ?>">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
-                                    <input type="tel" name="phone" class="form-control" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
-                                           maxlength="10" pattern="[0-9]{10}" placeholder="98XXXXXXXX"
+                                    <input type="tel" name="phone" class="form-control" required
+                                           maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="98XXXXXXXX"
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['phone'] ?? '') : '', ENT_QUOTES); ?>">
+                                    <div class="invalid-feedback"><?php echo isEnglish() ? 'Enter a valid 10-digit mobile number.' : '१० अंकको मोबाइल नम्बर राख्नुहोस्।'; ?></div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?> <span class="text-muted small">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                                    <input type="url" name="organization_website" class="form-control"
+                                    <input type="text" name="organization_website" class="form-control" inputmode="url" autocomplete="url"
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_website'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="https://example.coop.np">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="organization_address" class="form-control" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
+                                    <input type="text" name="organization_address" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_address'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Full address of the cooperative' : 'सहकारीको पूरा ठेगाना'; ?>">
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label"><?php echo isEnglish() ? 'Visit Details' : 'भ्रमण विवरण'; ?> <span class="req">*</span></label>
-                                    <textarea name="purpose_detail" class="form-control" rows="3" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
+                                    <textarea name="purpose_detail" class="form-control" rows="3" required
                                               placeholder="<?php echo isEnglish() ? 'Purpose of the visit, agenda, number of visitors...' : 'भ्रमणको उद्देश्य, एजेन्डा, आउने व्यक्ति संख्या...'; ?>"><?php echo htmlspecialchars(!$postIsMember ? ($_POST['purpose_detail'] ?? '') : '', ENT_QUOTES); ?></textarea>
                                 </div>
                                 <div class="col-md-6">
@@ -585,7 +615,7 @@ $L = getLangStrings();
                                     <label class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
                                     <div class="input-group">
                                         <input type="text" name="preferred_date" id="apptDateCoop"
-                                               class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>
+                                               class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" required
                                                value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['preferred_date'] ?? '') : '', ENT_QUOTES); ?>">
                                         <span class="input-group-text cursor-pointer" onclick="document.getElementById('apptDateCoop').focus();">
                                             <i class="fas fa-calendar-alt"></i>
@@ -594,7 +624,7 @@ $L = getLangStrings();
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
-                                    <select name="preferred_time" class="form-select" <?php echo $activeApptTab === 'cooperative' ? 'required' : ''; ?>>
+                                    <select name="preferred_time" class="form-select" required>
                                         <option value=""><?php echo isEnglish() ? 'Select time' : 'समय छान्नुहोस्'; ?></option>
                                         <?php foreach ($apptTimeOptions as $optVal => $optLabel): ?>
                                         <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $apptTimeValueCoop === $optVal ? 'selected' : ''; ?>>
@@ -653,6 +683,23 @@ $L = getLangStrings();
     color: #fff;
 }
 </style>
+<script>
+(function () {
+  var form = document.getElementById('cooperativeVisitForm');
+  if (!form) return;
+  form.addEventListener('submit', function (e) {
+    if (form.checkValidity()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    form.classList.add('was-validated');
+    var bad = form.querySelector(':invalid');
+    if (bad && typeof bad.scrollIntoView === 'function') {
+      bad.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      try { bad.focus({ preventScroll: true }); } catch (err) { bad.focus(); }
+    }
+  }, true);
+})();
+</script>
 <?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>
