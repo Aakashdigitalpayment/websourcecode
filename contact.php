@@ -156,7 +156,7 @@ require_once 'includes/header.php';
 
                     <!-- Online Banking -->
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4 ct-quick-card">
                             <div class="mb-3 ct-icon-lg">
                                 <i class="fas fa-university"></i>
                             </div>
@@ -170,7 +170,7 @@ require_once 'includes/header.php';
 
                     <!-- Appointment -->
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4 ct-quick-card">
                             <div class="mb-3 ct-icon-lg">
                                 <i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i>
                             </div>
@@ -184,7 +184,7 @@ require_once 'includes/header.php';
 
                     <!-- Loan Apply -->
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4 ct-quick-card">
                             <div class="mb-3 ct-icon-lg">
                                 <i class="fas fa-hand-holding-usd"></i>
                             </div>
@@ -198,7 +198,7 @@ require_once 'includes/header.php';
 
                     <!-- Grievance -->
                     <div class="col-md-6">
-                        <div class="card border-0 shadow-sm h-100 text-center p-4">
+                        <div class="card border-0 shadow-sm h-100 text-center p-4 ct-quick-card">
                             <div class="mb-3 ct-icon-lg">
                                 <i class="fas fa-comment-dots"></i>
                             </div>

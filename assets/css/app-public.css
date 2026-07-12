@@ -17765,6 +17765,26 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .ct-map-frame     { border: 0; }
 .ct-office-bg     { background: var(--bg-soft, #f5faf6); }
 .ct-btn-light     { background: rgba(var(--primary-rgb,26,95,42),.07); border: 1px solid rgba(var(--primary-rgb,26,95,42),.14); color: var(--primary-dark); }
+.ct-quick-card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+}
+.ct-quick-card h5 {
+    margin-bottom: .5rem;
+    width: 100%;
+}
+.ct-quick-card p {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 28ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+.ct-quick-card .btn {
+    align-self: center;
+}
 .contact-form-modern {
     background: var(--bg-soft, #f5faf6);
     border: 1.5px solid rgba(var(--primary-rgb,26,95,42),.1);
@@ -19593,22 +19613,41 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
    ═══════════════════════════════════════════════════ */
 /* Upgrade ct-icon-lg from plain font-size to a branded circle container */
 .card div.ct-icon-lg {
-    width: 76px; height: 76px; border-radius: 50%;
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
     background: linear-gradient(135deg,
         rgba(var(--primary-rgb,26,95,42),.11),
         rgba(var(--primary-rgb,26,95,42),.05));
     border: 2px solid rgba(var(--primary-rgb,26,95,42),.14);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 1.85rem; color: var(--primary-color);
-    box-shadow: 0 4px 16px rgba(var(--primary-rgb,26,95,42),.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.85rem;
+    color: var(--primary-color);
+    box-shadow: 0 4px 14px rgba(var(--primary-rgb,26,95,42),.1);
     transition: transform .28s, box-shadow .28s, background .28s;
+    flex-shrink: 0;
+}
+/* FA + Lucide same optical size inside the circle */
+.card div.ct-icon-lg > i,
+.card div.ct-icon-lg > svg,
+.card div.ct-icon-lg .lucide-icon {
+    width: 1.85rem !important;
+    height: 1.85rem !important;
+    font-size: 1.85rem !important;
+    line-height: 1 !important;
+    display: block;
+    margin: 0;
 }
 .card:hover div.ct-icon-lg {
     background: linear-gradient(135deg,
         rgba(var(--primary-rgb,26,95,42),.18),
         rgba(var(--primary-rgb,26,95,42),.09));
-    transform: scale(1.09) rotate(6deg);
-    box-shadow: 0 9px 26px rgba(var(--primary-rgb,26,95,42),.2);
+    transform: scale(1.06);
+    box-shadow: 0 8px 22px rgba(var(--primary-rgb,26,95,42),.18);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -19825,10 +19864,9 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
     }
 }
 
-/* ─── 4. NOTICE LIST CARDS — homepage सूचनाहरू unify gradient ── */
+/* ─── 4. NOTICE LIST CARDS — header unify (keep readable contrast) ── */
 .notices-box-enhanced .notices-header,
 .notice-card .notice-card-header,
-.notices-section .section-header,
 .notice-list-card > .card-header {
     background: linear-gradient(135deg,
         var(--primary-dark, #144a21),
@@ -19837,6 +19875,30 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 }
 .notices-box-enhanced .notices-header h3,
 .notices-box-enhanced .notices-header h3 i { color: #fff !important; }
+
+/* Page section title (notices.php etc.) — light panel, dark text (was dark-on-dark) */
+.notices-section .section-header,
+.notices-section .section-header-unified {
+    background: #f4f6f5 !important;
+    color: #111827 !important;
+    border: 1px solid rgba(var(--primary-rgb, 26, 95, 42), 0.12) !important;
+    border-radius: 16px !important;
+    padding: 1.5rem 1.25rem !important;
+    box-shadow: none !important;
+}
+.notices-section .section-header h2,
+.notices-section .section-header-unified h2 {
+    color: #111827 !important;
+}
+.notices-section .section-header p,
+.notices-section .section-header-unified p {
+    color: #4b5563 !important;
+}
+.notices-section .section-header .section-badge,
+.notices-section .section-header-unified .section-badge {
+    background: rgba(var(--primary-rgb, 26, 95, 42), 0.1) !important;
+    color: var(--primary-dark, #14532d) !important;
+}
 
 /* Date pill — theme-tinted instead of orange */
 .notice-date-box,
@@ -24227,4 +24289,30 @@ body.dark-mode .main-footer .footer-social a i {
 body.dark-mode .main-footer .footer-social a {
     background: rgba(255, 255, 255, 0.12) !important;
     border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Contact quick cards — centered icon column */
+.ct-quick-card.card {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+}
+.ct-quick-card .ct-icon-lg {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Notices page title band — readable (override dark-on-dark) */
+.notices-section .section-header.section-header-unified,
+.notices-section .section-header {
+    background: #f4f6f5 !important;
+    color: #111827 !important;
+}
+.notices-section .section-header h2,
+.notices-section .section-header.section-header-unified h2 {
+    color: #111827 !important;
+}
+.notices-section .section-header p,
+.notices-section .section-header.section-header-unified p {
+    color: #4b5563 !important;
 }
