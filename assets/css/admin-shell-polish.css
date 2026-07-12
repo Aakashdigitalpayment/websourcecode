@@ -1,0 +1,504 @@
+/**
+ * Admin shell polish — loaded last for admin panels only.
+ * Unifies forms, tables, bottom nav, chrome icons, and font tokens
+ * without rewriting individual admin PHP pages.
+ */
+
+:root {
+  --admin-font-body: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --admin-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --admin-radius: 10px;
+  --admin-radius-sm: 8px;
+  --admin-border: #d7e0db;
+  --admin-border-focus: var(--primary-color, #1a5f2a);
+  --admin-surface: #ffffff;
+  --admin-surface-soft: #f6f9f7;
+  --admin-text: #0f1a15;
+  --admin-muted: #5b6b62;
+  --admin-bottom-nav-h: 60px;
+  --admin-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
+}
+
+/* ── Fonts ─────────────────────────────────────────────────────────── */
+body.admin-page-dashboard,
+body[class*="admin-page-"],
+.admin-wrapper,
+.main-content {
+  font-family: var(--admin-font-body) !important;
+  color: var(--admin-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.admin-wrapper h1,
+.admin-wrapper h2,
+.admin-wrapper h3,
+.admin-wrapper h4,
+.admin-wrapper h5,
+.admin-wrapper h6,
+.admin-wrapper .card-header,
+.admin-page-title,
+.admin-page-header {
+  font-family: var(--admin-font-head) !important;
+  letter-spacing: -0.015em;
+}
+
+.main-content .form-label,
+.main-content .form-control,
+.main-content .form-select,
+.main-content .btn,
+.main-content .table,
+.main-content .nav-link,
+.main-content .badge,
+.mob-bottomnav {
+  font-family: var(--admin-font-body) !important;
+}
+
+/* ── Forms ─────────────────────────────────────────────────────────── */
+.main-content .form-label {
+  font-weight: 600 !important;
+  font-size: 0.86rem !important;
+  color: var(--admin-text) !important;
+  margin-bottom: 0.4rem !important;
+  letter-spacing: 0.01em;
+}
+
+.main-content .form-label.text-success,
+.main-content .form-label.fw-semibold.text-success {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.main-content .form-control,
+.main-content .form-select,
+.main-content .admin-fancy-input,
+.main-content .form-control.admin-fancy-input,
+.main-content .form-select.admin-fancy-input,
+.modal .form-control,
+.modal .form-select,
+.modal .admin-fancy-input {
+  border: 1.5px solid var(--admin-border) !important;
+  border-radius: var(--admin-radius) !important;
+  padding: 0.62rem 0.85rem !important;
+  font-size: 0.92rem !important;
+  line-height: 1.4 !important;
+  background-color: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.main-content .form-control:hover,
+.main-content .form-select:hover,
+.main-content .admin-fancy-input:hover,
+.modal .form-control:hover,
+.modal .form-select:hover {
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--admin-border)) !important;
+}
+
+.main-content .form-control:focus,
+.main-content .form-select:focus,
+.main-content .admin-fancy-input:focus,
+.modal .form-control:focus,
+.modal .form-select:focus {
+  border-color: var(--admin-border-focus) !important;
+  box-shadow: var(--admin-focus-ring) !important;
+  outline: none !important;
+}
+
+.main-content .form-control::placeholder,
+.main-content .admin-fancy-input::placeholder {
+  color: #9aa8a0 !important;
+  font-size: 0.88rem !important;
+}
+
+.main-content textarea.form-control,
+.main-content textarea.admin-fancy-input {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.main-content input[type="file"].form-control,
+.main-content input[type="file"].admin-fancy-input {
+  padding: 0.45rem 0.7rem !important;
+}
+
+.main-content .input-group-text {
+  border: 1.5px solid var(--admin-border) !important;
+  border-radius: var(--admin-radius) !important;
+  background: var(--admin-surface-soft) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 0.9rem !important;
+}
+
+.main-content .input-group > :not(:first-child):not(.dropdown-menu) {
+  margin-left: -1.5px;
+}
+
+.main-content .form-text,
+.main-content small.text-muted,
+.main-content .fa-ip-hint {
+  color: var(--admin-muted) !important;
+  font-size: 0.78rem !important;
+  line-height: 1.45;
+}
+
+.main-content form .row.g-3 {
+  --bs-gutter-y: 0.95rem;
+  --bs-gutter-x: 0.95rem;
+}
+
+.main-content .form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.main-content .form-switch .form-check-input {
+  width: 2.4em;
+  cursor: pointer;
+}
+
+/* ── Buttons (touch + density) ─────────────────────────────────────── */
+.main-content .btn {
+  border-radius: var(--admin-radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.main-content .btn:not(.btn-sm):not(.btn-lg) {
+  padding: 0.48rem 0.95rem !important;
+}
+
+.main-content .btn-sm {
+  padding: 0.32rem 0.62rem !important;
+  font-size: 0.8rem !important;
+}
+
+.main-content .btn i,
+.main-content .btn .lucide-icon,
+.main-content .btn svg {
+  vertical-align: -0.12em;
+}
+
+.main-content .table .btn-sm {
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Tables / cards ────────────────────────────────────────────────── */
+.main-content .admin-table-card,
+.main-content .card.admin-table-card {
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(15, 31, 23, 0.04) !important;
+  overflow: hidden;
+  background: var(--admin-surface) !important;
+}
+
+.main-content .admin-nav-tabs + .admin-table-card,
+.main-content .admin-nav-tabs + .card.admin-table-card,
+.main-content .svc-flat-top-card,
+.main-content .cmt-flat-top-card,
+.main-content .ir-flat-top {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+.main-content .admin-table-card .card-header {
+  background: linear-gradient(180deg, #f8fbf9 0%, #f3f7f4 100%) !important;
+  border-bottom: 1px solid #e6eee9 !important;
+  padding: 0.85rem 1.1rem !important;
+}
+
+.main-content .admin-table-card .card-header h5,
+.main-content .admin-table-card .card-header .fw-bold {
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+  color: var(--admin-text) !important;
+}
+
+.main-content .admin-table-card .table {
+  margin-bottom: 0 !important;
+  font-size: 0.9rem !important;
+}
+
+.main-content .admin-table-card .table thead th,
+.main-content .admin-table-card table thead th {
+  background: var(--admin-surface-soft) !important;
+  color: #33453c !important;
+  font-weight: 600 !important;
+  font-size: 0.78rem !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid #e2ebe5 !important;
+  padding: 0.72rem 0.9rem !important;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.main-content .admin-table-card .table tbody td,
+.main-content .admin-table-card table tbody td {
+  padding: 0.78rem 0.9rem !important;
+  border-color: #eef3f0 !important;
+  vertical-align: middle !important;
+  color: #1c2b23;
+}
+
+.main-content .admin-table-card .table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.main-content .admin-search-wrap {
+  background: #fafcfb !important;
+  border-color: #e8f0ea !important;
+}
+
+.main-content .admin-empty-state {
+  padding: 2.4rem 1rem !important;
+}
+
+.main-content .admin-empty-state p {
+  color: var(--admin-muted) !important;
+  margin-bottom: 0;
+}
+
+/* Prefer horizontal scroll on small screens for dense admin tables */
+@media (max-width: 767.98px) {
+  .main-content .admin-table-card .table-responsive,
+  .main-content .table-responsive.admin-table-card {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .main-content .admin-table-card .table {
+    min-width: 560px;
+  }
+}
+
+/* ── Alerts / page chrome ──────────────────────────────────────────── */
+.main-content .alert {
+  border-radius: var(--admin-radius) !important;
+  border-width: 0 0 0 3px !important;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem !important;
+  font-size: 0.9rem !important;
+}
+
+.main-content .admin-page-header {
+  margin-bottom: 1rem !important;
+}
+
+.main-content .admin-page-subtitle-text {
+  font-style: normal !important;
+  color: var(--admin-muted) !important;
+  font-size: 0.86rem !important;
+}
+
+.main-content .admin-page-header-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+  color: var(--primary-color, #1a5f2a);
+}
+
+.main-content .admin-page-header-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────────── */
+.main-content .nav-tabs.admin-nav-tabs {
+  border-bottom: 1px solid #e5ebe7 !important;
+  background: var(--admin-surface-soft) !important;
+  border-radius: 12px 12px 0 0 !important;
+  gap: 2px !important;
+  padding: 4px 4px 0 !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-link {
+  border-radius: 8px 8px 0 0 !important;
+  font-size: 0.88rem !important;
+  padding: 0.7rem 1rem !important;
+  gap: 0.4rem !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-link .lucide-icon,
+.main-content .nav-tabs.admin-nav-tabs .nav-link svg {
+  width: 15px !important;
+  height: 15px !important;
+  stroke-width: 2 !important;
+}
+
+/* ── Chrome icons (sidebar + bottom nav) ───────────────────────────── */
+.sidebar-nav .lucide-icon,
+.sidebar-nav svg.lucide,
+.sidebar .nav-icon-wrap svg {
+  width: 17px !important;
+  height: 17px !important;
+  stroke-width: 1.9 !important;
+}
+
+.sidebar .nav-group-icon svg {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* Keep content FA icons readable next to Lucide chrome */
+.main-content .table .fas,
+.main-content .table .far,
+.main-content .btn .fas,
+.main-content .btn .far {
+  font-size: 0.9em;
+  line-height: 1;
+}
+
+/* Icon picker alignment with form tokens */
+.main-content .fa-ip-preview {
+  border-radius: var(--admin-radius) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
+}
+
+.main-content .fa-ip-open {
+  border-radius: var(--admin-radius) !important;
+}
+
+/* ── Mobile bottom nav + FAB ───────────────────────────────────────── */
+.mob-bottomnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: stretch;
+  height: calc(var(--admin-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+  box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.08);
+  z-index: 8999;
+}
+
+.mob-bottomnav a.mob-bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  color: #6b7280;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  border-right: 1px solid #f1f4f2;
+  transition: color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.mob-bottomnav a.mob-bn-item:last-child {
+  border-right: none;
+}
+
+.mob-bottomnav a.mob-bn-item .lucide-icon,
+.mob-bottomnav a.mob-bn-item svg {
+  width: 18px !important;
+  height: 18px !important;
+  stroke-width: 2 !important;
+}
+
+.mob-bottomnav a.mob-bn-item span {
+  font-size: 9.5px;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mob-bottomnav a.mob-bn-item.active,
+.mob-bottomnav a.mob-bn-item:hover {
+  color: var(--primary-color, #1a5f2a);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff);
+}
+
+.mob-bottomnav a.mob-bn-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  right: 18%;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: var(--primary-color, #1a5f2a);
+}
+
+body.has-bottomnav {
+  padding-bottom: calc(var(--admin-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.admin-fab-msg {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--admin-bottom-nav-h) + 18px + env(safe-area-inset-bottom, 0px));
+  z-index: 9000;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-color, #1a5f2a);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-fab-msg:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+}
+
+.admin-fab-msg .lucide-icon,
+.admin-fab-msg svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2 !important;
+}
+
+@media (min-width: 900px) {
+  .mob-bottomnav {
+    display: none !important;
+  }
+
+  body.has-bottomnav {
+    padding-bottom: 0 !important;
+  }
+
+  .admin-fab-msg {
+    bottom: 24px;
+  }
+}
+
+/* ── Page content breathing room on mobile ─────────────────────────── */
+@media (max-width: 899.98px) {
+  .main-content .container-fluid {
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  .main-content .admin-table-card .card-header {
+    padding: 0.75rem 0.9rem !important;
+  }
+}
