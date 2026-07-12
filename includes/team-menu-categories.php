@@ -104,3 +104,31 @@ if (!function_exists('fetchAllTeamMenuCategories')) {
         return $db->query('SELECT * FROM team_menu_categories ORDER BY display_order, id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
+
+if (!function_exists('isBoardCommitteeTypeAlias')) {
+    /**
+     * सञ्चालक समिति is the fixed team_members.category = 'board'.
+     * A committee_types row with the same name must not also appear as cmt_* in the form.
+     */
+    function isBoardCommitteeTypeAlias(array $ct): bool
+    {
+        $en = strtolower(trim((string)($ct['name'] ?? '')));
+        $np = trim((string)($ct['name_np'] ?? ''));
+        $npNorm = preg_replace('/\s+/u', ' ', $np) ?? $np;
+        if ($npNorm === 'सञ्चालक समिति' || $npNorm === 'संचालक समिति') {
+            return true;
+        }
+        if ($npNorm !== '' && (str_contains($npNorm, 'सञ्चालक समिति') || str_contains($npNorm, 'संचालक समिति'))) {
+            return true;
+        }
+        if ($en !== '' && (
+            $en === 'board'
+            || $en === 'board of directors'
+            || $en === 'board committee'
+            || str_contains($en, 'board of director')
+        )) {
+            return true;
+        }
+        return false;
+    }
+}

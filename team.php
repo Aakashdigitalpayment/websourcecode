@@ -790,9 +790,10 @@ function teamBuildUrl(cat, itemId, tenureId) {
                 return;
             }
         }
-        var focus = window.__teamFocusFilter || params.get('cat') || hash || 'all';
+        var focus = params.get('cat') || hash || window.__teamFocusFilter || 'all';
         if (params.get('cmt') && !params.get('cat')) focus = 'committees';
-        if (focus === 'committees' || hash === 'committees') focus = 'committees';
+        if (hash === 'committees' || focus === 'committees') focus = 'committees';
+        if (focus === 'all' && hash && hash !== 'all') focus = hash;
         teamFilter(null, focus === 'all' ? 'all' : focus);
     }
 

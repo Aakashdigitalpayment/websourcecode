@@ -97,6 +97,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $isCeo      = isset($_POST['is_ceo'])      ? 1 : 0;
                 $isActive  = isset($_POST['is_active']) ? 1 : 0;
 
+                /* Board is always category=board — never a duplicate cmt_* alias */
+                if ($teamListSection === 'governance' && preg_match('/^cmt_(\d+)$/', $cat, $mCat)) {
+                    try {
+                        $stAlias = $db->prepare('SELECT id, name, name_np FROM committee_types WHERE id=? LIMIT 1');
+                        $stAlias->execute([(int)$mCat[1]]);
+                        $aliasRow = $stAlias->fetch(PDO::FETCH_ASSOC);
+                        if ($aliasRow && function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($aliasRow)) {
+                            $cat = 'board';
+                        }
+                    } catch (Throwable $e) { /* ignore */ }
+                }
+
                 if ($isInfo) {
                     if ($id) {
                         $db->prepare('UPDATE team_members SET is_information_officer = 0 WHERE id != ?')->execute([$id]);
@@ -174,6 +186,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($teamListSection === 'governance') {
                     ensureTeamMenuCategoriesTable($db);
                     $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
+                    if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
+                        'name' => $gName,
+                        'name_np' => $gNameNp,
+                    ])) {
+                        throw new InvalidArgumentException($__t(
+                            'सञ्चालक समिति पहिले नै “board” को रूपमा छ — दोहोरो समूह नबनाउनुहोस्।',
+                            'Board Committee already exists as the fixed “board” category — do not create a duplicate group.'
+                        ));
+                    }
                     if (($_POST['action'] ?? '') === 'group_add') {
                         $db->prepare("INSERT INTO committee_types (name, name_np, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?)")
                            ->execute([$gName, $gNameNp, $gOrder, $gActive, $gNav, $gMenuCat]);
@@ -387,9 +408,14 @@ foreach ($allStaffGroups as $i => $sg) {
 
 $extraTypes = [];
 $allCommitteeGroups = [];
+$boardAliasTypeIds = [];
 try {
     $extraTypes = $db->query("SELECT id, name_np, name FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
     foreach ($extraTypes as $ct) {
+        if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($ct)) {
+            $boardAliasTypeIds[] = (int)$ct['id'];
+            continue; /* सञ्चालक समिति = fixed category "board" — do not add cmt_* duplicate */
+        }
         $slug = 'cmt_' . (int)$ct['id'];
         if (!isset($cats[$slug])) {
             $cats[$slug] = $ct['name_np'] ?: $ct['name'];
@@ -397,14 +423,28 @@ try {
         }
     }
     $allCommitteeGroups = $db->query("SELECT * FROM committee_types ORDER BY display_order, id")->fetchAll();
+    /* Heal: members wrongly saved under board-alias cmt_* → board */
+    foreach ($boardAliasTypeIds as $aliasId) {
+        try {
+            $db->prepare("UPDATE team_members SET category='board' WHERE category=?")->execute(['cmt_' . $aliasId]);
+        } catch (Throwable $e) { /* ignore */ }
+    }
 } catch (\Throwable $e) { /* committee_types छैन */ }
 
 /* सूची */
 if ($teamListSection === 'governance') {
     $govCategoryList = ['board'];
     foreach ($extraTypes as $ct) {
+        if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($ct)) {
+            continue;
+        }
         $govCategoryList[] = 'cmt_' . (int)$ct['id'];
     }
+    /* Keep orphan members previously saved under board-alias cmt_* visible in the list */
+    foreach ($boardAliasTypeIds as $aliasId) {
+        $govCategoryList[] = 'cmt_' . $aliasId;
+    }
+    $govCategoryList = array_values(array_unique($govCategoryList));
     $ph = implode(',', array_fill(0, count($govCategoryList), '?'));
     $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC");
     $stTeam->execute($govCategoryList);
@@ -433,10 +473,13 @@ $catOptgroups = [];
 if ($teamListSection === 'governance') {
     $catsForm['board'] = $cats['board'];
     foreach ($extraTypes as $ct) {
+        if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($ct)) {
+            continue;
+        }
         $slug = 'cmt_' . (int)$ct['id'];
         if (isset($cats[$slug])) $catsForm[$slug] = $cats[$slug];
     }
-    $catOptgroups[isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'] = ['board' => $catsForm['board'] ?? $cats['board']];
+    $catOptgroups[isEnglish() ? 'Governance' : 'शासन'] = ['board' => $catsForm['board'] ?? $cats['board']];
     $committeeOptions = [];
     foreach ($catsForm as $slug => $label) {
         if (strpos($slug, 'cmt_') === 0) $committeeOptions[$slug] = $label;
@@ -804,8 +847,16 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     <a href="#team-groups" onclick="document.getElementById('team-groups-btn')?.click(); return false;"><?php echo $__t('वर्ग / समूह ट्याब', 'Category / Groups tab'); ?></a>
                                     <?php echo $__t(' बाट थप्न/सम्पादन गर्न सकिन्छ (पद मास्टर जस्तै)।', ' — add/edit like Post Master.'); ?>
                                 <?php else: ?>
-                                    <?php echo $__t('सञ्चालक समिति वा समिति समूह। नयाँ समूह:', 'Board or a committee group. New groups:'); ?>
+                                    <?php echo $__t('सञ्चालक समिति (board) वा अन्य समिति समूह। नयाँ समूह:', 'Board committee or other committee groups. New groups:'); ?>
                                     <a href="#team-groups" onclick="document.getElementById('team-groups-btn')?.click(); return false;"><?php echo $__t('समिति समूह ट्याब', 'Committee Groups tab'); ?></a>
+                                    <?php if (!empty($boardAliasTypeIds)): ?>
+                                    <span class="d-block text-warning mt-1">
+                                        <?php echo $__t(
+                                            'नोट: “सञ्चालक समिति” नामको समिति प्रकार दोहोरिने भएकाले फारममा board मात्र राखिएको छ। पुराना सदस्य board मा map गर्नुहोस्।',
+                                            'Note: A committee type named like Board of Directors was hidden from this list to avoid duplicates — map members to board.'
+                                        ); ?>
+                                    </span>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             </div>
                             <select name="category" id="tmf_cat" class="form-select admin-fancy-input">
@@ -1296,6 +1347,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var tabsNav = document.querySelector('.admin-nav-tabs[data-team-section]');
     var teamSection = (tabsNav && tabsNav.getAttribute('data-team-section')) ? tabsNav.getAttribute('data-team-section') : 'governance';
     var defaultCategory = teamSection === 'karmachari' ? 'management' : 'board';
+    var boardAliasCats = <?php echo json_encode(array_map(static fn($id) => 'cmt_' . (int)$id, $boardAliasTypeIds), JSON_UNESCAPED_UNICODE); ?>;
+
+    function normalizeMemberCategory(cat) {
+        if (!cat) return defaultCategory;
+        if (boardAliasCats.indexOf(cat) !== -1) return 'board';
+        return cat;
+    }
 
     var listBtn = document.getElementById('team-list-btn');
     var formBtn = document.getElementById('team-form-btn');
@@ -1368,8 +1426,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (document.getElementById('tmf_is_ceo'))      document.getElementById('tmf_is_ceo').checked      = m.is_ceo == 1;
             document.getElementById('tmf_active').checked   = m.is_active == 1;
             var sel = document.getElementById('tmf_cat');
+            var wantCat = normalizeMemberCategory(m.category || '');
             for (var i=0; i<sel.options.length; i++) {
-                if (sel.options[i].value === m.category) { sel.selectedIndex = i; break; }
+                if (sel.options[i].value === wantCat) { sel.selectedIndex = i; break; }
             }
             var prev = document.getElementById('tmf_photo_prev');
             prev.innerHTML = m.photo

@@ -48,7 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $show_in_navbar = isset($_POST['type_show_in_navbar']) ? 1 : 0;
             $menu_category_id = (int)($_POST['type_menu_category_id'] ?? 0) ?: null;
 
-            if ($action === 'add_type') {
+            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
+                'name' => $name,
+                'name_np' => $name_np,
+            ])) {
+                setFlash('warning', '“सञ्चालक समिति / Board” Team मा पहिले नै board को रूपमा छ — दोहोरो समिति प्रकार नबनाउनुहोस्। सदस्य map गर्न Team → सञ्चालक समिति (board) प्रयोग गर्नुहोस्।');
+            } elseif ($action === 'add_type') {
                 $db->prepare("INSERT INTO committee_types (name, name_np, description, display_order, is_active, show_in_navbar, menu_category_id) VALUES (?,?,?,?,?,?,?)")
                    ->execute([$name, $name_np, $description, $display_order, $is_active, $show_in_navbar, $menu_category_id]);
                 setFlash('success', 'समिति प्रकार थपियो।');
