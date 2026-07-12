@@ -14,6 +14,10 @@ require_once __DIR__ . '/../includes/request-status-history.php';
 
 /* ── Auto-ALTER: admin_attachment column थप्ने — MySQL 5.7+ compatible ── */
 safeAddColumn($db, 'appointments', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
+safeAddColumn($db, 'appointments', 'visit_kind', "VARCHAR(20) NOT NULL DEFAULT 'member'");
+safeAddColumn($db, 'appointments', 'organization_address', 'VARCHAR(500) NULL DEFAULT NULL');
+safeAddColumn($db, 'appointments', 'organization_website', 'VARCHAR(255) NULL DEFAULT NULL');
+safeAddColumn($db, 'appointments', 'contact_person', 'VARCHAR(120) NULL DEFAULT NULL');
 
 $appointmentListStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
 ensureRequestStatusHistoryTable($db);
@@ -143,8 +147,8 @@ $search  = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
 $where   = "1=1"; $aptParams = [];
 if ($status_filter) { $where .= " AND status = ?"; $aptParams[] = $status_filter; }
 if ($search !== '') {
-    $where .= " AND (name LIKE ? OR phone LIKE ? OR email LIKE ? OR tracking_id LIKE ? OR branch LIKE ? OR purpose LIKE ?)";
-    $t = "%$search%"; $aptParams = array_merge($aptParams, [$t,$t,$t,$t,$t,$t]);
+    $where .= " AND (name LIKE ? OR phone LIKE ? OR email LIKE ? OR tracking_id LIKE ? OR branch LIKE ? OR purpose LIKE ? OR IFNULL(contact_person,'') LIKE ? OR IFNULL(organization_address,'') LIKE ?)";
+    $t = "%$search%"; $aptParams = array_merge($aptParams, [$t,$t,$t,$t,$t,$t,$t,$t]);
 }
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 15;
@@ -212,6 +216,7 @@ if ($viewApt):
     $sc = $statusClass[$viewApt['status']] ?? 'secondary';
     $sl = $statusLabel[$viewApt['status']] ?? $viewApt['status'];
     $purposeTxt = $purposes[$viewApt['purpose'] ?? ''] ?? ($viewApt['purpose'] ?? '—');
+    $isCoopVisit = (($viewApt['visit_kind'] ?? 'member') === 'cooperative');
 ?>
 <div class="card shadow-sm mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
@@ -220,6 +225,11 @@ if ($viewApt):
             <code class="apt-track-chip">
                 APT-<?php echo str_pad($viewApt['id'], 6, '0', STR_PAD_LEFT); ?>
             </code>
+            <?php if ($isCoopVisit): ?>
+            <span class="badge bg-primary ms-1">सहकारी भ्रमण</span>
+            <?php else: ?>
+            <span class="badge bg-secondary ms-1">सदस्य भेटघाट</span>
+            <?php endif; ?>
             <span class="badge bg-<?php echo $sc; ?> ms-1"><?php echo $sl; ?></span>
         </h5>
         <a href="appointments.php" class="btn btn-outline-light btn-sm">
@@ -234,12 +244,24 @@ if ($viewApt):
             <div class="col-lg-7">
 
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i>आवेदकको जानकारी</div>
+                    <div class="adm-info-group-header"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><?php echo $isCoopVisit ? 'सहकारी जानकारी' : 'आवेदकको जानकारी'; ?></div>
                     <table class="table adm-detail-table">
-                        <tr><th>नाम</th>
+                        <tr><th><?php echo $isCoopVisit ? 'सहकारी नाम' : 'नाम'; ?></th>
                             <td><strong><?php echo htmlspecialchars($viewApt['name'] ?? '—'); ?></strong></td></tr>
+                        <?php if ($isCoopVisit): ?>
+                        <tr><th>सम्पर्क व्यक्ति</th>
+                            <td><?php echo htmlspecialchars($viewApt['contact_person'] ?? '—'); ?></td></tr>
+                        <tr><th>ठेगाना</th>
+                            <td><?php echo htmlspecialchars($viewApt['organization_address'] ?? '—'); ?></td></tr>
+                        <tr><th>वेबसाइट</th>
+                            <td><?php
+                                $w = trim((string)($viewApt['organization_website'] ?? ''));
+                                echo $w !== '' ? '<a href="'.htmlspecialchars($w).'" target="_blank" rel="noopener" class="text-decoration-none">'.htmlspecialchars($w).'</a>' : '<span class="text-muted">—</span>';
+                            ?></td></tr>
+                        <?php else: ?>
                         <tr><th>सदस्य ID</th>
                             <td><?php echo $viewApt['member_id'] ? '<span class="badge bg-success-subtle text-success-emphasis fw-semibold px-2">'.htmlspecialchars($viewApt['member_id']).'</span>' : '<span class="text-muted">—</span>'; ?></td></tr>
+                        <?php endif; ?>
                         <tr><th>फोन</th>
                             <td><a href="tel:<?php echo htmlspecialchars($viewApt['phone'] ?? ''); ?>" class="text-decoration-none fw-semibold"><?php echo htmlspecialchars($viewApt['phone'] ?? '—'); ?></a></td></tr>
                         <tr><th>इमेल</th>
@@ -268,7 +290,7 @@ if ($viewApt):
                 <?php $memberMessage = trim((string)($viewApt['purpose_detail'] ?? $viewApt['message'] ?? '')); ?>
                 <?php if ($memberMessage !== ''): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-comment-dots"></i>सदस्यको सन्देश</div>
+                    <div class="adm-info-group-header"><i class="fas fa-comment-dots"></i><?php echo $isCoopVisit ? 'भ्रमण विवरण' : 'सदस्यको सन्देश'; ?></div>
                     <div class="p-3 apt-text-block">
                         <?php echo nl2br(htmlspecialchars($memberMessage)); ?>
                     </div>
@@ -502,7 +524,12 @@ if ($viewApt):
                 <td><code class="text-primary small apt-track-code"><?php echo htmlspecialchars($aptTrackId); ?></code></td>
                 <td>
                     <div class="cell-main"><?php echo htmlspecialchars($apt['name'] ?? '—'); ?></div>
-                    <?php if (!empty($apt['member_id'])): ?><div class="cell-sub">ID: <?php echo htmlspecialchars($apt['member_id']); ?></div><?php endif; ?>
+                    <?php if (($apt['visit_kind'] ?? 'member') === 'cooperative'): ?>
+                        <div class="cell-sub"><span class="badge bg-primary-subtle text-primary border border-primary-subtle">सहकारी भ्रमण</span></div>
+                        <?php if (!empty($apt['contact_person'])): ?><div class="cell-sub"><?php echo htmlspecialchars($apt['contact_person']); ?></div><?php endif; ?>
+                    <?php elseif (!empty($apt['member_id'])): ?>
+                        <div class="cell-sub">ID: <?php echo htmlspecialchars($apt['member_id']); ?></div>
+                    <?php endif; ?>
                     <div class="cell-sub"><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($apt['phone'] ?? ''); ?></div>
                 </td>
                 <td>
