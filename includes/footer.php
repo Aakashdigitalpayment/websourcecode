@@ -177,30 +177,30 @@ try {
                 <!-- v10.3 (Issue #10): Footer policy links — admin बाट pages.php मा edit गर्न मिल्छ -->
                 <div class="footer-policy-links">
                         <a href="<?php echo SITE_URL; ?>page.php?slug=privacy-policy">
-                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i>
                         <?php echo isEnglish() ? 'Privacy Policy' : 'गोपनीयता नीति'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
                     <a href="<?php echo SITE_URL; ?>page.php?slug=terms-of-service">
-                        <i class="fas fa-file-contract"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i>
                         <?php echo isEnglish() ? 'Terms of Service' : 'सेवाका सर्तहरू'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
                     <a href="<?php echo SITE_URL; ?>page.php?slug=cookie-policy">
-                        <i class="fas fa-cookie-bite"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="cookie"></i>
                         <?php echo isEnglish() ? 'Cookie Policy' : 'कुकी नीति'; ?>
                     </a>
                 </div>
 
                 <div class="footer-metrics" id="footerMetrics">
                     <button type="button" class="footer-metrics-toggle" id="footerMetricsToggle" title="<?php echo isEnglish() ? 'Visitor stats' : 'भ्रमण तथ्यांक'; ?>">
-                        <i class="fas fa-user-clock"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="chart-column"></i>
                     </button>
                     <div class="footer-metrics-popup" id="footerMetricsPopup" aria-hidden="true">
                         <div class="footer-metrics-heading">
                             <span><?php echo isEnglish() ? 'Visitor Stats' : 'भ्रमण तथ्यांक'; ?></span>
                             <button type="button" class="footer-metrics-close" id="footerMetricsClose" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>">
-                                <i class="fas fa-times"></i>
+                                <i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>
                             </button>
                         </div>
                         <div class="visitor-counter">
@@ -879,10 +879,10 @@ try {
 
 <!-- v9.6 Mobile bottom-nav (public) -->
 <nav class="mob-bottomnav" aria-label="Quick nav">
-    <a href="<?php echo SITE_URL; ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"><i class="fas fa-house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
     <a href="<?php echo SITE_URL; ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"><i class="fas fa-bullhorn"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"><i class="fas fa-phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
     <a href="<?php echo SITE_URL; ?>member/" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
 </nav>
 <script>document.body.classList.add('has-bottomnav');</script>
