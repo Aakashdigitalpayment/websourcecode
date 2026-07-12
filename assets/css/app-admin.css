@@ -8990,7 +8990,7 @@ textarea.form-control:focus {
 
 .sidebar .group-badge,
 .sidebar .badge {
-    background: rgba(255,255,255,.2) !important;
+    background: #ef4444 !important;
     color: #fff !important;
 }
 
@@ -11874,16 +11874,22 @@ aside.sidebar .sidebar-nav .nav-submenu li.active > a i {
     opacity: 1 !important;
 }
 
-/* सूचना गिन्ने बैज — हल्का हरियो; रातो समूह बैज तलै छुट्टै */
+/* सूचना गिन्ने बैज — सधैं रातो (हल्का हरियो/सेतो translucent ले लुक्थ्यो) */
 .sidebar-nav > ul > li > a .badge:not(.group-badge),
-.sidebar-nav .nav-submenu a .badge:not(.group-badge) {
-    background: rgba(26, 95, 42, 0.12) !important;
-    color: var(--primary-color) !important;
+.sidebar-nav .nav-submenu a .badge:not(.group-badge),
+.sidebar-nav .nav-group-header .group-badge,
+aside.sidebar .sidebar-nav .nav-submenu a .badge:not(.group-badge),
+aside.sidebar .sidebar-nav .nav-group-header .group-badge {
+    background: #ef4444 !important;
+    color: #fff !important;
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.45) !important;
+    flex-shrink: 0 !important;
 }
 
 .sidebar-nav li.active > a .badge:not(.group-badge),
-.sidebar-nav a.active .badge:not(.group-badge) {
-    background: rgba(255, 255, 255, 0.28) !important;
+.sidebar-nav a.active .badge:not(.group-badge),
+aside.sidebar .sidebar-nav .nav-submenu li.active > a .badge:not(.group-badge) {
+    background: #ef4444 !important;
     color: #fff !important;
 }
 

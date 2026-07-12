@@ -154,32 +154,44 @@ try {
         $adminAlertCounts['job'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM job_applications WHERE status = 'pending'", '[admin-header job]') : 0;
     }
 } catch (\Throwable $e) {}
-$adminAlertCounts['kyc']         = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM kyc_applications WHERE status IN ('pending','incomplete')", '[admin-header kyc]') : 0;
-$adminAlertCounts['loan']        = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM loan_applications WHERE status = 'pending'", '[admin-header loan]') : 0;
-$adminAlertCounts['feedback']    = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_feedback WHERE status = 'pending'", '[admin-header feedback]') : 0;
-$adminAlertCounts['grievance']   = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM grievances WHERE status = 'pending'", '[admin-header grievance]') : 0;
-$adminAlertCounts['welfare']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_welfare_claims WHERE status = 'pending'", '[admin-header welfare]') : 0;
-$adminAlertCounts['auction']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM auction_bids WHERE status = 'pending'", '[admin-header auction]') : 0;
-$adminAlertCounts['vendor']      = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM vendors WHERE status = 'pending'", '[admin-header vendor]') : 0;
-$adminAlertCounts['account']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM account_applications WHERE status = 'pending'", '[admin-header account]') : 0;
-$adminAlertCounts['digital']     = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM digital_service_requests WHERE status = 'pending'", '[admin-header digital]') : 0;
-$adminAlertCounts['kyc_risk']    = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]') : 0;
-$adminAlertCounts['appointment'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM appointments WHERE status = 'pending'", '[admin-header appointment]') : 0;
+$__adminCount = static function (string $sql, string $log) use (&$db): int {
+    if (!($db instanceof PDO) || !function_exists('sqCount')) {
+        return 0;
+    }
+    try {
+        return sqCount($db, $sql, $log);
+    } catch (Throwable $e) {
+        error_log($log . ' ' . $e->getMessage());
+        return 0;
+    }
+};
+$adminAlertCounts['kyc']         = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status IN ('pending','incomplete')", '[admin-header kyc]');
+$adminAlertCounts['loan']        = $__adminCount("SELECT COUNT(*) FROM loan_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header loan]');
+$adminAlertCounts['feedback']    = $__adminCount("SELECT COUNT(*) FROM member_feedback WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header feedback]');
+$adminAlertCounts['grievance']   = $__adminCount("SELECT COUNT(*) FROM grievances WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header grievance]');
+$adminAlertCounts['welfare']     = $__adminCount("SELECT COUNT(*) FROM member_welfare_claims WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header welfare]');
+$adminAlertCounts['auction']     = $__adminCount("SELECT COUNT(*) FROM auction_bids WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header auction]');
+$adminAlertCounts['vendor']      = $__adminCount("SELECT COUNT(*) FROM vendors WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header vendor]');
+$adminAlertCounts['account']     = $__adminCount("SELECT COUNT(*) FROM account_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header account]');
+$adminAlertCounts['digital']     = $__adminCount("SELECT COUNT(*) FROM digital_service_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header digital]');
+$adminAlertCounts['kyc_risk']    = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]');
+$adminAlertCounts['appointment'] = $__adminCount("SELECT COUNT(*) FROM appointments WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header appointment]');
 try {
     /* member_survey पुरानो schema मा is_read नहुन सक्छ — fallback */
     $hasSurveyRead = function_exists('safeColumnExists') ? safeColumnExists('member_survey', 'is_read') : false;
     if ($hasSurveyRead) {
-        $adminAlertCounts['survey'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_survey WHERE is_read = 0", '[admin-header survey]') : 0;
+        $adminAlertCounts['survey'] = $__adminCount("SELECT COUNT(*) FROM member_survey WHERE is_read = 0", '[admin-header survey]');
     } else {
-        $adminAlertCounts['survey'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_survey", '[admin-header survey]') : 0;
+        $adminAlertCounts['survey'] = $__adminCount("SELECT COUNT(*) FROM member_survey", '[admin-header survey]');
     }
 } catch (\Throwable $e) {}
 /* Member Online Portal badges */
 $adminAlertCounts['mem_pending']  = 0;
 $adminAlertCounts['mem_resets']   = 0;
-$adminAlertCounts['mem_pending'] = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM members WHERE approval_status='pending'", '[admin-header mem-pending]') : 0;
-$adminAlertCounts['mem_resets']  = function_exists('sqCount') ? sqCount($db, "SELECT COUNT(*) FROM member_password_reset_requests WHERE status='pending'", '[admin-header mem-resets]') : 0;
+$adminAlertCounts['mem_pending'] = $__adminCount("SELECT COUNT(*) FROM members WHERE approval_status='pending'", '[admin-header mem-pending]');
+$adminAlertCounts['mem_resets']  = $__adminCount("SELECT COUNT(*) FROM member_password_reset_requests WHERE status='pending'", '[admin-header mem-resets]');
 $memPortalBadge = $adminAlertCounts['mem_pending'] + $adminAlertCounts['mem_resets'];
+unset($__adminCount);
 
 /* अस्थायी पासवर्ड — अनिवार्य परिवर्तन (public reset URL छैन)।
  * Superadmin: पासवर्ड `superadmin-config.local.php` मा राखिन्छ — UI बाट change गर्नु पर्दैन। */
@@ -520,10 +532,10 @@ set_exception_handler(function (\Throwable $ex) {
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
-                                <a href="appointments.php">
+                                <a href="appointments.php?status=pending" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
-                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
+                                    <span class="sidebar-link-label"><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
+                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='auctions' ? 'active' : ''; ?>">
@@ -641,10 +653,10 @@ set_exception_handler(function (\Throwable $ex) {
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
-                                <a href="appointments.php">
+                                <a href="appointments.php?status=pending" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
-                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['appointment']; ?></span><?php endif; ?>
+                                    <span class="sidebar-link-label"><?php echo $adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'); ?></span>
+                                    <?php if ($adminAlertCounts['appointment'] > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['appointment']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='welfare-claims' ? 'active' : ''; ?>">
@@ -932,6 +944,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],
                         ['label'=>$adminT('डिजिटल सेवा', 'Digital Services'),      'count'=>$adminAlertCounts['digital'],           'href'=>'digital-service-requests.php?status=pending','icon'=>'fa-mobile-alt', 'tone'=>'cyan'],
+                        ['label'=>$adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'), 'count'=>$adminAlertCounts['appointment'], 'href'=>'appointments.php?status=pending', 'icon'=>'fa-calendar-check', 'tone'=>'red'],
                         ['label'=>$adminT('जागिर आवेदन', 'Job Applications'),      'count'=>$adminAlertCounts['job'],               'href'=>'job-applications.php?status=pending', 'icon'=>'fa-briefcase',           'tone'=>'green'],
                         ['label'=>$adminT('गुनासो', 'Grievances'),            'count'=>$adminAlertCounts['grievance'],         'href'=>'grievances.php?status=pending',       'icon'=>'fa-comment-dots',        'tone'=>'red'],
                         ['label'=>$adminT('सुझाव/प्रतिक्रिया', 'Feedback'), 'count'=>$adminAlertCounts['feedback'],          'href'=>'feedbacks.php?status=pending',        'icon'=>'fa-star',                'tone'=>'orange'],
