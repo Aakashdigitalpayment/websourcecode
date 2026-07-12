@@ -4,10 +4,10 @@
 .fa-ip-row .form-control { flex: 1; min-width: 0; }
 .fa-ip-preview {
   width: 42px; min-width: 42px; display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 8px; border: 1px solid #cfe6d5; background: #edf7f0; color: #1a5f2a; font-size: 1.05rem;
+  border-radius: 10px; border: 1.5px solid #cfe6d5; background: #edf7f0; color: #1a5f2a; font-size: 1.05rem;
 }
 .fa-ip-open {
-  white-space: nowrap; border-radius: 8px !important;
+  white-space: nowrap; border-radius: 10px !important;
   display: inline-flex !important; align-items: center; gap: 6px;
   min-width: 2.75rem; flex-shrink: 0;
   font-weight: 600;

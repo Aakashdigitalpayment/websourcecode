@@ -217,10 +217,7 @@ if (!function_exists('coopThemeCssUrl')) {
         coopThemeLink('assets/css/forms-tables.css');
         coopThemeLink('assets/css/admin-ui-unified.css');
 
-        /* ── 1.6. Load SERIOUS admin-specific overrides (targets actual CSS classes) ── */
-        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
-            coopThemeLink('assets/css/admin-serious-fix.css');
-        }
+        /* ── 1.6. (admin-serious-form.css removed — replaced by admin-shell-polish.css at end) ── */
 
         /* ── 1.7. Load Admin Auth Login Page UI/UX Fixes (Form labels, inputs, buttons, alerts) ── */
         if (in_array($panel, ['admin-auth'], true)) {
@@ -266,6 +263,12 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* ── 8. Mobile premium polish — additive only, loaded after everything ── */
         coopThemeLink('assets/css/mobile-premium-polish.css');
+
+        /* ── 9. Admin shell polish — forms/tables/bottom-nav/icons/fonts (LAST) ── */
+        if (in_array($panel, ['admin', 'admin-auth'], true)
+            || ($panel === 'shell' && $isAdminShell)) {
+            coopThemeLink('assets/css/admin-shell-polish.css');
+        }
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */

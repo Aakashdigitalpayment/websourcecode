@@ -64,8 +64,8 @@
   --shadow-lg: 0 10px 30px rgba(13, 92, 46, 0.12);
   --shadow-focus: 0 0 0 3px rgba(26, 135, 84, 0.18);
 
-  /* Typography */
-  --font-sans: var(--font-primary, "Mukta", "Noto Sans Devanagari", -apple-system, "Segoe UI", Roboto, sans-serif);
+  /* Typography — match Google fonts loaded by coopThemeGoogleFonts() */
+  --font-sans: var(--font-primary, "Inter", "Noto Sans Devanagari", -apple-system, "Segoe UI", Roboto, sans-serif);
   --fs-xs: 12px;
   --fs-sm: 13px;
   --fs-base: 14px;

@@ -1,30 +1,6 @@
         </div><!-- End page-content -->
 
-        <!-- v9.6 Mobile bottom-nav (admin) -->
-        <style>
-        .mob-bottomnav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            display: flex; align-items: stretch;
-            background: #fff; border-top: 2px solid #e5e7eb;
-            z-index: 8999; height: 58px;
-            box-shadow: 0 -4px 14px rgba(0,0,0,.10);
-        }
-        .mob-bottomnav a.mob-bn-item {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            color: #6b7280; text-decoration: none;
-            font-size: 10px; gap: 3px; padding: 6px 4px;
-            transition: color .15s, background .15s;
-            border-right: 1px solid #f3f4f6;
-        }
-        .mob-bottomnav a.mob-bn-item:last-child { border-right: none; }
-        .mob-bottomnav a.mob-bn-item i { font-size: 18px; line-height: 1; }
-        .mob-bottomnav a.mob-bn-item span { font-size: 9.5px; line-height: 1; }
-        .mob-bottomnav a.mob-bn-item.active,
-        .mob-bottomnav a.mob-bn-item:hover { color: var(--primary-color,#1a5f2a); background: rgba(26,95,42,.05); }
-        body.has-bottomnav { padding-bottom: 58px !important; }
-        @media (min-width: 900px) { .mob-bottomnav { display: none; } body.has-bottomnav { padding-bottom: 0 !important; } }
-        </style>
+        <!-- Mobile bottom-nav + FAB styles: assets/css/admin-shell-polish.css -->
         <nav class="mob-bottomnav" aria-label="Admin quick nav">
             <a href="<?php echo ADMIN_URL; ?>dashboard.php" class="mob-bn-item <?php echo ($currentPage??'')==='dashboard'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-dashboard"></i><span><?php echo !empty($adminIsEnglish) ? 'Dashboard' : 'ड्यासबोर्ड'; ?></span></a>
             <a href="<?php echo ADMIN_URL; ?>notices.php" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo !empty($adminIsEnglish) ? 'Notices' : 'सूचना'; ?></span></a>
@@ -35,25 +11,12 @@
         </nav>
         <script>document.body.classList.add('has-bottomnav');</script>
 
-        <!-- v11.1 Floating internal-messenger button (admin only) -->
         <a href="<?php echo ADMIN_URL; ?>hrm-messenger.php"
            class="admin-fab-msg"
            title="<?php echo !empty($adminIsEnglish) ? 'Internal Chat' : 'आन्तरिक च्याट'; ?>"
            aria-label="Internal Chat">
           <i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i>
         </a>
-        <style>
-          .admin-fab-msg{
-            position:fixed; right:18px; bottom:90px; z-index:60;
-            width:54px; height:54px; border-radius:50%;
-            background:var(--primary-color,#1a5f2a); color:#fff;
-            display:grid; place-items:center; font-size:20px;
-            box-shadow:0 10px 24px rgba(15,23,42,.18);
-            text-decoration:none; transition:transform .15s, box-shadow .15s;
-          }
-          .admin-fab-msg:hover{ transform:translateY(-2px); color:#fff; box-shadow:0 14px 30px rgba(15,23,42,.22); }
-          @media (min-width:900px){ .admin-fab-msg{ bottom:24px; } }
-        </style>
     </main><!-- End main-content -->
     </div><!-- End admin-wrapper -->
 
@@ -75,8 +38,8 @@
 
     <!-- Admin JS -->
     <script src="assets/admin.js"></script>
-    <link rel="stylesheet" href="assets/icon-picker.css?v=3">
-    <script src="assets/icon-picker.js?v=3"></script>
+    <link rel="stylesheet" href="assets/icon-picker.css?v=4">
+    <script src="assets/icon-picker.js?v=4"></script>
     <script src="../assets/js/v9-mobile-fix.js?v=9.7" defer></script>
 
     <!-- PWA — Service Worker + Install Handler -->
@@ -202,14 +165,15 @@
 
                 var liList = document.createElement('li');
                 liList.className = 'nav-item';
-                liList.innerHTML = '<button type="button" class="nav-link"><i class="fas fa-list me-2"></i>सूची</button>';
+                liList.innerHTML = '<button type="button" class="nav-link"><i class="lucide-icon" aria-hidden="true" data-lucide="list"></i><span class="ms-2">सूची</span></button>';
                 var liForm = document.createElement('li');
                 liForm.className = 'nav-item';
-                liForm.innerHTML = '<button type="button" class="nav-link"><i class="fas fa-pen me-2"></i>फर्म</button>';
+                liForm.innerHTML = '<button type="button" class="nav-link"><i class="lucide-icon" aria-hidden="true" data-lucide="pen-line"></i><span class="ms-2">फर्म</span></button>';
                 nav.appendChild(liList);
                 nav.appendChild(liForm);
 
                 row.parentNode.insertBefore(nav, row);
+                if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
 
                 var btnList = liList.querySelector('.nav-link');
                 var btnForm = liForm.querySelector('.nav-link');
@@ -437,15 +401,16 @@
                     if (listEl) {
                         var listBadge = listEl.querySelector('.badge');
                         var listBadgeHtml = listBadge ? listBadge.outerHTML : '';
-                        listEl.innerHTML = '<i class="fas fa-list me-2"></i>सूची' + (listBadgeHtml ? (' ' + listBadgeHtml) : '');
+                        listEl.innerHTML = '<i class="lucide-icon" aria-hidden="true" data-lucide="list"></i><span class="ms-2">सूची</span>' + (listBadgeHtml ? (' ' + listBadgeHtml) : '');
                     }
                     if (formEl) {
                         var formBadge = formEl.querySelector('.badge');
                         var formBadgeHtml = formBadge ? formBadge.outerHTML : '';
-                        formEl.innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ थप्नुहोस्' + (formBadgeHtml ? (' ' + formBadgeHtml) : '');
+                        formEl.innerHTML = '<i class="lucide-icon" aria-hidden="true" data-lucide="circle-plus"></i><span class="ms-2">नयाँ थप्नुहोस्</span>' + (formBadgeHtml ? (' ' + formBadgeHtml) : '');
                     }
                 }
             });
+            if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
         }
         normalizeAdminTabs();
 
