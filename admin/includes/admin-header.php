@@ -44,7 +44,7 @@ if (!$__licExempt && function_exists('site_license_expired') && site_license_exp
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
         setFlash('error', 'सुरक्षा जाँच असफल। कृपया पुनः प्रयास गर्नुहोस्।');
-        redirect($_SERVER['HTTP_REFERER'] ?? ADMIN_URL . 'dashboard.php');
+        redirect(function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'));
     }
 }
 

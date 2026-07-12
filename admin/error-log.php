@@ -11,8 +11,8 @@ require_once __DIR__ . '/includes/admin-header.php';
 /* Log file path */
 $logFile = dirname(__DIR__) . '/logs/error.log';
 
-/* Action: clear log */
-if (isset($_POST['action']) && $_POST['action'] === 'clear' && checkCSRF()) {
+/* Action: clear log — global admin-header CSRF already verified on POST */
+if (isset($_POST['action']) && $_POST['action'] === 'clear') {
     if (file_exists($logFile)) {
         file_put_contents($logFile, '');
         $flash = 'success';
@@ -39,6 +39,7 @@ if (file_exists($logFile)) {
                | Last 200 lines मात्र देखाइएको</p>
         </div>
         <form method="post">
+            <?= csrfField() ?>
             <input type="hidden" name="action" value="clear">
             <button type="submit" class="btn btn-danger btn-sm"
                     onclick="return confirm('Log clear गर्ने?')">

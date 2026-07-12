@@ -223,6 +223,7 @@ $typeColors = [
     </div>
     <div class="card-body" style="padding:20px;">
         <form method="POST" id="pushForm">
+            <?= csrfField() ?>
             <input type="hidden" name="_action" value="send_push">
 
             <div class="mb-3">
@@ -283,6 +284,7 @@ $typeColors = [
 
         <hr style="margin:20px 0;">
         <form method="POST">
+            <?= csrfField() ?>
             <input type="hidden" name="_action" value="clear_expired">
             <button type="submit" class="btn btn-outline-secondary w-100"
                     style="border-radius:10px;font-size:.82rem;"

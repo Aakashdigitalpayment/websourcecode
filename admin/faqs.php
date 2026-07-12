@@ -9,8 +9,7 @@ if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
         $_SESSION['flash'] = ['type' => 'error', 'message' => 'सुरक्षा जाँच असफल। कृपया पुनः प्रयास गर्नुहोस्।'];
-        $ref = $_SERVER['HTTP_REFERER'] ?? (ADMIN_URL . 'dashboard.php');
-        header('Location: ' . $ref); exit;
+        header('Location: ' . (function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'))); exit;
     }
 }
 if (empty($csrfToken)) $csrfToken = generateCSRFToken();

@@ -825,6 +825,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
 </head>
 <?php $useHeaderV2 = true; ?>
 <body class="<?php echo $useHeaderV2 ? 'header-v2' : ''; ?><?php echo !empty($__embed_frame) ? ' embed-in-member-portal' : ''; ?>">
+    <a class="skip-link" href="#main-content"><?php echo isEnglish() ? 'Skip to content' : 'मुख्य सामग्रीमा जानुहोस्'; ?></a>
     <?php if (empty($__embed_frame)): ?>
     <!-- Page Loader -->
     <div class="page-loader" id="pageLoader">
@@ -1309,6 +1310,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     </header>
 
     </div><!-- /pfl-header-wrapper -->
+    <div id="main-content" tabindex="-1"></div>
 
     <!-- PFL Mobile Toggle + Scroll Shadow Script -->
     <script>

@@ -36,13 +36,26 @@ if (function_exists('ensureCardSecurityColumns')) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'request_unlock') {
+    if (!function_exists('verifyCSRFToken') || !verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        header('Location: /member/id-card.php');
+        exit;
+    }
     $cardId = (int)($_POST['card_id'] ?? 0);
-    if ($cardId > 0) {
+    $memberPk = (int)$mid;
+    if ($cardId > 0 && $memberPk > 0) {
         try {
-            $rq = $pdo->prepare("UPDATE member_id_cards
-                                    SET unlock_requested = 1, unlock_requested_at = NOW()
-                                  WHERE id = ?");
-            $rq->execute([$cardId]);
+            /* Ownership: card must belong to the logged-in member (id / sadasyata / card_no) */
+            $rq = $pdo->prepare(
+                "UPDATE member_id_cards mic
+                    INNER JOIN members m ON (
+                        mic.member_id = CAST(m.id AS CHAR)
+                        OR mic.member_id = m.sadasyata_number
+                        OR mic.member_id = m.member_card_no
+                    )
+                 SET mic.unlock_requested = 1, mic.unlock_requested_at = NOW()
+               WHERE mic.id = ? AND m.id = ?"
+            );
+            $rq->execute([$cardId, $memberPk]);
             header('Location: /member/id-card.php?unlock_requested=1');
             exit;
         } catch (Throwable $e) {}
@@ -308,6 +321,7 @@ if ($cardLogoRaw !== '') {
     <?php endif; ?>
     <div class="idcard-note-actions">
       <form method="POST" class="idcard-form-inline">
+        <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
         <input type="hidden" name="action" value="request_unlock">
         <input type="hidden" name="card_id" value="<?php echo (int)($me['card_row_id'] ?? 0); ?>">
         <button type="submit" class="idcard-btn idcard-btn-ghost idcard-btn-danger-outline">

@@ -1124,6 +1124,21 @@ if (!function_exists('redirect')) {
     }
 }
 
+/**
+ * CSRF fail आदिमा फर्कने URL — raw HTTP_REFERER प्रयोग नगर्नु (open redirect)।
+ * सधैं हालको admin page (ADMIN_URL + basename) वा दिइएको fallback।
+ */
+if (!function_exists('adminSelfUrl')) {
+    function adminSelfUrl(?string $fallbackPage = null): string {
+        $base = defined('ADMIN_URL') ? ADMIN_URL : '/admin/';
+        $page = basename((string)($_SERVER['PHP_SELF'] ?? ''));
+        if ($page === '' || $page === '.' || $page === '/') {
+            $page = $fallbackPage ?: 'dashboard.php';
+        }
+        return rtrim($base, '/') . '/' . ltrim($page, '/');
+    }
+}
+
 // Get current page name
 function getCurrentPage() {
     $page = basename($_SERVER['PHP_SELF'], '.php');

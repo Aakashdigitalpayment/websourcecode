@@ -5,7 +5,7 @@
 /* ── Client-side search (खोज बक्स) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
     setFlash('error', 'सुरक्षा जाँच असफल।');
-    redirect($_SERVER['HTTP_REFERER'] ?? ADMIN_URL . 'dashboard.php');
+    redirect(function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'));
 }
 if (empty($csrfToken)) $csrfToken = generateCSRFToken();
 

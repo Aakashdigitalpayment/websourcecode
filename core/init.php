@@ -328,8 +328,10 @@ switch (PORTAL) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && function_exists('verifyCSRFToken')) {
             if (!verifyCSRFToken()) {
                 if (function_exists('setFlash')) setFlash('error', 'सुरक्षा जाँच असफल। कृपया पुनः प्रयास गर्नुहोस्।');
-                $referer = $_SERVER['HTTP_REFERER'] ?? (defined('ADMIN_URL') ? ADMIN_URL . 'dashboard.php' : '/admin/');
-                header('Location: ' . $referer);
+                $safeBack = function_exists('adminSelfUrl')
+                    ? adminSelfUrl()
+                    : ((defined('ADMIN_URL') ? ADMIN_URL : '/admin/') . 'dashboard.php');
+                header('Location: ' . $safeBack);
                 exit;
             }
         }

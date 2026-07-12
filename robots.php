@@ -12,7 +12,8 @@ while (ob_get_level() > 0) {
 
 header('Content-Type: text/plain; charset=UTF-8');
 
-$sitemap = rtrim(SITE_URL, '/') . '/sitemap.xml';
+/* वास्तविक फाइल sitemap.php; .xml → rewrite (.htaccess) भए दुवै काम गर्छ */
+$sitemap = rtrim(SITE_URL, '/') . '/sitemap.php';
 
 /* ── All crawlers ─────────────────────────────────────────────────────────── */
 echo "User-agent: *\n";
