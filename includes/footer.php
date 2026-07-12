@@ -252,7 +252,7 @@ try {
         <div class="useful-links-popup-box" id="usefulLinksBox">
                 <div class="useful-links-header">
                     <h5><i class="lucide-icon" aria-hidden="true" data-lucide="link"></i> <?php echo isEnglish() ? 'Useful Links' : 'उपयोगी लिंकहरू'; ?></h5>
-                <button type="button" class="useful-links-close" id="usefulLinksClose" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"><i class="fas fa-times"></i></button>
+                <button type="button" class="useful-links-close" id="usefulLinksClose" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="x"></i></button>
             </div>
             <div class="useful-links-body">
                 <?php foreach ($usefulLinks as $link): ?>
@@ -848,34 +848,7 @@ try {
     }
     ?>
 
-    <!-- Footer Logo Stacked Style (issue #4) -->
-    <style>
-    /* Footer: logo तल name राख्ने CSS — logo र name एकैठाउँ center align */
-    .footer-logo.footer-logo-stacked {
-        display: flex;
-        flex-direction: column;  /* logo माथि, name तल */
-        align-items: flex-start; /* left aligned by default */
-        gap: 8px;
-        margin-bottom: 16px;
-    }
-    .footer-logo.footer-logo-stacked img {
-        display: block;
-        width: auto;
-        height: auto;
-        max-width: min(280px, 100%);
-        max-height: 56px;
-        object-fit: contain;
-    }
-    /* Footer मा सहकारीको नाम — logo को तल देखिन्छ */
-    .footer-logo.footer-logo-stacked .footer-sahakari-name {
-        display: block;
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: #fff;
-        line-height: 1.3;
-        margin-top: 2px;
-    }
-    </style>
+    <!-- Footer logo stack styles: assets/css/public-shell-polish.css -->
 
 <!-- v9.6 Mobile bottom-nav (public) -->
 <nav class="mob-bottomnav" aria-label="Quick nav">
@@ -1217,23 +1190,6 @@ if ($__uiTestMode):
   });
 })();
 </script>
-<style>
-  .public-fab-help{
-    position:fixed; right:18px; bottom:96px; z-index:60;
-    display:inline-flex; align-items:center; gap:8px;
-    padding:10px 14px 10px 12px; border-radius:999px;
-    background:var(--primary-color,#1a5f2a); color:#fff;
-    font-weight:600; font-size:14px; text-decoration:none;
-    box-shadow:0 10px 24px rgba(15,23,42,.18);
-    transition:transform .15s, box-shadow .15s;
-  }
-  .public-fab-help i{ font-size:18px; }
-  .public-fab-help:hover{ color:#fff; transform:translateY(-2px); box-shadow:0 14px 30px rgba(15,23,42,.22); }
-  @media (max-width:768px){
-    .public-fab-help{ bottom:78px; padding:9px 12px; }
-    .public-fab-help-label{ display:none; }
-  }
-</style>
 
 <?php /* Duplicate public-mobile-footer disabled — .mob-bottomnav above is the single mobile bar */ ?>
 <?php /* require_once __DIR__ . '/mobile-footer-nav.php'; */ ?>

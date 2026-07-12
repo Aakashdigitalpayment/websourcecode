@@ -237,7 +237,7 @@ if ($result && !empty($result['ok'])) {
 <html lang="<?php echo isEnglish() ? 'en' : 'ne'; ?>">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?= htmlspecialchars($pageTitle) ?></title>
 <meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। Verification Code र CVV राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using Verification Code and CVV.'), ENT_QUOTES, 'UTF-8'); ?>">

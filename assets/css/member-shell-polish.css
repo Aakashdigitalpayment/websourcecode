@@ -443,3 +443,21 @@ body.verify-auth-page {
   align-items: center;
   justify-content: center;
 }
+
+/* Very narrow phones: keep 5-up bottom nav readable */
+@media (max-width: 379px) {
+  .mp-bottom-nav a span,
+  .mp-bn-more span,
+  .member-mobile-footer a span,
+  .member-mobile-footer button span {
+    font-size: 8.5px !important;
+  }
+
+  .mp-bottom-nav a .lucide-icon,
+  .mp-bottom-nav a svg,
+  .mp-bn-more .lucide-icon,
+  .mp-bn-more svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}
