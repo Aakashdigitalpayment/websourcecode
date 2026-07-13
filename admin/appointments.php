@@ -293,8 +293,10 @@ if ($viewApt):
                             <td><?php echo htmlspecialchars($viewApt['organization_address'] ?? '—'); ?></td></tr>
                         <tr><th>वेबसाइट</th>
                             <td><?php
-                                $w = trim((string)($viewApt['organization_website'] ?? ''));
-                                echo $w !== '' ? '<a href="'.htmlspecialchars($w).'" target="_blank" rel="noopener" class="text-decoration-none">'.htmlspecialchars($w).'</a>' : '<span class="text-muted">—</span>';
+                                $w = function_exists('safe_http_url')
+                                    ? safe_http_url((string)($viewApt['organization_website'] ?? ''))
+                                    : '';
+                                echo $w !== '' ? '<a href="'.htmlspecialchars($w, ENT_QUOTES, 'UTF-8').'" target="_blank" rel="noopener noreferrer" class="text-decoration-none">'.htmlspecialchars($w, ENT_QUOTES, 'UTF-8').'</a>' : '<span class="text-muted">—</span>';
                             ?></td></tr>
                         <?php else: ?>
                         <tr><th>सदस्य ID</th>

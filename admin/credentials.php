@@ -13,11 +13,14 @@ require_role('staff');  /* staff+ allowed to view; mutate चाहिँ admin+
 
 $db = getDB();
 
-/* ── AJAX: reveal password ── */
-if (($_GET['ajax'] ?? '') === 'reveal') {
-    header('Content-Type: application/json');
-    $id = (int)($_GET['id'] ?? 0);
+/* ── AJAX: reveal password (POST + CSRF only — never GET) ── */
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['ajax'] ?? '') === 'reveal') {
+    header('Content-Type: application/json; charset=utf-8');
+    $id = (int)($_POST['id'] ?? 0);
     try {
+        if ($id <= 0) {
+            throw new Exception('Not found');
+        }
         $row = $db->prepare("SELECT password_enc, password_iv FROM office_credentials WHERE id = ?");
         $row->execute([$id]);
         $r = $row->fetch(PDO::FETCH_ASSOC);
@@ -30,12 +33,19 @@ if (($_GET['ajax'] ?? '') === 'reveal') {
     }
     exit;
 }
+/* Legacy GET reveal disabled */
+if (($_GET['ajax'] ?? '') === 'reveal') {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(405);
+    echo json_encode(['ok' => false, 'error' => 'Use POST with CSRF']);
+    exit;
+}
 
 /* ── AJAX: log open/copy actions (open/copy_user/copy_pass) ── */
-if (($_GET['ajax'] ?? '') === 'log') {
-    header('Content-Type: application/json');
-    $id     = (int)($_GET['id'] ?? 0);
-    $action = (string)($_GET['action'] ?? '');
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['ajax'] ?? '') === 'log') {
+    header('Content-Type: application/json; charset=utf-8');
+    $id     = (int)($_POST['id'] ?? 0);
+    $action = (string)($_POST['action'] ?? '');
     $allowedLog = ['open', 'copy_user', 'copy_pass'];
     if (!in_array($action, $allowedLog, true)) {
         $action = '';
@@ -44,6 +54,12 @@ if (($_GET['ajax'] ?? '') === 'log') {
         cred_log_action($id, $action);
     }
     echo json_encode(['ok' => true]);
+    exit;
+}
+if (($_GET['ajax'] ?? '') === 'log') {
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(405);
+    echo json_encode(['ok' => false, 'error' => 'Use POST with CSRF']);
     exit;
 }
 
@@ -291,6 +307,7 @@ $rows = $db->query(
 </div>
 
 <script>
+window.CRED_CSRF = <?php echo json_encode((string)$csrfToken, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 function openCredModal() {
     document.getElementById('credAction').value = 'create';
     document.getElementById('credId').value = '';
@@ -336,7 +353,11 @@ async function revealPw(id) {
         eyeEl.className = 'far fa-eye';
         return;
     }
-    const res = await fetch('credentials.php?ajax=reveal&id=' + id);
+    const res = await fetch('credentials.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'ajax=reveal&id=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(window.CRED_CSRF || '')
+    });
     const j = await res.json();
     if (j.ok) {
         pwEl.textContent = j.password;
@@ -352,7 +373,11 @@ async function copyText(id, type, txt) {
     showToast(type === 'user' ? 'Username copy भयो ✓' : 'Copy भयो ✓');
 }
 async function copyPw(id) {
-    const res = await fetch('credentials.php?ajax=reveal&id=' + id);
+    const res = await fetch('credentials.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'ajax=reveal&id=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(window.CRED_CSRF || '')
+    });
     const j = await res.json();
     if (j.ok) {
         await navigator.clipboard.writeText(j.password);
@@ -362,8 +387,13 @@ async function copyPw(id) {
 }
 
 function logAction(id, action) {
-    fetch('credentials.php?ajax=log&id=' + id + '&action=' + encodeURIComponent(action))
-        .catch(() => {});
+    fetch('credentials.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'ajax=log&id=' + encodeURIComponent(id)
+            + '&action=' + encodeURIComponent(action)
+            + '&csrf_token=' + encodeURIComponent(window.CRED_CSRF || '')
+    }).catch(() => {});
 }
 
 function showToast(msg) {

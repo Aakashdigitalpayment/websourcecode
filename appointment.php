@@ -150,7 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $phone          = preg_replace('/[^0-9]/', '', clean_text($_POST['phone'] ?? '', 15));
             $email          = strtolower(clean_text($_POST['email'] ?? '', 254));
             $orgAddress     = clean_text($_POST['organization_address'] ?? '', 500);
-            $orgWebsite     = clean_text($_POST['organization_website'] ?? '', 255);
+            $orgWebsite     = function_exists('safe_http_url')
+                ? safe_http_url(clean_text($_POST['organization_website'] ?? '', 255))
+                : clean_text($_POST['organization_website'] ?? '', 255);
             $purpose_detail = clean_text($_POST['purpose_detail'] ?? '', 1000);
             $preferred_date = clean_text($_POST['preferred_date'] ?? '', 30);
             $preferred_time = clean_text($_POST['preferred_time'] ?? '', 30);

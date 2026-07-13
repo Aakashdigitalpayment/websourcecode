@@ -1,5 +1,6 @@
+# Upload storage — list directory blocked; scripts must never execute
 Options -Indexes
-# Readable for <img>/download; never execute uploaded scripts
+
 <FilesMatch "\.(?i:php|phtml|php3|php4|php5|php7|php8|phar|cgi|pl|asp|aspx|exe|sh|shtml)$">
     <IfModule mod_authz_core.c>
         Require all denied
@@ -9,6 +10,8 @@ Options -Indexes
         Deny from all
     </IfModule>
 </FilesMatch>
+
+# Extra belt for Apache handlers that ignore extension deny above
 <IfModule mod_php.c>
     php_flag engine off
 </IfModule>

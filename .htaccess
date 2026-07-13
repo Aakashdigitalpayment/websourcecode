@@ -3,6 +3,10 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # Block direct HTTP access to secrets / private PHP sources
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule (^|/)\.cred - [F,L]
+    RewriteRule \.cred-master\.key$ - [F,L]
     # Crawlers expect /sitemap.xml and /robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
     RewriteRule ^robots\.txt$ robots.php [L,QSA]
