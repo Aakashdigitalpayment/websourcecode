@@ -461,7 +461,13 @@ h1, h2, h3, h4, h5, h6 {
 .modal-header.bg-primary .modal-title,
 .modal-header.bg-primary h5,
 .ct-modal-head h5,
-.ct-modal-head .modal-title {
+.ct-modal-head .modal-title,
+.rates-header h3,
+.rates-box-enhanced .rates-header h3,
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.bg-primary h5,
+.home-ip-preview-head,
+.home-ip-preview-title {
   color: #fff;
 }
 

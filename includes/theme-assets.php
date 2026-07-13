@@ -119,6 +119,7 @@ if (!function_exists('coopThemeCssUrl')) {
             "circle-question": ["help-circle", "circle-help"],
             "circle-info": ["info", "info-circle"],
             "circle-check": ["check-circle", "circle-check-big"],
+            "check-circle": ["circle-check", "circle-check-big"],
             "hand-holding-heart": ["heart-handshake", "heart"]
         };
         var nodes = root.querySelectorAll("[data-lucide]");

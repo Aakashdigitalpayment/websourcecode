@@ -1569,3 +1569,143 @@ body.dark-mode .text-primary {
   -webkit-text-fill-color: #4b5563 !important;
   opacity: 1 !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Safe Lucide follow-up — rates / forms / contact / tracker / appt
+   (CSS that only targeted `i` left blank or tiny after SVG replace)
+   ════════════════════════════════════════════════════════════ */
+
+/* Rates header chip on green */
+.rates-header h3,
+.rates-box-enhanced .rates-header h3 {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.rates-header h3 i,
+.rates-header h3 svg,
+.rates-header h3 .lucide-icon,
+.rates-box-enhanced .rates-header h3 i,
+.rates-box-enhanced .rates-header h3 svg,
+.rates-box-enhanced .rates-header h3 .lucide-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  box-sizing: border-box !important;
+  padding: 0.35rem !important;
+}
+
+/* Form header icon wells (online-account, appointment, kyc, etc.) */
+.form-header .form-icon,
+.form-success-icon {
+  color: #fff !important;
+}
+.form-header .form-icon i,
+.form-header .form-icon svg,
+.form-header .form-icon .lucide-icon,
+.form-success-icon i,
+.form-success-icon svg,
+.form-success-icon .lucide-icon,
+.grievance-form-box .form-header .form-icon i,
+.grievance-form-box .form-header .form-icon svg,
+.appointment-form-box .form-header .form-icon i,
+.appointment-form-box .form-header .form-icon svg,
+.account-form-box .form-header .form-icon i,
+.account-form-box .form-header .form-icon svg,
+.digital-form-card .form-header .form-icon i,
+.digital-form-card .form-header .form-icon svg,
+.kyc-form-box .form-header .form-icon i,
+.kyc-form-box .form-header .form-icon svg,
+.loan-form-box .form-header .form-icon i,
+.loan-form-box .form-header .form-icon svg,
+.claim-form-card .form-header .form-icon i,
+.claim-form-card .form-header .form-icon svg,
+.vendor-form-card .form-header .form-icon i,
+.vendor-form-card .form-header .form-icon svg,
+.contact-form-box .form-header .form-icon i,
+.contact-form-box .form-header .form-icon svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 2.1rem !important;
+  height: 2.1rem !important;
+  min-width: 2.1rem !important;
+  min-height: 2.1rem !important;
+  font-size: 2.1rem !important;
+}
+
+/* Contact green panel icons — Lucide-safe */
+.contact-info-box .contact-icon svg,
+.contact-info-box .contact-icon .lucide-icon {
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+  stroke: #fde68a !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+}
+
+/* Tracker hero icon ring — Lucide-safe */
+.tracker-hero-section .tracker-hero-icon-ring svg,
+.tracker-hero-section .tracker-hero-icon-ring .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+}
+
+/* Appointment form green header — Lucide-safe */
+.card.appt-form-card > .card-header.appt-form-card-head,
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.appt-form-card-head i,
+.card.appt-form-card > .card-header.appt-form-card-head svg,
+.card.appt-form-card > .card-header.appt-form-card-head .lucide-icon,
+.card.appt-form-card > .card-header.bg-primary,
+.card.appt-form-card > .card-header.bg-primary h5,
+.card.appt-form-card > .card-header.bg-primary i,
+.card.appt-form-card > .card-header.bg-primary svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.card.appt-form-card > .card-header.appt-form-card-head svg,
+.card.appt-form-card > .card-header.bg-primary svg {
+  stroke: #fff !important;
+  fill: none !important;
+}
+
+/* Widget / feature icon wells — Lucide-safe insurance */
+.widget-icon i,
+.widget-icon svg,
+.widget-icon .lucide-icon,
+.feature-icon-wrap i,
+.feature-icon-wrap svg,
+.feature-icon-wrap .lucide-icon,
+.tools-category-card h5 i,
+.tools-category-card h5 svg,
+.tools-category-card h5 .lucide-icon {
+  color: inherit;
+}
+.widget-icon svg,
+.widget-icon .lucide-icon,
+.feature-icon-wrap svg,
+.feature-icon-wrap .lucide-icon {
+  stroke: currentColor !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
