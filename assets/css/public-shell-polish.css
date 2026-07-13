@@ -1363,3 +1363,182 @@ body.dark-mode .text-primary {
 .tracker-hint {
   font-size: 0.75rem !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Icon / text contrast pass (about, stats, service centers,
+   survey modal, brand icon wells). Lucide replaces <i> with
+   <svg>; rules that only target `i` leave dark 1rem smudges.
+   ════════════════════════════════════════════════════════════ */
+
+/* Brand-green icon wells → white, readable glyphs */
+.vision-icon-v2,
+.value-icon,
+.center-icon,
+.history-icon-float,
+.counter-icon,
+.service-icon,
+.service-icon-modern,
+.feature-icon,
+.team-placeholder-circular {
+  color: #fff !important;
+}
+.vision-icon-v2 i,
+.vision-icon-v2 svg,
+.vision-icon-v2 .lucide-icon,
+.value-icon i,
+.value-icon svg,
+.value-icon .lucide-icon,
+.center-icon i,
+.center-icon svg,
+.center-icon .lucide-icon,
+.history-icon-float i,
+.history-icon-float svg,
+.history-icon-float .lucide-icon,
+.counter-icon i,
+.counter-icon svg,
+.counter-icon .lucide-icon,
+.service-icon i,
+.service-icon svg,
+.service-icon .lucide-icon,
+.service-icon-modern i,
+.service-icon-modern svg,
+.service-icon-modern .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
+/* Override global 1rem lucide size inside large brand tiles */
+.vision-icon-v2 .lucide-icon,
+.vision-icon-v2 svg.lucide {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+  stroke-width: 2 !important;
+}
+.value-icon .lucide-icon,
+.value-icon svg.lucide,
+.center-icon .lucide-icon,
+.center-icon svg.lucide {
+  width: 1.65rem !important;
+  height: 1.65rem !important;
+  min-width: 1.65rem !important;
+  min-height: 1.65rem !important;
+  stroke-width: 2 !important;
+}
+.section-badge .lucide-icon,
+.section-badge svg.lucide {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* About / home stats strip — labels were muted grey on green */
+.stats-section,
+.stats-section .stat-box,
+.stats-section .stat-number,
+.stats-section .stat-label,
+.stats-section .stat-icon,
+.counter-section,
+.counter-section .counter-box,
+.counter-section .counter-number,
+.counter-section .counter-label {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.stats-section .stat-label,
+.counter-section .counter-label {
+  color: rgba(255, 255, 255, 0.95) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+.stats-section .stat-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff !important;
+}
+.stats-section .stat-icon i,
+.stats-section .stat-icon svg,
+.stats-section .stat-icon .lucide-icon {
+  color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+  min-width: 1.45rem !important;
+  min-height: 1.45rem !important;
+  font-size: 1.25rem !important;
+  opacity: 1 !important;
+}
+
+/* Service center cards — body text was #9ca3af on white */
+.service-center-card .center-info li {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+.service-center-card .center-info li i,
+.service-center-card .center-info li svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+}
+
+/* Survey / brand modal headers — h5 global dark beat inline white */
+#surveyModal .modal-header,
+#surveyModal .modal-header .modal-title,
+#surveyModal .modal-header .modal-title i,
+#surveyModal .modal-header h5,
+.modal-header.bg-primary,
+.modal-header.bg-primary .modal-title,
+.modal-header.bg-primary h5,
+.modal-header.bg-primary i,
+.ct-modal-head,
+.ct-modal-head h5,
+.ct-modal-head .modal-title,
+.ct-modal-head i {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+#surveyModal .modal-header .modal-title i,
+#surveyModal .modal-header .modal-title svg {
+  color: #fff !important;
+  stroke: #fff !important;
+  opacity: 1 !important;
+}
+
+/* Consistent radio pills in survey member toggle */
+#surveyModal .js-svy-coop.form-check-input {
+  width: 1.1em !important;
+  height: 1.1em !important;
+  margin-top: 0.15em !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 2px solid var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  vertical-align: middle;
+}
+#surveyModal .js-svy-coop.form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 3px #fff !important;
+}
+
+/* Login menu verify tile — ensure glyph always paints */
+.pfl-login-menu .pfl-lm-verify i.fas,
+.pfl-login-menu .pfl-lm-verify .fa-shield-halved {
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 1.05rem !important;
+  opacity: 1 !important;
+}

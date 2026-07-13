@@ -994,7 +994,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                         <!-- Member Verify (public card verification — for hospitals, vendors, etc.) -->
                         <li>
                             <a href="<?php echo SITE_URL; ?>verify.php">
-                                <span class="pfl-lm-icon pfl-lm-verify"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i></span>
+                                <span class="pfl-lm-icon pfl-lm-verify"><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'Member verify' : 'सदस्य परिचयपत्र जाँच'; ?></strong>
                                     <small><?php echo isEnglish() ? 'ID card check — code & CVV' : 'कोड र CVV ले प्रमाणित गर्नुहोस्'; ?></small>

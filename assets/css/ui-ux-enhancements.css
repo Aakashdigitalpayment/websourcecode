@@ -455,7 +455,13 @@ h1, h2, h3, h4, h5, h6 {
 .cr-hero h1,
 .cr-hero h2,
 .cp-hero h1,
-.cp-hero h2 {
+.cp-hero h2,
+#surveyModal .modal-header .modal-title,
+#surveyModal .modal-header h5,
+.modal-header.bg-primary .modal-title,
+.modal-header.bg-primary h5,
+.ct-modal-head h5,
+.ct-modal-head .modal-title {
   color: #fff;
 }
 

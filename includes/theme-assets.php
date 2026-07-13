@@ -111,7 +111,8 @@ if (!function_exists('coopThemeCssUrl')) {
         var registry = lucide.icons || {};
         var aliases = {
             "building-columns": ["landmark", "building-2"],
-            "shield-halved": ["shield", "shield-check"],
+            "shield-halved": ["shield-check", "shield-half", "shield"],
+            "shield-half": ["shield-check", "shield"],
             "chart-bar": ["bar-chart-3", "chart-column"],
             "user-circle": ["circle-user", "user-round"],
             "circle-question": ["help-circle", "circle-help"]
