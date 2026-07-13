@@ -347,8 +347,8 @@ if (!$currentProfile || !$previousProfile) {
     <span class="ip-section-kicker"><i class="fas fa-chart-line"></i> <?php echo $isEn ? 'Financial stats' : 'आर्थिक तथ्याङ्क'; ?></span>
     <h2><?php echo $isEn ? 'Institutional financial profile' : 'संस्थाको आर्थिक प्रोफाइल'; ?></h2>
     <p><?php echo $isEn
-        ? 'Browse month-wise figures — current and previous month first, then filter any fiscal year or month.'
-        : 'महिनागत आर्थिक तथ्याङ्क — अहिलेको र अघिल्लो महिना पहिले, त्यसपछि आ.व. वा महिना छानेर सजिलै हेर्नुहोस्।'; ?></p>
+        ? 'Shows the latest two months by default — use filters or “All” to browse more.'
+        : 'पहिले हालका २ महिना मात्र देखिन्छ — अरू हेर्न फिल्टर वा “सबै” प्रयोग गर्नुहोस्।'; ?></p>
 </div>
 
 <?php
@@ -425,7 +425,7 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     <div class="ip-card-header">
         <div class="ip-card-title-wrap">
             <div class="ip-fy-badge"><i class="fas fa-table me-2"></i> <?php echo $isEn ? 'Month-wise financial details' : 'महिनागत आर्थिक विवरण'; ?></div>
-            <div class="ip-date-info"><span><?php echo $isEn ? 'Filter by fiscal year or month' : 'आ.व. वा महिना छानेर हेर्नुहोस्'; ?></span></div>
+            <div class="ip-date-info"><span><?php echo $isEn ? 'Default: latest 2 months — filter for more' : 'पूर्वनिर्धारित: हालका २ महिना — अरू फिल्टरबाट'; ?></span></div>
         </div>
     </div>
 
@@ -458,7 +458,10 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
         </div>
 
         <div class="ip-month-chips" id="ipMonthChips" role="group" aria-label="<?php echo $isEn ? 'Quick month filters' : 'छिटो महिना फिल्टर'; ?>">
-            <button type="button" class="ip-month-chip is-active" data-month="" data-testid="institutional-profile-chip-all"><?php echo $isEn ? 'All' : 'सबै'; ?></button>
+            <button type="button" class="ip-month-chip is-active" data-mode="recent2" data-testid="institutional-profile-chip-recent">
+                <?php echo $isEn ? 'Latest 2' : 'हालका २'; ?>
+            </button>
+            <button type="button" class="ip-month-chip" data-month="" data-mode="all" data-testid="institutional-profile-chip-all"><?php echo $isEn ? 'All' : 'सबै'; ?></button>
             <?php if ($curBsM > 0): ?>
             <button type="button" class="ip-month-chip" data-month="<?php echo (int)$curBsM; ?>" data-fy="<?php echo htmlspecialchars($curFy, ENT_QUOTES); ?>" data-testid="institutional-profile-chip-current">
                 <?php echo $isEn ? 'This month' : 'अहिलेको'; ?> · <?php echo htmlspecialchars(ipMonthLabel($curBsM, $isEn)); ?>
@@ -497,10 +500,12 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
             $isCur = ($currentProfile && (int)($currentProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '');
+            $defaultShow = ($isCur || $isPrev) ? '1' : '0';
         ?>
         <article class="<?php echo $tileCls; ?>"
                  data-fy="<?php echo htmlspecialchars($_fy, ENT_QUOTES, 'UTF-8'); ?>"
                  data-month="<?php echo (int)$rm; ?>"
+                 data-default-show="<?php echo $defaultShow; ?>"
                  data-filter="<?php echo htmlspecialchars($_filterText, ENT_QUOTES, 'UTF-8'); ?>"
                  data-testid="institutional-profile-month-card-<?php echo $rowNo; ?>">
             <div class="ip-month-tile-head">
@@ -630,15 +635,32 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     var emptyEl = document.getElementById('ipFilterEmpty');
     var chips = document.getElementById('ipMonthChips');
     var cards = Array.prototype.slice.call(document.querySelectorAll('.ip-month-grid .ip-month-tile'));
+    /* Default: only latest 2 months (current + previous). User can pick All / filters. */
+    var viewMode = 'recent2';
+
+    /* Fallback if current/previous markers missing: first 2 tiles in DOM order */
+    (function ensureDefaultRecent() {
+        var marked = cards.filter(function (c) { return c.getAttribute('data-default-show') === '1'; });
+        if (marked.length === 0) {
+            cards.slice(0, 2).forEach(function (c) { c.setAttribute('data-default-show', '1'); });
+        }
+    })();
 
     function setChipActive(monthVal, fyVal) {
         if (!chips) return;
         Array.prototype.forEach.call(chips.querySelectorAll('.ip-month-chip'), function (chip) {
+            var mode = chip.getAttribute('data-mode') || '';
             var cm = chip.getAttribute('data-month');
             var cf = chip.getAttribute('data-fy') || '';
-            var on = (String(cm) === String(monthVal || '')) && (!cf || !fyVal || cf === fyVal);
-            if (monthVal === '' && cm === '') on = true;
-            if (monthVal !== '' && cm === String(monthVal) && !chip.getAttribute('data-fy')) on = true;
+            var on = false;
+            if (viewMode === 'recent2') {
+                on = mode === 'recent2';
+            } else if (viewMode === 'all' || (monthVal === '' && !fyVal)) {
+                on = mode === 'all' || (cm === '' && mode !== 'recent2' && !chip.getAttribute('data-fy'));
+            } else {
+                on = (String(cm) === String(monthVal || '')) && (!cf || !fyVal || cf === fyVal);
+                if (monthVal !== '' && cm === String(monthVal) && !chip.getAttribute('data-fy') && mode !== 'recent2' && mode !== 'all') on = true;
+            }
             chip.classList.toggle('is-active', on);
         });
     }
@@ -647,6 +669,10 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
         var fy = fyFilter ? (fyFilter.value || '').trim().toLowerCase() : '';
         var month = monthFilter ? (monthFilter.value || '') : '';
         var q = textFilter ? (textFilter.value || '').trim().toLowerCase() : '';
+        var userFiltered = !!(fy || month !== '' || q);
+        if (userFiltered) {
+            viewMode = 'filtered';
+        }
         var visible = 0;
 
         cards.forEach(function (card) {
@@ -657,6 +683,9 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
             var monthOk = month === '' || cardMonth === String(month);
             var qOk = !q || blob.indexOf(q) !== -1;
             var show = fyOk && monthOk && qOk;
+            if (viewMode === 'recent2' && !userFiltered) {
+                show = card.getAttribute('data-default-show') === '1';
+            }
             card.classList.toggle('is-hidden', !show);
             if (show) visible++;
         });
@@ -678,6 +707,7 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
             if (fyFilter) fyFilter.value = '';
             if (monthFilter) monthFilter.value = '';
             if (textFilter) textFilter.value = '';
+            viewMode = 'recent2';
             applyIpFilters();
             if (textFilter) textFilter.focus();
         });
@@ -686,10 +716,23 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
         chips.addEventListener('click', function (e) {
             var btn = e.target.closest('.ip-month-chip');
             if (!btn) return;
+            var mode = btn.getAttribute('data-mode') || '';
             var m = btn.getAttribute('data-month');
             var f = btn.getAttribute('data-fy') || '';
-            if (monthFilter) monthFilter.value = (m === null || m === undefined) ? '' : String(m);
-            if (fyFilter) fyFilter.value = f;
+            if (mode === 'recent2') {
+                viewMode = 'recent2';
+                if (fyFilter) fyFilter.value = '';
+                if (monthFilter) monthFilter.value = '';
+                if (textFilter) textFilter.value = '';
+            } else if (mode === 'all' || (m === '' && mode !== 'recent2')) {
+                viewMode = 'all';
+                if (monthFilter) monthFilter.value = '';
+                if (fyFilter) fyFilter.value = '';
+            } else {
+                viewMode = 'filtered';
+                if (monthFilter) monthFilter.value = (m === null || m === undefined) ? '' : String(m);
+                if (fyFilter) fyFilter.value = f;
+            }
             applyIpFilters();
         });
     }
