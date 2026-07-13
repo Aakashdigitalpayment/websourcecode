@@ -1376,7 +1376,6 @@ body.dark-mode .text-primary {
 .center-icon,
 .history-icon-float,
 .counter-icon,
-.feature-icon,
 .team-placeholder-circular {
   color: #fff !important;
 }
@@ -1394,10 +1393,7 @@ body.dark-mode .text-primary {
 .history-icon-float .lucide-icon,
 .counter-icon i,
 .counter-icon svg,
-.counter-icon .lucide-icon,
-.feature-icon i,
-.feature-icon svg,
-.feature-icon .lucide-icon {
+.counter-icon .lucide-icon {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   stroke: #fff !important;
@@ -1413,7 +1409,8 @@ body.dark-mode .text-primary {
 .service-icon,
 .service-icon-modern,
 .service-icon-lg,
-.quick-service-card .service-icon {
+.quick-service-card .service-icon,
+.feature-icon {
   background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
   color: #fff !important;
   box-shadow: 0 8px 18px rgba(26, 95, 42, 0.22) !important;
@@ -1429,7 +1426,10 @@ body.dark-mode .text-primary {
 .service-icon-lg .lucide-icon,
 .quick-service-card .service-icon i,
 .quick-service-card .service-icon svg,
-.quick-service-card .service-icon .lucide-icon {
+.quick-service-card .service-icon .lucide-icon,
+.feature-icon i,
+.feature-icon svg,
+.feature-icon .lucide-icon {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   stroke: #fff !important;
@@ -1439,7 +1439,8 @@ body.dark-mode .text-primary {
 .service-card:hover .service-icon,
 .service-card-modern:hover .service-icon-modern,
 .service-detail-card:hover .service-icon-lg,
-.quick-service-card:hover .service-icon {
+.quick-service-card:hover .service-icon,
+.feature-box:hover .feature-icon {
   background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
   color: #fff !important;
 }
@@ -1452,7 +1453,10 @@ body.dark-mode .text-primary {
 .service-detail-card:hover .service-icon-lg i,
 .service-detail-card:hover .service-icon-lg svg,
 .quick-service-card:hover .service-icon i,
-.quick-service-card:hover .service-icon svg {
+.quick-service-card:hover .service-icon svg,
+.feature-box:hover .feature-icon i,
+.feature-box:hover .feature-icon svg,
+.feature-box:hover .feature-icon .lucide-icon {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   stroke: #fff !important;
@@ -2013,4 +2017,71 @@ body.dark-mode .text-primary {
   .nav-menu .dropdown > li.has-sub > .sub-menu > li > a:hover {
     padding-left: 18px !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════
+   About — history text + Why Choose icons (readable contrast)
+   ════════════════════════════════════════════════════════════ */
+.history-content-v2 .history-text,
+.history-content-v2 .history-text.coop-prose,
+.history-content-v2 .history-text p,
+.history-content-v2 .history-text.coop-prose p {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  opacity: 1 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+  font-weight: 450 !important;
+}
+.history-content-v2 h2 {
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+/* History card badge / empty-state icons stay crisp */
+.history-badge,
+.history-badge i,
+.history-badge svg,
+.history-badge .lucide-icon,
+.history-content-v2 .section-tag i,
+.history-content-v2 .section-tag svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  opacity: 1 !important;
+}
+.history-empty-photo-icon,
+.history-empty-photo .fas,
+.history-empty-photo i {
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  opacity: 1 !important;
+}
+.history-empty-photo-note {
+  color: rgba(255, 255, 255, 0.88) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.88) !important;
+  opacity: 1 !important;
+}
+
+/* Why Choose Us — body copy a bit darker; icons already solid green above */
+.feature-box p {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+.feature-box h5 {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+.feature-icon {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 16px !important;
+}
+.feature-icon i,
+.feature-icon svg,
+.feature-icon .lucide-icon {
+  font-size: 1.45rem !important;
+  width: 1.45rem !important;
+  height: 1.45rem !important;
 }
