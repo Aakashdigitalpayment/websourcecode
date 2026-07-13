@@ -130,7 +130,7 @@ if (function_exists('coopThemeHeadAssets')) {
     .hp-burger{ display:none !important; }
   }
 </style>
-<script src="<?= SITE_URL ?>assets/js/pwa-register.js" defer></script>
+<script src="<?= SITE_URL ?>assets/js/pwa-register.js?v=3.2" defer></script>
 </head>
 <body class="admin-shell">
 

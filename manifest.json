@@ -1,13 +1,15 @@
 {
-  "name": "आकाश सहकारी — CMS",
-  "short_name": "आकाश सहकारी",
-  "description": "आकाश सहकारीको लागि समग्र डिजिटल प्रणाली — सदस्य, ऋण, KYC, HRM व्यवस्थापन",
-  "start_url": "/index.php",
+  "id": "/",
+  "name": "जनउत्थान बहुउद्देश्यीय सहकारी",
+  "short_name": "जनउत्थान",
+  "description": "सहकारी संस्थाको लागि समग्र डिजिटल प्रणाली",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "theme_color": "#1a5f2a",
   "background_color": "#ffffff",
+  "lang": "ne",
   "prefer_related_applications": false,
   "icons": [
     {
@@ -20,49 +22,14 @@
       "src": "/assets/images/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/icon-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["productivity", "business"],
-  "shortcuts": [
-    {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "मुख्य Dashboard",
-      "url": "/admin/hrm-dashboard.php",
-      "icons": [
-        {
-          "src": "/assets/images/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Members",
-      "short_name": "Members",
-      "description": "सदस्य व्यवस्थापन",
-      "url": "/admin/members.php",
-      "icons": [
-        {
-          "src": "/assets/images/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    },
-    {
-      "name": "Loans",
-      "short_name": "Loans",
-      "description": "ऋण आवेदन",
-      "url": "/admin/loan-applications.php",
-      "icons": [
-        {
-          "src": "/assets/images/icon-192x192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
-    }
-  ]
+  "categories": ["finance", "business", "productivity"]
 }
