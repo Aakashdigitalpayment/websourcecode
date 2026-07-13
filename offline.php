@@ -64,7 +64,7 @@ h1{font-size:1.35rem;font-weight:800;color:#1a2e1d;margin-bottom:8px;letter-spac
 
   <div class="logo-wrap">
     <img src="/assets/images/logo.png" alt="Logo"
-         onerror="this.style.display='none'">
+         onerror="this.onerror=null;this.src='/assets/images/icon-192x192.png'">
   </div>
 
   <div class="wifi-icon">

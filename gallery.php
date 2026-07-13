@@ -152,7 +152,7 @@ $L = getLangStrings();
                         <div class="video-card">
                             <a href="<?php echo $video['video_url'] ?? ''; ?>" target="_blank" class="video-link">
                                 <div class="video-thumbnail">
-                                    <img src="<?php echo $thumbnail; ?>" loading="lazy"  alt="<?php echo htmlspecialchars($video['title'] ?? ''); ?>" class="img-fluid" onerror="this.src='assets/images/video-placeholder.png'">
+                                    <img src="<?php echo $thumbnail; ?>" loading="lazy"  alt="<?php echo htmlspecialchars($video['title'] ?? ''); ?>" class="img-fluid" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/default/hqdefault.jpg';this.style.opacity='0.5'">
                                     <div class="video-play-btn">
                                         <i class="fab fa-youtube"></i>
                                     </div>
