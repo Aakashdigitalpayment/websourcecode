@@ -365,6 +365,66 @@ body[class*="admin-page-"],
   line-height: 1;
 }
 
+/* Restore FA font after premium/admin Inter !important body fonts.
+   Without this (or if CDN webfonts 404), glyphs render as tofu/X boxes. */
+.fas,
+.fa-solid,
+.far,
+.fa-regular,
+.fab,
+.fa-brands,
+.fal,
+.fad,
+.fa,
+i.fas,
+i.far,
+i.fab,
+i.fa,
+.main-content .fas,
+.main-content .far,
+.main-content .fab,
+.main-content .fa,
+.main-content .btn .fas,
+.main-content .btn .far,
+.main-content .nav-link .fas,
+.main-content .nav-link .far,
+.main-content .table .fas,
+.main-content .table .far,
+.main-content .badge .fas,
+.sidebar .fas,
+.admin-wrapper .fas,
+.admin-wrapper .far,
+.admin-wrapper .fab {
+  font-family: "Font Awesome 6 Free" !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+.fas,
+.fa-solid,
+i.fas,
+.main-content .fas,
+.admin-wrapper .fas {
+  font-weight: 900 !important;
+}
+.far,
+.fa-regular,
+i.far,
+.main-content .far,
+.admin-wrapper .far {
+  font-weight: 400 !important;
+}
+.fab,
+.fa-brands,
+i.fab,
+.main-content .fab,
+.admin-wrapper .fab {
+  font-family: "Font Awesome 6 Brands" !important;
+  font-weight: 400 !important;
+}
+
 /* Icon picker alignment with form tokens */
 .main-content .fa-ip-preview {
   border-radius: var(--admin-radius) !important;

@@ -199,6 +199,11 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeGoogleFonts();
         }
 
+        /* ── 0.5 Self-hosted Font Awesome (legacy fas/far icons; CDN webfonts often tofu on live) ── */
+        if (empty($options['skip_fa'])) {
+            coopThemeLink('assets/vendor/fontawesome/css/all.min.css');
+        }
+
         /* ── 1. Load the static panel CSS FIRST ── */
         $script = (string) ($_SERVER['PHP_SELF'] ?? '');
         $isAdminShell = str_contains($script, '/admin/');

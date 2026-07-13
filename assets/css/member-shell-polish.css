@@ -444,6 +444,34 @@ body.verify-auth-page {
   justify-content: center;
 }
 
+/* Restore FA glyphs if body Inter !important overrides icon font */
+.fas,
+.fa-solid,
+.far,
+.fa-regular,
+.fab,
+.fa-brands,
+i.fas,
+i.far,
+i.fab {
+  font-family: "Font Awesome 6 Free" !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  text-rendering: auto !important;
+}
+.fas,
+.fa-solid,
+i.fas { font-weight: 900 !important; }
+.far,
+.fa-regular,
+i.far { font-weight: 400 !important; }
+.fab,
+.fa-brands,
+i.fab {
+  font-family: "Font Awesome 6 Brands" !important;
+  font-weight: 400 !important;
+}
+
 /* Very narrow phones: keep 5-up bottom nav readable */
 @media (max-width: 379px) {
   .mp-bottom-nav a span,
