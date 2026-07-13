@@ -43,7 +43,7 @@
     <script src="../assets/js/v9-mobile-fix.js?v=9.7" defer></script>
 
     <!-- PWA — Service Worker + Install Handler -->
-    <script src="../assets/js/pwa-register.js" defer></script>
+    <script src="../assets/js/pwa-register.js?v=3.2" defer></script>
 
     <script>
     /* =====================================================

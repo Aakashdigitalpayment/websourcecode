@@ -286,9 +286,12 @@ set_exception_handler(function (\Throwable $ex) {
     <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('admin'); } ?>
 
     <!-- PWA manifest + Apple tags -->
+    <meta name="theme-color" content="<?php echo htmlspecialchars(function_exists('getSetting') ? (string)getSetting('primary_color', '#1a5f2a') : '#1a5f2a', ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="apple-touch-icon" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/images/icon-192x192.png">
+    <link rel="manifest" href="<?php echo defined('SITE_URL') ? rtrim((string)SITE_URL, '/') . '/' : '../'; ?>manifest.php">
     <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="pwa-short-name" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
     <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>

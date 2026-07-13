@@ -1,6 +1,9 @@
 /*
   ══════════════════════════════════════════════════════════════════════
-  SERVICE WORKER — Aakash Cooperative CMS  v5
+  SERVICE WORKER — Aakash Cooperative CMS  v6
+  New in v6:
+    • Cache bump for real PNG PWA icons (was JPEG mislabeled as PNG)
+    • Maskable 512 icon included for installability
   New in v5:
     • Cache bump for pull-to-refresh + PWA register fixes
     • Install no longer auto skipWaiting (avoids mid-form reload)
@@ -17,9 +20,9 @@
   ══════════════════════════════════════════════════════════════════════
 */
 
-const STATIC_CACHE = 'coop-static-v5';
-const PAGES_CACHE  = 'coop-pages-v5';
-const API_CACHE    = 'coop-api-v5';
+const STATIC_CACHE = 'coop-static-v6';
+const PAGES_CACHE  = 'coop-pages-v6';
+const API_CACHE    = 'coop-api-v6';
 const ALL_CACHES   = [STATIC_CACHE, PAGES_CACHE, API_CACHE];
 
 /* Pre-cache at install — must be publicly accessible (no auth required) */
@@ -33,6 +36,7 @@ const PRECACHE_REQUIRED = [
 const PRECACHE_OPTIONAL = [
   '/assets/images/icon-192x192.png',
   '/assets/images/icon-512x512.png',
+  '/assets/images/icon-512x512-maskable.png',
   '/assets/css/app-member.css',
   '/assets/css/app-core.css',
   '/assets/js/coop-mobile.js',
