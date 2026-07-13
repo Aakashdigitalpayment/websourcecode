@@ -4,10 +4,10 @@ $pageTitle = isEnglish() ? 'Service Center Network' : 'सेवा केन्
 require_once 'includes/header.php';
 $L = getLangStrings();
 
-// Get service centers from database
+// Get service centers from database (main branch first, then display_order)
 try {
-    $db = getDB();
-    $centers = $db->query("SELECT * FROM service_centers WHERE is_active = 1 ORDER BY province, name")->fetchAll();
+    require_once __DIR__ . '/includes/service-centers-helpers.php';
+    $centers = fetchActiveServiceCenters();
 } catch (Throwable $e) {
     $centers = [];
 }
@@ -42,23 +42,26 @@ try {
             <!-- Dynamic centers from database -->
             <div class="row">
                 <?php foreach ($centers as $center): ?>
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="service-center-card">
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="service-center-card<?php echo !empty($center['is_main_branch']) ? ' main-branch' : ''; ?>">
+                        <?php if (!empty($center['is_main_branch'])): ?>
+                        <div class="branch-badge"><?php echo isEnglish() ? 'Head Office' : 'प्रधान कार्यालय'; ?></div>
+                        <?php endif; ?>
                         <div class="center-icon">
-                            <i class="fas fa-building"></i>
+                            <i class="fas fa-building" aria-hidden="true"></i>
                         </div>
-                        <h4><?php echo getLangField($center, 'name'); ?></h4>
+                        <h4><?php echo htmlspecialchars((string)getLangField($center, 'name'), ENT_QUOTES, 'UTF-8'); ?></h4>
                         <ul class="center-info">
-                            <li><i class="fas fa-map-marker-alt"></i> <?php echo $center['address']; ?></li>
-                            <li><i class="fas fa-phone"></i> <?php echo $center['phone']; ?></li>
-                            <?php if ($center['email']): ?>
-                            <li><i class="fas fa-envelope"></i> <?php echo $center['email']; ?></li>
+                            <li><i class="fas fa-map-marker-alt" aria-hidden="true"></i> <?php echo htmlspecialchars((string)$center['address'], ENT_QUOTES, 'UTF-8'); ?></li>
+                            <li><i class="fas fa-phone" aria-hidden="true"></i> <?php echo htmlspecialchars((string)$center['phone'], ENT_QUOTES, 'UTF-8'); ?></li>
+                            <?php if (!empty($center['email'])): ?>
+                            <li><i class="fas fa-envelope" aria-hidden="true"></i> <?php echo htmlspecialchars((string)$center['email'], ENT_QUOTES, 'UTF-8'); ?></li>
                             <?php endif; ?>
-                            <li><i class="fas fa-clock"></i> <?php echo $center['opening_hours'] ?? '10:00 AM - 5:00 PM'; ?></li>
+                            <li><i class="fas fa-clock" aria-hidden="true"></i> <?php echo htmlspecialchars((string)($center['opening_hours'] ?? '10:00 AM - 5:00 PM'), ENT_QUOTES, 'UTF-8'); ?></li>
                         </ul>
-                        <?php if ($center['map_url']): ?>
-                        <a href="<?php echo $center['map_url']; ?>" class="btn btn-outline-primary btn-sm" target="_blank">
-                            <i class="fas fa-map"></i> <?php echo isEnglish() ? 'View on Map' : 'नक्सामा हेर्नुहोस्'; ?>
+                        <?php if (!empty($center['map_url'])): ?>
+                        <a href="<?php echo htmlspecialchars((string)$center['map_url'], ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-map" aria-hidden="true"></i> <?php echo isEnglish() ? 'View on Map' : 'नक्सामा हेर्नुहोस्'; ?>
                         </a>
                         <?php endif; ?>
                     </div>
