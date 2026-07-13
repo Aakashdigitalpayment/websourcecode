@@ -1376,8 +1376,6 @@ body.dark-mode .text-primary {
 .center-icon,
 .history-icon-float,
 .counter-icon,
-.service-icon,
-.service-icon-modern,
 .feature-icon,
 .team-placeholder-circular {
   color: #fff !important;
@@ -1397,17 +1395,67 @@ body.dark-mode .text-primary {
 .counter-icon i,
 .counter-icon svg,
 .counter-icon .lucide-icon,
-.service-icon i,
-.service-icon svg,
-.service-icon .lucide-icon,
-.service-icon-modern i,
-.service-icon-modern svg,
-.service-icon-modern .lucide-icon {
+.feature-icon i,
+.feature-icon svg,
+.feature-icon .lucide-icon {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
   stroke: #fff !important;
   fill: none !important;
   opacity: 1 !important;
+}
+
+/*
+ * Service icons: app-public uses a pale well + primary glyph, but an older
+ * polish pass forced white glyphs → faint/invisible until hover (green well).
+ * Keep solid brand well + white icon in default AND hover.
+ */
+.service-icon,
+.service-icon-modern,
+.service-icon-lg,
+.quick-service-card .service-icon {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(26, 95, 42, 0.22) !important;
+}
+.service-icon i,
+.service-icon svg,
+.service-icon .lucide-icon,
+.service-icon-modern i,
+.service-icon-modern svg,
+.service-icon-modern .lucide-icon,
+.service-icon-lg i,
+.service-icon-lg svg,
+.service-icon-lg .lucide-icon,
+.quick-service-card .service-icon i,
+.quick-service-card .service-icon svg,
+.quick-service-card .service-icon .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+.service-card:hover .service-icon,
+.service-card-modern:hover .service-icon-modern,
+.service-detail-card:hover .service-icon-lg,
+.quick-service-card:hover .service-icon {
+  background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+  color: #fff !important;
+}
+.service-card:hover .service-icon i,
+.service-card:hover .service-icon svg,
+.service-card:hover .service-icon .lucide-icon,
+.service-card-modern:hover .service-icon-modern i,
+.service-card-modern:hover .service-icon-modern svg,
+.service-card-modern:hover .service-icon-modern .lucide-icon,
+.service-detail-card:hover .service-icon-lg i,
+.service-detail-card:hover .service-icon-lg svg,
+.quick-service-card:hover .service-icon i,
+.quick-service-card:hover .service-icon svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
 }
 
 /* Override global 1rem lucide size inside large brand tiles */
