@@ -227,7 +227,7 @@ if ($db instanceof PDO) {
     <div class="container">
         <div class="section-header section-header-unified text-center" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-holding-heart"></i> <?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></span>
+                <span class="section-badge"><i class="fas fa-hand-holding-heart" aria-hidden="true"></i> <?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Our Services' : 'हामीले प्रदान गर्ने सेवाहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -376,7 +376,7 @@ if ($db instanceof PDO) {
                             <small class="tools-link-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></small>
                         </a>
                         <a href="member-welfare.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
-                            <i class="lucide-icon" aria-hidden="true" data-lucide="hand-holding-heart"></i>
+                            <i class="fas fa-hand-holding-heart" aria-hidden="true"></i>
                             <span><?php echo isEnglish() ? 'Member Welfare' : 'सदस्य सुविधा'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                             <small class="tools-link-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></small>
