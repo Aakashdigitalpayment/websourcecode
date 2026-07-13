@@ -46,11 +46,21 @@ if (isAdminLoggedIn()) {
 }
 
 $__adminHost = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
-$__adminIsLocal = str_starts_with($__adminHost, '127.0.0.1') || str_starts_with($__adminHost, 'localhost') || str_starts_with($__adminHost, '[::1]');
+$__adminHost = preg_replace('/:\d+$/', '', $__adminHost) ?: $__adminHost;
+$__adminRemote = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+$__adminIsLocalAddr = in_array($__adminRemote, ['127.0.0.1', '::1'], true)
+    || str_starts_with($__adminRemote, '127.');
+$__adminIsLocalHost = str_starts_with($__adminHost, '127.0.0.1')
+    || str_starts_with($__adminHost, 'localhost')
+    || $__adminHost === '[::1]';
+/* Require BOTH loopback client IP and local Host — Host header alone is spoofable */
+$__adminIsLocal = $__adminIsLocalAddr && $__adminIsLocalHost;
 $__adminTestKey = 'admin_test_login';
 
 if (
     $__adminIsLocal
+    && defined('ALLOW_ADMIN_TEST_LOGIN')
+    && ALLOW_ADMIN_TEST_LOGIN === true
     && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST'
     && (string) ($_POST['action'] ?? '') === $__adminTestKey
     && !empty($_POST['csrf_token'])
@@ -613,13 +623,13 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 <i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> लग इन गर्नुहोस्
             </button>
         </form>
-        <?php if ($__adminIsLocal): ?>
+        <?php if ($__adminIsLocal && defined('ALLOW_ADMIN_TEST_LOGIN') && ALLOW_ADMIN_TEST_LOGIN === true): ?>
         <form method="POST" action="" style="margin-top:14px;padding-top:14px;border-top:1px dashed rgba(0,0,0,.12);">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="<?php echo htmlspecialchars($__adminTestKey, ENT_QUOTES, 'UTF-8'); ?>">
             <div class="security-note security-note-warning" style="margin-bottom:12px;">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="flask-conical"></i>
-                Local test login only. This is visible on 127.0.0.1 / localhost and seeds the normal admin session for dashboard testing.
+                Local test login only (ALLOW_ADMIN_TEST_LOGIN). Requires loopback IP + localhost Host.
             </div>
             <div class="field">
                 <label>Test Username</label>

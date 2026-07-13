@@ -1114,9 +1114,14 @@ function getAppTypeLabel($type) {
                                             <?php if (!empty($app['organization_address'])): ?>
                                             <li><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?>: <?php echo htmlspecialchars($app['organization_address']); ?></li>
                                             <?php endif; ?>
-                                            <?php if (!empty($app['organization_website'])): ?>
-                                            <li><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?>: <a href="<?php echo htmlspecialchars($app['organization_website']); ?>" target="_blank" rel="noopener"><?php echo htmlspecialchars($app['organization_website']); ?></a></li>
-                                            <?php endif; ?>
+                                            <?php if (!empty($app['organization_website'])):
+                                                $__orgWeb = function_exists('safe_http_url')
+                                                    ? safe_http_url((string)$app['organization_website'])
+                                                    : '';
+                                                if ($__orgWeb !== ''):
+                                            ?>
+                                            <li><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?>: <a href="<?php echo htmlspecialchars($__orgWeb, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo htmlspecialchars($__orgWeb, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                            <?php endif; endif; ?>
                                             <?php if (!empty($app['purpose_detail'])): ?>
                                             <li><?php echo isEnglish() ? 'Notes' : 'विवरण'; ?>: <?php echo nl2br(htmlspecialchars($app['purpose_detail'])); ?></li>
                                             <?php endif; ?>

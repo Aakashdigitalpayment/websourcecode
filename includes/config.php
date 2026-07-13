@@ -281,12 +281,51 @@ if (!function_exists('clean_text')) {
     }
 }
 
-// Escape output for safe HTML display - short helper function
-// Use this for displaying any user-generated or dynamic content
+/**
+ * Escape output for safe HTML display - short helper function
+ * Use this for displaying any user-generated or dynamic content
+ */
 function e($string) {
     $text = trim((string)($string ?? ''));
     $text = str_replace("\u{FFFD}", '', $text);
     return htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+}
+
+/**
+ * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
+ * Bare domains get https:// prepended. Invalid schemes return empty string.
+ */
+function safe_http_url(?string $url): string
+{
+    $url = trim((string)$url);
+    if ($url === '') {
+        return '';
+    }
+    $url = str_replace(["\0", "\r", "\n", "\t"], '', $url);
+    if (preg_match('#^(javascript|data|vbscript|file):#i', $url)) {
+        return '';
+    }
+    if (!preg_match('#^[a-z][a-z0-9+.-]*:#i', $url)) {
+        // scheme-less host/path → assume https
+        if (preg_match('#^//#', $url)) {
+            $url = 'https:' . $url;
+        } elseif (preg_match('#^[\w.-]+\.[a-z]{2,}(/.*)?$#i', $url) || preg_match('#^www\.#i', $url)) {
+            $url = 'https://' . $url;
+        } else {
+            return '';
+        }
+    }
+    if (!preg_match('#^https?://#i', $url)) {
+        return '';
+    }
+    $parts = parse_url($url);
+    if (!is_array($parts) || empty($parts['host'])) {
+        return '';
+    }
+    if (isset($parts['user']) || isset($parts['pass'])) {
+        return '';
+    }
+    return $url;
 }
 
 /**
