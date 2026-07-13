@@ -229,12 +229,12 @@ require_once 'includes/header.php';
         <div class="modal-content">
 
             <!-- Modal Header -->
-            <div class="modal-header" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-color));color:#fff;">
-                <h5 class="modal-title" id="surveyModalLabel">
-                    <i class="fas fa-comments me-2"></i>
+            <div class="modal-header bg-primary text-white" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-color)) !important;border-bottom:0;">
+                <h5 class="modal-title text-white" id="surveyModalLabel">
+                    <i class="fas fa-comments me-2 text-white" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Share Your Feedback' : 'आफ्नो प्रतिक्रिया साझा गर्नुहोस्'; ?>
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द'; ?>"></button>
             </div>
 
             <!-- Modal Body -->

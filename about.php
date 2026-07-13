@@ -501,24 +501,28 @@ $ceoMessage = $ceoMessageSetting;
         <div class="row">
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
                 <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-users"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_members', '५०००'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Members' : 'सदस्यहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-award"></i></div>
                     <div class="stat-number"><?php echo getSetting('years_experience', '२०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Years Experience' : 'वर्षको अनुभव'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-handshake"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_services', '१०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-box">
+                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-smile"></i></div>
                     <div class="stat-number"><?php echo getSetting('satisfaction_rate', '९९'); ?>%</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Satisfied Customers' : 'सन्तुष्ट ग्राहक'; ?></div>
                 </div>
