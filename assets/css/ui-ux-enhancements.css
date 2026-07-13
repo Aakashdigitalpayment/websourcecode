@@ -437,6 +437,28 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.3;
 }
 
+/* Brand / green panels keep light headings (do not inherit dark body heading color) */
+.tracker-hero-section h1,
+.tracker-hero-section h2,
+.tracker-hero-section h3,
+.tracker-hero-section h4,
+.tracker-hero-section h5,
+.tracker-hero-section h6,
+.tracker-search-header h1,
+.tracker-search-header h2,
+.tracker-search-header h3,
+.tracker-search-header h4,
+.tracker-search-header h5,
+.tracker-search-header h6,
+.page-banner h1,
+.page-banner-modern h1,
+.cr-hero h1,
+.cr-hero h2,
+.cp-hero h1,
+.cp-hero h2 {
+  color: #fff;
+}
+
 h1 { font-size: 2rem; }
 h2 { font-size: 1.75rem; }
 h3 { font-size: 1.5rem; }

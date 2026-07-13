@@ -549,27 +549,26 @@ function getAppTypeLabel($type) {
 }
 ?>
 
-<!-- Page Banner — Premium Hero -->
+<!-- Page Banner — compact hero -->
 <section class="tracker-hero-section">
     <div class="tracker-hero-bg-pattern"></div>
     <div class="container position-relative">
         <div class="tracker-hero-content text-center">
-            <div class="tracker-hero-icon-wrap mb-3">
-                <div class="tracker-hero-icon-ring">
+            <div class="tracker-hero-icon-wrap">
+                <div class="tracker-hero-icon-ring" aria-hidden="true">
                     <i class="fas fa-radar"></i>
                 </div>
-                <div class="tracker-hero-ping"></div>
             </div>
             <h1 class="tracker-hero-title">
                 <?php echo isEnglish() ? 'Application Status Tracker' : 'आवेदन स्थिति ट्र्याकर'; ?>
             </h1>
             <p class="tracker-hero-sub">
                 <?php echo isEnglish()
-                    ? 'Track your Job, Loan, Account, Grievance &amp; more — all in one place.'
+                    ? 'Track job, loan, account, grievance and more in one place.'
                     : 'रोजगारी, ऋण, खाता, गुनासो लगायत सबै आवेदनको स्थिति — एकैठाउँमा।'; ?>
             </p>
             <nav aria-label="breadcrumb" class="d-flex justify-content-center">
-                <ol class="breadcrumb tracker-breadcrumb">
+                <ol class="breadcrumb tracker-breadcrumb mb-0">
                     <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
                     <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></li>
                 </ol>
@@ -578,7 +577,7 @@ function getAppTypeLabel($type) {
     </div>
 </section>
 
-<section class="section-padding">
+<section class="tracker-main-section py-3 py-md-4">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
@@ -633,12 +632,12 @@ function getAppTypeLabel($type) {
                 <!-- Search Form Card — Premium -->
                 <div class="tracker-search-card card shadow mb-4">
                     <div class="tracker-search-header">
-                        <div class="tracker-search-header-icon">
+                        <div class="tracker-search-header-icon" aria-hidden="true">
                             <i class="fas fa-magnifying-glass-chart"></i>
                         </div>
                         <div>
-                            <h5 class="mb-0 fw-bold"><?php echo isEnglish() ? 'Track All Your Applications' : 'सबै आवेदनहरू एकै ठाउँमा खोज्नुहोस्'; ?></h5>
-                            <p class="mb-0 opacity-75 small"><?php echo isEnglish() ? 'Enter Tracking ID, Phone or Email' : 'Tracking ID, फोन वा इमेल राख्नुहोस्'; ?></p>
+                            <h5 class="mb-0 fw-bold tracker-search-title"><?php echo isEnglish() ? 'Track All Your Applications' : 'सबै आवेदनहरू एकै ठाउँमा खोज्नुहोस्'; ?></h5>
+                            <p class="mb-0 tracker-search-sub"><?php echo isEnglish() ? 'Enter Tracking ID, phone or email' : 'Tracking ID, फोन वा इमेल राख्नुहोस्'; ?></p>
                         </div>
                     </div>
                     <div class="card-body">
@@ -648,7 +647,7 @@ function getAppTypeLabel($type) {
                                 <!-- Search Type — expands to col-12 when phone/email (no separate search value) -->
                                 <div id="colSearchType" class="col-md-4">
                                     <label class="form-label"><i class="fas fa-filter"></i> <?php echo isEnglish() ? 'Search By' : 'खोज्ने तरिका'; ?></label>
-                                    <select name="search_type" class="form-select form-select-lg" id="searchType">
+                                    <select name="search_type" class="form-select" id="searchType">
                                         <option value="tracking_id" <?php echo ($_POST['search_type'] ?? 'tracking_id') === 'tracking_id' ? 'selected' : ''; ?>>
                                             <?php echo isEnglish() ? 'Tracking ID / Reference No.' : 'ट्र्याकिङ ID / सन्दर्भ नं.'; ?>
                                         </option>
@@ -670,11 +669,11 @@ function getAppTypeLabel($type) {
                                 <!-- Search Value — only for Tracking ID; hidden when phone/email -->
                                 <div id="colSearchValue" class="col-md-8">
                                     <label class="form-label" id="searchLabel"><i class="fas fa-hashtag"></i> <?php echo isEnglish() ? 'Enter Tracking ID' : 'ट्र्याकिङ ID प्रविष्ट गर्नुहोस्'; ?></label>
-                                    <input type="text" name="search_value" id="searchValue" class="form-control form-control-lg"
-                                           placeholder="<?php echo isEnglish() ? 'e.g.: JOB-20240101-XXXX' : 'जस्तै: JOB-20240101-XXXX'; ?>"
+                                    <input type="text" name="search_value" id="searchValue" class="form-control"
+                                           placeholder="<?php echo isEnglish() ? 'e.g. JOB-20240101-XXXX / APT-…' : 'जस्तै: JOB-20240101-XXXX / APT-…'; ?>"
                                            value="<?php echo htmlspecialchars($_POST['search_value'] ?? ''); ?>">
-                                    <small class="text-muted">
-                                        <span id="hintTrackingId"><?php echo isEnglish() ? 'e.g.: JOB-20240101-XXXX, APT-20260505-XXXXXX, FBK-2082-XXXXXX, WLF-XXXX-XXXXXX' : 'जस्तै: JOB-20240101-XXXX, APT-20260505-XXXXXX, FBK-2082-XXXXXX, WLF-XXXX-XXXXXX'; ?></span>
+                                    <small class="text-muted tracker-hint d-none d-md-inline" id="hintTrackingIdWrap">
+                                        <span id="hintTrackingId"><?php echo isEnglish() ? 'Examples: JOB-, APT-, FBK-, WLF-…' : 'उदाहरण: JOB-, APT-, FBK-, WLF-…'; ?></span>
                                     </small>
                                 </div>
 
