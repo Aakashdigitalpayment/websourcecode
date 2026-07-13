@@ -134,7 +134,7 @@ h1{font-size:1.3rem;font-weight:800;color:#1a2e1d;margin-bottom:6px;letter-spaci
     <!-- Brand header -->
     <div class="card-head">
       <img src="/assets/images/logo.png" alt="Logo"
-           onerror="this.onerror=null;this.style.display='none';">
+           onerror="this.onerror=null;this.src='/assets/images/icon-192x192.png'">
       <div class="card-head-text">
         <div class="card-head-title" id="siteName">आकाश सहकारी</div>
         <div class="card-head-sub">सदस्य पोर्टल — Offline</div>
