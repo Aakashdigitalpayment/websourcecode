@@ -1689,25 +1689,42 @@ body.dark-mode .text-primary {
   fill: none !important;
 }
 
-/* Widget / feature icon wells — Lucide-safe insurance */
+/* Widget / feature icon wells — white glyphs on brand-green circles */
+.widget-icon,
+.feature-icon-wrap {
+  color: #fff !important;
+}
 .widget-icon i,
 .widget-icon svg,
 .widget-icon .lucide-icon,
 .feature-icon-wrap i,
 .feature-icon-wrap svg,
 .feature-icon-wrap .lucide-icon,
+.app-feature-item .feature-icon-wrap i,
+.app-feature-item .feature-icon-wrap svg,
+.app-feature-item .feature-icon-wrap .fas,
+.app-feature-item .feature-icon-wrap .far,
+.app-feature-item .feature-icon-wrap .fa {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  font-size: 1.35rem !important;
+  line-height: 1 !important;
+}
+.feature-icon-wrap svg.lucide,
+.feature-icon-wrap .lucide-icon {
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+  min-width: 1.4rem !important;
+  min-height: 1.4rem !important;
+  stroke-width: 2.2 !important;
+}
 .tools-category-card h5 i,
 .tools-category-card h5 svg,
 .tools-category-card h5 .lucide-icon {
   color: inherit;
-}
-.widget-icon svg,
-.widget-icon .lucide-icon,
-.feature-icon-wrap svg,
-.feature-icon-wrap .lucide-icon {
-  stroke: currentColor !important;
-  fill: none !important;
-  opacity: 1 !important;
 }
 
 /* Restore FA font after premium Inter !important (prevents tofu/X boxes) */
