@@ -1709,3 +1709,14 @@ body.dark-mode .text-primary {
   fill: none !important;
   opacity: 1 !important;
 }
+
+/* Restore FA font after premium Inter !important (prevents tofu/X boxes) */
+.fas,.fa-solid,.far,.fa-regular,.fab,.fa-brands,.fa,i.fas,i.far,i.fab,i.fa{
+  font-family:"Font Awesome 6 Free" !important;
+  font-style:normal !important;
+  font-variant:normal !important;
+  text-rendering:auto !important;
+}
+.fas,.fa-solid,i.fas{font-weight:900 !important;}
+.far,.fa-regular,i.far{font-weight:400 !important;}
+.fab,.fa-brands,i.fab{font-family:"Font Awesome 6 Brands" !important;font-weight:400 !important;}

@@ -281,8 +281,7 @@ set_exception_handler(function (\Throwable $ex) {
     <!-- Nepali Datepicker CSS (self-hosted) -->
     <link rel="stylesheet" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/css/nepali.datepicker.min.css">
 
-    <!-- Font Awesome (legacy admin pages still use fas/fa-* icons in action buttons) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+    <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted assets/vendor/fontawesome) -->
 
     <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('admin'); } ?>
 

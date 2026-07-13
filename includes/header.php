@@ -390,7 +390,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
 
     <!-- AOS Animation CSS -->
     <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted) -->
 
     <!-- Nepali Datepicker CSS (self-hosted v5) -->
     <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/nepali.datepicker.min.css">

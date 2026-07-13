@@ -189,7 +189,7 @@ try {
 <!-- Design tokens + base styles (core.css) must load before app-member.css -->
 <link rel="stylesheet" href="../assets/css/app-core.css?v=<?= filemtime(__DIR__."/../../assets/css/app-core.css") ?>">
 <!-- Member portal styles come from coopThemeHeadAssets('member') — do not double-link app-member.css -->
-<!-- Font Awesome (still needed for existing member page icons) -->
+<!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted) -->
 
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('member'); } ?>
 <style>
