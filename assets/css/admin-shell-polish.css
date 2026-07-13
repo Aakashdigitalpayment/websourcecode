@@ -319,27 +319,247 @@ body[class*="admin-page-"],
   height: 16px;
 }
 
-/* ── Tabs ──────────────────────────────────────────────────────────── */
-.main-content .nav-tabs.admin-nav-tabs {
-  border-bottom: 1px solid #e5ebe7 !important;
-  background: var(--admin-surface-soft) !important;
-  border-radius: 12px 12px 0 0 !important;
-  gap: 2px !important;
-  padding: 4px 4px 0 !important;
+/* ── Page header strip (subtitle bar under title) ──────────────────── */
+.main-content .admin-page-header {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0.75rem 1rem !important;
+  padding: 0.85rem 1rem !important;
+  background: linear-gradient(180deg, #f7faf8 0%, #ffffff 100%) !important;
+  border: 1px solid #e3ebe6 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
 }
 
-.main-content .nav-tabs.admin-nav-tabs .nav-link {
-  border-radius: 8px 8px 0 0 !important;
-  font-size: 0.88rem !important;
-  padding: 0.7rem 1rem !important;
+.main-content .admin-page-header .admin-page-header-icon,
+.main-content .admin-page-header > .d-flex .admin-page-header-icon,
+.main-content .admin-page-header [class*="header-icon"] {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 11px !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #e5e7eb) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+.main-content .admin-page-header .btn,
+.main-content .admin-page-header .badge {
+  border-radius: 999px !important;
+}
+
+.main-content .admin-page-header a.text-decoration-none,
+.main-content .admin-page-header a.admin-help-link,
+.main-content .admin-page-header .admin-quick-guide {
+  display: inline-flex !important;
+  align-items: center !important;
   gap: 0.4rem !important;
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 999px !important;
+  border: 1px solid #e5ebe7 !important;
+  background: #fff !important;
+  color: #334155 !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
 }
 
-.main-content .nav-tabs.admin-nav-tabs .nav-link .lucide-icon,
-.main-content .nav-tabs.admin-nav-tabs .nav-link svg {
-  width: 15px !important;
-  height: 15px !important;
+.main-content .admin-page-header a.text-decoration-none:hover,
+.main-content .admin-page-header a.admin-help-link:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #e5e7eb) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.main-content .admin-stat-badge {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  padding: 0.35em 0.7em !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── Tabs — soft tray + pill links (sitewide admin-nav-tabs) ───────── */
+.main-content .nav-tabs.admin-nav-tabs,
+.main-content ul.nav.admin-nav-tabs,
+.main-content .admin-nav-tabs.nav,
+.main-content .admin-nav-tabs.nav-tabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  padding: 6px !important;
+  margin-bottom: 1rem !important;
+  background: #f2f6f3 !important;
+  border: 1px solid #dde8e1 !important;
+  border-radius: 14px !important;
+  border-bottom: 1px solid #dde8e1 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-item,
+.main-content ul.nav.admin-nav-tabs .nav-item,
+.main-content .admin-nav-tabs .nav-item {
+  margin: 0 !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-link,
+.main-content ul.nav.admin-nav-tabs .nav-link,
+.main-content .admin-nav-tabs .nav-link {
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  background: transparent !important;
+  color: #4b5563 !important;
+  font-size: 0.88rem !important;
+  font-weight: 600 !important;
+  padding: 0.55rem 0.95rem !important;
+  margin: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+  line-height: 1.25 !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-link:hover,
+.main-content ul.nav.admin-nav-tabs .nav-link:hover,
+.main-content .admin-nav-tabs .nav-link:hover {
+  background: #ffffff !important;
+  border-color: #d5e3da !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.main-content .nav-tabs.admin-nav-tabs .nav-link.active,
+.main-content ul.nav.admin-nav-tabs .nav-link.active,
+.main-content .admin-nav-tabs .nav-link.active {
+  background: #ffffff !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 32%, #e5e7eb) !important;
+  color: var(--primary-dark, #145021) !important;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    inset 0 -2px 0 var(--primary-color, #1a5f2a) !important;
+}
+
+/* Tab icons — FA + Lucide, consistent chip size */
+.main-content .admin-nav-tabs .nav-link > i.fas,
+.main-content .admin-nav-tabs .nav-link > i.far,
+.main-content .admin-nav-tabs .nav-link > i.fa,
+.main-content .admin-nav-tabs .nav-link > .lucide-icon,
+.main-content .admin-nav-tabs .nav-link > svg.lucide {
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+  min-width: 1.05rem !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+  opacity: 0.92 !important;
+  color: inherit !important;
+  stroke: currentColor !important;
+  flex-shrink: 0 !important;
+}
+
+.main-content .admin-nav-tabs .nav-link .badge {
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  padding: 0.2em 0.5em !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff) !important;
+  color: var(--primary-dark, #145021) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #e5e7eb) !important;
+}
+
+.main-content .admin-nav-tabs .nav-link.active .badge {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #fff) !important;
+}
+
+/* Card-header tabs (health/system pages) stay readable on green headers */
+.main-content .card-header .admin-nav-tabs {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow: none !important;
+}
+
+.main-content .card-header .admin-nav-tabs .nav-link {
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.main-content .card-header .admin-nav-tabs .nav-link:hover,
+.main-content .card-header .admin-nav-tabs .nav-link.active {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--primary-dark, #145021) !important;
+  border-color: transparent !important;
+}
+
+/* ── Topbar action icons (search / lang / bell / user) ─────────────── */
+.admin-header-actions {
+  gap: 8px !important;
+}
+
+.admin-header-icon,
+.admin-header-actions .notification-bell,
+.admin-header-actions .notif-toggle-btn {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  border-radius: 11px !important;
+  background: #fff !important;
+  border: 1px solid #e5ebe7 !important;
+  color: #334155 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.admin-header-icon:hover,
+.admin-header-actions .notification-bell:hover,
+.admin-header-actions .notif-toggle-btn:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #e5e7eb) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 2px 6px rgba(26, 95, 42, 0.08) !important;
+}
+
+.admin-header-icon .lucide-icon,
+.admin-header-icon svg,
+.admin-header-actions .notification-bell .lucide-icon,
+.admin-header-actions .notification-bell svg {
+  width: 17px !important;
+  height: 17px !important;
   stroke-width: 2 !important;
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* Primary action buttons in toolbars */
+.main-content .btn-primary,
+.main-content .btn-success {
+  border-radius: 10px !important;
+  font-weight: 650 !important;
+  box-shadow: 0 1px 2px rgba(26, 95, 42, 0.12) !important;
+}
+
+.main-content .btn-primary:hover,
+.main-content .btn-success:hover {
+  box-shadow: 0 3px 8px rgba(26, 95, 42, 0.18) !important;
+}
+
+@media (max-width: 767.98px) {
+  .main-content .nav-tabs.admin-nav-tabs,
+  .main-content ul.nav.admin-nav-tabs,
+  .main-content .admin-nav-tabs.nav {
+    gap: 4px !important;
+    padding: 5px !important;
+  }
+
+  .main-content .admin-nav-tabs .nav-link {
+    padding: 0.45rem 0.7rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .main-content .admin-page-header {
+    padding: 0.7rem 0.8rem !important;
+  }
 }
 
 /* ── Chrome icons (sidebar + bottom nav) ───────────────────────────── */
