@@ -90,7 +90,7 @@ if (!function_exists('coopThemeCssUrl')) {
             $path = defined('ROOT_PATH') ? ROOT_PATH : dirname(__DIR__) . '/';
             $fullPath = $path . 'assets/vendor/lucide.min.js';
             $mtime = @filemtime($fullPath) ?: time();
-            echo '<script src="' . htmlspecialchars($base . 'assets/vendor/lucide.min.js?v=' . $mtime, ENT_QUOTES, 'UTF-8') . '"></script>' . "\n";
+            echo '<script src="' . htmlspecialchars($base . 'assets/vendor/lucide.min.js?v=' . $mtime, ENT_QUOTES, 'UTF-8') . '" defer></script>' . "\n";
         }
     }
 
@@ -137,22 +137,16 @@ if (!function_exists('coopThemeCssUrl')) {
         lucide.createIcons();
     }
 
-    document.addEventListener("DOMContentLoaded", renderLucide);
-    window.addEventListener("load", renderLucide);
-    if (document.readyState !== "loading") renderLucide();
-
-    /* Re-run after any tab/accordion opens new icons */
-    if (typeof MutationObserver !== "undefined") {
-        var _lucideObs = new MutationObserver(function(muts) {
-            var hasNewLucide = muts.some(function(m) {
-                return Array.from(m.addedNodes).some(function(n) {
-                    return n.nodeType === 1 && (n.hasAttribute("data-lucide") || n.querySelector("[data-lucide]"));
-                });
-            });
-            if (hasNewLucide) renderLucide();
-        });
-        _lucideObs.observe(document.body || document.documentElement, { childList: true, subtree: true });
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", renderLucide);
+    } else {
+        renderLucide();
     }
+    window.addEventListener("load", renderLucide);
+    /* NOTE: MutationObserver intentionally removed — createIcons() replaces
+       <i data-lucide> with <svg> which re-triggers the observer → infinite
+       loop → Page Unresponsive crash. Tabs/modals call lucide.createIcons()
+       directly in their own JS where needed. */
 })();
 </script>' . "\n";
     }
