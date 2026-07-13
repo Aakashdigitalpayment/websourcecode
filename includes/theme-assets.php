@@ -114,8 +114,12 @@ if (!function_exists('coopThemeCssUrl')) {
             "shield-halved": ["shield-check", "shield-half", "shield"],
             "shield-half": ["shield-check", "shield"],
             "chart-bar": ["bar-chart-3", "chart-column"],
+            "chart-line": ["line-chart", "chart-no-axes-column"],
             "user-circle": ["circle-user", "user-round"],
-            "circle-question": ["help-circle", "circle-help"]
+            "circle-question": ["help-circle", "circle-help"],
+            "circle-info": ["info", "info-circle"],
+            "circle-check": ["check-circle", "circle-check-big"],
+            "hand-holding-heart": ["heart-handshake", "heart"]
         };
         var nodes = root.querySelectorAll("[data-lucide]");
         nodes.forEach(function (el) {

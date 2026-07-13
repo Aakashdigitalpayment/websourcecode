@@ -1542,3 +1542,30 @@ body.dark-mode .text-primary {
   font-size: 1.05rem !important;
   opacity: 1 !important;
 }
+
+/* Home tools mini-links — Lucide <svg> must match FA icon-well styling */
+.tools-mini-link > svg.lucide {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 0.7rem !important;
+  box-sizing: border-box !important;
+  border-radius: 14px !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.10) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+  flex: 0 0 auto !important;
+  opacity: 1 !important;
+}
+.tools-mini-link:hover > svg.lucide {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  stroke: #fff !important;
+}
+.tools-mini-link .tools-mini-more {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
