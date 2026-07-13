@@ -576,6 +576,135 @@ body[class*="admin-page-"],
   height: 16px !important;
 }
 
+/* ── Inner green strip tabs (सक्रिय / अभिलेख) — white glyphs on brand ──
+   admin-icon-colors-priority forces lucide #374151 which kills contrast. */
+.main-content ul.nav.admin-inner-tabstrip {
+  gap: 6px !important;
+  padding: 6px 8px !important;
+  border-radius: 12px !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active),
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active) i,
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active) svg,
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active) .lucide-icon,
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active) span {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link:not(.active) .badge.adm-subpill-count {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link.active,
+.main-content ul.nav.admin-inner-tabstrip .nav-link.active span:not(.badge) {
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link.active i,
+.main-content ul.nav.admin-inner-tabstrip .nav-link.active svg,
+.main-content ul.nav.admin-inner-tabstrip .nav-link.active .lucide-icon {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+}
+
+.main-content ul.nav.admin-inner-tabstrip .nav-link > .lucide-icon,
+.main-content ul.nav.admin-inner-tabstrip .nav-link > svg.lucide {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  stroke-width: 2.2 !important;
+}
+
+/* Bulk status buttons — no wrap/overflow */
+.main-content .admin-bulk-bar,
+.main-content form[method="POST"] > .px-3.py-2.border-bottom.d-flex,
+.main-content form[method="POST"] > .px-3.py-2.border-bottom.bg-light {
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+  align-items: center !important;
+}
+
+.main-content .admin-bulk-btn,
+.main-content button.btn[name="bulk"],
+.main-content .ntc-bulk-active,
+.main-content .ntc-bulk-inactive {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
+  white-space: nowrap !important;
+  min-height: 34px !important;
+  height: auto !important;
+  padding: 0.4rem 0.9rem !important;
+  line-height: 1.2 !important;
+  border-radius: 9px !important;
+  font-weight: 650 !important;
+  font-size: 0.82rem !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+}
+
+.main-content .admin-bulk-btn i,
+.main-content button.btn[name="bulk"] i,
+.main-content .ntc-bulk-active i,
+.main-content .ntc-bulk-inactive i {
+  flex-shrink: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Sidebar submenu — missing glyph + no underline on active */
+.sidebar .nav-submenu li > a {
+  text-decoration: none !important;
+}
+
+.sidebar .nav-submenu li.active > a,
+.sidebar .nav-submenu li.active > a span {
+  text-decoration: none !important;
+  font-weight: 700 !important;
+}
+
+.sidebar .nav-submenu .nav-icon-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.sidebar .nav-submenu .nav-icon-wrap .lucide-icon,
+.sidebar .nav-submenu .nav-icon-wrap svg.lucide {
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  stroke-width: 2 !important;
+  color: #374151 !important;
+  stroke: #374151 !important;
+  opacity: 1 !important;
+}
+
+.sidebar .nav-submenu li.active .nav-icon-wrap .lucide-icon,
+.sidebar .nav-submenu li.active .nav-icon-wrap svg.lucide,
+.sidebar .nav-submenu li.active > a .lucide-icon,
+.sidebar .nav-submenu li.active > a svg.lucide {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+}
+
 /* Keep content FA icons readable next to Lucide chrome */
 .main-content .table .fas,
 .main-content .table .far,
