@@ -17349,3 +17349,116 @@ html.pwa-installed  .mem-pwa-btn { display: none !important; }
         --adm-fs-xl:   1.10rem;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   v13 — ICON & BUTTON SAFE FIXES (Additive, no HTML changes)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Hide broken image icon-box (□) until lucide renders the SVG.
+   Once lucide.createIcons() runs, the <i> gets replaced with <svg>
+   so these rules naturally stop applying. */
+.main-content i.lucide-icon:empty,
+.sidebar-nav i.lucide-icon:empty,
+.admin-nav-tabs i.lucide-icon:empty,
+.card i.lucide-icon:empty,
+.modal i.lucide-icon:empty,
+.btn i.lucide-icon:empty {
+    display: inline-block;
+    width: 1em; height: 1em;
+    visibility: hidden;
+    vertical-align: middle;
+}
+
+/* Ensure rendered lucide SVGs stay aligned and sized consistently */
+.main-content i.lucide-icon svg,
+.sidebar-nav i.lucide-icon svg,
+.admin-nav-tabs i.lucide-icon svg,
+.btn i.lucide-icon svg {
+    width: 1em !important;
+    height: 1em !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    stroke-width: 1.75 !important;
+}
+
+/* Tab icons specifically — stay inline with text */
+.admin-nav-tabs .nav-link i.lucide-icon,
+.admin-nav-tabs .nav-link i.lucide-icon svg {
+    width: 0.9em !important;
+    height: 0.9em !important;
+    margin-right: 4px;
+}
+
+/* Action buttons (edit/delete/view) icon alignment */
+.main-content .btn-sm i,
+.main-content .btn-sm i.lucide-icon svg,
+.admin-table-card .btn-sm i {
+    vertical-align: middle !important;
+    line-height: 1 !important;
+}
+
+/* Service/category icon in table — show placeholder if invalid FA class */
+.admin-table-card td i[class]:not([class*="fa-"]):not([class*="lucide"]):not([class*="bi "]) {
+    display: inline-block;
+    width: 20px; height: 20px;
+    background: #e8f0e9;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+/* ── Button visual improvements ────────────────────────────────── */
+.main-content .btn-primary {
+    background: var(--primary-color, #1a5f2a) !important;
+    border-color: var(--primary-color, #1a5f2a) !important;
+    color: #fff !important;
+}
+.main-content .btn-primary:hover {
+    background: var(--primary-dark, #144d22) !important;
+    border-color: var(--primary-dark, #144d22) !important;
+}
+.main-content .btn-outline-primary {
+    border-color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-color, #1a5f2a) !important;
+}
+.main-content .btn-outline-primary:hover {
+    background: var(--primary-color, #1a5f2a) !important;
+    color: #fff !important;
+}
+.main-content .btn-success {
+    background: #1a8a3f !important;
+    border-color: #1a8a3f !important;
+}
+.main-content .btn-danger {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+.main-content .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+.main-content .btn-outline-danger:hover {
+    background: #dc3545 !important;
+    color: #fff !important;
+}
+
+/* ── DECORATE: action buttons pill/square ────────────────────── */
+.admin-table-card .btn-sm.btn-primary,
+.admin-table-card .btn-sm.btn-outline-primary,
+.admin-table-card .btn-sm.btn-danger,
+.admin-table-card .btn-sm.btn-outline-danger,
+.admin-table-card .btn-sm.btn-secondary,
+.admin-table-card .btn-sm.btn-outline-secondary {
+    width: 30px !important;
+    height: 30px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    transition: transform .12s, box-shadow .12s !important;
+}
+.admin-table-card .btn-sm:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,.15) !important;
+}
