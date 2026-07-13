@@ -188,8 +188,7 @@ try {
 <link rel="stylesheet" href="../assets/css/member-bs-compat.css?v=<?= filemtime(__DIR__."/../../assets/css/member-bs-compat.css") ?>">
 <!-- Design tokens + base styles (core.css) must load before app-member.css -->
 <link rel="stylesheet" href="../assets/css/app-core.css?v=<?= filemtime(__DIR__."/../../assets/css/app-core.css") ?>">
-<!-- Member portal styles -->
-<link rel="stylesheet" href="../assets/css/app-member.css?v=<?= filemtime(__DIR__."/../../assets/css/app-member.css") ?>">
+<!-- Member portal styles come from coopThemeHeadAssets('member') — do not double-link app-member.css -->
 <!-- Font Awesome (still needed for existing member page icons) -->
 
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('member'); } ?>
