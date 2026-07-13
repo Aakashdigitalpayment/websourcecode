@@ -161,10 +161,10 @@ $flash = getFlash();
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="action" value="bulk_status">
                         <div class="px-3 py-2 border-bottom ntc-soft-bg d-flex gap-2 justify-content-end">
-                            <button type="submit" name="bulk" value="active" class="btn btn-sm ntc-bulk-active">
+                            <button type="submit" name="bulk" value="active" class="btn btn-sm ntc-bulk-active admin-bulk-btn">
                                 <i class="fas fa-check-circle me-1"></i><?php echo $__t('Bulk सक्रिय', 'Bulk Active'); ?>
                             </button>
-                            <button type="submit" name="bulk" value="inactive" class="btn btn-sm ntc-bulk-inactive">
+                            <button type="submit" name="bulk" value="inactive" class="btn btn-sm ntc-bulk-inactive admin-bulk-btn">
                                 <i class="fas fa-ban me-1"></i><?php echo $__t('Bulk निष्क्रिय', 'Bulk Inactive'); ?>
                             </button>
                         </div>

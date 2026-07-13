@@ -294,7 +294,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
     <div class="tab-content">
         <div class="tab-pane fade <?php echo $panel === 'general' ? 'show active' : ''; ?>" id="settings-general-tab" role="tabpanel">
         <div class="alert alert-light border settings-tab-note mb-3">
-            <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="circle-info"></i>
+            <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="info"></i>
             <?php echo $__t('वेबसाइटको नाम, SEO, सम्पर्क, social links, banking links, नेतृत्व र footer सम्बन्धी मुख्य सेटिङ्स यही tab मा छन्।', 'Main settings for website name, SEO, contacts, social links, banking links, leadership and footer are in this tab.'); ?>
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="general">
@@ -713,7 +713,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
 
         <div class="tab-pane fade <?php echo $panel === 'branding' ? 'show active' : ''; ?>" id="settings-branding-tab" role="tabpanel">
         <div class="alert alert-light border settings-tab-note mb-3">
-            <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="circle-info"></i>
+            <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="info"></i>
             <?php echo $__t('लोगो, header image, about image, theme colors र version जस्ता branding/media सम्बन्धी सेटिङ्स यही tab मा छन्।', 'Branding/media settings like logo, header image, about image, theme colors and version are in this tab.'); ?>
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="branding">

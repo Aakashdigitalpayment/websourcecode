@@ -94,7 +94,7 @@ function adminAlert(string $type, string $msg, bool $dismiss = true): string {
         : '';
     $iconHtml = function_exists('icon')
         ? icon($lucideIcon, 18)
-        : '<i class="lucide-icon" aria-hidden="true" data-lucide="circle-info"></i>';
+        : '<i class="lucide-icon" aria-hidden="true" data-lucide="info"></i>';
     return '<div class="alert alert-' . $type . ' alert-dismissible fade show" role="alert">'
          . '<span class="flex-shrink-0">' . $iconHtml . '</span>'
          . '<span>' . htmlspecialchars($msg) . '</span>'

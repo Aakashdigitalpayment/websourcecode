@@ -272,8 +272,12 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="bulk_status">
                                         <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-end gap-2">
-                                            <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success">Bulk Active</button>
-                                            <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary">Bulk Inactive</button>
+                                            <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success admin-bulk-btn">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i> Bulk Active
+                            </button>
+                            <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary admin-bulk-btn">
+                                <i class="fas fa-ban" aria-hidden="true"></i> Bulk Inactive
+                            </button>
                                         </div>
                                         <?php echo adminListSubtabPills('pgv2-sub', count($dynamicLive), count($dynamicArch)); ?>
                                         <div class="tab-content admin-table-subtab-content">

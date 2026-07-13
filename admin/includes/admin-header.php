@@ -612,7 +612,7 @@ set_exception_handler(function (\Throwable $ex) {
                         </div>
                         <ul class="nav-submenu <?php echo $activeGroup=='nirvachan' ? 'open' : ''; ?>" id="group-nirvachan">
                             <li class="<?php echo $currentPage=='election-information' ? 'active' : ''; ?>">
-                                <a href="election-information.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-info"></i></span><span><?php echo $adminT('निर्वाचन जानकारी', 'Election Information'); ?></span></a>
+                                <a href="election-information.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i></span><span><?php echo $adminT('निर्वाचन जानकारी', 'Election Information'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='election-posts' ? 'active' : ''; ?>">
                                 <a href="election-posts.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i></span><span><?php echo $adminT('पद Master', 'Post Master'); ?></span></a>
