@@ -77,9 +77,10 @@ if (!function_exists('ai_chat_get_api_key')) {
 }
 
 if (!function_exists('ai_chat_has_api_key')) {
+    /** True only when a usable (decryptable) key is available. */
     function ai_chat_has_api_key(): bool
     {
-        return trim((string)getSetting('ai_api_key', '')) !== '';
+        return ai_chat_get_api_key() !== '';
     }
 }
 

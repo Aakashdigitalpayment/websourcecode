@@ -20540,27 +20540,38 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 
 /* AI Chat panel (site-grounded) */
 #aiChatPanel{
-  position:fixed; right:18px; bottom:160px; z-index:66;
-  width:360px; max-width:calc(100vw - 24px); max-height:min(560px, calc(100vh - 120px));
+  position:fixed; right:16px; bottom:96px; z-index:90;
+  width:380px; max-width:calc(100vw - 24px); max-height:min(620px, calc(100vh - 110px));
   background:#fff; border:1px solid #e6e9ef; border-radius:16px;
   box-shadow:0 16px 40px rgba(15,23,42,.18);
   display:none; flex-direction:column; overflow:hidden; font-family:inherit;
 }
 #aiChatPanel.open{ display:flex; }
+/* Hide Quick Help FAB while AI chat is open — stops bolt/X chopping the panel footer */
+<body:has(#aiChatPanel.open) .qh-launcher,
+body.ai-chat-open .qh-launcher{
+  opacity:0; visibility:hidden; pointer-events:none; transform:scale(.9);
+}
 #aiChatPanel .acp-h{
   background:linear-gradient(135deg,var(--primary-color,#1a5f2a),color-mix(in srgb, var(--primary-color,#1a5f2a) 75%, #0f3d1c));
   color:#fff; padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0;
 }
-#aiChatPanel .acp-title{ font-weight:700; font-size:14px; }
-#aiChatPanel .acp-sub{ font-size:11px; opacity:.88; }
-#aiChatPanel .acp-x{ margin-left:auto; background:transparent; color:#fff; border:0; font-size:18px; cursor:pointer; line-height:1; }
+#aiChatPanel .acp-h > i{ font-size:18px; flex-shrink:0; }
+#aiChatPanel .acp-title{ font-weight:700; font-size:15px; line-height:1.25; }
+#aiChatPanel .acp-sub{ font-size:12.5px; opacity:.9; line-height:1.35; margin-top:1px; }
+#aiChatPanel .acp-x{
+  margin-left:auto; background:rgba(255,255,255,.16); color:#fff; border:0;
+  width:34px; height:34px; border-radius:10px; font-size:22px; cursor:pointer;
+  line-height:1; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+#aiChatPanel .acp-x:hover{ background:rgba(255,255,255,.28); }
 #aiChatPanel .acp-messages{
-  padding:12px 14px; overflow-y:auto; flex:1; min-height:180px; max-height:340px;
-  background:#f8fafc; display:flex; flex-direction:column; gap:8px;
+  padding:14px 14px 10px; overflow-y:auto; flex:1; min-height:200px; max-height:none;
+  background:#f8fafc; display:flex; flex-direction:column; gap:10px;
 }
 #aiChatPanel .acp-bubble{
-  max-width:92%; padding:8px 11px; border-radius:12px; font-size:13px; line-height:1.55;
-  word-wrap:break-word; white-space:normal;
+  max-width:94%; padding:10px 12px; border-radius:12px; font-size:14px; line-height:1.6;
+  word-wrap:break-word; overflow-wrap:anywhere; white-space:normal; text-align:left;
 }
 #aiChatPanel .acp-bubble.bot{
   align-self:flex-start; background:#fff; border:1px solid #e2e8f0; color:#1e293b;
@@ -20568,45 +20579,56 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 }
 #aiChatPanel .acp-bubble.user{
   align-self:flex-end; background:var(--primary-color,#1a5f2a); color:#fff;
-  border-bottom-right-radius:4px;
+  border-bottom-right-radius:4px; text-align:left;
 }
 #aiChatPanel .acp-bubble.acp-thinking{ opacity:.65; font-weight:600; letter-spacing:0; }
+#aiChatPanel .acp-bubble.acp-err{
+  border-color:#fecaca; background:#fef2f2; color:#991b1b; font-size:13.5px; line-height:1.55;
+}
 #aiChatPanel .acp-chips{
-  display:flex; flex-wrap:wrap; gap:6px; padding:0 12px 8px; background:#f8fafc; flex-shrink:0;
+  display:flex; flex-wrap:wrap; gap:7px; padding:4px 14px 10px; background:#f8fafc; flex-shrink:0;
 }
 #aiChatPanel .acp-chip{
   border:1px solid #d1e7d6; background:#fff; color:var(--primary-color,#1a5f2a);
-  border-radius:999px; padding:5px 10px; font-size:11px; font-weight:600;
-  cursor:pointer; font-family:inherit; line-height:1.2;
+  border-radius:999px; padding:7px 12px; font-size:12.5px; font-weight:600;
+  cursor:pointer; font-family:inherit; line-height:1.25; text-align:center;
 }
 #aiChatPanel .acp-chip:hover{ background:color-mix(in srgb, var(--primary-color,#1a5f2a) 10%, #fff); }
 #aiChatPanel .acp-escalate{
-  display:flex; gap:8px; flex-wrap:wrap; padding:0 12px 8px; background:#f8fafc;
-  border-top:0; flex-shrink:0;
+  display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-start;
+  padding:2px 14px 10px; background:#f8fafc; flex-shrink:0;
 }
 #aiChatPanel .acp-escalate button{
-  border:0; background:transparent; color:#64748b; font-size:11px; font-weight:600;
+  border:0; background:transparent; color:#475569; font-size:12.5px; font-weight:600;
   cursor:pointer; padding:2px 0; font-family:inherit; text-decoration:underline;
+  text-underline-offset:2px;
 }
+#aiChatPanel .acp-escalate button:hover{ color:var(--primary-color,#1a5f2a); }
 #aiChatPanel .acp-form{
-  display:flex; gap:8px; padding:10px 12px; border-top:1px solid #e6e9ef;
+  display:flex; gap:8px; padding:12px 14px; border-top:1px solid #e6e9ef;
   background:#fff; flex-shrink:0; align-items:center;
 }
 #aiChatPanel .acp-form input[type="text"]:not([name="website"]){
-  flex:1; border:1px solid #e6e9ef; border-radius:10px;
-  padding:9px 11px; font-size:14px; font-family:inherit; outline:none;
+  flex:1; min-width:0; border:1px solid #e6e9ef; border-radius:10px;
+  padding:10px 12px; font-size:14.5px; font-family:inherit; outline:none;
 }
 #aiChatPanel .acp-form input[type="text"]:not([name="website"]):focus{
   border-color:var(--primary-color,#1a5f2a); box-shadow:0 0 0 2px color-mix(in srgb, var(--primary-color,#1a5f2a) 20%, transparent);
 }
 #aiChatPanel .acp-form button[type="submit"]{
-  width:42px; height:42px; border:0; border-radius:10px;
+  width:44px; height:44px; border:0; border-radius:10px;
   background:var(--primary-color,#1a5f2a); color:#fff; cursor:pointer; flex-shrink:0;
   display:inline-flex; align-items:center; justify-content:center;
 }
 #aiChatPanel .acp-form button:disabled{ opacity:.55; cursor:wait; }
+@media (min-width:900px){
+  #aiChatPanel{ bottom:24px; right:18px; }
+}
 @media (max-width:576px){
-  #aiChatPanel{ right:12px; left:12px; width:auto; bottom:150px; max-height:calc(100vh - 160px); }
+  #aiChatPanel{
+    right:10px; left:10px; width:auto; bottom:86px;
+    max-height:calc(100vh - 100px);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════
