@@ -219,7 +219,7 @@ $pageGroups = [
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
     'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','appointments','auctions','auction-bids','vendor-enlistment'],
-    'program' => ['programs','program-attendance'],
+    'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
@@ -579,6 +579,12 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="programs.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-plus"></i></span>
                                     <span><?php echo $adminT('कार्यक्रम बनाउने / सूची', 'Program Create / List'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='sahakari-calendar-events' ? 'active' : ''; ?>">
+                                <a href="sahakari-calendar-events.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i></span>
+                                    <span><?php echo $adminT('सहकारी पात्रो कार्यक्रम', 'Sahakari Patro Events'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-attendance-verify' ? 'active' : ''; ?>">

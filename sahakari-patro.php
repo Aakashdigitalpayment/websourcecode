@@ -4,7 +4,8 @@
  * सहकारी पात्रो — Sahakari Patro  v2.1 (project integrated)
  * ══════════════════════════════════════════════════════════════════════════════
  * Live Kathmandu-day panchanga / rashifal / lagna / nakshatra / gunmilan / jyotish.
- * No admin CMS updates — data recalculates from astronomy + BS calendar map.
+ * Sky math is live (astronomy + BS map). Cooperative programs/diwas come from admin
+ * (admin/sahakari-calendar-events.php) and highlight on this calendar.
  * Reference adapted from external tool build; uses includes/nepali-bs-convert.php.
  * ══════════════════════════════════════════════════════════════════════════════
  */
@@ -214,10 +215,10 @@ function sp_get_events(int $bY, int $bM, int $bD, int $ti): array {
     return $ev;
 }
 function sp_ev_bg(string $type): string {
-    return ['purnima'=>'#eff6ff','aunsi'=>'#f3f4f6','ekadashi'=>'#f5f3ff','ashtami'=>'#ecfeff','chaturthi'=>'#fef3c7','holiday'=>'#fef2f2','festival'=>'#fff7ed','religious'=>'#dcfce7'][$type]??'#dcfce7';
+    return ['purnima'=>'#eff6ff','aunsi'=>'#f3f4f6','ekadashi'=>'#f5f3ff','ashtami'=>'#ecfeff','chaturthi'=>'#fef3c7','holiday'=>'#fef2f2','festival'=>'#fff7ed','religious'=>'#dcfce7','sahakari'=>'#ecfdf5'][$type]??'#dcfce7';
 }
 function sp_ev_color(string $type): string {
-    return ['purnima'=>'#3b82f6','aunsi'=>'#374151','ekadashi'=>'#7c3aed','ashtami'=>'#0891b2','chaturthi'=>'#d97706','holiday'=>'#dc2626','festival'=>'#ea580c','religious'=>'#16a34a'][$type]??'#16a34a';
+    return ['purnima'=>'#3b82f6','aunsi'=>'#374151','ekadashi'=>'#7c3aed','ashtami'=>'#0891b2','chaturthi'=>'#d97706','holiday'=>'#dc2626','festival'=>'#ea580c','religious'=>'#16a34a','sahakari'=>'#047857'][$type]??'#16a34a';
 }
 
 /* Calendar builder */
@@ -273,6 +274,31 @@ $selEvs = sp_get_events($calY,$calM,$selD,$selPg['ti']);
 /* Calendar cells */
 $calCells = sp_calendar_cells($calY,$calM);
 
+/* Admin-managed सहकारी कार्यक्रम — merge into festival/tithi events */
+$SP_COOP_BY_DAY = [];
+$SP_COOP_NEXT_BY_DAY = [];
+try {
+    require_once __DIR__ . '/includes/sahakari-calendar-events-tables.php';
+    $spEng = function_exists('isEnglish') && isEnglish();
+    $SP_COOP_BY_DAY = sahakariCalendarEventsByDay($calY, $calM, $calMd, null, $spEng);
+    foreach ($calCells as &$spCell) {
+        if ($spCell === null) {
+            continue;
+        }
+        $extra = $SP_COOP_BY_DAY[$spCell['d']] ?? [];
+        if ($extra) {
+            $spCell['evs'] = array_merge($extra, $spCell['evs']);
+        }
+    }
+    unset($spCell);
+    $selExtra = $SP_COOP_BY_DAY[$selD] ?? [];
+    if ($selExtra) {
+        $selEvs = array_merge($selExtra, $selEvs);
+    }
+} catch (Throwable $e) {
+    $SP_COOP_BY_DAY = [];
+}
+
 /* AD range label for month header */
 $firstAd=sp_bs_to_ad($calY,$calM,1);
 $lastAd=sp_bs_to_ad($calY,$calM,$calMd);
@@ -281,6 +307,24 @@ $adRangeLabel=$SP_AD_MONTHS_SHORT[$firstAd[1]-1].' '.$firstAd[0].' – '.$SP_AD_
 /* Next month mini-calendar for "upcoming" */
 $nextCalCells=sp_calendar_cells($nextY,$nextM);
 $nextMd=sp_bs_month_days($nextY)[$nextM-1];
+try {
+    if (function_exists('sahakariCalendarEventsByDay')) {
+        $spEng = function_exists('isEnglish') && isEnglish();
+        $SP_COOP_NEXT_BY_DAY = sahakariCalendarEventsByDay($nextY, $nextM, $nextMd, null, $spEng);
+        foreach ($nextCalCells as &$spCell) {
+            if ($spCell === null) {
+                continue;
+            }
+            $extra = $SP_COOP_NEXT_BY_DAY[$spCell['d']] ?? [];
+            if ($extra) {
+                $spCell['evs'] = array_merge($extra, $spCell['evs']);
+            }
+        }
+        unset($spCell);
+    }
+} catch (Throwable $e) {
+    /* ignore */
+}
 
 /* Rashifal data */
 $rashiNames=['मेष','वृष','मिथुन','कर्कट','सिंह','कन्या','तुला','वृश्चिक','धनु','मकर','कुम्भ','मीन'];
@@ -695,7 +739,7 @@ if($activeTab==='patro'): ?>
 
       <!-- Legend -->
       <div class="sp-cal-legend">
-        <?php foreach([['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a']] as [$l,$bg,$tc]): ?>
+        <?php foreach([['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a'],['सहकारी कार्यक्रम','#ecfdf5','#047857']] as [$l,$bg,$tc]): ?>
         <div class="sp-cal-leg-item">
           <span class="sp-cal-leg-swatch" style="background:<?php echo $bg; ?>;border:1px solid <?php echo $tc; ?>;"></span>
           <?php echo $l; ?>
@@ -814,12 +858,15 @@ if($activeTab==='patro'): ?>
       <div class="sp-evlist-body">
         <?php $hasSomeEv=false;
         foreach($calCells as $ec):
-          if($ec===null||empty($ec['evs'])) continue; $hasSomeEv=true; ?>
+          if($ec===null||empty($ec['evs'])) continue;
+          $festOnly=array_values(array_filter($ec['evs'], static fn($ev)=>($ev['type'] ?? '') !== 'sahakari'));
+          if(empty($festOnly)) continue;
+          $hasSomeEv=true; ?>
         <a href="?tab=patro&cal_year=<?php echo $calY; ?>&cal_month=<?php echo $calM; ?>&sel_day=<?php echo $ec['d']; ?>&rf=<?php echo $rfPeriod; ?>"
            class="sp-evlist-row <?php echo $ec['d']===$selD?'active':''; ?>" style="text-decoration:none;">
           <div class="sp-evlist-daynum"><?php echo sp_np($ec['d']); ?></div>
           <div>
-            <?php foreach($ec['evs'] as $ev): $ec2=sp_ev_color($ev['type']); ?>
+            <?php foreach($festOnly as $ev): $ec2=sp_ev_color($ev['type']); ?>
             <div class="sp-evlist-evname" style="color:<?php echo $ec2; ?>;"><?php echo htmlspecialchars($ev['name']); ?></div>
             <?php endforeach; ?>
             <div class="sp-evlist-vaar"><?php echo ['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'][$ec['wd']]; ?></div>
@@ -831,6 +878,42 @@ if($activeTab==='patro'): ?>
         <?php endif; ?>
       </div>
     </div><!-- /evlist -->
+
+    <!-- सहकारी कार्यक्रम (admin) -->
+    <div class="sp-evlist-card" style="margin-top:14px;border-color:#a7f3d0;">
+      <div class="sp-evlist-hdr" style="background:#ecfdf5;color:#047857;">
+        <i class="lucide-icon" style="width:13px;height:13px;" data-lucide="calendar-check"></i>
+        <?php echo isEnglish() ? 'Cooperative programs' : 'सहकारी कार्यक्रम'; ?>
+      </div>
+      <div class="sp-evlist-body">
+        <?php
+        $coopMonthList = [];
+        foreach ($calCells as $ec) {
+            if ($ec === null || empty($ec['evs'])) {
+                continue;
+            }
+            foreach ($ec['evs'] as $ev) {
+                if (($ev['type'] ?? '') !== 'sahakari') {
+                    continue;
+                }
+                $coopMonthList[] = ['d' => $ec['d'], 'wd' => $ec['wd'], 'name' => $ev['name']];
+            }
+        }
+        if (empty($coopMonthList)): ?>
+        <div style="padding:16px;text-align:center;color:var(--sp-text-muted);font-size:12px;"><?php echo isEnglish() ? 'No cooperative events this month' : 'यस महिना कुनै सहकारी कार्यक्रम छैन'; ?></div>
+        <?php else:
+          foreach ($coopMonthList as $ce): ?>
+        <a href="?tab=patro&cal_year=<?php echo $calY; ?>&cal_month=<?php echo $calM; ?>&sel_day=<?php echo (int)$ce['d']; ?>&rf=<?php echo $rfPeriod; ?>"
+           class="sp-evlist-row <?php echo (int)$ce['d']===$selD?'active':''; ?>" style="text-decoration:none;">
+          <div class="sp-evlist-daynum" style="color:#047857;"><?php echo sp_np((int)$ce['d']); ?></div>
+          <div>
+            <div class="sp-evlist-evname" style="color:#047857;"><?php echo htmlspecialchars($ce['name']); ?></div>
+            <div class="sp-evlist-vaar"><?php echo ['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'][(int)$ce['wd']]; ?></div>
+          </div>
+        </a>
+        <?php endforeach; endif; ?>
+      </div>
+    </div>
 
   </div><!-- /col-side -->
 </div><!-- /row -->
