@@ -103,10 +103,26 @@ if (!function_exists('ai_chat_model')) {
     function ai_chat_model(): string
     {
         $m = trim((string)getSetting('ai_model', ''));
-        if ($m !== '') {
-            return $m;
+        if ($m === '') {
+            $m = ai_chat_provider() === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash';
         }
-        return ai_chat_provider() === 'openai' ? 'gpt-4o-mini' : 'gemini-2.0-flash';
+
+        /* Gemini 2.0 Flash family shut down (June 2026) — remap saved admin values. */
+        static $legacy = [
+            'gemini-2.0-flash' => 'gemini-2.5-flash',
+            'gemini-2.0-flash-001' => 'gemini-2.5-flash',
+            'gemini-2.0-flash-exp' => 'gemini-2.5-flash',
+            'gemini-2.0-flash-lite' => 'gemini-2.5-flash-lite',
+            'gemini-2.0-flash-lite-001' => 'gemini-2.5-flash-lite',
+            'gemini-1.5-flash' => 'gemini-2.5-flash',
+            'gemini-1.5-flash-latest' => 'gemini-2.5-flash',
+            'gemini-1.5-pro' => 'gemini-2.5-flash',
+        ];
+        if (isset($legacy[$m])) {
+            return $legacy[$m];
+        }
+
+        return $m;
     }
 }
 
