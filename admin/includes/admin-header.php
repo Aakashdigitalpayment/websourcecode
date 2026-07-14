@@ -219,12 +219,12 @@ $pageGroups = [
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
     'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','appointments','auctions','auction-bids','vendor-enlistment'],
-    'program' => ['programs','program-attendance'],
+    'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
     'memportal'=> ['member-online-portal'],
-    'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings'],
+    'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','run-migration','backup-restore','update-checklist','site-health','db-setup','site-license'],
     /* admin management pages */
     'superadmin'=> ['manage-admins','site-setup'],
@@ -581,6 +581,12 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('कार्यक्रम बनाउने / सूची', 'Program Create / List'); ?></span>
                                 </a>
                             </li>
+                            <li class="<?php echo $currentPage=='sahakari-calendar-events' ? 'active' : ''; ?>">
+                                <a href="sahakari-calendar-events.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i></span>
+                                    <span><?php echo $adminT('सहकारी पात्रो कार्यक्रम', 'Sahakari Patro Events'); ?></span>
+                                </a>
+                            </li>
                             <li class="<?php echo $currentPage=='program-attendance-verify' ? 'active' : ''; ?>">
                                 <a href="../program-attendance-verify.php" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i></span>
@@ -737,6 +743,12 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="notification-settings.php">
                                 <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i></span>
                                 <span><?php echo $adminT('सूचना सेटिङ्स', 'Notification Settings'); ?></span>
+                            </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='ai-settings' ? 'active' : ''; ?>">
+                                <a href="ai-settings.php">
+                                <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i></span>
+                                <span><?php echo $adminT('AI Chat सेटिङ्स', 'AI Chat Settings'); ?></span>
                             </a>
                             </li>
                             <li class="<?php echo $currentPage=='notification-templates' ? 'active' : ''; ?>">

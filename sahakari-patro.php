@@ -1,10 +1,11 @@
 <?php
 /**
  * ══════════════════════════════════════════════════════════════════════════════
- * सहकारी पात्रो — Sahakari Patro  v2.1 (project integrated)
+ * सहकारी पात्रो — Sahakari Patro (project integrated)
  * ══════════════════════════════════════════════════════════════════════════════
  * Live Kathmandu-day panchanga / rashifal / lagna / nakshatra / gunmilan / jyotish.
- * No admin CMS updates — data recalculates from astronomy + BS calendar map.
+ * Sky math is live (astronomy + BS map). Cooperative programs/diwas come from admin
+ * (admin/sahakari-calendar-events.php) and highlight on this calendar.
  * Reference adapted from external tool build; uses includes/nepali-bs-convert.php.
  * ══════════════════════════════════════════════════════════════════════════════
  */
@@ -102,7 +103,13 @@ function sp_np(int $n): string {
         ['०','१','२','३','४','५','६','७','८','९'], (string)$n);
 }
 function sp_fmt_min(int $m): string {
-    return sprintf('%s:%s बजे', sp_np(intdiv($m,60)), str_pad(sp_np($m%60),3,'०',STR_PAD_LEFT));
+    $hh = sp_np(intdiv($m, 60));
+    $mm = str_replace(
+        ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+        ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'],
+        sprintf('%02d', $m % 60)
+    );
+    return sprintf('%s:%s बजे', $hh, $mm);
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -210,18 +217,66 @@ $SP_FESTIVALS = [
 function sp_get_events(int $bY, int $bM, int $bD, int $ti): array {
     global $SP_FESTIVALS;
     $ev=$SP_FESTIVALS["$bY-$bM-$bD"]??[];
-    if($ti===14) $ev[]=['name'=>'पूर्णिमा','type'=>'purnima'];
-    if($ti===29) $ev[]=['name'=>'औंसी','type'=>'aunsi'];
-    if($ti===10||$ti===25) $ev[]=['name'=>'एकादशी','type'=>'ekadashi'];
-    if($ti===7||$ti===22)  $ev[]=['name'=>'अष्टमी','type'=>'ashtami'];
-    if($ti===3||$ti===18)  $ev[]=['name'=>'चतुर्थी','type'=>'chaturthi'];
+    $hasLabel = static function (array $evs, string $needle): bool {
+        foreach ($evs as $e) {
+            if (mb_stripos((string)($e['name'] ?? ''), $needle) !== false) {
+                return true;
+            }
+        }
+        return false;
+    };
+    // Auto tithi tags — skip when a named festival already implies the same day
+    if ($ti === 14 && !$hasLabel($ev, 'पूर्णिमा')) {
+        $ev[] = ['name' => 'पूर्णिमा', 'type' => 'purnima'];
+    }
+    if ($ti === 29 && !$hasLabel($ev, 'औंसी')) {
+        $ev[] = ['name' => 'औंसी', 'type' => 'aunsi'];
+    }
+    if (($ti === 10 || $ti === 25) && !$hasLabel($ev, 'एकादशी')) {
+        $ev[] = ['name' => 'एकादशी', 'type' => 'ekadashi'];
+    }
+    if (($ti === 7 || $ti === 22) && !$hasLabel($ev, 'अष्टमी')) {
+        $ev[] = ['name' => 'अष्टमी', 'type' => 'ashtami'];
+    }
+    if (($ti === 3 || $ti === 18) && !$hasLabel($ev, 'चतुर्थी')) {
+        $ev[] = ['name' => 'चतुर्थी', 'type' => 'chaturthi'];
+    }
     return $ev;
 }
 function sp_ev_bg(string $type): string {
-    return ['purnima'=>'#eff6ff','aunsi'=>'#f3f4f6','ekadashi'=>'#f5f3ff','ashtami'=>'#ecfeff','chaturthi'=>'#fef3c7','holiday'=>'#fef2f2','festival'=>'#fff7ed','religious'=>'#dcfce7'][$type]??'#dcfce7';
+    return ['purnima'=>'#eff6ff','aunsi'=>'#f3f4f6','ekadashi'=>'#f5f3ff','ashtami'=>'#ecfeff','chaturthi'=>'#fef3c7','holiday'=>'#fef2f2','festival'=>'#fff7ed','religious'=>'#dcfce7','sahakari'=>'#ecfdf5'][$type]??'#dcfce7';
 }
 function sp_ev_color(string $type): string {
-    return ['purnima'=>'#3b82f6','aunsi'=>'#374151','ekadashi'=>'#7c3aed','ashtami'=>'#0891b2','chaturthi'=>'#d97706','holiday'=>'#dc2626','festival'=>'#ea580c','religious'=>'#16a34a'][$type]??'#16a34a';
+    return ['purnima'=>'#3b82f6','aunsi'=>'#374151','ekadashi'=>'#7c3aed','ashtami'=>'#0891b2','chaturthi'=>'#d97706','holiday'=>'#dc2626','festival'=>'#ea580c','religious'=>'#16a34a','sahakari'=>'#047857'][$type]??'#16a34a';
+}
+/** Prefer festival/holiday badge over tithi; coop over generic tithi. */
+function sp_main_event(array $evs): ?array {
+    if ($evs === []) {
+        return null;
+    }
+    $prio = [
+        'holiday' => 0, 'festival' => 1, 'sahakari' => 2,
+        'purnima' => 3, 'aunsi' => 4, 'ekadashi' => 5,
+        'ashtami' => 6, 'chaturthi' => 7, 'religious' => 8,
+    ];
+    $best = null;
+    $bestP = 99;
+    foreach ($evs as $e) {
+        $p = $prio[(string)($e['type'] ?? '')] ?? 50;
+        if ($p < $bestP) {
+            $bestP = $p;
+            $best = $e;
+        }
+    }
+    return $best;
+}
+function sp_has_event_type(array $evs, string $type): bool {
+    foreach ($evs as $e) {
+        if (($e['type'] ?? '') === $type) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /* Calendar builder */
@@ -264,9 +319,13 @@ $selD = isset($_GET['sel_day'])   ? max(1,(int)$_GET['sel_day'])                
 $calMd= sp_bs_month_days($calY)[$calM-1];
 $selD = min($selD, $calMd);
 
-/* Prev/Next month */
-$prevY=$calM===1?max($SP_BS_YEAR_MIN,$calY-1):$calY; $prevM=$calM===1?12:$calM-1;
-$nextY=$calM===12?min($SP_BS_YEAR_MAX,$calY+1):$calY; $nextM=$calM===12?1:$calM+1;
+/* Prev/Next month — disable wrap past map bounds */
+$prevOk = !($calY === $SP_BS_YEAR_MIN && $calM === 1);
+$nextOk = !($calY === $SP_BS_YEAR_MAX && $calM === 12);
+$prevY = $calM === 1 ? $calY - 1 : $calY;
+$prevM = $calM === 1 ? 12 : $calM - 1;
+$nextY = $calM === 12 ? $calY + 1 : $calY;
+$nextM = $calM === 12 ? 1 : $calM + 1;
 $baseQ="tab=patro&rf=$rfPeriod";
 
 /* Selected day panchanga */
@@ -277,6 +336,31 @@ $selEvs = sp_get_events($calY,$calM,$selD,$selPg['ti']);
 /* Calendar cells */
 $calCells = sp_calendar_cells($calY,$calM);
 
+/* Admin-managed सहकारी कार्यक्रम — merge into festival/tithi events */
+$SP_COOP_BY_DAY = [];
+$SP_COOP_NEXT_BY_DAY = [];
+try {
+    require_once __DIR__ . '/includes/sahakari-calendar-events-tables.php';
+    $spEng = function_exists('isEnglish') && isEnglish();
+    $SP_COOP_BY_DAY = sahakariCalendarEventsByDay($calY, $calM, $calMd, null, $spEng);
+    foreach ($calCells as &$spCell) {
+        if ($spCell === null) {
+            continue;
+        }
+        $extra = $SP_COOP_BY_DAY[$spCell['d']] ?? [];
+        if ($extra) {
+            $spCell['evs'] = array_merge($extra, $spCell['evs']);
+        }
+    }
+    unset($spCell);
+    $selExtra = $SP_COOP_BY_DAY[$selD] ?? [];
+    if ($selExtra) {
+        $selEvs = array_merge($selExtra, $selEvs);
+    }
+} catch (Throwable $e) {
+    $SP_COOP_BY_DAY = [];
+}
+
 /* AD range label for month header */
 $firstAd=sp_bs_to_ad($calY,$calM,1);
 $lastAd=sp_bs_to_ad($calY,$calM,$calMd);
@@ -285,6 +369,24 @@ $adRangeLabel=$SP_AD_MONTHS_SHORT[$firstAd[1]-1].' '.$firstAd[0].' – '.$SP_AD_
 /* Next month mini-calendar for "upcoming" */
 $nextCalCells=sp_calendar_cells($nextY,$nextM);
 $nextMd=sp_bs_month_days($nextY)[$nextM-1];
+try {
+    if (function_exists('sahakariCalendarEventsByDay')) {
+        $spEng = function_exists('isEnglish') && isEnglish();
+        $SP_COOP_NEXT_BY_DAY = sahakariCalendarEventsByDay($nextY, $nextM, $nextMd, null, $spEng);
+        foreach ($nextCalCells as &$spCell) {
+            if ($spCell === null) {
+                continue;
+            }
+            $extra = $SP_COOP_NEXT_BY_DAY[$spCell['d']] ?? [];
+            if ($extra) {
+                $spCell['evs'] = array_merge($extra, $spCell['evs']);
+            }
+        }
+        unset($spCell);
+    }
+} catch (Throwable $e) {
+    /* ignore */
+}
 
 /* Rashifal data */
 $rashiNames=['मेष','वृष','मिथुन','कर्कट','सिंह','कन्या','तुला','वृश्चिक','धनु','मकर','कुम्भ','मीन'];
@@ -328,11 +430,13 @@ $nakshatraAll=[
     ['name'=>'रेवती','lord'=>'बुध','rashi'=>'मीन','char'=>'दे,दो,च,चि','qual'=>'पोषणकारी, कलाकार'],
 ];
 
-/* Guna Milan (POST) */
+/* Guna Milan (POST) — require real selects (empty "" would cast to 0 = अश्विनी) */
 $gunaResult=null;
-if($_SERVER['REQUEST_METHOD']==='POST'
+$gunaPosted = $_SERVER['REQUEST_METHOD']==='POST'
     && isset($_POST['n1'],$_POST['n2'],$_POST['r1'],$_POST['r2'])
-    && $_POST['n1']!=='' && $_POST['n2']!=='' && $_POST['r1']!=='' && $_POST['r2']!==''){
+    && $_POST['n1'] !== '' && $_POST['n2'] !== ''
+    && $_POST['r1'] !== '' && $_POST['r2'] !== '';
+if($gunaPosted){
     $n1=max(0,min(26,(int)$_POST['n1'])); $n2=max(0,min(26,(int)$_POST['n2']));
     $r1=max(0,min(11,(int)$_POST['r1'])); $r2=max(0,min(11,(int)$_POST['r2']));
     $diff=abs($n1-$n2); $diff=min($diff,27-$diff);
@@ -440,6 +544,9 @@ require_once 'includes/header.php';
 .sp-cal-title-sub{color:var(--sp-text-muted);font-size:13px;margin-top:2px;}
 .sp-cal-nav-btn{border:1px solid var(--sp-border);background:#fff;border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--sp-text);text-decoration:none;font-family:inherit;}
 .sp-cal-nav-btn:hover{border-color:var(--sp-primary);color:var(--sp-primary);}
+.sp-cal-nav-btn.is-disabled{opacity:.35;pointer-events:none;cursor:default;}
+.sp-cal-cell:focus-visible{outline:2px solid var(--sp-primary);outline-offset:1px;z-index:3;}
+.sp-cal-sahakari-dot{width:5px;height:5px;border-radius:50%;background:#047857;position:absolute;bottom:3px;left:3px;box-shadow:0 0 0 1px #fff;}
 .sp-cal-today-btn{border:1px solid var(--sp-primary);background:var(--sp-muted);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--sp-primary);text-decoration:none;}
 .sp-cal-body{padding:12px;}
 .sp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
@@ -462,8 +569,10 @@ require_once 'includes/header.php';
 /* Empty cell — site logo watermark (subtle but visible) */
 .sp-cal-empty{background:linear-gradient(145deg,#f7fbf8,#eef7f0);display:flex;align-items:center;justify-content:center;cursor:default!important;border-color:#e4efe6!important;min-height:68px;}
 .sp-cal-empty:hover{box-shadow:none!important;}
-.sp-cal-logo-wrap{opacity:.42;width:86%;height:86%;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.sp-cal-logo-wrap{opacity:.42;width:86%;height:86%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--sp-primary);pointer-events:none;}
 .sp-cal-logo-wrap img{max-width:100%;max-height:40px;width:auto;height:auto;object-fit:contain;filter:none;}
+.sp-cal-logo-wrap svg{width:28px;height:28px;}
+.sp-cal-logo-wrap span{font-size:6px;font-weight:700;text-align:center;line-height:1.2;color:var(--sp-primary);}
 
 /* Calendar legend */
 .sp-cal-legend{padding:10px 14px 12px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:flex;flex-wrap:wrap;gap:10px;}
@@ -506,6 +615,7 @@ require_once 'includes/header.php';
 .sp-minical-cell{text-align:center;font-size:12px;padding:4px 1px;border-radius:5px;color:var(--sp-text);font-weight:600;}
 .sp-minical-cell.empty{opacity:0;}
 .sp-minical-cell.has-ev{font-weight:700;}
+.sp-minical-cell.sahakari{background:#ecfdf5;color:#047857;}
 .sp-minical-cell.sat{color:var(--sp-secondary);}
 .sp-minical-cell.holiday{background:#fef2f2;color:#dc2626;}
 .sp-minical-cell.festival{background:#fff7ed;color:#ea580c;}
@@ -567,7 +677,10 @@ require_once 'includes/header.php';
   .sp-cal-daynum{font-size:14px;}
   .sp-cal-tithi{font-size:10px;}
   .sp-cal-cell,.sp-cal-empty{min-height:54px;}
-  .sp-cal-evbadge{display:none;}
+  /* Keep a color bar so events remain visible on small screens */
+  .sp-cal-evbadge{font-size:0;line-height:0;padding:0;height:3px;width:85%;max-width:85%;border-radius:1px;overflow:hidden;color:transparent!important;}
+  .sp-cal-nav{flex-wrap:wrap;gap:8px;justify-content:center;}
+  .sp-cal-title{order:-1;width:100%;}
   .sp-rashi-grid{grid-template-columns:1fr;}
   .sp-tabs .nav-link{padding:10px 12px;font-size:13px;}
   .sp-cal-logo-wrap img{max-height:28px;}
@@ -587,6 +700,10 @@ require_once 'includes/header.php';
         </span>
         <span class="sp-datebar-meta"><?php echo $pg['ad_date'].' · '.$pg['vaar_np']; ?></span>
         <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo htmlspecialchars($pg['tithi']); ?></span>
+        <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
+            <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="refresh-cw"></i>
+            <?php echo isEnglish() ? 'Live auto-sync' : 'स्वचालित ताजा'; ?>
+        </span>
     </div>
     <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
         <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="refresh-cw"></i>
@@ -628,18 +745,26 @@ if($activeTab==='patro'): ?>
     <div class="sp-cal-card">
       <!-- Month nav -->
       <div class="sp-cal-nav">
+        <?php if ($prevOk): ?>
         <a href="?tab=patro&cal_year=<?php echo $prevY; ?>&cal_month=<?php echo $prevM; ?>&sel_day=1&rf=<?php echo $rfPeriod; ?>" class="sp-cal-nav-btn">
           &#8249; <?php echo isEnglish()?'Prev':'अघि'; ?>
         </a>
+        <?php else: ?>
+        <span class="sp-cal-nav-btn is-disabled" aria-disabled="true">&#8249; <?php echo isEnglish()?'Prev':'अघि'; ?></span>
+        <?php endif; ?>
         <div class="sp-cal-title">
-          <div class="sp-cal-title-main"><?php echo $SP_BS_MONTHS_NP[$calM-1].' '.sp_np($calY); ?></div>
+          <div class="sp-cal-title-main"><?php echo (isEnglish() ? $SP_BS_MONTHS_EN[$calM-1] : $SP_BS_MONTHS_NP[$calM-1]).' '.sp_np($calY); ?></div>
           <div class="sp-cal-title-sub"><?php echo $adRangeLabel; ?></div>
         </div>
         <div style="display:flex;gap:6px;">
-          <a href="?tab=patro&cal_year=<?php echo $pg['bs_year']; ?>&cal_month=<?php echo $pg['bs_month']; ?>&sel_day=<?php echo $pg['bs_day']; ?>&rf=<?php echo $rfPeriod; ?>" class="sp-cal-today-btn">आज</a>
+          <a href="?tab=patro&cal_year=<?php echo $pg['bs_year']; ?>&cal_month=<?php echo $pg['bs_month']; ?>&sel_day=<?php echo $pg['bs_day']; ?>&rf=<?php echo $rfPeriod; ?>" class="sp-cal-today-btn"><?php echo isEnglish()?'Today':'आज'; ?></a>
+          <?php if ($nextOk): ?>
           <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1&rf=<?php echo $rfPeriod; ?>" class="sp-cal-nav-btn">
             <?php echo isEnglish()?'Next':'अर्को'; ?> &#8250;
           </a>
+          <?php else: ?>
+          <span class="sp-cal-nav-btn is-disabled" aria-disabled="true"><?php echo isEnglish()?'Next':'अर्को'; ?> &#8250;</span>
+          <?php endif; ?>
         </div>
       </div>
 
@@ -667,19 +792,22 @@ if($activeTab==='patro'): ?>
               $d=$cell['d'];
               $isToday=$calY===$pg['bs_year']&&$calM===$pg['bs_month']&&$d===$pg['bs_day'];
               $isSel=$d===$selD;
-              $mainEv=$cell['evs'][0]??null;
+              $mainEv=sp_main_event($cell['evs']);
+              $hasCoop=sp_has_event_type($cell['evs'],'sahakari');
               $bg='#fff'; $brd='1px solid #f0f0f0';
               if(!$isToday&&$mainEv) $bg=sp_ev_bg($mainEv['type']);
               elseif(!$isToday&&$cell['shubh']) $bg='#dcfce7';
               $classes='sp-cal-cell'.($isToday?' today':'').($isSel&&!$isToday?' selected':'').($cell['wd']===6?' sat':'');
               $href="?tab=patro&cal_year=$calY&cal_month=$calM&sel_day=$d&rf=$rfPeriod";
+              $badgeName=$mainEv ? ((mb_strlen($mainEv['name'])>8)?mb_substr($mainEv['name'],0,7).'…':$mainEv['name']) : '';
             ?>
             <a href="<?php echo $href; ?>" class="<?php echo $classes; ?>" style="background:<?php echo $bg; ?>;border:<?php echo $isSel&&!$isToday?'2px solid var(--sp-primary)':$brd; ?>;text-decoration:none;">
               <div class="sp-cal-daynum"><?php echo sp_np($d); ?></div>
               <div class="sp-cal-tithi"><?php echo ['प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','पू','प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','औ'][$cell['ti']]; ?></div>
               <?php if($mainEv): $ec=sp_ev_color($mainEv['type']); $eb=sp_ev_bg($mainEv['type']); ?>
-              <div class="sp-cal-evbadge" style="background:<?php echo $isToday?'rgba(255,255,255,.2)':$eb; ?>;color:<?php echo $isToday?'#fff':$ec; ?>;"><?php echo mb_strlen($mainEv['name'])>8?mb_substr($mainEv['name'],0,7).'…':$mainEv['name']; ?></div>
+              <div class="sp-cal-evbadge" style="background:<?php echo $isToday?'rgba(255,255,255,.2)':$eb; ?>;color:<?php echo $isToday?'#fff':$ec; ?>;"><?php echo htmlspecialchars($badgeName); ?></div>
               <?php endif; ?>
+              <?php if($hasCoop&&(!$mainEv||($mainEv['type']??'')!=='sahakari')&&!$isToday): ?><div class="sp-cal-sahakari-dot" title="सहकारी कार्यक्रम"></div><?php endif; ?>
               <?php if($cell['shubh']&&!$mainEv&&!$isToday): ?><div class="sp-cal-shubhdot"></div><?php endif; ?>
               <?php if(count($cell['evs'])>1): ?><div class="sp-cal-more">+<?php echo sp_np(count($cell['evs'])-1); ?></div><?php endif; ?>
             </a>
@@ -690,7 +818,7 @@ if($activeTab==='patro'): ?>
 
       <!-- Legend -->
       <div class="sp-cal-legend">
-        <?php foreach([['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a']] as [$l,$bg,$tc]): ?>
+        <?php foreach([['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a'],['सहकारी कार्यक्रम','#ecfdf5','#047857']] as [$l,$bg,$tc]): ?>
         <div class="sp-cal-leg-item">
           <span class="sp-cal-leg-swatch" style="background:<?php echo $bg; ?>;border:1px solid <?php echo $tc; ?>;"></span>
           <?php echo $l; ?>
@@ -740,9 +868,9 @@ if($activeTab==='patro'): ?>
             if($mc===null): ?>
             <div class="sp-minical-cell empty">·</div>
             <?php else:
-              $me=$mc['evs'][0]??null;
+              $me=sp_main_event($mc['evs']??[]);
               $mcls='sp-minical-cell'.($mc['wd']===6?' sat':'');
-              if($me) $mcls.=' '.($me['type']==='holiday'?'holiday':($me['type']==='festival'?'festival':($me['type']==='purnima'?'purnima':($me['type']==='ekadashi'?'ekadashi':'has-ev')))); ?>
+              if($me) $mcls.=' '.($me['type']==='holiday'?'holiday':($me['type']==='festival'?'festival':($me['type']==='purnima'?'purnima':($me['type']==='ekadashi'?'ekadashi':($me['type']==='sahakari'?'sahakari':'has-ev'))))); ?>
             <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=<?php echo $mc['d']; ?>" class="<?php echo $mcls; ?>" title="<?php echo $me?htmlspecialchars($me['name']):''; ?>" style="text-decoration:none;">
               <?php echo sp_np($mc['d']); ?>
             </a>
@@ -809,12 +937,15 @@ if($activeTab==='patro'): ?>
       <div class="sp-evlist-body">
         <?php $hasSomeEv=false;
         foreach($calCells as $ec):
-          if($ec===null||empty($ec['evs'])) continue; $hasSomeEv=true; ?>
+          if($ec===null||empty($ec['evs'])) continue;
+          $festOnly=array_values(array_filter($ec['evs'], static fn($ev)=>($ev['type'] ?? '') !== 'sahakari'));
+          if(empty($festOnly)) continue;
+          $hasSomeEv=true; ?>
         <a href="?tab=patro&cal_year=<?php echo $calY; ?>&cal_month=<?php echo $calM; ?>&sel_day=<?php echo $ec['d']; ?>&rf=<?php echo $rfPeriod; ?>"
            class="sp-evlist-row <?php echo $ec['d']===$selD?'active':''; ?>" style="text-decoration:none;">
           <div class="sp-evlist-daynum"><?php echo sp_np($ec['d']); ?></div>
           <div>
-            <?php foreach($ec['evs'] as $ev): $ec2=sp_ev_color($ev['type']); ?>
+            <?php foreach($festOnly as $ev): $ec2=sp_ev_color($ev['type']); ?>
             <div class="sp-evlist-evname" style="color:<?php echo $ec2; ?>;"><?php echo htmlspecialchars($ev['name']); ?></div>
             <?php endforeach; ?>
             <div class="sp-evlist-vaar"><?php echo ['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'][$ec['wd']]; ?></div>
@@ -826,6 +957,42 @@ if($activeTab==='patro'): ?>
         <?php endif; ?>
       </div>
     </div><!-- /evlist -->
+
+    <!-- सहकारी कार्यक्रम (admin) -->
+    <div class="sp-evlist-card" style="margin-top:14px;border-color:#a7f3d0;">
+      <div class="sp-evlist-hdr" style="background:#ecfdf5;color:#047857;">
+        <i class="lucide-icon" style="width:13px;height:13px;" data-lucide="calendar-check"></i>
+        <?php echo isEnglish() ? 'Cooperative programs' : 'सहकारी कार्यक्रम'; ?>
+      </div>
+      <div class="sp-evlist-body">
+        <?php
+        $coopMonthList = [];
+        foreach ($calCells as $ec) {
+            if ($ec === null || empty($ec['evs'])) {
+                continue;
+            }
+            foreach ($ec['evs'] as $ev) {
+                if (($ev['type'] ?? '') !== 'sahakari') {
+                    continue;
+                }
+                $coopMonthList[] = ['d' => $ec['d'], 'wd' => $ec['wd'], 'name' => $ev['name']];
+            }
+        }
+        if (empty($coopMonthList)): ?>
+        <div style="padding:16px;text-align:center;color:var(--sp-text-muted);font-size:12px;"><?php echo isEnglish() ? 'No cooperative events this month' : 'यस महिना कुनै सहकारी कार्यक्रम छैन'; ?></div>
+        <?php else:
+          foreach ($coopMonthList as $ce): ?>
+        <a href="?tab=patro&cal_year=<?php echo $calY; ?>&cal_month=<?php echo $calM; ?>&sel_day=<?php echo (int)$ce['d']; ?>&rf=<?php echo $rfPeriod; ?>"
+           class="sp-evlist-row <?php echo (int)$ce['d']===$selD?'active':''; ?>" style="text-decoration:none;">
+          <div class="sp-evlist-daynum" style="background:#047857;"><?php echo sp_np((int)$ce['d']); ?></div>
+          <div>
+            <div class="sp-evlist-evname" style="color:#047857;"><?php echo htmlspecialchars($ce['name']); ?></div>
+            <div class="sp-evlist-vaar"><?php echo ['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'][(int)$ce['wd']]; ?></div>
+          </div>
+        </a>
+        <?php endforeach; endif; ?>
+      </div>
+    </div>
 
   </div><!-- /col-side -->
 </div><!-- /row -->

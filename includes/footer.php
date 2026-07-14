@@ -8,6 +8,11 @@ $supportedName = trim((string)getSetting('supported_name', ''));
 $supportedUrl = trim((string)getSetting('supported_url', ''));
 $whatsappNumber = getSetting('whatsapp_number', '');
 $workingHours = getSetting('working_hours', 'आइतबार - शुक्रबार: बिहान १०:०० - साँझ ५:००');
+require_once __DIR__ . '/ai-chat-helpers.php';
+$aiChatEnabled = ai_chat_is_enabled();
+$aiChatWelcome = $aiChatEnabled
+    ? ai_chat_welcome(function_exists('isEnglish') && isEnglish())
+    : '';
 
 // Track and get visitor count - with safe table checks
 $totalVisitors = 0;
@@ -1122,6 +1127,13 @@ if ($__uiTestMode):
       <span class="qh-ic help"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-question"></i></span>
       <span>सहायता / FAQ</span>
     </button>
+    <?php if (!empty($aiChatEnabled)): ?>
+    <button type="button" class="qh-item" role="menuitem"
+      onclick="document.getElementById('aiChatPanel').classList.add('open');document.getElementById('qhLauncher').classList.remove('open');var i=document.getElementById('aiChatInput');if(i)i.focus();">
+      <span class="qh-ic ai"><i class="fas fa-robot"></i></span>
+      <span><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></span>
+    </button>
+    <?php endif; ?>
     <?php if (!empty($usefulLinks)): ?>
     <button type="button" class="qh-item" role="menuitem"
       onclick="event.stopPropagation();if(window.coopOpenUsefulLinks)window.coopOpenUsefulLinks();var l=document.getElementById('qhLauncher');if(l)l.classList.remove('open');">
@@ -1190,6 +1202,87 @@ if ($__uiTestMode):
   });
 })();
 </script>
+
+<?php if (!empty($aiChatEnabled)): ?>
+<div id="aiChatPanel" role="dialog" aria-label="AI Chat">
+  <div class="acp-h">
+    <i class="fas fa-robot" aria-hidden="true"></i>
+    <div>
+      <div class="acp-title"><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></div>
+      <div class="acp-sub"><?php echo isEnglish() ? 'Answers from this website’s data' : 'यस वेबसाइटको डाटाबाट जवाफ'; ?></div>
+    </div>
+    <button type="button" class="acp-x" onclick="document.getElementById('aiChatPanel').classList.remove('open')" aria-label="Close">×</button>
+  </div>
+  <div class="acp-messages" id="aiChatMessages" aria-live="polite">
+    <div class="acp-bubble bot"><?php echo htmlspecialchars($aiChatWelcome, ENT_QUOTES, 'UTF-8'); ?></div>
+  </div>
+  <form class="acp-form" id="aiChatForm" novalidate>
+    <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+           style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+    <input type="text" id="aiChatInput" name="message" maxlength="800" required autocomplete="off"
+           placeholder="<?php echo isEnglish() ? 'Ask about services, rates, branches…' : 'सेवा, ब्याजदर, शाखाबारे सोध्नुहोस्…'; ?>">
+    <button type="submit" id="aiChatSend" aria-label="<?php echo isEnglish() ? 'Send' : 'पठाउनुहोस्'; ?>">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </form>
+</div>
+<script>
+(function(){
+  var panel = document.getElementById('aiChatPanel');
+  var form = document.getElementById('aiChatForm');
+  var box = document.getElementById('aiChatMessages');
+  var input = document.getElementById('aiChatInput');
+  var sendBtn = document.getElementById('aiChatSend');
+  if (!panel || !form || !box || !input) return;
+
+  function esc(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function addBubble(text, who){
+    var d = document.createElement('div');
+    d.className = 'acp-bubble ' + (who === 'user' ? 'user' : 'bot');
+    d.innerHTML = esc(text).replace(/\n/g, '<br>');
+    box.appendChild(d);
+    box.scrollTop = box.scrollHeight;
+    return d;
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = (input.value || '').trim();
+    if (msg.length < 2) return;
+    addBubble(msg, 'user');
+    input.value = '';
+    sendBtn.disabled = true;
+    var thinking = addBubble('…', 'bot');
+    thinking.classList.add('acp-thinking');
+
+    fetch('<?php echo SITE_URL; ?>api-ai-chat.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        message: msg,
+        website: form.querySelector('[name=website]').value || ''
+      })
+    })
+      .then(function(r){ return r.json().catch(function(){ return {ok:false, msg:'त्रुटि'}; }); })
+      .then(function(d){
+        thinking.remove();
+        if (d && d.ok && d.answer) {
+          addBubble(d.answer, 'bot');
+        } else {
+          addBubble((d && d.msg) ? d.msg : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', 'bot');
+        }
+      })
+      .catch(function(){
+        thinking.remove();
+        addBubble('नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', 'bot');
+      })
+      .finally(function(){ sendBtn.disabled = false; input.focus(); });
+  });
+})();
+</script>
+<?php endif; ?>
 
 <?php /* Duplicate public-mobile-footer disabled — .mob-bottomnav above is the single mobile bar */ ?>
 <?php /* Public mobile nav: .mob-bottomnav rendered above — do not re-add a second footer bar */ ?>
