@@ -20548,7 +20548,7 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 }
 #aiChatPanel.open{ display:flex; }
 #aiChatPanel .acp-h{
-  background:linear-gradient(135deg,#6d28d9,#7c3aed);
+  background:linear-gradient(135deg,var(--primary-color,#1a5f2a),color-mix(in srgb, var(--primary-color,#1a5f2a) 75%, #0f3d1c));
   color:#fff; padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0;
 }
 #aiChatPanel .acp-title{ font-weight:700; font-size:14px; }
@@ -20567,10 +20567,27 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
   border-bottom-left-radius:4px;
 }
 #aiChatPanel .acp-bubble.user{
-  align-self:flex-end; background:#7c3aed; color:#fff;
+  align-self:flex-end; background:var(--primary-color,#1a5f2a); color:#fff;
   border-bottom-right-radius:4px;
 }
-#aiChatPanel .acp-bubble.acp-thinking{ opacity:.65; font-weight:700; letter-spacing:.08em; }
+#aiChatPanel .acp-bubble.acp-thinking{ opacity:.65; font-weight:600; letter-spacing:0; }
+#aiChatPanel .acp-chips{
+  display:flex; flex-wrap:wrap; gap:6px; padding:0 12px 8px; background:#f8fafc; flex-shrink:0;
+}
+#aiChatPanel .acp-chip{
+  border:1px solid #d1e7d6; background:#fff; color:var(--primary-color,#1a5f2a);
+  border-radius:999px; padding:5px 10px; font-size:11px; font-weight:600;
+  cursor:pointer; font-family:inherit; line-height:1.2;
+}
+#aiChatPanel .acp-chip:hover{ background:color-mix(in srgb, var(--primary-color,#1a5f2a) 10%, #fff); }
+#aiChatPanel .acp-escalate{
+  display:flex; gap:8px; flex-wrap:wrap; padding:0 12px 8px; background:#f8fafc;
+  border-top:0; flex-shrink:0;
+}
+#aiChatPanel .acp-escalate button{
+  border:0; background:transparent; color:#64748b; font-size:11px; font-weight:600;
+  cursor:pointer; padding:2px 0; font-family:inherit; text-decoration:underline;
+}
 #aiChatPanel .acp-form{
   display:flex; gap:8px; padding:10px 12px; border-top:1px solid #e6e9ef;
   background:#fff; flex-shrink:0; align-items:center;
@@ -20580,11 +20597,11 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
   padding:9px 11px; font-size:14px; font-family:inherit; outline:none;
 }
 #aiChatPanel .acp-form input[type="text"]:not([name="website"]):focus{
-  border-color:#7c3aed; box-shadow:0 0 0 2px rgba(124,58,237,.15);
+  border-color:var(--primary-color,#1a5f2a); box-shadow:0 0 0 2px color-mix(in srgb, var(--primary-color,#1a5f2a) 20%, transparent);
 }
-#aiChatPanel .acp-form button{
+#aiChatPanel .acp-form button[type="submit"]{
   width:42px; height:42px; border:0; border-radius:10px;
-  background:#7c3aed; color:#fff; cursor:pointer; flex-shrink:0;
+  background:var(--primary-color,#1a5f2a); color:#fff; cursor:pointer; flex-shrink:0;
   display:inline-flex; align-items:center; justify-content:center;
 }
 #aiChatPanel .acp-form button:disabled{ opacity:.55; cursor:wait; }
@@ -20993,7 +21010,7 @@ body{ background: var(--bg-soft, #f6faf7); }
 .qh-ic.wa{ background:#25D366; }
 .qh-ic.help{ background:var(--primary-color,#1a5f2a); }
 .qh-ic.chat{ background:#0ea5e9; }
-.qh-ic.ai{ background:#7c3aed; }
+.qh-ic.ai{ background:var(--primary-color,#1a5f2a); }
 .qh-ic.links{ background:#6366f1; }
 
 

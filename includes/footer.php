@@ -1204,7 +1204,7 @@ if ($__uiTestMode):
 </script>
 
 <?php if (!empty($aiChatEnabled)): ?>
-<div id="aiChatPanel" role="dialog" aria-label="AI Chat">
+<div id="aiChatPanel" role="dialog" aria-label="AI Chat" aria-modal="true">
   <div class="acp-h">
     <i class="fas fa-robot" aria-hidden="true"></i>
     <div>
@@ -1215,6 +1215,19 @@ if ($__uiTestMode):
   </div>
   <div class="acp-messages" id="aiChatMessages" aria-live="polite">
     <div class="acp-bubble bot"><?php echo htmlspecialchars($aiChatWelcome, ENT_QUOTES, 'UTF-8'); ?></div>
+  </div>
+  <div class="acp-chips" id="aiChatChips">
+    <?php
+    $aiChips = isEnglish()
+        ? [['ब्याजदर के हो?', 'Interest rates'], ['सेवाहरू', 'Services'], ['नजिकको शाखा', 'Nearby branch'], ['सदस्य कसरी बन्ने?', 'How to become a member?']]
+        : [['ब्याजदर कति छ?', 'ब्याजदर कति छ?'], ['के के सेवा छन्?', 'के के सेवा छन्?'], ['नजिकको शाखा?', 'नजिकको शाखा?'], ['सदस्य कसरी बन्ने?', 'सदस्य कसरी बन्ने?']];
+    foreach ($aiChips as [$lab, $ask]): ?>
+    <button type="button" class="acp-chip" data-ask="<?php echo htmlspecialchars($ask, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($lab, ENT_QUOTES, 'UTF-8'); ?></button>
+    <?php endforeach; ?>
+  </div>
+  <div class="acp-escalate">
+    <button type="button" id="aiChatOpenLive"><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></button>
+    <button type="button" id="aiChatOpenFaq"><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></button>
   </div>
   <form class="acp-form" id="aiChatForm" novalidate>
     <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
@@ -1233,7 +1246,11 @@ if ($__uiTestMode):
   var box = document.getElementById('aiChatMessages');
   var input = document.getElementById('aiChatInput');
   var sendBtn = document.getElementById('aiChatSend');
+  var chips = document.getElementById('aiChatChips');
   if (!panel || !form || !box || !input) return;
+
+  var thinkingLbl = <?php echo json_encode(isEnglish() ? 'Thinking…' : 'सोच्दै…', JSON_UNESCAPED_UNICODE); ?>;
+  var busy = false;
 
   function esc(s){
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -1246,15 +1263,42 @@ if ($__uiTestMode):
     box.scrollTop = box.scrollHeight;
     return d;
   }
+  function closePanel(){ panel.classList.remove('open'); }
+  function openLive(){
+    closePanel();
+    var p = document.getElementById('publicChatPanel');
+    if (p) p.classList.add('open');
+  }
+  function openFaq(){
+    closePanel();
+    var t = document.getElementById('chatbotToggle');
+    if (t) t.click();
+  }
 
-  form.addEventListener('submit', function(e){
-    e.preventDefault();
-    var msg = (input.value || '').trim();
-    if (msg.length < 2) return;
+  var liveBtn = document.getElementById('aiChatOpenLive');
+  var faqBtn = document.getElementById('aiChatOpenFaq');
+  if (liveBtn) liveBtn.addEventListener('click', openLive);
+  if (faqBtn) faqBtn.addEventListener('click', openFaq);
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && panel.classList.contains('open')) closePanel();
+  });
+  document.addEventListener('click', function(e){
+    if (!panel.classList.contains('open')) return;
+    if (panel.contains(e.target)) return;
+    var launcher = document.getElementById('qhLauncher');
+    if (launcher && launcher.contains(e.target)) return;
+    closePanel();
+  });
+
+  function ask(msg){
+    msg = String(msg || '').trim();
+    if (msg.length < 2 || busy) return;
+    busy = true;
     addBubble(msg, 'user');
     input.value = '';
     sendBtn.disabled = true;
-    var thinking = addBubble('…', 'bot');
+    var thinking = addBubble(thinkingLbl, 'bot');
     thinking.classList.add('acp-thinking');
 
     fetch('<?php echo SITE_URL; ?>api-ai-chat.php', {
@@ -1262,7 +1306,7 @@ if ($__uiTestMode):
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         message: msg,
-        website: form.querySelector('[name=website]').value || ''
+        website: (form.querySelector('[name=website]') || {}).value || ''
       })
     })
       .then(function(r){ return r.json().catch(function(){ return {ok:false, msg:'त्रुटि'}; }); })
@@ -1271,14 +1315,27 @@ if ($__uiTestMode):
         if (d && d.ok && d.answer) {
           addBubble(d.answer, 'bot');
         } else {
-          addBubble((d && d.msg) ? d.msg : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', 'bot');
+          addBubble((d && d.msg) ? d.msg : (<?php echo json_encode(isEnglish() ? 'No answer. Try Live Chat or FAQ.' : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>), 'bot');
         }
       })
       .catch(function(){
         thinking.remove();
-        addBubble('नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', 'bot');
+        addBubble(<?php echo json_encode(isEnglish() ? 'Network error. Please try again.' : 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>, 'bot');
       })
-      .finally(function(){ sendBtn.disabled = false; input.focus(); });
+      .finally(function(){ busy = false; sendBtn.disabled = false; input.focus(); });
+  }
+
+  if (chips) {
+    chips.addEventListener('click', function(e){
+      var b = e.target.closest('.acp-chip');
+      if (!b) return;
+      ask(b.getAttribute('data-ask') || b.textContent);
+    });
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    ask(input.value);
   });
 })();
 </script>
