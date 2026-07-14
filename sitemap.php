@@ -66,6 +66,7 @@ $staticPhp = [
     ['exchange-rate.php', '0.65', 'daily'],
     ['emi-calculator.php', '0.6', 'yearly'],
     ['date-converter.php', '0.55', 'yearly'],
+    ['sahakari-patro.php', '0.7', 'daily'],
 
     /* ── Secondary / engagement ─────────────────────────────────────────── */
     ['faqs.php', '0.7', 'monthly'],
