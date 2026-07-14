@@ -157,3 +157,54 @@ if (!function_exists('ai_chat_welcome')) {
         return 'नमस्कार! ' . $name . ' का सेवा, ब्याजदर, सूचना वा शाखाबारे सोध्नुहोस्। जवाफ यस वेबसाइटको प्रकाशित डाटाबाट दिइन्छ।';
     }
 }
+
+if (!function_exists('ai_chat_is_sensitive_question')) {
+    /** Block requests for passwords, PINs, balances, or other non-public account data. */
+    function ai_chat_is_sensitive_question(string $message): bool
+    {
+        $q = mb_strtolower(trim(strip_tags($message)));
+        return (bool)preg_match(
+            '/\b(password|passwd|pin\s*code|otp|one[\s-]?time|username|user\s*name|login\s*credential|admin\s*password|secret\s*key|api\s*key|'
+            . 'account\s*balance|balance\s*of|my\s*balance|kyc\s*document|citizenship\s*number|national\s*id\s*number|'
+            . 'पासवर्ड|पास्वर्ड|पिन|ओटिपी|गोप्य|गुप्त|खाता\s*ब्यालेन्स|मेरो\s*ब्यालेन्स|सदस्य\s*नम्बर|'
+            . 'लगइन|login\s*detail|credential)\b/ui',
+            $q
+        );
+    }
+}
+
+if (!function_exists('ai_chat_sensitive_refusal')) {
+    function ai_chat_sensitive_refusal(bool $english): string
+    {
+        return $english
+            ? 'I cannot share passwords, PINs, OTPs, account balances, or other private member data. For account help, use the member portal or contact staff via Live Chat.'
+            : 'पासवर्ड, पिन, OTP, खाता ब्यालेन्स वा अन्य गोप्य सदस्य डाटा दिन सकिँदैन। सदस्य पोर्टल वा Live Chat बाट सम्पर्क गर्नुहोस्।';
+    }
+}
+
+if (!function_exists('ai_chat_redact_secrets')) {
+    /** Strip accidental secrets from text before/after LLM (never send to model or user). */
+    function ai_chat_redact_secrets(string $text): string
+    {
+        if ($text === '') {
+            return '';
+        }
+        $text = preg_replace('/\b(sk-[A-Za-z0-9]{10,}|AIza[A-Za-z0-9_\-]{20,}|enc:v1:[^\s]+)\b/u', '[redacted]', $text) ?? $text;
+        $text = preg_replace('/\b(password|passwd|pin|otp)\s*[:=]\s*\S+/iu', '$1: [redacted]', $text) ?? $text;
+        return $text;
+    }
+}
+
+if (!function_exists('ai_chat_public_setting_keys')) {
+    /** Whitelist of site_settings safe for public AI context (no SMTP/API secrets). */
+    function ai_chat_public_setting_keys(): array
+    {
+        return [
+            'site_name', 'site_name_en', 'phone', 'contact_phone', 'email', 'contact_email',
+            'address', 'address_en', 'whatsapp', 'whatsapp_number', 'facebook', 'twitter',
+            'instagram', 'youtube', 'office_hours', 'office_hours_np',
+            'membership_info_np', 'membership_info_en', 'registration_steps_np',
+            'chairman_name', 'ceo_name', 'ceo_designation_np', 'ceo_designation_en',
+        ];
+    }
+}

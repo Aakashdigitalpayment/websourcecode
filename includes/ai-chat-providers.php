@@ -79,7 +79,7 @@ if (!function_exists('ai_chat_call_openai')) {
             [
                 'model' => $model,
                 'temperature' => 0.2,
-                'max_tokens' => 700,
+                'max_tokens' => 480,
                 'messages' => [
                     ['role' => 'system', 'content' => $system],
                     ['role' => 'user', 'content' => $user],
@@ -117,7 +117,7 @@ if (!function_exists('ai_chat_call_gemini')) {
                 ],
                 'generationConfig' => [
                     'temperature' => 0.2,
-                    'maxOutputTokens' => 700,
+                    'maxOutputTokens' => 480,
                 ],
             ]
         );
@@ -145,7 +145,7 @@ if (!function_exists('ai_chat_call_deepseek')) {
             [
                 'model' => $model,
                 'temperature' => 0.2,
-                'max_tokens' => 700,
+                'max_tokens' => 480,
                 'messages' => [
                     ['role' => 'system', 'content' => $system],
                     ['role' => 'user', 'content' => $user],
