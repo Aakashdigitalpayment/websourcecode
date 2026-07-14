@@ -1336,8 +1336,8 @@ if ($__uiTestMode):
         return r.text().then(function(t){
           var d = null;
           try { d = t ? JSON.parse(t) : null; } catch (e) { d = null; }
-          if (!d || typeof d !== 'object') {
-            return { ok:false, msg: parseErr };
+          if (!d || typeof d !== 'object' || Array.isArray(d)) {
+            return { ok:false, msg: parseErr + (r.status ? (' (HTTP ' + r.status + ')') : '') };
           }
           return d;
         });
@@ -1348,7 +1348,8 @@ if ($__uiTestMode):
         if (d && d.ok && ans !== '') {
           addBubble(ans, 'bot');
         } else {
-          addBubble((d && d.msg) ? d.msg : fallbackErr, 'bot', 'acp-err');
+          var errMsg = (d && d.msg) ? d.msg : fallbackErr;
+          addBubble(errMsg, 'bot', 'acp-err');
         }
       })
       .catch(function(){

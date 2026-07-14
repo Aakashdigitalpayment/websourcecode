@@ -97,7 +97,7 @@ if (!function_exists('ai_chat_call_openai')) {
 if (!function_exists('ai_chat_call_gemini')) {
     function ai_chat_call_gemini(string $apiKey, string $model, string $system, string $user): string
     {
-        $model = trim($model) !== '' ? $model : 'gemini-2.0-flash';
+        $model = trim($model) !== '' ? $model : 'gemini-2.5-flash';
         $url = 'https://generativelanguage.googleapis.com/v1beta/models/'
             . rawurlencode($model)
             . ':generateContent?key=' . rawurlencode($apiKey);

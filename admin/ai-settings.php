@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $modelCustom = clean_text($_POST['ai_model_custom'] ?? '', 80);
             $model = ($modelPick === 'custom') ? $modelCustom : $modelPick;
             if ($model === '') {
-                $model = $provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.0-flash';
+                $model = $provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash';
             }
             updateSetting('ai_model', $model);
 
@@ -82,10 +82,12 @@ $welcomeNp = (string)getSetting('ai_welcome_np', '');
 $welcomeEn = (string)getSetting('ai_welcome_en', '');
 $encryptOn = ai_chat_can_encrypt();
 
-$geminiModels = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+$geminiModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.5-flash'];
 $openaiModels = ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'];
 $known = array_merge($geminiModels, $openaiModels);
-$modelIsCustom = $model !== '' && !in_array($model, $known, true);
+/* Saved value may be legacy ID — picker shows the live remapped model. */
+$displayModel = ai_chat_model();
+$modelIsCustom = $displayModel !== '' && !in_array($displayModel, $known, true);
 
 $_flash = getFlash();
 $publicUrl = defined('SITE_URL') ? rtrim(SITE_URL, '/') . '/' : '../';
@@ -108,7 +110,8 @@ if ($_flash) {
 ?>
 
 <div class="alert alert-success border-success border-opacity-25">
-    <strong>सिफारिस:</strong> सुरुमा <strong>Google Gemini</strong> + <code>gemini-2.0-flash</code> राख्नुहोस् (free tier सजिलो)।
+    <strong>सिफारिस:</strong> सुरुमा <strong>Google Gemini</strong> + <code>gemini-2.5-flash</code> राख्नुहोस् (free tier सजिलो)।
+    <code>gemini-2.0-flash</code> बन्द भइसकेको छ — पुरानो सेटिङ आफैं नयाँ model मा map हुन्छ।
     OpenAI paid खाता चाहिन्छ। Visitor ले कहिल्यै key हाल्दैन — Admin मा मात्र।
 </div>
 
@@ -149,18 +152,18 @@ if ($_flash) {
                     <select name="ai_model_pick" id="ai_model_pick" class="form-select">
                         <optgroup label="Gemini" id="opt-gemini">
                             <?php foreach ($geminiModels as $m): ?>
-                            <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $model === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
+                            <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $displayModel === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
                             <?php endforeach; ?>
                         </optgroup>
                         <optgroup label="OpenAI" id="opt-openai">
                             <?php foreach ($openaiModels as $m): ?>
-                            <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $model === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
+                            <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $displayModel === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
                             <?php endforeach; ?>
                         </optgroup>
                         <option value="custom" <?php echo $modelIsCustom ? 'selected' : ''; ?>>अन्य (custom)…</option>
                     </select>
                     <input type="text" name="ai_model_custom" id="ai_model_custom" class="form-control mt-2 <?php echo $modelIsCustom ? '' : 'd-none'; ?>"
-                           value="<?php echo $modelIsCustom ? htmlspecialchars($model) : ''; ?>" placeholder="custom model id">
+                           value="<?php echo $modelIsCustom ? htmlspecialchars($displayModel) : ''; ?>" placeholder="custom model id">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">API Key <?php echo $hasKey ? '<span class="badge bg-success">सुरक्षित छ</span>' : '<span class="badge bg-warning text-dark">छैन</span>'; ?></label>
@@ -228,7 +231,7 @@ if ($_flash) {
     if (g) g.disabled = !isG;
     if (o) o.disabled = isG;
     if (pick.value !== 'custom') {
-      var def = isG ? 'gemini-2.0-flash' : 'gpt-4o-mini';
+      var def = isG ? 'gemini-2.5-flash' : 'gpt-4o-mini';
       var ok = false;
       Array.prototype.forEach.call(pick.options, function (opt) {
         if (opt.value === pick.value && !opt.disabled && opt.parentElement && !opt.parentElement.disabled) ok = true;
