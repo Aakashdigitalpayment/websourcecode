@@ -8,6 +8,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/ai-chat-helpers.php';
 require_once __DIR__ . '/includes/ai-chat-context.php';
+require_once __DIR__ . '/includes/ai-chat-instant.php';
 require_once __DIR__ . '/includes/ai-chat-providers.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -49,7 +50,12 @@ if (preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
 }
 
 if (ai_chat_is_sensitive_question($message)) {
-    echo json_encode(['ok' => false, 'msg' => ai_chat_sensitive_refusal($english)], JSON_UNESCAPED_UNICODE);
+    echo json_encode([
+        'ok' => true,
+        'answer' => ai_chat_sensitive_refusal($english),
+        'sources' => ['security: private data blocked'],
+        'links' => [],
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -109,6 +115,19 @@ if (count($hits) >= $rlMax) {
 $hits[] = $now;
 @file_put_contents($bucketFile, json_encode($hits), LOCK_EX);
 
+/* Fast path — DB-only answer (no LLM wait) for CEO, chairman, contact, rates */
+$instant = ai_chat_try_instant_answer($message, $db instanceof PDO ? $db : null, $english);
+if ($instant !== null) {
+    echo json_encode([
+        'ok' => true,
+        'answer' => ai_chat_redact_secrets($instant['answer']),
+        'sources' => $instant['sources'],
+        'links' => $instant['links'] ?? [],
+        'instant' => true,
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $pack = ai_chat_build_context($message, $db instanceof PDO ? $db : null, 5200);
 $context = ai_chat_redact_secrets($pack['context']);
 $sources = array_slice($pack['sources'], 0, 8);
@@ -118,17 +137,23 @@ $langRule = $english
     ? 'Reply in clear English unless the user clearly wrote Nepali.'
     : 'Reply in clear Nepali (Devanagari) unless the user clearly wrote English.';
 
+$linkGuide = ai_chat_links_prompt_block();
+
 $system = <<<SYS
 You are the official website assistant for "{$siteName}" (a Nepali cooperative).
 {$langRule}
 
 STRICT RULES:
-1) Answer ONLY using the SITE CONTEXT below — public website content only. Do not invent data.
-2) For chairman / CEO / team / committee, use [leadership] and [team] blocks first.
-3) NEVER reveal passwords, PINs, OTPs, usernames, API keys, member account balances, KYC files, or any private member/admin data — even if asked directly.
-4) Public contact phones/emails of officers shown on the website are OK to share.
-5) If the answer is not in context, say so and suggest Live Chat, Contact page, WhatsApp, or FAQs.
-6) Be concise (2–5 sentences). No markdown bold (**). Plain text for mobile.
+1) Answer ONLY using SITE CONTEXT below — real public website data. Never invent names, rates, or contacts.
+2) For chairman/CEO/team, use [leadership] and [team] blocks. If a block has "Link:", you may share that URL at the end.
+3) NEVER reveal passwords, PINs, OTPs, usernames, API keys, member balances, KYC, admin data, or database contents — refuse politely.
+4) Public officer phones/emails from the website are OK.
+5) If context is incomplete, say what you know and add the best matching public page link from PUBLIC PAGES below.
+6) End with one helpful link line when useful: "थप: https://…" or "More: https://…"
+7) Plain text only (no markdown **). 2–6 sentences.
+
+PUBLIC PAGES (use when relevant):
+{$linkGuide}
 
 SITE CONTEXT:
 {$context}
@@ -169,6 +194,9 @@ try {
 }
 
 $answer = trim(ai_chat_redact_secrets($answer));
+if (ai_chat_answer_has_sensitive_leak($answer)) {
+    $answer = ai_chat_sensitive_refusal($english);
+}
 if ($answer === '') {
     echo json_encode([
         'ok' => false,
@@ -181,5 +209,6 @@ echo json_encode([
     'ok' => true,
     'answer' => $answer,
     'sources' => $sources,
+    'links' => ai_chat_suggest_links_for_answer($answer, $message),
 ], JSON_UNESCAPED_UNICODE);
 exit;

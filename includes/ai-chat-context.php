@@ -213,7 +213,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
         $mode = ai_chat_context_mode($question);
         $cands = [];
 
-        $push = static function (string $source, string $label, string $body, int $score) use (&$cands): void {
+        $push = static function (string $source, string $label, string $body, int $score, string $link = '') use (&$cands): void {
             if (function_exists('ai_chat_redact_secrets')) {
                 $body = ai_chat_redact_secrets($body);
                 $label = ai_chat_redact_secrets($label);
@@ -228,7 +228,12 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 'source' => $source,
                 'label' => $label,
                 'body' => $body,
+                'link' => $link,
             ];
+        };
+
+        $pageUrl = static function (string $path) {
+            return rtrim(defined('SITE_URL') ? (string)SITE_URL : '/', '/') . '/' . ltrim($path, '/');
         };
 
         /* Site identity */
@@ -286,7 +291,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 'chairman ceo अध्यक्ष प्रमुख कार्यकारी leadership team ' . $leadBody,
                 $tokens
             ) + ($leadershipQ ? 12 : 4);
-            $push('leadership', $english ? 'Leadership' : 'नेतृत्व', $leadBody, $leadScore);
+            $push('leadership', $english ? 'Leadership' : 'नेतृत्व', $leadBody, $leadScore, $pageUrl('about.php#chairman'));
         }
 
         /* Vision / mission */
@@ -366,7 +371,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $cat = (string)($row['category'] ?? '');
             $rate = (string)($row['rate'] ?? $row['interest_rate'] ?? '');
             $body = trim(($cat !== '' ? "श्रेणी: {$cat}. " : '') . "दर: {$rate}");
-            $push('rate', $t !== '' ? $t : 'ब्याजदर', $body, ai_chat_score_text($t . ' ' . $body . ' ब्याजदर interest rate', $tokens) + 2);
+            $push('rate', $t !== '' ? $t : 'ब्याजदर', $body, ai_chat_score_text($t . ' ' . $body . ' ब्याजदर interest rate', $tokens) + 2, $pageUrl('interest-rates.php'));
         }
         }
 
@@ -421,7 +426,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $bits = array_filter([$pos, $roles !== [] ? implode(', ', $roles) : '', $cat !== '' ? "category: {$cat}" : '', (string)($row['phone'] ?? ''), (string)($row['email'] ?? '')]);
             $body = implode(' | ', $bits);
             $label = $name !== '' ? $name : ($english ? 'Team member' : 'टोली सदस्य');
-            $push('team', $label, $body, ai_chat_score_text($name . ' ' . $body . ' team chairman ceo अध्यक्ष समिति board staff', $tokens) + (!empty($row['is_chairman']) || !empty($row['is_ceo']) ? 3 : 1));
+            $push('team', $label, $body, ai_chat_score_text($name . ' ' . $body . ' team chairman ceo अध्यक्ष समिति board staff', $tokens) + (!empty($row['is_chairman']) || !empty($row['is_ceo']) ? 3 : 1), $pageUrl('team.php'));
         }
 
         /* Committee members (committees.php / team.php) */
@@ -454,7 +459,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 ? (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''))
                 : (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''));
             $slug = (string)($row['slug'] ?? '');
-            $push('page', ($t !== '' ? $t : $slug) . ($slug !== '' ? " ({$slug})" : ''), ai_chat_snip($c, 320), ai_chat_score_text($t . ' ' . $c . ' ' . $slug, $tokens) + ($slug === 'about' ? 2 : 0));
+            $push('page', ($t !== '' ? $t : $slug) . ($slug !== '' ? " ({$slug})" : ''), ai_chat_snip($c, 320), ai_chat_score_text($t . ' ' . $c . ' ' . $slug, $tokens) + ($slug === 'about' ? 2 : 0), $slug !== '' ? $pageUrl('page.php?slug=' . rawurlencode($slug)) : '');
         }
 
         if ($newsLimit > 0) {
@@ -479,6 +484,28 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $push('link', $t !== '' ? $t : 'लिंक', ai_chat_snip($body, 200), ai_chat_score_text($body, $tokens));
         }
 
+        /* Published election cycles + candidates (no vote counts / member ballots) */
+        foreach ($safeQuery($db, 'SELECT title_np, title_en, period_label, date_from, date_to FROM election_cycles WHERE is_published = 1 ORDER BY sort_order, id DESC LIMIT 4') as $row) {
+            $t = $english
+                ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : ($row['title_np'] ?? ''))
+                : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title_en'] ?? ''));
+            $body = trim($t . ' | ' . (string)($row['period_label'] ?? '') . ' ' . (string)($row['date_from'] ?? '') . '–' . (string)($row['date_to'] ?? ''));
+            $push('election', $t !== '' ? $t : 'निर्वाचन', ai_chat_snip($body, 180), ai_chat_score_text($body . ' निर्वाचन election उम्मेदवार', $tokens) + 1, $pageUrl('election-information.php'));
+        }
+        foreach ($safeQuery($db, 'SELECT c.name, c.name_en, p.title_np, p.title_en FROM election_candidates c
+            INNER JOIN election_positions p ON p.id = c.position_id AND p.is_active = 1
+            INNER JOIN election_cycles cy ON cy.id = c.cycle_id AND cy.is_published = 1
+            WHERE c.is_active = 1 ORDER BY c.cycle_id DESC, p.display_order, c.display_order LIMIT 30') as $row) {
+            $cname = $english
+                ? (string)(($row['name_en'] ?? '') !== '' ? $row['name_en'] : ($row['name'] ?? ''))
+                : (string)($row['name'] ?? $row['name_en'] ?? '');
+            $pname = $english
+                ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : ($row['title_np'] ?? ''))
+                : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title_en'] ?? ''));
+            $body = trim($cname . ' — ' . $pname);
+            $push('election', $cname !== '' ? $cname : 'उम्मेदवार', $body, ai_chat_score_text($body . ' candidate उम्मेदवार निर्वाचन', $tokens), $pageUrl('election-information.php'));
+        }
+
         foreach ($safeQuery($db, 'SELECT title, title_np, category FROM downloads WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15') as $row) {
             $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
             $body = trim($t . (($row['category'] ?? '') !== '' ? ' | ' . $row['category'] : ''));
@@ -501,6 +528,16 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
             $d = (string)(($row['description_np'] ?? '') !== '' ? $row['description_np'] : ($row['description'] ?? ''));
             $push('feature', $t !== '' ? $t : 'सुविधा', ai_chat_snip($d, 200), ai_chat_score_text($t . ' ' . $d, $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT title_np, title_en, desc_np, desc_en FROM why_choose_features WHERE is_active = 1 ORDER BY sort_order, id LIMIT 10') as $row) {
+            $t = $english
+                ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : ($row['title_np'] ?? ''))
+                : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title_en'] ?? ''));
+            $d = $english
+                ? (string)(($row['desc_en'] ?? '') !== '' ? $row['desc_en'] : ($row['desc_np'] ?? ''))
+                : (string)(($row['desc_np'] ?? '') !== '' ? $row['desc_np'] : ($row['desc_en'] ?? ''));
+            $push('feature', $t !== '' ? $t : 'किन छान्ने', ai_chat_snip($d, 200), ai_chat_score_text($t . ' ' . $d, $tokens), $pageUrl('about.php'));
         }
 
         foreach ($safeQuery($db, 'SELECT partner_name, location, facility_type, description FROM partner_facilities WHERE is_active = 1 ORDER BY display_order LIMIT 12') as $row) {
@@ -572,7 +609,11 @@ if (!function_exists('ai_chat_build_context')) {
             if ($c['score'] <= 0 && $i >= $minKeep && !in_array($c['source'], $forcedSources, true)) {
                 continue;
             }
-            $block = '[' . $c['source'] . '] ' . $c['label'] . "\n" . $c['body'];
+            $block = '[' . $c['source'] . '] ' . $c['label'];
+            if (!empty($c['link'])) {
+                $block .= "\nLink: " . $c['link'];
+            }
+            $block .= "\n" . $c['body'];
             $len = mb_strlen($block) + 2;
             if ($used + $len > $maxChars && $picked !== []) {
                 break;
