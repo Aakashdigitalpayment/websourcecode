@@ -1254,15 +1254,22 @@ if ($__uiTestMode):
   var fallbackErr = <?php echo json_encode(isEnglish() ? 'No answer. Try Live Chat or FAQ.' : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
   var parseErr = <?php echo json_encode(isEnglish() ? 'Server reply was invalid. Check AI API key / provider in Admin settings, then try again.' : 'सर्भर जवाफ मिलेन। Admin → AI Chat सेटिङ्स मा API key र provider जाँच गरी फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
   var netErr = <?php echo json_encode(isEnglish() ? 'Network error. Please try again.' : 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
+  var englishAns = <?php echo json_encode((bool)isEnglish(), JSON_UNESCAPED_UNICODE); ?>;
   var busy = false;
 
   function esc(s){
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
+  function bubbleHtml(text){
+    var html = esc(text).replace(/\n/g, '<br>');
+    return html.replace(/(https?:\/\/[^\s<]+)/g, function(url){
+      return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="acp-link">' + url + '</a>';
+    });
+  }
   function addBubble(text, who, extraClass){
     var d = document.createElement('div');
     d.className = 'acp-bubble ' + (who === 'user' ? 'user' : 'bot') + (extraClass ? (' ' + extraClass) : '');
-    d.innerHTML = esc(text).replace(/\n/g, '<br>');
+    d.innerHTML = bubbleHtml(text);
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
     return d;
@@ -1346,6 +1353,14 @@ if ($__uiTestMode):
         thinking.remove();
         var ans = (d && typeof d.answer === 'string') ? d.answer.trim() : '';
         if (d && d.ok && ans !== '') {
+          if (d.links && d.links.length) {
+            var extra = d.links.filter(function(u){
+              return ans.indexOf(u) === -1;
+            });
+            if (extra.length) {
+              ans += (englishAns ? '\n\nMore: ' : '\n\nथप: ') + extra.join('\n');
+            }
+          }
           addBubble(ans, 'bot');
         } else {
           var errMsg = (d && d.msg) ? d.msg : fallbackErr;

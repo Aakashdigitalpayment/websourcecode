@@ -20577,6 +20577,11 @@ body.ai-chat-open .qh-launcher{
   align-self:flex-start; background:#fff; border:1px solid #e2e8f0; color:#1e293b;
   border-bottom-left-radius:4px;
 }
+#aiChatPanel .acp-bubble.bot .acp-link{
+  color:var(--primary-color,#1a5f2a); font-weight:600; text-decoration:underline;
+  text-underline-offset:2px; word-break:break-all;
+}
+#aiChatPanel .acp-bubble.bot .acp-link:hover{ opacity:.85; }
 #aiChatPanel .acp-bubble.user{
   align-self:flex-end; background:var(--primary-color,#1a5f2a); color:#fff;
   border-bottom-right-radius:4px; text-align:left;

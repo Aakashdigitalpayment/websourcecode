@@ -159,15 +159,43 @@ if (!function_exists('ai_chat_welcome')) {
 }
 
 if (!function_exists('ai_chat_is_sensitive_question')) {
-    /** Block requests for passwords, PINs, balances, or other non-public account data. */
+    /**
+     * Block passwords, PINs, balances, jailbreaks, and private member/admin data requests.
+     */
     function ai_chat_is_sensitive_question(string $message): bool
     {
         $q = mb_strtolower(trim(strip_tags($message)));
+
+        if (ai_chat_is_jailbreak_attempt($q)) {
+            return true;
+        }
+
         return (bool)preg_match(
-            '/\b(password|passwd|pin\s*code|otp|one[\s-]?time|username|user\s*name|login\s*credential|admin\s*password|secret\s*key|api\s*key|'
-            . 'account\s*balance|balance\s*of|my\s*balance|kyc\s*document|citizenship\s*number|national\s*id\s*number|'
-            . 'पासवर्ड|पास्वर्ड|पिन|ओटिपी|गोप्य|गुप्त|खाता\s*ब्यालेन्स|मेरो\s*ब्यालेन्स|सदस्य\s*नम्बर|'
-            . 'लगइन|login\s*detail|credential)\b/ui',
+            '/\b(password|passwd|pass\s*word|pin\s*code|pin\s*number|otp|one[\s-]?time|username|user\s*name|user\s*id|'
+            . 'login\s*credential|admin\s*password|secret\s*key|api\s*key|private\s*key|token|'
+            . 'account\s*balance|balance\s*of|my\s*balance|account\s*number|member\s*number|share\s*number|'
+            . 'kyc\s*document|citizenship\s*number|national\s*id|bank\s*account\s*number|card\s*number|'
+            . 'database\s*dump|sql\s*query|member\s*portal\s*password|'
+            . 'पासवर्ड|पास्वर्ड|पिन|पिनकोड|ओटिपी|गोप्य|गुप्त|खाता\s*ब्यालेन्स|मेरो\s*ब्यालेन्स|'
+            . 'सदस्य\s*नम्बर|खाता\s*नम्बर|शेयर\s*नम्बर|लगइन|लग\s*इन|गोप्य\s*सूचना|गुप्त\s*सूचना|'
+            . 'गोप्य\s*डाटा|गुप्त\s*डाटा|निजी\s*डाटा|निजी\s*सूचना|'
+            . 'सदस्य\s*पोर्टल|एडमिन\s*पासवर्ड|डाटाबेस)\b/ui',
+            $q
+        ) || (bool)preg_match(
+            '/गोप्य\s*डाटा|गुप्त\s*डाटा|निजी\s*डाटा|मेरो\s*खाता|member\s*data|private\s*data|sensitive\s*data/ui',
+            $q
+        );
+    }
+}
+
+if (!function_exists('ai_chat_is_jailbreak_attempt')) {
+    function ai_chat_is_jailbreak_attempt(string $q): bool
+    {
+        return (bool)preg_match(
+            '/ignore\s+(all\s+)?(previous|prior|above)\s+instructions|'
+            . 'pretend\s+you\s+are|act\s+as\s+if|bypass\s+(security|rules)|'
+            . 'reveal\s+(hidden|secret)|show\s+me\s+(the\s+)?(password|database)|'
+            . 'नियम\s*बेवास्ता|गोप्य\s*देखाउ|पासवर्ड\s*देखाउ|डाटाबेस\s*देखाउ/ui',
             $q
         );
     }
@@ -176,9 +204,49 @@ if (!function_exists('ai_chat_is_sensitive_question')) {
 if (!function_exists('ai_chat_sensitive_refusal')) {
     function ai_chat_sensitive_refusal(bool $english): string
     {
-        return $english
-            ? 'I cannot share passwords, PINs, OTPs, account balances, or other private member data. For account help, use the member portal or contact staff via Live Chat.'
-            : 'पासवर्ड, पिन, OTP, खाता ब्यालेन्स वा अन्य गोप्य सदस्य डाटा दिन सकिँदैन। सदस्य पोर्टल वा Live Chat बाट सम्पर्क गर्नुहोस्।';
+        $b = rtrim(defined('SITE_URL') ? (string)SITE_URL : '/', '/') . '/';
+        $member = $b . 'member/login.php';
+        $contact = $b . 'contact.php';
+
+        if ($english) {
+            $msg = 'I can only share information published on this public website. '
+                . 'Passwords, PINs, OTPs, usernames, account balances, KYC details, and other private member data cannot be provided here.';
+            if ($member !== '') {
+                $msg .= ' For your own account, use the member portal: ' . $member;
+            }
+            if ($contact !== '') {
+                $msg .= ' Or contact staff: ' . $contact;
+            }
+            return $msg;
+        }
+
+        $msg = 'म यहाँ सार्वजनिक वेबसाइटमा रहेको जानकारी मात्र दिन्छु। '
+            . 'पासवर्ड, पिन, OTP, प्रयोगकर्ता नाम, खाता ब्यालेन्स, KYC वा अन्य गोप्य सदस्य डाटा यहाँबाट दिइँदैन।';
+        if ($member !== '') {
+            $msg .= ' आफ्नो खातासम्बन्धी कुरा सदस्य पोर्टलबाट: ' . $member;
+        }
+        if ($contact !== '') {
+            $msg .= ' वा कर्मचारीसँग सम्पर्क: ' . $contact;
+        }
+        return $msg;
+    }
+}
+
+if (!function_exists('ai_chat_answer_has_sensitive_leak')) {
+    /** Post-check LLM output — block accidental private data in replies. */
+    function ai_chat_answer_has_sensitive_leak(string $answer): bool
+    {
+        $a = mb_strtolower($answer);
+        if (preg_match('/\b(sk-[A-Za-z0-9]{10,}|AIza[A-Za-z0-9_\-]{20,}|enc:v1:)\b/', $answer)) {
+            return true;
+        }
+        if (preg_match('/\b(password|passwd|pin)\s*(is|:)\s*\S+/i', $answer)) {
+            return true;
+        }
+        if (preg_match('/\b(your\s+(account|member)\s+balance|खाताको\s+ब्यालेन्स|मेरो\s+ब्यालेन्स\s*[:=])/ui', $a)) {
+            return true;
+        }
+        return false;
     }
 }
 
