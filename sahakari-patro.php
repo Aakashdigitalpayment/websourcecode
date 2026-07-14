@@ -561,10 +561,10 @@ require_once 'includes/header.php';
 .sp-cal-cell.today .sp-cal-daynum,.sp-cal-cell.today .sp-cal-tithi,.sp-cal-cell.today .sp-cal-evbadge{color:#fff!important;}
 .sp-cal-cell.today .sp-cal-evbadge{background:rgba(255,255,255,.22)!important;}
 .sp-cal-daynum{font-size:17px;font-weight:700;line-height:1.15;color:var(--sp-text);}
-.sp-cal-tithi{font-size:11px;color:var(--sp-text-muted);line-height:1.2;font-weight:500;}
-.sp-cal-evbadge{font-size:10px;font-weight:600;border-radius:4px;padding:2px 4px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.sp-cal-tithi{font-size:12px;color:var(--sp-text-muted);line-height:1.25;font-weight:500;}
+.sp-cal-evbadge{font-size:11px;font-weight:600;border-radius:4px;padding:2px 5px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
 .sp-cal-shubhdot{width:5px;height:5px;border-radius:50%;background:#16a34a;position:absolute;bottom:4px;right:4px;}
-.sp-cal-more{font-size:10px;color:var(--sp-text-muted);font-weight:600;}
+.sp-cal-more{font-size:11px;color:var(--sp-text-muted);font-weight:600;}
 
 /* Empty cell — site logo watermark (subtle but visible) */
 .sp-cal-empty{background:linear-gradient(145deg,#f7fbf8,#eef7f0);display:flex;align-items:center;justify-content:center;cursor:default!important;border-color:#e4efe6!important;min-height:68px;}
@@ -576,25 +576,25 @@ require_once 'includes/header.php';
 
 /* Calendar legend */
 .sp-cal-legend{padding:10px 14px 12px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:flex;flex-wrap:wrap;gap:10px;}
-.sp-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--sp-text-muted);font-weight:500;}
-.sp-cal-leg-swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.sp-cal-leg-item{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--sp-text-muted);font-weight:500;}
+.sp-cal-leg-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
 
 /* Selected day panel */
 .sp-selday-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
 .sp-selday-hero{background:linear-gradient(135deg,var(--sp-primary),var(--sp-primary-light));color:#fff;padding:16px;}
-.sp-selday-daynum{font-size:2.1rem;font-weight:900;line-height:1;}
-.sp-selday-month{font-weight:700;font-size:1rem;margin-top:4px;}
-.sp-selday-ad{opacity:.9;font-size:13px;margin-top:3px;}
+.sp-selday-daynum{font-size:2.25rem;font-weight:900;line-height:1;}
+.sp-selday-month{font-weight:700;font-size:1.05rem;margin-top:4px;}
+.sp-selday-ad{opacity:.92;font-size:14px;margin-top:4px;}
 .sp-selday-body{padding:14px 15px;}
-.sp-selday-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--sp-border-soft);font-size:13.5px;}
+.sp-selday-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid var(--sp-border-soft);font-size:14px;}
 .sp-selday-row:last-child{border:none;}
-.sp-selday-label{color:var(--sp-text-muted);font-weight:500;}
-.sp-selday-val{font-weight:700;text-align:right;max-width:58%;color:var(--sp-text);}
+.sp-selday-label{color:var(--sp-text-muted);font-weight:500;flex-shrink:0;}
+.sp-selday-val{font-weight:700;text-align:right;max-width:62%;color:var(--sp-text);line-height:1.4;}
 .sp-timegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
-.sp-time-box{background:var(--sp-soft);border-radius:8px;padding:8px 9px;}
-.sp-time-box-label{font-size:11px;color:var(--sp-text-muted);display:flex;align-items:center;gap:4px;margin-bottom:3px;font-weight:500;}
-.sp-time-box-val{font-size:12.5px;font-weight:700;}
-.sp-ev-chip{display:flex;align-items:center;gap:6px;border-radius:6px;padding:6px 9px;font-size:12.5px;font-weight:600;margin-bottom:5px;}
+.sp-time-box{background:var(--sp-soft);border-radius:10px;padding:10px 11px;text-align:center;border:1px solid rgba(26,95,42,.06);}
+.sp-time-box-label{font-size:12px;color:var(--sp-text-muted);display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:4px;font-weight:600;}
+.sp-time-box-val{font-size:13.5px;font-weight:700;line-height:1.35;word-break:break-word;}
+.sp-ev-chip{display:flex;align-items:center;gap:6px;border-radius:6px;padding:7px 10px;font-size:13px;font-weight:600;margin-bottom:5px;}
 
 /* Month events list */
 .sp-evlist-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
@@ -611,8 +611,8 @@ require_once 'includes/header.php';
 .sp-minical-hdr{background:var(--sp-soft);padding:11px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:13.5px;color:var(--sp-primary-dark);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .sp-minical-body{padding:10px;}
 .sp-minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.sp-minical-wh{text-align:center;font-size:11px;color:var(--sp-text-muted);padding:4px 0;font-weight:600;}
-.sp-minical-cell{text-align:center;font-size:12px;padding:4px 1px;border-radius:5px;color:var(--sp-text);font-weight:600;}
+.sp-minical-wh{text-align:center;font-size:12px;color:var(--sp-text-muted);padding:5px 0;font-weight:700;}
+.sp-minical-cell{text-align:center;font-size:13px;padding:6px 1px;border-radius:6px;color:var(--sp-text);font-weight:600;}
 .sp-minical-cell.empty{opacity:0;}
 .sp-minical-cell.has-ev{font-weight:700;}
 .sp-minical-cell.sahakari{background:#ecfdf5;color:#047857;}
@@ -625,10 +625,10 @@ require_once 'includes/header.php';
 /* Cards / sections */
 .sp-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
 .sp-section-title{padding:14px 16px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:15px;color:var(--sp-primary-dark);display:flex;align-items:center;gap:8px;}
-.sp-pancha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:14px 16px 16px;}
-.sp-pancha-item{background:var(--sp-soft);border-radius:10px;padding:11px 12px;border:1px solid rgba(26,95,42,.06);}
-.sp-pi-label{font-size:12px;color:var(--sp-text-muted);display:flex;align-items:center;gap:5px;margin-bottom:4px;font-weight:600;}
-.sp-pi-val{font-size:14px;font-weight:700;color:var(--sp-text);line-height:1.35;}
+.sp-pancha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;padding:14px 16px 16px;}
+.sp-pancha-item{background:var(--sp-soft);border-radius:12px;padding:12px 13px;border:1px solid rgba(26,95,42,.07);text-align:center;}
+.sp-pi-label{font-size:12.5px;color:var(--sp-text-muted);display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px;font-weight:600;}
+.sp-pi-val{font-size:15px;font-weight:700;color:var(--sp-text);line-height:1.35;}
 
 /* Rashifal */
 .sp-subnav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
@@ -662,11 +662,31 @@ require_once 'includes/header.php';
 .sp-table th,.sp-table td{padding:10px 12px;border-bottom:1px solid var(--sp-border);text-align:left;vertical-align:middle;}
 .sp-table th{background:var(--sp-soft);color:var(--sp-primary-dark);font-weight:700;font-size:13px;}
 .sp-table td{color:var(--sp-text);}
-.sp-muhurta-card{display:flex;gap:10px;padding:12px 13px;border-radius:10px;background:#f0fdf4;border:1px solid #bbf7d0;height:100%;}
-.sp-muhurta-card.bad{background:#fff7ed;border-color:#fed7aa;}
-.sp-muhurta-card-title{font-weight:700;font-size:14px;color:var(--sp-text);margin-bottom:3px;}
-.sp-muhurta-card-desc{font-size:13px;color:var(--sp-text-muted);line-height:1.45;}
-.sp-muhurta-card-time{font-size:12.5px;font-weight:700;color:var(--sp-primary);margin-top:6px;display:flex;align-items:center;gap:4px;}
+.sp-muhurta-card{display:flex;gap:12px;align-items:flex-start;padding:14px 15px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;height:100%;box-shadow:0 1px 4px rgba(26,95,42,.04);}
+.sp-muhurta-card.bad{background:#fff7ed;border-color:#fed7aa;box-shadow:0 1px 4px rgba(194,65,12,.05);}
+.sp-muhurta-card-title{font-weight:700;font-size:15px;color:var(--sp-text);margin-bottom:4px;line-height:1.35;}
+.sp-muhurta-card-desc{font-size:13.5px;color:var(--sp-text-muted);line-height:1.5;}
+.sp-muhurta-card-time{font-size:13.5px;font-weight:700;color:var(--sp-primary);margin-top:8px;display:flex;align-items:center;gap:5px;}
+.sp-muhurta-card.bad .sp-muhurta-card-time{color:#c2410c;}
+.sp-work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;}
+.sp-work-card{background:linear-gradient(180deg,#f7fbf8,#eef7f0);border:1px solid rgba(26,95,42,.1);border-radius:12px;padding:14px 10px;text-align:center;transition:transform .12s,box-shadow .12s;}
+.sp-work-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,95,42,.1);}
+.sp-work-card-name{font-weight:700;font-size:13.5px;color:var(--sp-primary-dark);line-height:1.3;}
+.sp-work-card-time{font-size:12px;color:var(--sp-text-muted);margin-top:4px;font-weight:500;line-height:1.35;}
+.sp-fal-card{display:flex;gap:11px;margin-bottom:10px;padding:12px 13px;border-radius:12px;border:1px solid #86efac;background:#f0fdf4;}
+.sp-fal-card.warn{background:#fffbeb;border-color:#fde68a;}
+.sp-fal-card-title{font-weight:700;font-size:14px;color:var(--sp-primary);line-height:1.3;}
+.sp-fal-card.warn .sp-fal-card-title{color:#92400e;}
+.sp-fal-card-desc{font-size:13.5px;color:var(--sp-text-muted);margin-top:4px;line-height:1.55;}
+.sp-tip-panel{background:linear-gradient(180deg,#f7fbf8,#eef7f0);border:1px solid rgba(26,95,42,.12);border-radius:12px;padding:8px 4px;}
+.sp-tip-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(26,95,42,.08);}
+.sp-tip-row:last-child{border-bottom:0;}
+.sp-tip-label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--sp-text-muted);font-weight:600;flex-shrink:0;}
+.sp-tip-val{font-weight:700;font-size:13.5px;color:var(--sp-primary-dark);text-align:right;line-height:1.4;}
+.sp-nk-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;line-height:1.45;}
+.sp-nk-meta span{color:var(--sp-text-muted);font-weight:500;}
+.sp-nk-meta strong{color:var(--sp-text);font-weight:700;}
+.sp-subsection-title{font-weight:700;color:var(--sp-primary-dark);margin-bottom:12px;font-size:15px;display:flex;align-items:center;gap:7px;}
 
 /* Date bar — date chips only (page banner already brands the page) */
 .sp-datebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 1px 6px rgba(26,95,42,.06);border:1px solid rgba(26,95,42,.08);}
@@ -674,9 +694,9 @@ require_once 'includes/header.php';
 
 @media(max-width:576px){
   .sp-pancha-grid{grid-template-columns:repeat(2,1fr);}
-  .sp-cal-daynum{font-size:14px;}
-  .sp-cal-tithi{font-size:10px;}
-  .sp-cal-cell,.sp-cal-empty{min-height:54px;}
+  .sp-cal-daynum{font-size:15px;}
+  .sp-cal-tithi{font-size:11px;}
+  .sp-cal-cell,.sp-cal-empty{min-height:56px;}
   /* Keep a color bar so events remain visible on small screens */
   .sp-cal-evbadge{font-size:0;line-height:0;padding:0;height:3px;width:85%;max-width:85%;border-radius:1px;overflow:hidden;color:transparent!important;}
   .sp-cal-nav{flex-wrap:wrap;gap:8px;justify-content:center;}
@@ -684,6 +704,9 @@ require_once 'includes/header.php';
   .sp-rashi-grid{grid-template-columns:1fr;}
   .sp-tabs .nav-link{padding:10px 12px;font-size:13px;}
   .sp-cal-logo-wrap img{max-height:28px;}
+  .sp-work-grid{grid-template-columns:repeat(2,1fr);}
+  .sp-time-box{text-align:left;}
+  .sp-time-box-label{justify-content:flex-start;}
 }
 </style>
 
@@ -705,10 +728,6 @@ require_once 'includes/header.php';
             <?php echo isEnglish() ? 'Live auto-sync' : 'स्वचालित ताजा'; ?>
         </span>
     </div>
-    <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
-        <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="refresh-cw"></i>
-        Live auto-sync
-    </span>
 </div>
 
 <!-- Tab nav -->
@@ -1101,9 +1120,9 @@ elseif($activeTab==='lagna'): ?>
             <span style="font-weight:700;font-size:14px;color:var(--sp-primary);"><?php echo $nk['name']; ?></span>
             <?php if($isToday): ?><span class="sp-badge" style="background:#f59e0b;color:#fff;font-size:10px;margin-left:auto;">आजको</span><?php endif; ?>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;font-size:11px;">
+          <div class="sp-nk-meta">
             <?php foreach([['स्वामी',$nk['lord']],['राशि',$nk['rashi']],['नामाक्षर',$nk['char']],['विशेषता',$nk['qual']]] as [$l,$v]): ?>
-            <div><span style="color:var(--sp-text-muted);"><?php echo $l; ?>:</span> <strong><?php echo $v; ?></strong></div>
+            <div><span><?php echo $l; ?>:</span> <strong><?php echo $v; ?></strong></div>
             <?php endforeach; ?>
           </div>
         </div>
@@ -1223,15 +1242,15 @@ elseif($activeTab==='muhurta'): ?>
       </div>
       <?php endforeach; ?>
     </div>
-    <h6 style="font-weight:700;color:var(--sp-primary);margin-bottom:12px;font-size:13px;display:flex;align-items:center;gap:6px;">
-      <i class="lucide-icon" style="width:14px;height:14px;" data-lucide="check-circle"></i> शुभ कार्यहरू र सर्वोत्तम समय
+    <h6 class="sp-subsection-title">
+      <i class="lucide-icon" style="width:15px;height:15px;" data-lucide="check-circle"></i> शुभ कार्यहरू र सर्वोत्तम समय
     </h6>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:9px;">
+    <div class="sp-work-grid">
       <?php foreach([['calendar-days','विवाह','अभिजित मुहुर्त'],['home','गृहप्रवेश','बिहान ७:३०+'],['briefcase','व्यापार सुरु','बिहान ९:००+'],['trending-up','लगानी / बचत','अभिजित मुहुर्त'],['plane','यात्रा','राहुकाल पछि'],['landmark','बैंकिङ','बैंक समयमा'],['book-open','विद्यारम्भ','ब्रह्म मुहुर्त'],['gift','दान','अभिजित मुहुर्त'],['users','सभा','दिउँसो २:००+'],['map-pin','नयाँ घर','पूर्णिमा नजिक']] as [$ico,$work,$time]): ?>
-      <div style="background:var(--sp-muted);border-radius:9px;padding:11px 8px;text-align:center;">
-        <i class="lucide-icon" style="width:20px;height:20px;color:var(--sp-primary);display:block;margin:0 auto 5px;" data-lucide="<?php echo $ico; ?>"></i>
-        <div style="font-weight:600;font-size:11px;color:var(--sp-primary);"><?php echo $work; ?></div>
-        <div style="font-size:9.5px;color:var(--sp-text-muted);margin-top:2px;"><?php echo $time; ?></div>
+      <div class="sp-work-card">
+        <i class="lucide-icon" style="width:22px;height:22px;color:var(--sp-primary);display:block;margin:0 auto 6px;" data-lucide="<?php echo $ico; ?>"></i>
+        <div class="sp-work-card-name"><?php echo $work; ?></div>
+        <div class="sp-work-card-time"><?php echo $time; ?></div>
       </div>
       <?php endforeach; ?>
     </div>
@@ -1259,7 +1278,7 @@ elseif($activeTab==='jyotish'): ?>
             <td><span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo $gr['rashi']; ?></span></td>
             <td style="color:var(--sp-text-muted);"><?php echo $gr['deg_np']; ?></td>
             <td><span class="sp-badge" style="background:<?php echo $avc; ?>;color:#fff;"><?php echo $gr['avastha']; ?></span></td>
-            <td style="font-size:11px;color:#4a5a4f;"><?php echo $gr['fal']; ?></td>
+            <td style="font-size:13.5px;color:#4a5a4f;line-height:1.45;"><?php echo $gr['fal']; ?></td>
           </tr>
           <?php endforeach; ?>
         </tbody>
@@ -1267,33 +1286,33 @@ elseif($activeTab==='jyotish'): ?>
     </div>
     <div class="row g-4">
       <div class="col-md-6">
-        <h6 style="font-weight:700;color:var(--sp-primary);margin-bottom:10px;font-size:13px;display:flex;align-items:center;gap:5px;">
-          <i class="lucide-icon" style="width:13px;height:13px;" data-lucide="trending-up"></i> आजका फलादेश
+        <h6 class="sp-subsection-title">
+          <i class="lucide-icon" style="width:15px;height:15px;" data-lucide="trending-up"></i> आजका फलादेश
         </h6>
         <?php foreach([[true,'briefcase','व्यापार / करियर','बुध उच्चको स्थितिले व्यापार र संचारमा विशेष लाभ।'],[true,'heart','स्वास्थ्य','चन्द्र उच्चको प्रभावले शारीरिक तथा मानसिक स्वास्थ्य राम्रो।'],[true,'users','परिवार र समाज','शुक्रको अनुकूल स्थितिले परिवारमा प्रेम र समाजमा सम्मान।'],[false,'alert-triangle','सावधानी','मंगलको नेच स्थितिले क्रोध र हतारोबाट बच्नुहोस्।']] as [$g,$ico,$t,$p]): ?>
-        <div style="display:flex;gap:9px;margin-bottom:9px;padding:9px 11px;border-radius:8px;background:<?php echo $g?'#f0fdf4':'#fffbeb'; ?>;border:1px solid <?php echo $g?'#86efac':'#fde68a'; ?>;">
-          <i class="lucide-icon" style="width:14px;height:14px;flex-shrink:0;margin-top:2px;color:<?php echo $g?'var(--sp-primary)':'#d97706'; ?>;" data-lucide="<?php echo $ico; ?>"></i>
+        <div class="sp-fal-card <?php echo $g?'':'warn'; ?>">
+          <i class="lucide-icon" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;color:<?php echo $g?'var(--sp-primary)':'#d97706'; ?>;" data-lucide="<?php echo $ico; ?>"></i>
           <div>
-            <div style="font-weight:600;font-size:12px;color:<?php echo $g?'var(--sp-primary)':'#92400e'; ?>"><?php echo $t; ?></div>
-            <div style="font-size:11px;color:var(--sp-text-muted);margin-top:2px;"><?php echo $p; ?></div>
+            <div class="sp-fal-card-title"><?php echo $t; ?></div>
+            <div class="sp-fal-card-desc"><?php echo $p; ?></div>
           </div>
         </div>
         <?php endforeach; ?>
       </div>
       <div class="col-md-6">
-        <h6 style="font-weight:700;color:var(--sp-primary);margin-bottom:10px;font-size:13px;display:flex;align-items:center;gap:5px;">
-          <i class="lucide-icon" style="width:13px;height:13px;" data-lucide="sparkles"></i> आजका उपाय र सुझाव
+        <h6 class="sp-subsection-title">
+          <i class="lucide-icon" style="width:15px;height:15px;" data-lucide="sparkles"></i> आजका उपाय र सुझाव
         </h6>
-        <div style="background:var(--sp-muted);border-radius:10px;padding:13px;">
+        <div class="sp-tip-panel">
           <?php foreach([['book-open','आजको मन्त्र','ॐ श्री गणेशाय नमः'],['gem','शुभ रत्न','मोती (Pearl) — चन्द्र बलिया'],['gift','दान सुझाव','सेता वस्तु, दूध, चाँदी'],['star','शुभ रंग','सेतो, हल्का नीलो'],['clock-4','शुभ समय',$pg['abhijit']],['map-pin','शुभ दिशा','उत्तर']] as [$ico,$l,$v]): ?>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--sp-border);">
-            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sp-text-muted);">
-              <i class="lucide-icon" style="width:11px;height:11px;color:var(--sp-primary);" data-lucide="<?php echo $ico; ?>"></i><?php echo $l; ?>
+          <div class="sp-tip-row">
+            <div class="sp-tip-label">
+              <i class="lucide-icon" style="width:14px;height:14px;color:var(--sp-primary);" data-lucide="<?php echo $ico; ?>"></i><?php echo $l; ?>
             </div>
-            <div style="font-weight:600;font-size:11px;color:var(--sp-primary);"><?php echo htmlspecialchars($v); ?></div>
+            <div class="sp-tip-val"><?php echo htmlspecialchars($v); ?></div>
           </div>
           <?php endforeach; ?>
-          <p style="font-size:9.5px;color:var(--sp-text-muted);margin:8px 0 0;">व्यक्तिगत कुण्डलीका लागि अनुभवी ज्योतिषीसँग परामर्श लिनुहोस्।</p>
+          <p style="font-size:12px;color:var(--sp-text-muted);margin:8px 12px 10px;line-height:1.45;">व्यक्तिगत कुण्डलीका लागि अनुभवी ज्योतिषीसँग परामर्श लिनुहोस्।</p>
         </div>
       </div>
     </div>
