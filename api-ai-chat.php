@@ -23,8 +23,10 @@ if (!is_array($json)) {
     $json = $_POST;
 }
 
-/* Honeypot */
-if (!empty(trim((string)($json['website'] ?? '')))) {
+/* Honeypot — obscure name so browsers/password managers do not autofill it.
+ * Real clients always send empty; bots filling forms still get a silent empty OK. */
+$honeypot = trim((string)($json['acp_hp'] ?? $json['website'] ?? ''));
+if ($honeypot !== '') {
     echo json_encode(['ok' => true, 'answer' => ''], JSON_UNESCAPED_UNICODE);
     exit;
 }
