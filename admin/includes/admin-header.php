@@ -224,7 +224,7 @@ $pageGroups = [
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
     'memportal'=> ['member-online-portal'],
-    'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings'],
+    'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','run-migration','backup-restore','update-checklist','site-health','db-setup','site-license'],
     /* admin management pages */
     'superadmin'=> ['manage-admins','site-setup'],
@@ -743,6 +743,12 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="notification-settings.php">
                                 <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i></span>
                                 <span><?php echo $adminT('सूचना सेटिङ्स', 'Notification Settings'); ?></span>
+                            </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='ai-settings' ? 'active' : ''; ?>">
+                                <a href="ai-settings.php">
+                                <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i></span>
+                                <span><?php echo $adminT('AI Chat सेटिङ्स', 'AI Chat Settings'); ?></span>
                             </a>
                             </li>
                             <li class="<?php echo $currentPage=='notification-templates' ? 'active' : ''; ?>">

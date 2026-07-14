@@ -20538,6 +20538,60 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 #publicChatPanel .pcp-msg.ok{ background:#ecfdf5; color:#065f46; border:1px solid #6ee7b7; }
 #publicChatPanel .pcp-msg.err{ background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 
+/* AI Chat panel (site-grounded) */
+#aiChatPanel{
+  position:fixed; right:18px; bottom:160px; z-index:66;
+  width:360px; max-width:calc(100vw - 24px); max-height:min(560px, calc(100vh - 120px));
+  background:#fff; border:1px solid #e6e9ef; border-radius:16px;
+  box-shadow:0 16px 40px rgba(15,23,42,.18);
+  display:none; flex-direction:column; overflow:hidden; font-family:inherit;
+}
+#aiChatPanel.open{ display:flex; }
+#aiChatPanel .acp-h{
+  background:linear-gradient(135deg,#6d28d9,#7c3aed);
+  color:#fff; padding:12px 14px; display:flex; align-items:center; gap:10px; flex-shrink:0;
+}
+#aiChatPanel .acp-title{ font-weight:700; font-size:14px; }
+#aiChatPanel .acp-sub{ font-size:11px; opacity:.88; }
+#aiChatPanel .acp-x{ margin-left:auto; background:transparent; color:#fff; border:0; font-size:18px; cursor:pointer; line-height:1; }
+#aiChatPanel .acp-messages{
+  padding:12px 14px; overflow-y:auto; flex:1; min-height:180px; max-height:340px;
+  background:#f8fafc; display:flex; flex-direction:column; gap:8px;
+}
+#aiChatPanel .acp-bubble{
+  max-width:92%; padding:8px 11px; border-radius:12px; font-size:13px; line-height:1.55;
+  word-wrap:break-word; white-space:normal;
+}
+#aiChatPanel .acp-bubble.bot{
+  align-self:flex-start; background:#fff; border:1px solid #e2e8f0; color:#1e293b;
+  border-bottom-left-radius:4px;
+}
+#aiChatPanel .acp-bubble.user{
+  align-self:flex-end; background:#7c3aed; color:#fff;
+  border-bottom-right-radius:4px;
+}
+#aiChatPanel .acp-bubble.acp-thinking{ opacity:.65; font-weight:700; letter-spacing:.08em; }
+#aiChatPanel .acp-form{
+  display:flex; gap:8px; padding:10px 12px; border-top:1px solid #e6e9ef;
+  background:#fff; flex-shrink:0; align-items:center;
+}
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]){
+  flex:1; border:1px solid #e6e9ef; border-radius:10px;
+  padding:9px 11px; font-size:14px; font-family:inherit; outline:none;
+}
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]):focus{
+  border-color:#7c3aed; box-shadow:0 0 0 2px rgba(124,58,237,.15);
+}
+#aiChatPanel .acp-form button{
+  width:42px; height:42px; border:0; border-radius:10px;
+  background:#7c3aed; color:#fff; cursor:pointer; flex-shrink:0;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+#aiChatPanel .acp-form button:disabled{ opacity:.55; cursor:wait; }
+@media (max-width:576px){
+  #aiChatPanel{ right:12px; left:12px; width:auto; bottom:150px; max-height:calc(100vh - 160px); }
+}
+
 /* ════════════════════════════════════════════════════════════
  * v11.3 — Final live/cPanel visibility fixes
  * These overrides load last in public/admin/member headers.
@@ -20939,6 +20993,7 @@ body{ background: var(--bg-soft, #f6faf7); }
 .qh-ic.wa{ background:#25D366; }
 .qh-ic.help{ background:var(--primary-color,#1a5f2a); }
 .qh-ic.chat{ background:#0ea5e9; }
+.qh-ic.ai{ background:#7c3aed; }
 .qh-ic.links{ background:#6366f1; }
 
 
@@ -21930,6 +21985,7 @@ select:focus{
     z-index: 850 !important;
   }
   #publicChatPanel,
+  #aiChatPanel,
   .chatbot-widget .chatbot-box,
   .useful-links-float .useful-links-popup-box{
     bottom: calc(var(--mobile-bottom-nav-h) + 82px + env(safe-area-inset-bottom, 0px)) !important;
