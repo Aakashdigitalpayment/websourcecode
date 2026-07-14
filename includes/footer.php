@@ -1229,8 +1229,9 @@ if ($__uiTestMode):
     <button type="button" id="aiChatOpenLive"><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></button>
     <button type="button" id="aiChatOpenFaq"><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></button>
   </div>
-  <form class="acp-form" id="aiChatForm" novalidate>
-    <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true"
+  <form class="acp-form" id="aiChatForm" novalidate autocomplete="off">
+    <input type="text" name="acp_hp" id="aiChatHp" value="" tabindex="-1" autocomplete="off"
+           aria-hidden="true" readonly
            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
     <input type="text" id="aiChatInput" name="message" maxlength="800" required autocomplete="off"
            placeholder="<?php echo isEnglish() ? 'Ask about services, rates, branches…' : 'सेवा, ब्याजदर, शाखाबारे सोध्नुहोस्…'; ?>">
@@ -1327,7 +1328,8 @@ if ($__uiTestMode):
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
       body: JSON.stringify({
         message: msg,
-        website: (form.querySelector('[name=website]') || {}).value || ''
+        /* Always empty — never read DOM honeypot (browsers autofill name=website). */
+        acp_hp: ''
       })
     })
       .then(function(r){
@@ -1342,8 +1344,9 @@ if ($__uiTestMode):
       })
       .then(function(d){
         thinking.remove();
-        if (d && d.ok && d.answer) {
-          addBubble(d.answer, 'bot');
+        var ans = (d && typeof d.answer === 'string') ? d.answer.trim() : '';
+        if (d && d.ok && ans !== '') {
+          addBubble(ans, 'bot');
         } else {
           addBubble((d && d.msg) ? d.msg : fallbackErr, 'bot', 'acp-err');
         }
