@@ -876,7 +876,7 @@ if($activeTab==='patro'): ?>
       <div class="sp-minical-hdr">
         <span><i class="lucide-icon" style="width:13px;height:13px;" data-lucide="calendar"></i>
         आगामी महिना — <?php echo $SP_BS_MONTHS_NP[$nextM-1].' '.sp_np($nextY); ?></span>
-        <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1" style="font-size:11px;color:var(--sp-primary);text-decoration:none;">पूरा हेर्नुहोस् →</a>
+        <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1" style="font-size:13px;font-weight:600;color:var(--sp-primary);text-decoration:none;">पूरा हेर्नुहोस् →</a>
       </div>
       <div class="sp-minical-body">
         <div class="sp-minical-grid">
@@ -901,7 +901,7 @@ if($activeTab==='patro'): ?>
         if(!empty($nextEvDays)): ?>
         <div style="margin-top:8px;border-top:1px solid var(--sp-border-soft);padding-top:7px;">
           <?php $shown=0; foreach($nextEvDays as $nc) { foreach($nc['evs'] as $ne) { if($shown>=5) break 2; $ec=sp_ev_color($ne['type']); ?>
-          <div style="font-size:10px;display:flex;gap:5px;margin-bottom:3px;">
+          <div style="font-size:12.5px;display:flex;gap:6px;margin-bottom:4px;align-items:baseline;">
             <span style="font-weight:700;color:var(--sp-primary);min-width:18px;"><?php echo sp_np($nc['d']); ?></span>
             <span style="color:<?php echo $ec; ?>;font-weight:600;"><?php echo htmlspecialchars($ne['name']); ?></span>
           </div>
