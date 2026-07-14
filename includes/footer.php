@@ -1216,18 +1216,20 @@ if ($__uiTestMode):
   <div class="acp-messages" id="aiChatMessages" aria-live="polite">
     <div class="acp-bubble bot"><?php echo htmlspecialchars($aiChatWelcome, ENT_QUOTES, 'UTF-8'); ?></div>
   </div>
-  <div class="acp-chips" id="aiChatChips">
-    <?php
-    $aiChips = isEnglish()
-        ? [['ब्याजदर के हो?', 'Interest rates'], ['सेवाहरू', 'Services'], ['नजिकको शाखा', 'Nearby branch'], ['सदस्य कसरी बन्ने?', 'How to become a member?']]
-        : [['ब्याजदर कति छ?', 'ब्याजदर कति छ?'], ['के के सेवा छन्?', 'के के सेवा छन्?'], ['नजिकको शाखा?', 'नजिकको शाखा?'], ['सदस्य कसरी बन्ने?', 'सदस्य कसरी बन्ने?']];
-    foreach ($aiChips as [$lab, $ask]): ?>
-    <button type="button" class="acp-chip" data-ask="<?php echo htmlspecialchars($ask, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($lab, ENT_QUOTES, 'UTF-8'); ?></button>
-    <?php endforeach; ?>
-  </div>
-  <div class="acp-escalate">
-    <button type="button" id="aiChatOpenLive"><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></button>
-    <button type="button" id="aiChatOpenFaq"><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></button>
+  <div class="acp-foot">
+    <div class="acp-chips" id="aiChatChips">
+      <?php
+      $aiChips = isEnglish()
+          ? [['Interest rates', 'Interest rates'], ['Services', 'What services are available?'], ['Nearby branch', 'Nearest branch'], ['Total members', 'How many total members are there?'], ['How to join', 'How to become a member?']]
+          : [['ब्याजदर कति छ?', 'ब्याजदर कति छ?'], ['के के सेवा छन्?', 'के के सेवा छन्?'], ['नजिकको शाखा?', 'नजिकको शाखा?'], ['कुल सदस्य कति?', 'कुल सदस्य कति छ?'], ['सदस्य कसरी बन्ने?', 'सदस्य कसरी बन्ने?']];
+      foreach ($aiChips as [$lab, $ask]): ?>
+      <button type="button" class="acp-chip" data-ask="<?php echo htmlspecialchars($ask, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($lab, ENT_QUOTES, 'UTF-8'); ?></button>
+      <?php endforeach; ?>
+    </div>
+    <div class="acp-escalate">
+      <button type="button" id="aiChatOpenLive"><i class="fas fa-headset" aria-hidden="true"></i><span><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></span></button>
+      <button type="button" id="aiChatOpenFaq"><i class="fas fa-circle-question" aria-hidden="true"></i><span><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></span></button>
+    </div>
   </div>
   <form class="acp-form" id="aiChatForm" novalidate autocomplete="off">
     <input type="text" name="acp_hp" id="aiChatHp" value="" tabindex="-1" autocomplete="off"

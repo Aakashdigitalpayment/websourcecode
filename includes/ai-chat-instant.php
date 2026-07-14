@@ -29,6 +29,7 @@ if (!function_exists('ai_chat_public_links')) {
             'downloads' => $b . 'downloads.php',
             'reports' => $b . 'reports.php',
             'election' => $b . 'election-information.php',
+            'profile' => $b . 'institutional-profile.php',
             'member' => $b . 'member/login.php',
             'tracker' => $b . 'application-tracker.php',
         ];
@@ -110,6 +111,77 @@ if (!function_exists('ai_chat_format_instant_rates')) {
             ? ('Full list: ' . $links['rates'])
             : ('पूरा सूची: ' . $links['rates']);
         return $hdr . "\n" . implode("\n", $lines) . "\n" . $more;
+    }
+}
+
+if (!function_exists('ai_chat_format_instant_member_count')) {
+    function ai_chat_format_instant_member_count(?PDO $db, bool $english): ?string
+    {
+        $links = ai_chat_public_links();
+        $profileUrl = $links['profile'] ?? '';
+        $fy = '';
+        $count = 0;
+        $branch = '';
+
+        if ($db instanceof PDO) {
+            try {
+                $row = $db->query(
+                    'SELECT fiscal_year, total_members, branch_count FROM institutional_profile WHERE is_active = 1 ORDER BY fiscal_year DESC, id DESC LIMIT 1'
+                )->fetch(PDO::FETCH_ASSOC);
+                if ($row) {
+                    $count = (int)($row['total_members'] ?? 0);
+                    $fy = trim((string)($row['fiscal_year'] ?? ''));
+                    $branch = trim((string)($row['branch_count'] ?? ''));
+                }
+            } catch (Throwable $e) {
+                /* fallback below */
+            }
+        }
+
+        if ($count <= 0) {
+            $raw = trim((string)getSetting('total_members', ''));
+            if ($raw !== '' && preg_match('/\d/', $raw)) {
+                $digits = preg_replace('/[^\d]/', '', $raw) ?? '';
+                $count = $digits !== '' ? (int)$digits : 0;
+            }
+        }
+
+        if ($count <= 0) {
+            return null;
+        }
+
+        $countStr = function_exists('toNepaliNumeral') && !$english
+            ? (string)toNepaliNumeral((string)$count)
+            : number_format($count);
+
+        if ($english) {
+            $parts = ['Published total members on our website: ' . $countStr];
+            if ($fy !== '') {
+                $parts[] = 'Fiscal year: ' . $fy;
+            }
+            if ($branch !== '' && (int)$branch > 0) {
+                $parts[] = 'Branches: ' . $branch;
+            }
+            if ($profileUrl !== '') {
+                $parts[] = 'Details: ' . $profileUrl;
+            }
+            return implode("\n", $parts);
+        }
+
+        $parts = ['वेबसाइटमा प्रकाशित कुल सदस्य संख्या: ' . $countStr];
+        if ($fy !== '') {
+            $parts[] = 'आ.व.: ' . $fy;
+        }
+        if ($branch !== '' && (int)$branch > 0) {
+            $branchStr = function_exists('toNepaliNumeral')
+                ? (string)toNepaliNumeral((string)$branch)
+                : (string)$branch;
+            $parts[] = 'शाखा: ' . $branchStr;
+        }
+        if ($profileUrl !== '') {
+            $parts[] = 'थप: ' . $profileUrl;
+        }
+        return implode("\n", $parts);
     }
 }
 
@@ -214,6 +286,19 @@ if (!function_exists('ai_chat_try_instant_answer')) {
             return ['answer' => $body, 'sources' => $sources, 'links' => $outLinks];
         }
 
+        /* Total members (public aggregate from institutional profile) */
+        if (preg_match('/\b(total\s*members?|member\s*total|how\s*many\s*members?|member\s*count|कुल\s*सदस्य|सदस्य\s*कति|कति\s*सदस्य|सदस्य\s*संख्या|member\s*kati|sadasy|sadshy)\b/ui', $q)
+            && !preg_match('/\b(कसरी|how\s*to\s*become|बन्ने|join|आवेदन|apply|registration|दर्ता)\b/ui', $q)) {
+            $body = ai_chat_format_instant_member_count($db, $english);
+            if ($body === null) {
+                return null;
+            }
+            $sources[] = 'profile: total members';
+            $outLinks[] = $links['profile'] ?? ($links['about'] ?? '');
+            $outLinks = array_values(array_filter($outLinks));
+            return ['answer' => $body, 'sources' => $sources, 'links' => $outLinks];
+        }
+
         return null;
     }
 }
@@ -240,6 +325,7 @@ if (!function_exists('ai_chat_suggest_links_for_answer')) {
             'reports' => '/report|प्रतिवेदन/',
             'about' => '/about|बारेमा|vision|mission/',
             'election' => '/निर्वाचन|election|उम्मेदवार|candidate|मतदान|vote/',
+            'profile' => '/सदस्य|member|कुल|total|संस्थागत|institutional|profile/',
         ];
 
         foreach ($map as $key => $pattern) {

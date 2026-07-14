@@ -143,16 +143,13 @@ $system = <<<SYS
 You are the official website assistant for "{$siteName}" (a Nepali cooperative).
 {$langRule}
 
-STRICT RULES:
-1) Answer ONLY using SITE CONTEXT below — real public website data. Never invent names, rates, or contacts.
-2) For chairman/CEO/team, use [leadership] and [team] blocks. If a block has "Link:", you may share that URL at the end.
-3) NEVER reveal passwords, PINs, OTPs, usernames, API keys, member balances, KYC, admin data, or database contents — refuse politely.
-4) Public officer phones/emails from the website are OK.
-5) If context is incomplete, say what you know and add the best matching public page link from PUBLIC PAGES below.
-6) End with one helpful link line when useful: "थप: https://…" or "More: https://…"
-7) Plain text only (no markdown **). 2–6 sentences.
+Use only the SITE CONTEXT below. Do not invent names, rates, contacts, or numbers.
+Do not share passwords, PINs, OTPs, private balances, or member credentials.
+Public officer contacts and aggregate stats (e.g. total members) from context are OK.
+If context is incomplete, say what is published and add one relevant URL from PUBLIC PAGES.
+Reply in plain text (no markdown), 2–5 sentences.
 
-PUBLIC PAGES (use when relevant):
+PUBLIC PAGES:
 {$linkGuide}
 
 SITE CONTEXT:
@@ -194,8 +191,19 @@ try {
 }
 
 $answer = trim(ai_chat_redact_secrets($answer));
-if (ai_chat_answer_has_sensitive_leak($answer)) {
-    $answer = ai_chat_sensitive_refusal($english);
+if (ai_chat_answer_has_sensitive_leak($answer) || ai_chat_answer_looks_like_prompt_leak($answer)) {
+    $retry = ai_chat_try_instant_answer($message, $db instanceof PDO ? $db : null, $english);
+    if ($retry !== null) {
+        $answer = trim(ai_chat_redact_secrets($retry['answer']));
+    } elseif (ai_chat_answer_has_sensitive_leak($answer)) {
+        $answer = ai_chat_sensitive_refusal($english);
+    } else {
+        $answer = $english
+            ? 'Sorry, I could not form a clear answer. Try a shorter question or check the institutional profile page.'
+            : 'माफ गर्नुहोस्, स्पष्ट जवाफ बन्न सकेन। छोटो प्रश्न सोध्नुहोस् वा संस्थागत प्रोफाइल पृष्ठ हेर्नुहोस्।';
+        $b = rtrim(defined('SITE_URL') ? (string)SITE_URL : '/', '/') . '/';
+        $answer .= ($english ? "\nMore: " : "\nथप: ") . $b . 'institutional-profile.php';
+    }
 }
 if ($answer === '') {
     echo json_encode([
