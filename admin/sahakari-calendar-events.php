@@ -26,10 +26,11 @@ $EVENT_TYPES = [
     'other'   => 'अन्य',
 ];
 
+$ktmNow = new DateTimeImmutable('now', new DateTimeZone('Asia/Kathmandu'));
 $todayBs = nepali_ad_to_bs_components([
-    (int)date('Y'),
-    (int)date('n'),
-    (int)date('j'),
+    (int)$ktmNow->format('Y'),
+    (int)$ktmNow->format('n'),
+    (int)$ktmNow->format('j'),
 ]) ?: [2083, 1, 1];
 $defaultYear = (int)($todayBs[0] ?? 2083);
 
@@ -70,6 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if ($recurrence === 'once' && ($bsMonth < 1 || $bsMonth > 12)) {
                 throw new Exception('एक पटकका लागि महिना छान्नुहोस्।');
+            }
+            if ($recurrence === 'once') {
+                $lens = function_exists('nepali_bs_month_lens') ? nepali_bs_month_lens($bsYear) : null;
+                $maxDay = is_array($lens) ? (int)($lens[$bsMonth - 1] ?? 0) : 0;
+                if ($maxDay > 0 && $bsDay > $maxDay) {
+                    throw new Exception('बी.स. ' . $bsYear . ' को त्यो महिनामा केवल ' . $maxDay . ' गतेसम्म छ।');
+                }
             }
 
             if ($id > 0) {
