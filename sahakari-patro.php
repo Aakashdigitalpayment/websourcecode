@@ -702,7 +702,7 @@ require_once 'includes/header.php';
         <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo $pg['tithi']; ?></span>
         <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
             <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="refresh-cw"></i>
-            <?php echo isEnglish() ? 'Live auto-sync' : 'Live auto-sync'; ?>
+            <?php echo isEnglish() ? 'Live auto-sync' : 'स्वचालित ताजा'; ?>
         </span>
     </div>
 </div>
