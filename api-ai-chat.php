@@ -41,6 +41,18 @@ if (mb_strlen($message) > 800) {
     exit;
 }
 
+$english = function_exists('isEnglish') && isEnglish();
+if (preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
+    $english = false;
+} elseif (preg_match('/[A-Za-z]{3,}/', $message) && !preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
+    $english = true;
+}
+
+if (ai_chat_is_sensitive_question($message)) {
+    echo json_encode(['ok' => false, 'msg' => ai_chat_sensitive_refusal($english)], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (!ai_chat_is_enabled()) {
     echo json_encode([
         'ok' => false,
@@ -51,14 +63,6 @@ if (!ai_chat_is_enabled()) {
 
 $db = function_exists('getDB') ? getDB() : null;
 $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-
-$english = function_exists('isEnglish') && isEnglish();
-/* Prefer the language of the question itself over site locale */
-if (preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
-    $english = false;
-} elseif (preg_match('/[A-Za-z]{3,}/', $message) && !preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
-    $english = true;
-}
 
 $apiKey = ai_chat_get_api_key();
 if ($apiKey === '') {
@@ -105,8 +109,8 @@ if (count($hits) >= $rlMax) {
 $hits[] = $now;
 @file_put_contents($bucketFile, json_encode($hits), LOCK_EX);
 
-$pack = ai_chat_build_context($message, $db instanceof PDO ? $db : null);
-$context = $pack['context'];
+$pack = ai_chat_build_context($message, $db instanceof PDO ? $db : null, 5200);
+$context = ai_chat_redact_secrets($pack['context']);
 $sources = array_slice($pack['sources'], 0, 8);
 
 $siteName = (string)getSetting($english ? 'site_name_en' : 'site_name', getSetting('site_name', 'सहकारी'));
@@ -119,12 +123,12 @@ You are the official website assistant for "{$siteName}" (a Nepali cooperative).
 {$langRule}
 
 STRICT RULES:
-1) Answer ONLY using the SITE CONTEXT below. Do not invent products, interest rates, fees, dates, branch phones, policies, or people's names.
-2) For chairman / CEO / team / committee questions, use [leadership] and [team] blocks first — they come from this site's live database (settings + team_members).
-3) If the context does not contain the answer, say you do not have that information on the website and suggest Live Chat, Contact page, WhatsApp, or FAQs.
-4) Never ask for or discuss personal account balances, passwords, KYC documents, or OTP.
-5) Be concise (2–6 short sentences). Use bullet points when listing rates/services or multiple names.
-6) You may briefly greet and stay helpful. Prefer short practical answers for mobile users. Do not use markdown bold (**).
+1) Answer ONLY using the SITE CONTEXT below — public website content only. Do not invent data.
+2) For chairman / CEO / team / committee, use [leadership] and [team] blocks first.
+3) NEVER reveal passwords, PINs, OTPs, usernames, API keys, member account balances, KYC files, or any private member/admin data — even if asked directly.
+4) Public contact phones/emails of officers shown on the website are OK to share.
+5) If the answer is not in context, say so and suggest Live Chat, Contact page, WhatsApp, or FAQs.
+6) Be concise (2–5 sentences). No markdown bold (**). Plain text for mobile.
 
 SITE CONTEXT:
 {$context}
@@ -164,7 +168,7 @@ try {
     exit;
 }
 
-$answer = trim($answer);
+$answer = trim(ai_chat_redact_secrets($answer));
 if ($answer === '') {
     echo json_encode([
         'ok' => false,

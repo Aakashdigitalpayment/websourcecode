@@ -88,6 +88,27 @@ if (!function_exists('ai_chat_question_is_leadership')) {
     }
 }
 
+if (!function_exists('ai_chat_context_mode')) {
+    /** Lean loading for faster replies — skip irrelevant tables per question type. */
+    function ai_chat_context_mode(string $question): string
+    {
+        $q = ai_chat_normalize_text($question);
+        if (ai_chat_question_is_leadership($q)) {
+            return 'leadership';
+        }
+        if (preg_match('/ब्याज|ब्याजदर|interest|rate|ऋण|बचत|loan|saving/i', $q)) {
+            return 'rates';
+        }
+        if (preg_match('/शाखा|branch|सेवा केन्द्र|office|नजिक/i', $q)) {
+            return 'branch';
+        }
+        if (preg_match('/समाचार|news|सूचना|notice/i', $q)) {
+            return 'news';
+        }
+        return 'general';
+    }
+}
+
 if (!function_exists('ai_chat_score_text')) {
     function ai_chat_score_text(string $haystack, array $tokens): int
     {
@@ -189,9 +210,14 @@ if (!function_exists('ai_chat_collect_candidates')) {
         $tokens = ai_chat_expand_tokens($question);
         $english = function_exists('isEnglish') && isEnglish();
         $leadershipQ = ai_chat_question_is_leadership($question);
+        $mode = ai_chat_context_mode($question);
         $cands = [];
 
         $push = static function (string $source, string $label, string $body, int $score) use (&$cands): void {
+            if (function_exists('ai_chat_redact_secrets')) {
+                $body = ai_chat_redact_secrets($body);
+                $label = ai_chat_redact_secrets($label);
+            }
             $body = ai_chat_normalize_text($body);
             $label = ai_chat_normalize_text($label);
             if ($body === '' && $label === '') {
@@ -220,7 +246,24 @@ if (!function_exists('ai_chat_collect_candidates')) {
         if ($addr !== '') {
             $idBody .= "\nठेगाना: {$addr}";
         }
+        $wa = trim((string)getSetting('whatsapp', getSetting('whatsapp_number', '')));
+        if ($wa !== '') {
+            $idBody .= "\nWhatsApp: {$wa}";
+        }
         $push('site', 'संस्था जानकारी', $idBody, max(1, ai_chat_score_text($idBody, $tokens) + 1));
+
+        /* Extra whitelisted public settings (membership steps, hours…) */
+        $skipKeys = ['site_name', 'site_name_en', 'phone', 'contact_phone', 'email', 'contact_email', 'address', 'address_en', 'whatsapp', 'whatsapp_number', 'chairman_name', 'ceo_name'];
+        foreach (ai_chat_public_setting_keys() as $skey) {
+            if (in_array($skey, $skipKeys, true)) {
+                continue;
+            }
+            $val = trim((string)getSetting($skey, ''));
+            if ($val === '' || mb_strlen($val) < 4) {
+                continue;
+            }
+            $push('site', $skey, ai_chat_snip($val, 280), ai_chat_score_text($val . ' ' . $skey, $tokens));
+        }
 
         /* Leadership — always in context pack (chairman / CEO from settings + team_members) */
         $lead = ai_chat_resolve_leadership($db, $english);
@@ -250,11 +293,15 @@ if (!function_exists('ai_chat_collect_candidates')) {
         $vision = (string)getSetting($english ? 'vision_content_en' : 'vision_content_np', getSetting('vision_content_np', ''));
         $mission = (string)getSetting($english ? 'mission_content_en' : 'mission_content_np', getSetting('mission_content_np', ''));
         if ($vision !== '') {
-            $push('about', 'भिजन', ai_chat_snip($vision, 500), ai_chat_score_text('भिजन vision ' . $vision, $tokens) + 1);
+            $push('about', 'भिजन', ai_chat_snip($vision, 360), ai_chat_score_text('भिजन vision ' . $vision, $tokens) + 1);
         }
         if ($mission !== '') {
-            $push('about', 'मिसन', ai_chat_snip($mission, 500), ai_chat_score_text('मिसन mission ' . $mission, $tokens) + 1);
+            $push('about', 'मिसन', ai_chat_snip($mission, 360), ai_chat_score_text('मिसन mission ' . $mission, $tokens) + 1);
         }
+
+        $faqLimit = $mode === 'leadership' ? 12 : 35;
+        $noticeLimit = ($mode === 'leadership' || $mode === 'rates') ? 0 : 12;
+        $newsLimit = ($mode === 'news' || $mode === 'general') ? 10 : ($mode === 'leadership' ? 0 : 6);
 
         $safeQuery = static function (PDO $db, string $sql) {
             try {
@@ -264,7 +311,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
             }
         };
 
-        foreach ($safeQuery($db, 'SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order, id LIMIT 80') as $row) {
+        foreach ($safeQuery($db, 'SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order, id LIMIT ' . (int)$faqLimit) as $row) {
             $q = $english
                 ? (string)(($row['question_en'] ?? '') !== '' ? $row['question_en'] : (($row['question_np'] ?? '') !== '' ? $row['question_np'] : ($row['question'] ?? '')))
                 : (string)(($row['question_np'] ?? '') !== '' ? $row['question_np'] : (($row['question'] ?? '') !== '' ? $row['question'] : ($row['question_en'] ?? '')));
@@ -274,40 +321,45 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $kw = (string)($row['keywords'] ?? '');
             $blob = $q . ' ' . $a . ' ' . $kw;
             $score = ai_chat_score_text($blob, $tokens) + ($kw !== '' ? 1 : 0);
-            $push('chatbot_faq', $q !== '' ? $q : 'FAQ', ai_chat_snip($a, 420), $score);
+            $push('chatbot_faq', $q !== '' ? $q : 'FAQ', ai_chat_snip($a, 300), $score);
         }
 
-        foreach ($safeQuery($db, 'SELECT * FROM faqs WHERE is_active = 1 ORDER BY display_order, id LIMIT 60') as $row) {
+        foreach ($safeQuery($db, 'SELECT * FROM faqs WHERE is_active = 1 ORDER BY display_order, id LIMIT ' . (int)min(25, $faqLimit)) as $row) {
             $q = $english
                 ? (string)(($row['question_en'] ?? '') !== '' ? $row['question_en'] : (($row['question_np'] ?? '') !== '' ? $row['question_np'] : ($row['question'] ?? '')))
                 : (string)(($row['question_np'] ?? '') !== '' ? $row['question_np'] : (($row['question'] ?? '') !== '' ? $row['question'] : ($row['question_en'] ?? '')));
             $a = $english
                 ? (string)(($row['answer_en'] ?? '') !== '' ? $row['answer_en'] : (($row['answer_np'] ?? '') !== '' ? $row['answer_np'] : ($row['answer'] ?? '')))
                 : (string)(($row['answer_np'] ?? '') !== '' ? $row['answer_np'] : (($row['answer'] ?? '') !== '' ? $row['answer'] : ($row['answer_en'] ?? '')));
-            $push('faq', $q !== '' ? $q : 'FAQ', ai_chat_snip($a, 420), ai_chat_score_text($q . ' ' . $a, $tokens));
+            $push('faq', $q !== '' ? $q : 'FAQ', ai_chat_snip($a, 300), ai_chat_score_text($q . ' ' . $a, $tokens));
         }
 
-        foreach ($safeQuery($db, 'SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 25') as $row) {
+        if ($noticeLimit > 0) {
+        foreach ($safeQuery($db, 'SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT ' . (int)$noticeLimit) as $row) {
             $t = $english
                 ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : (($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? '')))
                 : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : (($row['title'] ?? '') !== '' ? $row['title'] : ($row['title_en'] ?? '')));
             $c = $english
                 ? (string)(($row['content_en'] ?? '') !== '' ? $row['content_en'] : (($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? $row['description'] ?? '')))
                 : (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : (($row['content'] ?? '') !== '' ? $row['content'] : ($row['description'] ?? $row['content_en'] ?? '')));
-            $push('notice', $t !== '' ? $t : 'सूचना', ai_chat_snip($c, 360), ai_chat_score_text($t . ' ' . $c . ' सूचना notice', $tokens) + 1);
+            $push('notice', $t !== '' ? $t : 'सूचना', ai_chat_snip($c, 280), ai_chat_score_text($t . ' ' . $c . ' सूचना notice', $tokens) + 1);
+        }
         }
 
-        foreach ($safeQuery($db, 'SELECT * FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40') as $row) {
+        if ($mode !== 'leadership') {
+        foreach ($safeQuery($db, 'SELECT * FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 30') as $row) {
             $t = $english
                 ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : (($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? '')))
                 : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : (($row['title'] ?? '') !== '' ? $row['title'] : ($row['title_en'] ?? '')));
             $d = $english
                 ? (string)(($row['description_en'] ?? '') !== '' ? $row['description_en'] : (($row['description_np'] ?? '') !== '' ? $row['description_np'] : (($row['description'] ?? '') !== '' ? $row['description'] : ($row['short_description'] ?? ''))))
                 : (string)(($row['description_np'] ?? '') !== '' ? $row['description_np'] : (($row['description'] ?? '') !== '' ? $row['description'] : (($row['short_description'] ?? '') !== '' ? $row['short_description'] : ($row['description_en'] ?? ''))));
-            $push('service', $t !== '' ? $t : 'सेवा', ai_chat_snip($d, 360), ai_chat_score_text($t . ' ' . $d . ' सेवा service ऋण बचत', $tokens) + 1);
+            $push('service', $t !== '' ? $t : 'सेवा', ai_chat_snip($d, 280), ai_chat_score_text($t . ' ' . $d . ' सेवा service ऋण बचत', $tokens) + 1);
+        }
         }
 
-        foreach ($safeQuery($db, 'SELECT * FROM interest_rates WHERE is_active = 1 ORDER BY display_order, id LIMIT 50') as $row) {
+        if ($mode === 'rates' || $mode === 'general') {
+        foreach ($safeQuery($db, 'SELECT * FROM interest_rates WHERE is_active = 1 ORDER BY display_order, id LIMIT 40') as $row) {
             $t = $english
                 ? (string)(($row['title_en'] ?? '') !== '' ? $row['title_en'] : (($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? '')))
                 : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : (($row['title'] ?? '') !== '' ? $row['title'] : ($row['title_en'] ?? '')));
@@ -316,7 +368,9 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $body = trim(($cat !== '' ? "श्रेणी: {$cat}. " : '') . "दर: {$rate}");
             $push('rate', $t !== '' ? $t : 'ब्याजदर', $body, ai_chat_score_text($t . ' ' . $body . ' ब्याजदर interest rate', $tokens) + 2);
         }
+        }
 
+        if ($mode === 'branch' || $mode === 'general' || $mode === 'leadership') {
         if (is_file(__DIR__ . '/service-centers-helpers.php')) {
             require_once __DIR__ . '/service-centers-helpers.php';
         }
@@ -340,9 +394,10 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 /* ignore */
             }
         }
+        }
 
         /* Team / board / staff — published on team.php */
-        foreach ($safeQuery($db, 'SELECT name, name_en, position, position_np, position_en, phone, email, category, is_chairman, is_ceo, is_information_officer, is_grievance_officer FROM team_members WHERE is_active = 1 ORDER BY is_chairman DESC, is_ceo DESC, display_order, id LIMIT 80') as $row) {
+        foreach ($safeQuery($db, 'SELECT name, name_en, position, position_np, position_en, phone, email, category, is_chairman, is_ceo, is_information_officer, is_grievance_officer FROM team_members WHERE is_active = 1 ORDER BY is_chairman DESC, is_ceo DESC, display_order, id LIMIT 50') as $row) {
             $name = $english
                 ? (string)(($row['name_en'] ?? '') !== '' ? $row['name_en'] : ($row['name'] ?? ''))
                 : (string)($row['name'] ?? $row['name_en'] ?? '');
@@ -376,7 +431,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
             LEFT JOIN committee_types ct ON t.committee_type_id = ct.id
             WHERE m.is_active = 1
             ORDER BY ct.display_order, m.display_order, m.id
-            LIMIT 60') as $row) {
+            LIMIT 40') as $row) {
             $name = $english
                 ? (string)(($row['name_en'] ?? '') !== '' ? $row['name_en'] : ($row['name'] ?? ''))
                 : (string)($row['name'] ?? $row['name_en'] ?? '');
@@ -390,8 +445,8 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $push('committee', $name !== '' ? $name : 'समिति सदस्य', $body, ai_chat_score_text($name . ' ' . $body . ' committee समिति board', $tokens) + 1);
         }
 
-        /* CMS pages (about, contact, policies…) */
-        foreach ($safeQuery($db, 'SELECT slug, title, title_np, content, content_np FROM pages WHERE is_active = 1 ORDER BY menu_order, id LIMIT 25') as $row) {
+        /* CMS pages */
+        foreach ($safeQuery($db, 'SELECT slug, title, title_np, content, content_np FROM pages WHERE is_active = 1 ORDER BY menu_order, id LIMIT 20') as $row) {
             $t = $english
                 ? (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''))
                 : (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
@@ -399,14 +454,72 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 ? (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''))
                 : (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''));
             $slug = (string)($row['slug'] ?? '');
-            $push('page', ($t !== '' ? $t : $slug) . ($slug !== '' ? " ({$slug})" : ''), ai_chat_snip($c, 400), ai_chat_score_text($t . ' ' . $c . ' ' . $slug, $tokens) + ($slug === 'about' ? 2 : 0));
+            $push('page', ($t !== '' ? $t : $slug) . ($slug !== '' ? " ({$slug})" : ''), ai_chat_snip($c, 320), ai_chat_score_text($t . ' ' . $c . ' ' . $slug, $tokens) + ($slug === 'about' ? 2 : 0));
         }
 
-        /* Recent news */
-        foreach ($safeQuery($db, 'SELECT title, title_np, content, content_np FROM news WHERE is_active = 1 ORDER BY created_at DESC, id DESC LIMIT 15') as $row) {
+        if ($newsLimit > 0) {
+        foreach ($safeQuery($db, 'SELECT title, title_np, content, content_np FROM news WHERE is_active = 1 ORDER BY created_at DESC, id DESC LIMIT ' . (int)$newsLimit) as $row) {
             $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
             $c = (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''));
-            $push('news', $t !== '' ? $t : 'समाचार', ai_chat_snip($c, 320), ai_chat_score_text($t . ' ' . $c . ' समाचार news', $tokens));
+            $push('news', $t !== '' ? $t : 'समाचार', ai_chat_snip($c, 260), ai_chat_score_text($t . ' ' . $c . ' समाचार news', $tokens));
+        }
+        }
+
+        /* Help center topics (public) */
+        foreach ($safeQuery($db, 'SELECT title, title_np, content, content_np, category FROM help_topics WHERE is_active = 1 ORDER BY display_order, id LIMIT 20') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $c = (string)(($row['content_np'] ?? '') !== '' ? $row['content_np'] : ($row['content'] ?? ''));
+            $push('help', $t !== '' ? $t : 'सहायता', ai_chat_snip($c, 260), ai_chat_score_text($t . ' ' . $c . ' help सहायता', $tokens) + 1);
+        }
+
+        foreach ($safeQuery($db, 'SELECT title, title_np, description, description_np, url FROM useful_links WHERE is_active = 1 ORDER BY display_order, id LIMIT 15') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $d = (string)(($row['description_np'] ?? '') !== '' ? $row['description_np'] : ($row['description'] ?? ''));
+            $body = trim($t . ($d !== '' ? ' — ' . $d : '') . ' | ' . (string)($row['url'] ?? ''));
+            $push('link', $t !== '' ? $t : 'लिंक', ai_chat_snip($body, 200), ai_chat_score_text($body, $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT title, title_np, category FROM downloads WHERE is_active = 1 ORDER BY created_at DESC LIMIT 15') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $body = trim($t . (($row['category'] ?? '') !== '' ? ' | ' . $row['category'] : ''));
+            $push('download', $t !== '' ? $t : 'डाउनलोड', $body, ai_chat_score_text($body . ' download फारम', $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT title, title_np, report_type, report_year FROM reports WHERE is_active = 1 ORDER BY report_year DESC, display_order LIMIT 12') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $body = trim($t . ' | ' . (string)($row['report_type'] ?? '') . ' ' . (string)($row['report_year'] ?? ''));
+            $push('report', $t !== '' ? $t : 'प्रतिवेदन', $body, ai_chat_score_text($body . ' report प्रतिवेदन', $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT title, title_np, description, description_np FROM awards WHERE is_active = 1 ORDER BY display_order, award_date DESC LIMIT 10') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $d = (string)(($row['description_np'] ?? '') !== '' ? $row['description_np'] : ($row['description'] ?? ''));
+            $push('award', $t !== '' ? $t : 'पुरस्कार', ai_chat_snip($d !== '' ? $d : $t, 200), ai_chat_score_text($t . ' ' . $d, $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT title, title_np, description, description_np FROM app_features WHERE is_active = 1 ORDER BY sort_order, id LIMIT 12') as $row) {
+            $t = (string)(($row['title_np'] ?? '') !== '' ? $row['title_np'] : ($row['title'] ?? ''));
+            $d = (string)(($row['description_np'] ?? '') !== '' ? $row['description_np'] : ($row['description'] ?? ''));
+            $push('feature', $t !== '' ? $t : 'सुविधा', ai_chat_snip($d, 200), ai_chat_score_text($t . ' ' . $d, $tokens));
+        }
+
+        foreach ($safeQuery($db, 'SELECT partner_name, location, facility_type, description FROM partner_facilities WHERE is_active = 1 ORDER BY display_order LIMIT 12') as $row) {
+            $name = (string)($row['partner_name'] ?? '');
+            $body = trim($name . ' | ' . (string)($row['facility_type'] ?? '') . ' | ' . (string)($row['location'] ?? ''));
+            $push('partner', $name !== '' ? $name : 'साझेदारी', ai_chat_snip($body, 200), ai_chat_score_text($body . ' partner', $tokens));
+        }
+
+        /* Latest institutional profile summary (public aggregate stats — not individual members) */
+        foreach ($safeQuery($db, 'SELECT fiscal_year, total_members, branch_count, deposit, loan, net_profit FROM institutional_profile WHERE is_active = 1 ORDER BY fiscal_year DESC, id DESC LIMIT 2') as $row) {
+            $body = sprintf(
+                'आ.व. %s | सदस्य: %s | शाखा: %s | निक्षेप: %s | ऋण: %s',
+                (string)($row['fiscal_year'] ?? ''),
+                (string)($row['total_members'] ?? ''),
+                (string)($row['branch_count'] ?? ''),
+                (string)($row['deposit'] ?? ''),
+                (string)($row['loan'] ?? '')
+            );
+            $push('profile', 'संस्थागत प्रोफाइल', $body, ai_chat_score_text($body . ' members सदस्य शाखा', $tokens) + 1);
         }
 
         return $cands;
@@ -417,7 +530,7 @@ if (!function_exists('ai_chat_build_context')) {
     /**
      * @return array{context:string,sources:list<string>}
      */
-    function ai_chat_build_context(string $question, ?PDO $db = null, int $maxChars = 7500): array
+    function ai_chat_build_context(string $question, ?PDO $db = null, int $maxChars = 5200): array
     {
         $cands = ai_chat_collect_candidates($question, $db);
         usort($cands, static function ($a, $b) {
@@ -431,7 +544,7 @@ if (!function_exists('ai_chat_build_context')) {
         $picked = [];
         $sources = [];
         $used = 0;
-        $minKeep = 16;
+        $minKeep = 12;
         $forcedSources = ['site', 'leadership'];
         $forced = [];
         $rest = [];
@@ -467,7 +580,7 @@ if (!function_exists('ai_chat_build_context')) {
             $picked[] = $block;
             $sources[] = $c['source'] . ': ' . mb_substr($c['label'], 0, 60);
             $used += $len;
-            if (count($picked) >= 32) {
+            if (count($picked) >= 20) {
                 break;
             }
         }
