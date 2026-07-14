@@ -1129,7 +1129,7 @@ if ($__uiTestMode):
     </button>
     <?php if (!empty($aiChatEnabled)): ?>
     <button type="button" class="qh-item" role="menuitem"
-      onclick="document.getElementById('aiChatPanel').classList.add('open');document.getElementById('qhLauncher').classList.remove('open');var i=document.getElementById('aiChatInput');if(i)i.focus();">
+      onclick="if(window.coopOpenAiChat){window.coopOpenAiChat();}else{document.getElementById('aiChatPanel').classList.add('open');document.getElementById('qhLauncher').classList.remove('open');var i=document.getElementById('aiChatInput');if(i)i.focus();}">
       <span class="qh-ic ai"><i class="fas fa-robot"></i></span>
       <span><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></span>
     </button>
@@ -1211,7 +1211,7 @@ if ($__uiTestMode):
       <div class="acp-title"><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></div>
       <div class="acp-sub"><?php echo isEnglish() ? 'Answers from this website’s data' : 'यस वेबसाइटको डाटाबाट जवाफ'; ?></div>
     </div>
-    <button type="button" class="acp-x" onclick="document.getElementById('aiChatPanel').classList.remove('open')" aria-label="Close">×</button>
+    <button type="button" class="acp-x" aria-label="Close">×</button>
   </div>
   <div class="acp-messages" id="aiChatMessages" aria-live="polite">
     <div class="acp-bubble bot"><?php echo htmlspecialchars($aiChatWelcome, ENT_QUOTES, 'UTF-8'); ?></div>
@@ -1250,20 +1250,38 @@ if ($__uiTestMode):
   if (!panel || !form || !box || !input) return;
 
   var thinkingLbl = <?php echo json_encode(isEnglish() ? 'Thinking…' : 'सोच्दै…', JSON_UNESCAPED_UNICODE); ?>;
+  var fallbackErr = <?php echo json_encode(isEnglish() ? 'No answer. Try Live Chat or FAQ.' : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
+  var parseErr = <?php echo json_encode(isEnglish() ? 'Server reply was invalid. Check AI API key / provider in Admin settings, then try again.' : 'सर्भर जवाफ मिलेन। Admin → AI Chat सेटिङ्स मा API key र provider जाँच गरी फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
+  var netErr = <?php echo json_encode(isEnglish() ? 'Network error. Please try again.' : 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>;
   var busy = false;
 
   function esc(s){
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-  function addBubble(text, who){
+  function addBubble(text, who, extraClass){
     var d = document.createElement('div');
-    d.className = 'acp-bubble ' + (who === 'user' ? 'user' : 'bot');
+    d.className = 'acp-bubble ' + (who === 'user' ? 'user' : 'bot') + (extraClass ? (' ' + extraClass) : '');
     d.innerHTML = esc(text).replace(/\n/g, '<br>');
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
     return d;
   }
-  function closePanel(){ panel.classList.remove('open'); }
+  function syncBodyOpen(){
+    document.body.classList.toggle('ai-chat-open', panel.classList.contains('open'));
+  }
+  function closePanel(){
+    panel.classList.remove('open');
+    syncBodyOpen();
+  }
+  function openPanel(){
+    panel.classList.add('open');
+    var l = document.getElementById('qhLauncher');
+    if (l) l.classList.remove('open');
+    syncBodyOpen();
+    if (input) setTimeout(function(){ input.focus(); }, 50);
+  }
+  window.coopOpenAiChat = openPanel;
+
   function openLive(){
     closePanel();
     var p = document.getElementById('publicChatPanel');
@@ -1279,6 +1297,9 @@ if ($__uiTestMode):
   var faqBtn = document.getElementById('aiChatOpenFaq');
   if (liveBtn) liveBtn.addEventListener('click', openLive);
   if (faqBtn) faqBtn.addEventListener('click', openFaq);
+
+  var closeBtn = panel.querySelector('.acp-x');
+  if (closeBtn) closeBtn.addEventListener('click', closePanel);
 
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && panel.classList.contains('open')) closePanel();
@@ -1303,24 +1324,33 @@ if ($__uiTestMode):
 
     fetch('<?php echo SITE_URL; ?>api-ai-chat.php', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
       body: JSON.stringify({
         message: msg,
         website: (form.querySelector('[name=website]') || {}).value || ''
       })
     })
-      .then(function(r){ return r.json().catch(function(){ return {ok:false, msg:'त्रुटि'}; }); })
+      .then(function(r){
+        return r.text().then(function(t){
+          var d = null;
+          try { d = t ? JSON.parse(t) : null; } catch (e) { d = null; }
+          if (!d || typeof d !== 'object') {
+            return { ok:false, msg: parseErr };
+          }
+          return d;
+        });
+      })
       .then(function(d){
         thinking.remove();
         if (d && d.ok && d.answer) {
           addBubble(d.answer, 'bot');
         } else {
-          addBubble((d && d.msg) ? d.msg : (<?php echo json_encode(isEnglish() ? 'No answer. Try Live Chat or FAQ.' : 'जवाफ आएन। Live Chat वा FAQ प्रयोग गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>), 'bot');
+          addBubble((d && d.msg) ? d.msg : fallbackErr, 'bot', 'acp-err');
         }
       })
       .catch(function(){
         thinking.remove();
-        addBubble(<?php echo json_encode(isEnglish() ? 'Network error. Please try again.' : 'नेटवर्क त्रुटि। फेरि प्रयास गर्नुहोस्।', JSON_UNESCAPED_UNICODE); ?>, 'bot');
+        addBubble(netErr, 'bot', 'acp-err');
       })
       .finally(function(){ busy = false; sendBtn.disabled = false; input.focus(); });
   }

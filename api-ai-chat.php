@@ -80,19 +80,24 @@ if (count($hits) >= 10) {
 $hits[] = $now;
 @file_put_contents($bucketFile, json_encode($hits), LOCK_EX);
 
-$apiKey = ai_chat_get_api_key();
-if ($apiKey === '') {
-    http_response_code(503);
-    echo json_encode(['ok' => false, 'msg' => 'AI कन्फिगर छैन।'], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
 $english = function_exists('isEnglish') && isEnglish();
 /* Prefer the language of the question itself over site locale */
 if (preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
     $english = false;
 } elseif (preg_match('/[A-Za-z]{3,}/', $message) && !preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
     $english = true;
+}
+
+$apiKey = ai_chat_get_api_key();
+if ($apiKey === '') {
+    http_response_code(503);
+    echo json_encode([
+        'ok' => false,
+        'msg' => $english
+            ? 'AI is not configured. Add a valid API key in Admin → AI Chat settings.'
+            : 'AI कन्फिगर छैन। Admin → AI Chat सेटिङ्स मा सही API key हाल्नुहोस्।',
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 $pack = ai_chat_build_context($message, $db instanceof PDO ? $db : null);
@@ -125,12 +130,21 @@ $model = ai_chat_model();
 try {
     $answer = ai_chat_ask_provider($provider, $apiKey, $model, $system, $message);
 } catch (Throwable $e) {
-    error_log('ai-chat provider: ' . $e->getMessage());
+    $errRaw = $e->getMessage();
+    error_log('ai-chat provider: ' . $errRaw);
     http_response_code(502);
-    echo json_encode([
-        'ok' => false,
-        'msg' => 'AI सेवा जवाफ दिन सकेन। केहीबेर पछि वा Live Chat प्रयोग गर्नुहोस्।',
-    ], JSON_UNESCAPED_UNICODE);
+    $looksLikeKey = (bool)preg_match(
+        '/api[\s_-]?key|invalid.?api|incorrect.?api|401|403|PERMISSION_DENIED|API_KEY_INVALID|unauthenticated|authentication|expired|billing|quota|insufficient.?quota/i',
+        $errRaw
+    );
+    $msg = $looksLikeKey
+        ? ($english
+            ? 'AI API key is invalid, expired, or does not match the selected provider. Check Admin → AI Chat settings (key + Gemini/OpenAI), then Test connection.'
+            : 'AI API key मिलेन, सकियो, वा provider सँग मेल खाँदैन। Admin → AI Chat सेटिङ्स मा key र Gemini/OpenAI जाँच गरी Test connection गर्नुहोस्।')
+        : ($english
+            ? 'AI could not reply. Try again later or use Live Chat / FAQ.'
+            : 'AI सेवा जवाफ दिन सकेन। केहीबेर पछि वा Live Chat / FAQ प्रयोग गर्नुहोस्।');
+    echo json_encode(['ok' => false, 'msg' => $msg], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
