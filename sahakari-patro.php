@@ -24,9 +24,13 @@ function sp_setting(string $k, string $d = ''): string {
 $spSiteName   = sp_setting('site_name', defined('SITE_NAME') ? (string)SITE_NAME : 'सहकारी');
 $spSiteNameEn = sp_setting('site_name_en', $spSiteName);
 $spLogo       = sp_setting('site_logo', '');
-$spLogoUrl    = !empty($spLogo)
-    ? rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/' . ltrim($spLogo, '/')
-    : '';
+if ($spLogo === '') {
+    $spLogo = sp_setting('logo', 'assets/images/logo.png');
+}
+if ($spLogo === '') {
+    $spLogo = 'assets/images/logo.png';
+}
+$spLogoUrl = rtrim(defined('SITE_URL') ? (string)SITE_URL : '', '/') . '/' . ltrim($spLogo, '/');
 
 /* ══════════════════════════════════════════════════════════════════════════
    BS MONTH HELPERS — use project converter map (1970–2100), live each day
@@ -513,7 +517,11 @@ require_once 'includes/header.php';
 
 <!-- ══════════════════════════════════════════ PAGE-SCOPED CSS -->
 <style>
-:root{--sp-primary:#1a5f2a;--sp-primary-dark:#144a21;--sp-primary-light:#2e8b4a;--sp-secondary:#c0392b;--sp-bg:#f8faf9;--sp-card:#fff;--sp-soft:#f5faf6;--sp-muted:#e8f5e9;--sp-border:#e5e7eb;--sp-border-soft:#f0f0f0;--sp-text:#1a2e1f;--sp-text-muted:#6b7280;}
+:root{--sp-primary:#1a5f2a;--sp-primary-dark:#144a21;--sp-primary-light:#2e8b4a;--sp-secondary:#c0392b;--sp-bg:#f8faf9;--sp-card:#fff;--sp-soft:#f5faf6;--sp-muted:#e8f5e9;--sp-border:#e5e7eb;--sp-border-soft:#f0f0f0;--sp-text:#1f2937;--sp-text-muted:#4b5563;}
+
+/* Page shell — inherit site typography, readable defaults */
+.sp-page{color:var(--sp-text);font-size:15px;line-height:1.55;}
+.sp-page h3,.sp-page h4,.sp-page h6{color:var(--sp-primary-dark);}
 
 /* ── Layout ── */
 .sp-row{display:flex;gap:16px;align-items:start;}
@@ -522,189 +530,185 @@ require_once 'includes/header.php';
 @media(max-width:900px){.sp-row{flex-direction:column;}.sp-col-side{width:100%;}}
 
 /* ── Tab nav ── */
-.sp-tabs{border-bottom:2px solid var(--sp-border);}
-.sp-tabs .nav-link{color:var(--sp-text-muted);border:none;border-bottom:3px solid transparent;border-radius:6px 6px 0 0;padding:10px 14px;font-size:13px;display:flex;align-items:center;gap:5px;white-space:nowrap;transition:all .15s;}
+.sp-tabs{border-bottom:2px solid var(--sp-border);gap:2px;}
+.sp-tabs .nav-link{color:var(--sp-text-muted);border:none;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;padding:11px 16px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;white-space:nowrap;transition:all .15s;text-decoration:none;}
 .sp-tabs .nav-link.active{color:var(--sp-primary);border-bottom-color:var(--sp-primary);background:var(--sp-soft);font-weight:700;}
-.sp-tabs .nav-link:hover{color:var(--sp-primary);}
+.sp-tabs .nav-link:hover{color:var(--sp-primary);background:rgba(26,95,42,.04);}
+.sp-tabs .nav-link .lucide-icon,.sp-tabs .nav-link svg{width:15px!important;height:15px!important;flex-shrink:0;}
 
 /* ── Calendar ── */
-.sp-cal-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;}
-.sp-cal-nav{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--sp-border);}
-.sp-cal-title{text-align:center;}
-.sp-cal-title-main{font-weight:800;font-size:20px;color:var(--sp-primary);}
-.sp-cal-title-sub{color:var(--sp-text-muted);font-size:12px;margin-top:1px;}
-.sp-cal-nav-btn{border:1px solid var(--sp-border);background:#fff;border-radius:7px;padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-size:12px;color:var(--sp-text);text-decoration:none;font-family:inherit;}
+.sp-cal-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
+.sp-cal-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--sp-border);gap:8px;flex-wrap:wrap;}
+.sp-cal-title{text-align:center;flex:1;min-width:140px;}
+.sp-cal-title-main{font-weight:800;font-size:1.25rem;color:var(--sp-primary-dark);line-height:1.25;}
+.sp-cal-title-sub{color:var(--sp-text-muted);font-size:13px;margin-top:2px;}
+.sp-cal-nav-btn{border:1px solid var(--sp-border);background:#fff;border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--sp-text);text-decoration:none;font-family:inherit;}
 .sp-cal-nav-btn:hover{border-color:var(--sp-primary);color:var(--sp-primary);}
 .sp-cal-nav-btn.is-disabled{opacity:.35;pointer-events:none;cursor:default;}
 .sp-cal-cell:focus-visible{outline:2px solid var(--sp-primary);outline-offset:1px;z-index:3;}
 .sp-cal-sahakari-dot{width:5px;height:5px;border-radius:50%;background:#047857;position:absolute;bottom:3px;left:3px;box-shadow:0 0 0 1px #fff;}
-.sp-cal-today-btn{border:1px solid var(--sp-primary);background:var(--sp-muted);border-radius:7px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--sp-primary);text-decoration:none;}
+.sp-cal-today-btn{border:1px solid var(--sp-primary);background:var(--sp-muted);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--sp-primary);text-decoration:none;}
 .sp-cal-body{padding:12px;}
-.sp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.sp-cal-weekhdr{text-align:center;padding:6px 2px;font-size:11px;font-weight:700;background:var(--sp-soft);border-radius:4px;}
+.sp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.sp-cal-weekhdr{text-align:center;padding:8px 2px;font-size:12px;font-weight:700;background:var(--sp-soft);border-radius:6px;color:var(--sp-text);}
 .sp-cal-weekhdr.sat{color:var(--sp-secondary);}
 .sp-cal-weekhdr.sun{color:#b45309;}
-.sp-cal-cell{border-radius:6px;min-height:62px;cursor:pointer;border:1px solid var(--sp-border-soft);background:#fff;padding:4px 3px;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;transition:box-shadow .12s;}
-.sp-cal-cell:hover{box-shadow:0 2px 8px rgba(0,0,0,.1);z-index:2;}
+.sp-cal-cell{border-radius:8px;min-height:68px;cursor:pointer;border:1px solid var(--sp-border-soft);background:#fff;padding:5px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;transition:box-shadow .12s;}
+.sp-cal-cell:hover{box-shadow:0 2px 10px rgba(26,95,42,.12);z-index:2;}
 .sp-cal-cell.today{background:var(--sp-primary)!important;border-color:var(--sp-primary-dark)!important;}
 .sp-cal-cell.selected{background:var(--sp-muted);border-color:var(--sp-primary)!important;border-width:2px!important;}
 .sp-cal-cell.sat .sp-cal-daynum{color:var(--sp-secondary);}
 .sp-cal-cell.today .sp-cal-daynum,.sp-cal-cell.today .sp-cal-tithi,.sp-cal-cell.today .sp-cal-evbadge{color:#fff!important;}
-.sp-cal-cell.today .sp-cal-evbadge{background:rgba(255,255,255,.2)!important;}
-.sp-cal-daynum{font-size:16px;font-weight:700;line-height:1.1;color:var(--sp-text);}
-.sp-cal-tithi{font-size:8.5px;color:var(--sp-text-muted);line-height:1;}
-.sp-cal-evbadge{font-size:7.5px;font-weight:600;border-radius:2px;padding:1px 3px;line-height:1.4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
-.sp-cal-shubhdot{width:4px;height:4px;border-radius:50%;background:#16a34a;position:absolute;bottom:3px;right:3px;}
-.sp-cal-more{font-size:7px;color:var(--sp-text-muted);}
+.sp-cal-cell.today .sp-cal-evbadge{background:rgba(255,255,255,.22)!important;}
+.sp-cal-daynum{font-size:17px;font-weight:700;line-height:1.15;color:var(--sp-text);}
+.sp-cal-tithi{font-size:11px;color:var(--sp-text-muted);line-height:1.2;font-weight:500;}
+.sp-cal-evbadge{font-size:10px;font-weight:600;border-radius:4px;padding:2px 4px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.sp-cal-shubhdot{width:5px;height:5px;border-radius:50%;background:#16a34a;position:absolute;bottom:4px;right:4px;}
+.sp-cal-more{font-size:10px;color:var(--sp-text-muted);font-weight:600;}
 
-/* Empty cell with logo */
-.sp-cal-empty{background:linear-gradient(135deg,#f5faf6,#ecf5ed);display:flex;align-items:center;justify-content:center;cursor:default!important;border-color:var(--sp-border-soft)!important;}
+/* Empty cell — site logo watermark (subtle but visible) */
+.sp-cal-empty{background:linear-gradient(145deg,#f7fbf8,#eef7f0);display:flex;align-items:center;justify-content:center;cursor:default!important;border-color:#e4efe6!important;min-height:68px;}
 .sp-cal-empty:hover{box-shadow:none!important;}
-.sp-cal-logo-wrap{opacity:.22;width:75%;height:75%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--sp-primary);}
-.sp-cal-logo-wrap img{max-width:100%;max-height:36px;object-fit:contain;}
+.sp-cal-logo-wrap{opacity:.42;width:86%;height:86%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--sp-primary);pointer-events:none;}
+.sp-cal-logo-wrap img{max-width:100%;max-height:40px;width:auto;height:auto;object-fit:contain;filter:none;}
 .sp-cal-logo-wrap svg{width:28px;height:28px;}
 .sp-cal-logo-wrap span{font-size:6px;font-weight:700;text-align:center;line-height:1.2;color:var(--sp-primary);}
 
 /* Calendar legend */
-.sp-cal-legend{padding:8px 12px 10px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:flex;flex-wrap:wrap;gap:8px;}
-.sp-cal-leg-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--sp-text-muted);}
-.sp-cal-leg-swatch{width:11px;height:11px;border-radius:2px;flex-shrink:0;}
+.sp-cal-legend{padding:10px 14px 12px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:flex;flex-wrap:wrap;gap:10px;}
+.sp-cal-leg-item{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--sp-text-muted);font-weight:500;}
+.sp-cal-leg-swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
 
 /* Selected day panel */
-.sp-selday-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;}
-.sp-selday-hero{background:linear-gradient(135deg,var(--sp-primary),var(--sp-primary-light));color:#fff;padding:14px 16px;}
-.sp-selday-daynum{font-size:34px;font-weight:900;line-height:1;}
-.sp-selday-month{font-weight:600;font-size:15px;margin-top:2px;}
-.sp-selday-ad{opacity:.8;font-size:11px;margin-top:2px;}
-.sp-selday-body{padding:13px 14px;}
-.sp-selday-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--sp-border-soft);font-size:12px;}
+.sp-selday-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
+.sp-selday-hero{background:linear-gradient(135deg,var(--sp-primary),var(--sp-primary-light));color:#fff;padding:16px;}
+.sp-selday-daynum{font-size:2.1rem;font-weight:900;line-height:1;}
+.sp-selday-month{font-weight:700;font-size:1rem;margin-top:4px;}
+.sp-selday-ad{opacity:.9;font-size:13px;margin-top:3px;}
+.sp-selday-body{padding:14px 15px;}
+.sp-selday-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--sp-border-soft);font-size:13.5px;}
 .sp-selday-row:last-child{border:none;}
-.sp-selday-label{color:var(--sp-text-muted);}
-.sp-selday-val{font-weight:600;text-align:right;max-width:58%;}
-.sp-timegrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
-.sp-time-box{background:var(--sp-soft);border-radius:6px;padding:6px 8px;}
-.sp-time-box-label{font-size:9.5px;color:var(--sp-text-muted);display:flex;align-items:center;gap:3px;margin-bottom:2px;}
-.sp-time-box-val{font-size:11px;font-weight:600;}
-.sp-ev-chip{display:flex;align-items:center;gap:5px;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:600;margin-bottom:4px;}
+.sp-selday-label{color:var(--sp-text-muted);font-weight:500;}
+.sp-selday-val{font-weight:700;text-align:right;max-width:58%;color:var(--sp-text);}
+.sp-timegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.sp-time-box{background:var(--sp-soft);border-radius:8px;padding:8px 9px;}
+.sp-time-box-label{font-size:11px;color:var(--sp-text-muted);display:flex;align-items:center;gap:4px;margin-bottom:3px;font-weight:500;}
+.sp-time-box-val{font-size:12.5px;font-weight:700;}
+.sp-ev-chip{display:flex;align-items:center;gap:6px;border-radius:6px;padding:6px 9px;font-size:12.5px;font-weight:600;margin-bottom:5px;}
 
 /* Month events list */
-.sp-evlist-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;}
-.sp-evlist-hdr{padding:10px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:12px;color:var(--sp-primary);display:flex;align-items:center;gap:5px;}
+.sp-evlist-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
+.sp-evlist-hdr{padding:12px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:14px;color:var(--sp-primary-dark);display:flex;align-items:center;gap:6px;}
 .sp-evlist-body{max-height:280px;overflow-y:auto;}
-.sp-evlist-row{display:flex;gap:8px;align-items:flex-start;padding:7px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;}
+.sp-evlist-row{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;}
 .sp-evlist-row:hover,.sp-evlist-row.active{background:var(--sp-muted);}
-.sp-evlist-daynum{min-width:26px;height:26px;border-radius:6px;background:var(--sp-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0;}
-.sp-evlist-evname{font-size:11px;font-weight:600;line-height:1.5;}
-.sp-evlist-vaar{font-size:9.5px;color:var(--sp-text-muted);}
+.sp-evlist-daynum{min-width:28px;height:28px;border-radius:7px;background:var(--sp-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+.sp-evlist-evname{font-size:13px;font-weight:600;line-height:1.45;}
+.sp-evlist-vaar{font-size:11px;color:var(--sp-text-muted);margin-top:2px;}
 
 /* Mini calendar (upcoming) */
-.sp-minical-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;}
-.sp-minical-hdr{background:var(--sp-soft);padding:10px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:12px;color:var(--sp-primary);display:flex;align-items:center;justify-content:space-between;}
+.sp-minical-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
+.sp-minical-hdr{background:var(--sp-soft);padding:11px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:13.5px;color:var(--sp-primary-dark);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .sp-minical-body{padding:10px;}
-.sp-minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
-.sp-minical-wh{text-align:center;font-size:9px;color:var(--sp-text-muted);padding:3px 0;font-weight:600;}
-.sp-minical-cell{text-align:center;font-size:10px;padding:3px 1px;border-radius:4px;color:var(--sp-text);}
+.sp-minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.sp-minical-wh{text-align:center;font-size:11px;color:var(--sp-text-muted);padding:4px 0;font-weight:600;}
+.sp-minical-cell{text-align:center;font-size:12px;padding:4px 1px;border-radius:5px;color:var(--sp-text);font-weight:600;}
 .sp-minical-cell.empty{opacity:0;}
 .sp-minical-cell.has-ev{font-weight:700;}
-.sp-minical-cell.purnima{color:var(--sp-primary);font-weight:700;}
-.sp-minical-cell.festival{color:#ea580c;font-weight:700;}
-.sp-minical-cell.holiday{color:#dc2626;font-weight:700;}
-.sp-minical-cell.ekadashi{color:#7c3aed;}
-.sp-minical-cell.sahakari{color:#047857;font-weight:700;}
+.sp-minical-cell.sahakari{background:#ecfdf5;color:#047857;}
 .sp-minical-cell.sat{color:var(--sp-secondary);}
+.sp-minical-cell.holiday{background:#fef2f2;color:#dc2626;}
+.sp-minical-cell.festival{background:#fff7ed;color:#ea580c;}
+.sp-minical-cell.purnima{background:#eff6ff;color:#3b82f6;}
+.sp-minical-cell.ekadashi{background:#f5f3ff;color:#7c3aed;}
 
-/* ── Panchanga grid ── */
-.sp-pancha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:14px 18px;}
-.sp-pancha-item{background:var(--sp-soft);border-radius:8px;padding:9px 11px;}
-.sp-pi-label{font-size:9.5px;color:var(--sp-text-muted);font-weight:500;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;gap:4px;margin-bottom:3px;}
-.sp-pi-val{font-weight:600;font-size:12px;color:var(--sp-text);}
+/* Cards / sections */
+.sp-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
+.sp-section-title{padding:14px 16px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:15px;color:var(--sp-primary-dark);display:flex;align-items:center;gap:8px;}
+.sp-pancha-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;padding:14px 16px 16px;}
+.sp-pancha-item{background:var(--sp-soft);border-radius:10px;padding:11px 12px;border:1px solid rgba(26,95,42,.06);}
+.sp-pi-label{font-size:12px;color:var(--sp-text-muted);display:flex;align-items:center;gap:5px;margin-bottom:4px;font-weight:600;}
+.sp-pi-val{font-size:14px;font-weight:700;color:var(--sp-text);line-height:1.35;}
 
-/* ── Rashifal ── */
-.sp-rashi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
-.sp-rashi-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;cursor:pointer;transition:all .15s;}
-.sp-rashi-card:hover,.sp-rashi-card.active{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.12);}
-.sp-rashi-hdr{padding:11px 14px;display:flex;align-items:center;gap:10px;}
-.sp-rashi-sym{font-size:30px;line-height:1;}
-.sp-rashi-name{font-weight:700;font-size:15px;}
-.sp-rashi-meta{font-size:11px;color:var(--sp-text-muted);}
-.sp-rashi-badges{display:flex;flex-direction:column;gap:3px;align-items:flex-end;margin-left:auto;}
-.sp-rashi-body{padding:11px 14px;}
-.sp-rashi-pred{font-size:13px;color:#4a5a4f;line-height:1.75;margin:0;}
+/* Rashifal */
+.sp-subnav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.sp-subnav a{display:inline-flex;align-items:center;padding:8px 14px;border-radius:999px;border:1px solid var(--sp-border);background:#fff;color:var(--sp-text-muted);font-size:13px;font-weight:600;text-decoration:none;}
+.sp-subnav a.active,.sp-subnav a:hover{background:var(--sp-primary);color:#fff;border-color:var(--sp-primary);}
+.sp-rashi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.sp-rashi-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.sp-rashi-card.active{box-shadow:0 6px 18px rgba(26,95,42,.14);}
+.sp-rashi-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;}
+.sp-rashi-sym{font-size:1.5rem;line-height:1;}
+.sp-rashi-name{font-size:1.05rem;font-weight:800;}
+.sp-rashi-meta{font-size:12px;color:var(--sp-text-muted);font-weight:500;margin-top:2px;}
+.sp-rashi-badges{margin-left:auto;display:flex;flex-direction:column;gap:4px;align-items:flex-end;}
+.sp-rashi-body{padding:12px 14px 14px;border-top:1px solid var(--sp-border-soft);}
+.sp-rashi-pred{margin:0;font-size:14px;line-height:1.6;color:var(--sp-text);}
 
-/* ── Table styles ── */
-.sp-table{width:100%;border-collapse:collapse;font-size:12px;}
-.sp-table th{background:var(--sp-primary);color:#fff;padding:8px 11px;text-align:left;font-weight:600;}
-.sp-table td{padding:8px 11px;border-bottom:1px solid var(--sp-border);}
-.sp-table tr:nth-child(even) td{background:var(--sp-soft);}
+/* Tools / forms */
+.sp-tool-center{text-align:center;padding:22px 18px 8px;}
+.sp-tool-icon{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--sp-primary),var(--sp-primary-light));color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 8px 18px rgba(26,95,42,.22);}
+.sp-tool-icon .lucide-icon,.sp-tool-icon svg{color:#fff!important;stroke:#fff!important;}
+.sp-tool-center h3{font-size:1.15rem!important;font-weight:800!important;color:var(--sp-primary-dark)!important;margin:0 0 6px!important;}
+.sp-tool-center p{font-size:14px!important;color:var(--sp-text-muted)!important;line-height:1.5;}
+.sp-form-label{display:block;font-size:13px;font-weight:700;color:var(--sp-text);margin-bottom:6px;}
+.sp-form-control{width:100%;border:1px solid #d1d5db;border-radius:9px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--sp-text);background:#fff;line-height:1.4;}
+.sp-form-control:focus{outline:none;border-color:var(--sp-primary);box-shadow:0 0 0 3px rgba(26,95,42,.12);}
+.sp-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:700;line-height:1.2;}
+.sp-btn-primary{width:100%;background:var(--sp-primary);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;text-decoration:none;}
+.sp-btn-primary:hover{background:var(--sp-primary-dark);color:#fff;}
+.sp-result-box{margin-top:16px;background:var(--sp-muted);border-radius:12px;padding:16px;border:1px solid rgba(26,95,42,.14);}
+.sp-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+.sp-table th,.sp-table td{padding:10px 12px;border-bottom:1px solid var(--sp-border);text-align:left;vertical-align:middle;}
+.sp-table th{background:var(--sp-soft);color:var(--sp-primary-dark);font-weight:700;font-size:13px;}
+.sp-table td{color:var(--sp-text);}
+.sp-muhurta-card{display:flex;gap:10px;padding:12px 13px;border-radius:10px;background:#f0fdf4;border:1px solid #bbf7d0;height:100%;}
+.sp-muhurta-card.bad{background:#fff7ed;border-color:#fed7aa;}
+.sp-muhurta-card-title{font-weight:700;font-size:14px;color:var(--sp-text);margin-bottom:3px;}
+.sp-muhurta-card-desc{font-size:13px;color:var(--sp-text-muted);line-height:1.45;}
+.sp-muhurta-card-time{font-size:12.5px;font-weight:700;color:var(--sp-primary);margin-top:6px;display:flex;align-items:center;gap:4px;}
 
-/* ── Sub-nav ── */
-.sp-subnav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
-.sp-subnav a{padding:7px 18px;cursor:pointer;border-radius:6px;font-size:13px;font-weight:400;border:1px solid var(--sp-border);color:var(--sp-text-muted);text-decoration:none;transition:all .15s;}
-.sp-subnav a.active{background:var(--sp-primary);color:#fff;border-color:var(--sp-primary);font-weight:600;}
-
-/* ── Muhurta cards ── */
-.sp-muhurta-card{background:#f0fdf4;border:1px solid #86efac;border-left:4px solid var(--sp-primary);border-radius:9px;padding:11px 12px;display:flex;gap:9px;align-items:flex-start;}
-.sp-muhurta-card.bad{background:#fff5f5;border-color:#fca5a5;border-left-color:var(--sp-secondary);}
-.sp-muhurta-card-title{font-weight:600;font-size:12px;color:var(--sp-primary);}
-.sp-muhurta-card.bad .sp-muhurta-card-title{color:var(--sp-secondary);}
-.sp-muhurta-card-desc{color:var(--sp-text-muted);font-size:11px;margin:2px 0;}
-.sp-muhurta-card-time{font-weight:600;font-size:11px;color:var(--sp-primary);display:flex;align-items:center;gap:3px;}
-.sp-muhurta-card.bad .sp-muhurta-card-time{color:var(--sp-secondary);}
-
-/* ── Utility ── */
-.sp-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;}
-.sp-section-title{font-weight:700;font-size:13px;color:var(--sp-primary);display:flex;align-items:center;gap:6px;padding:12px 18px;border-bottom:1px solid var(--sp-border);}
-.sp-card{background:#fff;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.08);overflow:hidden;}
-.sp-tool-center{text-align:center;padding:22px 20px 16px;border-bottom:1px solid var(--sp-border);}
-.sp-tool-icon{width:52px;height:52px;border-radius:26px;background:var(--sp-muted);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;color:var(--sp-primary);}
-.sp-form-label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:#4a5a4f;}
-.sp-form-control{width:100%;border:1px solid var(--sp-border);border-radius:7px;padding:8px 11px;font-size:13px;outline:none;background:#fff;box-sizing:border-box;font-family:inherit;}
-.sp-btn-primary{width:100%;background:var(--sp-primary);color:#fff;border:none;border-radius:8px;padding:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;}
-.sp-btn-primary:hover{background:var(--sp-primary-dark);}
-.sp-result-box{margin-top:14px;background:var(--sp-muted);border-radius:10px;padding:14px;border:1px solid var(--sp-border);}
-
-/* Date bar */
-.sp-datebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;background:#fff;border-radius:10px;padding:11px 16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+/* Date bar — date chips only (page banner already brands the page) */
+.sp-datebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 1px 6px rgba(26,95,42,.06);border:1px solid rgba(26,95,42,.08);}
+.sp-datebar-meta{font-size:14px;color:var(--sp-text-muted);font-weight:500;}
 
 @media(max-width:576px){
   .sp-pancha-grid{grid-template-columns:repeat(2,1fr);}
-  .sp-cal-daynum{font-size:13px;}
-  .sp-cal-cell{min-height:46px;}
+  .sp-cal-daynum{font-size:14px;}
+  .sp-cal-tithi{font-size:10px;}
+  .sp-cal-cell,.sp-cal-empty{min-height:54px;}
   /* Keep a color bar so events remain visible on small screens */
   .sp-cal-evbadge{font-size:0;line-height:0;padding:0;height:3px;width:85%;max-width:85%;border-radius:1px;overflow:hidden;color:transparent!important;}
   .sp-cal-nav{flex-wrap:wrap;gap:8px;justify-content:center;}
   .sp-cal-title{order:-1;width:100%;}
   .sp-rashi-grid{grid-template-columns:1fr;}
+  .sp-tabs .nav-link{padding:10px 12px;font-size:13px;}
+  .sp-cal-logo-wrap img{max-height:28px;}
 }
 </style>
 
 <!-- ══════════════════════════════════════════ MAIN -->
-<section class="section-padding">
+<section class="section-padding sp-page">
 <div class="container">
 
-<!-- Date bar -->
+<!-- Date bar — today chips only (site branding stays in header + page banner) -->
 <div class="sp-datebar">
-    <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:38px;height:38px;border-radius:19px;background:var(--sp-muted);display:flex;align-items:center;justify-content:center;">
-            <i class="lucide-icon" style="color:var(--sp-primary);width:17px;height:17px;" data-lucide="landmark"></i>
-        </div>
-        <div>
-            <div style="font-weight:700;color:var(--sp-primary);font-size:14px;"><?php echo htmlspecialchars(isEnglish()?$spSiteNameEn:$spSiteName); ?></div>
-            <div style="color:var(--sp-text-muted);font-size:11px;"><?php echo isEnglish()?'Cooperative Patro Service':'सहकारी पात्रो सेवा'; ?></div>
-        </div>
-    </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <span class="sp-badge" style="background:var(--sp-primary);color:#fff;">
-            <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="calendar-days"></i>
+            <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="calendar-days"></i>
             <?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np']; ?>
         </span>
-        <span style="font-size:12px;color:var(--sp-text-muted);"><?php echo $pg['ad_date'].' | '.$pg['vaar_np']; ?></span>
-        <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo $pg['tithi']; ?></span>
+        <span class="sp-datebar-meta"><?php echo $pg['ad_date'].' · '.$pg['vaar_np']; ?></span>
+        <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo htmlspecialchars($pg['tithi']); ?></span>
         <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
             <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="refresh-cw"></i>
             <?php echo isEnglish() ? 'Live auto-sync' : 'स्वचालित ताजा'; ?>
         </span>
     </div>
+    <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
+        <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="refresh-cw"></i>
+        Live auto-sync
+    </span>
 </div>
 
 <!-- Tab nav -->
@@ -776,17 +780,12 @@ if($activeTab==='patro'): ?>
           <?php foreach($calCells as $cell):
             if($cell===null): ?>
             <!-- Empty cell: Sahakari logo -->
-            <div class="sp-cal-cell sp-cal-empty">
+            <div class="sp-cal-cell sp-cal-empty" aria-hidden="true">
               <div class="sp-cal-logo-wrap">
-                <?php if(!empty($spLogoUrl)): ?>
-                  <img src="<?php echo htmlspecialchars($spLogoUrl); ?>" alt="">
-                <?php else: ?>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/>
-                    <polygon points="12 2 20 7 4 7"/><rect x="9" y="11" width="6" height="7" rx="0"/>
-                  </svg>
-                  <span><?php echo htmlspecialchars(mb_strimwidth($spSiteName,0,18,'…')); ?></span>
-                <?php endif; ?>
+                <img src="<?php echo htmlspecialchars($spLogoUrl, ENT_QUOTES, 'UTF-8'); ?>"
+                     alt=""
+                     loading="lazy"
+                     onerror="this.onerror=null;this.src='<?php echo htmlspecialchars(rtrim((string)SITE_URL,'/').'/assets/images/logo.png', ENT_QUOTES, 'UTF-8'); ?>';">
               </div>
             </div>
             <?php else:
@@ -1124,25 +1123,34 @@ elseif($activeTab==='gunmilan'): ?>
     <p style="margin:0;color:var(--sp-text-muted);font-size:12px;">३६ गुण अष्टकूट पद्धति — विवाहका लागि कुण्डली मिलान</p>
   </div>
   <div style="padding:18px 20px 22px;">
-    <form method="post" action="?tab=gunmilan">
+    <form method="post" action="?tab=gunmilan&amp;cal_year=<?php echo (int)$calY; ?>&amp;cal_month=<?php echo (int)$calM; ?>&amp;sel_day=<?php echo (int)$selD; ?>">
       <div class="row g-4 mb-4">
-        <?php foreach([[0,'वर / व्यक्ति १','#1a5f2a'],[1,'वधू / व्यक्ति २','#c0392b']] as [$pi,$plabel,$pc]): $prefix=$pi===0?'':2; ?>
+        <?php foreach([[0,'वर / व्यक्ति १','#1a5f2a'],[1,'वधू / व्यक्ति २','#c0392b']] as [$pi,$plabel,$pc]):
+          $nKey = $pi === 0 ? 'n1' : 'n2';
+          $rKey = $pi === 0 ? 'r1' : 'r2';
+          $nPost = isset($_POST[$nKey]) ? (string)$_POST[$nKey] : '';
+          $rPost = isset($_POST[$rKey]) ? (string)$_POST[$rKey] : '';
+        ?>
         <div class="col-md-6">
           <div style="border:2px solid <?php echo $pc; ?>;border-radius:10px;overflow:hidden;">
-            <div style="background:<?php echo $pc; ?>;color:#fff;padding:9px 12px;font-weight:600;font-size:12px;"><?php echo $plabel; ?></div>
-            <div style="padding:12px;">
+            <div style="background:<?php echo $pc; ?>;color:#fff;padding:10px 14px;font-weight:700;font-size:14px;"><?php echo $plabel; ?></div>
+            <div style="padding:14px;">
               <label class="sp-form-label">जन्म नक्षत्र</label>
-              <select name="n<?php echo $pi===0?'1':'2'; ?>" class="sp-form-control" style="margin-bottom:10px;" required>
+              <select name="<?php echo $nKey; ?>" class="sp-form-control" style="margin-bottom:12px;" required>
                 <option value="">नक्षत्र छान्नुहोस्...</option>
-                <?php foreach($nakshatraAll as $ni=>$nk): $sel=$pi===0?((string)($_POST['n1']??'')===(string)$ni):((string)($_POST['n2']??'')===(string)$ni); ?>
-                <option value="<?php echo $ni; ?>" <?php echo $sel?'selected':''; ?>><?php echo sp_np($ni+1).'. '.$nk['name']; ?></option>
+                <?php foreach($nakshatraAll as $ni=>$nk):
+                  $sel = ($nPost !== '' && (int)$nPost === (int)$ni);
+                ?>
+                <option value="<?php echo (int)$ni; ?>"<?php echo $sel ? ' selected' : ''; ?>><?php echo sp_np($ni+1).'. '.$nk['name']; ?></option>
                 <?php endforeach; ?>
               </select>
               <label class="sp-form-label">चन्द्र राशि</label>
-              <select name="r<?php echo $pi===0?'1':'2'; ?>" class="sp-form-control" required>
+              <select name="<?php echo $rKey; ?>" class="sp-form-control" required>
                 <option value="">राशि छान्नुहोस्...</option>
-                <?php foreach($rashiNames as $ri=>$rn): $sel=$pi===0?((string)($_POST['r1']??'')===(string)$ri):((string)($_POST['r2']??'')===(string)$ri); ?>
-                <option value="<?php echo $ri; ?>" <?php echo $sel?'selected':''; ?>><?php echo $rashiSym[$ri].' '.$rn; ?></option>
+                <?php foreach($rashiNames as $ri=>$rn):
+                  $sel = ($rPost !== '' && (int)$rPost === (int)$ri);
+                ?>
+                <option value="<?php echo (int)$ri; ?>"<?php echo $sel ? ' selected' : ''; ?>><?php echo $rashiSym[$ri].' '.$rn; ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
