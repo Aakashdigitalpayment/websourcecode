@@ -20548,7 +20548,7 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 }
 #aiChatPanel.open{ display:flex; }
 /* Hide Quick Help FAB while AI chat is open — stops bolt/X chopping the panel footer */
-<body:has(#aiChatPanel.open) .qh-launcher,
+body:has(#aiChatPanel.open) .qh-launcher,
 body.ai-chat-open .qh-launcher{
   opacity:0; visibility:hidden; pointer-events:none; transform:scale(.9);
 }
