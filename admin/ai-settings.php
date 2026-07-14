@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin: AI Chat settings (OpenAI / Gemini per सहकारी)
+ * Admin: AI Chat settings (Gemini / OpenAI / DeepSeek per सहकारी)
  * Key stored in site_settings; blank password keeps previous value.
  */
 define('IS_ADMIN_PAGE', true);
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($action === 'save') {
             updateSetting('ai_chat_enabled', !empty($_POST['ai_chat_enabled']) ? '1' : '0');
             $provider = strtolower(trim((string)($_POST['ai_provider'] ?? 'gemini')));
-            if (!in_array($provider, ['openai', 'gemini'], true)) {
+            if (!in_array($provider, ['openai', 'gemini', 'deepseek'], true)) {
                 $provider = 'gemini';
             }
             updateSetting('ai_provider', $provider);
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $modelCustom = clean_text($_POST['ai_model_custom'] ?? '', 80);
             $model = ($modelPick === 'custom') ? $modelCustom : $modelPick;
             if ($model === '') {
-                $model = $provider === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash';
+                $model = ai_chat_default_model($provider);
             }
             updateSetting('ai_model', $model);
 
@@ -83,8 +83,9 @@ $welcomeEn = (string)getSetting('ai_welcome_en', '');
 $encryptOn = ai_chat_can_encrypt();
 
 $geminiModels = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.5-flash'];
+$deepseekModels = ['deepseek-chat', 'deepseek-reasoner'];
 $openaiModels = ['gpt-4o-mini', 'gpt-4o', 'gpt-4.1-mini'];
-$known = array_merge($geminiModels, $openaiModels);
+$known = array_merge($geminiModels, $deepseekModels, $openaiModels);
 /* Saved value may be legacy ID — picker shows the live remapped model. */
 $displayModel = ai_chat_model();
 $modelIsCustom = $displayModel !== '' && !in_array($displayModel, $known, true);
@@ -97,7 +98,7 @@ $publicUrl = defined('SITE_URL') ? rtrim(SITE_URL, '/') . '/' : '../';
 echo adminPageHeader(
     'AI Chat सेटिङ्स',
     'fa-robot',
-    'हरेक सहकारीले आफ्नै Gemini/OpenAI key राख्छ। Visitor लाई निःशुल्क च्याट; जवाफ यसै साइटको डाटाबाट।',
+    'हरेक सहकारीले आफ्नै Gemini/OpenAI/DeepSeek key राख्छ। Visitor लाई निःशुल्क च्याट; जवाफ यसै साइटको डाटाबाट।',
     ($enabled && $hasKey
         ? '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-check-circle me-1"></i>सक्रिय</span>'
         : '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border"><i class="fas fa-pause-circle me-1"></i>बन्द / key छैन</span>')
@@ -110,19 +111,22 @@ if ($_flash) {
 ?>
 
 <div class="alert alert-success border-success border-opacity-25">
-    <strong>सिफारिस:</strong> सुरुमा <strong>Google Gemini</strong> + <code>gemini-2.5-flash</code> राख्नुहोस् (free tier सजिलो)।
-    <code>gemini-2.0-flash</code> बन्द भइसकेको छ — पुरानो सेटिङ आफैं नयाँ model मा map हुन्छ।
-    OpenAI paid खाता चाहिन्छ। Visitor ले कहिल्यै key हाल्दैन — Admin मा मात्र।
+    <strong>सिफारिस:</strong> सुरुमा <strong>Google Gemini</strong> + <code>gemini-2.5-flash</code> (free tier)।
+    Traffic बढ्यो वा paid mode चाहनु भए <strong>DeepSeek</strong> छान्नुहोस् — सस्तो, quality राम्रो (<a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a> मा top-up)।
+    OpenAI पनि paid। Visitor ले कहिल्यै key हाल्दैन — Admin मा मात्र।
 </div>
 
 <div class="card admin-table-card mb-3">
     <div class="card-body py-3">
-        <div class="fw-semibold mb-2"><i class="fas fa-list-ol me-1 text-success"></i>Gemini key राख्ने तरिका</div>
-        <ol class="mb-0 small text-muted ps-3">
-            <li>सहकारीको आफ्नै Gmail ले <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio → API key</a> खोल्नुहोस्</li>
-            <li>नयाँ key बनाउनुहोस् → copy गर्नुहोस्</li>
-            <li>तल Enable गर्नुहोस्, Provider = Gemini, key paste → <strong>सेभ</strong></li>
-            <li><strong>Test connection</strong> थिच्नुहोस् → OK आएपछि सार्वजनिक Quick Help मा «AI च्याट» देखिन्छ</li>
+        <div class="fw-semibold mb-2"><i class="fas fa-list-ol me-1 text-success"></i>API key कहाँबाट?</div>
+        <ul class="mb-0 small text-muted ps-3">
+            <li><strong>Gemini (free):</strong> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio → API key</a></li>
+            <li><strong>DeepSeek (paid, सस्तो):</strong> <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">DeepSeek Platform → API Keys</a> — balance top-up गर्नुपर्छ</li>
+            <li><strong>OpenAI (paid):</strong> <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API keys</a></li>
+        </ul>
+        <ol class="mb-0 mt-2 small text-muted ps-3">
+            <li>Provider छान्नुहोस् → key paste → <strong>सेभ</strong></li>
+            <li><strong>Test connection</strong> → OK आएपछि Quick Help मा «AI च्याट» देखिन्छ</li>
         </ol>
     </div>
 </div>
@@ -143,8 +147,9 @@ if ($_flash) {
                 <div class="col-md-4">
                     <label class="form-label">AI Provider</label>
                     <select name="ai_provider" id="ai_provider" class="form-select">
-                        <option value="gemini" <?php echo $provider === 'gemini' ? 'selected' : ''; ?>>Google Gemini (सिफारिस)</option>
-                        <option value="openai" <?php echo $provider === 'openai' ? 'selected' : ''; ?>>OpenAI (ChatGPT)</option>
+                        <option value="gemini" <?php echo $provider === 'gemini' ? 'selected' : ''; ?>>Google Gemini (सिफारिस — free tier)</option>
+                        <option value="deepseek" <?php echo $provider === 'deepseek' ? 'selected' : ''; ?>>DeepSeek (paid — सस्तो)</option>
+                        <option value="openai" <?php echo $provider === 'openai' ? 'selected' : ''; ?>>OpenAI (paid)</option>
                     </select>
                 </div>
                 <div class="col-md-4">
@@ -157,6 +162,11 @@ if ($_flash) {
                         </optgroup>
                         <optgroup label="OpenAI" id="opt-openai">
                             <?php foreach ($openaiModels as $m): ?>
+                            <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $displayModel === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
+                            <?php endforeach; ?>
+                        </optgroup>
+                        <optgroup label="DeepSeek" id="opt-deepseek">
+                            <?php foreach ($deepseekModels as $m): ?>
                             <option value="<?php echo htmlspecialchars($m); ?>" <?php echo (!$modelIsCustom && $displayModel === $m) ? 'selected' : ''; ?>><?php echo htmlspecialchars($m); ?></option>
                             <?php endforeach; ?>
                         </optgroup>
@@ -188,7 +198,7 @@ if ($_flash) {
 
             <div class="alert alert-info mt-4 mb-0">
                 <strong>केबाट जवाफ आउँछ?</strong>
-                FAQ, chatbot FAQ, सूचना, सेवा, ब्याजदर, बारेमा, सेवा केन्द्र — यस साइटको लाइभ डाटा।
+                FAQ, chatbot FAQ, सूचना, सेवा, ब्याजदर, टोली/अध्यक्ष, पृष्ठहरू, सेवा केन्द्र — यस साइटको लाइभ डाटा।
                 सदस्य ब्यालेन्स/KYC कहिल्यै पठाइँदैन। नभए Live Chat / FAQ सुझाउँछ।
             </div>
 
@@ -221,17 +231,22 @@ if ($_flash) {
   var custom = document.getElementById('ai_model_custom');
   var g = document.getElementById('opt-gemini');
   var o = document.getElementById('opt-openai');
+  var d = document.getElementById('opt-deepseek');
   if (!provider || !pick || !custom) return;
 
   function syncCustom() {
     custom.classList.toggle('d-none', pick.value !== 'custom');
   }
   function syncProvider() {
-    var isG = provider.value === 'gemini';
+    var p = provider.value;
+    var isG = p === 'gemini';
+    var isO = p === 'openai';
+    var isD = p === 'deepseek';
     if (g) g.disabled = !isG;
-    if (o) o.disabled = isG;
+    if (o) o.disabled = !isO;
+    if (d) d.disabled = !isD;
     if (pick.value !== 'custom') {
-      var def = isG ? 'gemini-2.5-flash' : 'gpt-4o-mini';
+      var def = isG ? 'gemini-2.5-flash' : (isD ? 'deepseek-chat' : 'gpt-4o-mini');
       var ok = false;
       Array.prototype.forEach.call(pick.options, function (opt) {
         if (opt.value === pick.value && !opt.disabled && opt.parentElement && !opt.parentElement.disabled) ok = true;

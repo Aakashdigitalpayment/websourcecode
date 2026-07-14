@@ -1,6 +1,6 @@
 <?php
 /**
- * AI Chat — settings helpers (per-deployment OpenAI / Gemini key)
+ * AI Chat — settings helpers (per-deployment Gemini / OpenAI / DeepSeek key)
  * Used by admin UI, api-ai-chat.php, and footer visibility.
  */
 
@@ -95,7 +95,19 @@ if (!function_exists('ai_chat_provider')) {
     function ai_chat_provider(): string
     {
         $p = strtolower(trim((string)getSetting('ai_provider', 'gemini')));
-        return in_array($p, ['openai', 'gemini'], true) ? $p : 'gemini';
+        return in_array($p, ['openai', 'gemini', 'deepseek'], true) ? $p : 'gemini';
+    }
+}
+
+if (!function_exists('ai_chat_default_model')) {
+    function ai_chat_default_model(?string $provider = null): string
+    {
+        $provider = $provider ?? ai_chat_provider();
+        return match ($provider) {
+            'openai' => 'gpt-4o-mini',
+            'deepseek' => 'deepseek-chat',
+            default => 'gemini-2.5-flash',
+        };
     }
 }
 
@@ -104,7 +116,7 @@ if (!function_exists('ai_chat_model')) {
     {
         $m = trim((string)getSetting('ai_model', ''));
         if ($m === '') {
-            $m = ai_chat_provider() === 'openai' ? 'gpt-4o-mini' : 'gemini-2.5-flash';
+            $m = ai_chat_default_model(ai_chat_provider());
         }
 
         /* Gemini 2.0 Flash family shut down (June 2026) — remap saved admin values. */
