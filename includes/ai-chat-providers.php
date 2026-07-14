@@ -1,6 +1,6 @@
 <?php
 /**
- * OpenAI / Gemini HTTP callers for site AI Chat.
+ * OpenAI / Gemini / DeepSeek HTTP callers for site AI Chat.
  */
 
 if (!function_exists('ai_chat_http_json')) {
@@ -131,11 +131,43 @@ if (!function_exists('ai_chat_call_gemini')) {
     }
 }
 
+if (!function_exists('ai_chat_call_deepseek')) {
+    /** DeepSeek API is OpenAI-compatible (paid; top-up at platform.deepseek.com). */
+    function ai_chat_call_deepseek(string $apiKey, string $model, string $system, string $user): string
+    {
+        $model = trim($model) !== '' ? $model : 'deepseek-chat';
+        $data = ai_chat_http_json(
+            'https://api.deepseek.com/v1/chat/completions',
+            [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            [
+                'model' => $model,
+                'temperature' => 0.2,
+                'max_tokens' => 700,
+                'messages' => [
+                    ['role' => 'system', 'content' => $system],
+                    ['role' => 'user', 'content' => $user],
+                ],
+            ]
+        );
+        $text = (string)($data['choices'][0]['message']['content'] ?? '');
+        if ($text === '') {
+            throw new RuntimeException('Empty DeepSeek content');
+        }
+        return $text;
+    }
+}
+
 if (!function_exists('ai_chat_ask_provider')) {
     function ai_chat_ask_provider(string $provider, string $apiKey, string $model, string $system, string $user): string
     {
         if ($provider === 'openai') {
             return ai_chat_call_openai($apiKey, $model, $system, $user);
+        }
+        if ($provider === 'deepseek') {
+            return ai_chat_call_deepseek($apiKey, $model, $system, $user);
         }
         return ai_chat_call_gemini($apiKey, $model, $system, $user);
     }

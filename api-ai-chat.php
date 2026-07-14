@@ -149,8 +149,8 @@ try {
     );
     if ($looksLikeKey) {
         $msg = $english
-            ? 'AI API key is invalid, expired, or does not match the selected provider. Check Admin → AI Chat settings (key + Gemini/OpenAI), then Test connection.'
-            : 'AI API key मिलेन, सकियो, वा provider सँग मेल खाँदैन। Admin → AI Chat सेटिङ्स मा key र Gemini/OpenAI जाँच गरी Test connection गर्नुहोस्।';
+            ? 'AI API key is invalid, expired, or does not match the selected provider. Check Admin → AI Chat settings (key + provider), then Test connection.'
+            : 'AI API key मिलेन, सकियो, वा provider सँग मेल खाँदैन। Admin → AI Chat सेटिङ्स मा key र provider जाँच गरी Test connection गर्नुहोस्।';
     } elseif ($looksLikeModel) {
         $msg = $english
             ? 'AI model is unavailable (e.g. gemini-2.0-flash was shut down). Choose gemini-2.5-flash in Admin → AI Chat settings, save, then Test connection.'
