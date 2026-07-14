@@ -51,6 +51,7 @@ if (!function_exists('ai_chat_expand_tokens')) {
             'rate' => ['rate', 'ब्याज', 'ब्याजदर', 'interest', 'ऋण', 'बचत', 'loan', 'saving'],
             'service' => ['service', 'सेवा', 'products', 'उत्पादन'],
             'branch' => ['branch', 'शाखा', 'office', 'केन्द्र', 'सेवा केन्द्र'],
+            'members' => ['member', 'members', 'सदस्य', 'total', 'कुल', 'संख्या', 'count', 'kati', 'कति'],
         ];
 
         foreach ($synonyms as $group => $words) {
@@ -104,6 +105,9 @@ if (!function_exists('ai_chat_context_mode')) {
         }
         if (preg_match('/समाचार|news|सूचना|notice/i', $q)) {
             return 'news';
+        }
+        if (preg_match('/सदस्य\s*कति|कति\s*सदस्य|कुल\s*सदस्य|total\s*member|member\s*total|member\s*count|संस्थागत|institutional/i', $q)) {
+            return 'stats';
         }
         return 'general';
     }
@@ -210,6 +214,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
         $tokens = ai_chat_expand_tokens($question);
         $english = function_exists('isEnglish') && isEnglish();
         $leadershipQ = ai_chat_question_is_leadership($question);
+        $statsQ = (bool)preg_match('/सदस्य|member|कुल|total|संख्या|count|institutional|संस्थागत/i', ai_chat_normalize_text($question));
         $mode = ai_chat_context_mode($question);
         $cands = [];
 
@@ -556,7 +561,13 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 (string)($row['deposit'] ?? ''),
                 (string)($row['loan'] ?? '')
             );
-            $push('profile', 'संस्थागत प्रोफाइल', $body, ai_chat_score_text($body . ' members सदस्य शाखा', $tokens) + 1);
+            $push(
+                'profile',
+                $english ? 'Institutional profile' : 'संस्थागत प्रोफाइल',
+                $body,
+                ai_chat_score_text($body . ' members सदस्य शाखा total member count', $tokens) + ($statsQ ? 14 : 1),
+                $pageUrl('institutional-profile.php')
+            );
         }
 
         return $cands;

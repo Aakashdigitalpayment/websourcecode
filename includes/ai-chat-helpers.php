@@ -250,6 +250,23 @@ if (!function_exists('ai_chat_answer_has_sensitive_leak')) {
     }
 }
 
+if (!function_exists('ai_chat_answer_looks_like_prompt_leak')) {
+    /** Detect when the model echoes system instructions instead of answering. */
+    function ai_chat_answer_looks_like_prompt_leak(string $answer): bool
+    {
+        if ($answer === '') {
+            return false;
+        }
+        return (bool)preg_match(
+            '/\b(STRICT RULES|SITE CONTEXT|PUBLIC PAGES|system instruction|never invent)\b/ui',
+            $answer
+        ) || (bool)preg_match(
+            '/PAGES below|plain text only\s*\(no markdown|Rule\s*\d+\s*:/ui',
+            $answer
+        );
+    }
+}
+
 if (!function_exists('ai_chat_redact_secrets')) {
     /** Strip accidental secrets from text before/after LLM (never send to model or user). */
     function ai_chat_redact_secrets(string $text): string
