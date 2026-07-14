@@ -1322,7 +1322,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             </li>
                         </ul>
                     </li>
-                    <li class="has-dropdown">
+                    <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
                         <a href="javascript:void(0);"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
@@ -1334,6 +1334,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                             <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
                         </ul>
                     </li>
                     <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">
@@ -1664,7 +1665,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <?php endforeach; ?>
                                 </ul>
                             </li>
-                            <li class="has-dropdown">
+                            <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
                                 <a href="javascript:void(0);"><?php echo isEnglish() ? 'More' : 'थप'; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
@@ -1676,6 +1677,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
                                     <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
                                     <?php
                                     // Fetch dynamic pages for more menu
                                     try {
