@@ -53,35 +53,6 @@ if (!ai_chat_is_enabled()) {
 $db = function_exists('getDB') ? getDB() : null;
 $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-/* Rate limit via lightweight temp file bucket (10 / 10 min per IP) */
-$bucketDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'coop-ai-chat-rl';
-if (!is_dir($bucketDir)) {
-    @mkdir($bucketDir, 0755, true);
-}
-$bucketFile = $bucketDir . '/' . hash('sha256', $ip) . '.json';
-$now = time();
-$hits = [];
-if (is_file($bucketFile)) {
-    $prev = json_decode((string)@file_get_contents($bucketFile), true);
-    if (is_array($prev)) {
-        foreach ($prev as $ts) {
-            if (is_int($ts) && $ts > $now - 600) {
-                $hits[] = $ts;
-            }
-        }
-    }
-}
-if (count($hits) >= 10) {
-    http_response_code(429);
-    echo json_encode([
-        'ok' => false,
-        'msg' => 'धेरै प्रश्न आयो। केही मिनेट पर्खनुहोस् — वा Live Chat / FAQ प्रयोग गर्नुहोस्।',
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-$hits[] = $now;
-@file_put_contents($bucketFile, json_encode($hits), LOCK_EX);
-
 $english = function_exists('isEnglish') && isEnglish();
 /* Prefer the language of the question itself over site locale */
 if (preg_match('/[\x{0900}-\x{097F}]/u', $message)) {
@@ -101,6 +72,40 @@ if ($apiKey === '') {
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
+
+/* Rate limit: 40 questions / 15 min per IP (after config OK, before provider call) */
+$rlWindow = 900;
+$rlMax = 40;
+$bucketDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'coop-ai-chat-rl';
+if (!is_dir($bucketDir)) {
+    @mkdir($bucketDir, 0755, true);
+}
+$bucketFile = $bucketDir . '/' . hash('sha256', $ip) . '.json';
+$now = time();
+$hits = [];
+if (is_file($bucketFile)) {
+    $prev = json_decode((string)@file_get_contents($bucketFile), true);
+    if (is_array($prev)) {
+        foreach ($prev as $ts) {
+            if (is_int($ts) && $ts > $now - $rlWindow) {
+                $hits[] = $ts;
+            }
+        }
+    }
+}
+if (count($hits) >= $rlMax) {
+    http_response_code(429);
+    $waitMin = max(1, (int)ceil(($hits[0] + $rlWindow - $now) / 60));
+    echo json_encode([
+        'ok' => false,
+        'msg' => $english
+            ? ("Too many questions. Please wait about {$waitMin} minute(s), or use Live Chat / FAQ.")
+            : ("धेरै प्रश्न आयो। करिब {$waitMin} मिनेट पर्खनुहोस् — वा Live Chat / FAQ प्रयोग गर्नुहोस्।"),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+$hits[] = $now;
+@file_put_contents($bucketFile, json_encode($hits), LOCK_EX);
 
 $pack = ai_chat_build_context($message, $db instanceof PDO ? $db : null);
 $context = $pack['context'];
