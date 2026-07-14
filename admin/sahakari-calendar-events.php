@@ -269,21 +269,25 @@ if ($_sceFlash) {
                                 <?php endif; ?>
                             </td>
                             <td class="text-end text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>">सम्पादन</a>
-                                <form method="post" class="d-inline" onsubmit="return confirm('स्थिति बदल्ने?');">
-                                    <?php echo csrfField(); ?>
-                                    <input type="hidden" name="action" value="toggle">
-                                    <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
-                                    <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary"><?php echo (int)$r['is_active'] ? 'निष्क्रिय' : 'सक्रिय'; ?></button>
-                                </form>
-                                <form method="post" class="d-inline" onsubmit="return confirm('मेट्ने निश्चित हो?');">
-                                    <?php echo csrfField(); ?>
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
-                                    <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">मेटाउनुहोस्</button>
-                                </form>
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <a class="btn btn-sm btn-outline-primary" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen"></i></a>
+                                    <form method="post" class="svc-inline-form" onsubmit="return confirm('स्थिति बदल्ने?');">
+                                        <?php echo csrfField(); ?>
+                                        <input type="hidden" name="action" value="toggle">
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
+                                        <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="<?php echo (int)$r['is_active'] ? 'निष्क्रिय पार्नुहोस्' : 'सक्रिय पार्नुहोस्'; ?>" aria-label="<?php echo (int)$r['is_active'] ? 'निष्क्रिय पार्नुहोस्' : 'सक्रिय पार्नुहोस्'; ?>">
+                                            <i class="fas <?php echo (int)$r['is_active'] ? 'fa-toggle-on' : 'fa-toggle-off'; ?>"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" class="svc-inline-form" onsubmit="return confirm('मेट्ने निश्चित हो?');">
+                                        <?php echo csrfField(); ?>
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
+                                        <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; endif; ?>
