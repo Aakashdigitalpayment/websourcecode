@@ -775,47 +775,77 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
         }
 
         @media (max-width: 575px) {
-            /* Very small screens */
+            /* Very small screens — tighter brand + compact utilities */
             .pfl-brand-content.has-logo .pfl-brand-logo {
-                max-height: 38px !important;
+                max-height: 34px !important;
                 height: auto !important;
                 width: auto !important;
-                max-width: min(190px, calc(100vw - 112px)) !important;
+                max-width: min(172px, calc(100vw - 122px)) !important;
             }
-            .pfl-brand-content.no-logo .pfl-brand-logo { height: 36px !important; }
-            .pfl-brand-name-np { font-size: 0.88rem !important; }
-            .pfl-top-right { gap: 4px !important; }
-            .pfl-top-right .pfl-lang-wrap { display: inline-flex !important; }
+            .pfl-brand-content.no-logo .pfl-brand-logo { height: 32px !important; }
+            .pfl-brand-name-np { font-size: 0.82rem !important; }
+            .pfl-brand-area { padding-left: 2px !important; }
+            .pfl-brand-content { gap: 6px !important; align-items: center !important; }
+
+            .pfl-top-right { gap: 5px !important; align-items: center !important; }
+
+            /* Language: compact segmented EN|NP pill (was two round 40px buttons) */
+            .pfl-top-right .pfl-lang-wrap {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0 !important;
+                padding: 2px !important;
+                background: rgba(255,255,255,.14) !important;
+                border: 1px solid rgba(255,255,255,.24) !important;
+                border-radius: 999px !important;
+                box-shadow: none !important;
+            }
             .pfl-top-right .pfl-lang-wrap .pfl-lang-divider { display: none !important; }
-            .pfl-top-right .pfl-lang-wrap { padding: 0 !important; gap: 4px !important; }
-            .pfl-top-right .pfl-lang-wrap a {
-                min-width: 40px !important;
-                min-height: 40px !important;
+            .pfl-top-right .pfl-lang-wrap .pfl-lang-dot { display: none !important; }
+            .pfl-top-right .pfl-lang-wrap a,
+            .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+                min-width: 0 !important;
+                min-height: 26px !important;
                 width: auto !important;
-                height: auto !important;
-                font-size: 11px !important;
-                padding: 8px 6px !important;
+                height: 26px !important;
+                padding: 0 9px !important;
+                font-size: 10.5px !important;
+                font-weight: 800 !important;
+                letter-spacing: .2px !important;
+                border: 0 !important;
+                border-radius: 999px !important;
+                background: transparent !important;
+                color: rgba(255,255,255,.9) !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
             }
-            .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
-                gap: 0 !important;
-                border-radius: 999px !important;
-                min-height: 40px !important;
+            .pfl-top-right .pfl-lang-wrap a.active,
+            .pfl-top-right .pfl-lang-wrap .pfl-lang-link.active {
+                background: #fff !important;
+                color: #14532d !important;
+                box-shadow: 0 1px 2px rgba(0,0,0,.14) !important;
             }
             .pfl-top-right .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot) {
                 display: inline !important;
-                font-size: 11px !important;
+                font-size: 10.5px !important;
                 line-height: 1 !important;
             }
-            .pfl-top-right .pfl-login-toggle { padding: 0 10px; min-height: 40px; }
+
+            /* Dark + login: match the compact pill height, aligned on one row */
+            .pfl-top-right .pfl-dark-wrap > a {
+                min-width: 32px !important;
+                width: 32px !important;
+                height: 30px !important;
+                border-radius: 8px !important;
+            }
+            .pfl-top-right .pfl-login-toggle { padding: 0 11px; min-height: 32px; }
             .pfl-top-right .pfl-login-toggle .pfl-login-caret { display: none; }
             .pfl-top-right .pfl-login-toggle { font-size: 0; }
             .pfl-top-right .pfl-login-toggle i { font-size: 15px; margin: 0; }
             .pfl-top-right #topbarSearchBtn { display: none !important; }
-            .pfl-mobile-toggle { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
-            .pfl-main-header { padding: 4px 8px !important; }
+            .pfl-mobile-toggle { width: 42px; height: 42px; min-width: 42px; min-height: 42px; }
+            .pfl-main-header { padding: 5px 8px !important; align-items: center !important; }
 
             /* Login dropdown: mobile मा full visible panel (no awkward overlap/cutoff) */
             .pfl-top-bar { z-index: 300000 !important; }

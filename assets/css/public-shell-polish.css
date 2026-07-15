@@ -2085,3 +2085,61 @@ body.dark-mode .text-primary {
   width: 1.45rem !important;
   height: 1.45rem !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE POLISH — floating action buttons + footer spacing
+   Loaded last for public shell. Wrapped in mobile breakpoints,
+   so desktop layout stays exactly as-is.
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 575.98px) {
+  /* Quick-help "bolt" FAB — smaller round on phones */
+  .qh-fab {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .qh-fab i,
+  .qh-fab .fa-bolt,
+  .qh-fab .fa-times {
+    font-size: 15px !important;
+  }
+
+  /* Accessibility toggle (JS-injected) — match FAB scale */
+  #scrollAccessibilityPanel .sa-toggle-btn,
+  .sa-toggle-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1rem !important;
+  }
+
+  /* WhatsApp float — keep in line with the smaller FABs */
+  .whatsapp-float {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .whatsapp-float i,
+  .whatsapp-float svg {
+    font-size: 24px !important;
+  }
+}
+
+/* Footer: remove the oversized empty gap under the content on mobile.
+   The footer's own bottom padding already clears the fixed bottom nav,
+   so the extra body padding-bottom is what created the big blank strip. */
+@media (max-width: 899.98px) {
+  body.has-bottomnav {
+    padding-bottom: 0 !important;
+  }
+  body.has-bottomnav .main-footer,
+  body.has-bottomnav footer.main-footer,
+  body.has-bottomnav .site-footer,
+  body.has-bottomnav .footer {
+    margin-bottom: 0 !important;
+    padding-bottom: calc(var(--mobile-bottom-nav-h, 64px) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .main-footer .footer-bottom {
+    padding-bottom: 8px !important;
+  }
+  .main-footer .footer-bottom .container {
+    padding-bottom: 6px !important;
+  }
+}
