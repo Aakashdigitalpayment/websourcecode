@@ -11,8 +11,8 @@ try {
     // Check if table exists
     $tableCheck = $db->query("SHOW TABLES LIKE 'interest_rates'");
     if ($tableCheck && $tableCheck->fetch() !== false) {
-        $savingRates = $db->query("SELECT * FROM interest_rates WHERE category = 'saving' AND is_active = 1 ORDER BY display_order, id LIMIT 10")->fetchAll() ?: [];
-        $loanRates = $db->query("SELECT * FROM interest_rates WHERE category = 'loan' AND is_active = 1 ORDER BY display_order, id LIMIT 10")->fetchAll() ?: [];
+        $savingRates = $db->query("SELECT * FROM interest_rates WHERE category = 'saving' AND is_active = 1 ORDER BY display_order, id")->fetchAll() ?: [];
+        $loanRates = $db->query("SELECT * FROM interest_rates WHERE category = 'loan' AND is_active = 1 ORDER BY display_order, id")->fetchAll() ?: [];
     }
 } catch (Exception $e) {
     $savingRates = $loanRates = [];
