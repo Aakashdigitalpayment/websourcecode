@@ -101,6 +101,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('success', 'History content अपडेट भयो।');
         redirect('about-settings.php');
     }
+
+    /* About page statistics (5000+ members etc.) */
+    if ($action === 'update_about_stats') {
+        $fields = [
+            'total_members' => clean_text($_POST['total_members'] ?? ''),
+            'years_experience' => clean_text($_POST['years_experience'] ?? ''),
+            'total_services' => clean_text($_POST['total_services'] ?? ''),
+            'satisfaction_rate' => clean_text($_POST['satisfaction_rate'] ?? ''),
+        ];
+        foreach ($fields as $key => $val) {
+            if ($val !== '') {
+                updateSetting($key, $val);
+            }
+        }
+        setFlash('success', 'About page statistics अपडेट भयो।');
+        redirect('about-settings.php?panel=stats');
+    }
 }
 
 /* -------------------------------------------------------
@@ -110,8 +127,12 @@ $historyPhoto   = getSetting('history_photo', '');
 $historyNp      = getSetting('history_content_np', '');
 $historyEn      = getSetting('history_content_en', '');
 $establishedYear = getSetting('established_year', '२०७५');
+$statMembers = getSetting('total_members', '५०००');
+$statYears = getSetting('years_experience', '२०');
+$statServices = getSetting('total_services', '१०');
+$statSatisfaction = getSetting('satisfaction_rate', '९९');
 $panel = (string)($_GET['panel'] ?? 'photo');
-if (!in_array($panel, ['photo', 'content'], true)) {
+if (!in_array($panel, ['photo', 'content', 'stats'], true)) {
     $panel = 'photo';
 }
 
@@ -146,6 +167,11 @@ require_once 'includes/admin-ui.php';
         <li class="nav-item" role="presentation">
             <button class="nav-link <?php echo $panel === 'content' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-content-tab" type="button" role="tab">
                 <i class="fas fa-file-pen me-1"></i> कन्टेन्ट व्यवस्थापन
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link <?php echo $panel === 'stats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-stats-tab" type="button" role="tab">
+                <i class="fas fa-chart-simple me-1"></i> तथ्याङ्क (Stats)
             </button>
         </li>
     </ul>
@@ -244,6 +270,57 @@ require_once 'includes/admin-ui.php';
 
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-1"></i>Content सुरक्षित गर्नुहोस्
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane fade <?php echo $panel === 'stats' ? 'show active' : ''; ?>" id="about-stats-tab" role="tabpanel">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-simple me-2"></i>About Page Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        यी संख्या <code>about.php</code> को हरियो stats section मा देखिन्छ (सदस्य, अनुभव, सेवा, सन्तुष्टि)।
+                        नेपाली अंक (जस्तै ५०००) वा English (5000) दुवै राख्न सकिन्छ।
+                    </p>
+                    <form method="POST" action="">
+                        <input type="hidden" name="action" value="update_about_stats">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">सदस्य संख्या (Members)</label>
+                                <input type="text" name="total_members" class="form-control"
+                                       value="<?php echo htmlspecialchars($statMembers, ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="जस्तै: ५०००">
+                                <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">वर्षको अनुभव (Years)</label>
+                                <input type="text" name="years_experience" class="form-control"
+                                       value="<?php echo htmlspecialchars($statYears, ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="जस्तै: २०">
+                                <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">सेवा संख्या (Services)</label>
+                                <input type="text" name="total_services" class="form-control"
+                                       value="<?php echo htmlspecialchars($statServices, ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="जस्तै: १०">
+                                <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">सन्तुष्टि दर (Satisfaction %)</label>
+                                <input type="text" name="satisfaction_rate" class="form-control"
+                                       value="<?php echo htmlspecialchars($statSatisfaction, ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="जस्तै: ९९">
+                                <small class="text-muted">Frontend मा «%» स्वतः थपिन्छ</small>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">
+                            <i class="fas fa-save me-1"></i>Statistics सुरक्षित गर्नुहोस्
                         </button>
                     </form>
                 </div>
