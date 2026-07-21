@@ -489,16 +489,47 @@ function getLocalizedLogoPath($default = 'assets/images/logo.png') {
  * PWA icon मा safely fallback गर्छ।
  */
 function getSiteFaviconPath($default = 'assets/images/favicon.png') {
-    $path = trim((string) getSetting('site_favicon', $default));
     $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
-    $isRemote = (bool) preg_match('#^https?://#i', $path);
-    if ($path === '' || (!$isRemote && !is_file($root . ltrim($path, '/')))) {
-        $knownGoodIcon = 'assets/images/icon-192x192.png';
-        if (is_file($root . $knownGoodIcon)) {
-            return $knownGoodIcon;
+    $candidates = [];
+
+    $custom = trim((string) getSetting('site_favicon', ''));
+    if ($custom !== '') {
+        $candidates[] = ltrim($custom, '/');
+    }
+    $logo = trim((string) getSetting('logo', ''));
+    if ($logo !== '') {
+        $candidates[] = ltrim($logo, '/');
+    }
+    $candidates[] = 'assets/images/icon-192x192.png';
+    $candidates[] = ltrim($default, '/');
+
+    foreach ($candidates as $path) {
+        if ($path === '') {
+            continue;
+        }
+        if (preg_match('#^https?://#i', $path)) {
+            return $path;
+        }
+        if (is_file($root . $path)) {
+            return $path;
         }
     }
-    return $path;
+    return 'assets/images/icon-192x192.png';
+}
+
+if (!function_exists('getSiteFaviconMime')) {
+    function getSiteFaviconMime(string $path): string
+    {
+        $pathOnly = (string)(parse_url($path, PHP_URL_PATH) ?: $path);
+        $ext = strtolower(pathinfo($pathOnly, PATHINFO_EXTENSION));
+        return match ($ext) {
+            'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
+            'gif' => 'image/gif',
+            'jpg', 'jpeg' => 'image/jpeg',
+            default => 'image/png',
+        };
+    }
 }
 
 // Update site setting (INSERT if not exists, UPDATE if exists)

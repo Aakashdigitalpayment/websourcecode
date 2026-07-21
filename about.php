@@ -1,6 +1,12 @@
 <?php
 require_once 'includes/config.php';
 $pageTitle = isEnglish() ? 'About Us' : 'हाम्रो बारेमा';
+$aboutShort = trim((string) getSetting('about_short', ''));
+if ($aboutShort !== '' && function_exists('seo_meta_description_from_html')) {
+    $pageDescription = seo_meta_description_from_html($aboutShort);
+} elseif ($aboutShort !== '') {
+    $pageDescription = mb_substr(strip_tags($aboutShort), 0, 158);
+}
 require_once 'includes/header.php';
 ?>
 

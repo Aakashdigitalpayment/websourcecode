@@ -325,6 +325,43 @@ $__robots = isset($robotsMeta) && (string) $robotsMeta !== '' ? (string) $robots
 $__hrefLangSep = str_contains($__seoCanon, '?') ? '&' : '?';
 $__hrefLangNe = $__seoCanon . $__hrefLangSep . 'lang=np';
 $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
+
+$__faviconRel = function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/icon-192x192.png';
+$__faviconUrl = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($__faviconRel) : (rtrim(SITE_URL, '/') . '/' . ltrim($__faviconRel, '/'));
+$__faviconMime = function_exists('getSiteFaviconMime') ? getSiteFaviconMime($__faviconRel) : 'image/png';
+$__appleIconUrl = function_exists('seo_absolute_asset_url')
+    ? seo_absolute_asset_url('assets/images/icon-192x192.png')
+    : (rtrim(SITE_URL, '/') . '/assets/images/icon-192x192.png');
+
+/* JSON-LD — Organization (Google rich results / knowledge panel) */
+$__seoOrg = [
+    '@context' => 'https://schema.org',
+    '@type' => 'FinancialService',
+    'name' => $siteBrandName,
+    'url' => rtrim(SITE_URL, '/') . '/',
+    'logo' => function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($logo) : (SITE_URL . ltrim($logo, '/')),
+    'description' => $__seoDesc,
+];
+$__orgPhone = trim((string) getSetting('phone', getSetting('contact_phone', '')));
+$__orgEmail = trim((string) getSetting('email', getSetting('contact_email', '')));
+$__orgAddr = trim((string) getSetting($currentLang === 'en' ? 'address_en' : 'address', getSetting('address', '')));
+if ($__orgPhone !== '') {
+    $__seoOrg['telephone'] = $__orgPhone;
+}
+if ($__orgEmail !== '') {
+    $__seoOrg['email'] = $__orgEmail;
+}
+if ($__orgAddr !== '') {
+    $__seoOrg['address'] = [
+        '@type' => 'PostalAddress',
+        'streetAddress' => $__orgAddr,
+        'addressCountry' => 'NP',
+    ];
+}
+$__estYear = trim((string) getSetting('established_year', ''));
+if ($__estYear !== '') {
+    $__seoOrg['foundingDate'] = $__estYear;
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo e($__htmlLang); ?>">
@@ -339,7 +376,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
-    <link rel="apple-touch-icon" href="<?= SITE_URL ?>assets/images/icon-192x192.png">
+    <link rel="apple-touch-icon" href="<?php echo e($__appleIconUrl); ?>">
     <link rel="manifest" href="<?= SITE_URL ?>manifest.php">
     <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="pwa-short-name" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
@@ -370,9 +407,12 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
     <link rel="alternate" hreflang="en" href="<?php echo e($__hrefLangEn); ?>" />
     <link rel="alternate" hreflang="x-default" href="<?php echo e($__seoCanon); ?>" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?php echo SITE_URL . (function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'public/icon.svg'); ?>">
-    <link rel="icon" type="image/png" href="<?php echo SITE_URL . (function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/icon-192x192.png'); ?>" sizes="192x192">
+    <!-- Favicon (Admin → Settings → Site Logo / Favicon) -->
+    <link rel="icon" href="<?php echo e($__faviconUrl); ?>" type="<?php echo e($__faviconMime); ?>" sizes="any">
+    <link rel="shortcut icon" href="<?php echo e($__faviconUrl); ?>" type="<?php echo e($__faviconMime); ?>">
+
+    <!-- Structured data for search engines -->
+    <script type="application/ld+json"><?php echo json_encode($__seoOrg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>
 
     <!-- Preload Logo for faster display -->
     <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">

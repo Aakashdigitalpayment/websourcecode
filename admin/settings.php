@@ -81,6 +81,22 @@ checkCSRF();
 
         $uploadErrors = [];
 
+        // Site favicon (browser tab icon)
+        if (isset($_FILES['site_favicon']) && $_FILES['site_favicon']['error'] === UPLOAD_ERR_OK) {
+            $upload = uploadFile($_FILES['site_favicon'], 'logo');
+            if ($upload['success']) {
+                $result = updateSetting('site_favicon', $upload['path']);
+                if (!$result) {
+                    $uploadErrors[] = $__t('Favicon save गर्न सकिएन', 'Could not save favicon');
+                }
+            } else {
+                $uploadErrors[] = $__t('Favicon upload', 'Favicon upload') . ': ' . ($upload['message'] ?? $__t('अज्ञात त्रुटि', 'Unknown error'));
+            }
+        }
+        if (!empty($_POST['clear_site_favicon'])) {
+            updateSetting('site_favicon', '');
+        }
+
         // Handle default logo upload
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
             $upload = uploadFile($_FILES['logo'], 'logo');
@@ -749,6 +765,33 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <?php if (!empty($settings['logo_en'])): ?><img src="../<?php echo htmlspecialchars($settings['logo_en'], ENT_QUOTES, 'UTF-8'); ?>" alt="Logo EN" class="img-fluid mb-2 border rounded stg-media-preview-logo"><?php endif; ?>
                             <input type="file" name="logo_en" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('English भाषा हुँदा यो देखिन्छ', 'Shown when site language is English'); ?></small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-globe text-success me-1"></i>
+                                <?php echo $__t('Favicon (Site Icon)', 'Favicon (Site Icon)'); ?>
+                            </label>
+                            <?php
+                            $faviconPreview = trim((string)($settings['site_favicon'] ?? ''));
+                            if ($faviconPreview === '' && function_exists('getSiteFaviconPath')) {
+                                $faviconPreview = getSiteFaviconPath();
+                            }
+                            ?>
+                            <?php if ($faviconPreview !== ''): ?>
+                            <div class="mb-2 d-flex align-items-center gap-2">
+                                <img src="../<?php echo htmlspecialchars(ltrim($faviconPreview, '/'), ENT_QUOTES, 'UTF-8'); ?>"
+                                     alt="Favicon" class="border rounded" style="width:48px;height:48px;object-fit:contain;background:#f8fafc;padding:4px;">
+                                <small class="stg-muted"><?php echo $__t('Browser tab मा देखिने icon', 'Icon shown in browser tab'); ?></small>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="clear_site_favicon" value="1" id="clear_site_favicon">
+                                <label class="form-check-label text-danger" for="clear_site_favicon">
+                                    <i class="fas fa-trash-alt me-1"></i><?php echo $__t('Favicon हटाउनुहोस्', 'Remove favicon'); ?>
+                                </label>
+                            </div>
+                            <?php endif; ?>
+                            <input type="file" name="site_favicon" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.ico">
+                            <small class="stg-muted d-block mt-1"><?php echo $__t('अनुशंसित: 64×64 वा 192×192 PNG/ICO — Google search र browser tab', 'Recommended: 64×64 or 192×192 PNG/ICO — for browser tab and search'); ?></small>
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold">
