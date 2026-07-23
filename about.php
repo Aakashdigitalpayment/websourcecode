@@ -1,11 +1,20 @@
 <?php
 require_once 'includes/config.php';
 $pageTitle = isEnglish() ? 'About Us' : 'हाम्रो बारेमा';
-$aboutShort = trim((string) getSetting('about_short', ''));
-if ($aboutShort !== '' && function_exists('seo_meta_description_from_html')) {
-    $pageDescription = seo_meta_description_from_html($aboutShort);
-} elseif ($aboutShort !== '') {
-    $pageDescription = mb_substr(strip_tags($aboutShort), 0, 158);
+/* Prefer Admin SEO meta_description; only fall back to about_short when SEO meta is empty */
+$__aboutMeta = trim((string) getSetting(isEnglish() ? 'meta_description_en' : 'meta_description', ''));
+if ($__aboutMeta === '') {
+    $__aboutMeta = trim((string) getSetting('meta_description', ''));
+}
+if ($__aboutMeta === '') {
+    $aboutShort = trim((string) getSetting('about_short', ''));
+    if ($aboutShort !== '' && function_exists('seo_meta_description_from_html')) {
+        $pageDescription = seo_meta_description_from_html($aboutShort);
+    } elseif ($aboutShort !== '') {
+        $pageDescription = function_exists('mb_substr')
+            ? mb_substr(strip_tags($aboutShort), 0, 158)
+            : substr(strip_tags($aboutShort), 0, 158);
+    }
 }
 require_once 'includes/header.php';
 ?>

@@ -11,6 +11,8 @@ while (ob_get_level() > 0) {
 }
 
 header('Content-Type: text/plain; charset=UTF-8');
+header('Cache-Control: public, max-age=3600');
+header('X-Robots-Tag: noindex'); /* robots.txt itself should not be indexed as a page */
 
 /* वास्तविक फाइल sitemap.php; .xml → rewrite (.htaccess) भए दुवै काम गर्छ */
 $sitemap = rtrim(SITE_URL, '/') . '/sitemap.php';
