@@ -42,7 +42,7 @@ if (!function_exists('coop_admin_ensure_twofa_columns')) {
 }
 
 if (isAdminLoggedIn()) {
-    redirect('dashboard.php');
+    redirect(ADMIN_URL . 'dashboard.php');
 }
 
 $__adminHost = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
@@ -83,17 +83,19 @@ if (
     $_SESSION['admin_last_login'] = time();
     $_SESSION['admin_last_activity'] = time();
     $_SESSION['admin_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-    $ip2 = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-    $_SESSION['admin_ip_partial'] = implode('.', array_slice(explode('.', $ip2), 0, 3));
+    $ip2 = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1');
+    $_SESSION['admin_ip_partial'] = function_exists('coop_ip_network_key')
+        ? coop_ip_network_key($ip2)
+        : implode('.', array_slice(explode('.', $ip2), 0, 3));
     $_SESSION['admin_local_debug_login'] = true;
     $_SESSION['db_bootstrap_unlocked'] = true;
     if (function_exists('logSecurityEvent')) {
         logSecurityEvent('admin_local_debug_login', 'Local-only admin test login used on 127.0.0.1');
     }
     if (defined('DB_NAME') && DB_NAME !== '') {
-        redirect('dashboard.php');
+        redirect(ADMIN_URL . 'dashboard.php');
     }
-    redirect('db-setup.php');
+    redirect(ADMIN_URL . 'db-setup.php');
 }
 
 $error = '';
@@ -202,8 +204,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                                 $_SESSION['admin_last_login']    = $user['last_login'] ?? null;
                                 $_SESSION['admin_last_activity'] = time();
                                 $_SESSION['admin_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-                                $ip2 = $_SERVER['REMOTE_ADDR'] ?? '';
-                                $_SESSION['admin_ip_partial'] = implode('.', array_slice(explode('.', $ip2), 0, 3));
+                                $ip2 = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+                                $_SESSION['admin_ip_partial'] = function_exists('coop_ip_network_key')
+                                    ? coop_ip_network_key($ip2)
+                                    : implode('.', array_slice(explode('.', $ip2), 0, 3));
                                 if (!empty($_SESSION['is_superadmin']) && defined('SUPER_ADMIN_INITIAL_PASSWORD') && SUPER_ADMIN_INITIAL_PASSWORD !== ''
                                     && function_exists('safeColumnExists') && safeColumnExists('admin_users', 'must_change_password')) {
                                     try {
@@ -215,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                                 } catch (Throwable $e2faLog) {
                                     error_log('[admin-login-2fa-lastlogin] ' . $e2faLog->getMessage());
                                 }
-                                redirect('dashboard.php');
+                                redirect(ADMIN_URL . 'dashboard.php');
                             }
                         }
                     }
@@ -227,14 +231,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     } else {
     $username = clean_text($_POST['username'] ?? '', 100);
     $password = $_POST['password'] ?? '';
-    $ip       = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    $ip       = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 
-    if (function_exists('checkLoginAttempts') && !checkLoginAttempts($username, $ip)) {
-        $error = 'धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुन: प्रयास गर्नुहोस्।';
-    } elseif (!checkRateLimit('admin_login', 5, 900)) {
-        $error = 'धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुन: प्रयास गर्नुहोस्।';
-    } elseif (empty($username) || empty($password)) {
+    if (empty($username) || empty($password)) {
         $error = 'कृपया युजरनेम र पासवर्ड भर्नुहोस्।';
+    } elseif (function_exists('checkLoginAttempts') && !checkLoginAttempts($username, $ip)) {
+        $error = 'धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुन: प्रयास गर्नुहोस्।';
     } else {
         try {
             $db = getDB();
@@ -351,7 +353,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                         $_SESSION['admin_last_login']    = $user['last_login'] ?? null;
                         $_SESSION['admin_last_activity'] = time();
                         $_SESSION['admin_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-                        $_SESSION['admin_ip_partial'] = implode('.', array_slice(explode('.', $ip), 0, 3));
+                        $_SESSION['admin_ip_partial'] = function_exists('coop_ip_network_key')
+                            ? coop_ip_network_key($ip)
+                            : implode('.', array_slice(explode('.', $ip), 0, 3));
 
                         /* last_login / activity_log असफल भए पनि login पूरा गर्ने (पुरानो DB मा activity_log नभएमा) */
                         try {
@@ -363,11 +367,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                             error_log('[admin-login-post-actions] ' . $postLoginEx->getMessage());
                         }
 
-                        redirect('dashboard.php');
+                        redirect(ADMIN_URL . 'dashboard.php');
                     }
                 }
             } else {
-                $error = 'गलत युजरनेम वा पासवर्ड।';
+                if (!checkRateLimit('admin_login', 5, 900)) {
+                    $error = 'धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुन: प्रयास गर्नुहोस्।';
+                } else {
+                    $error = 'गलत युजरनेम वा पासवर्ड।';
+                }
                 if (function_exists('recordLoginAttempt')) {
                     recordLoginAttempt($username, $ip);
                 }
