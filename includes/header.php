@@ -288,21 +288,28 @@ $L = getLangStrings();
 
 $siteBrandName = ($currentLang === 'en' && trim($siteNameEn) !== '') ? $siteNameEn : $siteName;
 
-$__defaultMetaDesc = ($currentLang === 'en')
-    ? trim((string) getSetting('meta_description_en', ''))
-    : trim((string) getSetting('meta_description', ''));
-if ($__defaultMetaDesc === '') {
-    $__defaultMetaDesc = ($currentLang === 'en' && $siteSloganEn !== '')
-        ? $siteSloganEn
-        : (string) $siteSlogan;
-}
-$__seoDesc = isset($pageDescription) && (string) $pageDescription !== ''
-    ? (string) $pageDescription
-    : $__defaultMetaDesc;
+$__seoEnglish = ($currentLang === 'en');
+$__seoDesc = function_exists('seo_resolve_meta_description')
+    ? seo_resolve_meta_description(isset($pageDescription) ? (string) $pageDescription : null, $__seoEnglish)
+    : (isset($pageDescription) && (string) $pageDescription !== '' ? (string) $pageDescription : (string) $siteSlogan);
+
+$__seoDocTitle = function_exists('seo_document_title')
+    ? seo_document_title(isset($pageTitle) ? (string) $pageTitle : null, $__seoEnglish)
+    : ((isset($pageTitle) ? $pageTitle . ' - ' : '') . $siteBrandName);
 
 $__seoKeywords = trim((string) getSetting('meta_keywords', ''));
 if ($__seoKeywords === '') {
-    $__seoKeywords = $siteName . ', सहकारी, cooperative, बचत, ऋण, Nepal';
+    $kwParts = array_filter([
+        $siteName,
+        $siteNameEn,
+        'सहकारी',
+        'cooperative',
+        'SACCOS',
+        'बचत',
+        'ऋण',
+        'Nepal',
+    ]);
+    $__seoKeywords = implode(', ', $kwParts);
 }
 
 $__seoCanon = function_exists('seo_canonical_url') ? seo_canonical_url() : (rtrim(SITE_URL, '/') . '/');
@@ -333,34 +340,14 @@ $__appleIconUrl = function_exists('seo_absolute_asset_url')
     ? seo_absolute_asset_url('assets/images/icon-192x192.png')
     : (rtrim(SITE_URL, '/') . '/assets/images/icon-192x192.png');
 
-/* JSON-LD — Organization (Google rich results / knowledge panel) */
-$__seoOrg = [
-    '@context' => 'https://schema.org',
-    '@type' => 'FinancialService',
-    'name' => $siteBrandName,
-    'url' => rtrim(SITE_URL, '/') . '/',
-    'logo' => function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($logo) : (SITE_URL . ltrim($logo, '/')),
-    'description' => $__seoDesc,
-];
-$__orgPhone = trim((string) getSetting('phone', getSetting('contact_phone', '')));
-$__orgEmail = trim((string) getSetting('email', getSetting('contact_email', '')));
-$__orgAddr = trim((string) getSetting($currentLang === 'en' ? 'address_en' : 'address', getSetting('address', '')));
-if ($__orgPhone !== '') {
-    $__seoOrg['telephone'] = $__orgPhone;
-}
-if ($__orgEmail !== '') {
-    $__seoOrg['email'] = $__orgEmail;
-}
-if ($__orgAddr !== '') {
-    $__seoOrg['address'] = [
-        '@type' => 'PostalAddress',
-        'streetAddress' => $__orgAddr,
-        'addressCountry' => 'NP',
-    ];
-}
-$__estYear = trim((string) getSetting('established_year', ''));
-if ($__estYear !== '') {
-    $__seoOrg['foundingDate'] = $__estYear;
+$__seoOrg = function_exists('seo_organization_json_ld')
+    ? seo_organization_json_ld($__seoEnglish)
+    : ['@context' => 'https://schema.org', '@type' => 'Organization', 'name' => $siteBrandName, 'url' => rtrim(SITE_URL, '/') . '/'];
+$__seoWebsite = null;
+$__isHomePage = !isset($pageTitle) || preg_match('/^(गृहपृष्ठ|home)$/ui', (string) $pageTitle) === 1
+    || (isset($currentPage) && $currentPage === 'index');
+if ($__isHomePage && function_exists('seo_website_json_ld')) {
+    $__seoWebsite = seo_website_json_ld($__seoEnglish);
 }
 ?>
 <!DOCTYPE html>
@@ -381,7 +368,7 @@ if ($__estYear !== '') {
     <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="pwa-short-name" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
     <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-    <title><?php echo isset($pageTitle) ? e($pageTitle) . ' - ' : ''; ?><?php echo e($siteBrandName); ?></title>
+    <title><?php echo e($__seoDocTitle); ?></title>
 
     <!-- Canonical URL (query string बिना) -->
     <link rel="canonical" href="<?php echo e($__seoCanon); ?>">
@@ -390,7 +377,7 @@ if ($__estYear !== '') {
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="<?php echo e($siteBrandName); ?>">
     <meta property="og:url" content="<?php echo e($__seoCanon); ?>">
-    <meta property="og:title" content="<?php echo isset($pageTitle) ? e($pageTitle) . ' - ' : ''; ?><?php echo e($siteBrandName); ?>">
+    <meta property="og:title" content="<?php echo e($__seoDocTitle); ?>">
     <meta property="og:description" content="<?php echo e($__seoDesc); ?>">
     <meta property="og:image" content="<?php echo e($__seoOgImg); ?>">
     <meta property="og:locale" content="<?php echo e($__ogLocale); ?>">
@@ -398,7 +385,7 @@ if ($__estYear !== '') {
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<?php echo isset($pageTitle) ? e($pageTitle) . ' - ' : ''; ?><?php echo e($siteBrandName); ?>">
+    <meta name="twitter:title" content="<?php echo e($__seoDocTitle); ?>">
     <meta name="twitter:description" content="<?php echo e($__seoDesc); ?>">
     <meta name="twitter:image" content="<?php echo e($__seoOgImg); ?>">
 
@@ -411,8 +398,11 @@ if ($__estYear !== '') {
     <link rel="icon" href="<?php echo e($__faviconUrl); ?>" type="<?php echo e($__faviconMime); ?>" sizes="any">
     <link rel="shortcut icon" href="<?php echo e($__faviconUrl); ?>" type="<?php echo e($__faviconMime); ?>">
 
-    <!-- Structured data for search engines -->
+    <!-- Structured data for search engines (from site settings) -->
     <script type="application/ld+json"><?php echo json_encode($__seoOrg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>
+    <?php if (!empty($__seoWebsite)): ?>
+    <script type="application/ld+json"><?php echo json_encode($__seoWebsite, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>
+    <?php endif; ?>
 
     <!-- Preload Logo for faster display -->
     <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">

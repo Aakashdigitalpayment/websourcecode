@@ -386,6 +386,197 @@ function seo_meta_description_from_html(?string $html, int $maxLen = 158): strin
 }
 
 /**
+ * Document <title> — site settings बाट (multi-SACCOS theme).
+ * Homepage: brand-first (पुरानो ranking साइट जस्तै), "गृहपृष्ठ -" नराख्ने।
+ */
+function seo_document_title(?string $pageTitle = null, bool $english = false): string
+{
+    $seoLen = static function (string $s): int {
+        return function_exists('mb_strlen') ? mb_strlen($s, 'UTF-8') : strlen($s);
+    };
+    $seoLower = static function (string $s): string {
+        return function_exists('mb_strtolower') ? mb_strtolower($s, 'UTF-8') : strtolower($s);
+    };
+
+    $customPrimary = trim((string) getSetting($english ? 'seo_title_en' : 'seo_title', ''));
+    $customAlt = trim((string) getSetting($english ? 'seo_title' : 'seo_title_en', ''));
+    $custom = $customPrimary !== '' ? $customPrimary : $customAlt;
+
+    $nameNp = trim((string) getSetting('site_name', 'सहकारी'));
+    $nameEn = trim((string) getSetting('site_name_en', ''));
+    $brand = ($english && $nameEn !== '') ? $nameEn : $nameNp;
+    $alt = ($english ? $nameNp : $nameEn);
+
+    $pageTitle = $pageTitle !== null ? trim($pageTitle) : '';
+    $isHome = ($pageTitle === '' || preg_match('/^(गृहपृष्ठ|home)$/ui', $pageTitle) === 1);
+
+    /* Admin custom SEO title — homepage only */
+    if ($isHome && $custom !== '') {
+        return $custom;
+    }
+
+    if ($isHome) {
+        /* Brand-first: "Janautthan | जनउत्थान बचत…" style */
+        if ($alt !== '' && $seoLower($alt) !== $seoLower($brand)) {
+            if (!$english && $nameEn !== '' && $seoLen($nameEn) <= 40) {
+                return $nameEn . ' | ' . $nameNp;
+            }
+            if ($english && $nameNp !== '') {
+                return $nameEn . ' | ' . $nameNp;
+            }
+        }
+        return $brand;
+    }
+
+    /* Inner pages: "About - Brand" */
+    $full = $pageTitle . ' - ' . $brand;
+    if ($seoLen($full) > 70) {
+        $full = $pageTitle . ' | ' . $brand;
+    }
+    return $full;
+}
+
+/**
+ * Meta description — settings first, then slogan/about; always ≤ ~160 chars.
+ */
+function seo_resolve_meta_description(?string $pageDescription = null, bool $english = false): string
+{
+    $candidates = [];
+    if ($pageDescription !== null && trim($pageDescription) !== '') {
+        $candidates[] = trim($pageDescription);
+    }
+    $candidates[] = trim((string) getSetting($english ? 'meta_description_en' : 'meta_description', ''));
+    if (!$english) {
+        $candidates[] = trim((string) getSetting('meta_description_en', ''));
+    } else {
+        $candidates[] = trim((string) getSetting('meta_description', ''));
+    }
+    $candidates[] = trim((string) getSetting($english ? 'site_slogan_en' : 'site_slogan', ''));
+    $candidates[] = trim((string) getSetting('about_short', ''));
+
+    $name = trim((string) getSetting($english ? 'site_name_en' : 'site_name', getSetting('site_name', 'सहकारी')));
+    $addr = trim((string) getSetting($english ? 'address_en' : 'address', getSetting('address', '')));
+    /* Keyword-rich fallback when admin left SEO empty */
+    $fallback = $english
+        ? ($name . ' — savings, loans and member services' . ($addr !== '' ? '. ' . $addr : '') . '.')
+        : ($name . ' — बचत, ऋण र सदस्य केन्द्रित वित्तीय सेवा' . ($addr !== '' ? '। ' . $addr : '') . '।');
+    $candidates[] = $fallback;
+
+    foreach ($candidates as $c) {
+        if ($c === '') {
+            continue;
+        }
+        $out = seo_meta_description_from_html($c, 158);
+        if ($out !== '') {
+            return $out;
+        }
+    }
+    return $name;
+}
+
+/**
+ * Build Organization / FinancialService JSON-LD from site settings.
+ *
+ * @return array<string, mixed>
+ */
+function seo_organization_json_ld(bool $english = false): array
+{
+    $nameNp = trim((string) getSetting('site_name', 'सहकारी'));
+    $nameEn = trim((string) getSetting('site_name_en', ''));
+    $brand = ($english && $nameEn !== '') ? $nameEn : $nameNp;
+    $logo = trim((string) getSetting($english ? 'logo_en' : 'logo_np', getSetting('logo', '')));
+    if ($logo === '') {
+        $logo = trim((string) getSetting('logo', ''));
+    }
+    $desc = seo_resolve_meta_description(null, $english);
+
+    $org = [
+        '@context' => 'https://schema.org',
+        '@type' => ['FinancialService', 'Organization'],
+        'name' => $brand,
+        'url' => rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/',
+        'logo' => seo_absolute_asset_url($logo),
+        'image' => seo_absolute_asset_url($logo),
+        'description' => $desc,
+    ];
+
+    $alts = array_values(array_unique(array_filter([
+        $nameNp !== $brand ? $nameNp : '',
+        $nameEn !== $brand ? $nameEn : '',
+        trim((string) getSetting('pwa_short_name', '')),
+    ])));
+    if ($alts !== []) {
+        $org['alternateName'] = count($alts) === 1 ? $alts[0] : $alts;
+    }
+
+    $phone = trim((string) getSetting('phone', getSetting('contact_phone', '')));
+    $mobile = trim((string) getSetting('mobile', ''));
+    $email = trim((string) getSetting('email', getSetting('contact_email', '')));
+    $addr = trim((string) getSetting($english ? 'address_en' : 'address', getSetting('address', '')));
+    if ($phone !== '') {
+        $org['telephone'] = $phone;
+    } elseif ($mobile !== '') {
+        $org['telephone'] = $mobile;
+    }
+    if ($email !== '') {
+        $org['email'] = $email;
+    }
+    if ($addr !== '') {
+        $org['address'] = [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $addr,
+            'addressCountry' => 'NP',
+        ];
+        $org['areaServed'] = [
+            '@type' => 'Country',
+            'name' => 'Nepal',
+        ];
+    }
+    $est = trim((string) getSetting('established_year', ''));
+    if ($est !== '') {
+        $org['foundingDate'] = $est;
+    }
+
+    $sameAs = [];
+    foreach (['facebook_url', 'youtube_url', 'twitter_url', 'instagram_url'] as $sk) {
+        $u = trim((string) getSetting($sk, ''));
+        if ($u !== '' && preg_match('#^https?://#i', $u)) {
+            $sameAs[] = $u;
+        }
+    }
+    if ($sameAs !== []) {
+        $org['sameAs'] = array_values(array_unique($sameAs));
+    }
+
+    return $org;
+}
+
+/**
+ * WebSite JSON-LD (homepage) — helps brand sitelinks / recognition.
+ *
+ * @return array<string, mixed>
+ */
+function seo_website_json_ld(bool $english = false): array
+{
+    $nameNp = trim((string) getSetting('site_name', 'सहकारी'));
+    $nameEn = trim((string) getSetting('site_name_en', ''));
+    $brand = ($english && $nameEn !== '') ? $nameEn : $nameNp;
+    $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/';
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => $brand,
+        'url' => $base,
+        'inLanguage' => $english ? ['en', 'ne'] : ['ne', 'en'],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => $brand,
+            'url' => $base,
+        ],
+    ];
+}
+
+/**
  * Admin-controlled image path — बाह्य URL वा path traversal रोक्ने (page featured image आदि)
  */
 function safe_public_upload_path(?string $path): string
@@ -433,9 +624,26 @@ function checked($current, $value) {
     if ((string)$current === (string)$value) echo 'checked';
 }
 
+/**
+ * Shared request-scoped settings cache (getSetting + invalidate after updateSetting).
+ * @return array<string, mixed>
+ */
+function &seo_settings_request_cache(): array
+{
+    static $__cache = [];
+    return $__cache;
+}
+
+/** Update getSetting cache after writes (same request). */
+function getSettingInvalidate(string $key, $value = null): void
+{
+    $bag = &seo_settings_request_cache();
+    $bag[$key] = $value;
+}
+
 // Get site setting from database — statically cached per request
 function getSetting($key, $default = '') {
-    static $__cache = [];
+    $__cache = &seo_settings_request_cache();
     // Return from cache if already fetched this request
     if (array_key_exists($key, $__cache)) {
         return $__cache[$key] !== null ? $__cache[$key] : $default;
@@ -538,7 +746,12 @@ function updateSetting($key, $value) {
         $db = getDB();
         // Use INSERT ... ON DUPLICATE KEY UPDATE to handle both insert and update
         $stmt = $db->prepare("INSERT INTO site_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)");
-        return $stmt->execute([$key, $value]);
+        $ok = $stmt->execute([$key, $value]);
+        /* Invalidate per-request getSetting() static cache so same-request reads see new value */
+        if ($ok && function_exists('getSetting')) {
+            getSettingInvalidate($key, $value);
+        }
+        return $ok;
     } catch (Exception $e) {
         error_log("updateSetting error: " . $e->getMessage());
         return false;

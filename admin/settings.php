@@ -21,7 +21,7 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -48,6 +48,8 @@ checkCSRF();
                     $value = function_exists('clean_text') ? clean_text((string) $value, 400) : trim((string) $value);
                 } elseif ($key === 'meta_keywords') {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 500) : trim((string) $value);
+                } elseif (in_array($key, ['seo_title', 'seo_title_en'], true)) {
+                    $value = function_exists('clean_text') ? clean_text((string) $value, 70) : trim((string) $value);
                 } elseif ($key === 'site_slogan_en') {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 300) : trim((string) $value);
                 }
@@ -390,6 +392,29 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <h5 class="stg-section-title"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo $__t('SEO (Google / सामाजिक साझेदारी)', 'SEO (Google / Social Sharing)'); ?></h5>
                 </div>
                 <div class="card-body">
+                    <div class="alert alert-info py-2 small mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <?php echo $__t(
+                            'यो थिम धेरै SACCOS मा चल्छ — तलका field हरू यस सहकारीको site settings बाट मात्र आउँछन्। Google मा शीर्षक brand-first हुनुपर्छ (जस्तै: जनउत्थान | बचत तथा ऋण सहकारी…), «गृहपृष्ठ -» बाट सुरु नगर्नुहोस्।',
+                            'This theme runs on many SACCOS — fields below come only from this coop’s site settings. Google titles should be brand-first (e.g. Janautthan | Savings & Credit…), not starting with “Home -”.'
+                        ); ?>
+                    </div>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-heading me-2"></i><?php echo $__t('Google खोज शीर्षक (Homepage)', 'Google Search Title (Homepage)'); ?></h6>
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $__t('SEO शीर्षक (नेपाली)', 'SEO Title (Nepali)'); ?> — &lt;title&gt;</label>
+                        <input type="text" name="seo_title" class="form-control" maxlength="70"
+                               value="<?php echo htmlspecialchars($settings['seo_title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="<?php echo $__t('उदा.: जनउत्थान | बचत तथा ऋण सहकारी संस्था लि.', 'e.g. Janautthan | Saving & Credit Cooperative Ltd.'); ?>">
+                        <div class="form-text"><?php echo $__t('खाली छोड्नुभयो भने: English छोटो नाम + | + नेपाली पूरा नाम। अधिकतम ~६०–७० अक्षर राम्रो।', 'If empty: short English name + | + full Nepali name. Aim for ~60–70 characters.'); ?></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">SEO title (English)</label>
+                        <input type="text" name="seo_title_en" class="form-control" maxlength="70"
+                               value="<?php echo htmlspecialchars($settings['seo_title_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="e.g. Janautthan SACCOS | Saving & Credit Cooperative Ltd.">
+                    </div>
+
+                    <hr>
                     <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-bullseye me-2"></i>Search / Share Content</h6>
                     <div class="mb-3">
                         <label class="form-label"><?php echo $__t('संक्षिप्त परिचय', 'Short Introduction'); ?></label>
@@ -397,11 +422,11 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
 
                     <hr>
-                    <p class="stg-muted small mb-3"><?php echo $__t('हरेक सहकारीको आफ्नै डोमेनमा यही थिम चलाउँदा यहाँ भएको विवरण प्रयोग हुन्छ। खाली छोड्नुभयो भने स्लोगन वा पृष्ठ–विशेष विवरण fallback हुन्छ।', 'When this theme runs on each cooperative domain, this metadata is used. If left empty, slogan or page-specific description is used as fallback.'); ?></p>
+                    <p class="stg-muted small mb-3"><?php echo $__t('मेटा विवरण ~१५०–१६० अक्षर राख्नुहोस् — लामो इतिहास लेख नराख्नुहोस्। पहिलो वाक्यमा संस्थाको नाम + बचत/ऋण/स्थान लेख्नुहोस्।', 'Keep meta description ~150–160 characters — not a long history essay. Lead with coop name + savings/loans/location.'); ?></p>
                     <div class="mb-3">
                         <label class="form-label"><?php echo $__t('मेटा विवरण (नेपाली)', 'Meta Description (Nepali)'); ?> — &lt;meta name=&quot;description&quot;&gt;</label>
                         <textarea name="meta_description" class="form-control" rows="3" maxlength="400"
-                                  placeholder="<?php echo $__t('छोटो, स्पष्ट वर्णन (अनुमानित १५०–१६० अक्षर)', 'Short and clear summary (about 150-160 characters)'); ?>"><?php echo htmlspecialchars($settings['meta_description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                  placeholder="<?php echo $__t('उदा.: जनउत्थान SACCOS — तिलोत्तमा, रुपन्देही। सुरक्षित बचत, सहज ऋण र सदस्य सेवा।', 'e.g. Janautthan SACCOS — Tilottama, Rupandehi. Safe savings, easy loans and member services.'); ?>"><?php echo htmlspecialchars($settings['meta_description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Meta description (English)</label>
@@ -411,7 +436,31 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="mb-3">
                         <label class="form-label"><?php echo $__t('मेटा कीवर्ड (अल्पविरामले छुट्याउनुहोस्)', 'Meta Keywords (comma separated)'); ?></label>
                         <textarea name="meta_keywords" class="form-control" rows="2" maxlength="500"
-                                  placeholder="<?php echo $__t('सहकारी, बचत, ऋण, नेपाल', 'cooperative, savings, loan, nepal'); ?>"><?php echo htmlspecialchars($settings['meta_keywords'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                  placeholder="<?php echo $__t('जनउत्थान, Janautthan SACCOS, बचत, ऋण, रुपन्देही, सहकारी', 'Janautthan, SACCOS, savings, loan, Rupandehi, cooperative'); ?>"><?php echo htmlspecialchars($settings['meta_keywords'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                    </div>
+                    <div class="alert alert-warning py-2 small mb-0">
+                        <strong><?php echo $__t('Google Search Console:', 'Google Search Console:'); ?></strong>
+                        <?php echo $__t(
+                            ' नयाँ डोमेन (.coop.np) पुरानो .com भन्दा पछि आउन सक्छ। Search Console मा property थप्नुहोस् → Sitemap: ',
+                            ' A new domain (.coop.np) may lag behind an older .com. Add the property in Search Console → Sitemap: '
+                        ); ?>
+                        <code><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/sitemap.php', ENT_QUOTES, 'UTF-8'); ?></code>
+                    </div>
+                    <?php
+                    /* Live preview — यस सहकारीको DB settings बाट (Google-facing tags) */
+                    $__prevTitle = function_exists('seo_document_title')
+                        ? seo_document_title(isEnglish() ? 'Home' : 'गृहपृष्ठ', false)
+                        : (string)($settings['site_name'] ?? '');
+                    $__prevDesc = function_exists('seo_resolve_meta_description')
+                        ? seo_resolve_meta_description(null, false)
+                        : (string)($settings['meta_description'] ?? '');
+                    ?>
+                    <div class="border rounded p-3 mt-3 bg-light">
+                        <div class="small text-muted mb-1"><?php echo $__t('Google मा देखिने preview (यो सहकारीको settings अनुसार)', 'Google-style preview (from this coop’s settings)'); ?></div>
+                        <div class="text-primary fw-semibold" style="font-size:1.05rem;line-height:1.35;"><?php echo htmlspecialchars($__prevTitle, ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="text-success small"><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/', ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="small text-secondary mt-1"><?php echo htmlspecialchars($__prevDesc, ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="form-text mt-2 mb-0"><?php echo $__t('Save पछि website मा तुरुन्त tags बदलिन्छ। Google ranking मा देखिन केही दिन–हप्ता लाग्न सक्छ (crawl/reindex)।', 'After Save, website tags change immediately. Google ranking may take days–weeks (crawl/reindex).'); ?></div>
                     </div>
                 </div>
             </div>
