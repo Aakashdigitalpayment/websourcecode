@@ -21,7 +21,7 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -50,6 +50,14 @@ checkCSRF();
                     $value = function_exists('clean_text') ? clean_text((string) $value, 500) : trim((string) $value);
                 } elseif (in_array($key, ['seo_title', 'seo_title_en'], true)) {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 70) : trim((string) $value);
+                } elseif ($key === 'google_site_verification') {
+                    /* Meta tag content only — strip HTML / full meta tag if pasted */
+                    $value = trim((string) $value);
+                    if (preg_match('/content=["\']([^"\']+)["\']/i', $value, $m)) {
+                        $value = $m[1];
+                    }
+                    $value = preg_replace('/[^A-Za-z0-9_\-]/', '', $value) ?? '';
+                    $value = substr($value, 0, 100);
                 } elseif ($key === 'site_slogan_en') {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 300) : trim((string) $value);
                 }
@@ -438,12 +446,44 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <textarea name="meta_keywords" class="form-control" rows="2" maxlength="500"
                                   placeholder="<?php echo $__t('जनउत्थान, Janautthan SACCOS, बचत, ऋण, रुपन्देही, सहकारी', 'Janautthan, SACCOS, savings, loan, Rupandehi, cooperative'); ?>"><?php echo htmlspecialchars($settings['meta_keywords'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
-                    <div class="alert alert-warning py-2 small mb-0">
-                        <strong><?php echo $__t('Google Search Console:', 'Google Search Console:'); ?></strong>
+
+                    <hr>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fab fa-google me-2"></i><?php echo $__t('Google Search Console (एकपटक)', 'Google Search Console (one-time)'); ?></h6>
+                    <div class="alert alert-secondary py-2 small mb-3">
+                        <strong><?php echo $__t('महत्त्वपूर्ण:', 'Important:'); ?></strong>
                         <?php echo $__t(
-                            ' नयाँ डोमेन (.coop.np) पुरानो .com भन्दा पछि आउन सक्छ। Search Console मा property थप्नुहोस् → Sitemap: ',
-                            ' A new domain (.coop.np) may lag behind an older .com. Add the property in Search Console → Sitemap: '
+                            ' यो Chrome को F12 / Console होइन। Google को छुट्टै प्यानल हो। Browser मा “URL Inspection” खोज्दा केही आउँदैन।',
+                            ' This is not Chrome F12 / Console. It is a separate Google panel. Searching “URL Inspection” in the browser will not find it.'
                         ); ?>
+                    </div>
+                    <ol class="small mb-3 ps-3">
+                        <li class="mb-1"><?php echo $__t('एकपटक मात्र:', 'One time only:'); ?>
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">search.google.com/search-console</a>
+                            <?php echo $__t(' खोल्नुहोस् → Google खाताले login → “Add property” → यस साइटको URL थप्नुहोस्:', ' → sign in with Google → Add property → add this site URL:'); ?>
+                            <code><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/', ENT_QUOTES, 'UTF-8'); ?></code>
+                        </li>
+                        <li class="mb-1"><?php echo $__t('Verification: “HTML tag” छान्नुहोस् → Google ले दिएको code को content=“...” भित्रको कोड तल टाँस्नुहोस् → Save → Google मा Verify।', 'Verification: choose “HTML tag” → paste the content=“...” value below → Save → click Verify in Google.'); ?></li>
+                        <li class="mb-1"><?php echo $__t('Sitemaps मेनु → नयाँ sitemap:', 'Sitemaps menu → new sitemap:'); ?>
+                            <code>sitemap.php</code>
+                            <?php echo $__t(' Submit गर्नुहोस् (एकपटक)। त्यसपछि Google आफैं पृष्ठहरू खोज्दै जान्छ।', ' Submit once. After that Google crawls pages automatically.'); ?>
+                        </li>
+                        <li class="mb-0"><?php echo $__t('“Request indexing” optional हो — homepage छिटो चाहियो भने मात्र। हरेक पेजको लागि दिनदिनै गर्नु पर्दैन।', '“Request indexing” is optional — only if you want the homepage faster. You do not need to do it for every page daily.'); ?></li>
+                    </ol>
+                    <div class="mb-3">
+                        <label class="form-label"><?php echo $__t('Google site verification code', 'Google site verification code'); ?></label>
+                        <input type="text" name="google_site_verification" class="form-control font-monospace" maxlength="100"
+                               value="<?php echo htmlspecialchars($settings['google_site_verification'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="ex: AbCdEfGhIjKlMnOpQrStUvWxYz1234567890">
+                        <div class="form-text"><?php echo $__t('पूरा &lt;meta ...&gt; टाँसे पनि हुन्छ — हामी content मात्र राख्छौं। खाली = verification meta नदेखिने।', 'You may paste the full &lt;meta&gt; tag — we store only the content value. Empty = no verification meta.'); ?></div>
+                    </div>
+                    <div class="alert alert-warning py-2 small mb-0">
+                        <strong><?php echo $__t('के आफैं हुन्छ?', 'What is automatic?'); ?></strong>
+                        <?php echo $__t(
+                            ' Website मा SEO tags + sitemap.php + robots.txt आफैं छन्। Google खाता verify + sitemap Submit भएपछि बाँकी crawl प्रायः आफैं हुन्छ। Ranking तुरुन्त top मा आउँदैन।',
+                            ' SEO tags + sitemap.php + robots.txt are automatic on the site. After you verify the Google account and submit the sitemap once, crawling is mostly automatic. Ranking will not jump to #1 instantly.'
+                        ); ?>
+                        <br>
+                        <span class="text-muted"><?php echo $__t('Sitemap URL:', 'Sitemap URL:'); ?></span>
                         <code><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/sitemap.php', ENT_QUOTES, 'UTF-8'); ?></code>
                     </div>
                     <?php

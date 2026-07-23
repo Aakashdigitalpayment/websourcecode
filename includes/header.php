@@ -360,6 +360,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <meta name="description" content="<?php echo e($__seoDesc); ?>">
     <meta name="keywords" content="<?php echo e($__seoKeywords); ?>">
     <meta name="author" content="<?php echo e($siteBrandName); ?>">
+    <?php
+    $__gscVerify = trim((string) getSetting('google_site_verification', ''));
+    if ($__gscVerify !== '' && preg_match('/^[A-Za-z0-9_\-]{10,100}$/', $__gscVerify)):
+    ?>
+    <meta name="google-site-verification" content="<?php echo e($__gscVerify); ?>">
+    <?php endif; ?>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
