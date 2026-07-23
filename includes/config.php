@@ -1327,10 +1327,46 @@ if (!function_exists('isValidPhone')) {
     }
 }
 
+/**
+ * Real visitor IP — Cloudflare मा REMOTE_ADDR = shared edge हुन्छ;
+ * admin lockout / session fingerprint का लागि CF-Connecting-IP प्रयोग गर्नुपर्छ।
+ */
+if (!function_exists('coop_client_ip')) {
+    function coop_client_ip(): string {
+        $cf = trim((string) ($_SERVER['HTTP_CF_CONNECTING_IP'] ?? ''));
+        if ($cf !== '' && filter_var($cf, FILTER_VALIDATE_IP)) {
+            return $cf;
+        }
+        $remote = trim((string) ($_SERVER['REMOTE_ADDR'] ?? ''));
+        if ($remote !== '' && filter_var($remote, FILTER_VALIDATE_IP)) {
+            return $remote;
+        }
+        return $remote !== '' ? $remote : 'unknown';
+    }
+}
+
+/** Stable network key for session binding (IPv4 /24, IPv6 /64). */
+if (!function_exists('coop_ip_network_key')) {
+    function coop_ip_network_key(string $ip): string {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $parts = explode('.', $ip);
+            return implode('.', array_slice($parts, 0, 3));
+        }
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            $packed = @inet_pton($ip);
+            if ($packed !== false) {
+                return substr(bin2hex($packed), 0, 16);
+            }
+        }
+        return $ip;
+    }
+}
+
 // Rate limiting for forms (prevent spam)
 if (!function_exists('checkRateLimit')) {
     function checkRateLimit($action, $limit = 5, $period = 60) {
-        $key = 'rate_' . $action . '_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $ip = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $key = 'rate_' . $action . '_' . $ip;
 
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = ['count' => 0, 'time' => time()];
@@ -1353,7 +1389,8 @@ function logSecurityEvent($event, $details = '') {
         $db = getDB();
         $stmt = $db->prepare("INSERT INTO activity_log (admin_id, action, description, ip_address) VALUES (?, ?, ?, ?)");
         $adminId = $_SESSION['admin_id'] ?? null;
-        $stmt->execute([$adminId, $event, $details, $_SERVER['REMOTE_ADDR'] ?? '']);
+        $ip = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        $stmt->execute([$adminId, $event, $details, $ip]);
     } catch (Exception $e) {
         // Silent fail - don't break the app for logging
     }
@@ -1370,18 +1407,22 @@ function isAdminLoggedIn() {
         return false;
     }
 
-    // Device fingerprint check (UA + IP /24) to force relogin on device/network change
+    // Device fingerprint: UA must match. IP alone must NOT force logout —
+    // mobile carriers / Cloudflare edge changes were kicking admins back to login.
     $expectedUA = (string)($_SESSION['admin_agent_hash'] ?? '');
-    $expectedIP = (string)($_SESSION['admin_ip_partial'] ?? '');
     $currentUA = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    $currentIP = implode('.', array_slice(explode('.', $ip), 0, 3));
 
     if ($expectedUA !== '' && $currentUA !== $expectedUA) {
         return false;
     }
-    if ($expectedIP !== '' && $currentIP !== '' && $currentIP !== $expectedIP) {
-        return false;
+
+    $ip = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+    $currentIP = function_exists('coop_ip_network_key') ? coop_ip_network_key($ip) : implode('.', array_slice(explode('.', $ip), 0, 3));
+    $expectedIP = (string)($_SESSION['admin_ip_partial'] ?? '');
+    if ($currentIP !== '' && $expectedIP !== '' && $currentIP !== $expectedIP) {
+        $_SESSION['admin_ip_partial'] = $currentIP;
+    } elseif ($expectedIP === '' && $currentIP !== '') {
+        $_SESSION['admin_ip_partial'] = $currentIP;
     }
 
     $_SESSION['admin_last_activity'] = time();
