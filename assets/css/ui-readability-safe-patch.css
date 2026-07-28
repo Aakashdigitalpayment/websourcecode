@@ -1120,6 +1120,136 @@ button.qh-item {
   }
 }
 
+/* ── v10: Uniform team card height (org-chart + grid rows) ───────── */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-card-min-h: 318px;
+  --team-badge-min-h: 2.75em;
+  --team-name-min-h: 2.9em;
+  --team-contact-min-h: 52px;
+}
+
+.team-org-cell {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.team-org-cell > .team-card-circular {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: var(--team-card-min-h) !important;
+}
+
+.team-section .row > [class*="col-"],
+.committees-section .row > [class*="col-"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.team-section .row > [class*="col-"] > .team-card-circular,
+.committees-section .row > [class*="col-"] > .team-card-circular {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: var(--team-card-min-h) !important;
+}
+
+.team-section .team-info-circular,
+.team-org-chart .team-info-circular,
+.committees-section .team-info-circular {
+  flex: 1 1 auto !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+  width: 100% !important;
+}
+
+.team-section .team-info-circular h5,
+.team-org-chart .team-info-circular h5,
+.committees-section .team-info-circular h5 {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  min-height: var(--team-name-min-h) !important;
+  width: 100% !important;
+}
+
+.team-section .team-info-circular .team-name-en,
+.team-org-chart .team-info-circular .team-name-en,
+.committees-section .team-info-circular .team-name-en {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+  overflow: hidden !important;
+  min-height: 1.35em !important;
+  width: 100% !important;
+  margin-bottom: 6px !important;
+}
+
+.team-section .team-position-badge,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: var(--team-badge-min-h) !important;
+  max-width: 100% !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+.team-section .team-contact-circular,
+.team-org-chart .team-contact-circular,
+.committees-section .team-contact-circular {
+  margin-top: auto !important;
+  min-height: var(--team-contact-min-h) !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+/* Reserve footer space when phone/email icons are absent */
+.team-section .team-info-circular:not(:has(.team-contact-circular))::after,
+.team-org-chart .team-info-circular:not(:has(.team-contact-circular))::after,
+.committees-section .team-info-circular:not(:has(.team-contact-circular))::after {
+  content: '';
+  display: block;
+  margin-top: auto;
+  min-height: var(--team-contact-min-h);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Featured card: same footprint as others (border only difference) */
+.team-org-chart .team-card-circular.featured,
+.team-section .team-card-circular.featured,
+.committees-section .team-card-circular.featured {
+  min-height: var(--team-card-min-h) !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+}
+
+@media (max-width: 991px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-min-h: 300px;
+    --team-badge-min-h: 2.65em;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-min-h: 288px;
+    --team-name-min-h: 2.75em;
+    --team-badge-min-h: 2.55em;
+  }
+}
+
 .admin-shell .tm-chart-pre {
   font-size: 11px;
   line-height: 1.35;

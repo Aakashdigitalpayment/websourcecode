@@ -362,3 +362,101 @@ body.dark-mode[class*="admin-page-"] .main-content .table tbody tr:hover {
     transition: none !important;
   }
 }
+
+/* ── MEMBER PORTAL ─────────────────────────────────────────────── */
+
+body.mem-wrapper .mem-card,
+body.mem-wrapper .mp-card {
+  border-radius: var(--final-radius-lg) !important;
+  border-color: var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+body.mem-wrapper .mem-card:hover,
+body.mem-wrapper .mp-card:hover {
+  box-shadow: var(--final-shadow-hover) !important;
+}
+
+body.mem-wrapper .mem-card-header {
+  background: linear-gradient(180deg, #fafcfb 0%, #fff 100%) !important;
+}
+
+body.mem-wrapper .mp-page-head .mem-page-title {
+  letter-spacing: -0.02em !important;
+}
+
+body.mem-wrapper .mem-container .btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 78%, #0e9b53)
+  ) !important;
+  border: none !important;
+  box-shadow: 0 3px 12px rgba(var(--primary-rgb, 26, 95, 42), 0.22);
+}
+
+body.mem-wrapper .mem-container .table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+/* ── AUTH + VERIFY PORTALS ─────────────────────────────────────── */
+
+body.auth-portal-page .auth-card,
+body.verify-auth-page .vp-main-card,
+body.verify-auth-page .vp-result-card,
+body.verify-auth-page .vp-rate-card,
+body.verify-auth-page .vp-programs-card {
+  border-radius: var(--final-radius-lg) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+}
+
+body.auth-portal-page .card-title {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+body.verify-auth-page .vp-site-name {
+  letter-spacing: -0.015em !important;
+}
+
+body.verify-auth-page .vp-input {
+  border-radius: 10px !important;
+  min-height: 46px;
+  font-size: max(16px, 0.95rem) !important;
+}
+
+body.verify-auth-page .vp-alert-error {
+  border-left: 3px solid #dc2626 !important;
+  border-radius: var(--final-radius) !important;
+}
+
+/* ── MINIMAL PANEL (attend, tracker-id-card) ───────────────────── */
+
+body:has(.card > .card-top) .card {
+  border-radius: var(--final-radius-lg) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  overflow: hidden;
+}
+
+body:has(.card > .card-top) .card-top {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 72%, #0e9b53)
+  ) !important;
+}
+
+/* ── PUBLIC footer trust strip (subtle) ──────────────────────────── */
+
+.site-footer,
+.footer-main {
+  border-top: 1px solid var(--final-border) !important;
+}
+
+.site-footer a:hover,
+.footer-main a:hover {
+  color: var(--primary-color, #1a5f2a) !important;
+}
