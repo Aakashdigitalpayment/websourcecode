@@ -7,6 +7,7 @@
  * Admin: admin/institutional-profile.php बाट manage गर्नुहोस्।
  */
 require_once 'includes/config.php';
+require_once __DIR__ . '/includes/institutional-profile-helpers.php';
 if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
     require_once __DIR__ . '/includes/nepali-bs-convert.php';
 }
@@ -81,6 +82,7 @@ try {
 $isEn = isEnglish();
 $fiscalYears = [];
 $monthSet = [];
+$ipChartSeries = ['labels' => [], 'deposit' => [], 'loan' => [], 'assets' => [], 'members' => [], 'count' => 0];
 foreach ($profiles as &$_pRow) {
     $_pRow['_month'] = ipResolveMonth($_pRow);
     $fy = trim((string)($_pRow['fiscal_year'] ?? ''));
@@ -313,6 +315,65 @@ if (!$currentProfile || !$previousProfile) {
     .ip-filter-bar { grid-template-columns: 1fr; }
     .ip-filter-count { text-align: center; }
 }
+/* ── Trend charts ── */
+.ip-charts-section {
+    margin-bottom: 1.35rem;
+    padding: 1.15rem 1.2rem 1.25rem;
+    border-radius: 16px;
+    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+    background:
+      radial-gradient(ellipse 70% 50% at 0% 0%, color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, transparent), transparent 55%),
+      var(--bg-card, #fff);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+.ip-charts-head { margin-bottom: 1rem; text-align: center; }
+.ip-charts-head h3 {
+    margin: 0.35rem 0 0.4rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--primary-color, #1a5f2a);
+}
+.ip-charts-head p {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted, #6b7280);
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+.ip-charts-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 14px;
+}
+.ip-chart-card {
+    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb);
+    border-radius: 14px;
+    background: var(--bg-card, #fff);
+    padding: 14px 14px 10px;
+}
+.ip-chart-title {
+    margin: 0 0 10px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.ip-chart-title i { color: var(--primary-color, #1a5f2a); }
+.ip-chart-canvas-wrap {
+    position: relative;
+    height: min(42vh, 320px);
+    min-height: 220px;
+}
+.ip-chart-canvas-wrap--sm {
+    height: min(36vh, 280px);
+    min-height: 200px;
+}
+@media (max-width: 991px) {
+    .ip-charts-grid { grid-template-columns: 1fr; }
+}
 </style>
 
 <!-- Page Banner -->
@@ -420,6 +481,35 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     endforeach; ?>
 <?php endif; ?>
 </div>
+
+<?php
+$ipChartSeries = coopIpBuildChartSeries($profiles, 12, $isEn);
+if ($ipChartSeries['count'] >= 2):
+?>
+<div class="ip-charts-section" data-aos="fade-up" data-testid="institutional-profile-charts">
+    <div class="ip-charts-head">
+        <span class="ip-section-kicker"><i class="fas fa-chart-column"></i> <?php echo $isEn ? 'Trend charts' : 'प्रवृत्ति चार्ट'; ?></span>
+        <h3><?php echo $isEn ? 'Financial growth over recent months' : 'हालका महिनाहरूमा आर्थिक प्रवृत्ति'; ?></h3>
+        <p><?php echo $isEn
+            ? 'Based on published monthly institutional profile data (newest months on the right).'
+            : 'प्रकाशित महिनागत संस्थागत प्रोफाइल डाटाबाट (दायाँ = नवीनतम)।'; ?></p>
+    </div>
+    <div class="ip-charts-grid">
+        <div class="ip-chart-card">
+            <h4 class="ip-chart-title"><i class="fas fa-chart-line"></i> <?php echo $isEn ? 'Deposits, loans & assets' : 'बचत, ऋण र सम्पत्ति'; ?></h4>
+            <div class="ip-chart-canvas-wrap">
+                <canvas id="ipChartFinancial" role="img" aria-label="<?php echo $isEn ? 'Financial trend chart' : 'आर्थिक प्रवृत्ति चार्ट'; ?>"></canvas>
+            </div>
+        </div>
+        <div class="ip-chart-card">
+            <h4 class="ip-chart-title"><i class="fas fa-users"></i> <?php echo $isEn ? 'Total members' : 'कुल सदस्य संख्या'; ?></h4>
+            <div class="ip-chart-canvas-wrap ip-chart-canvas-wrap--sm">
+                <canvas id="ipChartMembers" role="img" aria-label="<?php echo $isEn ? 'Member count trend chart' : 'सदस्य संख्या प्रवृत्ति चार्ट'; ?>"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <div class="ip-profile-card mb-3 ip-month-card">
     <div class="ip-card-header">
@@ -799,5 +889,141 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     window.ipCloseDoc = ipCloseDoc;
 }());
 </script>
+
+<?php if (!empty($ipChartSeries) && ($ipChartSeries['count'] ?? 0) >= 2): ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+<script>
+(function () {
+    if (typeof Chart === 'undefined') return;
+    var primary = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#1a5f2a';
+    var primaryLight = getComputedStyle(document.documentElement).getPropertyValue('--primary-light').trim() || '#22c55e';
+    var secondary = getComputedStyle(document.documentElement).getPropertyValue('--secondary-color').trim() || '#c0392b';
+    var labels = <?php echo json_encode($ipChartSeries['labels'], JSON_UNESCAPED_UNICODE); ?>;
+    var commonOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: { boxWidth: 12, padding: 14, font: { size: 11, weight: '600' } }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (ctx) {
+                        var v = ctx.parsed.y;
+                        if (ctx.chart.canvas.id === 'ipChartMembers') {
+                            return ctx.dataset.label + ': ' + Number(v).toLocaleString();
+                        }
+                        if (v >= 1e7) return ctx.dataset.label + ': रू. ' + (v / 1e7).toFixed(2) + ' Cr';
+                        if (v >= 1e5) return ctx.dataset.label + ': रू. ' + (v / 1e5).toFixed(1) + ' L';
+                        return ctx.dataset.label + ': रू. ' + Number(v).toLocaleString();
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: { maxRotation: 45, minRotation: 0, font: { size: 10 } },
+                grid: { display: false }
+            },
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    font: { size: 10 },
+                    callback: function (v) {
+                        if (v >= 1e7) return (v / 1e7).toFixed(1) + 'Cr';
+                        if (v >= 1e5) return (v / 1e5).toFixed(0) + 'L';
+                        return v;
+                    }
+                }
+            }
+        }
+    };
+
+    var finEl = document.getElementById('ipChartFinancial');
+    if (finEl) {
+        new Chart(finEl, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: <?php echo json_encode($isEn ? 'Deposits' : 'बचत', JSON_UNESCAPED_UNICODE); ?>,
+                        data: <?php echo json_encode($ipChartSeries['deposit']); ?>,
+                        borderColor: primary,
+                        backgroundColor: primary + '22',
+                        fill: true,
+                        tension: 0.32,
+                        pointRadius: 3,
+                        borderWidth: 2
+                    },
+                    {
+                        label: <?php echo json_encode($isEn ? 'Loans' : 'ऋण', JSON_UNESCAPED_UNICODE); ?>,
+                        data: <?php echo json_encode($ipChartSeries['loan']); ?>,
+                        borderColor: secondary,
+                        backgroundColor: secondary + '18',
+                        fill: false,
+                        tension: 0.32,
+                        pointRadius: 3,
+                        borderWidth: 2
+                    },
+                    {
+                        label: <?php echo json_encode($isEn ? 'Total assets' : 'कुल सम्पत्ति', JSON_UNESCAPED_UNICODE); ?>,
+                        data: <?php echo json_encode($ipChartSeries['assets']); ?>,
+                        borderColor: primaryLight,
+                        backgroundColor: 'transparent',
+                        borderDash: [4, 3],
+                        tension: 0.32,
+                        pointRadius: 2,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: commonOpts
+        });
+    }
+
+    var memEl = document.getElementById('ipChartMembers');
+    if (memEl) {
+        new Chart(memEl, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: <?php echo json_encode($isEn ? 'Members' : 'सदस्य', JSON_UNESCAPED_UNICODE); ?>,
+                    data: <?php echo json_encode($ipChartSeries['members']); ?>,
+                    backgroundColor: primary + 'cc',
+                    borderColor: primary,
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return <?php echo json_encode($isEn ? 'Members' : 'सदस्य', JSON_UNESCAPED_UNICODE); ?> + ': ' + Number(ctx.parsed.y).toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { ticks: { maxRotation: 45, font: { size: 10 } }, grid: { display: false } },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 10 }, precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+}());
+</script>
+<?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>

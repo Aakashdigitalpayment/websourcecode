@@ -2055,7 +2055,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 <div class="popup-doc-actions" id="popupDocActions">
                     <!-- Dynamic PDF button will be shown here -->
                 </div>
-                <button type="button" class="popup-close-btn" id="popupClose" title="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>" data-testid="notice-popup-close-button">
+                <button type="button" class="popup-close-btn" id="popupClose" title="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>" aria-label="<?php echo isEnglish() ? 'Close notice' : 'सूचना बन्द गर्नुहोस्'; ?>" data-testid="notice-popup-close-button">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -2086,7 +2086,11 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                     <!-- Photo-only popup mode -->
                     <div class="popup-photo-only-wrap">
                         <img src="<?php echo htmlspecialchars(SITE_URL . ltrim($photoOnlySrc, '/'), ENT_QUOTES, 'UTF-8'); ?>"
-                             alt="<?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: '') : ($notice['title_np'] ?: ''), ENT_QUOTES, 'UTF-8'); ?>"
+                             alt="<?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: 'Notice') : ($notice['title_np'] ?: 'सूचना'), ENT_QUOTES, 'UTF-8'); ?>"
+                             class="popup-photo-only-img"
+                             loading="eager"
+                             decoding="async"
+                             fetchpriority="high"
                              data-testid="notice-popup-photo-only-image">
                     </div>
                     <?php else: ?>
