@@ -1,6 +1,7 @@
 /**
- * UI Readability Safe Patch v2 — additive only, loads LAST on all panels.
+ * UI Readability Safe Patch v3 — additive only, loads LAST on all panels.
  * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
+ * v3: dark-mode gradient sections + expanded brand-fill hero text.
  */
 
 :root {
@@ -47,26 +48,295 @@ textarea:focus-visible,
   box-shadow: var(--coop-focus-ring);
 }
 
-/* Gradient heroes — ui-ux-enhancements dark headings fix (additive) */
-.tracker-hero-section h1,
-.tracker-hero-section h2,
-.tracker-hero-section p,
-.hero-content-modern h1,
-.hero-content-modern h2,
-.hero-content-modern .hero-title,
-.hero-content-modern p,
-.slider-content.hero-content-modern h1,
-.slider-content.hero-content-modern h2,
-.auc2-hero-section,
-.auc2-hero-section h1,
-.auc2-hero-section h2,
-.auc2-hero-section p {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+/* ── Brand-fill / gradient sections — light text (beats ui-ux-enhancements dark h1–h6) ── */
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success
+) {
+  color: var(--text-on-primary, #fff) !important;
 }
 
-.auc2-hero-section a {
-  color: rgba(255, 255, 255, 0.95) !important;
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  p, span, li, label, small, div,
+  .hero-title-modern, .hero-subtitle-modern,
+  .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
+  .tracker-hero-title, .tracker-hero-sub,
+  .tracker-search-title, .tracker-search-sub,
+  .auc2-h, .auc2-sub, .page-title-modern
+) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .auc2-hero-txt,
+  .cta-section,
+  .cta-block,
+  .form-header,
+  .gradient-card-header
+) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+:is(
+  .page-banner,
+  .page-banner-modern
+) .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Subtitles on brand panels — slightly softer white */
+.hero-subtitle-modern,
+.tracker-hero-sub,
+.tracker-search-sub,
+.cr-hero-text p,
+.cp-hero-text p,
+.auc2-sub,
+.page-banner p,
+.cta-content p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ── Dark mode — beat public-shell-polish global h1–h6 / p / link overrides ── */
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success,
+  .sp-selday-hero,
+  .scan-hero
+) {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success,
+  .sp-selday-hero,
+  .scan-hero
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  p, span, li, label, small, div, i, svg,
+  .hero-title-modern, .hero-subtitle-modern,
+  .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
+  .tracker-hero-title, .tracker-hero-sub,
+  .tracker-search-title, .tracker-search-sub,
+  .auc2-h, .auc2-sub, .auc2-title, .auc2-info-value,
+  .page-title-modern, .lucide-icon
+) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .auc2-hero-txt,
+  .cta-section,
+  .cta-block,
+  .form-header,
+  .gradient-card-header,
+  .mobile-app-section
+) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .tracker-hero-section
+) .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Keep brand gradient backgrounds visible in dark mode (not flattened to page bg) */
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .form-header,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card > .card-header.bg-primary
+) {
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+}
+
+/* Hero slider keeps photo overlay — only fix text, not bg image */
+body.dark-mode .hero-slide-modern .slider-bg,
+body.dark-mode .hero-bg-modern {
+  background-color: transparent !important;
 }
 
 /* ── Mobile: consistent rem base (app-core has 14px then 16px conflict) ── */

@@ -1,0 +1,127 @@
+/**
+ * Admin Bootstrap Unified Patch — additive only.
+ * Loads after bootstrap-admin-overrides.css + admin-shell-polish.css.
+ * Maps hardcoded bootstrap hex to DB theme variables; keeps gradient headers readable.
+ */
+
+.admin-shell .btn.btn-primary,
+.main-content .btn.btn-primary,
+button.btn.btn-primary,
+a.btn.btn-primary {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .btn.btn-primary:hover,
+.admin-shell .btn.btn-primary:focus,
+.main-content .btn.btn-primary:hover,
+.main-content .btn.btn-primary:focus,
+button.btn.btn-primary:hover,
+button.btn.btn-primary:focus,
+a.btn.btn-primary:hover,
+a.btn.btn-primary:focus {
+  background-color: var(--primary-dark, #145620) !important;
+  border-color: var(--primary-dark, #145620) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .btn.btn-outline-primary,
+.main-content .btn.btn-outline-primary {
+  color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.admin-shell .btn.btn-outline-primary:hover,
+.admin-shell .btn.btn-outline-primary:focus,
+.main-content .btn.btn-outline-primary:hover,
+.main-content .btn.btn-outline-primary:focus {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .form-control:focus,
+.admin-shell .form-select:focus,
+.main-content .form-control:focus,
+.main-content .form-select:focus,
+.admin-wrapper .form-control:focus,
+.admin-wrapper .form-select:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent) !important;
+}
+
+.admin-shell .table tbody tr:hover,
+.main-content .table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.admin-shell .table-striped > tbody > tr:nth-of-type(odd),
+.main-content .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff) !important;
+}
+
+/* Gradient / brand card headers — unified white-on-brand text */
+.main-content .card-header.gradient-card-header,
+.admin-card .card-header.gradient-card-header,
+.main-content .card-header.bg-gradient-primary,
+.admin-card .card-header.bg-gradient-primary,
+.main-content .card-header.bg-primary:not(.bg-light):not(.bg-white),
+.admin-card .card-header.bg-primary:not(.bg-light):not(.bg-white),
+.main-content .card-header.svc-form-header-grad,
+.admin-card .card-header.svc-form-header-grad,
+.main-content .card-header.sl-form-header,
+.admin-card .card-header.sl-form-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a) 0%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+  border-bottom: none !important;
+}
+
+.main-content .card-header.gradient-card-header *,
+.admin-card .card-header.gradient-card-header *,
+.main-content .card-header.bg-gradient-primary *,
+.admin-card .card-header.bg-gradient-primary *,
+.main-content .card-header.bg-primary:not(.bg-light):not(.bg-white) *,
+.admin-card .card-header.bg-primary:not(.bg-light):not(.bg-white) *,
+.main-content .card-header.svc-form-header-grad *,
+.admin-card .card-header.svc-form-header-grad *,
+.main-content .card-header.sl-form-header *,
+.admin-card .card-header.sl-form-header * {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .gradient-card-header .btn-outline-light,
+.admin-card .gradient-card-header .btn-outline-light {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.main-content .gradient-card-header .btn-outline-light:hover,
+.main-content .gradient-card-header .btn-outline-light:focus,
+.admin-card .gradient-card-header .btn-outline-light:hover,
+.admin-card .gradient-card-header .btn-outline-light:focus {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+/* Dashboard stat cards — keep gradient + contrasted text */
+.main-content .stat-card.bg-primary,
+.main-content .stat-card.bg-success {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    var(--primary-light, #2d6b3a)
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .stat-card.bg-primary *,
+.main-content .stat-card.bg-success * {
+  color: var(--text-on-primary, #fff) !important;
+}
