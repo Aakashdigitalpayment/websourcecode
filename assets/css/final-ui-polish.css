@@ -150,6 +150,87 @@ textarea.form-control {
   letter-spacing: 0.01em;
 }
 
+/* ── PUBLIC: compact top utility bar (desktop) ─────────────────── */
+
+@media (min-width: 992px) {
+  .pfl-top-bar .container {
+    min-height: 34px !important;
+    align-items: center !important;
+  }
+
+  .pfl-quick-links > li > a {
+    padding: 5px 11px !important;
+    font-size: 11px !important;
+  }
+
+  .pfl-top-right {
+    gap: 1px !important;
+    padding-left: 6px !important;
+  }
+
+  .pfl-top-right > li > a,
+  .pfl-top-right .pfl-bell-btn,
+  .pfl-top-right .pfl-dark-wrap > a {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 3px 7px !important;
+    border-radius: 5px !important;
+    font-size: 11.5px !important;
+  }
+
+  .pfl-top-right .pfl-login-toggle {
+    min-height: 28px !important;
+    min-width: 0 !important;
+    padding: 3px 10px !important;
+    font-size: 11.5px !important;
+    border-radius: 5px !important;
+    gap: 5px !important;
+  }
+
+  .pfl-top-right .pfl-login-caret {
+    font-size: 9px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap {
+    gap: 3px !important;
+    padding-left: 8px !important;
+    margin-left: 2px !important;
+    border-left-color: rgba(255, 255, 255, 0.22) !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 2px 6px !important;
+    font-size: 10.5px !important;
+    gap: 4px !important;
+    border-radius: 5px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-dot {
+    width: 7px !important;
+    height: 7px !important;
+    border-width: 1.3px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-divider {
+    font-size: 10px !important;
+    opacity: 0.55;
+  }
+
+  .pfl-top-right .pfl-bell-btn {
+    padding: 3px 7px !important;
+  }
+
+  .pfl-top-right .pfl-bell-badge {
+    font-size: 9px !important;
+    padding: 0 4px !important;
+    line-height: 1.3 !important;
+    top: 0 !important;
+    right: 0 !important;
+  }
+}
+
 /* ── PUBLIC: org chart final centering ─────────────────────────── */
 
 .team-org-chart-wrap {

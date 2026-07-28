@@ -900,10 +900,13 @@ button.qh-item {
   min-height: 44px !important;
 }
 
-.pfl-top-right a,
-.pfl-top-right button {
-  min-width: 44px !important;
-  min-height: 44px !important;
+/* Top utility: 44px touch targets on mobile/tablet only — desktop stays compact */
+@media (max-width: 991.98px) {
+  .pfl-top-right a,
+  .pfl-top-right button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
 }
 
 #publicChatPanel .pcp-x,
