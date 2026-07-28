@@ -43,8 +43,8 @@ echo "Disallow: /cron-cleanup.php\n";
 echo "Disallow: /attend.php\n";
 echo "Disallow: /program-attendance-verify.php\n";
 echo "Disallow: /tracker-id-card.php\n";
-echo "Disallow: /verify-security.php\n";
-echo "Disallow: /verify.php\n\n";
+echo "Disallow: /verify.php\n";
+echo "Disallow: /member/session-check.php\n\n";
 
 /* ── Search engines: allow full crawl (no extra restrictions) ─────────────── */
 echo "User-agent: Googlebot\n";

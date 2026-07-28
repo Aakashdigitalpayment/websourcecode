@@ -7,6 +7,8 @@
     RewriteRule ^includes/ - [F,L]
     RewriteRule (^|/)\.cred - [F,L]
     RewriteRule \.cred-master\.key$ - [F,L]
+    # Debug session dump — must not be web-accessible (live safety)
+    RewriteRule ^member/session-check\.php$ - [F,L]
     # Crawlers expect /sitemap.xml and /robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
     RewriteRule ^robots\.txt$ robots.php [L,QSA]
