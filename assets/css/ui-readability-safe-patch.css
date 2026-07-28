@@ -952,45 +952,33 @@ button.qh-item {
 }
 
 .team-org-row-inner {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  display: flex !important;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: stretch;
   gap: 1.25rem;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-/* Single chairman/CEO — centered, same card size as everyone else */
-.team-org-row-1.team-org-count-1 .team-org-row-inner {
-  grid-template-columns: minmax(200px, 260px) !important;
-  justify-content: center;
+  width: fit-content;
+  max-width: min(1100px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
 }
 
 .team-org-cell {
-  flex: unset;
+  flex: 0 0 220px;
+  width: 220px;
+  max-width: 240px;
   min-width: 0;
-  max-width: none;
-  width: 100%;
 }
 
-/* Row 1 — Chairman / CEO: same card size, optional featured border only */
-.team-org-row-1.team-org-count-1 .team-org-row-inner,
-.team-org-row-1.team-org-count-2 .team-org-row-inner,
-.team-org-row-1.team-org-count-3 .team-org-row-inner,
-.team-org-row-1.team-org-count-4 .team-org-row-inner {
-  max-width: 1100px;
-}
-
-.team-org-row-1 .team-org-cell,
-.team-org-row-2 .team-org-cell,
-.team-org-row-3 .team-org-cell,
-.team-org-row-4 .team-org-cell,
-.team-org-row-5 .team-org-cell {
-  flex: unset;
-  min-width: 0;
-  max-width: none;
+/* Each row shrink-wraps to its cards, then centers as a group under the connector */
+.team-org-row-1 .team-org-row-inner,
+.team-org-row-2 .team-org-row-inner,
+.team-org-row-3 .team-org-row-inner,
+.team-org-row-4 .team-org-row-inner,
+.team-org-row-5 .team-org-row-inner {
+  justify-content: center;
 }
 
 /* ── v9: Uniform team photo stat cards (team / org-chart / committees) ── */
@@ -1102,12 +1090,10 @@ button.qh-item {
     --team-uniform-photo: 120px;
   }
 
-  .team-org-row-2 .team-org-cell,
-  .team-org-row-3 .team-org-cell,
-  .team-org-row-4 .team-org-cell,
-  .team-org-row-5 .team-org-cell {
-    flex: unset;
-    min-width: 0;
+  .team-org-cell {
+    flex: 0 0 200px;
+    width: 200px;
+    max-width: 220px;
   }
 }
 
@@ -1120,22 +1106,17 @@ button.qh-item {
     --team-uniform-pad-x: 14px;
   }
 
-  .team-org-row-1 .team-org-row-inner {
+  .team-org-row-inner {
+    width: 100%;
     max-width: 100%;
+    gap: 0.85rem;
+    padding: 0 0.35rem;
   }
 
-  .team-org-row-2 .team-org-cell,
-  .team-org-row-3 .team-org-cell,
-  .team-org-row-4 .team-org-cell,
-  .team-org-row-5 .team-org-cell {
-    flex: unset;
-    min-width: 0;
+  .team-org-cell {
+    flex: 0 1 calc(50% - 0.5rem);
+    width: auto;
     max-width: none;
-  }
-
-  .team-org-chart .team-org-row-inner {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 0.85rem !important;
   }
 }
 
