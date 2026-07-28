@@ -151,10 +151,12 @@ $L = getLangStrings();
 
 <!-- Institutional Profile / Reports Section -->
 <?php
+require_once __DIR__ . '/includes/institutional-profile-helpers.php';
 // Get latest reports and institutional profile - with safe table checks
 $latestMonthlyReport = null;
 $latestAnnualReport = null;
 $hasInstitutionalProfile = false;
+$latestInstitutionalProfile = null;
 if ($db instanceof PDO) {
     try {
         // Check if reports table exists
@@ -174,8 +176,8 @@ if ($db instanceof PDO) {
         // Institutional profile availability (badge like monthly/annual)
         $profileCheck = $db->query("SHOW TABLES LIKE 'institutional_profile'");
         if ($profileCheck && $profileCheck->fetch() !== false) {
-            $profileStmt = $db->query("SELECT id FROM institutional_profile WHERE is_active = 1 ORDER BY fiscal_year DESC, id DESC LIMIT 1");
-            if ($profileStmt && $profileStmt->fetch()) {
+            $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
+            if ($latestInstitutionalProfile) {
                 $hasInstitutionalProfile = true;
             }
         }
@@ -184,8 +186,11 @@ if ($db instanceof PDO) {
         // Tables may not exist - use defaults
         $latestMonthlyReport = $latestAnnualReport = null;
         $hasInstitutionalProfile = false;
+        $latestInstitutionalProfile = null;
     }
 }
+$ipSnapMonth = $latestInstitutionalProfile ? coopIpMonthLabel((int)($latestInstitutionalProfile['_month'] ?? 0), isEnglish()) : '';
+$ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProfile['fiscal_year'] ?? '')) : '';
 ?>
 
 <section class="institutional-profile-section">
@@ -219,6 +224,38 @@ if ($db instanceof PDO) {
                 </a>
             </div>
         </div>
+
+        <?php if ($latestInstitutionalProfile): ?>
+        <div class="ip-home-snapshot" data-aos="fade-up" data-testid="home-institutional-snapshot">
+            <div class="ip-home-snapshot-head">
+                <span><i class="fas fa-chart-line"></i> <?php echo isEnglish() ? 'Latest financial snapshot' : 'नवीनतम आर्थिक झलक'; ?></span>
+                <?php if ($ipSnapFy !== '' || $ipSnapMonth !== ''): ?>
+                <small><?php echo isEnglish() ? 'FY' : 'आ.व.'; ?> <?php echo htmlspecialchars($ipSnapFy); ?><?php if ($ipSnapMonth !== ''): ?> · <?php echo htmlspecialchars($ipSnapMonth); ?><?php endif; ?></small>
+                <?php endif; ?>
+            </div>
+            <div class="ip-home-snapshot-grid">
+                <a href="institutional-profile.php" class="ip-home-stat">
+                    <strong><?php echo number_format((int)($latestInstitutionalProfile['total_members'] ?? 0)); ?></strong>
+                    <span><?php echo isEnglish() ? 'Members' : 'सदस्य'; ?></span>
+                </a>
+                <a href="institutional-profile.php" class="ip-home-stat">
+                    <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['deposit'] ?? 0))); ?></strong>
+                    <span><?php echo isEnglish() ? 'Deposits' : 'बचत'; ?></span>
+                </a>
+                <a href="institutional-profile.php" class="ip-home-stat">
+                    <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['loan'] ?? 0))); ?></strong>
+                    <span><?php echo isEnglish() ? 'Loans' : 'ऋण'; ?></span>
+                </a>
+                <a href="institutional-profile.php" class="ip-home-stat">
+                    <strong><?php echo htmlspecialchars(coopIpShortAmt((float)($latestInstitutionalProfile['total_assets'] ?? 0))); ?></strong>
+                    <span><?php echo isEnglish() ? 'Total assets' : 'कुल सम्पत्ति'; ?></span>
+                </a>
+            </div>
+            <a href="institutional-profile.php#ipChartFinancial" class="ip-home-snapshot-link">
+                <?php echo isEnglish() ? 'View charts & full profile' : 'चार्ट र पूरा प्रोफाइल हेर्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 

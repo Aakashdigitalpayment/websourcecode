@@ -111,6 +111,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        function updatePhotoOnlyMode() {
+            if (!popupDialog) return;
+            const activeSlide = slides[currentSlide];
+            const photoOnly = !!(activeSlide && activeSlide.getAttribute('data-photo-only') === '1');
+            popupDialog.classList.toggle('popup-dialog--photo-only', photoOnly);
+        }
+
         // Function to go to specific slide
         function goToSlide(index) {
             if (slides.length <= 1) return;
@@ -132,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update PDF button
             updateDocButton();
+            updatePhotoOnlyMode();
 
             // Reset progress
             resetProgress();
@@ -181,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 noticePopup.classList.add('show');
                 document.body.classList.add('notice-popup-open');
                 updateDocButton();
+                updatePhotoOnlyMode();
                 startAutoRotate();
             }, 800);
         }

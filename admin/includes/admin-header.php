@@ -1230,7 +1230,15 @@ set_exception_handler(function (\Throwable $ex) {
             if (match) shown++;
         });
         var badge = input.closest('.admin-search-wrap') ? input.closest('.admin-search-wrap').querySelector('.search-count') : null;
-        if (badge) badge.textContent = shown + ' / ' + total;
+        if (badge) {
+            if (!val) {
+                badge.textContent = '';
+                badge.style.display = 'none';
+            } else {
+                badge.textContent = shown + ' / ' + total;
+                badge.style.display = '';
+            }
+        }
     }
     document.addEventListener('input', function (e) {
         if (e.target.classList && e.target.classList.contains('admin-table-search')) {
