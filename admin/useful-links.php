@@ -315,7 +315,8 @@ $linksArch = $lnkPart['archived'];
 
 </div>
 
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
     var listBtn = document.getElementById('link-list-btn');
     var formBtn = document.getElementById('link-form-btn');
@@ -371,10 +372,7 @@ $linksArch = $lnkPart['archived'];
 });
 </script>
 
-
-
-
-
+<script>
 /* ── Client-side search (खोज बक्स) ── */
 (function() {
     var inp = document.querySelector('#link-list .admin-table-search');
@@ -401,6 +399,6 @@ $linksArch = $lnkPart['archived'];
     });
     filter();
 })();
-
+</script>
 
 <?php require_once 'includes/admin-footer.php'; ?>
