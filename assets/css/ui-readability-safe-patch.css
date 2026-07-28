@@ -1,0 +1,101 @@
+/**
+ * UI Readability Safe Patch v1 — additive only, loads LAST on all panels.
+ * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
+ */
+
+:root {
+  --font-primary: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+}
+
+body,
+.mem-wrapper,
+.admin-shell,
+.main-content,
+.auth-portal-page {
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6,
+.card-title,
+.mem-card-title,
+.section-title {
+  font-family: var(--font-heading);
+}
+
+/* ── Mobile: consistent rem base (app-core has 14px then 16px conflict) ── */
+@media (max-width: 991px) {
+  html {
+    font-size: 16px;
+  }
+
+  /* Public header — EN/slogan was ~11px */
+  .pfl-brand-name-en,
+  .pfl-brand-slogan {
+    font-size: 0.72rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Top utility icons — 44px touch target */
+  .pfl-top-right > li > a,
+  .pfl-bell-btn,
+  .pfl-dark-wrap > a,
+  .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Admin / public bottom nav labels */
+.mob-bottomnav a.mob-bn-item {
+  font-size: 11px;
+  padding: 8px 4px;
+}
+.mob-bottomnav a.mob-bn-item span {
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+/* Member portal chrome */
+.mem-lang-code {
+  font-size: 12px !important;
+}
+.bell-dd-time {
+  font-size: 0.72rem !important;
+}
+.bell-dd-msg {
+  font-size: 0.78rem !important;
+}
+.bell-dd-title {
+  font-size: 0.86rem !important;
+}
+
+/* Helper / muted text floor */
+.form-text,
+.help-block,
+small.text-muted,
+.text-muted.small {
+  font-size: max(0.8125rem, 12px);
+}
+
+/* Auth cards — placeholder readability */
+.auth-card input::placeholder,
+.auth-card textarea::placeholder {
+  opacity: 0.72;
+}
+
+/* Respect reduced-motion (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

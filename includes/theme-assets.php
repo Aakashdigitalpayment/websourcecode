@@ -67,7 +67,9 @@ if (!function_exists('coopThemeCssUrl')) {
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
         echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
         /* Premium font stack: Plus Jakarta Sans (headings) + Inter (body) + Noto Sans Devanagari (Nepali) */
-        echo '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">' . "\n";
+        $fontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap';
+        echo '<link rel="preload" href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" as="style">' . "\n";
+        echo '<link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet">' . "\n";
     }
 
     /**
@@ -300,6 +302,9 @@ if (!function_exists('coopThemeCssUrl')) {
             || ($panel === 'shell' && !$isAdminShell && !str_contains($script, '/member/'))) {
             coopThemeLink('assets/css/public-shell-polish.css');
         }
+
+        /* ── 12. Readability safe patch — fonts/touch/mobile text (absolute last) ── */
+        coopThemeLink('assets/css/ui-readability-safe-patch.css');
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */
