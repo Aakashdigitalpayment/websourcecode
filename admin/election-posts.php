@@ -193,3 +193,4 @@ echo adminPageHeader(
     </div>
 </div>
 </div>
+<?php require_once 'includes/admin-footer.php'; ?>

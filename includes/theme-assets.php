@@ -313,8 +313,14 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/minimal-pages-patch.css');
         }
 
-        /* ── 12. Readability safe patch — fonts/touch/mobile text (absolute last) ── */
+        /* ── 12. Readability safe patch — fonts/touch/mobile text ── */
         coopThemeLink('assets/css/ui-readability-safe-patch.css');
+
+        /* ── 12.5. Admin deep UX — forms/tables/nav/layout (admin absolute last) ── */
+        if (in_array($panel, ['admin', 'admin-auth'], true)
+            || ($panel === 'shell' && $isAdminShell)) {
+            coopThemeLink('assets/css/admin-ux-deep-patch.css');
+        }
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */

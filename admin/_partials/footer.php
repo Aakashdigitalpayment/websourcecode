@@ -41,4 +41,5 @@
   <a href="/admin/settings.php" class="admin-nav-item"><i class="fas fa-cog"></i><span>सेटिङ</span></a>
 </nav>
 
+<?php if (function_exists('coopThemeLucideInit')) { coopThemeLucideInit(); } ?>
 </body></html>

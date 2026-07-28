@@ -298,7 +298,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-Chart.defaults.font.family = "'Mukta','Noto Sans Devanagari',sans-serif";
+Chart.defaults.font.family = "'Inter','Noto Sans Devanagari','Plus Jakarta Sans',sans-serif";
 Chart.defaults.color = '#6b7280';
 var primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--bs-primary') || '#1a5f2a';
 
