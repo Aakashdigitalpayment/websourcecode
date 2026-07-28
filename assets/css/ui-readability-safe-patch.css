@@ -952,97 +952,190 @@ button.qh-item {
 }
 
 .team-org-row-inner {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   justify-content: center;
-  align-items: flex-start;
-  gap: 1rem 1.25rem;
+  align-items: stretch;
+  gap: 1.25rem;
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
 }
 
-.team-org-cell {
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
-/* Row 1 — Chairman / CEO alone, larger */
+/* Single chairman/CEO — centered, same card size as everyone else */
 .team-org-row-1.team-org-count-1 .team-org-row-inner {
-  max-width: 280px;
+  grid-template-columns: minmax(200px, 260px) !important;
+  justify-content: center;
 }
 
-.team-org-row-1.team-org-count-2 .team-org-row-inner {
-  max-width: 520px;
+.team-org-cell {
+  flex: unset;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
 }
 
+/* Row 1 — Chairman / CEO: same card size, optional featured border only */
+.team-org-row-1.team-org-count-1 .team-org-row-inner,
+.team-org-row-1.team-org-count-2 .team-org-row-inner,
 .team-org-row-1.team-org-count-3 .team-org-row-inner,
 .team-org-row-1.team-org-count-4 .team-org-row-inner {
-  max-width: 100%;
+  max-width: 1100px;
 }
 
-.team-org-row-1 .team-org-cell {
-  flex: 0 1 auto;
-  min-width: 140px;
-  max-width: 260px;
-}
-
-.team-org-row-1 .team-card-circular.featured .team-photo-circular {
-  width: 148px !important;
-  height: 148px !important;
-}
-
-/* Row 2 — up to 4 directors */
-.team-org-row-2 .team-org-cell {
-  flex: 0 1 calc(25% - 1rem);
-  min-width: 160px;
-  max-width: 240px;
-}
-
-.team-org-row-2.team-org-count-1 .team-org-cell { max-width: 260px; }
-.team-org-row-2.team-org-count-2 .team-org-cell { flex: 0 1 calc(50% - 1rem); max-width: 280px; }
-.team-org-row-2.team-org-count-3 .team-org-cell { flex: 0 1 calc(33.333% - 1rem); }
-
-/* Row 3+ — smaller cards, more per row */
+.team-org-row-1 .team-org-cell,
+.team-org-row-2 .team-org-cell,
 .team-org-row-3 .team-org-cell,
 .team-org-row-4 .team-org-cell,
 .team-org-row-5 .team-org-cell {
-  flex: 0 1 calc(20% - 1rem);
-  min-width: 130px;
-  max-width: 200px;
+  flex: unset;
+  min-width: 0;
+  max-width: none;
 }
 
-.team-org-row-3 .team-card-circular.small .team-photo-circular,
-.team-org-row-4 .team-card-circular.small .team-photo-circular,
-.team-org-row-5 .team-card-circular.small .team-photo-circular {
-  width: 88px !important;
-  height: 88px !important;
+/* ── v9: Uniform team photo stat cards (team / org-chart / committees) ── */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-uniform-photo: 132px;
+  --team-uniform-pad-y: 24px;
+  --team-uniform-pad-x: 18px;
+}
+
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0;
+}
+
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin-bottom: 16px !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular,
+.team-org-chart .team-card-circular,
+.committees-section .team-card-circular {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+}
+
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+}
+
+/* Hover zoom off — keeps all photos visually uniform */
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+.team-section .team-info-circular h5,
+.team-section .team-info-circular h6,
+.team-org-chart .team-info-circular h5,
+.team-org-chart .team-info-circular h6,
+.committees-section .team-info-circular h5,
+.committees-section .team-info-circular h6 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  margin-bottom: 5px !important;
+}
+
+.team-section .team-position-badge,
+.team-section .team-position-badge.small,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge,
+.committees-section .team-position-badge.small {
+  font-size: 0.78rem !important;
+  padding: 6px 14px !important;
+}
+
+.team-section .team-placeholder-circular i,
+.team-org-chart .team-placeholder-circular i,
+.committees-section .team-placeholder-circular i,
+.team-section .team-placeholder-circular .lucide-icon,
+.team-org-chart .team-placeholder-circular .lucide-icon {
+  font-size: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
 }
 
 @media (max-width: 991px) {
-  .team-org-row-2 .team-org-cell {
-    flex: 0 1 calc(50% - 0.75rem);
-    min-width: 140px;
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 120px;
   }
-  .team-org-row-3 .team-org-cell,
-  .team-org-row-4 .team-org-cell,
-  .team-org-row-5 .team-org-cell {
-    flex: 0 1 calc(33.333% - 0.75rem);
-    min-width: 120px;
-  }
-}
 
-@media (max-width: 575px) {
-  .team-org-row-1 .team-org-row-inner {
-    max-width: 220px;
-  }
   .team-org-row-2 .team-org-cell,
   .team-org-row-3 .team-org-cell,
   .team-org-row-4 .team-org-cell,
   .team-org-row-5 .team-org-cell {
-    flex: 0 1 calc(50% - 0.5rem);
+    flex: unset;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 108px;
+    --team-uniform-pad-y: 20px;
+    --team-uniform-pad-x: 14px;
+  }
+
+  .team-org-row-1 .team-org-row-inner {
+    max-width: 100%;
+  }
+
+  .team-org-row-2 .team-org-cell,
+  .team-org-row-3 .team-org-cell,
+  .team-org-row-4 .team-org-cell,
+  .team-org-row-5 .team-org-cell {
+    flex: unset;
     min-width: 0;
     max-width: none;
+  }
+
+  .team-org-chart .team-org-row-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.85rem !important;
   }
 }
 

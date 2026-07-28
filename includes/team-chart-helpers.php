@@ -123,7 +123,6 @@ if (!function_exists('team_render_org_chart')) {
                 <div class="team-org-row-inner">
                     <?php foreach ($rowMembers as $index => $member):
                         $featured = ($rowNum === 1 && $index === 0);
-                        $small = $rowNum >= 3 || ($rowNum === 2 && $count > 4);
                         $photo = team_member_photo_src($member);
                         $name = (string) ($member['name'] ?? '');
                         $nameEn = (string) ($member['name_en'] ?? '');
@@ -131,8 +130,8 @@ if (!function_exists('team_render_org_chart')) {
                         $delay = ($index % 6) * 50;
                         ?>
                     <div class="team-org-cell" role="listitem"<?php if ($useAos): ?> data-aos="fade-up" data-aos-delay="<?php echo (int) $delay; ?>"<?php endif; ?>>
-                        <div class="team-card-circular<?php echo $featured ? ' featured' : ''; ?><?php echo $small ? ' small' : ''; ?>">
-                            <div class="team-photo-circular<?php echo $small ? ' small' : ''; ?>">
+                        <div class="team-card-circular<?php echo $featured ? ' featured' : ''; ?>">
+                            <div class="team-photo-circular">
                                 <?php if ($photo !== ''): ?>
                                 <img src="<?php echo e($photo); ?>" loading="lazy" alt="<?php echo e($name); ?>">
                                 <?php else: ?>
@@ -140,11 +139,7 @@ if (!function_exists('team_render_org_chart')) {
                                 <?php endif; ?>
                             </div>
                             <div class="team-info-circular">
-                                <?php if ($small): ?>
-                                <h6><?php echo e($name); ?></h6>
-                                <?php else: ?>
                                 <h5><?php echo e($name); ?></h5>
-                                <?php endif; ?>
                                 <?php if ($nameEn !== ''): ?>
                                 <p class="team-name-en"><?php echo e($nameEn); ?></p>
                                 <?php endif; ?>
