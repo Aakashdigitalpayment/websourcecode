@@ -416,7 +416,11 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <!-- Google Fonts — Inter (body) + Plus Jakarta Sans (headings) + Noto Sans Devanagari (नेपाली) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <?php
+    $__pubFontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap';
+    ?>
+    <link rel="preload" href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" as="style">
+    <link href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
 
     <!-- Font Awesome Icons -->
     
@@ -474,7 +478,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
             }
             .pfl-brand-content.no-logo .pfl-brand-logo { height: 42px !important; width: auto !important; }
             .pfl-brand-name-np { font-size: 1rem !important; }
-            .pfl-brand-name-en, .pfl-brand-slogan { font-size: 0.68rem !important; }
+            .pfl-brand-name-en, .pfl-brand-slogan { font-size: 0.72rem !important; }
             .pfl-since-badge { display: none !important; }
 
             /* Mobile toggle button — ensure visibility */
@@ -619,14 +623,14 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 padding: 0;
             }
             .pfl-top-right .pfl-lang-wrap a {
-                width: 30px !important;
-                min-width: 30px !important;
-                height: 30px !important;
-                min-height: 30px !important;
+                width: auto !important;
+                min-width: 36px !important;
+                height: auto !important;
+                min-height: 44px !important;
                 text-align: center;
-                padding: 0 !important;
+                padding: 0 8px !important;
                 border-radius: 999px;
-                font-size: 10px;
+                font-size: 12px;
                 line-height: 1;
                 font-weight: 800;
                 letter-spacing: .1px;
@@ -652,9 +656,10 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 background: rgba(255,255,255,.22) !important;
             }
             .pfl-top-right .pfl-dark-wrap > a {
-                min-width: 30px !important;
-                width: 30px !important;
-                height: 30px !important;
+                min-width: 44px !important;
+                width: 44px !important;
+                min-height: 44px !important;
+                height: 44px !important;
                 padding: 0 !important;
                 border-radius: 8px !important;
             }

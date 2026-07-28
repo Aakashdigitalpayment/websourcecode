@@ -1933,8 +1933,9 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ════════════════════════════════════════════════════════════════
    §1  BASE RESET + FONTS
+   Fonts: loaded via theme-assets.php / header.php (duplicate @import removed — faster LCP)
    ════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+/* @import removed — see coopThemeGoogleFonts() */
 
 html {
     font-size: 14px;
@@ -3712,9 +3713,9 @@ textarea.form-control:focus {
  */
 
 /* ════════════════════════════════════════════════════════════
-   1. FONT IMPORTS
+   1. FONT IMPORTS — see coopThemeGoogleFonts() (duplicate @import removed)
    ════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+/* @import removed */
 
 
 /* ════════════════════════════════════════════════════════════
