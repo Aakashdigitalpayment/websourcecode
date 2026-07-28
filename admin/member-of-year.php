@@ -1,13 +1,17 @@
+<?php
+/**
+ * वर्षको सदस्य Spotlight — Member of the Year Management
+ */
+require_once '../includes/config.php';
+if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verifyCSRFToken()) {
+        setFlash('error', 'सुरक्षा जाँच असफल।');
+        redirect('member-of-year.php');
     }
 }
-</script>
-
-/* ── Client-side search (खोज बक्स) ── */
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
-    setFlash('error', 'सुरक्षा जाँच असफल।');
-    redirect(function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'));
-}
-if (empty($csrfToken)) $csrfToken = generateCSRFToken();
+$csrfToken = generateCSRFToken();
 
 $db     = getDB();
 $errors = [];
@@ -488,10 +492,7 @@ function previewPhotoMot(input) {
 }
 </script>
 
-
-
-
-
+<script>
 /* ── Client-side search (खोज बक्स) ── */
 (function() {
     var inp = document.querySelector('#mot-list .admin-table-search');
@@ -518,6 +519,6 @@ function previewPhotoMot(input) {
     });
     filter();
 })();
-
+</script>
 
 <?php require_once 'includes/admin-footer.php'; ?>

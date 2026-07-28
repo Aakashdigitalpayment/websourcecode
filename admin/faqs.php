@@ -1,3 +1,4 @@
+<?php
 /**
  * प्रश्नोत्तर व्यवस्थापन — FAQs Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)

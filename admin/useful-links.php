@@ -1,3 +1,4 @@
+<?php
 /**
  * उपयोगी लिंकहरू व्यवस्थापन — Useful Links Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
