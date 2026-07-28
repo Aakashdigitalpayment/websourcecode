@@ -291,6 +291,11 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/admin-shell-polish.css');
         }
 
+        /* ── 9.5. Admin bootstrap unify — theme vars over hardcoded hex (additive) ── */
+        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
+            coopThemeLink('assets/css/admin-bootstrap-unified-patch.css');
+        }
+
         /* ── 10. Member / auth / verify shell polish (LAST for those panels) ── */
         if (in_array($panel, ['member', 'auth', 'verify'], true)
             || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'))) {
