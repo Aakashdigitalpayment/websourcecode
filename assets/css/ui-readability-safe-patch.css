@@ -646,12 +646,16 @@ button[onclick*="copyTrk"],
 
 /* ── v6: Quick Help + chat widgets — icon visibility & layout ── */
 
-/* Uniform menu rows (anchors + buttons) */
+/* Uniform menu rows — ONLY when launcher is open (never force always-visible) */
 .qh-menu {
-  display: flex !important;
+  display: none !important;
   flex-direction: column !important;
   align-items: stretch !important;
   gap: 3px !important;
+}
+
+.qh-launcher.open .qh-menu {
+  display: flex !important;
 }
 
 .qh-item,
