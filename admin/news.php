@@ -90,9 +90,9 @@ $newsArch = $newsPart['archived'];
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="newsTabs">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#news-list" id="tab-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#news-list" id="tab-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>समाचार सूची
-            <span class="badge bg-success ms-1"><?php echo count($newsLive); ?> / <?php echo count($news); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($news); ?></span>
         </button>
     </li>
     <li class="nav-item">

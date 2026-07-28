@@ -1234,8 +1234,11 @@ set_exception_handler(function (\Throwable $ex) {
             if (!val) {
                 badge.textContent = '';
                 badge.style.display = 'none';
+                badge.removeAttribute('data-filtered');
             } else {
-                badge.textContent = shown + ' / ' + total;
+                badge.textContent = String(shown);
+                badge.setAttribute('data-filtered', '1');
+                badge.setAttribute('title', shown + ' / ' + total);
                 badge.style.display = '';
             }
         }

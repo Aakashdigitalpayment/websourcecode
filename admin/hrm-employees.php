@@ -140,7 +140,12 @@ $fBranch = (int)($_GET['branch'] ?? 0);
 
 $where = []; $args = [];
 if ($q !== '')      { $where[] = "(e.full_name_np LIKE ? OR e.employee_code LIKE ? OR e.mobile LIKE ?)"; $args[]="%$q%"; $args[]="%$q%"; $args[]="%$q%"; }
-if ($fStatus !== ''){ $where[] = "e.status=?"; $args[]=$fStatus; }
+if ($fStatus === 'exited') {
+    $where[] = "e.status IN ('resigned','terminated','retired')";
+} elseif ($fStatus !== '') {
+    $where[] = "e.status=?";
+    $args[] = $fStatus;
+}
 if ($fDept > 0)    { $where[] = "e.department_id=?"; $args[]=$fDept; }
 if ($fBranch > 0)  { $where[] = "e.branch_id=?"; $args[]=$fBranch; }
 $whereSql = $where ? 'WHERE '.implode(' AND ', $where) : '';
@@ -182,7 +187,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <label class="small text-muted">अवस्था</label>
           <select class="field-coop" name="status">
             <option value="">— सबै —</option>
-            <?php foreach (['active'=>'सक्रिय','probation'=>'परीक्षणकाल','on_leave'=>'बिदामा','suspended'=>'निलम्बित','resigned'=>'राजीनामा','terminated'=>'बर्खास्त','retired'=>'अवकाश'] as $k=>$v): ?>
+            <?php foreach (['active'=>'सक्रिय','probation'=>'परीक्षणकाल','on_leave'=>'बिदामा','suspended'=>'निलम्बित','exited'=>'छोडेका (सबै)','resigned'=>'राजीनामा','terminated'=>'बर्खास्त','retired'=>'अवकाश'] as $k=>$v): ?>
               <option value="<?= $k ?>" <?= $fStatus===$k?'selected':'' ?>><?= $v ?></option>
             <?php endforeach; ?>
           </select>
@@ -493,5 +498,10 @@ function editEmp(r){
   if (title) title.textContent = 'कर्मचारी सम्पादन — ' + (r.full_name_np || '');
   openEmpModal(false);
 }
+<?php if (!empty($_GET['add'])): ?>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof openEmpModal === 'function') openEmpModal(true);
+});
+<?php endif; ?>
 </script>
 <?php require_once __DIR__ . '/includes/admin-footer.php'; ?>

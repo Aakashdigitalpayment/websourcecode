@@ -196,9 +196,9 @@ $servicesArch = $svcPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i><?php echo $__t('सेवा सूची', 'Service List'); ?>
-            <span class="badge bg-success ms-1"><?php echo count($servicesLive); ?> / <?php echo count($services); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($services); ?></span>
         </button>
     </li>
     <li class="nav-item">

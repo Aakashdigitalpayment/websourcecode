@@ -251,7 +251,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <span><?php echo isEnglish() ? 'Total assets' : 'कुल सम्पत्ति'; ?></span>
                 </a>
             </div>
-            <a href="institutional-profile.php#ipChartFinancial" class="ip-home-snapshot-link">
+            <a href="institutional-profile.php" class="ip-home-snapshot-link">
                 <?php echo isEnglish() ? 'View charts & full profile' : 'चार्ट र पूरा प्रोफाइल हेर्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
             </a>
         </div>

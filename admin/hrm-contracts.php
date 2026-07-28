@@ -28,11 +28,15 @@ $rows = $db->query("SELECT c.*, e.full_name_np, e.employee_code
       <h1 class="stf-title">📄 करार पत्रहरू</h1>
       <p class="stf-subtitle">सबै कर्मचारीका नियुक्ति/करार/नविकरण</p>
     </div>
-    <div class="btn-group">
-      <?php foreach (['all'=>'सबै','active'=>'सक्रिय','expiring'=>'चाँडै सकिने','expired'=>'सकिएका'] as $k=>$v): ?>
-        <a class="btn btn-sm <?= $f===$k?'btn-primary':'btn-outline-secondary' ?>" href="?filter=<?= $k ?>"><?= $v ?></a>
-      <?php endforeach; ?>
+    <div class="d-flex gap-2 flex-wrap align-items-center stf-page-actions">
+      <a class="btn-coop" href="hrm-dashboard.php"><i class="fas fa-gauge"></i> ड्यासबोर्ड</a>
+      <a class="btn-coop" href="hrm-employees.php"><i class="fas fa-users"></i> कर्मचारी सूची</a>
     </div>
+  </div>
+  <div class="btn-group mb-3 flex-wrap" role="group" aria-label="करार फिल्टर">
+    <?php foreach (['all'=>'सबै','active'=>'सक्रिय','expiring'=>'चाँडै सकिने','expired'=>'सकिएका'] as $k=>$v): ?>
+      <a class="btn btn-sm <?= $f===$k?'btn-primary':'btn-outline-secondary' ?>" href="?filter=<?= $k ?>"><?= $v ?></a>
+    <?php endforeach; ?>
   </div>
 
   <div class="card-coop">

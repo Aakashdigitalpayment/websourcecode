@@ -660,9 +660,7 @@ body:has(.card > .card-top) .card-top {
 
 /* ── PUBLIC: CTA band — KYC button readable on white ───────────── */
 
-.cta-section .cta-content .btn-light,
-.cta-section .cta-content .btn-light .lucide-icon,
-.cta-section .cta-content .btn-light i {
+.cta-section .cta-content .btn-light {
   color: var(--primary-color, #1a5f2a) !important;
   -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
   background: #fff !important;
@@ -670,8 +668,25 @@ body:has(.card > .card-top) .card-top {
   font-weight: 700 !important;
 }
 
+.cta-section .cta-content .btn-light .lucide-icon,
+.cta-section .cta-content .btn-light i,
+.cta-section .cta-content .btn-light svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: transparent !important;
+  border: 0 !important;
+  stroke: currentColor;
+}
+
 .cta-section .cta-content .btn-light:hover {
   background: #f0fdf4 !important;
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+.cta-section .cta-content .btn-light:hover .lucide-icon,
+.cta-section .cta-content .btn-light:hover i,
+.cta-section .cta-content .btn-light:hover svg {
   color: var(--primary-dark, #145021) !important;
   -webkit-text-fill-color: var(--primary-dark, #145021) !important;
 }

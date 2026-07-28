@@ -11,6 +11,9 @@ $db = getDB();
 ensureHrmTables($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (function_exists('checkCSRF')) {
+        checkCSRF();
+    }
     $a = $_POST['action'] ?? '';
     if ($a === 'save') {
         $id = (int)($_POST['id'] ?? 0);
@@ -28,7 +31,10 @@ $rows = $db->query("SELECT * FROM hrm_departments ORDER BY sort_order, id")->fet
 <div class="admin-content">
   <div class="page-header stf-page-head">
     <div><h1 class="stf-title">🏢 विभाग व्यवस्थापन</h1><p class="stf-subtitle">HRM विभाग मास्टर</p></div>
-    <button class="btn-coop" onclick="document.getElementById('dForm').reset(); document.getElementById('d_id').value=0; document.getElementById('dModal').style.display='flex'"><i class="fas fa-plus"></i> नयाँ विभाग</button>
+    <div class="d-flex gap-2 flex-wrap stf-page-actions">
+      <a class="btn-coop" href="hrm-dashboard.php"><i class="fas fa-gauge"></i> ड्यासबोर्ड</a>
+      <button type="button" class="btn-coop" onclick="document.getElementById('dForm').reset(); document.getElementById('d_id').value=0; document.getElementById('dModal').style.display='flex'"><i class="fas fa-plus"></i> नयाँ विभाग</button>
+    </div>
   </div>
   <?php if ($f = getFlash()): ?><div class="alert alert-<?= $f['type']==='error'?'danger':'success' ?>"><?= e($f['message']) ?></div><?php endif; ?>
   <div class="card-coop">

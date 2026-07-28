@@ -141,7 +141,7 @@ $flash = getFlash();
     <li class="nav-item">
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#mot-list" id="mot-list-btn" title="देखिने / जम्मा">
             <i class="fas fa-list me-2"></i>Spotlight Records
-            <span class="badge bg-success ms-1"><?php echo count($recordsLive); ?> / <?php echo count($records); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($records); ?></span>
         </button>
     </li>
     <li class="nav-item">
@@ -490,35 +490,6 @@ function previewPhotoMot(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-</script>
-
-<script>
-/* ── Client-side search (खोज बक्स) ── */
-(function() {
-    var inp = document.querySelector('#mot-list .admin-table-search');
-    var cnt = document.querySelector('#mot-list .search-count');
-    if (!inp) return;
-    
-    function filter() {
-        var q = inp.value.toLowerCase();
-        var pane = document.querySelector('#mot-list .tab-pane.active');
-        if (!pane) return;
-        var rows = pane.querySelectorAll('tbody tr');
-        var vis = 0;
-        rows.forEach(function(r) {
-            var show = r.textContent.toLowerCase().includes(q);
-            r.style.display = show ? '' : 'none';
-            if (show) vis++;
-        });
-        if (cnt) cnt.textContent = vis + ' / ' + rows.length;
-    }
-    
-    inp.addEventListener('input', filter);
-    document.addEventListener('shown.bs.tab', function(e) {
-        if (e.target.id === 'mot-sub-live' || e.target.id === 'mot-sub-arch') filter();
-    });
-    filter();
-})();
 </script>
 
 <?php require_once 'includes/admin-footer.php'; ?>

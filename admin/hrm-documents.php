@@ -31,6 +31,10 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <h1 class="stf-title">🪪 कागजात भण्डार</h1>
       <p class="stf-subtitle">सबै कर्मचारीका सम्पूर्ण कागजात</p>
     </div>
+    <div class="d-flex gap-2 flex-wrap stf-page-actions">
+      <a class="btn-coop" href="hrm-dashboard.php"><i class="fas fa-gauge"></i> ड्यासबोर्ड</a>
+      <a class="btn-coop" href="hrm-employees.php"><i class="fas fa-users"></i> कर्मचारी सूची</a>
+    </div>
   </div>
 
   <form class="card-coop p-3 mb-3 d-flex flex-wrap gap-2 align-items-end">

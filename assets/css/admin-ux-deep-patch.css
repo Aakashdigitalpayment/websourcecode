@@ -1,5 +1,6 @@
 /**
- * Admin UX Deep Patch — additive only, loads LAST on admin panels.
+ * Admin UX Deep Patch — additive only.
+ * Loaded near the end on admin panels (before final-ui-polish.css).
  * Forms, tables, bottom nav, layout, typography — uniform + touch-friendly.
  */
 
@@ -173,10 +174,38 @@ body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty 
 }
 
 body[class*="admin-page-"] .main-content .admin-search-wrap .search-count {
-  flex: 0 0 auto !important;
-  font-size: 0.78rem !important;
-  white-space: nowrap !important;
-  margin-left: auto !important;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff);
+  color: var(--primary-dark, #145224);
+  font-weight: 700;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* HRM / stf page headers — balanced action cluster */
+body[class*="admin-page-"] .stf-page-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+body[class*="admin-page-"] .stf-page-head > .stf-page-actions,
+body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2 {
+  margin-left: auto;
+  flex-shrink: 0 !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+}
+
+body[class*="admin-page-"] .stf-page-head .stf-page-actions .btn-coop,
+body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2 .btn-coop {
+  white-space: nowrap;
 }
 
 /* List tab + table card — single connected block (no double border) */
@@ -210,6 +239,7 @@ body[class*="admin-page-"] .page-header.stf-page-head {
 }
 
 body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2,
+body[class*="admin-page-"] .stf-page-head > .stf-page-actions,
 body[class*="admin-page-"] .stf-page-head > a.btn-coop {
   flex-shrink: 0 !important;
   flex-wrap: wrap !important;
