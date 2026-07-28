@@ -2144,80 +2144,16 @@ CREATE TABLE IF NOT EXISTS hrm_internal_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
--- COLUMN FIXES (merged from fix-missing-columns.sql)
+-- REMOVED: bogus "COLUMN FIXES" block (was fix-missing-columns.sql)
 -- =====================================================
--- Fix missing columns in various tables
--- These columns are referenced in queries but don't exist
-
--- Add missing columns to admin_users table if they don't exist
-ALTER TABLE admin_users 
-ADD COLUMN IF NOT EXISTS full_name_np VARCHAR(255) DEFAULT NULL AFTER full_name,
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active,
-ADD COLUMN IF NOT EXISTS risk_review_status ENUM('pending','approved','rejected') DEFAULT 'pending' AFTER role;
-
--- Add missing columns to members table if they don't exist
-ALTER TABLE members 
-ADD COLUMN IF NOT EXISTS full_name_np VARCHAR(255) DEFAULT NULL AFTER name,
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active,
-ADD COLUMN IF NOT EXISTS risk_review_status ENUM('pending','approved','rejected') DEFAULT 'pending' AFTER status;
-
--- Add missing columns to loan_applications table if they don't exist
-ALTER TABLE loan_applications 
-ADD COLUMN IF NOT EXISTS full_name VARCHAR(255) DEFAULT NULL AFTER member_id,
-ADD COLUMN IF NOT EXISTS full_name_np VARCHAR(255) DEFAULT NULL AFTER full_name,
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER status,
-ADD COLUMN IF NOT EXISTS risk_review_status ENUM('pending','approved','rejected') DEFAULT 'pending' AFTER status;
-
--- Add missing columns to kyc_applications table if they don't exist
-ALTER TABLE kyc_applications 
-ADD COLUMN IF NOT EXISTS full_name VARCHAR(255) DEFAULT NULL AFTER member_id,
-ADD COLUMN IF NOT EXISTS full_name_np VARCHAR(255) DEFAULT NULL AFTER full_name,
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER status,
-ADD COLUMN IF NOT EXISTS risk_review_status ENUM('pending','approved','rejected') DEFAULT 'pending' AFTER status;
-
--- Add missing columns to news table if they don't exist
-ALTER TABLE news 
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active;
-
--- Add missing columns to notices table if they don't exist
-ALTER TABLE notices 
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active;
-
--- Add missing columns to committees table if they don't exist
-ALTER TABLE committees 
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active;
-
--- Add missing columns to careers table if they don't exist
-ALTER TABLE careers 
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER is_active;
-
--- Add missing columns to digital_service_requests table if they don't exist
-ALTER TABLE digital_service_requests 
-ADD COLUMN IF NOT EXISTS full_name VARCHAR(255) DEFAULT NULL AFTER member_id,
-ADD COLUMN IF NOT EXISTS full_name_np VARCHAR(255) DEFAULT NULL AFTER full_name,
-ADD COLUMN IF NOT EXISTS published TINYINT(1) DEFAULT 1 AFTER status,
-ADD COLUMN IF NOT EXISTS risk_review_status ENUM('pending','approved','rejected') DEFAULT 'pending' AFTER status;
-
--- Update existing records to have default values
-UPDATE admin_users SET published = 1 WHERE published IS NULL;
-UPDATE admin_users SET risk_review_status = 'approved' WHERE risk_review_status IS NULL;
-
-UPDATE members SET published = 1 WHERE published IS NULL;
-UPDATE members SET risk_review_status = 'approved' WHERE risk_review_status IS NULL;
-
-UPDATE loan_applications SET published = 1 WHERE published IS NULL;
-UPDATE loan_applications SET risk_review_status = 'pending' WHERE risk_review_status IS NULL;
-
-UPDATE kyc_applications SET published = 1 WHERE published IS NULL;
-UPDATE kyc_applications SET risk_review_status = 'pending' WHERE risk_review_status IS NULL;
-
-UPDATE news SET published = 1 WHERE published IS NULL;
-UPDATE notices SET published = 1 WHERE published IS NULL;
-UPDATE committees SET published = 1 WHERE published IS NULL;
-UPDATE careers SET published = 1 WHERE published IS NULL;
-
-UPDATE digital_service_requests SET published = 1 WHERE published IS NULL;
-UPDATE digital_service_requests SET risk_review_status = 'pending' WHERE risk_review_status IS NULL;
+-- That block wrongly added published / full_name_np / risk_review_status
+-- onto unrelated tables, used a conflicting KYC risk_review_status ENUM,
+-- and referenced a non-existent `committees` table.
+-- Real column migrations live in:
+--   includes/ensure-tables.php
+--   admin/includes/ensure-admin-tables.php
+--   includes/*-tables.php helpers
+-- Do NOT re-add those ALTER/UPDATE statements on live DBs.
 
 -- Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;

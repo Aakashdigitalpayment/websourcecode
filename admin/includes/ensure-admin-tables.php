@@ -404,6 +404,7 @@ function ensureAdminTables(): void {
         $ipAlters = [
             "ALTER TABLE institutional_profile ADD COLUMN report_date_bs VARCHAR(60) DEFAULT ''",
             "ALTER TABLE institutional_profile ADD COLUMN report_date_ad DATE NULL",
+            "ALTER TABLE institutional_profile ADD COLUMN report_month VARCHAR(20) DEFAULT NULL",
             "ALTER TABLE institutional_profile ADD COLUMN total_balance_member INT DEFAULT 0",
             "ALTER TABLE institutional_profile ADD COLUMN share_capital_percent DECIMAL(8,2) DEFAULT 0",
             "ALTER TABLE institutional_profile ADD COLUMN reserved_fund DECIMAL(18,2) DEFAULT 0",
@@ -418,9 +419,32 @@ function ensureAdminTables(): void {
             "ALTER TABLE institutional_profile ADD COLUMN total_loan_reserve_percent DECIMAL(8,2) DEFAULT 0",
             "ALTER TABLE institutional_profile ADD COLUMN npl_percent DECIMAL(5,2) DEFAULT 0",
             "ALTER TABLE institutional_profile ADD COLUMN liquidity_percent DECIMAL(8,2) DEFAULT 0",
+            "ALTER TABLE institutional_profile ADD COLUMN net_profit DECIMAL(18,2) DEFAULT 0",
+            "ALTER TABLE institutional_profile ADD COLUMN profit_loss DECIMAL(18,2) DEFAULT 0",
             "ALTER TABLE institutional_profile ADD COLUMN report_note TEXT DEFAULT NULL",
         ];
         foreach ($ipAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+
+        /* ── notices popup image columns ── */
+        foreach ([
+            "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT ''",
+            "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) DEFAULT 0",
+        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+
+        /* ── gallery video support columns ── */
+        foreach ([
+            "ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT 'photo'",
+            "ALTER TABLE gallery ADD COLUMN video_url VARCHAR(500) DEFAULT ''",
+            "ALTER TABLE gallery ADD COLUMN thumbnail VARCHAR(255) DEFAULT ''",
+        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+
+        /* ── admin_users 2FA columns ── */
+        foreach ([
+            "ALTER TABLE admin_users ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
+            "ALTER TABLE admin_users ADD COLUMN twofa_secret VARCHAR(64) NULL",
+            "ALTER TABLE admin_users ADD COLUMN twofa_backup_codes TEXT NULL",
+            "ALTER TABLE admin_users ADD COLUMN twofa_enabled_at DATETIME NULL",
+        ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
         /* ── team_members: पुरानो DB मा नयाँ columns थप्ने ── */
         $tmAlters = [
@@ -520,7 +544,7 @@ function ensureAdminTables(): void {
 
 /* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
  * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
-$_adminSchemaVersion = 'v5-svc-categories-2026';
+$_adminSchemaVersion = 'v6-safe-cols-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {

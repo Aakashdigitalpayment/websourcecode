@@ -459,6 +459,33 @@ function ensurePublicTables(): void {
             $addColumn("ALTER TABLE kyc_applications ADD COLUMN member_id VARCHAR(50) NULL AFTER id");
         }
 
+        /* Admin reply attachments / internal notes (used by admin + tracker) */
+        foreach (['grievances', 'loan_applications', 'account_applications', 'appointments', 'kyc_applications', 'member_feedback'] as $tbl) {
+            if (!$hasColumn($tbl, 'admin_attachment')) {
+                $addColumn("ALTER TABLE `{$tbl}` ADD COLUMN admin_attachment VARCHAR(500) DEFAULT ''");
+            }
+        }
+        foreach (['grievances', 'member_feedback'] as $tbl) {
+            if (!$hasColumn($tbl, 'admin_note')) {
+                $addColumn("ALTER TABLE `{$tbl}` ADD COLUMN admin_note TEXT NULL");
+            }
+        }
+
+        /* Member ID card verify lock columns + status enum */
+        foreach ([
+            'failed_verify_count' => 'INT DEFAULT 0',
+            'locked_at' => 'TIMESTAMP NULL DEFAULT NULL',
+            'unlock_requested' => 'TINYINT(1) DEFAULT 0',
+            'unlock_requested_at' => 'TIMESTAMP NULL DEFAULT NULL',
+        ] as $ccol => $cdef) {
+            if (!$hasColumn('member_id_cards', $ccol)) {
+                $addColumn("ALTER TABLE member_id_cards ADD COLUMN `{$ccol}` {$cdef}");
+            }
+        }
+        try {
+            $db->exec("ALTER TABLE member_id_cards MODIFY COLUMN status ENUM('active','expired','revoked','locked') DEFAULT 'active'");
+        } catch (\Throwable $e) { /* skip if unsupported / already ok */ }
+
         /* v10.4 KYC capture — औंठा छाप, structured address (online-kyc.php) */
         foreach ([
             'left_thumb' => 'VARCHAR(255) NULL',
@@ -486,6 +513,8 @@ function ensurePublicTables(): void {
             'temporary_tole' => 'VARCHAR(120) NULL',
             'tracking_id' => 'VARCHAR(60) NULL',
             'want_id_card' => 'TINYINT DEFAULT 0',
+            'member_generated_at' => 'DATETIME NULL',
+            'member_generated_by' => 'INT NULL',
         ] as $kcol => $kdef) {
             if (!$hasColumn('kyc_applications', $kcol)) {
                 $addColumn("ALTER TABLE kyc_applications ADD COLUMN `{$kcol}` {$kdef}");
@@ -558,16 +587,17 @@ function ensurePublicTables(): void {
 } /* end: if (!function_exists('ensurePublicTables')) */
 
 /**
- * AUTO-RUN — एकपटक मात्र (lock file आधारित)
- * v2 परिवर्तन: हरेक request मा 39 tables को CREATE/ALTER chalaउँदैन।
- * `.schema.lock` file देखिए skip गर्छ — admin panel "Migration Runner" बाट
- * lock हटाएर पुनः run गर्न सकिन्छ।
+ * AUTO-RUN — versioned lock (admin schema जस्तै)
+ * नयाँ safe column migrations थपिए भने version bump → एक पटक re-run।
+ * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
  */
+$_publicSchemaVersion = 'v6-safe-cols-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
-if (!file_exists($_lockFile)) {
+$_lockContent = @file_get_contents($_lockFile);
+if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {
     ensurePublicTables();
-    @file_put_contents($_lockFile, "Schema initialized at " . date('Y-m-d H:i:s') . "\n"
+    @file_put_contents($_lockFile, "Schema initialized at " . date('Y-m-d H:i:s') . " [{$_publicSchemaVersion}]\n"
         . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
         . "schema पुनः verify हुन्छ।\n");
 }
-unset($_lockFile);
+unset($_lockFile, $_lockContent, $_publicSchemaVersion);

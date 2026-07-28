@@ -189,53 +189,31 @@ if (!function_exists('e')) {
 
 /**
  * get_site_setting(key, default) — unified setting lookup.
- * Primary:  getSetting() → site_settings table (static-cached in config.php).
- * Fallback: legacy `settings` table with key/value schema.
+ * Uses site_settings via getSetting() (canonical). Legacy `settings` table
+ * is not created by the app and is intentionally not queried.
  */
 if (!function_exists('get_site_setting')) {
     function get_site_setting(string $key, $default = null) {
         if (function_exists('getSetting')) {
-            $val = getSetting($key, null);
-            if ($val !== null) return $val;
+            return getSetting($key, $default);
         }
-        static $legacy = [];
-        if (array_key_exists($key, $legacy)) {
-            return $legacy[$key] ?? $default;
-        }
-        try {
-            $db = function_exists('getDB') ? getDB() : null;
-            if ($db) {
-                $stmt = $db->prepare('SELECT `value` FROM settings WHERE `key` = ? LIMIT 1');
-                $stmt->execute([$key]);
-                $row = $stmt->fetch();
-                $legacy[$key] = $row ? $row['value'] : null;
-                return $legacy[$key] ?? $default;
-            }
-        } catch (Throwable $e) { /* DB may not exist yet — ignore */ }
         return $default;
     }
 }
 
 /**
- * set_site_setting(key, value) — write a setting to the database.
- * Uses getDB() (same pattern as get_site_setting — no global $pdo).
+ * set_site_setting(key, value) — write via updateSetting() → site_settings.
  */
 if (!function_exists('set_site_setting')) {
     function set_site_setting(string $key, $value): bool {
         try {
-            $db = function_exists('getDB') ? getDB() : null;
-            if ($db) {
-                $db->prepare(
-                    'INSERT INTO settings (`key`, `value`, updated_at)
-                     VALUES (?, ?, NOW())
-                     ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), updated_at = NOW()'
-                )->execute([$key, $value]);
-                // Clear any session-level cache entry
-                unset($_SESSION['site_settings'][$key]);
-                return true;
+            if (function_exists('updateSetting')) {
+                return (bool) updateSetting($key, $value);
             }
         } catch (Throwable $e) {
-            log_error("set_site_setting('{$key}'): " . $e->getMessage());
+            if (function_exists('log_error')) {
+                log_error("set_site_setting('{$key}'): " . $e->getMessage());
+            }
         }
         return false;
     }
