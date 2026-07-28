@@ -1,8 +1,9 @@
 /**
- * UI Readability Safe Patch v4 — additive only, loads LAST on all panels.
+ * UI Readability Safe Patch v5 — additive only, loads LAST on all panels.
  * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
  * v3: dark-mode gradient sections + expanded brand-fill hero text.
  * v4: supplemental gradients, card-header dark-mode fix, labels, skip-link, attend QR.
+ * v5: dark-mode check/radio, HRM shell nav, copy buttons, form unify.
  */
 
 :root {
@@ -558,6 +559,79 @@ label.form-label {
   text-decoration-thickness: 1px;
 }
 
+/* ── v5: Dark mode — checkbox / radio / switch readable ── */
+body.dark-mode .form-check-input {
+  background-color: var(--bg-soft, #1f2a3a);
+  border-color: var(--border-color, #2a3a50);
+}
+body.dark-mode .form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a);
+  border-color: var(--primary-color, #1a5f2a);
+}
+body.dark-mode .form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+body.dark-mode .form-check-label,
+body.dark-mode .form-check-inline .form-check-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .form-switch .form-check-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+/* Auth password-reset channel radios */
+body.dark-mode .channel-opt label {
+  color: var(--text-primary, #e8eef2);
+  border-color: var(--border-color, #2a3a50);
+  background: var(--bg-soft, #1f2a3a);
+}
+body.dark-mode .channel-opt input:checked + label {
+  border-color: var(--primary-on-dark, #86efac);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #1f2a3a);
+  color: var(--text-primary, #e8eef2);
+}
+
+/* HRM legacy partial shell — fonts + bottom nav touch targets */
+.hp-search input {
+  font-family: var(--font-primary) !important;
+}
+.admin-bottom-nav .admin-nav-item {
+  font-size: max(0.75rem, 12px) !important;
+  min-height: 44px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Tracking ID copy buttons — readable + tappable */
+button[onclick*="copyTrk"],
+.btn[onclick*="copyTrk"],
+.mem-topbar-btn[onclick*="copyTrk"] {
+  font-size: max(12px, 0.75rem) !important;
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* Public / member / admin forms — unified control sizing on mobile */
+@media (max-width: 991px) {
+  .main-content .form-control,
+  .main-content .form-select,
+  .mem-container .form-control,
+  .mem-container .form-select,
+  .auth-portal-page .form-control,
+  .auth-portal-page .form-select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .main-content .form-check-input,
+  .mem-container .form-check-input,
+  .auth-portal-page .form-check-input {
+    width: 1.15em;
+    height: 1.15em;
+    margin-top: 0.15em;
+  }
+}
+
 /* Respect reduced-motion (accessibility) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -567,5 +641,238 @@ label.form-label {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ── v6: Quick Help + chat widgets — icon visibility & layout ── */
+
+/* Uniform menu rows (anchors + buttons) */
+.qh-menu {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 3px !important;
+}
+
+.qh-item,
+button.qh-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  gap: 0.55rem !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  line-height: 1.25 !important;
+}
+
+.qh-item > span:last-child,
+.qh-item > span:not(.qh-ic) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Icon wells — white glyphs on colored backgrounds (Lucide + FA) */
+.qh-ic {
+  flex: 0 0 26px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.qh-ic i,
+.qh-ic .lucide-icon,
+.qh-ic svg,
+.qh-ic svg.lucide {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  width: 13px !important;
+  height: 13px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+  opacity: 1 !important;
+}
+
+.qh-item:hover .qh-ic i,
+.qh-item:hover .qh-ic svg,
+.qh-item:hover .qh-ic .lucide-icon {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.qh-section-label {
+  padding: 4px 10px 2px !important;
+  margin: 0 !important;
+}
+
+.qh-divider {
+  margin: 4px 8px !important;
+}
+
+/* AI chat — give messages more room; compact ready-question chips */
+#aiChatPanel {
+  display: none;
+  flex-direction: column !important;
+  max-height: min(680px, calc(100dvh - 96px)) !important;
+}
+
+#aiChatPanel.open {
+  display: flex !important;
+}
+
+#aiChatPanel .acp-messages {
+  flex: 1 1 auto !important;
+  min-height: min(280px, 42vh) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+}
+
+#aiChatPanel .acp-foot {
+  flex: 0 0 auto !important;
+  max-height: 38% !important;
+  overflow: hidden !important;
+  padding: 8px 10px 0 !important;
+}
+
+#aiChatPanel .acp-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  max-height: 72px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0 0 6px !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+#aiChatPanel .acp-chip {
+  flex: 0 1 auto !important;
+  min-height: 32px !important;
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  line-height: 1.25 !important;
+}
+
+#aiChatPanel .acp-escalate {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  padding: 0 0 8px !important;
+}
+
+#aiChatPanel .acp-escalate button {
+  flex: 1 1 calc(50% - 6px) !important;
+  min-height: 36px !important;
+  padding: 7px 8px !important;
+  font-size: 11px !important;
+  gap: 5px !important;
+}
+
+#aiChatPanel .acp-escalate button i {
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 12px !important;
+  opacity: 1 !important;
+}
+
+#aiChatPanel .acp-form {
+  flex-shrink: 0 !important;
+  padding: 10px 12px !important;
+}
+
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]) {
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]):focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, transparent) !important;
+}
+
+/* Support center modal — single border, taller message area */
+#publicChatPanel {
+  display: none;
+  flex-direction: column !important;
+  max-height: min(560px, calc(100dvh - 100px)) !important;
+}
+
+#publicChatPanel.open {
+  display: flex !important;
+}
+
+#publicChatPanel .pcp-h .lucide-icon,
+#publicChatPanel .pcp-h svg.lucide,
+#publicChatPanel .pcp-h > i {
+  color: #fff !important;
+  stroke: #fff !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+}
+
+#publicChatPanel .pcp-body {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 14px 14px 16px !important;
+  overflow-y: auto !important;
+  max-height: none !important;
+}
+
+#publicChatPanel .pcp-body label {
+  margin-bottom: 0.35rem !important;
+}
+
+#publicChatPanel .pcp-body input,
+#publicChatPanel .pcp-body textarea {
+  width: 100% !important;
+  border: 1px solid #d7e0db !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: #fff !important;
+}
+
+#publicChatPanel .pcp-body input:focus,
+#publicChatPanel .pcp-body textarea:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color, #1a5f2a) 20%, transparent) !important;
+}
+
+#publicChatPanel .pcp-body textarea {
+  min-height: 112px !important;
+  resize: vertical !important;
+  margin-bottom: 0.85rem !important;
+}
+
+#publicChatPanel .pcp-body button[type="submit"] {
+  margin-top: 0.25rem !important;
+  min-height: 44px !important;
+}
+
+@media (max-width: 576px) {
+  #aiChatPanel .acp-messages {
+    min-height: min(220px, 36vh) !important;
+  }
+
+  #aiChatPanel .acp-foot {
+    max-height: 34% !important;
+  }
+
+  #aiChatPanel .acp-chips {
+    max-height: 64px !important;
   }
 }

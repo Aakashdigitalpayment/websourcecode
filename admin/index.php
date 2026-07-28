@@ -675,5 +675,6 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
 
 </div>
 
+<?php if (function_exists('coopThemeLucideInit')) { coopThemeLucideInit(); } ?>
 </body>
 </html>
