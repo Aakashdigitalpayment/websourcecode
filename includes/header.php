@@ -2047,7 +2047,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     $noticeIds = implode(',', array_column($popupNotices, 'id'));
     ?>
     <!-- Popup Notice Modal - Enhanced V3 with Carousel -->
-    <div class="notice-popup-enhanced" id="noticePopup" data-notice-ids="<?php echo $noticeIds; ?>" data-testid="notice-popup-modal">
+    <div class="notice-popup-enhanced" id="noticePopup" role="dialog" aria-modal="true" aria-label="<?php echo isEnglish() ? 'Notice' : 'सूचना'; ?>" data-notice-ids="<?php echo $noticeIds; ?>" data-testid="notice-popup-modal">
         <div class="popup-overlay" data-testid="notice-popup-overlay"></div>
         <div class="popup-dialog popup-v3">
             <div class="popup-top-accent"></div>
