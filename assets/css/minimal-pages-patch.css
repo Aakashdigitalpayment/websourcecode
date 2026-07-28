@@ -1,0 +1,29 @@
+/**
+ * Minimal panel patch — attend.php, tracker-id-card.php (additive only).
+ * Fixes ui-ux-enhancements dark headings on green QR card headers.
+ */
+
+body:has(.card > .card-top) {
+  font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+}
+
+.card-top,
+.card-top h1,
+.card-top h2,
+.card-top .meta,
+.card-top .prog-icon,
+.card-top .prog-icon i {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+.card:has(.card-top) .card-body .btn,
+.card:has(.card-top) button[type="submit"] {
+  min-height: 44px;
+}
+
+.card:has(.card-top) input.form-control,
+.card:has(.card-top) select.form-select {
+  min-height: 44px;
+  font-size: 16px;
+}

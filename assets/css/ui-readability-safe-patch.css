@@ -1,7 +1,8 @@
 /**
- * UI Readability Safe Patch v3 — additive only, loads LAST on all panels.
+ * UI Readability Safe Patch v4 — additive only, loads LAST on all panels.
  * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
  * v3: dark-mode gradient sections + expanded brand-fill hero text.
+ * v4: supplemental gradients, card-header dark-mode fix, labels, skip-link, attend QR.
  */
 
 :root {
@@ -337,6 +338,113 @@ body.dark-mode :is(
 body.dark-mode .hero-slide-modern .slider-bg,
 body.dark-mode .hero-bg-modern {
   background-color: transparent !important;
+}
+
+/* v4 — supplemental gradient sections (cp cards, modals, admin headers) */
+:is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header,
+  .card-top
+) {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+:is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header,
+  .card-top
+) :is(h1, h2, h3, h4, h5, h6, p, span, small, i, svg, .lucide-icon) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header
+) {
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Beat public-shell body.dark-mode .card-header flattening gradient headers */
+body.dark-mode :is(
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card-header.bg-primary:not(.bg-light):not(.bg-white),
+  .card-header.appt-form-card-head,
+  .ir-head-primary,
+  .svc-form-header-grad,
+  .sl-form-header,
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ct-modal-head,
+  .form-header
+) {
+  background-color: transparent !important;
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode :is(
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card-header.bg-primary:not(.bg-light):not(.bg-white),
+  .card-header.appt-form-card-head,
+  .ir-head-primary,
+  .svc-form-header-grad,
+  .sl-form-header,
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ct-modal-head,
+  .form-header
+) :is(h1, h2, h3, h4, h5, h6, p, span, small, a:not(.btn), i, svg) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* Dark mode — form labels readable (patch v2 set light-mode color only) */
+body.dark-mode .form-label,
+body.dark-mode label.form-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+
+/* Partner facilities intro title on dark page bg */
+body.dark-mode .pf-hero-title {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Skip link — visible above fixed header when focused */
+.skip-link {
+  z-index: 1000001;
+}
+.skip-link:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000001;
 }
 
 /* ── Mobile: consistent rem base (app-core has 14px then 16px conflict) ── */

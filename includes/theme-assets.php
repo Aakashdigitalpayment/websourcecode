@@ -308,6 +308,11 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/public-shell-polish.css');
         }
 
+        /* ── 11.5. Minimal QR / standalone pages — attend, tracker-id-card ── */
+        if ($panel === 'minimal') {
+            coopThemeLink('assets/css/minimal-pages-patch.css');
+        }
+
         /* ── 12. Readability safe patch — fonts/touch/mobile text (absolute last) ── */
         coopThemeLink('assets/css/ui-readability-safe-patch.css');
     }
