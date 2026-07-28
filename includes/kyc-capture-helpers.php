@@ -2,7 +2,7 @@
 /**
  * KYC Capture Helpers (v10.4)
  * Base64 (data URL) → uploaded file converter
- * Used by online-kyc.php and member/full-kyc.php for camera/signature/fingerprint capture.
+ * Used by online-kyc.php and member/profile.php for camera/signature/fingerprint capture.
  */
 
 if (!defined('UPLOAD_PATH')) {

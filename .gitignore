@@ -1,6 +1,10 @@
 .DS_Store
 *.log
 
+# Runtime dirs (created on live server)
+/cache/
+/logs/
+
 # Local / secret config — never commit
 includes/.cred-master.key
 includes/database.local.php

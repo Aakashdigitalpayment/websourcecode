@@ -1,7 +1,7 @@
 /**
  * Admin Bootstrap Unified Patch — additive only.
  * Loads after bootstrap-admin-overrides.css + admin-shell-polish.css.
- * Maps hardcoded bootstrap hex to DB theme variables; keeps gradient headers readable.
+ * Maps hardcoded bootstrap hex to DB theme CSS variables; keeps gradient headers readable.
  */
 
 .admin-shell .btn.btn-primary,
@@ -124,4 +124,50 @@ a.btn.btn-primary:focus {
 .main-content .stat-card.bg-primary *,
 .main-content .stat-card.bg-success * {
   color: var(--text-on-primary, #fff) !important;
+}
+
+/* Interest rates + admin gradient headers */
+.main-content .card-header.ir-head-primary,
+.admin-card .card-header.ir-head-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a) 0%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .card-header.ir-head-primary *,
+.admin-card .card-header.ir-head-primary * {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* Tabs — brand color from theme (not hardcoded hex) */
+.main-content .nav-tabs .nav-link:hover,
+.admin-shell .nav-tabs .nav-link:hover,
+.main-content .ds-tab:hover {
+  color: var(--primary-color, #1a5f2a) !important;
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff) !important;
+}
+
+.main-content .nav-tabs .nav-link.active,
+.admin-shell .nav-tabs .nav-link.active,
+.main-content .ds-tab.active {
+  color: var(--primary-color, #1a5f2a) !important;
+  border-bottom-color: var(--primary-color, #1a5f2a) !important;
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+/* Form labels — use theme text token */
+.admin-shell .form-label,
+.main-content .form-label,
+.admin-wrapper .form-label {
+  color: var(--text-primary, #0f1a15) !important;
+}
+
+.main-content .badge.bg-primary,
+.admin-shell .badge.bg-primary {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #fff) !important;
+  color: var(--primary-dark, #145620) !important;
 }
