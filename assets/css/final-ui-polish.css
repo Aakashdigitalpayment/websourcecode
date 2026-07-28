@@ -718,6 +718,30 @@ body:has(.card > .card-top) .card-top {
   font-weight: 900 !important;
 }
 
+/* ── Admin: search filtered count — thin border, clearer (same size) ─ */
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty,
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:empty {
+  display: none !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:not(:empty),
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:not(:empty) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.15rem 0.55rem !important;
+  border: 1px solid #c9d5ce !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #1f2d26 !important;
+  -webkit-text-fill-color: #1f2d26 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+
 /* ── Institutional profile — homepage snapshot + charts page ───── */
 
 .ip-home-snapshot {

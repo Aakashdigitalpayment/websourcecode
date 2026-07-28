@@ -173,17 +173,25 @@ body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty 
   display: none !important;
 }
 
-body[class*="admin-page-"] .main-content .admin-search-wrap .search-count {
-  display: inline-flex;
+/* Search filtered count — thin border badge (clear, same size) */
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count,
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count {
+  display: inline-flex !important;
   align-items: center;
+  justify-content: center;
   min-height: 28px;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff);
-  color: var(--primary-dark, #145224);
-  font-weight: 700;
-  font-size: 0.75rem;
+  min-width: 0 !important;
+  padding: 0.15rem 0.55rem !important;
+  border: 1px solid #c9d5ce !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #1f2d26 !important;
+  -webkit-text-fill-color: #1f2d26 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important; /* match existing .search-count size */
+  line-height: 1.2 !important;
   white-space: nowrap;
+  box-shadow: none !important;
 }
 
 /* HRM / stf page headers — balanced action cluster */
