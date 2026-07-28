@@ -1,3 +1,4 @@
+<?php
 /**
  * सम्मान तथा पुरस्कार व्यवस्थापन — Awards Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
