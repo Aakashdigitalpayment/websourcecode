@@ -335,6 +335,9 @@ if (!function_exists('coopThemeCssUrl')) {
             || ($panel === 'shell' && $isAdminShell)) {
             coopThemeLink('assets/css/admin-ux-deep-patch.css');
         }
+
+        /* ── 13. Final UI polish — absolute last on all panels (public + admin) ── */
+        coopThemeLink('assets/css/final-ui-polish.css');
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */
