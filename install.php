@@ -14,6 +14,16 @@
 $installLockExists = file_exists(__DIR__ . '/install.lock');
 $localDbConfigExists = file_exists(__DIR__ . '/includes/database.local.php');
 $allowInstallRerun = defined('ALLOW_INSTALL_RERUN') && ALLOW_INSTALL_RERUN === true;
+
+/* Live safety: DB config छ तर lock छैन भने auto-lock (Apache + file layer) */
+if ($localDbConfigExists && !$installLockExists && is_writable(__DIR__)) {
+    @file_put_contents(
+        __DIR__ . '/install.lock',
+        'Auto-locked: ' . date('c') . "\nReason: includes/database.local.php present\n"
+    );
+    $installLockExists = true;
+}
+
 if (($installLockExists || $localDbConfigExists) && !$allowInstallRerun) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=UTF-8');
@@ -21,11 +31,49 @@ if (($installLockExists || $localDbConfigExists) && !$allowInstallRerun) {
     exit;
 }
 
+if (PHP_VERSION_ID >= 70300) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'secure'   => (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off'),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
 session_start();
+
+function install_csrf_token(): string
+{
+    if (empty($_SESSION['install_csrf'])) {
+        $_SESSION['install_csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['install_csrf'];
+}
+
+function install_verify_csrf(): bool
+{
+    $token = (string) ($_POST['csrf_token'] ?? '');
+    return isset($_SESSION['install_csrf'])
+        && $token !== ''
+        && hash_equals($_SESSION['install_csrf'], $token);
+}
+
+function install_json_csrf_fail(): void
+{
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'ok'  => false,
+        'msg' => 'Security check failed. Refresh the page and try again.',
+    ]);
+    exit;
+}
 
 /* ─────────────────────────── AJAX: test DB connection ─── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'test_db') {
     header('Content-Type: application/json; charset=utf-8');
+    if (!install_verify_csrf()) {
+        install_json_csrf_fail();
+    }
     $h = trim($_POST['db_host'] ?? 'localhost');
     $n = trim($_POST['db_name'] ?? '');
     $u = trim($_POST['db_user'] ?? '');
@@ -49,6 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'test_
 /* ─────────────────────────── POST: run installation ────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'install') {
     header('Content-Type: application/json; charset=utf-8');
+    if (!install_verify_csrf()) {
+        echo json_encode(['ok' => false, 'error' => 'Security check failed. Refresh the page and try again.']);
+        exit;
+    }
+    if (file_exists(__DIR__ . '/install.lock') || file_exists(__DIR__ . '/includes/database.local.php')) {
+        echo json_encode(['ok' => false, 'error' => 'Install already completed.']);
+        exit;
+    }
 
     $steps  = [];
     $ok     = true;
@@ -164,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'insta
         file_put_contents(__DIR__ . '/install.lock',
             "Installed: " . date('Y-m-d H:i:s') . "\nInstaller: install.php wizard\n"
         );
+        @chmod(__DIR__ . '/install.lock', 0644);
         $steps[] = ['ok' => true, 'msg' => 'Installation lock सिर्जना — install.php अब बन्द भयो'];
 
         $siteLink  = $siteUrl ?: '/';
@@ -861,6 +918,7 @@ body {
 </div><!-- /page-wrap -->
 
 <script>
+var INSTALL_CSRF = <?= json_encode(install_csrf_token(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
 var currentStep = 0;
 var dbConnected = false;
 
@@ -891,6 +949,10 @@ function goStep(n) {
     if (n === 4) fillSummary();
 }
 
+function appendCsrf(fd) {
+    fd.append('csrf_token', INSTALL_CSRF);
+}
+
 /* ─── DB test ─── */
 function testDb() {
     var status = document.getElementById('dbStatus');
@@ -904,6 +966,7 @@ function testDb() {
     fd.append('db_name', v('db_name'));
     fd.append('db_user', v('db_user'));
     fd.append('db_pass', v('db_pass'));
+    appendCsrf(fd);
     
     fetch(window.location.href, {method: 'POST', body: fd})
         .then(function(r){ return r.json(); })
@@ -982,6 +1045,7 @@ function runInstall() {
     fd.append('admin_password',  v('admin_password'));
     fd.append('admin_fullname',  v('admin_fullname'));
     fd.append('admin_email',     v('admin_email'));
+    appendCsrf(fd);
 
     fetch(window.location.href, {method: 'POST', body: fd})
         .then(function(r){ return r.json(); })
