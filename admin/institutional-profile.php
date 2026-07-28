@@ -902,11 +902,13 @@ elseif (!$tableExists): ?>
 
         if (countBadge) {
             if (query || status || fyPick || month !== '') {
-                countBadge.textContent = visible + ' / ' + totalRows + ' records';
+                countBadge.textContent = visible + ' records';
                 countBadge.classList.remove('ip-count-default', 'ip-count-empty');
                 countBadge.classList.add(visible === 0 ? 'ip-count-empty' : 'ip-count-default');
+                countBadge.title = visible + ' / ' + totalRows + ' records';
             } else {
                 countBadge.textContent = totalRows + ' records';
+                countBadge.removeAttribute('title');
                 countBadge.classList.remove('ip-count-empty');
                 countBadge.classList.add('ip-count-default');
             }

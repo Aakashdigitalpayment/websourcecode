@@ -199,7 +199,7 @@ $flash = getFlash();
     <li class="nav-item">
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#career-list" id="career-list-btn" title="<?php echo $__t('सक्रिय पद / जम्मा पद', 'Active positions / total positions'); ?>">
             <i class="fas fa-list me-2"></i><?php echo $__t('रोजगारी सूची', 'Career List'); ?>
-            <span class="badge bg-success ms-1"><?php echo count($careersLive); ?> / <?php echo count($careers); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($careers); ?></span>
         </button>
     </li>
     <li class="nav-item">
@@ -486,12 +486,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (match) shown++;
             });
             if (countEl) {
-                var total = 0;
-                rows.forEach(function (row) {
-                    var cells = row.querySelectorAll('td');
-                    if (!(cells.length === 1 && cells[0].getAttribute('colspan'))) total++;
-                });
-                countEl.textContent = shown + ' / ' + total;
+                if (!val) {
+                    countEl.textContent = '';
+                    countEl.style.display = 'none';
+                } else {
+                    countEl.textContent = String(shown);
+                    countEl.style.display = '';
+                }
             }
         }
         inp.addEventListener('input', runCareerListSearch);

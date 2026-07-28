@@ -245,7 +245,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                             <button class="nav-link <?php echo ($tab === 'dynamic' && $action !== 'edit' && $panel !== 'form') ? 'active' : ''; ?>"
                                     data-bs-toggle="tab" data-bs-target="#pgv2-dyn-list" type="button" role="tab">
                                 <i class="fas fa-list me-2"></i>सूची
-                                <span class="badge bg-success ms-1"><?php echo count($dynamicLive); ?> / <?php echo count($dynamicPages); ?></span>
+                                <span class="badge bg-success ms-1"><?php echo count($dynamicPages); ?></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">

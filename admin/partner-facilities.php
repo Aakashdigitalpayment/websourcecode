@@ -92,9 +92,9 @@ $facilitiesArch = $pfPart['archived'];
 <!-- ── Tabs ── -->
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="pfTabs">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pf-list" id="pf-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pf-list" id="pf-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>सुविधा सूची
-            <span class="badge bg-success ms-1"><?php echo count($facilitiesLive); ?> / <?php echo count($facilities); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($facilities); ?></span>
         </button>
     </li>
     <li class="nav-item">
@@ -425,7 +425,10 @@ function pfFilter() {
         r.style.display = show ? '' : 'none';
         if (show) vis++;
     });
-    if (cntEl) cntEl.textContent = vis + ' / ' + total;
+    if (cntEl) {
+        if (!q && !typ) { cntEl.textContent = ''; cntEl.style.display = 'none'; }
+        else { cntEl.textContent = String(vis); cntEl.style.display = ''; cntEl.title = vis + ' / ' + total; }
+    }
 }
 if (searchInp) searchInp.addEventListener('input', pfFilter);
 if (typeSelEl) typeSelEl.addEventListener('change', pfFilter);

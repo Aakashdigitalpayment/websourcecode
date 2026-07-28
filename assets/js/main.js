@@ -114,8 +114,9 @@ document.addEventListener('DOMContentLoaded', function() {
         function updatePhotoOnlyMode() {
             if (!popupDialog) return;
             const activeSlide = slides[currentSlide];
-            const photoOnly = !!(activeSlide && activeSlide.getAttribute('data-photo-only') === '1');
-            popupDialog.classList.toggle('popup-dialog--photo-only', photoOnly);
+            const flagged = !!(activeSlide && activeSlide.getAttribute('data-photo-only') === '1');
+            const hasImg = !!(activeSlide && activeSlide.querySelector('.popup-photo-only-img'));
+            popupDialog.classList.toggle('popup-dialog--photo-only', flagged && hasImg);
         }
 
         // Function to go to specific slide

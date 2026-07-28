@@ -93,9 +93,9 @@ $faqsArch = $faqPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#faq-list" id="faq-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#faq-list" id="faq-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>प्रश्नोत्तर सूची
-            <span class="badge bg-success ms-1"><?php echo count($faqsLive); ?> / <?php echo count($faqs); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($faqs); ?></span>
         </button>
     </li>
     <li class="nav-item">
@@ -381,35 +381,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-</script>
-
-<script>
-/* ── Client-side search (खोज बक्स) ── */
-(function() {
-    var inp = document.querySelector('#faq-list .admin-table-search');
-    var cnt = document.querySelector('#faq-list .search-count');
-    if (!inp) return;
-    
-    function filter() {
-        var q = inp.value.toLowerCase();
-        var pane = document.querySelector('#faq-list .tab-pane.active');
-        if (!pane) return;
-        var rows = pane.querySelectorAll('tbody tr');
-        var vis = 0;
-        rows.forEach(function(r) {
-            var show = r.textContent.toLowerCase().includes(q);
-            r.style.display = show ? '' : 'none';
-            if (show) vis++;
-        });
-        if (cnt) cnt.textContent = vis + ' / ' + rows.length;
-    }
-    
-    inp.addEventListener('input', filter);
-    document.addEventListener('shown.bs.tab', function(e) {
-        if (e.target.id === 'faq-sub-live' || e.target.id === 'faq-sub-arch') filter();
-    });
-    filter();
-})();
 </script>
 
 <?php require_once 'includes/admin-footer.php'; ?>

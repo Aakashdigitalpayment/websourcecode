@@ -26,15 +26,18 @@ if (!function_exists('coopIpMonthLabel')) {
         if ($m < 1 || $m > 12) {
             return $en ? 'Annual' : 'वार्षिक';
         }
-        if (function_exists('getNepaliMonthName')) {
-            return (string) getNepaliMonthName((string) $m);
-        }
         $enNames = [
             1 => 'Baisakh', 2 => 'Jestha', 3 => 'Ashadh', 4 => 'Shrawan',
             5 => 'Bhadra', 6 => 'Ashwin', 7 => 'Kartik', 8 => 'Mangsir',
             9 => 'Poush', 10 => 'Magh', 11 => 'Falgun', 12 => 'Chaitra',
         ];
-        return $en ? ($enNames[$m] ?? ('Month ' . $m)) : ('महिना ' . $m);
+        if ($en) {
+            return $enNames[$m] ?? ('Month ' . $m);
+        }
+        if (function_exists('getNepaliMonthName')) {
+            return (string) getNepaliMonthName((string) $m);
+        }
+        return 'महिना ' . $m;
     }
 }
 

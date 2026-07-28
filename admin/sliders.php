@@ -127,9 +127,9 @@ $slidersArch = $slPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sl-list" id="sl-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sl-list" id="sl-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>स्लाइडर सूची
-            <span class="badge bg-success ms-1"><?php echo count($slidersLive); ?> / <?php echo count($sliders); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($sliders); ?></span>
         </button>
     </li>
     <li class="nav-item">

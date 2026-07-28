@@ -2081,7 +2081,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                         }
                     }
                 ?>
-                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo $attachPath; ?>" data-photo-only="<?php echo $isPhotoOnly ? '1' : '0'; ?>">
+                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo htmlspecialchars($attachPath, ENT_QUOTES, 'UTF-8'); ?>" data-photo-only="<?php echo ($isPhotoOnly && $photoOnlySrc) ? '1' : '0'; ?>">
                     <?php if ($isPhotoOnly && $photoOnlySrc): ?>
                     <!-- Photo-only popup mode -->
                     <div class="popup-photo-only-wrap">

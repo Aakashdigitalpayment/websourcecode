@@ -660,9 +660,7 @@ body:has(.card > .card-top) .card-top {
 
 /* ── PUBLIC: CTA band — KYC button readable on white ───────────── */
 
-.cta-section .cta-content .btn-light,
-.cta-section .cta-content .btn-light .lucide-icon,
-.cta-section .cta-content .btn-light i {
+.cta-section .cta-content .btn-light {
   color: var(--primary-color, #1a5f2a) !important;
   -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
   background: #fff !important;
@@ -670,8 +668,25 @@ body:has(.card > .card-top) .card-top {
   font-weight: 700 !important;
 }
 
+.cta-section .cta-content .btn-light .lucide-icon,
+.cta-section .cta-content .btn-light i,
+.cta-section .cta-content .btn-light svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: transparent !important;
+  border: 0 !important;
+  stroke: currentColor;
+}
+
 .cta-section .cta-content .btn-light:hover {
   background: #f0fdf4 !important;
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+.cta-section .cta-content .btn-light:hover .lucide-icon,
+.cta-section .cta-content .btn-light:hover i,
+.cta-section .cta-content .btn-light:hover svg {
   color: var(--primary-dark, #145021) !important;
   -webkit-text-fill-color: var(--primary-dark, #145021) !important;
 }
@@ -701,6 +716,30 @@ body:has(.card > .card-top) .card-top {
 .qh-fab i {
   font-size: 18px !important;
   font-weight: 900 !important;
+}
+
+/* ── Admin: search filtered count — thin border, clearer (same size) ─ */
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty,
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:empty {
+  display: none !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:not(:empty),
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:not(:empty) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.15rem 0.55rem !important;
+  border: 1px solid #c9d5ce !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #1f2d26 !important;
+  -webkit-text-fill-color: #1f2d26 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
 }
 
 /* ── Institutional profile — homepage snapshot + charts page ───── */

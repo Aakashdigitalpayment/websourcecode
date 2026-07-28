@@ -580,7 +580,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <li class="nav-item">
         <button class="nav-link <?php echo $activeTeamTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-list" id="team-list-btn" title="<?php echo $__t('सक्रिय / जम्मा', 'Active / Total'); ?>">
             <i class="fas fa-list me-2"></i><?php echo $__t('सदस्य सूची', 'Member List'); ?>
-            <span class="badge tm-tab-count ms-1"><?php echo count($teamLive); ?> / <?php echo count($team); ?></span>
+            <span class="badge tm-tab-count ms-1"><?php echo count($team); ?></span>
         </button>
     </li>
     <li class="nav-item">

@@ -43,7 +43,8 @@ try {
 
 if (!$hasHrmTables) {
   echo '<div class="admin-content"><div class="alert alert-warning"><h4>HRM Module Not Installed</h4><p>The HRM tables were not detected in the current app database connection. Please run Admin &gt; Database Setup once, and verify phpMyAdmin तथा app दुवै एउटै database (DB_NAME) प्रयोग गरिरहेका छन्।</p></div></div>';
-    return;
+  require_once __DIR__ . '/includes/admin-footer.php';
+  exit;
 }
 
 $total = $active = $probation = $onLeave = $exited = 0;
@@ -94,7 +95,10 @@ try {
             <h1 class="stf-title">🧑‍💼 मानव संशाधन ड्यासबोर्ड</h1>
             <p class="stf-subtitle">कर्मचारी, करार र कागजातको समग्र अवस्था</p>
         </div>
-        <a class="btn-coop" href="hrm-employees.php"><i class="fas fa-users"></i> कर्मचारी सूची</a>
+        <div class="d-flex gap-2 flex-wrap stf-page-actions">
+            <a class="btn-coop" href="hrm-employees.php"><i class="fas fa-users"></i> कर्मचारी सूची</a>
+            <a class="btn-coop" href="hrm-employees.php?add=1"><i class="fas fa-user-plus"></i> नयाँ कर्मचारी</a>
+        </div>
     </div>
 
     <div class="alert alert-light border small py-2 mb-3">
@@ -105,7 +109,7 @@ try {
       <a href="manage-admins.php">Manage Admins</a> = panel login user ·
       <a href="service-centers.php">शाखाहरू</a> = सेवा केन्द्र (शाखा dropdown को स्रोत) ·
       <a href="designations.php">पद मास्टर</a> = पदको नाम ·
-      <a href="hrm-employees.php">नयाँ कर्मचारी</a> मा टोलीबाट छानेर वा टाइप गरेर थप्न सकिन्छ।
+      <a href="hrm-employees.php?add=1">नयाँ कर्मचारी</a> मा टोलीबाट छानेर वा टाइप गरेर थप्न सकिन्छ।
     </div>
 
     <?php
@@ -114,7 +118,7 @@ try {
       ['icon'=>'fa-circle-check', 'label'=>'सक्रिय',        'value'=>$active,    'color'=>'success',   'link'=>'hrm-employees.php?status=active'],
       ['icon'=>'fa-flask',        'label'=>'परीक्षणकाल',    'value'=>$probation, 'color'=>'info',      'link'=>'hrm-employees.php?status=probation'],
       ['icon'=>'fa-umbrella',     'label'=>'बिदामा',         'value'=>$onLeave,   'color'=>'warning',   'link'=>'hrm-employees.php?status=on_leave'],
-      ['icon'=>'fa-right-from-bracket','label'=>'छोडेका',   'value'=>$exited,    'color'=>'secondary', 'link'=>'hrm-employees.php?status=resigned'],
+      ['icon'=>'fa-right-from-bracket','label'=>'छोडेका',   'value'=>$exited,    'color'=>'secondary', 'link'=>'hrm-employees.php?status=exited'],
     ];
     $statColClass = 'col-6 col-sm-4 col-md-2';
     include __DIR__ . '/../includes/components/stat-card.php';

@@ -1,5 +1,6 @@
 /**
- * Admin UX Deep Patch — additive only, loads LAST on admin panels.
+ * Admin UX Deep Patch — additive only.
+ * Loaded near the end on admin panels (before final-ui-polish.css).
  * Forms, tables, bottom nav, layout, typography — uniform + touch-friendly.
  */
 
@@ -172,11 +173,47 @@ body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty 
   display: none !important;
 }
 
-body[class*="admin-page-"] .main-content .admin-search-wrap .search-count {
-  flex: 0 0 auto !important;
-  font-size: 0.78rem !important;
-  white-space: nowrap !important;
-  margin-left: auto !important;
+/* Search filtered count — thin border badge (clear, same size) */
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count,
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  min-width: 0 !important;
+  padding: 0.15rem 0.55rem !important;
+  border: 1px solid #c9d5ce !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #1f2d26 !important;
+  -webkit-text-fill-color: #1f2d26 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important; /* match existing .search-count size */
+  line-height: 1.2 !important;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+
+/* HRM / stf page headers — balanced action cluster */
+body[class*="admin-page-"] .stf-page-head {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  gap: 12px !important;
+}
+
+body[class*="admin-page-"] .stf-page-head > .stf-page-actions,
+body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2 {
+  margin-left: auto;
+  flex-shrink: 0 !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+}
+
+body[class*="admin-page-"] .stf-page-head .stf-page-actions .btn-coop,
+body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2 .btn-coop {
+  white-space: nowrap;
 }
 
 /* List tab + table card — single connected block (no double border) */
@@ -210,6 +247,7 @@ body[class*="admin-page-"] .page-header.stf-page-head {
 }
 
 body[class*="admin-page-"] .stf-page-head > .d-flex.gap-2,
+body[class*="admin-page-"] .stf-page-head > .stf-page-actions,
 body[class*="admin-page-"] .stf-page-head > a.btn-coop {
   flex-shrink: 0 !important;
   flex-wrap: wrap !important;

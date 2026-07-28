@@ -90,9 +90,9 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dl-list" id="dl-list-btn" title="सक्रिय / जम्मा">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dl-list" id="dl-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>डाउनलोड सूची
-            <span class="badge bg-success ms-1"><?php echo count($downloadsLive); ?> / <?php echo count($downloads); ?></span>
+            <span class="badge bg-success ms-1"><?php echo count($downloads); ?></span>
         </button>
     </li>
     <li class="nav-item">
