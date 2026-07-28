@@ -38,7 +38,6 @@
 
     <!-- Admin JS -->
     <script src="assets/admin.js"></script>
-    <link rel="stylesheet" href="assets/icon-picker.css?v=4">
     <script src="assets/icon-picker.js?v=4"></script>
     <script src="../assets/js/v9-mobile-fix.js?v=9.7" defer></script>
 

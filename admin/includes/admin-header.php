@@ -284,6 +284,7 @@ set_exception_handler(function (\Throwable $ex) {
     <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted assets/vendor/fontawesome) -->
 
     <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('admin'); } ?>
+    <?php if (function_exists('coopThemeLink')) { coopThemeLink('admin/assets/icon-picker.css'); } ?>
 
     <!-- PWA manifest + Apple tags -->
     <meta name="theme-color" content="<?php echo htmlspecialchars(function_exists('getSetting') ? (string)getSetting('primary_color', '#1a5f2a') : '#1a5f2a', ENT_QUOTES, 'UTF-8'); ?>">

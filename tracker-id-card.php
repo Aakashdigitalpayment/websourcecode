@@ -85,7 +85,7 @@ header('Referrer-Policy: no-referrer');
 <title><?php echo htmlspecialchars(t('डिजिटल परिचयपत्र पूर्वावलोकन', 'Digital ID Card Preview')); ?> — <?php echo htmlspecialchars($siteName); ?></title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('minimal', ['skip_fonts' => true]); } ?>
 <script>
 /* Disable right-click + key shortcuts to discourage trivial copying.

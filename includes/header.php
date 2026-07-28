@@ -623,14 +623,14 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 padding: 0;
             }
             .pfl-top-right .pfl-lang-wrap a {
-                width: 30px !important;
-                min-width: 30px !important;
-                height: 30px !important;
-                min-height: 30px !important;
+                width: auto !important;
+                min-width: 36px !important;
+                height: auto !important;
+                min-height: 44px !important;
                 text-align: center;
-                padding: 0 !important;
+                padding: 0 8px !important;
                 border-radius: 999px;
-                font-size: 10px;
+                font-size: 12px;
                 line-height: 1;
                 font-weight: 800;
                 letter-spacing: .1px;
@@ -656,9 +656,10 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 background: rgba(255,255,255,.22) !important;
             }
             .pfl-top-right .pfl-dark-wrap > a {
-                min-width: 30px !important;
-                width: 30px !important;
-                height: 30px !important;
+                min-width: 44px !important;
+                width: 44px !important;
+                min-height: 44px !important;
+                height: 44px !important;
                 padding: 0 !important;
                 border-radius: 8px !important;
             }

@@ -218,7 +218,7 @@ try {
 .mem-bell-btn:hover{background:rgba(255,255,255,.15);}
 .mem-bell-btn .mem-notif-dot{position:absolute;top:4px;right:4px;background:var(--secondary-color);color:var(--text-on-secondary,var(--text-on-primary,white));border-radius:10px;font-size:.62rem;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;}
 .mem-lang-btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
-.mem-lang-code{font-size:11px;font-weight:800;line-height:1;}
+.mem-lang-code{font-size:12px;font-weight:800;line-height:1;}
 .mem-nav-item-rel{position:relative;}
 .mem-notif-dot-inline{position:static;margin-left:4px;}
 .mem-nav-vote-live{position:relative;}

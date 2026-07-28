@@ -210,7 +210,7 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
 <meta name="description" content="QR-based program attendance check-in for cooperative members.">
 <title><?php echo htmlspecialchars(t('QR उपस्थिति', 'QR Attendance')); ?> — <?= htmlspecialchars($siteName) ?></title>
 
-<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('minimal', ['skip_fonts' => true]); } ?>
 </head>
 <body>
