@@ -1,9 +1,11 @@
 /**
- * UI Readability Safe Patch v5 — additive only, loads LAST on all panels.
+ * UI Readability Safe Patch v7 — additive only, loads LAST on all panels.
  * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
  * v3: dark-mode gradient sections + expanded brand-fill hero text.
  * v4: supplemental gradients, card-header dark-mode fix, labels, skip-link, attend QR.
  * v5: dark-mode check/radio, HRM shell nav, copy buttons, form unify.
+ * v6: Quick Help + AI chat widget layout/icon fixes.
+ * v7: WCAG touch targets (44px), focus rings on icon controls, modal focus outline.
  */
 
 :root {
@@ -879,4 +881,182 @@ button.qh-item {
   #aiChatPanel .acp-chips {
     max-height: 64px !important;
   }
+}
+
+/* ── v7: Enterprise a11y — 44px touch targets + focus visibility ── */
+
+.qh-fab,
+.qh-item,
+button.qh-item {
+  min-height: 44px !important;
+}
+
+#aiChatPanel .acp-chip {
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+}
+
+#aiChatPanel .acp-escalate button {
+  min-height: 44px !important;
+}
+
+.pfl-top-right a,
+.pfl-top-right button {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+#publicChatPanel .pcp-x,
+#aiChatPanel .acp-x,
+.qh-fab {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+#publicChatPanel :focus-visible,
+#aiChatPanel :focus-visible,
+#searchModal :focus-visible,
+#noticePopup :focus-visible,
+.qh-launcher :focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── v8: Team org chart — photo row on chart (board / committee) ── */
+
+.team-org-chart-wrap {
+  margin-top: 0.5rem;
+}
+
+.team-org-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.team-org-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-org-connector {
+  width: 2px;
+  height: 22px;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #c5d4c8);
+  margin: 4px auto 6px;
+  border-radius: 2px;
+}
+
+.team-org-row-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem 1.25rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.team-org-cell {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Row 1 — Chairman / CEO alone, larger */
+.team-org-row-1.team-org-count-1 .team-org-row-inner {
+  max-width: 280px;
+}
+
+.team-org-row-1.team-org-count-2 .team-org-row-inner {
+  max-width: 520px;
+}
+
+.team-org-row-1.team-org-count-3 .team-org-row-inner,
+.team-org-row-1.team-org-count-4 .team-org-row-inner {
+  max-width: 100%;
+}
+
+.team-org-row-1 .team-org-cell {
+  flex: 0 1 auto;
+  min-width: 140px;
+  max-width: 260px;
+}
+
+.team-org-row-1 .team-card-circular.featured .team-photo-circular {
+  width: 148px !important;
+  height: 148px !important;
+}
+
+/* Row 2 — up to 4 directors */
+.team-org-row-2 .team-org-cell {
+  flex: 0 1 calc(25% - 1rem);
+  min-width: 160px;
+  max-width: 240px;
+}
+
+.team-org-row-2.team-org-count-1 .team-org-cell { max-width: 260px; }
+.team-org-row-2.team-org-count-2 .team-org-cell { flex: 0 1 calc(50% - 1rem); max-width: 280px; }
+.team-org-row-2.team-org-count-3 .team-org-cell { flex: 0 1 calc(33.333% - 1rem); }
+
+/* Row 3+ — smaller cards, more per row */
+.team-org-row-3 .team-org-cell,
+.team-org-row-4 .team-org-cell,
+.team-org-row-5 .team-org-cell {
+  flex: 0 1 calc(20% - 1rem);
+  min-width: 130px;
+  max-width: 200px;
+}
+
+.team-org-row-3 .team-card-circular.small .team-photo-circular,
+.team-org-row-4 .team-card-circular.small .team-photo-circular,
+.team-org-row-5 .team-card-circular.small .team-photo-circular {
+  width: 88px !important;
+  height: 88px !important;
+}
+
+@media (max-width: 991px) {
+  .team-org-row-2 .team-org-cell {
+    flex: 0 1 calc(50% - 0.75rem);
+    min-width: 140px;
+  }
+  .team-org-row-3 .team-org-cell,
+  .team-org-row-4 .team-org-cell,
+  .team-org-row-5 .team-org-cell {
+    flex: 0 1 calc(33.333% - 0.75rem);
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-org-row-1 .team-org-row-inner {
+    max-width: 220px;
+  }
+  .team-org-row-2 .team-org-cell,
+  .team-org-row-3 .team-org-cell,
+  .team-org-row-4 .team-org-cell,
+  .team-org-row-5 .team-org-cell {
+    flex: 0 1 calc(50% - 0.5rem);
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+.admin-shell .tm-chart-pre {
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #fff);
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+}
+
+.admin-shell .tm-chart-hint {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #f8faf9);
 }

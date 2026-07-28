@@ -64,7 +64,7 @@ $L = getLangStrings();
             <div class="col-lg-8">
                 <article class="news-detail-article">
                     <div class="news-detail-header">
-                        <h1><?php echo getLangField($news, 'title'); ?></h1>
+                        <h1><?php echo e(getLangField($news, 'title')); ?></h1>
                         <div class="news-meta">
                             <span class="news-date">
                                 <i class="fas fa-calendar-alt"></i>
@@ -75,7 +75,7 @@ $L = getLangStrings();
 
                     <?php if (!empty($news['image'])): ?>
                     <div class="news-detail-image">
-                        <img src="<?php echo $news['image']; ?>" loading="lazy"  alt="<?php echo getLangField($news, 'title'); ?>">
+                        <img src="<?php echo safe_media_src($news['image']); ?>" loading="lazy"  alt="<?php echo e(getLangField($news, 'title')); ?>">
                     </div>
                     <?php endif; ?>
 
@@ -114,7 +114,7 @@ $L = getLangStrings();
                         <div class="related-news-item">
                             <div class="related-news-image">
                                 <?php if (!empty($related['image'])): ?>
-                                <img src="<?php echo $related['image']; ?>" loading="lazy"  alt="<?php echo getLangField($related, 'title'); ?>">
+                                <img src="<?php echo safe_media_src($related['image']); ?>" loading="lazy"  alt="<?php echo e(getLangField($related, 'title')); ?>">
                                 <?php else: ?>
                                 <div class="related-placeholder">
                                     <i class="fas fa-newspaper"></i>

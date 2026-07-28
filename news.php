@@ -53,7 +53,7 @@ try {
                 <div class="news-card">
                     <div class="news-image">
                         <?php if (!empty($item['image'])): ?>
-                        <img src="<?php echo $item['image']; ?>" loading="lazy"  alt="<?php echo e(getLangField($item, 'title')); ?>">
+                        <img src="<?php echo safe_media_src($item['image']); ?>" loading="lazy"  alt="<?php echo e(getLangField($item, 'title')); ?>">
                         <?php else: ?>
                         <div class="news-placeholder">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i>
@@ -65,7 +65,7 @@ try {
                         </div>
                     </div>
                     <div class="news-content">
-                        <h4><?php echo getLangField($item, 'title'); ?></h4>
+                        <h4><?php echo e(getLangField($item, 'title')); ?></h4>
                         <p><?php echo e(truncateText(strip_tags((string)getLangField($item, 'content')), 120)); ?></p>
                         <a href="news-detail.php?id=<?php echo $item['id']; ?>" class="read-more">
                             <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>

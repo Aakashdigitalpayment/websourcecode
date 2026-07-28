@@ -132,7 +132,9 @@ if (!function_exists('coopThemeCssUrl')) {
             "circle-info": ["info", "info-circle"],
             "circle-check": ["check-circle", "circle-check-big"],
             "check-circle": ["circle-check", "circle-check-big"],
-            "hand-holding-heart": ["heart-handshake", "heart"]
+            "hand-holding-heart": ["heart-handshake", "heart"],
+            "shield-alt": ["shield-check", "shield", "shield-half"],
+            "user-shield": ["shield-user", "shield-check", "shield"]
         };
         var nodes = root.querySelectorAll("[data-lucide]");
         nodes.forEach(function (el) {
@@ -243,10 +245,12 @@ if (!function_exists('coopThemeCssUrl')) {
                 break;
         }
 
-        /* ── 1.5. Load unified CSS system (global, forms, admin-ui) ── */
+        /* ── 1.5. Load unified CSS system (global, forms; admin-ui admin-only) ── */
         coopThemeLink('assets/css/global.css');
         coopThemeLink('assets/css/forms-tables.css');
-        coopThemeLink('assets/css/admin-ui-unified.css');
+        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
+            coopThemeLink('assets/css/admin-ui-unified.css');
+        }
 
         /* ── 1.6. (admin-serious-form.css removed — replaced by admin-shell-polish.css at end) ── */
 

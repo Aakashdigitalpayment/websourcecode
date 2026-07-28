@@ -9,6 +9,7 @@ if (!in_array($teamListSection, ['governance', 'karmachari'], true)) {
 require_once __DIR__ . '/../includes/election-tables.php';
 require_once __DIR__ . '/../includes/team-staff-groups.php';
 require_once __DIR__ . '/../includes/team-menu-categories.php';
+require_once __DIR__ . '/../includes/team-chart-helpers.php';
 /**
  * टिम सदस्य व्यवस्थापन — Team Members Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
@@ -58,6 +59,9 @@ try {
     if (!in_array('is_grievance_officer', $_existing, true)) {
         $_db_chk->exec("ALTER TABLE team_members ADD COLUMN is_grievance_officer TINYINT(1) DEFAULT 0");
     }
+    if (!in_array('chart_row', $_existing, true)) {
+        $_db_chk->exec("ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order");
+    }
     /* Ensure committee_types table exists (silently) */
     $_db_chk->exec("CREATE TABLE IF NOT EXISTS committee_types (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,6 +95,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $email     = strtolower(clean_text($_POST['email']       ?? '', 254));
                 $cat       = clean_text($_POST['category']    ?? 'staff');
                 $order     = (int)($_POST['display_order']  ?? 0);
+                $chartRow  = max(0, min(5, (int)($_POST['chart_row'] ?? 0)));
+                /* Karmachari form मा chart_row field छैन — edit गर्दा पुरानो मान राख्ने */
+                if ($teamListSection !== 'governance') {
+                    if ($id) {
+                        try {
+                            $stCr = $db->prepare('SELECT chart_row FROM team_members WHERE id = ? LIMIT 1');
+                            $stCr->execute([$id]);
+                            $chartRow = max(0, min(5, (int) ($stCr->fetchColumn() ?: 0)));
+                        } catch (Throwable $e) {
+                            $chartRow = 0;
+                        }
+                    } else {
+                        $chartRow = 0;
+                    }
+                }
                 $isInfo    = isset($_POST['is_information_officer']) ? 1 : 0;
                 $isGriev   = isset($_POST['is_grievance_officer'])   ? 1 : 0;
                 $isChairman = isset($_POST['is_chairman']) ? 1 : 0;
@@ -145,16 +164,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if ($_POST['action'] === 'add') {
-                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, is_information_officer, is_grievance_officer, is_chairman, is_ceo, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
-                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive]);
+                    $db->prepare("INSERT INTO team_members (name, name_en, position, position_np, position_en, phone, email, photo, category, display_order, chart_row, is_information_officer, is_grievance_officer, is_chairman, is_ceo, is_active) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                       ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $chartRow, $isInfo, $isGriev, $isChairman, $isCeo, $isActive]);
                     $success = $__t('टिम सदस्य सफलतापूर्वक थपियो।', 'Team member added successfully.');
                 } else {
                     if ($photo) {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, photo=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $photo, $cat, $order, $chartRow, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     } else {
-                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
-                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
+                        $db->prepare("UPDATE team_members SET name=?, name_en=?, position=?, position_np=?, position_en=?, phone=?, email=?, category=?, display_order=?, chart_row=?, is_information_officer=?, is_grievance_officer=?, is_chairman=?, is_ceo=?, is_active=? WHERE id=?")
+                           ->execute([$name, $name_en, $pos, $pos_np, $pos_en, $phone, $email, $cat, $order, $chartRow, $isInfo, $isGriev, $isChairman, $isCeo, $isActive, $id]);
                     }
                     $success = $__t('टिम सदस्य सफलतापूर्वक अपडेट भयो।', 'Team member updated successfully.');
                 }
@@ -881,6 +900,31 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="display_order" id="tmf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
+                        <?php if ($teamListSection === 'governance'): ?>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold tm-form-label" for="tmf_chart_row"><?php echo $__t('चार्टमा फोटो row', 'Photo row on chart'); ?></label>
+                            <select name="chart_row" id="tmf_chart_row" class="form-select admin-fancy-input">
+                                <option value="0"><?php echo $__t('Auto — पदबाट (अहिले row 1)', 'Auto — from job title (currently row 1)'); ?></option>
+                                <option value="1"><?php echo $__t('Row 1 — माथि एक्लै (Chairman / CEO)', 'Row 1 — alone on top (Chairman / CEO)'); ?></option>
+                                <option value="2"><?php echo $__t('Row 2 — त्यसको तल (Director / Manager)', 'Row 2 — below (Director / Manager)'); ?></option>
+                                <option value="3"><?php echo $__t('Row 3 — अझ तल', 'Row 3 — further down'); ?></option>
+                                <option value="4">Row 4</option>
+                                <option value="5">Row 5</option>
+                            </select>
+                            <div class="small tm-meta-muted mt-2 p-2 rounded border tm-chart-hint">
+                                <strong><?php echo $__t('चार्ट कसरी बस्छ (example):', 'How the chart lays out (example):'); ?></strong>
+                                <pre class="mb-1 mt-1 tm-chart-pre">[ Row 1 — Chairman / CEO ]
+          |
+[ Row 2 — Director ] [ Row 2 — Director ]
+          |
+[ Row 3 — ... ]</pre>
+                                <?php echo $__t(
+                                    'Title मा Chairman / CEO / Director / Manager लेखे Auto ले row तय गर्छ। मिलेन भने माथिबाट Row manually चुन्नुहोस्।',
+                                    'Auto picks the row from Chairman / CEO / Director / Manager in the title. If it does not match, choose Row manually above.'
+                                ); ?>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('फोटो', 'Photo'); ?>
                                 <small class="tm-meta-muted fw-normal" id="tmf_photo_note"></small>
@@ -1412,6 +1456,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tmf_phone').value    = '';
         document.getElementById('tmf_email').value    = '';
         document.getElementById('tmf_order').value    = '0';
+        var chartRowEl = document.getElementById('tmf_chart_row');
+        if (chartRowEl) chartRowEl.value = '0';
         document.getElementById('tmf_is_info').checked  = false;
         document.getElementById('tmf_is_griev').checked = false;
         document.getElementById('tmf_active').checked   = true;
@@ -1460,6 +1506,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('tmf_phone').value    = m.phone || '';
             document.getElementById('tmf_email').value    = m.email || '';
             document.getElementById('tmf_order').value    = m.display_order || 0;
+            if (document.getElementById('tmf_chart_row')) {
+                document.getElementById('tmf_chart_row').value = String(m.chart_row != null ? m.chart_row : 0);
+            }
             document.getElementById('tmf_is_info').checked  = m.is_information_officer == 1;
             document.getElementById('tmf_is_griev').checked = m.is_grievance_officer == 1;
             if (document.getElementById('tmf_is_chairman')) document.getElementById('tmf_is_chairman').checked = m.is_chairman == 1;

@@ -67,7 +67,7 @@ try {
                     </div>
                     <?php if ($singleNotice['attachment']): ?>
                     <div class="notice-attachment">
-                        <a href="<?php echo $singleNotice['attachment']; ?>" class="btn nts-btn-primary" target="_blank">
+                        <a href="<?php echo e(safe_media_src($singleNotice['attachment'])); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener">
                             <i class="fas fa-download"></i> फाइल डाउनलोड गर्नुहोस्
                         </a>
                     </div>
@@ -95,7 +95,7 @@ try {
                                 <i class="fas fa-calendar-alt"></i>
                                 <?php echo formatDate($notice['notice_date'], 'Y-m-d'); ?>
                             </span>
-                            <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo $notice['title']; ?></a></h5>
+                            <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo e($notice['title']); ?></a></h5>
                             <p><?php echo e(truncateText(strip_tags((string)($notice['content'] ?? '')), 100)); ?></p>
                             <a href="notices.php?id=<?php echo $notice['id']; ?>" class="read-more">
                                 थप पढ्नुहोस् <i class="fas fa-arrow-right"></i>
@@ -103,7 +103,7 @@ try {
                         </div>
                         <?php if ($notice['attachment']): ?>
                         <div class="notice-attachment-icon">
-                            <a href="<?php echo $notice['attachment']; ?>" target="_blank" title="फाइल डाउनलोड">
+                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener" title="फाइल डाउनलोड">
                                 <i class="fas fa-paperclip"></i>
                             </a>
                         </div>
