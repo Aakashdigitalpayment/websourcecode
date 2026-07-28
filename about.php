@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/config.php';
+require_once __DIR__ . '/includes/team-chart-helpers.php';
 $pageTitle = isEnglish() ? 'About Us' : 'हाम्रो बारेमा';
 /* Prefer Admin SEO meta_description; only fall back to about_short when SEO meta is empty */
 $__aboutMeta = trim((string) getSetting(isEnglish() ? 'meta_description_en' : 'meta_description', ''));
@@ -468,37 +469,8 @@ $ceoMessage = $ceoMessageSetting;
             <p><?php echo isEnglish() ? 'Leadership team guiding our cooperative' : 'हाम्रो संस्थाको नेतृत्व गर्ने समिति'; ?></p>
         </div>
 
-        <div class="row justify-content-center">
-            <?php foreach ($boardMembers as $index => $member): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
-                <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
-                    <div class="team-photo-circular">
-                        <?php if ($member['photo']): ?>
-                            <img src="<?php echo $member['photo']; ?>" loading="lazy"  alt="<?php echo $member['name']; ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h5><?php echo $member['name']; ?></h5>
-                        <?php if (!empty($member['name_en'])): ?>
-                        <p class="team-name-en"><?php echo $member['name_en']; ?></p>
-                        <?php endif; ?>
-                        <span class="team-position-badge"><?php echo $member['position_np'] ?: $member['position']; ?></span>
-                        <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
-                        <div class="team-contact-circular">
-                            <?php if (!empty($member['phone'])): ?>
-                                <a href="tel:<?php echo $member['phone']; ?>" title="<?php echo $member['phone']; ?>"><i class="fas fa-phone"></i></a>
-                            <?php endif; ?>
-                            <?php if (!empty($member['email'])): ?>
-                                <a href="mailto:<?php echo $member['email']; ?>" title="<?php echo $member['email']; ?>"><i class="fas fa-envelope"></i></a>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+        <div class="team-org-chart-wrap">
+            <?php echo team_render_org_chart($boardMembers, ['english' => isEnglish()]); ?>
         </div>
 
         <div class="text-center mt-4" data-aos="fade-up">

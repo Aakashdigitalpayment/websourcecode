@@ -1145,18 +1145,23 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                     <a href="?lang=np" class="pfl-lang-link <?php echo $currentLang === 'np' ? 'active' : ''; ?>"><span class="pfl-lang-dot" aria-hidden="true"></span><span>NP</span></a>
                 </li>
                 <li>
-                    <a href="javascript:void(0);" id="topbarSearchBtn" title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
+                    <a href="javascript:void(0);" id="topbarSearchBtn"
+                       aria-label="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>"
+                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
                     </a>
                 </li>
                 <li class="pfl-dark-wrap">
-                    <a href="javascript:void(0);" id="topbarDarkModeToggle" title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
+                    <a href="javascript:void(0);" id="topbarDarkModeToggle"
+                       aria-label="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>"
+                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
                         <i class="fas fa-moon"></i>
                     </a>
                 </li>
                 <li class="pfl-pwa-wrap">
                     <a href="javascript:void(0);" onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
                        class="pwa-install-btn pfl-pwa-btn"
+                       aria-label="<?php echo isEnglish() ? 'Install App' : 'App Install गर्नुहोस्'; ?>"
                        title="<?php echo isEnglish() ? 'Install App' : 'App Install गर्नुहोस्'; ?>">
                         <i class="fas fa-mobile-screen-button"></i>
                     </a>
@@ -1533,12 +1538,16 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                         <li><a href="<?php echo $youtubeUrl; ?>" target="_blank"><i class="fab fa-youtube"></i></a></li>
                         <li><a href="mailto:<?php echo $email; ?>"><i class="fas fa-envelope"></i></a></li>
                             <li class="topbar-search-btn d-none d-lg-inline-block">
-                                <a href="javascript:void(0);" id="topbarSearchBtn" title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
+                                <a href="javascript:void(0);" id="topbarSearchBtn"
+                       aria-label="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>"
+                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
                                 <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
                             </a>
                         </li>
                             <li class="topbar-darkmode-btn d-none d-lg-inline-block">
-                                <a href="javascript:void(0);" id="topbarDarkModeToggle" title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
+                                <a href="javascript:void(0);" id="topbarDarkModeToggle"
+                       aria-label="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>"
+                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
                                 <i class="fas fa-moon"></i>
                             </a>
                         </li>

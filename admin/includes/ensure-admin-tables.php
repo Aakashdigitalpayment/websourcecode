@@ -456,6 +456,7 @@ function ensureAdminTables(): void {
             "ALTER TABLE team_members ADD COLUMN is_chairman TINYINT(1) DEFAULT 0",
             "ALTER TABLE team_members ADD COLUMN is_ceo TINYINT(1) DEFAULT 0",
             "ALTER TABLE team_members ADD COLUMN display_order INT DEFAULT 0",
+            "ALTER TABLE team_members ADD COLUMN chart_row TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0=auto, 1-5=manual org chart row' AFTER display_order",
         ];
         foreach ($tmAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
@@ -527,6 +528,41 @@ function ensureAdminTables(): void {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
           COMMENT='Global site settings — admin panel र setup.php दुवैले use गर्छन्'");
 
+        /* ── 29. OFFICE CREDENTIALS (Smart Credential Manager) ── */
+        $db->exec("CREATE TABLE IF NOT EXISTS office_credentials (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            site_name VARCHAR(120) NOT NULL,
+            site_url VARCHAR(500) NOT NULL,
+            site_logo VARCHAR(255) DEFAULT NULL,
+            username VARCHAR(255) NOT NULL,
+            password_enc TEXT NOT NULL,
+            password_iv VARCHAR(64) NOT NULL,
+            category VARCHAR(60) DEFAULT 'general',
+            notes TEXT DEFAULT NULL,
+            is_active TINYINT(1) DEFAULT 1,
+            sort_order INT DEFAULT 0,
+            created_by INT NOT NULL,
+            updated_by INT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_category (category),
+            INDEX idx_active (is_active)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $db->exec("CREATE TABLE IF NOT EXISTS office_credentials_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            credential_id INT NOT NULL,
+            admin_id INT NOT NULL,
+            admin_username VARCHAR(50),
+            action VARCHAR(30) NOT NULL,
+            ip_address VARCHAR(45),
+            user_agent VARCHAR(255),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_cred (credential_id),
+            INDEX idx_admin (admin_id),
+            INDEX idx_action (action)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
         /* ── 30. VISITOR STATS (summary by date) ───────── */
         $db->exec("CREATE TABLE IF NOT EXISTS visitor_stats (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -544,7 +580,7 @@ function ensureAdminTables(): void {
 
 /* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
  * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
-$_adminSchemaVersion = 'v6-safe-cols-2026';
+$_adminSchemaVersion = 'v8-team-chart-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {

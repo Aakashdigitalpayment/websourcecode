@@ -376,10 +376,10 @@ $currentHeroDesc = $isManagementView
             <div class="row justify-content-center">
                 <?php foreach ($committee['members'] as $index => $member): ?>
                 <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 4) * 50; ?>">
-                    <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                    <div class="team-card-circular">
                         <div class="team-photo-circular">
                             <?php if ($member['photo']): ?>
-                                <img src="<?php echo $member['photo']; ?>" loading="lazy"  alt="<?php echo $member['name']; ?>">
+                                <img src="<?php echo safe_media_src($member['photo']); ?>" loading="lazy"  alt="<?php echo e($member['name']); ?>">
                             <?php else: ?>
                                 <div class="team-placeholder-circular">
                                     <i class="fas fa-user"></i>
@@ -387,9 +387,9 @@ $currentHeroDesc = $isManagementView
                             <?php endif; ?>
                         </div>
                         <div class="team-info-circular">
-                            <h5><?php echo $member['name']; ?></h5>
+                            <h5><?php echo e($member['name']); ?></h5>
                             <?php if ($member['name_en']): ?>
-                            <p class="team-name-en"><?php echo $member['name_en']; ?></p>
+                            <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
                             <?php endif; ?>
                             <span class="team-position-badge">
                                 <?php echo isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']; ?>
@@ -452,11 +452,11 @@ $currentHeroDesc = $isManagementView
             <?php if (!empty($committee['members'])): ?>
             <div class="row justify-content-center">
                 <?php foreach ($committee['members'] as $index => $member): ?>
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
-                    <div class="team-card-circular small">
-                        <div class="team-photo-circular small">
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 4) * 50; ?>">
+                    <div class="team-card-circular">
+                        <div class="team-photo-circular">
                             <?php if ($member['photo']): ?>
-                                <img src="<?php echo $member['photo']; ?>" loading="lazy"  alt="<?php echo $member['name']; ?>">
+                                <img src="<?php echo safe_media_src($member['photo']); ?>" loading="lazy"  alt="<?php echo e($member['name']); ?>">
                             <?php else: ?>
                                 <div class="team-placeholder-circular">
                                     <i class="fas fa-user"></i>
@@ -464,9 +464,9 @@ $currentHeroDesc = $isManagementView
                             <?php endif; ?>
                         </div>
                         <div class="team-info-circular">
-                            <h6><?php echo $member['name']; ?></h6>
-                            <span class="team-position-badge small">
-                                <?php echo isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']; ?>
+                            <h5><?php echo e($member['name']); ?></h5>
+                            <span class="team-position-badge">
+                                <?php echo e(isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']); ?>
                             </span>
                         </div>
                     </div>

@@ -108,9 +108,19 @@ if (!function_exists('coopThemeCssUrl')) {
         $done = true;
         echo '<script>
 (function () {
+    function toPascalCase(name) {
+        return name.split("-").map(function (part) {
+            return part ? part.charAt(0).toUpperCase() + part.slice(1) : "";
+        }).join("");
+    }
     function normalizeLucideNames(root) {
         if (typeof lucide === "undefined" || !root) return;
         var registry = lucide.icons || {};
+        function lucideIconExists(name) {
+            if (!name) return false;
+            if (registry[name]) return true;
+            return !!registry[toPascalCase(name)];
+        }
         var aliases = {
             "building-columns": ["landmark", "building-2"],
             "shield-halved": ["shield-check", "shield-half", "shield"],
@@ -122,16 +132,18 @@ if (!function_exists('coopThemeCssUrl')) {
             "circle-info": ["info", "info-circle"],
             "circle-check": ["check-circle", "circle-check-big"],
             "check-circle": ["circle-check", "circle-check-big"],
-            "hand-holding-heart": ["heart-handshake", "heart"]
+            "hand-holding-heart": ["heart-handshake", "heart"],
+            "shield-alt": ["shield-check", "shield", "shield-half"],
+            "user-shield": ["shield-user", "shield-check", "shield"]
         };
         var nodes = root.querySelectorAll("[data-lucide]");
         nodes.forEach(function (el) {
             var name = (el.getAttribute("data-lucide") || "").trim();
-            if (!name || registry[name]) return;
+            if (!name || lucideIconExists(name)) return;
             var candidates = aliases[name] || [];
             for (var i = 0; i < candidates.length; i++) {
                 var candidate = candidates[i];
-                if (registry[candidate]) {
+                if (lucideIconExists(candidate)) {
                     el.setAttribute("data-lucide", candidate);
                     break;
                 }
@@ -233,10 +245,12 @@ if (!function_exists('coopThemeCssUrl')) {
                 break;
         }
 
-        /* ── 1.5. Load unified CSS system (global, forms, admin-ui) ── */
+        /* ── 1.5. Load unified CSS system (global, forms; admin-ui admin-only) ── */
         coopThemeLink('assets/css/global.css');
         coopThemeLink('assets/css/forms-tables.css');
-        coopThemeLink('assets/css/admin-ui-unified.css');
+        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
+            coopThemeLink('assets/css/admin-ui-unified.css');
+        }
 
         /* ── 1.6. (admin-serious-form.css removed — replaced by admin-shell-polish.css at end) ── */
 

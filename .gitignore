@@ -6,6 +6,7 @@
 /logs/
 
 # Local / secret config — never commit
+includes/.auth-secret
 includes/.cred-master.key
 includes/database.local.php
 includes/database.php

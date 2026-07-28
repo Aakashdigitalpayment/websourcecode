@@ -442,10 +442,9 @@ if (!empty($verificationOk) && !empty($needsVerify) && in_array(($_POST['search_
             $_pmem = $_stmt->fetch(PDO::FETCH_ASSOC);
             if ($_pmem) {
                 /* HMAC-signed short-lived token (15 min) — replay-safe public preview */
-                $_secret = defined('AUTH_SECRET') ? AUTH_SECRET : (defined('SECRET_KEY') ? SECRET_KEY : 'aakash-fallback-secret-2026');
                 $_exp    = time() + 900;
                 $_payload= $_pmem['id'] . '.' . $_exp;
-                $_sig    = hash_hmac('sha256', $_payload, $_secret);
+                $_sig    = hash_hmac('sha256', $_payload, coopAuthSecret());
                 $publicIdCardLink = SITE_URL . 'tracker-id-card.php?mid=' . urlencode($_pmem['id'])
                                   . '&exp=' . $_exp . '&sig=' . urlencode($_sig);
                 $publicIdCardName = $_pmem['name'];

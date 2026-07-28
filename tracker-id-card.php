@@ -25,10 +25,8 @@ if (!$mid || !$exp || !$sig) {
 } elseif ($exp < time()) {
     $errMsg = t('यो लिङ्कको म्याद सकिएको छ (15 मिनेट)। कृपया फेरि Tracker बाट verify गर्नुहोस्।', 'This link has expired (15 minutes). Please verify again from tracker.');
 } else {
-    $secret  = defined('AUTH_SECRET') ? AUTH_SECRET : (defined('SECRET_KEY') ? SECRET_KEY : 'aakash-fallback-secret-2026');
     $payload = $mid . '.' . $exp;
-    $expected= hash_hmac('sha256', $payload, $secret);
-    if (hash_equals($expected, $sig)) {
+    if (coopVerifyHmac($payload, $sig)) {
         $valid = true;
     } else {
         $errMsg = t('सुरक्षा हस्ताक्षर मेल खाएन। यो लिङ्क सम्भवतः छेडछाड भएको छ।', 'Security signature mismatch. This link may have been tampered.');

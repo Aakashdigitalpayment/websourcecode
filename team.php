@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/includes/team-staff-groups.php';
 require_once __DIR__ . '/includes/team-menu-categories.php';
+require_once __DIR__ . '/includes/team-chart-helpers.php';
 $pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
 require_once 'includes/header.php';
 
@@ -688,37 +689,8 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
             <p>हाम्रो संस्थाको नेतृत्व गर्ने समिति</p>
         </div>
 
-        <div class="row justify-content-center">
-            <?php foreach ($boardMembers as $index => $member): ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo $index * 50; ?>">
-                <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
-                    <div class="team-photo-circular">
-                        <?php if ($member['photo']): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h5><?php echo e($member['name']); ?></h5>
-                        <?php if ($member['name_en']): ?>
-                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
-                        <?php endif; ?>
-                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                        <?php if ($member['phone'] || $member['email']): ?>
-                        <div class="team-contact-circular">
-                            <?php if ($member['phone']): ?>
-                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
-                            <?php endif; ?>
-                            <?php if ($member['email']): ?>
-                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+        <div class="team-org-chart-wrap">
+            <?php echo team_render_org_chart($boardMembers, ['english' => isEnglish()]); ?>
         </div>
     </div>
 </section>
@@ -737,7 +709,6 @@ foreach ($staffGroups as $_sg):
     $title = isEnglish()
         ? (($_sg['name_en'] ?: $_sg['name_np']) ?: $slug)
         : (($_sg['name_np'] ?: $_sg['name_en']) ?: $slug);
-    $useSmall = in_array($slug, ['staff', 'admin'], true) || count($members) > 8;
     $bgClass = ($_staffSectionIdx % 2 === 0) ? 'bg-light' : '';
     $_staffSectionIdx++;
 ?>
@@ -748,27 +719,25 @@ foreach ($staffGroups as $_sg):
         </div>
 
         <div class="row justify-content-center">
-            <?php foreach ($members as $index => $member): ?>
-            <div class="<?php echo $useSmall ? 'col-lg-2 col-md-3 col-sm-4 col-6' : 'col-lg-3 col-md-4 col-sm-6'; ?> mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
-                <div class="team-card-circular <?php echo $useSmall ? 'small' : ''; ?>">
-                    <div class="team-photo-circular <?php echo $useSmall ? 'small' : ''; ?>">
-                        <?php if (!empty($member['photo'])): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+            <?php foreach ($members as $index => $member):
+                $_tmPhoto = team_member_photo_src($member);
+            ?>
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($index % 6) * 50; ?>">
+                <div class="team-card-circular">
+                    <div class="team-photo-circular">
+                        <?php if ($_tmPhoto !== ''): ?>
+                            <img src="<?php echo e($_tmPhoto); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
                         <?php else: ?>
                             <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
                         <?php endif; ?>
                     </div>
                     <div class="team-info-circular">
-                        <?php if ($useSmall): ?>
-                        <h6><?php echo e($member['name']); ?></h6>
-                        <?php else: ?>
                         <h5><?php echo e($member['name']); ?></h5>
                         <?php if (!empty($member['name_en'])): ?>
                         <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
                         <?php endif; ?>
-                        <?php endif; ?>
-                        <span class="team-position-badge <?php echo $useSmall ? 'small' : ''; ?>"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
-                        <?php if (!$useSmall && (!empty($member['phone']) || !empty($member['email']))): ?>
+                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
+                        <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
                         <div class="team-contact-circular">
                             <?php if (!empty($member['phone'])): ?>
                                 <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
@@ -804,12 +773,14 @@ foreach ($staffGroups as $_sg):
         </div>
 
         <div class="row justify-content-center" id="teamCmtMembers">
-            <?php foreach ($viewMembers as $index => $member): ?>
+            <?php foreach ($viewMembers as $index => $member):
+                $_tmPhoto = team_member_photo_src($member);
+            ?>
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="team-card-circular <?php echo $index === 0 ? 'featured' : ''; ?>">
+                <div class="team-card-circular">
                     <div class="team-photo-circular">
-                        <?php if (!empty($member['photo'])): ?>
-                            <img src="<?php echo e($member['photo']); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
+                        <?php if ($_tmPhoto !== ''): ?>
+                            <img src="<?php echo e($_tmPhoto); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
                         <?php else: ?>
                             <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
                         <?php endif; ?>

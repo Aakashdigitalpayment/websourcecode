@@ -329,6 +329,58 @@ function safe_http_url(?string $url): string
 }
 
 /**
+ * Per-install HMAC secret — never use a shared public fallback for signing.
+ * Priority: AUTH_SECRET → SECRET_KEY → includes/.auth-secret → derived install hash.
+ */
+function coopAuthSecret(): string
+{
+    static $cached = null;
+    if ($cached !== null) {
+        return $cached;
+    }
+    if (defined('AUTH_SECRET') && (string) AUTH_SECRET !== '') {
+        $cached = (string) AUTH_SECRET;
+        return $cached;
+    }
+    if (defined('SECRET_KEY') && (string) SECRET_KEY !== '') {
+        $cached = (string) SECRET_KEY;
+        return $cached;
+    }
+    $secretFile = __DIR__ . '/.auth-secret';
+    if (is_readable($secretFile)) {
+        $key = trim((string) @file_get_contents($secretFile));
+        if ($key !== '' && strlen($key) >= 32) {
+            $cached = $key;
+            return $cached;
+        }
+    }
+    $seed = (defined('DB_NAME') ? DB_NAME : 'coop')
+        . '|' . (defined('DB_HOST') ? DB_HOST : 'localhost')
+        . '|' . (defined('SITE_URL') ? SITE_URL : ($_SERVER['HTTP_HOST'] ?? ''));
+    $cached = hash('sha256', 'coop-auth-v1:' . $seed);
+    return $cached;
+}
+
+/**
+ * Verify HMAC signature — accepts current secret plus legacy fallback (verify-only).
+ */
+function coopVerifyHmac(string $payload, string $sig): bool
+{
+    $secrets = [coopAuthSecret()];
+    $legacy = 'aakash-fallback-secret-2026';
+    if (!in_array($legacy, $secrets, true)) {
+        $secrets[] = $legacy;
+    }
+    foreach ($secrets as $secret) {
+        $expected = hash_hmac('sha256', $payload, $secret);
+        if (hash_equals($expected, $sig)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Canonical URL (query string हटाउँछ) — meta canonical + og:url
  */
 function seo_canonical_url(): string
@@ -1216,6 +1268,22 @@ function getAssetUrl($path) {
 
     // Build full URL
     return SITE_URL . $path;
+}
+
+/**
+ * Safe image/file src for public templates — blocks javascript: and path traversal.
+ */
+function safe_media_src(?string $path): string
+{
+    if ($path === null || trim($path) === '') {
+        return '';
+    }
+    $path = trim($path);
+    if (preg_match('#^https?://#i', $path)) {
+        return safe_http_url($path);
+    }
+    $rel = safe_public_upload_path($path);
+    return $rel !== '' ? getAssetUrl($rel) : '';
 }
 
 // Flash message functions

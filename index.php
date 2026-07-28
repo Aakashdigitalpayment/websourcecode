@@ -686,7 +686,7 @@ if ($ceoMember) {
                     <div class="officer-badge"><i class="fas fa-info-circle"></i></div>
                     <div class="profile-photo">
                         <?php if ($informationOfficer['photo']): ?>
-                        <img src="<?php echo $informationOfficer['photo']; ?>" loading="lazy"  alt="<?php echo $informationOfficer['name']; ?>">
+                        <img src="<?php echo safe_media_src($informationOfficer['photo']); ?>" loading="lazy"  alt="<?php echo e($informationOfficer['name']); ?>">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user"></i>
@@ -718,7 +718,7 @@ if ($ceoMember) {
                     <div class="officer-badge grievance"><i class="fas fa-exclamation-triangle"></i></div>
                     <div class="profile-photo">
                         <?php if ($grievanceOfficer['photo']): ?>
-                        <img src="<?php echo $grievanceOfficer['photo']; ?>" loading="lazy"  alt="<?php echo $grievanceOfficer['name']; ?>">
+                        <img src="<?php echo safe_media_src($grievanceOfficer['photo']); ?>" loading="lazy"  alt="<?php echo e($grievanceOfficer['name']); ?>">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user"></i>
@@ -902,7 +902,7 @@ if (empty($appFeatures)) {
                 <div class="news-card">
                     <div class="news-image">
                         <?php if (!empty($news['image'])): ?>
-                        <img src="<?php echo $news['image']; ?>" loading="lazy"  alt="<?php echo getLangField($news, 'title'); ?>">
+                        <img src="<?php echo safe_media_src($news['image']); ?>" loading="lazy"  alt="<?php echo e(getLangField($news, 'title')); ?>">
                         <?php else: ?>
                         <div class="news-placeholder">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i>
@@ -914,7 +914,7 @@ if (empty($appFeatures)) {
                         </div>
                     </div>
                     <div class="news-content">
-                        <h4><?php echo getLangField($news, 'title'); ?></h4>
+                        <h4><?php echo e(getLangField($news, 'title')); ?></h4>
                         <p><?php echo e(truncateText(strip_tags(getLangField($news, 'content')), 100)); ?></p>
                         <a href="news-detail.php?id=<?php echo $news['id']; ?>" class="read-more">
                             <?php echo isEnglish() ? 'Read More' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>

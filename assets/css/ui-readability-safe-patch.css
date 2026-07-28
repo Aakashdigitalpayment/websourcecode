@@ -1,9 +1,11 @@
 /**
- * UI Readability Safe Patch v5 — additive only, loads LAST on all panels.
+ * UI Readability Safe Patch v7 — additive only, loads LAST on all panels.
  * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
  * v3: dark-mode gradient sections + expanded brand-fill hero text.
  * v4: supplemental gradients, card-header dark-mode fix, labels, skip-link, attend QR.
  * v5: dark-mode check/radio, HRM shell nav, copy buttons, form unify.
+ * v6: Quick Help + AI chat widget layout/icon fixes.
+ * v7: WCAG touch targets (44px), focus rings on icon controls, modal focus outline.
  */
 
 :root {
@@ -879,4 +881,275 @@ button.qh-item {
   #aiChatPanel .acp-chips {
     max-height: 64px !important;
   }
+}
+
+/* ── v7: Enterprise a11y — 44px touch targets + focus visibility ── */
+
+.qh-fab,
+.qh-item,
+button.qh-item {
+  min-height: 44px !important;
+}
+
+#aiChatPanel .acp-chip {
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+}
+
+#aiChatPanel .acp-escalate button {
+  min-height: 44px !important;
+}
+
+.pfl-top-right a,
+.pfl-top-right button {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+#publicChatPanel .pcp-x,
+#aiChatPanel .acp-x,
+.qh-fab {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+#publicChatPanel :focus-visible,
+#aiChatPanel :focus-visible,
+#searchModal :focus-visible,
+#noticePopup :focus-visible,
+.qh-launcher :focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── v8: Team org chart — photo row on chart (board / committee) ── */
+
+.team-org-chart-wrap {
+  margin-top: 0.5rem;
+}
+
+.team-org-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.team-org-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-org-connector {
+  width: 2px;
+  height: 22px;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #c5d4c8);
+  margin: 4px auto 6px;
+  border-radius: 2px;
+}
+
+.team-org-row-inner {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Single chairman/CEO — centered, same card size as everyone else */
+.team-org-row-1.team-org-count-1 .team-org-row-inner {
+  grid-template-columns: minmax(200px, 260px) !important;
+  justify-content: center;
+}
+
+.team-org-cell {
+  flex: unset;
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+}
+
+/* Row 1 — Chairman / CEO: same card size, optional featured border only */
+.team-org-row-1.team-org-count-1 .team-org-row-inner,
+.team-org-row-1.team-org-count-2 .team-org-row-inner,
+.team-org-row-1.team-org-count-3 .team-org-row-inner,
+.team-org-row-1.team-org-count-4 .team-org-row-inner {
+  max-width: 1100px;
+}
+
+.team-org-row-1 .team-org-cell,
+.team-org-row-2 .team-org-cell,
+.team-org-row-3 .team-org-cell,
+.team-org-row-4 .team-org-cell,
+.team-org-row-5 .team-org-cell {
+  flex: unset;
+  min-width: 0;
+  max-width: none;
+}
+
+/* ── v9: Uniform team photo stat cards (team / org-chart / committees) ── */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-uniform-photo: 132px;
+  --team-uniform-pad-y: 24px;
+  --team-uniform-pad-x: 18px;
+}
+
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0;
+}
+
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin-bottom: 16px !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular,
+.team-org-chart .team-card-circular,
+.committees-section .team-card-circular {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+}
+
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+}
+
+/* Hover zoom off — keeps all photos visually uniform */
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+.team-section .team-info-circular h5,
+.team-section .team-info-circular h6,
+.team-org-chart .team-info-circular h5,
+.team-org-chart .team-info-circular h6,
+.committees-section .team-info-circular h5,
+.committees-section .team-info-circular h6 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  margin-bottom: 5px !important;
+}
+
+.team-section .team-position-badge,
+.team-section .team-position-badge.small,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge,
+.committees-section .team-position-badge.small {
+  font-size: 0.78rem !important;
+  padding: 6px 14px !important;
+}
+
+.team-section .team-placeholder-circular i,
+.team-org-chart .team-placeholder-circular i,
+.committees-section .team-placeholder-circular i,
+.team-section .team-placeholder-circular .lucide-icon,
+.team-org-chart .team-placeholder-circular .lucide-icon {
+  font-size: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+}
+
+@media (max-width: 991px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 120px;
+  }
+
+  .team-org-row-2 .team-org-cell,
+  .team-org-row-3 .team-org-cell,
+  .team-org-row-4 .team-org-cell,
+  .team-org-row-5 .team-org-cell {
+    flex: unset;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 108px;
+    --team-uniform-pad-y: 20px;
+    --team-uniform-pad-x: 14px;
+  }
+
+  .team-org-row-1 .team-org-row-inner {
+    max-width: 100%;
+  }
+
+  .team-org-row-2 .team-org-cell,
+  .team-org-row-3 .team-org-cell,
+  .team-org-row-4 .team-org-cell,
+  .team-org-row-5 .team-org-cell {
+    flex: unset;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .team-org-chart .team-org-row-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.85rem !important;
+  }
+}
+
+.admin-shell .tm-chart-pre {
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #fff);
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+}
+
+.admin-shell .tm-chart-hint {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #f8faf9);
 }

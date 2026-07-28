@@ -330,6 +330,11 @@ function ensurePublicTables(): void {
             require_once __DIR__ . '/election-tables.php';
         }
         if (function_exists('ensureElectionTables')) { ensureElectionTables($db); }
+        if (function_exists('ensureElectionVotingTables')) {
+            try {
+                ensureElectionVotingTables($db);
+            } catch (Throwable $e) { /* election_cycles नभएको साइटमा skip */ }
+        }
 
         /* ──────────────────────────────────────────────────
            11. CAREERS — includes/careers-tables.php (admin/public एकै)
@@ -554,6 +559,20 @@ function ensurePublicTables(): void {
         $addIndex('vendors', 'idx_vendors_status_created', 'status, created_at');
         $addIndex('news', 'idx_news_created', 'created_at');
 
+        /* Card verify rate-limit table (idempotent) */
+        try {
+            $db->exec("CREATE TABLE IF NOT EXISTS card_verify_attempts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                ip VARCHAR(45) NOT NULL,
+                code_tried VARCHAR(20) NULL,
+                success TINYINT(1) NOT NULL DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_attempt_ip_time (ip, created_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        } catch (\Throwable $e) {}
+
+        $addIndex('kyc_applications', 'idx_kyc_tracking', 'tracking_id');
+
         /* Risk based KYC review auto-flag (verified date बाट) */
         try {
             $db->exec("UPDATE kyc_applications
@@ -591,7 +610,7 @@ function ensurePublicTables(): void {
  * नयाँ safe column migrations थपिए भने version bump → एक पटक re-run।
  * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
  */
-$_publicSchemaVersion = 'v6-safe-cols-2026';
+$_publicSchemaVersion = 'v7-enterprise-safe-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {
