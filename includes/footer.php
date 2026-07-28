@@ -477,7 +477,7 @@ try {
     </script>
 
     <!-- Site Search Modal — Voice + Type search -->
-    <div class="search-modal" id="searchModal">
+    <div class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="<?php echo isEnglish() ? 'Site search' : 'साइट खोज'; ?>">
         <div class="search-modal-overlay"></div>
         <div class="search-modal-content">
             <button class="search-modal-close" id="searchModalClose" title="बन्द गर्नुहोस्">
@@ -831,6 +831,7 @@ try {
 
     <!-- Custom JS -->
     <script src="<?php echo SITE_URL; ?>assets/js/main.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/modal-focus-trap.js"></script>
 
     <!-- Init uniformity helpers (datepicker init + conservative a11y fixes) -->
     <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js"></script>
@@ -1157,7 +1158,7 @@ if ($__uiTestMode):
   });
 })();
 </script>
-<div id="publicChatPanel" role="dialog" aria-label="Live Chat">
+<div id="publicChatPanel" role="dialog" aria-modal="true" aria-label="<?php echo isEnglish() ? 'Live Chat' : 'Live Chat'; ?>">
   <div class="pcp-h">
     <i class="lucide-icon" aria-hidden="true" data-lucide="headset"></i>
     <div>
