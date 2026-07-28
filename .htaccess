@@ -9,6 +9,9 @@
     RewriteRule \.cred-master\.key$ - [F,L]
     # Debug session dump — must not be web-accessible (live safety)
     RewriteRule ^member/session-check\.php$ - [F,L]
+    # Install wizard — block when lock file exists (extra layer on top of PHP gate)
+    RewriteCond %{DOCUMENT_ROOT}/install.lock -f
+    RewriteRule ^install\.php$ - [F,L]
     # Crawlers expect /sitemap.xml and /robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
     RewriteRule ^robots\.txt$ robots.php [L,QSA]

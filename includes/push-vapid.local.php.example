@@ -1,0 +1,19 @@
+<?php
+/**
+ * Per-site Web Push VAPID keys (copy → push-vapid.local.php on server).
+ *
+ *   cp includes/push-vapid.local.php.example includes/push-vapid.local.php
+ *
+ * push-vapid.local.php is gitignored (*.local.php). Generate a new pair on each
+ * production install if you rotate keys; existing subscribers may need to re-enable push.
+ */
+declare(strict_types=1);
+
+define('COOP_VAPID_PUBLIC_KEY', 'REPLACE_WITH_YOUR_VAPID_PUBLIC_KEY');
+define(
+    'COOP_VAPID_PRIVATE_PEM',
+    "-----BEGIN EC PRIVATE KEY-----\n" .
+    "REPLACE_WITH_YOUR_PRIVATE_KEY_LINES\n" .
+    "-----END EC PRIVATE KEY-----"
+);
+define('COOP_VAPID_SUBJECT', 'mailto:admin@yourcoop.example');

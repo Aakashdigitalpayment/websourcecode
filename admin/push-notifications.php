@@ -7,10 +7,7 @@ $pageTitle   = 'Push Notifications — सदस्यहरूलाई सू�
 $currentPage = 'push-notifications';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
-require_once '_bootstrap.php';
 require_once '../includes/push-helper.php';
-
-requireAdminLogin();
 
 $db = getDB();
 ensurePushTables($db);

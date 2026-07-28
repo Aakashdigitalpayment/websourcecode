@@ -90,11 +90,21 @@ require __DIR__ . '/includes/chrome.php';
     </div>
 
 <script>
+var MEMBER_AJAX_CSRF = <?php echo json_encode(generateCSRFToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+function memberMarkNotifRead(id) {
+    var body = 'action=mark_read&id=' + encodeURIComponent(id) + '&csrf_token=' + encodeURIComponent(MEMBER_AJAX_CSRF);
+    return fetch('<?php echo $siteUrl; ?>member/ajax.php', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: body
+    });
+}
 function readAndGo(id, link) {
     var el = document.getElementById('notif-' + id);
     if (el && el.classList.contains('unread')) {
         el.classList.remove('unread');
-        fetch('<?php echo $siteUrl; ?>member/ajax.php?action=mark_read&id=' + id);
+        memberMarkNotifRead(id);
         var dot = el.querySelector('span[style*="background:var"]');
         if (dot) dot.remove();
     }
