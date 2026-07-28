@@ -350,17 +350,17 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 
 <?php if ($__rateLimited): ?>
 <!-- ── Rate-limit countdown card ── -->
-<div id="vp-ratelimit-card" style="background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;margin-bottom:20px;border:2px solid #fed7aa;">
-    <div style="background:linear-gradient(135deg,#ea580c,#f97316);padding:16px 22px;display:flex;align-items:center;gap:14px;">
-        <span style="width:46px;height:46px;background:rgba(255,255,255,.2);border-radius:50%;display:grid;place-items:center;font-size:1.5rem;color:#fff;flex-shrink:0;">
+<div id="vp-ratelimit-card" class="vp-rate-card">
+    <div class="vp-rate-head">
+        <span class="vp-result-icon" style="width:46px;height:46px;font-size:1.5rem;">
             <i class="fas fa-shield-halved"></i>
         </span>
         <div>
-            <div style="color:#fff;font-weight:700;font-size:1rem;"><?= $_t('धेरै पटक गलत प्रयास', 'Too Many Failed Attempts') ?></div>
-            <div style="color:rgba(255,255,255,.88);font-size:.83rem;"><?= $_t('सुरक्षाका लागि अस्थायी ताल्चा लगाइएको छ।', 'Temporarily locked for security.') ?></div>
+            <div class="vp-rate-head-title"><?= $_t('धेरै पटक गलत प्रयास', 'Too Many Failed Attempts') ?></div>
+            <div class="vp-rate-head-sub"><?= $_t('सुरक्षाका लागि अस्थायी ताल्चा लगाइएको छ।', 'Temporarily locked for security.') ?></div>
         </div>
     </div>
-    <div style="padding:24px 22px;text-align:center;">
+    <div class="vp-rate-body" style="text-align:center;">
         <p style="color:#92400e;font-size:.92rem;margin:0 0 18px;"><?= $_t('५ पटक गलत Verification Code वा CVV प्रविष्ट गरिएकाले यो IP ठेगाना अस्थायी रूपमा ब्लक गरिएको छ।','This IP was temporarily blocked after 5 failed verification attempts.') ?></p>
 
         <!-- Countdown display -->
@@ -421,22 +421,22 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 <?php if (!empty($result['ok'])): ?>
 <!-- ── Verification Success ── -->
 <?php $__m = $result['member'] ?? []; $__c = $result['card'] ?? []; ?>
-<div style="background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;margin-bottom:24px;">
-    <div style="background:linear-gradient(135deg,var(--primary-color,#1a5f2a),#0e9b53);padding:18px 22px;display:flex;align-items:center;gap:14px;">
+<div class="vp-result-card">
+    <div class="vp-result-head">
         <?php if (!empty($__m['photo_path'])): ?>
         <img src="<?= htmlspecialchars(rtrim(SITE_URL,'/') . '/' . ltrim($__m['photo_path'],'/')) ?>"
-             alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,.6);flex-shrink:0;">
+             alt="" class="vp-result-photo">
         <?php else: ?>
-        <span style="width:52px;height:52px;background:rgba(255,255,255,.22);border-radius:50%;display:grid;place-items:center;font-size:1.5rem;color:#fff;flex-shrink:0;">
+        <span class="vp-result-icon">
             <i class="fas fa-check-circle"></i>
         </span>
         <?php endif; ?>
         <div>
-            <div style="color:#fff;font-weight:700;font-size:1.1rem;"><?= htmlspecialchars($__m['full_name'] ?? '') ?></div>
-            <div style="color:rgba(255,255,255,.85);font-size:.84rem;"><?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
+            <div class="vp-result-name"><?= htmlspecialchars($__m['full_name'] ?? '') ?></div>
+            <div class="vp-result-sub"><?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
         </div>
     </div>
-    <div style="padding:20px 22px;">
+    <div class="vp-result-body">
         <?php
         $__fields = [
             [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
@@ -449,33 +449,33 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         foreach ($__fields as [$lbl, $val]):
             if (trim((string)$val) === '') continue;
         ?>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f3f4f6;font-size:.93rem;">
-            <span style="color:#6b7280;min-width:130px;flex-shrink:0;"><?= htmlspecialchars($lbl) ?></span>
-            <span style="font-weight:600;color:#111827;"><?= htmlspecialchars((string)$val) ?></span>
+        <div class="vp-result-row">
+            <span class="vp-result-label"><?= htmlspecialchars($lbl) ?></span>
+            <span class="vp-result-value"><?= htmlspecialchars((string)$val) ?></span>
         </div>
         <?php endforeach; ?>
     </div>
 </div>
 
 <?php if (!empty($logSaved)): ?>
-<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;color:#16a34a;font-size:.9rem;">
+<div class="vp-success-alert">
     <i class="fas fa-check me-2"></i><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो।', 'Service log recorded successfully.') ?>
 </div>
 <?php endif; ?>
 <?php if (!empty($programSaved)): ?>
-<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px 16px;margin-bottom:16px;color:#16a34a;font-size:.9rem;">
+<div class="vp-success-alert">
     <i class="fas fa-check me-2"></i><?= $_t('उपस्थिति दर्ता भयो।', 'Attendance recorded.') ?>
 </div>
 <?php endif; ?>
 
 <?php if (!empty($activePrograms)): ?>
-<div style="background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:18px 22px;margin-bottom:24px;">
-    <h3 style="color:var(--primary-color,#1a5f2a);font-size:1rem;margin:0 0 14px;display:flex;align-items:center;gap:8px;">
+<div class="vp-programs-card">
+    <h3 class="vp-programs-title">
         <i class="fas fa-calendar-check"></i> <?= $_t('सक्रिय कार्यक्रमहरू','Active Programs') ?>
     </h3>
-    <div style="display:flex;flex-direction:column;gap:8px;">
+    <div>
     <?php foreach ($activePrograms as $prog): ?>
-        <div style="padding:10px 14px;background:#f9fafb;border-radius:8px;border-left:4px solid var(--primary-color,#1a5f2a);font-size:.9rem;">
+        <div class="vp-program-item">
             <strong><?= htmlspecialchars($prog['title'] ?? '') ?></strong>
             <?php if (!empty($prog['program_date'])): ?>
             <span style="color:#6b7280;font-size:.82rem;margin-left:8px;"><i class="fas fa-calendar-alt"></i> <?= htmlspecialchars($prog['program_date']) ?></span>
@@ -487,8 +487,8 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 <?php endif; ?>
 
 <!-- Re-verify or new search -->
-<div style="text-align:center;margin-top:8px;">
-    <a href="verify.php" style="color:var(--primary-color,#1a5f2a);font-size:.9rem;text-decoration:none;">
+<div class="vp-reverify-link">
+    <a href="verify.php">
         <i class="fas fa-arrow-left me-1"></i><?= $_t('अर्को कार्ड प्रमाणित गर्नुहोस्','Verify another card') ?>
     </a>
 </div>
