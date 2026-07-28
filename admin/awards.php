@@ -358,9 +358,10 @@ if ($flash = getFlash()):
 
 </div>
 
-(removed PHP open) </script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
-/* ── Client-side search (खोज बक्स) ── */
+    var listBtn = document.getElementById('aw-list-btn');
     var formBtn = document.getElementById('aw-form-btn');
 
     function switchToList() { adminSwitchTab(listBtn, formBtn); }
@@ -422,10 +423,7 @@ if ($flash = getFlash()):
 });
 </script>
 
-
-
-
-
+<script>
 /* ── Client-side search (खोज बक्स) ── */
 (function() {
     var inp = document.querySelector('#aw-list .admin-table-search');
@@ -452,6 +450,6 @@ if ($flash = getFlash()):
     });
     filter();
 })();
-
+</script>
 
 <?php require_once 'includes/admin-footer.php'; ?>

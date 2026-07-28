@@ -328,9 +328,9 @@ $faqsArch = $faqPart['archived'];
 
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
-
-/* ── Client-side search (खोज बक्स) ── */
     var listBtn = document.getElementById('faq-list-btn');
     var formBtn = document.getElementById('faq-form-btn');
 
@@ -383,10 +383,7 @@ $faqsArch = $faqPart['archived'];
 });
 </script>
 
-
-
-
-
+<script>
 /* ── Client-side search (खोज बक्स) ── */
 (function() {
     var inp = document.querySelector('#faq-list .admin-table-search');
@@ -413,6 +410,6 @@ $faqsArch = $faqPart['archived'];
     });
     filter();
 })();
-
+</script>
 
 <?php require_once 'includes/admin-footer.php'; ?>
