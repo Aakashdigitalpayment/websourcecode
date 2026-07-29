@@ -925,17 +925,20 @@ html {
     box-sizing: content-box !important;
   }
 
+  /* Keep touch area via min size — NEVER use content-box+padding
+     (that paints a huge green disc when clip/bg cascade breaks). */
   .hero-slider .carousel-indicators [data-bs-target],
   .hero-slider .carousel-indicators button,
   .hero-indicators-modern .hero-indicator-btn {
-    width: 12px !important;
-    height: 12px !important;
-    min-width: 12px !important;
-    min-height: 12px !important;
-    padding: 14px !important;
-    margin: 0 2px !important;
-    background-clip: content-box !important;
-    box-sizing: content-box !important;
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+    padding: 0 !important;
+    margin: 0 4px !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
   }
 
   .notice-popup-enhanced .popup-dialog.popup-v3,
@@ -1517,3 +1520,235 @@ body.dark-mode .job-detail-footer {
   border-top-color: rgba(255, 255, 255, 0.1) !important;
 }
 
+/* =========================================================
+   MOBILE HOME: hero / lang / logo / institutional profile
+   Safe additive polish for phone viewport (screenshot fixes)
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+  /* 1) Kill oversized green carousel circles on hero */
+  .hero-slider .carousel-control-prev,
+  .hero-slider .carousel-control-next,
+  #heroCarousel .carousel-control-prev,
+  #heroCarousel .carousel-control-next {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  .hero-slider .carousel-indicators,
+  #heroCarousel .carousel-indicators {
+    bottom: 0.55rem !important;
+    margin: 0 !important;
+    gap: 0.35rem !important;
+    z-index: 5 !important;
+  }
+
+  .hero-slider .carousel-indicators [data-bs-target],
+  .hero-slider .hero-indicator-btn,
+  #heroCarousel .carousel-indicators [data-bs-target] {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    min-height: 8px !important;
+    max-width: 8px !important;
+    max-height: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
+    border: 0 !important;
+    opacity: 0.55 !important;
+    flex: 0 0 auto !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-indicators .active,
+  .hero-slider .hero-indicator-btn.active,
+  #heroCarousel .carousel-indicators .active {
+    width: 18px !important;
+    max-width: 18px !important;
+    min-width: 18px !important;
+    height: 8px !important;
+    max-height: 8px !important;
+    min-height: 8px !important;
+    border-radius: 999px !important;
+    opacity: 1 !important;
+    background: #fff !important;
+    border-color: #fff !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-caption,
+  #heroCarousel .carousel-caption {
+    bottom: 1.35rem !important;
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  .hero-slider .hero-btn-modern,
+  #heroCarousel .hero-btn-modern {
+    position: relative;
+    z-index: 6;
+    margin-top: 0.35rem !important;
+  }
+
+  /* 2) Institutional profile + reports: center on mobile */
+  .institutional-profile-bar {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .institutional-profile-bar .profile-title-link,
+  .institutional-profile-bar .profile-title {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: fit-content !important;
+    max-width: 100%;
+  }
+
+  .institutional-profile-bar .report-quick-links {
+    justify-content: center !important;
+    width: 100%;
+  }
+
+  /* 3) EN | NP language control — readable segmented pill (not empty circles) */
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap,
+  .pfl-top-bar .pfl-lang-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 2px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    min-height: 30px !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: hidden;
+  }
+
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 34px !important;
+    width: auto !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 0.55rem !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1 !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+  }
+
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap a.active,
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap .pfl-lang-link.active,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link.active {
+    background: #fff !important;
+    color: #14532d !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-divider,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-dot {
+    display: none !important;
+  }
+
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot),
+  .pfl-top-bar .pfl-lang-wrap a span:not(.pfl-lang-dot) {
+    display: inline !important;
+    font-size: 0.68rem !important;
+    line-height: 1 !important;
+    color: inherit !important;
+    opacity: 1 !important;
+  }
+
+  /* 4) Logo: sharper, fuller banner on phone */
+  .pfl-main-header .pfl-brand-area {
+    padding: 0.35rem 0.55rem !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .pfl-main-header .pfl-brand-content.has-logo {
+    max-width: calc(100vw - 4.75rem) !important;
+  }
+
+  .pfl-main-header .pfl-brand-content.has-logo .pfl-brand-logo {
+    height: 46px !important;
+    max-height: 50px !important;
+    width: auto !important;
+    max-width: min(78vw, 280px) !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  .pfl-main-header .pfl-brand-content.no-logo .pfl-brand-logo-fallback {
+    height: 40px !important;
+    width: 40px !important;
+  }
+
+  /* Keep a11y FAB clear of profile/report chips + bottom nav */
+  #scrollAccessibilityPanel.sa-panel {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    left: 10px !important;
+    z-index: 1040 !important;
+  }
+
+  #scrollAccessibilityPanel .sa-toggle-btn {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .qh-launcher {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .pfl-main-header .pfl-brand-content.has-logo .pfl-brand-logo {
+    height: 42px !important;
+    max-height: 46px !important;
+    max-width: min(72vw, 240px) !important;
+  }
+
+  .institutional-profile-bar .profile-title-link {
+    font-size: 0.82rem !important;
+    padding: 0.45rem 0.85rem !important;
+  }
+
+  /* Do not force report chips into circles — keep readable pills */
+  .institutional-profile-bar .report-quick-link {
+    border-radius: 999px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 36px !important;
+    padding: 0.4rem 0.7rem !important;
+  }
+
+  .institutional-profile-bar .report-quick-link .report-label,
+  .institutional-profile-bar .report-quick-link > span {
+    display: inline !important;
+    font-size: 0.72rem !important;
+  }
+}

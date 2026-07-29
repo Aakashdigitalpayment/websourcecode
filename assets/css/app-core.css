@@ -1852,6 +1852,14 @@ h1, h2, h3, h4, h5, h6 {
     min-width: 44px;
   }
 
+  /* Hero dots must stay small — global 44px + primary fill = giant green disc */
+  .hero-slider .carousel-indicators button,
+  .hero-slider .hero-indicator-btn,
+  .hero-slider .carousel-indicators [data-bs-target] {
+    min-width: 0;
+    min-height: 0;
+  }
+
   /* Focus visible for keyboard navigation */
   a:focus-visible,
   button:focus-visible,

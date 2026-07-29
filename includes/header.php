@@ -986,12 +986,13 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         }
 
         @media (max-width: 575px) {
-            /* Very small screens — tighter brand + compact utilities */
+            /* Very small screens — readable banner logo + compact utilities */
             .pfl-brand-content.has-logo .pfl-brand-logo {
-                max-height: 34px !important;
-                height: auto !important;
+                max-height: 44px !important;
+                height: 42px !important;
                 width: auto !important;
-                max-width: min(172px, calc(100vw - 122px)) !important;
+                max-width: min(240px, calc(100vw - 88px)) !important;
+                object-fit: contain !important;
             }
             .pfl-brand-content.no-logo .pfl-brand-logo { height: 32px !important; }
             .pfl-brand-name-np { font-size: 0.82rem !important; }
@@ -1041,6 +1042,8 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 display: inline !important;
                 font-size: 10.5px !important;
                 line-height: 1 !important;
+                color: inherit !important;
+                opacity: 1 !important;
             }
 
             /* Dark + login: match the compact pill height, aligned on one row */
