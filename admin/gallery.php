@@ -95,7 +95,7 @@ if ($action === 'delete' && $id) {
 }
 
 /* ── सबै तस्विरहरू लोड गर्ने ── */
-try { $images = $db->query("SELECT * FROM gallery ORDER BY id DESC")->fetchAll(); }
+try { $images = $db->query("SELECT * FROM gallery ORDER BY id DESC LIMIT 500")->fetchAll(); }
 catch (Exception $e) { $images = []; }
 
 $flash = getFlash();

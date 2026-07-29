@@ -6,8 +6,14 @@ require_once 'includes/header.php';
 $L = getLangStrings();
 $noticeId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 $singleNotice = null;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$perPage = 12;
+$offset = ($page - 1) * $perPage;
+$notices = [];
+$totalNotices = 0;
+$totalPages = 1;
 
-// Get single notice or all notices
+// Get single notice or paginated list
 try {
     $db = getDB();
 
@@ -17,10 +23,23 @@ try {
         $singleNotice = $stmt->fetch();
     }
 
-    $notices = $db->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC")->fetchAll();
+    $totalNotices = (int)$db->query("SELECT COUNT(*) FROM notices WHERE is_active = 1")->fetchColumn();
+    $totalPages = max(1, (int)ceil($totalNotices / $perPage));
+    if ($page > $totalPages) {
+        $page = $totalPages;
+        $offset = ($page - 1) * $perPage;
+    }
+
+    $stmt = $db->prepare("SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT ? OFFSET ?");
+    $stmt->bindValue(1, $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $notices = $stmt->fetchAll() ?: [];
 } catch (Throwable $e) {
     $notices = [];
     $singleNotice = null;
+    $totalNotices = 0;
+    $totalPages = 1;
 }
 ?>
 <!-- Page Banner -->
@@ -121,6 +140,28 @@ try {
                 </div>
             <?php endif; ?>
         </div>
+
+        <?php if ($totalPages > 1 && !$singleNotice): ?>
+        <nav class="pagination-nav mt-4" aria-label="Notices pages">
+            <ul class="pagination justify-content-center">
+                <?php if ($page > 1): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>"><i class="fas fa-chevron-left"></i></a>
+                </li>
+                <?php endif; ?>
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                </li>
+                <?php endfor; ?>
+                <?php if ($page < $totalPages): ?>
+                <li class="page-item">
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>"><i class="fas fa-chevron-right"></i></a>
+                </li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+        <?php endif; ?>
         <?php endif; ?>
     </div>
 </section>

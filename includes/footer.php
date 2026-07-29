@@ -882,8 +882,15 @@ try {
     <!-- Init uniformity helpers (datepicker init + conservative a11y fixes) -->
     <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js?v=<?php echo $__jsVer('assets/js/init-uniformity.js'); ?>" defer></script>
 
-    <!-- Universal Phone/Email Validation — सबै public forms मा automatic -->
+    <?php
+    /* Content pages rarely have phone/email forms — skip form-validation.js */
+    $__needsFormValidation = !in_array($__scriptName, $__skipDatepickerPages, true)
+        || !empty($__forceFormValidation);
+    ?>
+    <?php if ($__needsFormValidation): ?>
+    <!-- Universal Phone/Email Validation — form pages -->
     <script src="<?php echo SITE_URL; ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
+    <?php endif; ?>
 
     <!-- Enhanced Search with Voice Support (issue #7) -->
     <script src="<?php echo SITE_URL; ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>

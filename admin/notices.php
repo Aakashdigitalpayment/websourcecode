@@ -125,7 +125,7 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
 $notices = [];
 try {
     $db      = getDB();
-    $notices = $db->query("SELECT * FROM notices ORDER BY id DESC")->fetchAll();
+    $notices = $db->query("SELECT * FROM notices ORDER BY id DESC LIMIT 500")->fetchAll();
 } catch (Exception $e) { $notices = []; }
 
 $flash = getFlash();

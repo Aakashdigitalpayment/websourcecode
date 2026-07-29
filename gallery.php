@@ -15,32 +15,45 @@ $categories = [];
 try {
     $db = getDB();
 
-    // Check if media_type column exists
-    $hasMediaType = false;
-    try {
-        $checkCol = $db->query("SHOW COLUMNS FROM gallery LIKE 'media_type'");
-        $hasMediaType = $checkCol && $checkCol->fetch() !== false;
-    } catch (Throwable $e) {
-        $hasMediaType = false;
+    $hasMediaType = function_exists('dbColumnExists')
+        ? dbColumnExists('gallery', 'media_type')
+        : false;
+    if (!$hasMediaType && !function_exists('dbColumnExists')) {
+        try {
+            $checkCol = $db->query("SHOW COLUMNS FROM gallery LIKE 'media_type'");
+            $hasMediaType = $checkCol && $checkCol->fetch() !== false;
+        } catch (Throwable $e) {
+            $hasMediaType = false;
+        }
     }
 
+    $photoLimit = 48;
+    $videoLimit = 24;
+
     if ($hasMediaType) {
-        // Separate photos and videos
-        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL) ORDER BY id DESC")->fetchAll();
-        $videos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video' ORDER BY id DESC")->fetchAll();
+        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)")->fetchColumn();
+        $videoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND media_type = 'video'")->fetchColumn();
+        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL) ORDER BY id DESC LIMIT " . (int)$photoLimit)->fetchAll() ?: [];
+        $videos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video' ORDER BY id DESC LIMIT " . (int)$videoLimit)->fetchAll() ?: [];
     } else {
-        // All items are photos
-        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 ORDER BY id DESC")->fetchAll();
+        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1")->fetchColumn();
+        $videoTotal = 0;
+        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 ORDER BY id DESC LIMIT " . (int)$photoLimit)->fetchAll() ?: [];
         $videos = [];
     }
 
     // Get unique categories
-    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1")->fetchAll(PDO::FETCH_COLUMN);
+    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1")->fetchAll(PDO::FETCH_COLUMN) ?: [];
 } catch (Throwable $e) {
     $photos = [];
     $videos = [];
     $categories = [];
+    $photoTotal = 0;
+    $videoTotal = 0;
 }
+
+if (!isset($photoTotal)) { $photoTotal = count($photos); }
+if (!isset($videoTotal)) { $videoTotal = count($videos); }
 
 if (!in_array($activeTab, ['photo', 'video'], true)) {
     $activeTab = 'photo';
@@ -74,12 +87,12 @@ $L = getLangStrings();
                 <a href="?type=photo" class="gallery-tab <?php echo $activeTab === 'photo' ? 'active' : ''; ?>">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="images"></i>
                     <span><?php echo isEnglish() ? 'Photos' : 'फोटोहरू'; ?></span>
-                    <span class="tab-count"><?php echo count($photos); ?></span>
+                    <span class="tab-count"><?php echo (int)$photoTotal; ?></span>
                 </a>
                 <a href="?type=video" class="gallery-tab <?php echo $activeTab === 'video' ? 'active' : ''; ?>">
                     <i class="fab fa-youtube"></i>
                     <span><?php echo isEnglish() ? 'Videos' : 'भिडियोहरू'; ?></span>
-                    <span class="tab-count"><?php echo count($videos); ?></span>
+                    <span class="tab-count"><?php echo (int)$videoTotal; ?></span>
                 </a>
             </div>
 
