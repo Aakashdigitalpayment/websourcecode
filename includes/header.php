@@ -65,26 +65,49 @@ if ($db) {
     }
 }
 
-/* ── Bell Notification: latest active notices ── */
+/* ── Bell Notification: latest active notices (short cache) ── */
 $bellNotices    = [];
 $bellNewCount   = 0;
 try {
-    $bellNotices = $db->query(
-        "SELECT id, title, notice_date, attachment
-         FROM notices WHERE is_active = 1
-         ORDER BY id DESC LIMIT 6"
-    )->fetchAll();
-    /* count notices created within the last 30 days as "new" */
-    $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
-    foreach ($bellNotices as $bn) {
-        $noticeCreated = (string)($bn['created_at'] ?? '');
-        if ($noticeCreated !== '' && substr($noticeCreated, 0, 10) >= $thirtyDaysAgo) {
-            $bellNewCount++;
+    if ($db) {
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-    }
-    /* Fallback: if no created_at data, treat top 2 as new */
-    if ($bellNewCount === 0 && count($bellNotices) > 0) {
-        $bellNewCount = min(count($bellNotices), 2);
+        $bellNotices = getCachedData('nav_bell_notices_v1', 90, function () use ($db) {
+            try {
+                $rows = $db->query(
+                    "SELECT id, title, notice_date, attachment, created_at
+                     FROM notices WHERE is_active = 1
+                     ORDER BY id DESC LIMIT 6"
+                )->fetchAll(PDO::FETCH_ASSOC);
+                return is_array($rows) ? $rows : [];
+            } catch (Throwable $e) {
+                /* created_at missing on very old schemas */
+                try {
+                    $rows = $db->query(
+                        "SELECT id, title, notice_date, attachment
+                         FROM notices WHERE is_active = 1
+                         ORDER BY id DESC LIMIT 6"
+                    )->fetchAll(PDO::FETCH_ASSOC);
+                    return is_array($rows) ? $rows : [];
+                } catch (Throwable $e2) {
+                    return [];
+                }
+            }
+        });
+        if (!is_array($bellNotices)) {
+            $bellNotices = [];
+        }
+        $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
+        foreach ($bellNotices as $bn) {
+            $noticeCreated = (string)($bn['created_at'] ?? '');
+            if ($noticeCreated !== '' && substr($noticeCreated, 0, 10) >= $thirtyDaysAgo) {
+                $bellNewCount++;
+            }
+        }
+        if ($bellNewCount === 0 && count($bellNotices) > 0) {
+            $bellNewCount = min(count($bellNotices), 2);
+        }
     }
 } catch (Throwable $e) { $bellNotices = []; $bellNewCount = 0; }
 
