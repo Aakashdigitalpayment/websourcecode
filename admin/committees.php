@@ -162,10 +162,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* ── Data ── */
 try {
     $committeeTypes = $db->query("SELECT * FROM committee_types ORDER BY display_order, id LIMIT 500")->fetchAll();
-    $tenures = $db->query("SELECT t.*, ct.name_np AS type_name FROM committee_tenures t LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY t.is_current DESC, t.start_date DESC")->fetchAll();
+    $tenures = $db->query("SELECT t.*, ct.name_np AS type_name FROM committee_tenures t LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY t.is_current DESC, t.start_date DESC LIMIT 1000")->fetchAll();
 ensureDesignationsTable(getDB());
 $__designations = fetchDesignations(getDB(), ['committee']);
-    $members = $db->query("SELECT m.*, t.tenure_name, t.tenure_name_np, t.committee_type_id, ct.name AS type_name_en, ct.name_np AS type_name_np FROM committee_members m LEFT JOIN committee_tenures t ON m.tenure_id=t.id LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY ct.display_order, t.start_date DESC, m.display_order, m.id")->fetchAll();
+    $members = $db->query("SELECT m.*, t.tenure_name, t.tenure_name_np, t.committee_type_id, ct.name AS type_name_en, ct.name_np AS type_name_np FROM committee_members m LEFT JOIN committee_tenures t ON m.tenure_id=t.id LEFT JOIN committee_types ct ON t.committee_type_id=ct.id ORDER BY ct.display_order, t.start_date DESC, m.display_order, m.id LIMIT 2000")->fetchAll();
     $groupedMembers = [];
     foreach ($members as $member) {
         $typeLabel = trim((string)($member['type_name_np'] ?: $member['type_name_en'] ?: '')); 

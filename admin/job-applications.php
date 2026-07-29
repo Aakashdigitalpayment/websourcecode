@@ -186,7 +186,7 @@ $stmt->execute($params);
 $applications = $stmt->fetchAll();
 
 // Get all careers for filter dropdown
-$careers = $db->query("SELECT id, title FROM careers ORDER BY created_at DESC")->fetchAll();
+$careers = $db->query("SELECT id, title FROM careers ORDER BY created_at DESC LIMIT 500")->fetchAll();
 
 // Get statistics
 if ($hasIsRead) {

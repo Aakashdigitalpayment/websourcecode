@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $records = [];
-try { $records = $db->query("SELECT * FROM member_of_year ORDER BY spotlight_year DESC")->fetchAll(); }
+try { $records = $db->query("SELECT * FROM member_of_year ORDER BY spotlight_year DESC LIMIT 200")->fetchAll(); }
 catch (Exception $e) { $records = []; }
 
 $defaultYear = date('Y');

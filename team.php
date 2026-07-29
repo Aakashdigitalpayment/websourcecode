@@ -30,7 +30,7 @@ try {
         ensureTeamMenuCategoriesTable($db);
         ensureTeamStaffGroupsTable($db);
     } catch (Throwable $e) { /* best-effort */ }
-    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order LIMIT 50")->fetchAll();
 
     try {
         $staffGroups = fetchTeamStaffGroups($db, true);

@@ -18,7 +18,7 @@ try {
     $db = getDB();
 
     // Get committee types
-    $committeeTypes = $db->query("SELECT * FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+    $committeeTypes = $db->query("SELECT * FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll();
 
     // Load all available tenures for filtering and lookup
     $allTenures = $db->query(
