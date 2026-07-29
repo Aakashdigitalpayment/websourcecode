@@ -62,14 +62,14 @@ try {
         $params[] = $filterMonth;
     }
 
-    $sql .= " ORDER BY report_year DESC, display_order ASC, created_at DESC";
+    $sql .= " ORDER BY report_year DESC, display_order ASC, created_at DESC LIMIT 300";
 
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
     $reports = $stmt->fetchAll();
 
     // Get available years for filter
-    $years = $db->query("SELECT DISTINCT report_year FROM reports WHERE is_active = 1 ORDER BY report_year DESC")->fetchAll(PDO::FETCH_COLUMN);
+    $years = $db->query("SELECT DISTINCT report_year FROM reports WHERE is_active = 1 ORDER BY report_year DESC LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
 
 } catch (Throwable $e) {
     $reports = [];

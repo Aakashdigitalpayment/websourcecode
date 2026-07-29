@@ -34,7 +34,7 @@ try {
 
     try {
         $staffGroups = fetchTeamStaffGroups($db, true);
-        $memberStmt = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+        $memberStmt = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order LIMIT 100");
         foreach ($staffGroups as $sg) {
             $slug = (string)($sg['slug'] ?? '');
             if ($slug === '') continue;
@@ -47,7 +47,7 @@ try {
     }
 
     try {
-        $committeeTypes = $db->query("SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        $committeeTypes = $db->query("SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll();
         foreach ($committeeTypes as $_ct) {
             $ctId = (int)$_ct['id'];
             $tenures = [];
@@ -81,7 +81,7 @@ try {
                     $mStmt = $db->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
                         FROM committee_members
                         WHERE tenure_id = ? AND is_active = 1
-                        ORDER BY display_order, id");
+                        ORDER BY display_order, id LIMIT 200");
                     $mStmt->execute([$useTenureId]);
                     $members = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                     foreach ($members as &$mm) {
@@ -94,7 +94,7 @@ try {
             }
 
             if (empty($members)) {
-                $fallback = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+                $fallback = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order LIMIT 100");
                 $fallback->execute(['cmt_' . $ctId]);
                 $members = $fallback->fetchAll(PDO::FETCH_ASSOC) ?: [];
             }
@@ -366,7 +366,7 @@ if ($isCommitteeView && $viewCommitteeId > 0 && $viewTenureId > 0
     && $viewTenureId !== (int)($committeeActiveTenure[$viewCommitteeId] ?? 0)) {
     try {
         $mStmt = getDB()->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
-            FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+            FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
         $mStmt->execute([$viewTenureId]);
         $viewMembers = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         foreach ($viewMembers as &$mm) { $mm['position_np'] = $mm['position'] ?? ''; }

@@ -74,10 +74,10 @@ try {
     }
 
     // Also get board members from team_members table (for showing in filters)
-    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order LIMIT 50")->fetchAll();
     
     // Get committee members from team_members table by category (cmt_X format)
-    $allTeamMembers = $db->query("SELECT * FROM team_members WHERE category LIKE 'cmt_%' AND is_active = 1 ORDER BY category, display_order")->fetchAll();
+    $allTeamMembers = $db->query("SELECT * FROM team_members WHERE category LIKE 'cmt_%' AND is_active = 1 ORDER BY category, display_order LIMIT 500")->fetchAll();
     $committeeTeamMembers = [];
     foreach ($allTeamMembers as $tm) {
         $cmtId = (int)str_replace('cmt_', '', $tm['category']);
@@ -106,7 +106,7 @@ try {
             }
 
             // Get members for current tenure
-            $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+            $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
             $memberStmt->execute([$currentTenure['id']]);
             $members = $memberStmt->fetchAll();
 
@@ -154,7 +154,7 @@ try {
                     continue;
                 }
 
-                $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+                $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
                 $memberStmt->execute([$tenure['id']]);
                 $members = $memberStmt->fetchAll();
 
