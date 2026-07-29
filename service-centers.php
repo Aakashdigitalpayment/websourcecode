@@ -7,7 +7,7 @@ $L = getLangStrings();
 // Get service centers from database (main branch first, then display_order)
 try {
     require_once __DIR__ . '/includes/service-centers-helpers.php';
-    $centers = fetchActiveServiceCenters();
+    $centers = fetchActiveServiceCenters(null, 300);
 } catch (Throwable $e) {
     $centers = [];
 }
