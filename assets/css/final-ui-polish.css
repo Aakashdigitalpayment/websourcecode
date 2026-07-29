@@ -1873,4 +1873,19 @@ body.dark-mode .gallery-album-cover {
     font-size: 0.86rem;
     padding: 0.6rem 0.7rem 0.75rem;
   }
+
+  .gallery-album-grid .col-sm-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+/* Admin gallery album filter */
+.gal-album-filter-select {
+  max-width: 220px;
+  min-width: 160px;
+}
+
+.admin-shell .gal-album-lbl {
+  font-size: 0.72rem;
 }

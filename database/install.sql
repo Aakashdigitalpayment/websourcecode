@@ -175,11 +175,27 @@ CREATE TABLE IF NOT EXISTS gallery (
     title_np VARCHAR(200),
     image VARCHAR(255) NOT NULL,
     category VARCHAR(50) DEFAULT 'general',
+    album_id INT NULL,
+    album VARCHAR(200) NULL,
     is_active TINYINT(1) DEFAULT 1,
     display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
-    INDEX idx_category (category)
+    INDEX idx_category (category),
+    INDEX idx_gallery_album_id (album_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS gallery_albums (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name_np VARCHAR(200) NOT NULL,
+    name_en VARCHAR(200) DEFAULT '',
+    category VARCHAR(50) NOT NULL DEFAULT 'general',
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    display_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_gal_album_active (is_active),
+    INDEX idx_gal_album_order (display_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
