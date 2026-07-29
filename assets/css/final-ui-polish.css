@@ -836,3 +836,171 @@ body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:not(:empt
     font-size: 0.88rem;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE DEEP PASS (safe, additive, last-loaded)
+   iOS zoom, table scroll, touch targets, safe-area, sticky bars
+   ═══════════════════════════════════════════════════════════════ */
+
+/* P0: iOS input zoom — reassert 16px after shell polish 0.94rem */
+@media (max-width: 991.98px) {
+  .form-control,
+  .form-select,
+  textarea.form-control,
+  .afb-input,
+  .afb-select,
+  .team-filter-select,
+  .field-coop,
+  .mem-container .form-control,
+  .mem-container .form-select,
+  .mem-container textarea,
+  .auth-portal-page .form-control,
+  .auth-portal-page .form-select,
+  .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+  .auth-card select,
+  .auth-card textarea,
+  .vp-input,
+  .vp-select,
+  .admin-search-wrap .form-control,
+  .admin-search-wrap input[type="search"],
+  .admin-search-wrap input[type="text"] {
+    font-size: 16px !important;
+  }
+}
+
+/* P0: wide tables must scroll horizontally on mobile */
+.v9-table-scroll,
+.table-responsive,
+.admin-table-card .table-responsive,
+.stf-card-table-wrap .table-responsive {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* P1: sticky form submit above bottom nav */
+body.has-bottomnav .coop-sticky-submit-bar,
+body:has(.mob-bottomnav) .coop-sticky-submit-bar,
+body:has(.mp-bottom-nav) .coop-sticky-submit-bar,
+body:has(.mem-bottom-nav) .coop-sticky-submit-bar {
+  bottom: calc(var(--mobile-bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 9200 !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.coop-sticky-submit-bar .btn,
+.coop-sticky-submit-bar button[type="submit"] {
+  min-height: 44px !important;
+}
+
+/* P1: sticky header safe-area (notch phones) */
+.pfl-header-wrapper,
+.mem-topbar,
+.admin-header,
+.main-header {
+  top: env(safe-area-inset-top, 0px) !important;
+}
+
+html {
+  scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+}
+
+/* P1: notice popup + hero carousel touch targets */
+@media (max-width: 899.98px) {
+  .notice-popup-enhanced .popup-nav-btn,
+  #noticePopup .popup-nav-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .notice-popup-enhanced .popup-dot,
+  #noticePopup .popup-dot {
+    width: 10px !important;
+    height: 10px !important;
+    padding: 14px !important;
+    background-clip: content-box !important;
+    box-sizing: content-box !important;
+  }
+
+  .hero-slider .carousel-indicators [data-bs-target],
+  .hero-slider .carousel-indicators button,
+  .hero-indicators-modern .hero-indicator-btn {
+    width: 12px !important;
+    height: 12px !important;
+    min-width: 12px !important;
+    min-height: 12px !important;
+    padding: 14px !important;
+    margin: 0 2px !important;
+    background-clip: content-box !important;
+    box-sizing: content-box !important;
+  }
+
+  .notice-popup-enhanced .popup-dialog.popup-v3,
+  #noticePopup .popup-dialog {
+    max-width: min(100%, calc(100vw - 16px)) !important;
+    margin: 8px !important;
+  }
+
+  .ip-home-stat span {
+    font-size: max(0.75rem, 12px) !important;
+  }
+
+  .ip-chart-canvas-wrap,
+  .ip-charts-grid {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mob-bottomnav span,
+  .mp-bottom-nav span,
+  .mem-bottom-nav span {
+    font-size: max(10px, 0.625rem) !important;
+  }
+}
+
+/* P1: compact phones — stack & prevent horizontal bleed */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .modal-dialog.modal-fullscreen-sm-down,
+  .modal.show .modal-dialog {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .hero-slider .hero-content-modern,
+  .hero-slider .slider-content {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .section-padding {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .container,
+  .container-fluid {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 379px) {
+  .ip-home-snapshot-grid {
+    gap: 0.5rem;
+  }
+
+  .mob-bottomnav span,
+  .mp-bottom-nav span,
+  .mem-bottom-nav span {
+    font-size: 10px !important;
+  }
+}
+
