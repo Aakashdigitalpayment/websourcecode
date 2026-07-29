@@ -1019,6 +1019,18 @@ html {
   transition-delay: 0ms !important;
 }
 
+/* AOS fail-safe — never leave sections permanently invisible if JS fails/slow */
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+body.aos-safe [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 /* Loader should never block interaction after early hide */
 .page-loader.loaded,
 body.page-loaded .page-loader {

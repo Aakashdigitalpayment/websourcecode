@@ -996,6 +996,8 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
             setTimeout(hide, 40);
         }
         setTimeout(hide, 1600);
+        /* Belt-and-suspenders: never leave AOS-hidden content forever if footer JS fails */
+        setTimeout(function () { document.body.classList.add('aos-safe'); }, 3200);
     })();
     </script>
     <?php endif; ?>
