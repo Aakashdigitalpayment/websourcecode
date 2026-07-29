@@ -625,14 +625,12 @@ function ensurePublicTables(): void {
  * AUTO-RUN — versioned lock (admin schema जस्तै)
  * नयाँ safe column migrations थपिए भने version bump → एक पटक re-run।
  * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
+ * Lock file is written inside ensurePublicTables() — no second write here.
  */
 $_publicSchemaVersion = 'v7-enterprise-safe-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {
     ensurePublicTables();
-    @file_put_contents($_lockFile, "Schema initialized at " . date('Y-m-d H:i:s') . " [{$_publicSchemaVersion}]\n"
-        . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
-        . "schema पुनः verify हुन्छ।\n");
 }
 unset($_lockFile, $_lockContent, $_publicSchemaVersion);

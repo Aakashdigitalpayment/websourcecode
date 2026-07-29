@@ -190,13 +190,8 @@ if ($db instanceof PDO) {
         }
 
         // Institutional profile availability (badge like monthly/annual)
-        $profileCheck = $db->query("SHOW TABLES LIKE 'institutional_profile'");
-        if ($profileCheck && $profileCheck->fetch() !== false) {
-            $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
-            if ($latestInstitutionalProfile) {
-                $hasInstitutionalProfile = true;
-            }
-        }
+        $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
+        $hasInstitutionalProfile = (bool)$latestInstitutionalProfile;
 
     } catch (Throwable $e) {
         // Tables may not exist - use defaults

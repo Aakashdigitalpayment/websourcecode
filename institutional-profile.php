@@ -15,12 +15,9 @@ $pageTitle = isEnglish() ? 'Institutional Profile' : 'संस्थागत �
 require_once 'includes/header.php';
 $L = getLangStrings();
 
-/* ─── Helpers ─── */
+/* ─── Helpers (thin wrappers → shared coopIp*) ─── */
 function ipShortAmt(float $v): string {
-    if ($v >= 1e7) return 'रू. ' . number_format($v / 1e7, 2) . ' करोड';
-    if ($v >= 1e5) return 'रू. ' . number_format($v / 1e5, 1) . ' लाख';
-    if ($v > 0)    return 'रू. ' . number_format($v);
-    return '—';
+    return coopIpShortAmt($v);
 }
 
 function ipNepaliNumber(int $number): string {
@@ -31,24 +28,11 @@ function ipMonthLabel(int $m, bool $en = false): string {
     if ($m < 1 || $m > 12) {
         return $en ? 'Annual / Unset' : 'वार्षिक / नखुलेको';
     }
-    $enNames = [1=>'Baisakh',2=>'Jestha',3=>'Ashadh',4=>'Shrawan',5=>'Bhadra',6=>'Ashwin',7=>'Kartik',8=>'Mangsir',9=>'Poush',10=>'Magh',11=>'Falgun',12=>'Chaitra'];
-    if ($en) {
-        return $enNames[$m] ?? ('Month ' . $m);
-    }
-    if (function_exists('getNepaliMonthName')) {
-        return (string) getNepaliMonthName((string) $m);
-    }
-    return 'महिना ' . $m;
+    return coopIpMonthLabel($m, $en);
 }
 
 function ipResolveMonth(array $p): int {
-    $m = (int)($p['report_month'] ?? 0);
-    if ($m >= 1 && $m <= 12) return $m;
-    $bs = trim((string)($p['report_date_bs'] ?? ''));
-    if (preg_match('/^\d{4}-(\d{2})/', $bs, $mm)) {
-        return max(0, min(12, (int)$mm[1]));
-    }
-    return 0;
+    return coopIpResolveMonth($p);
 }
 
 function ipFiscalFromBs(int $bsYear, int $bsMonth): string {

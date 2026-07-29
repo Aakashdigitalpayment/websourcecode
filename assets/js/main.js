@@ -386,39 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
         lastScroll = currentScroll;
     });
 
-    // Hero Slider
-    const slides = document.querySelectorAll('.hero-slide');
-    const dots = document.querySelectorAll('.slider-dot');
-    let currentSlide = 0;
-
-    function showSlide(index) {
-        slides.forEach((slide, i) => {
-            slide.classList.remove('active');
-            if (dots[i]) dots[i].classList.remove('active');
-        });
-
-        slides[index].classList.add('active');
-        if (dots[index]) dots[index].classList.add('active');
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }
-
-    // Auto slide every 5 seconds
-    if (slides.length > 0) {
-        setInterval(nextSlide, 5000);
-
-        // Dot navigation
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                currentSlide = index;
-                showSlide(currentSlide);
-            });
-        });
-    }
-
     // Counter Animation
     const counters = document.querySelectorAll('.counter-number');
     const speed = 200;

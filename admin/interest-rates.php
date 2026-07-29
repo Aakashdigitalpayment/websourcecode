@@ -6,6 +6,7 @@
 $pageTitle = 'ब्याज दर व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once dirname(__DIR__) . '/includes/simple-cache.php';
 
 $action = $_POST['action'] ?? 'list';
 $id = intval($_POST['id'] ?? 0) ?: null;
@@ -41,7 +42,6 @@ checkCSRF();
                ->execute([$cat, $name, $nameNp, $rate, $description, $isActive, $displayOrder]);
             setFlash('success', 'नयाँ ब्याज दर थपियो।');
         }
-        require_once dirname(__DIR__) . '/includes/simple-cache.php';
         if (function_exists('clearHomepageCache')) clearHomepageCache();
         redirect('interest-rates.php?category=' . $cat);
     } catch (Exception $e) {
@@ -55,7 +55,6 @@ if ($action === 'delete' && $id) {
         $db = getDB();
         $db->prepare("DELETE FROM interest_rates WHERE id=?")->execute([$id]);
         setFlash('success', 'ब्याज दर मेटाइयो।');
-        require_once dirname(__DIR__) . '/includes/simple-cache.php';
         if (function_exists('clearHomepageCache')) clearHomepageCache();
     } catch (Exception $e) { setFlash('error', 'मेटाउन सकिएन।'); }
     redirect('interest-rates.php?category=' . $category);

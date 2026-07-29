@@ -14,26 +14,31 @@ $aiChatWelcome = $aiChatEnabled
     ? ai_chat_welcome(function_exists('isEnglish') && isEnglish())
     : '';
 
-// Track and get visitor count - with safe table checks
+// Track visitors + footer data — one DB handle, one site_stats probe
 $totalVisitors = 0;
 $todayVisitors = 0;
+$footerNotices = [];
+$usefulLinks = [];
+$chatbotFaqs = [];
 try {
     $db = getDB();
     $visitorIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     $today = date('Y-m-d');
+    $hasSiteStats = false;
 
-    /* visitor_counter table check — fetch() प्रयोग गर्नुहोस् (rowCount() unreliable) */
     $tableCheck = $db->query("SHOW TABLES LIKE 'visitor_counter'");
     if ($tableCheck && $tableCheck->fetch() !== false) {
         $checkStmt = $db->prepare("SELECT id FROM visitor_counter WHERE ip_address = ? AND visit_date = ?");
         $checkStmt->execute([$visitorIp, $today]);
 
+        $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
+        $hasSiteStats = ($statsCheck && $statsCheck->fetch() !== false);
+
         if (!$checkStmt->fetch()) {
             $insertStmt = $db->prepare("INSERT INTO visitor_counter (ip_address, user_agent, page_visited, visit_date) VALUES (?, ?, ?, ?)");
             $insertStmt->execute([$visitorIp, $_SERVER['HTTP_USER_AGENT'] ?? '', $_SERVER['REQUEST_URI'] ?? '/', $today]);
 
-            $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
-            if ($statsCheck && $statsCheck->fetch() !== false) {
+            if ($hasSiteStats) {
                 $db->query("UPDATE site_stats SET stat_value = stat_value + 1 WHERE stat_key = 'total_visitors'");
             }
         }
@@ -42,11 +47,12 @@ try {
         $todayStmt->execute([$today]);
         $todayRow = $todayStmt->fetch();
         $todayVisitors = $todayRow['count'] ?? 0;
+    } else {
+        $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
+        $hasSiteStats = ($statsCheck && $statsCheck->fetch() !== false);
     }
 
-    /* site_stats total visitors */
-    $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
-    if ($statsCheck && $statsCheck->fetch() !== false) {
+    if ($hasSiteStats) {
         $totalStmt = $db->query("SELECT stat_value FROM site_stats WHERE stat_key = 'total_visitors'");
         if ($totalStmt) {
             $totalRow = $totalStmt->fetch();
@@ -54,34 +60,30 @@ try {
         }
     }
 
-} catch (Exception $e) {
-    // Table might not exist yet - use defaults
-    $totalVisitors = 0;
-    $todayVisitors = 0;
-}
+    try {
+        $noticesStmt = $db->query("SELECT id, title, notice_date FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 3");
+        if ($noticesStmt) $footerNotices = $noticesStmt->fetchAll() ?: [];
+    } catch (Exception $e) {
+        $footerNotices = [];
+    }
 
-// Get latest notices for footer - with safe query
-$footerNotices = [];
-try {
-    $db = getDB();
-    $noticesStmt = $db->query("SELECT id, title, notice_date FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 3");
-    if ($noticesStmt) $footerNotices = $noticesStmt->fetchAll() ?: [];
-} catch (Exception $e) {
-    $footerNotices = [];
-}
-
-// Get useful links for footer - with safe table check
-$usefulLinks = [];
-try {
-    $db = getDB();
-    /* useful_links table check — fetch() प्रयोग गर्नुहोस् */
-    $tableCheck = $db->query("SHOW TABLES LIKE 'useful_links'");
-    if ($tableCheck && $tableCheck->fetch() !== false) {
+    $ulCheck = $db->query("SHOW TABLES LIKE 'useful_links'");
+    if ($ulCheck && $ulCheck->fetch() !== false) {
         $usefulLinksStmt = $db->query("SELECT * FROM useful_links WHERE is_active = 1 ORDER BY display_order ASC LIMIT 6");
         if ($usefulLinksStmt) $usefulLinks = $usefulLinksStmt->fetchAll() ?: [];
     }
+
+    $faqCheck = $db->query("SHOW TABLES LIKE 'chatbot_faqs'");
+    if ($faqCheck && $faqCheck->fetch() !== false) {
+        $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order");
+        if ($faqsStmt) $chatbotFaqs = $faqsStmt->fetchAll() ?: [];
+    }
 } catch (Exception $e) {
+    $totalVisitors = 0;
+    $todayVisitors = 0;
+    $footerNotices = [];
     $usefulLinks = [];
+    $chatbotFaqs = [];
 }
 ?>
 
@@ -275,21 +277,7 @@ try {
     <?php endif; ?>
 
     <!-- Chatbot / FAQ Widget -->
-    <?php
-    // Get chatbot FAQs - with safe table check
-    $chatbotFaqs = [];
-    try {
-        $db = getDB();
-        /* chatbot_faqs table check — fetch() reliable, rowCount() होइन */
-        $tableCheck = $db->query("SHOW TABLES LIKE 'chatbot_faqs'");
-        if ($tableCheck && $tableCheck->fetch() !== false) {
-            $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order");
-            if ($faqsStmt) $chatbotFaqs = $faqsStmt->fetchAll() ?: [];
-        }
-    } catch (Exception $e) {
-        $chatbotFaqs = [];
-    }
-    ?>
+    <?php /* $chatbotFaqs loaded once above with other footer queries */ ?>
     <div class="chatbot-widget" id="chatbotWidget">
         <div class="chatbot-toggle" id="chatbotToggle" title="<?php echo isEnglish() ? 'Help & FAQ' : 'सहायता र प्रश्नोत्तर'; ?>">
             <i class="fas fa-comments"></i>
