@@ -724,6 +724,10 @@ function showFileNames(input) {
     var modal = document.getElementById('galEditMediaModal');
     if (!modal) return;
 
+    /* Bootstrap modals must be body children; tab/card stacking contexts can
+       otherwise place the dialog behind its own backdrop. */
+    document.body.appendChild(modal);
+
     modal.addEventListener('show.bs.modal', function (event) {
         var trigger = event.relatedTarget;
         if (!trigger) return;
