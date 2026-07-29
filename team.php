@@ -30,16 +30,29 @@ try {
         ensureTeamMenuCategoriesTable($db);
         ensureTeamStaffGroupsTable($db);
     } catch (Throwable $e) { /* best-effort */ }
-    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order")->fetchAll();
+    $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order LIMIT 50")->fetchAll();
 
     try {
         $staffGroups = fetchTeamStaffGroups($db, true);
-        $memberStmt = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
+        $staffSlugs = [];
         foreach ($staffGroups as $sg) {
             $slug = (string)($sg['slug'] ?? '');
             if ($slug === '') continue;
-            $memberStmt->execute([$slug]);
-            $staffMembersBySlug[$slug] = $memberStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $staffSlugs[] = $slug;
+            $staffMembersBySlug[$slug] = [];
+        }
+        /* One query for all staff groups instead of N round-trips */
+        if (!empty($staffSlugs)) {
+            $ph = implode(',', array_fill(0, count($staffSlugs), '?'));
+            $st = $db->prepare("SELECT * FROM team_members WHERE is_active = 1 AND category IN ($ph) ORDER BY display_order, id LIMIT 800");
+            $st->execute($staffSlugs);
+            foreach (($st->fetchAll(PDO::FETCH_ASSOC) ?: []) as $row) {
+                $cat = (string)($row['category'] ?? '');
+                if (!isset($staffMembersBySlug[$cat]) || count($staffMembersBySlug[$cat]) >= 100) {
+                    continue;
+                }
+                $staffMembersBySlug[$cat][] = $row;
+            }
         }
     } catch (Throwable $e) {
         $staffGroups = [];
@@ -47,23 +60,40 @@ try {
     }
 
     try {
-        $committeeTypes = $db->query("SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        $committeeTypes = $db->query("SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll();
+        $typeIds = [];
         foreach ($committeeTypes as $_ct) {
-            $ctId = (int)$_ct['id'];
-            $tenures = [];
-            try {
-                $tStmt = $db->prepare("SELECT id, tenure_name, tenure_name_np, start_date, end_date, is_current
-                    FROM committee_tenures
-                    WHERE committee_type_id = ? AND is_active = 1
-                    ORDER BY is_current DESC, start_date DESC, id DESC");
-                $tStmt->execute([$ctId]);
-                $tenures = $tStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            } catch (Throwable $e) {
-                $tenures = [];
-            }
-            $committeeTenures[$ctId] = $tenures;
+            $ctId = (int)($_ct['id'] ?? 0);
+            if ($ctId <= 0) continue;
+            $typeIds[] = $ctId;
+            $committeeTenures[$ctId] = [];
+            $committeeMembers[$ctId] = [];
+            $committeeActiveTenure[$ctId] = 0;
+        }
 
-            $members = [];
+        /* Batch load tenures for all committee types */
+        if (!empty($typeIds)) {
+            $ph = implode(',', array_fill(0, count($typeIds), '?'));
+            try {
+                $tStmt = $db->prepare("SELECT id, committee_type_id, tenure_name, tenure_name_np, start_date, end_date, is_current
+                    FROM committee_tenures
+                    WHERE committee_type_id IN ($ph) AND is_active = 1
+                    ORDER BY is_current DESC, start_date DESC, id DESC
+                    LIMIT 1000");
+                $tStmt->execute($typeIds);
+                foreach (($tStmt->fetchAll(PDO::FETCH_ASSOC) ?: []) as $tn) {
+                    $tid = (int)($tn['committee_type_id'] ?? 0);
+                    if ($tid <= 0 || !isset($committeeTenures[$tid])) continue;
+                    $committeeTenures[$tid][] = $tn;
+                }
+            } catch (Throwable $e) {
+                /* older schema / missing table — leave empty */
+            }
+        }
+
+        $tenureToType = [];
+        foreach ($typeIds as $ctId) {
+            $tenures = $committeeTenures[$ctId] ?? [];
             $useTenureId = 0;
             if ($selectedCommitteeId === $ctId && $selectedTenureId > 0) {
                 $useTenureId = $selectedTenureId;
@@ -75,32 +105,70 @@ try {
                     }
                 }
             }
-
-            if ($useTenureId > 0) {
-                try {
-                    $mStmt = $db->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
-                        FROM committee_members
-                        WHERE tenure_id = ? AND is_active = 1
-                        ORDER BY display_order, id");
-                    $mStmt->execute([$useTenureId]);
-                    $members = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                    foreach ($members as &$mm) {
-                        $mm['position_np'] = $mm['position'] ?? '';
-                    }
-                    unset($mm);
-                } catch (Throwable $e) {
-                    $members = [];
-                }
-            }
-
-            if (empty($members)) {
-                $fallback = $db->prepare("SELECT * FROM team_members WHERE category = ? AND is_active = 1 ORDER BY display_order");
-                $fallback->execute(['cmt_' . $ctId]);
-                $members = $fallback->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            }
-
-            $committeeMembers[$ctId] = $members;
             $committeeActiveTenure[$ctId] = $useTenureId;
+            if ($useTenureId > 0) {
+                $tenureToType[$useTenureId] = $ctId;
+            }
+        }
+
+        /* Batch load members for active/selected tenures */
+        $membersByTenure = [];
+        $tenureIds = array_keys($tenureToType);
+        if (!empty($tenureIds)) {
+            try {
+                $ph = implode(',', array_fill(0, count($tenureIds), '?'));
+                $mStmt = $db->prepare("SELECT id, tenure_id, name, name_en, position, position_en, phone, email, photo, display_order
+                    FROM committee_members
+                    WHERE tenure_id IN ($ph) AND is_active = 1
+                    ORDER BY display_order, id
+                    LIMIT 2000");
+                $mStmt->execute($tenureIds);
+                foreach (($mStmt->fetchAll(PDO::FETCH_ASSOC) ?: []) as $mm) {
+                    $tnId = (int)($mm['tenure_id'] ?? 0);
+                    if ($tnId <= 0) continue;
+                    if (!isset($membersByTenure[$tnId])) $membersByTenure[$tnId] = [];
+                    if (count($membersByTenure[$tnId]) >= 200) continue;
+                    $mm['position_np'] = $mm['position'] ?? '';
+                    $membersByTenure[$tnId][] = $mm;
+                }
+            } catch (Throwable $e) {
+                $membersByTenure = [];
+            }
+        }
+
+        $needFallback = [];
+        foreach ($typeIds as $ctId) {
+            $useTenureId = (int)($committeeActiveTenure[$ctId] ?? 0);
+            $members = ($useTenureId > 0) ? ($membersByTenure[$useTenureId] ?? []) : [];
+            if (empty($members)) {
+                $needFallback[] = $ctId;
+            } else {
+                $committeeMembers[$ctId] = $members;
+            }
+        }
+
+        /* Fallback: cmt_* team_members in one query */
+        if (!empty($needFallback)) {
+            $fallbackCats = array_map(static fn($id) => 'cmt_' . (int)$id, $needFallback);
+            $ph = implode(',', array_fill(0, count($fallbackCats), '?'));
+            $fallbackRows = [];
+            try {
+                $fb = $db->prepare("SELECT * FROM team_members WHERE is_active = 1 AND category IN ($ph) ORDER BY display_order, id LIMIT 800");
+                $fb->execute($fallbackCats);
+                $fallbackRows = $fb->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e) {
+                $fallbackRows = [];
+            }
+            $byCat = [];
+            foreach ($fallbackRows as $row) {
+                $cat = (string)($row['category'] ?? '');
+                if (!isset($byCat[$cat])) $byCat[$cat] = [];
+                if (count($byCat[$cat]) >= 100) continue;
+                $byCat[$cat][] = $row;
+            }
+            foreach ($needFallback as $ctId) {
+                $committeeMembers[$ctId] = $byCat['cmt_' . $ctId] ?? [];
+            }
         }
     } catch (Throwable $e) {
         $committeeTypes = [];
@@ -109,11 +177,21 @@ try {
         $committeeActiveTenure = [];
     }
 
-    // Get Information Officer and Grievance Officer
-    $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
-    $grievanceOfficer = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
-    $chairman = $db->query("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1")->fetch();
-    $ceo = $db->query("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1")->fetch();
+    // Officers / leadership — one scan instead of four queries
+    $informationOfficer = $grievanceOfficer = $chairman = $ceo = null;
+    try {
+        $leaders = $db->query("SELECT * FROM team_members WHERE is_active = 1 AND (
+            is_information_officer = 1 OR is_grievance_officer = 1 OR is_chairman = 1 OR is_ceo = 1
+        ) LIMIT 20")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($leaders as $lm) {
+            if ($informationOfficer === null && !empty($lm['is_information_officer'])) $informationOfficer = $lm;
+            if ($grievanceOfficer === null && !empty($lm['is_grievance_officer'])) $grievanceOfficer = $lm;
+            if ($chairman === null && !empty($lm['is_chairman'])) $chairman = $lm;
+            if ($ceo === null && !empty($lm['is_ceo'])) $ceo = $lm;
+        }
+    } catch (Throwable $e) {
+        /* older DBs without flag columns — leave null */
+    }
 } catch (Throwable $e) {
     $boardMembers = [];
     $staffGroups = [];
@@ -366,7 +444,7 @@ if ($isCommitteeView && $viewCommitteeId > 0 && $viewTenureId > 0
     && $viewTenureId !== (int)($committeeActiveTenure[$viewCommitteeId] ?? 0)) {
     try {
         $mStmt = getDB()->prepare("SELECT id, name, name_en, position, position_en, phone, email, photo, display_order
-            FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id");
+            FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
         $mStmt->execute([$viewTenureId]);
         $viewMembers = $mStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         foreach ($viewMembers as &$mm) { $mm['position_np'] = $mm['position'] ?? ''; }

@@ -7,7 +7,7 @@ $L = getLangStrings();
 // Get all awards
 try {
     $db = getDB();
-    $awardsStmt = $db->query("SELECT * FROM awards WHERE is_active = 1 ORDER BY award_date DESC, display_order ASC");
+    $awardsStmt = $db->query("SELECT * FROM awards WHERE is_active = 1 ORDER BY award_date DESC, display_order ASC LIMIT 100");
     $awards = $awardsStmt->fetchAll();
 } catch (Throwable $e) {
     $awards = [];

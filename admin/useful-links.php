@@ -5,6 +5,7 @@
  */
 $pageTitle = 'उपयोगी लिंकहरू व्यवस्थापन';
 require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -45,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $db->prepare("DELETE FROM useful_links WHERE id=?")->execute([(int)$_POST['id']]);
             $success = 'लिंक मेटाइयो।';
         }
+        if ($success !== '' && function_exists('clearHomepageCache')) {
+            clearHomepageCache();
+        }
     } catch (Exception $e) {
         $error = 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।';
     }
@@ -52,9 +56,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $links = [];
 try {
-    $check = $db->query("SHOW TABLES LIKE 'useful_links'");
-    if ($check->fetch() !== false) {
-        $links = $db->query("SELECT * FROM useful_links ORDER BY display_order, id DESC")->fetchAll();
+    $hasUsefulLinks = function_exists('dbTableExists')
+        ? dbTableExists('useful_links')
+        : false;
+    if (!$hasUsefulLinks && !function_exists('dbTableExists')) {
+        $check = $db->query("SHOW TABLES LIKE 'useful_links'");
+        $hasUsefulLinks = $check && $check->fetch() !== false;
+    }
+    if ($hasUsefulLinks) {
+        $links = $db->query("SELECT * FROM useful_links ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
     } else {
         $error = 'useful_links टेबल छैन। कृपया migration चलाउनुहोस्।';
     }

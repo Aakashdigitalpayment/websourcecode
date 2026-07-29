@@ -140,7 +140,7 @@ echo adminPageHeader(
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <?php
-$allCycles = $db->query('SELECT id, title_np FROM election_cycles ORDER BY sort_order ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$allCycles = $db->query('SELECT id, title_np FROM election_cycles ORDER BY sort_order ASC, id DESC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 if (count($allCycles) > 1):
 ?>
 <div class="card admin-table-card mb-3"><div class="card-body py-2">

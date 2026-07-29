@@ -417,7 +417,7 @@ if ($search) {
     $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
 }
 
-$stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE $whereClause ORDER BY created_at DESC");
+$stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE $whereClause ORDER BY created_at DESC LIMIT 500");
 $stmt->execute($params);
 $claims = $stmt->fetchAll();
 

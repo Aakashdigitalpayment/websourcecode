@@ -59,7 +59,7 @@ if (($eid = (int)($_GET['edit'] ?? 0)) > 0) {
     $editRow = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-$rows = $db->query('SELECT * FROM designations ORDER BY category, display_order, id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$rows = $db->query('SELECT * FROM designations ORDER BY category, display_order, id LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $grouped = [];
 foreach ($rows as $r) $grouped[$r['category']][] = $r;
 $panel = (string)($_GET['panel'] ?? 'list');

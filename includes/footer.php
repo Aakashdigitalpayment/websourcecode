@@ -92,10 +92,10 @@ try {
                 }
             }
             return $out;
-        });
-        $footerNotices = $footerBlob['notices'] ?? [];
-        $usefulLinks = $footerBlob['links'] ?? [];
-        $chatbotFaqs = $footerBlob['faqs'] ?? [];
+        }) ?: [];
+        $footerNotices = is_array($footerBlob) ? ($footerBlob['notices'] ?? []) : [];
+        $usefulLinks = is_array($footerBlob) ? ($footerBlob['links'] ?? []) : [];
+        $chatbotFaqs = is_array($footerBlob) ? ($footerBlob['faqs'] ?? []) : [];
     } catch (Exception $e) {
         $footerNotices = [];
         $usefulLinks = [];
@@ -675,7 +675,21 @@ try {
         'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
     ];
-    $__needsDatepicker = !empty($__forceNepaliDatepicker) || !in_array($__scriptName, $__skipDatepickerPages, true);
+    $__needsDatepicker = !empty($__forceNepaliDatepicker);
+    if (!$__needsDatepicker) {
+        if (!in_array($__scriptName, $__skipDatepickerPages, true)) {
+            $__needsDatepicker = true;
+        } else {
+            /* Safety net: skip-list page मा पनि source मा datepicker छ भने load */
+            $__selfFile = (string)($_SERVER['SCRIPT_FILENAME'] ?? '');
+            if ($__selfFile !== '' && is_file($__selfFile)) {
+                $__src = @file_get_contents($__selfFile);
+                if (is_string($__src) && str_contains($__src, 'nepali-datepicker')) {
+                    $__needsDatepicker = true;
+                }
+            }
+        }
+    }
     ?>
     <!-- Bootstrap JS -->
     <script src="<?php echo SITE_URL; ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo $__jsVer('assets/vendor/bootstrap.bundle.min.js'); ?>" defer></script>
@@ -709,7 +723,10 @@ try {
     <script src="<?php echo SITE_URL; ?>assets/vendor/aos.min.js?v=<?php echo $__jsVer('assets/vendor/aos.min.js'); ?>" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            if (typeof AOS === 'undefined') return;
+            if (typeof AOS === 'undefined') {
+                document.body.classList.add('aos-safe');
+                return;
+            }
             AOS.init({
                 duration: 420,
                 easing: 'ease-out-cubic',
@@ -718,6 +735,10 @@ try {
                 offset: 40,
                 delay: 0
             });
+            /* If AOS misses nodes, never leave content invisible */
+            setTimeout(function () {
+                document.body.classList.add('aos-safe');
+            }, 2800);
         });
     </script>
 
@@ -861,8 +882,15 @@ try {
     <!-- Init uniformity helpers (datepicker init + conservative a11y fixes) -->
     <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js?v=<?php echo $__jsVer('assets/js/init-uniformity.js'); ?>" defer></script>
 
-    <!-- Universal Phone/Email Validation — सबै public forms मा automatic -->
+    <?php
+    /* Content pages rarely have phone/email forms — skip form-validation.js */
+    $__needsFormValidation = !in_array($__scriptName, $__skipDatepickerPages, true)
+        || !empty($__forceFormValidation);
+    ?>
+    <?php if ($__needsFormValidation): ?>
+    <!-- Universal Phone/Email Validation — form pages -->
     <script src="<?php echo SITE_URL; ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
+    <?php endif; ?>
 
     <!-- Enhanced Search with Voice Support (issue #7) -->
     <script src="<?php echo SITE_URL; ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>

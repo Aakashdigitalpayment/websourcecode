@@ -65,26 +65,49 @@ if ($db) {
     }
 }
 
-/* ── Bell Notification: latest active notices ── */
+/* ── Bell Notification: latest active notices (short cache) ── */
 $bellNotices    = [];
 $bellNewCount   = 0;
 try {
-    $bellNotices = $db->query(
-        "SELECT id, title, notice_date, attachment
-         FROM notices WHERE is_active = 1
-         ORDER BY id DESC LIMIT 6"
-    )->fetchAll();
-    /* count notices created within the last 30 days as "new" */
-    $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
-    foreach ($bellNotices as $bn) {
-        $noticeCreated = (string)($bn['created_at'] ?? '');
-        if ($noticeCreated !== '' && substr($noticeCreated, 0, 10) >= $thirtyDaysAgo) {
-            $bellNewCount++;
+    if ($db) {
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-    }
-    /* Fallback: if no created_at data, treat top 2 as new */
-    if ($bellNewCount === 0 && count($bellNotices) > 0) {
-        $bellNewCount = min(count($bellNotices), 2);
+        $bellNotices = getCachedData('nav_bell_notices_v1', 90, function () use ($db) {
+            try {
+                $rows = $db->query(
+                    "SELECT id, title, notice_date, attachment, created_at
+                     FROM notices WHERE is_active = 1
+                     ORDER BY id DESC LIMIT 6"
+                )->fetchAll(PDO::FETCH_ASSOC);
+                return is_array($rows) ? $rows : [];
+            } catch (Throwable $e) {
+                /* created_at missing on very old schemas */
+                try {
+                    $rows = $db->query(
+                        "SELECT id, title, notice_date, attachment
+                         FROM notices WHERE is_active = 1
+                         ORDER BY id DESC LIMIT 6"
+                    )->fetchAll(PDO::FETCH_ASSOC);
+                    return is_array($rows) ? $rows : [];
+                } catch (Throwable $e2) {
+                    return [];
+                }
+            }
+        });
+        if (!is_array($bellNotices)) {
+            $bellNotices = [];
+        }
+        $thirtyDaysAgo = date('Y-m-d', strtotime('-30 days'));
+        foreach ($bellNotices as $bn) {
+            $noticeCreated = (string)($bn['created_at'] ?? '');
+            if ($noticeCreated !== '' && substr($noticeCreated, 0, 10) >= $thirtyDaysAgo) {
+                $bellNewCount++;
+            }
+        }
+        if ($bellNewCount === 0 && count($bellNotices) > 0) {
+            $bellNewCount = min(count($bellNotices), 2);
+        }
     }
 } catch (Throwable $e) { $bellNotices = []; $bellNewCount = 0; }
 
@@ -92,41 +115,56 @@ try {
 $navCommittees = [];
 try {
     if ($db) {
-        $navCommittees = $db->query(
-            "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
-             WHERE is_active = 1 AND show_in_navbar = 1
-             ORDER BY display_order, id"
-        )->fetchAll();
-    }
-} catch (Exception $e) {
-    try {
-        if ($db) {
-            $navCommittees = $db->query(
-                "SELECT id, name, name_np, menu_category_id FROM committee_types
-                 WHERE is_active = 1 AND show_in_navbar = 1
-                 ORDER BY display_order, id"
-            )->fetchAll();
-            foreach ($navCommittees as &$_ncRow) {
-                $_ncRow['icon'] = 'fas fa-users-gear';
-            }
-            unset($_ncRow);
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-    } catch (Exception $e2) {
-        try {
-            if ($db) {
-                $navCommittees = $db->query(
-                    "SELECT id, name, name_np FROM committee_types
+        $navCommittees = getCachedData('nav_committees_v1', 90, function () use ($db) {
+            try {
+                $rows = $db->query(
+                    "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
                      WHERE is_active = 1 AND show_in_navbar = 1
                      ORDER BY display_order, id"
-                )->fetchAll();
-                foreach ($navCommittees as &$_ncRow) {
-                    $_ncRow['menu_category_id'] = null;
-                    $_ncRow['icon'] = 'fas fa-users-gear';
+                )->fetchAll(PDO::FETCH_ASSOC);
+                return is_array($rows) ? $rows : [];
+            } catch (Exception $e) {
+                try {
+                    $rows = $db->query(
+                        "SELECT id, name, name_np, menu_category_id FROM committee_types
+                         WHERE is_active = 1 AND show_in_navbar = 1
+                         ORDER BY display_order, id"
+                    )->fetchAll(PDO::FETCH_ASSOC);
+                    $rows = is_array($rows) ? $rows : [];
+                    foreach ($rows as &$_ncRow) {
+                        $_ncRow['icon'] = 'fas fa-users-gear';
+                    }
+                    unset($_ncRow);
+                    return $rows;
+                } catch (Exception $e2) {
+                    try {
+                        $rows = $db->query(
+                            "SELECT id, name, name_np FROM committee_types
+                             WHERE is_active = 1 AND show_in_navbar = 1
+                             ORDER BY display_order, id"
+                        )->fetchAll(PDO::FETCH_ASSOC);
+                        $rows = is_array($rows) ? $rows : [];
+                        foreach ($rows as &$_ncRow) {
+                            $_ncRow['menu_category_id'] = null;
+                            $_ncRow['icon'] = 'fas fa-users-gear';
+                        }
+                        unset($_ncRow);
+                        return $rows;
+                    } catch (Exception $e3) {
+                        return [];
+                    }
                 }
-                unset($_ncRow);
             }
-        } catch (Exception $e3) { $navCommittees = []; }
+        });
+        if (!is_array($navCommittees)) {
+            $navCommittees = [];
+        }
     }
+} catch (Throwable $e) {
+    $navCommittees = [];
 }
 
 /* ── कर्मचारी वर्ग / समूह (team_staff_groups, show_in_nav) ── */
@@ -138,12 +176,33 @@ try {
     if ($db) {
         ensureTeamStaffGroupsTable($db);
         ensureTeamMenuCategoriesTable($db);
-        foreach (fetchTeamStaffGroups($db, true) as $_sg) {
-            if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
-                $navStaffGroups[] = $_sg;
-            }
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-        $navTeamMenuCategories = fetchTeamMenuCategories($db, true);
+        $__teamNav = getCachedData('nav_team_menu_v1', 90, function () use ($db) {
+            $staff = [];
+            try {
+                foreach (fetchTeamStaffGroups($db, true) as $_sg) {
+                    if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
+                        $staff[] = $_sg;
+                    }
+                }
+            } catch (Throwable $e) {
+                $staff = [];
+            }
+            $cats = [];
+            try {
+                $cats = fetchTeamMenuCategories($db, true) ?: [];
+            } catch (Throwable $e) {
+                $cats = [];
+            }
+            return ['staff' => $staff, 'cats' => $cats];
+        });
+        if (!is_array($__teamNav)) {
+            $__teamNav = [];
+        }
+        $navStaffGroups = is_array($__teamNav['staff'] ?? null) ? $__teamNav['staff'] : [];
+        $navTeamMenuCategories = is_array($__teamNav['cats'] ?? null) ? $__teamNav['cats'] : [];
     }
 } catch (Throwable $e) {
     $navStaffGroups = [];
@@ -219,26 +278,37 @@ $__navGrpIcons    = [];
 try {
     if ($db) {
         if (function_exists('ensureServiceProductsTables')) { ensureServiceProductsTables($db); }
-        try {
-            // Join with service_categories for dynamic mega-menu grouping
-            $svcRows = $db->query("
-                SELECT s.id, s.title, s.title_en, s.title_np, s.icon,
-                       s.service_category_id,
-                       sc.id        AS cat_id,
-                       sc.name      AS cat_name,
-                       sc.name_en   AS cat_name_en,
-                       sc.name_np   AS cat_name_np,
-                       sc.icon      AS cat_icon,
-                       sc.display_order AS cat_order
-                FROM services s
-                LEFT JOIN service_categories sc ON sc.id = s.service_category_id AND sc.is_active = 1
-                WHERE s.is_active = 1
-                ORDER BY sc.display_order, sc.id, s.display_order, s.id
-                LIMIT 60
-            ")->fetchAll();
-        } catch (Throwable $e2) {
-            // Fallback: columns not migrated yet
-            $svcRows = $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
+        }
+        /* Cache raw rows only — title language still resolved per-request below */
+        $svcRows = getCachedData('nav_services_v1', 90, function () use ($db) {
+            try {
+                return $db->query("
+                    SELECT s.id, s.title, s.title_en, s.title_np, s.icon,
+                           s.service_category_id,
+                           sc.id        AS cat_id,
+                           sc.name      AS cat_name,
+                           sc.name_en   AS cat_name_en,
+                           sc.name_np   AS cat_name_np,
+                           sc.icon      AS cat_icon,
+                           sc.display_order AS cat_order
+                    FROM services s
+                    LEFT JOIN service_categories sc ON sc.id = s.service_category_id AND sc.is_active = 1
+                    WHERE s.is_active = 1
+                    ORDER BY sc.display_order, sc.id, s.display_order, s.id
+                    LIMIT 60
+                ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e2) {
+                try {
+                    return $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                } catch (Throwable $e3) {
+                    return [];
+                }
+            }
+        });
+        if (!is_array($svcRows)) {
+            $svcRows = [];
         }
         $serviceAnchorId = static function (array $service): string {
             $id = (int)($service['id'] ?? 0);
@@ -296,6 +366,53 @@ try {
     $navServiceLinks = []; $navServiceGroups = [];
 }
 
+/* ── CMS pages in navbar (about / services / more) — one cached query ── */
+$navCmsPages = ['about' => [], 'services' => [], 'more' => []];
+try {
+    if ($db instanceof PDO) {
+        $hasMenuCol = function_exists('dbColumnExists')
+            ? dbColumnExists('pages', 'show_in_menu')
+            : true;
+        if ($hasMenuCol) {
+            if (!function_exists('getCachedData')) {
+                require_once __DIR__ . '/simple-cache.php';
+            }
+            $__cmsRows = getCachedData('nav_cms_pages_v1', 90, function () use ($db) {
+                try {
+                    if (function_exists('dbColumnExists') && !dbColumnExists('pages', 'show_in_menu')) {
+                        return [];
+                    }
+                    $stmt = $db->query(
+                        "SELECT id, slug, title,
+                                COALESCE(title_en, '') AS title_en,
+                                COALESCE(is_new, 0) AS is_new,
+                                new_until, menu_position
+                         FROM pages
+                         WHERE is_active = 1 AND show_in_menu = 1
+                           AND menu_position IN ('about','services','more')
+                         ORDER BY menu_order ASC, id ASC
+                         LIMIT 30"
+                    );
+                    return $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+                } catch (Throwable $e) {
+                    return [];
+                }
+            });
+            if (!is_array($__cmsRows)) {
+                $__cmsRows = [];
+            }
+            foreach ($__cmsRows as $__cmsRow) {
+                $pos = (string)($__cmsRow['menu_position'] ?? '');
+                if (!isset($navCmsPages[$pos]) || count($navCmsPages[$pos]) >= 5) {
+                    continue;
+                }
+                $navCmsPages[$pos][] = $__cmsRow;
+            }
+        }
+    }
+} catch (Throwable $e) {
+    $navCmsPages = ['about' => [], 'services' => [], 'more' => []];
+}
 
 $currentPage = getCurrentPage();
 $L = getLangStrings();
@@ -996,6 +1113,8 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
             setTimeout(hide, 40);
         }
         setTimeout(hide, 1600);
+        /* Belt-and-suspenders: never leave AOS-hidden content forever if footer JS fails */
+        setTimeout(function () { document.body.classList.add('aos-safe'); }, 3200);
     })();
     </script>
     <?php endif; ?>
@@ -1662,29 +1781,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     <li><a href="<?php echo SITE_URL; ?>about.php#chairman"><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
-                                    <?php
-                                    // Fetch dynamic pages that should show in about menu
-                                    // Safe query with error handling for missing columns
-                                    try {
-                                        $db = getDB();
-                                        // Check if show_in_menu column exists
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
-                                            $pagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'about'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($pagesStmt) {
-                                                $menuPages = $pagesStmt->fetchAll();
-                                                foreach ($menuPages as $mp):
-                                                    $mpTitle = isEnglish() ? ($mp['title_en'] ?: $mp['title']) : ($mp['title'] ?: $mp['title_en']);
-                                                    $isNewPage = !empty($mp['is_new']) && (!$mp['new_until'] || strtotime($mp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['about'] as $mp):
+                                        $mpTitle = isEnglish() ? ($mp['title_en'] ?: $mp['title']) : ($mp['title'] ?: $mp['title_en']);
+                                        $isNewPage = !empty($mp['is_new']) && (empty($mp['new_until']) || strtotime((string)$mp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mp['slug']); ?>"><?php echo htmlspecialchars($mpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Columns may not exist yet - safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
@@ -1699,27 +1801,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                         <li><a href="<?php echo SITE_URL; ?>services.php#loan"><i class="fas fa-hand-holding-usd"></i> <?php echo $L['loan']; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>services.php#remittance"><i class="fas fa-money-bill-wave"></i> <?php echo $L['remittance']; ?></a></li>
                                     <?php endif; ?>
-                                    <?php
-                                    // Fetch dynamic pages for services menu
-                                    try {
-                                        $db = getDB();
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
-                                            $servicesPagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'services'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($servicesPagesStmt) {
-                                                $servicesMenuPages = $servicesPagesStmt->fetchAll();
-                                                foreach ($servicesMenuPages as $sp):
-                                                    $spTitle = isEnglish() ? ($sp['title_en'] ?: $sp['title']) : ($sp['title'] ?: $sp['title_en']);
-                                                    $isNewPage = !empty($sp['is_new']) && (!$sp['new_until'] || strtotime($sp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['services'] as $sp):
+                                        $spTitle = isEnglish() ? ($sp['title_en'] ?: $sp['title']) : ($sp['title'] ?: $sp['title_en']);
+                                        $isNewPage = !empty($sp['is_new']) && (empty($sp['new_until']) || strtotime((string)$sp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($sp['slug']); ?>"><?php echo htmlspecialchars($spTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
@@ -1820,27 +1907,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
-                                    <?php
-                                    // Fetch dynamic pages for more menu
-                                    try {
-                                        $db = getDB();
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
-                                            $morePagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'more'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($morePagesStmt) {
-                                                $moreMenuPages = $morePagesStmt->fetchAll();
-                                                foreach ($moreMenuPages as $mmp):
-                                                    $mmpTitle = isEnglish() ? ($mmp['title_en'] ?: $mmp['title']) : ($mmp['title'] ?: $mmp['title_en']);
-                                                    $isNewPage = !empty($mmp['is_new']) && (!$mmp['new_until'] || strtotime($mmp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['more'] as $mmp):
+                                        $mmpTitle = isEnglish() ? ($mmp['title_en'] ?: $mmp['title']) : ($mmp['title'] ?: $mmp['title_en']);
+                                        $isNewPage = !empty($mmp['is_new']) && (empty($mmp['new_until']) || strtotime((string)$mmp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mmp['slug']); ?>"><?php echo htmlspecialchars($mmpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">
@@ -2058,14 +2130,35 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     </script>
 
     <?php
-    // Get notices for ticker - with safe query
+    // Ticker + popup notices — one short cache (notices admin already clears homepage cache)
     $tickerNotices = [];
+    $popupNotices = [];
     try {
-        $db = getDB();
-        $tickerStmt = $db->query("SELECT id, title, title_np FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 10");
-        if ($tickerStmt) $tickerNotices = $tickerStmt->fetchAll() ?: [];
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
+        }
+        $__noticeExtra = getCachedData('nav_notices_extra_v1', 90, function () {
+            $out = ['ticker' => [], 'popup' => []];
+            try {
+                $db = getDB();
+                $tickerStmt = $db->query("SELECT id, title, title_np FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 10");
+                if ($tickerStmt) {
+                    $out['ticker'] = $tickerStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
+                $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
+                if ($popupStmt) {
+                    $out['popup'] = $popupStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
+            } catch (Exception $e) {
+                /* keep empty */
+            }
+            return $out;
+        }) ?: [];
+        $tickerNotices = is_array($__noticeExtra['ticker'] ?? null) ? $__noticeExtra['ticker'] : [];
+        $popupNotices = is_array($__noticeExtra['popup'] ?? null) ? $__noticeExtra['popup'] : [];
     } catch (Exception $e) {
         $tickerNotices = [];
+        $popupNotices = [];
     }
     ?>
 
@@ -2094,16 +2187,6 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <?php endif; ?>
 
     <?php
-    // Check for popup notices - fetch multiple for carousel
-    $popupNotices = [];
-    try {
-        $db = getDB();
-        $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
-        if ($popupStmt) $popupNotices = $popupStmt->fetchAll();
-    } catch (Exception $e) {
-        $popupNotices = [];
-    }
-
     // Only output popup HTML if notices exist
     if (!empty($popupNotices)):
     $noticeIds = implode(',', array_column($popupNotices, 'id'));

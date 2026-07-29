@@ -88,6 +88,13 @@ function clearHomepageCache(): void {
     clearCache('homepage_data_v2');
     clearCache('footer_public_v1');
     clearCache('nav_public_v1');
+    clearCache('nav_services_v1');
+    clearCache('nav_bell_notices_v1');
+    clearCache('nav_committees_v1');
+    clearCache('nav_team_menu_v1');
+    clearCache('nav_career_badge_v1');
+    clearCache('nav_notices_extra_v1');
+    clearCache('nav_cms_pages_v1');
 }
 
 /**

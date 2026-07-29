@@ -599,7 +599,7 @@ try {
 
 $totalAttendance = $totalFiltered;
 
-$programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER BY is_active DESC, COALESCE(event_date,'9999-12-31') ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER BY is_active DESC, COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid py-3">
 <?php echo adminPageHeader($__t('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report'), 'fa-clipboard-check', $__t('कार्यक्रम छानेर pre-registration र उपस्थिति हेर्नुहोस्। लामो सूचीको लागि कार्यक्रम व्यवस्थापनमा सक्रिय/निष्क्रिय छुट्याउनुहोस्।', 'Select a program to view pre-registrations and attendance. For long lists, separate active/inactive from program management.'),

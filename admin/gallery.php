@@ -26,11 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
 
     try {
         /* media_type column check */
-        $hasMediaType = false;
-        try {
-            $chk = $db->query("SHOW COLUMNS FROM gallery LIKE 'media_type'");
-            $hasMediaType = $chk && $chk->fetch() !== false;
-        } catch (Throwable $e) { error_log("[gallery.php] " . $e->getMessage()); }
+        $hasMediaType = function_exists('dbColumnExists')
+            ? dbColumnExists('gallery', 'media_type')
+            : false;
+        if (!$hasMediaType && !function_exists('dbColumnExists')) {
+            try {
+                $chk = $db->query("SHOW COLUMNS FROM gallery LIKE 'media_type'");
+                $hasMediaType = $chk && $chk->fetch() !== false;
+            } catch (Throwable $e) { error_log("[gallery.php] " . $e->getMessage()); }
+        }
 
         /* YouTube भिडियो */
         if ($mediaType === 'video' && !empty($videoUrl)) {
@@ -95,7 +99,7 @@ if ($action === 'delete' && $id) {
 }
 
 /* ── सबै तस्विरहरू लोड गर्ने ── */
-try { $images = $db->query("SELECT * FROM gallery ORDER BY id DESC")->fetchAll(); }
+try { $images = $db->query("SELECT * FROM gallery ORDER BY id DESC LIMIT 500")->fetchAll(); }
 catch (Exception $e) { $images = []; }
 
 $flash = getFlash();

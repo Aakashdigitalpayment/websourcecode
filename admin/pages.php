@@ -9,6 +9,7 @@
 $pageTitle = 'पृष्ठ व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 checkCSRF();
@@ -137,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_dynamic_page']))
     } catch (Throwable $e) {
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');
     }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('pages.php?tab=dynamic');
 }
 
@@ -158,6 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string)($_POST['action'] ?? '') ==
             setFlash('error', 'Bulk update गर्दा त्रुटि भयो।');
         }
     }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('pages.php?tab=dynamic');
 }
 
@@ -180,13 +183,14 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Throwable $e) {
         setFlash('error', 'मेटाउँदा त्रुटि भयो।');
     }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('pages.php?tab=dynamic');
 }
 
 // Fetch dynamic pages
 $dynamicPages = [];
 try {
-    $sql = "SELECT * FROM pages ORDER BY menu_position, menu_order, id";
+    $sql = "SELECT * FROM pages ORDER BY menu_position, menu_order, id LIMIT 500";
     $st = $db->prepare($sql);
     $st->execute();
     $dynamicPages = $st->fetchAll(PDO::FETCH_ASSOC);

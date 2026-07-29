@@ -7,7 +7,7 @@ $L = getLangStrings();
 // Get downloads from database
 try {
     $db = getDB();
-    $downloads = $db->query("SELECT * FROM downloads WHERE is_active = 1 ORDER BY category, id DESC")->fetchAll();
+    $downloads = $db->query("SELECT * FROM downloads WHERE is_active = 1 ORDER BY category, id DESC LIMIT 200")->fetchAll();
 } catch (Throwable $e) {
     $downloads = [];
 }

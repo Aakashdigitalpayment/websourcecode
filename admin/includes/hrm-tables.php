@@ -45,7 +45,7 @@ if (!function_exists('hrmListBranches')) {
      */
     function hrmListBranches(PDO $db): array {
         require_once dirname(__DIR__, 2) . '/includes/service-centers-helpers.php';
-        $rows = fetchActiveServiceCenters($db);
+        $rows = fetchActiveServiceCenters($db, 300);
         foreach ($rows as &$r) {
             $r['name'] = serviceCenterDisplayName($r);
         }

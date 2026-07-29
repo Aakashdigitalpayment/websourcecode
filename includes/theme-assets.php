@@ -261,11 +261,8 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* ── 1.5. Load unified CSS system (global, forms; admin-ui admin-only) ── */
         coopThemeLink('assets/css/global.css');
-        if (in_array($panel, ['admin', 'admin-auth', 'shell', 'member', 'auth', 'verify'], true)) {
-            coopThemeLink('assets/css/forms-tables.css');
-        } else {
-            coopThemeLinkDeferred('assets/css/forms-tables.css');
-        }
+        /* forms-tables must stay blocking — public KYC/appointment FOUC avoid */
+        coopThemeLink('assets/css/forms-tables.css');
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
             coopThemeLink('assets/css/admin-ui-unified.css');
         }

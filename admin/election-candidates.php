@@ -151,8 +151,8 @@ $cands = $db->prepare('SELECT * FROM election_candidates WHERE cycle_id=? ORDER 
 $cands->execute([$cycleId]);
 $cands = $cands->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-$committeeTypes = $db->query('SELECT id, name_np FROM committee_types WHERE is_active=1 ORDER BY display_order, id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
-$postsMaster = $db->query('SELECT * FROM election_posts WHERE is_active=1 ORDER BY display_order, id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$committeeTypes = $db->query('SELECT id, name_np FROM committee_types WHERE is_active=1 ORDER BY display_order, id LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$postsMaster = $db->query('SELECT * FROM election_posts WHERE is_active=1 ORDER BY display_order, id LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $panel = (string)($_GET['panel'] ?? 'positions'); // positions|candidates
 if (!in_array($panel, ['positions', 'candidates'], true)) $panel = 'positions';
 if ($editCand) $panel = 'candidates';
@@ -172,7 +172,7 @@ echo adminPageHeader(
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <?php
-$allCycles = $db->query('SELECT id, title_np FROM election_cycles ORDER BY sort_order ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$allCycles = $db->query('SELECT id, title_np FROM election_cycles ORDER BY sort_order ASC, id DESC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 if (count($allCycles) > 1):
 ?>
 <div class="card admin-table-card mb-3"><div class="card-body py-2">

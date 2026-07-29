@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     } catch (Exception $e) { $error = 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।'; }
 }
 
-try { $sliders = $db->query("SELECT * FROM sliders ORDER BY display_order, id DESC")->fetchAll(); }
+try { $sliders = $db->query("SELECT * FROM sliders ORDER BY display_order, id DESC LIMIT 200")->fetchAll(); }
 catch (Exception $e) { $sliders = []; }
 
 require_once 'includes/admin-header.php';

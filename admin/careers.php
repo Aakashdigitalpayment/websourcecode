@@ -10,6 +10,7 @@ $__t = static function (string $np, string $en): string {
 $pageTitle = $__t('रोजगारी व्यवस्थापन', 'Career Management');
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 
@@ -70,20 +71,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Exception $e) {
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
     }
+    if (function_exists('clearHomepageCache')) {
+        clearHomepageCache();
+    }
     redirect('careers.php');
 }
 
-$isReadExists = false;
-try {
-    $cr = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
-    $isReadExists = $cr && $cr->fetch() !== false;
-} catch (Throwable $e) { error_log("[careers.php] " . $e->getMessage()); }
+$isReadExists = function_exists('dbColumnExists')
+    ? dbColumnExists('job_applications', 'is_read')
+    : false;
+if (!$isReadExists && !function_exists('dbColumnExists')) {
+    try {
+        $cr = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
+        $isReadExists = $cr && $cr->fetch() !== false;
+    } catch (Throwable $e) { error_log("[careers.php] " . $e->getMessage()); }
+}
 
 try {
     if ($isReadExists) {
-        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id AND is_read=0) as unread_count FROM careers c ORDER BY c.created_at DESC")->fetchAll();
+        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id AND is_read=0) as unread_count FROM careers c ORDER BY c.created_at DESC LIMIT 500")->fetchAll();
     } else {
-        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, 0 as unread_count FROM careers c ORDER BY c.created_at DESC")->fetchAll();
+        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, 0 as unread_count FROM careers c ORDER BY c.created_at DESC LIMIT 500")->fetchAll();
     }
 } catch (Exception $e) { $careers = []; }
 

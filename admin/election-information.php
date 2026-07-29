@@ -3,6 +3,7 @@ $pageTitle = 'निर्वाचन जानकारी';
 $currentPage = 'election-information';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 require_once __DIR__ . '/../includes/election-tables.php';
 $db = getDB();
@@ -11,6 +12,11 @@ ensureElectionVotingTables($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
+    $__clearNavCache = static function (): void {
+        if (function_exists('clearHomepageCache')) {
+            clearHomepageCache();
+        }
+    };
     $action = $_POST['action'] ?? '';
     try {
         if ($action === 'save_cycle') {
@@ -76,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $cid = (int)$db->lastInsertId();
                     setFlash('success', 'नयाँ निर्वाचन चक्र थपियो।');
                 }
+                $__clearNavCache();
                 redirect('election-information.php?edit=' . $cid);
             }
         } elseif ($action === 'delete_cycle') {
@@ -85,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->prepare('DELETE FROM election_cycles WHERE id=?')->execute([$cid]);
                 setFlash('success', 'चक्र मेटाइयो।');
             }
+            $__clearNavCache();
             redirect('election-information.php');
         } elseif ($action === 'save_milestone') {
             $mid = (int)($_POST['milestone_id'] ?? 0);
@@ -125,6 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     )->execute([$cid, $ed, $titleNp, $titleEn, $detailNp, $detailEn, $attachment, $ord, $actv]);
                     setFlash('success', 'नयाँ चरण थपियो।');
                 }
+                $__clearNavCache();
                 redirect('election-information.php?milestones=' . $cid);
             }
         } elseif ($action === 'delete_milestone') {
@@ -134,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db->prepare('DELETE FROM election_milestones WHERE id=?')->execute([$mid]);
                 setFlash('success', 'चरण मेटाइयो।');
             }
+            $__clearNavCache();
             redirect('election-information.php?milestones=' . $cid);
         }
     } catch (Throwable $e) {
@@ -153,7 +163,7 @@ $qTo     = trim((string)($_GET['to'] ?? ''));
 $panel   = (string)($_GET['panel'] ?? 'list'); // list|form
 if (!in_array($panel, ['list', 'form'], true)) $panel = 'list';
 
-$cycles = $db->query('SELECT * FROM election_cycles ORDER BY sort_order ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$cycles = $db->query('SELECT * FROM election_cycles ORDER BY sort_order ASC, id DESC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 /* Bucket each cycle by status (Asia/Kathmandu) */
 try { $tz = new DateTimeZone('Asia/Kathmandu'); $now = new DateTime('now', $tz); }

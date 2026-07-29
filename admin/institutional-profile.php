@@ -266,7 +266,7 @@ if ($tableExists && $viewAction === 'list') {
         )->fetchAll();
     } catch (Exception $e) {
         try {
-            $profiles = $db->query("SELECT * FROM institutional_profile ORDER BY fiscal_year DESC")->fetchAll();
+            $profiles = $db->query("SELECT * FROM institutional_profile ORDER BY fiscal_year DESC LIMIT 200")->fetchAll();
         } catch (Exception $e2) {}
     }
 }

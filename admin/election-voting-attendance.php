@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$allCycles = $db->query('SELECT id, title_np, voting_enabled FROM election_cycles ORDER BY voting_enabled DESC, sort_order ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$allCycles = $db->query('SELECT id, title_np, voting_enabled FROM election_cycles ORDER BY voting_enabled DESC, sort_order ASC, id DESC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $positionsSt = $db->prepare('SELECT * FROM election_positions WHERE cycle_id=? AND is_active=1 ORDER BY display_order, id');
 $positionsSt->execute([$cycleId]);
 $positions = $positionsSt->fetchAll(PDO::FETCH_ASSOC) ?: [];

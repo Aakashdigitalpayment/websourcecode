@@ -12,6 +12,7 @@ $pageTitle = 'गुनासो अधिकारी';
 $currentPage = 'grievance-officer';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db      = getDB();
 
@@ -35,12 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_officer'])) {
                ->execute([$memberId]);
             $success = 'गुनासो अधिकारी सफलतापूर्वक अपडेट भयो।';
             logSecurityEvent('grievance_officer_update', 'Grievance Officer set to member ID: ' . $memberId);
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
             $error = 'Error: ' . $e->getMessage();
         }
     } else {
         $db->exec("UPDATE team_members SET is_grievance_officer = 0");
         $success = 'गुनासो अधिकारी हटाइयो।';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
     }
 }
 
@@ -54,7 +57,7 @@ try {
 /* सबै टिम सदस्यहरू */
 $allMembers = [];
 try {
-    $allMembers = $db->query("SELECT id, name, name_en, position, position_np, position_en, photo, category, phone, email FROM team_members ORDER BY display_order, name")->fetchAll();
+    $allMembers = $db->query("SELECT id, name, name_en, position, position_np, position_en, photo, category, phone, email FROM team_members ORDER BY display_order, name LIMIT 500")->fetchAll();
 } catch (Exception $e) {}
 ?>
 

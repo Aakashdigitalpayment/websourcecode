@@ -168,7 +168,7 @@ if ($action === 'view' && isset($_GET['id'])) {
     $messages = [];
     $totalCount = $unreadCount = $readCount = 0;
     try {
-        $stmt = $db->prepare("SELECT * FROM contact_messages {$w['sql']} ORDER BY created_at DESC");
+        $stmt = $db->prepare("SELECT * FROM contact_messages {$w['sql']} ORDER BY created_at DESC LIMIT 500");
         $stmt->execute($w['params']);
         $messages = $stmt->fetchAll();
 

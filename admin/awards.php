@@ -77,8 +77,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $awards = [];
 try {
-    $check = $db->query("SHOW TABLES LIKE 'awards'");
-    if ($check->fetch() !== false) {
+    $hasAwards = function_exists('dbTableExists') ? dbTableExists('awards') : false;
+    if (!$hasAwards && !function_exists('dbTableExists')) {
+        $check = $db->query("SHOW TABLES LIKE 'awards'");
+        $hasAwards = $check && $check->fetch() !== false;
+    }
+    if ($hasAwards) {
         $awards = $db->query("SELECT * FROM awards ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
     }
 } catch (Exception $e) { $awards = []; }

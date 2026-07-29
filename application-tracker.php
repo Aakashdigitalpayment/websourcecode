@@ -151,13 +151,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE ja.phone = ? ORDER BY ja.created_at DESC");
+                                          WHERE ja.phone = ? ORDER BY ja.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE ja.email = ? ORDER BY ja.created_at DESC");
+                                          WHERE ja.email = ? ORDER BY ja.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $jobResults = $stmt->fetchAll();
@@ -170,10 +170,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE tracking_id = ?");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE mobile = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $loanResults = $stmt->fetchAll();
@@ -186,10 +186,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE tracking_id = ?");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE mobile = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $accResults = $stmt->fetchAll();
@@ -205,10 +205,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(tracking_id) = UPPER(?) OR id = ?");
                     $stmt->execute([$rawSv, $numericId]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $grvResults = $stmt->fetchAll();
@@ -223,10 +223,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(tracking_id) = UPPER(?) OR id = ?");
                     $stmt->execute([$rawSv, $numericId]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE mobile = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $kycResults = $stmt->fetchAll();
@@ -251,13 +251,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
                                           LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE ab.bidder_phone = ? ORDER BY ab.created_at DESC");
+                                          WHERE ab.bidder_phone = ? ORDER BY ab.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
                                           LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE ab.bidder_email = ? ORDER BY ab.created_at DESC");
+                                          WHERE ab.bidder_email = ? ORDER BY ab.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $bidResults = $stmt->fetchAll();
@@ -290,11 +290,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                     $apptResults = $stmt->fetchAll();
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                     $apptResults = $stmt->fetchAll();
                 }
@@ -309,10 +309,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE tracking_id = ?");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $fbResults = $stmt->fetchAll();
@@ -329,10 +329,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE tracking_id = ?");
                     $stmt->execute([$wlfId]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $wlfResults = $stmt->fetchAll();
@@ -344,10 +344,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE tracking_id = ?");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $digitalResults = $stmt->fetchAll();
@@ -360,10 +360,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE tracking_id = ?");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE phone = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE email = ? ORDER BY created_at DESC");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE email = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $vendorResults = $stmt->fetchAll();

@@ -46,8 +46,13 @@ $profiles = [];
 $tableExists = false;
 try {
     $db = getDB();
-    $r = $db->query("SHOW TABLES LIKE 'institutional_profile'");
-    $tableExists = ($r->rowCount() > 0);
+    $tableExists = function_exists('dbTableExists')
+        ? dbTableExists('institutional_profile')
+        : false;
+    if (!$tableExists && !function_exists('dbTableExists')) {
+        $r = $db->query("SHOW TABLES LIKE 'institutional_profile'");
+        $tableExists = ($r && $r->rowCount() > 0);
+    }
     if ($tableExists) {
         try {
             $db->exec("ALTER TABLE institutional_profile ADD COLUMN report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12'");

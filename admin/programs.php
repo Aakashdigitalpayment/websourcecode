@@ -3,6 +3,7 @@ $pageTitle = 'कार्यक्रम व्यवस्थापन';
 $currentPage = 'programs';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 require_once __DIR__ . '/../includes/program-tables.php';
@@ -59,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Throwable $e) {
         setFlash('error', $e->getMessage());
     }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('programs.php');
 }
 
@@ -69,7 +71,7 @@ if ($editId > 0) {
     $st->execute([$editId]);
     $edit = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }
-$rows = $db->query("SELECT * FROM upcoming_programs ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$rows = $db->query("SELECT * FROM upcoming_programs ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 
 $preregByProgram = [];
 try {

@@ -12,11 +12,15 @@ ensureRequestStatusHistoryTable($db);
 $jobAppStatuses = ['pending', 'shortlisted', 'interviewed', 'selected', 'rejected'];
 
 /* पुरानो DB compatibility: job_applications.is_read column नहुन सक्छ */
-$hasIsRead = false;
-try {
-    $colChk = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
-    $hasIsRead = $colChk && $colChk->fetch() !== false;
-} catch (Exception $e) {}
+$hasIsRead = function_exists('dbColumnExists')
+    ? dbColumnExists('job_applications', 'is_read')
+    : false;
+if (!$hasIsRead && !function_exists('dbColumnExists')) {
+    try {
+        $colChk = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
+        $hasIsRead = $colChk && $colChk->fetch() !== false;
+    } catch (Exception $e) {}
+}
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
@@ -186,7 +190,7 @@ $stmt->execute($params);
 $applications = $stmt->fetchAll();
 
 // Get all careers for filter dropdown
-$careers = $db->query("SELECT id, title FROM careers ORDER BY created_at DESC")->fetchAll();
+$careers = $db->query("SELECT id, title FROM careers ORDER BY created_at DESC LIMIT 500")->fetchAll();
 
 // Get statistics
 if ($hasIsRead) {

@@ -15,6 +15,25 @@ function nav_get_public_submenu_badges(?PDO $db): array
     if (!$db instanceof PDO) {
         return $badges;
     }
+    if (!function_exists('getCachedData')) {
+        $cacheFile = __DIR__ . '/simple-cache.php';
+        if (is_file($cacheFile)) {
+            require_once $cacheFile;
+        }
+    }
+    if (function_exists('getCachedData')) {
+        $cached = getCachedData('nav_career_badge_v1', 90, static function () use ($db) {
+            try {
+                return (int) $db->query(
+                    'SELECT COUNT(*) FROM careers WHERE is_active = 1 AND deadline >= CURDATE()'
+                )->fetchColumn();
+            } catch (Throwable $e) {
+                return 0;
+            }
+        });
+        $badges['career_open'] = (int) $cached;
+        return $badges;
+    }
     try {
         $badges['career_open'] = (int) $db->query(
             'SELECT COUNT(*) FROM careers WHERE is_active = 1 AND deadline >= CURDATE()'

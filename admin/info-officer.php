@@ -12,6 +12,7 @@ $pageTitle = 'सूचना अधिकारी';
 $currentPage = 'info-officer';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db      = getDB();
 
@@ -35,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_officer'])) {
                ->execute([$memberId]);
             $success = 'सूचना अधिकारी सफलतापूर्वक अपडेट भयो।';
             logSecurityEvent('info_officer_update', 'Info Officer set to member ID: ' . $memberId);
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
             $error = 'Error: ' . $e->getMessage();
         }
@@ -42,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_officer'])) {
         /* member_id = 0 भए अर्थात् "कोई होइन" — सबै 0 गर्ने */
         $db->exec("UPDATE team_members SET is_information_officer = 0");
         $success = 'सूचना अधिकारी हटाइयो।';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
     }
 }
 
@@ -55,9 +58,8 @@ try {
 /* सबै टिम सदस्यहरू */
 $allMembers = [];
 try {
-    $allMembers = $db->query("SELECT id, name, name_en, position, position_np, position_en, photo, category, phone, email FROM team_members ORDER BY display_order, name")->fetchAll();
+    $allMembers = $db->query("SELECT id, name, name_en, position, position_np, position_en, photo, category, phone, email FROM team_members ORDER BY display_order, name LIMIT 500")->fetchAll();
 } catch (Exception $e) {}
-
 $panel = (string)($_GET['panel'] ?? 'list');
 if (!in_array($panel, ['list', 'form'], true)) {
     $panel = 'list';

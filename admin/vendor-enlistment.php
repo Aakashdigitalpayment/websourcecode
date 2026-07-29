@@ -70,9 +70,9 @@ try {
         'rejected' => core_safe_count($db, "SELECT COUNT(*) FROM vendors WHERE status='rejected'", '[vendor-enlistment rejected]'),
     ];
     if ($tab === 'all') {
-        $vendors = $db->query("SELECT * FROM vendors ORDER BY status='pending' DESC, created_at DESC")->fetchAll();
+        $vendors = $db->query("SELECT * FROM vendors ORDER BY status='pending' DESC, created_at DESC LIMIT 500")->fetchAll();
     } else {
-        $vendors = $db->prepare("SELECT * FROM vendors WHERE status = ? ORDER BY created_at DESC");
+        $vendors = $db->prepare("SELECT * FROM vendors WHERE status = ? ORDER BY created_at DESC LIMIT 500");
         $vendors->execute([$tab]);
         $vendors = $vendors->fetchAll();
     }

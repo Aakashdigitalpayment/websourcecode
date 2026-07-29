@@ -172,7 +172,7 @@ if ($filterSearch !== '') {
     $sql .= " AND (name LIKE ? OR phone LIKE ? OR tracking_id LIKE ? OR subject LIKE ? OR member_id LIKE ?)";
     $ft = "%$filterSearch%"; $params = array_merge($params, [$ft,$ft,$ft,$ft,$ft]);
 }
-$sql .= " ORDER BY created_at DESC";
+$sql .= " ORDER BY created_at DESC LIMIT 500";
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $feedbacks = $stmt->fetchAll();

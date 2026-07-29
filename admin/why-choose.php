@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('why-choose.php');
 }
 
-$features = $db->query("SELECT * FROM why_choose_features ORDER BY sort_order, id")->fetchAll();
+$features = $db->query("SELECT * FROM why_choose_features ORDER BY sort_order, id LIMIT 200")->fetchAll();
 $flash = getFlash();
 
 echo adminPageHeader(

@@ -87,11 +87,15 @@ if (isset($_POST['import_kyc_csv'])) {
     }
     $idx = array_flip($header);
 
-    $hasTrackingId = false;
-    try {
-        $colChk = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
-        $hasTrackingId = $colChk && $colChk->fetch() !== false;
-    } catch (Throwable $e) {}
+    $hasTrackingId = function_exists('dbColumnExists')
+        ? dbColumnExists('kyc_applications', 'tracking_id')
+        : false;
+    if (!$hasTrackingId && !function_exists('dbColumnExists')) {
+        try {
+            $colChk = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
+            $hasTrackingId = $colChk && $colChk->fetch() !== false;
+        } catch (Throwable $e) {}
+    }
 
     $insertCols = [
         'member_id','full_name','mobile','email','citizenship_no','national_id_number','dob_bs','gender',
