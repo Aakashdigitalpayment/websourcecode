@@ -107,7 +107,7 @@ if (!in_array($filterType, $allowedReportTypes, true)) {
 // Get all reports
 try {
     if ($filterType !== 'all') {
-        $stmt = $db->prepare("SELECT * FROM reports WHERE report_type = ? ORDER BY report_year DESC, display_order ASC, created_at DESC");
+        $stmt = $db->prepare("SELECT * FROM reports WHERE report_type = ? ORDER BY report_year DESC, display_order ASC, created_at DESC LIMIT 500");
         $stmt->execute([$filterType]);
         $reports = $stmt->fetchAll();
     } else {

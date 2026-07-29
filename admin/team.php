@@ -473,7 +473,7 @@ if ($teamListSection === 'governance') {
     }
     $govCategoryList = array_values(array_unique($govCategoryList));
     $ph = implode(',', array_fill(0, count($govCategoryList), '?'));
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC");
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC LIMIT 1000");
     $stTeam->execute($govCategoryList);
     $team = $stTeam->fetchAll();
 } else {
@@ -485,7 +485,7 @@ if ($teamListSection === 'governance') {
         $staffSlugs = ['top_management', 'management', 'staff', 'admin'];
     }
     $ph = implode(',', array_fill(0, count($staffSlugs), '?'));
-    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC");
+    $stTeam = $db->prepare("SELECT * FROM team_members WHERE category IN ($ph) ORDER BY category, display_order, id DESC LIMIT 1000");
     $stTeam->execute($staffSlugs);
     $team = $stTeam->fetchAll();
 }

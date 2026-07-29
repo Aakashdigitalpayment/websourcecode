@@ -302,7 +302,7 @@ $requests = [];
 $statusCounts = [];
 $totalRequests = 0;
 try {
-    $stmt = $db->prepare("SELECT * FROM digital_service_requests WHERE $whereClause ORDER BY created_at DESC");
+    $stmt = $db->prepare("SELECT * FROM digital_service_requests WHERE $whereClause ORDER BY created_at DESC LIMIT 500");
     $stmt->execute($params);
     $requests = $stmt->fetchAll();
     $countStmt = $db->query("SELECT status, COUNT(*) as count FROM digital_service_requests GROUP BY status");

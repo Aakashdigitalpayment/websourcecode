@@ -20,27 +20,41 @@ try {
     // Get committee types
     $committeeTypes = $db->query("SELECT * FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll();
 
-    // Load all available tenures for filtering and lookup
+    // Load available tenures once (used for filters + current/past lists — no per-type re-query)
     $allTenures = $db->query(
         "SELECT t.*, ct.name, ct.name_np
          FROM committee_tenures t
          LEFT JOIN committee_types ct ON ct.id = t.committee_type_id
          WHERE t.is_active = 1
-         ORDER BY t.start_date DESC, t.id DESC"
+         ORDER BY t.start_date DESC, t.id DESC
+         LIMIT 1000"
     )->fetchAll();
     $tenureMap = [];
     $allTenureOptions = [];
+    $tenuresByType = []; /* type_id => ['current' => row|null, 'past' => rows] */
     foreach ($allTenures as $tn) {
         $tnId = (int)$tn['id'];
+        $typeId = (int)($tn['committee_type_id'] ?? 0);
         $tenureMap[$tnId] = $tn;
         $allTenureOptions[$tnId] = [
             'id'         => $tnId,
             'label'      => trim((string)(isEnglish() ? ($tn['tenure_name'] ?: $tn['tenure_name_np']) : ($tn['tenure_name_np'] ?: $tn['tenure_name']))),
-            'type_id'    => (int)$tn['committee_type_id'],
+            'type_id'    => $typeId,
             'type_label' => trim((string)(isEnglish() ? ($tn['name'] ?: $tn['name_np']) : ($tn['name_np'] ?: $tn['name']))),
             'is_current' => (int)$tn['is_current'],
             'period'     => (trim((string)$tn['start_date']) !== '' && trim((string)$tn['end_date']) !== '') ? date('Y', strtotime($tn['start_date'])) . ' - ' . date('Y', strtotime($tn['end_date'])) : '',
         ];
+        if ($typeId <= 0) continue;
+        if (!isset($tenuresByType[$typeId])) {
+            $tenuresByType[$typeId] = ['current' => null, 'past' => []];
+        }
+        if (!empty($tn['is_current'])) {
+            if ($tenuresByType[$typeId]['current'] === null) {
+                $tenuresByType[$typeId]['current'] = $tn;
+            }
+        } else {
+            $tenuresByType[$typeId]['past'][] = $tn;
+        }
     }
     if ($selectedTenure && isset($tenureMap[$selectedTenure])) {
         $selectedTenureIsCurrent = (int)$tenureMap[$selectedTenure]['is_current'] === 1;
@@ -87,45 +101,76 @@ try {
         }
     }
 
-    // Get current tenures with members
+    // Collect tenure IDs we will display, then load members in one query
+    $neededTenureIds = [];
+    $typesToRender = [];
+    foreach ($committeeTypes as $type) {
+        if ($selectedType && $selectedType != $type['id']) continue;
+        $typesToRender[] = $type;
+        $typeId = (int)$type['id'];
+        $bucket = $tenuresByType[$typeId] ?? ['current' => null, 'past' => []];
+        $currentTenure = $bucket['current'];
+        if ($currentTenure) {
+            if (!($selectedTenure && (int)$currentTenure['id'] !== $selectedTenure)) {
+                $neededTenureIds[(int)$currentTenure['id']] = true;
+            }
+        }
+        if ($showPast || $selectedType || $selectedTenure) {
+            foreach ($bucket['past'] as $tenure) {
+                if ($selectedTenure && (int)$tenure['id'] !== $selectedTenure) continue;
+                if ($selectedTenure && $selectedType && (int)$tenure['committee_type_id'] !== $selectedType) continue;
+                $neededTenureIds[(int)$tenure['id']] = true;
+            }
+        }
+    }
+
+    $membersByTenure = [];
+    $neededIds = array_keys($neededTenureIds);
+    if (!empty($neededIds)) {
+        $ph = implode(',', array_fill(0, count($neededIds), '?'));
+        $mStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id IN ($ph) AND is_active = 1 ORDER BY display_order, id LIMIT 2000");
+        $mStmt->execute($neededIds);
+        foreach (($mStmt->fetchAll() ?: []) as $mm) {
+            $tnId = (int)($mm['tenure_id'] ?? 0);
+            if ($tnId <= 0) continue;
+            if (!isset($membersByTenure[$tnId])) $membersByTenure[$tnId] = [];
+            if (count($membersByTenure[$tnId]) >= 200) continue;
+            $membersByTenure[$tnId][] = $mm;
+        }
+    }
+
+    // Build current / past committee display lists (no per-type DB round-trips)
     $currentCommittees = [];
     $pastCommittees = [];
 
-    foreach ($committeeTypes as $type) {
-        // Skip if specific type is selected and this isn't it
-        if ($selectedType && $selectedType != $type['id']) continue;
-
-        // Get current tenure
-        $stmt = $db->prepare("SELECT * FROM committee_tenures WHERE committee_type_id = ? AND is_current = 1 AND is_active = 1");
-        $stmt->execute([$type['id']]);
-        $currentTenure = $stmt->fetch();
+    foreach ($typesToRender as $type) {
+        $typeId = (int)$type['id'];
+        $bucket = $tenuresByType[$typeId] ?? ['current' => null, 'past' => []];
+        $currentTenure = $bucket['current'];
 
         if ($currentTenure) {
             if ($selectedTenure && (int)$currentTenure['id'] !== $selectedTenure) {
-                continue;
-            }
+                /* skip current when filtering a different tenure */
+            } else {
+                $members = $membersByTenure[(int)$currentTenure['id']] ?? [];
 
-            // Get members for current tenure
-            $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
-            $memberStmt->execute([$currentTenure['id']]);
-            $members = $memberStmt->fetchAll();
-
-            // If no members in committee_members, try to get from team_members (for this committee type)
-            if (empty($members)) {
-                // First check if this is the board committee
-                if (stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) {
-                    $members = $boardMembers;
-                } else {
-                    // Check team_members table for members with matching cmt_X category
-                    $members = $committeeTeamMembers[$type['id']] ?? [];
+                // If no members in committee_members, try to get from team_members (for this committee type)
+                if (empty($members)) {
+                    // First check if this is the board committee
+                    if (stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false) {
+                        $members = $boardMembers;
+                    } else {
+                        // Check team_members table for members with matching cmt_X category
+                        $members = $committeeTeamMembers[$type['id']] ?? [];
+                    }
                 }
-            }
 
-            $currentCommittees[] = [
-                'type' => $type,
-                'tenure' => $currentTenure,
-                'members' => $members
-            ];
+                $currentCommittees[] = [
+                    'type' => $type,
+                    'tenure' => $currentTenure,
+                    'members' => $members
+                ];
+            }
         } else {
             // Even if no tenure, still show the type if we have team members for it
             $isBoardType = (stripos($type['name'], 'संचालक') !== false || stripos($type['name'], 'board') !== false);
@@ -140,11 +185,9 @@ try {
             }
         }
 
-        // Get past tenures
+        // Get past tenures from preloaded bucket
         if ($showPast || $selectedType || $selectedTenure) {
-            $pastStmt = $db->prepare("SELECT * FROM committee_tenures WHERE committee_type_id = ? AND is_current = 0 AND is_active = 1 ORDER BY start_date DESC");
-            $pastStmt->execute([$type['id']]);
-            $pastTenures = $pastStmt->fetchAll();
+            $pastTenures = $bucket['past'];
 
             foreach ($pastTenures as $tenure) {
                 // If a specific tenure year is selected, only show that one
@@ -154,9 +197,7 @@ try {
                     continue;
                 }
 
-                $memberStmt = $db->prepare("SELECT * FROM committee_members WHERE tenure_id = ? AND is_active = 1 ORDER BY display_order, id LIMIT 200");
-                $memberStmt->execute([$tenure['id']]);
-                $members = $memberStmt->fetchAll();
+                $members = $membersByTenure[(int)$tenure['id']] ?? [];
 
                 $pastCommittees[] = [
                     'type'    => $type,

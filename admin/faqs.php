@@ -64,8 +64,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $faqs = [];
 try {
-    $checkTable = $db->query("SHOW TABLES LIKE 'faqs'");
-    if ($checkTable->fetch() !== false) {
+    $hasFaqs = function_exists('dbTableExists') ? dbTableExists('faqs') : false;
+    if (!$hasFaqs && !function_exists('dbTableExists')) {
+        $checkTable = $db->query("SHOW TABLES LIKE 'faqs'");
+        $hasFaqs = $checkTable && $checkTable->fetch() !== false;
+    }
+    if ($hasFaqs) {
         $faqs = $db->query("SELECT * FROM faqs ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
     }
 } catch (Exception $e) { $faqs = []; }

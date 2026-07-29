@@ -163,7 +163,7 @@ $qTo     = trim((string)($_GET['to'] ?? ''));
 $panel   = (string)($_GET['panel'] ?? 'list'); // list|form
 if (!in_array($panel, ['list', 'form'], true)) $panel = 'list';
 
-$cycles = $db->query('SELECT * FROM election_cycles ORDER BY sort_order ASC, id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$cycles = $db->query('SELECT * FROM election_cycles ORDER BY sort_order ASC, id DESC LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
 /* Bucket each cycle by status (Asia/Kathmandu) */
 try { $tz = new DateTimeZone('Asia/Kathmandu'); $now = new DateTime('now', $tz); }

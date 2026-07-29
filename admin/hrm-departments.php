@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: hrm-departments.php'); exit;
 }
 
-$rows = $db->query("SELECT * FROM hrm_departments ORDER BY sort_order, id")->fetchAll(PDO::FETCH_ASSOC);
+$rows = $db->query("SELECT * FROM hrm_departments ORDER BY sort_order, id LIMIT 200")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="admin-content">
   <div class="page-header stf-page-head">

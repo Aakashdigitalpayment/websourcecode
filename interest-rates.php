@@ -9,8 +9,14 @@ try {
     $db = getDB();
 
     // Check if table exists
-    $tableCheck = $db->query("SHOW TABLES LIKE 'interest_rates'");
-    if ($tableCheck && $tableCheck->fetch() !== false) {
+    $hasRates = function_exists('dbTableExists')
+        ? dbTableExists('interest_rates')
+        : false;
+    if (!$hasRates && !function_exists('dbTableExists')) {
+        $tableCheck = $db->query("SHOW TABLES LIKE 'interest_rates'");
+        $hasRates = $tableCheck && $tableCheck->fetch() !== false;
+    }
+    if ($hasRates) {
         $savingRates = $db->query("SELECT * FROM interest_rates WHERE category = 'saving' AND is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll() ?: [];
         $loanRates = $db->query("SELECT * FROM interest_rates WHERE category = 'loan' AND is_active = 1 ORDER BY display_order, id LIMIT 100")->fetchAll() ?: [];
     }

@@ -20,11 +20,15 @@ if (!in_array($action, ['list', 'edit', 'add'], true)) {
 $editId = (int)($_GET['id'] ?? 0);
 
 /* ── Table existence check ── */
-$tableExists = false;
-try {
-    $chk = $db->query("SHOW TABLES LIKE 'chatbot_faqs'");
-    if ($chk && $chk->fetch() !== false) $tableExists = true;
-} catch (Exception $e) {}
+$tableExists = function_exists('dbTableExists')
+    ? dbTableExists('chatbot_faqs')
+    : false;
+if (!$tableExists && !function_exists('dbTableExists')) {
+    try {
+        $chk = $db->query("SHOW TABLES LIKE 'chatbot_faqs'");
+        if ($chk && $chk->fetch() !== false) $tableExists = true;
+    } catch (Exception $e) {}
+}
 
 /* ══════════════════════════════════════
    POST HANDLERS
@@ -124,7 +128,7 @@ if ($action === 'list' && $tableExists) {
             $where .= ' AND (question LIKE ? OR question_en LIKE ? OR answer LIKE ? OR keywords LIKE ?)';
             $t = "%$search%"; $params = array_merge($params, [$t,$t,$t,$t]);
         }
-        $stmt = $db->prepare("SELECT * FROM chatbot_faqs WHERE $where ORDER BY display_order ASC, id DESC");
+        $stmt = $db->prepare("SELECT * FROM chatbot_faqs WHERE $where ORDER BY display_order ASC, id DESC LIMIT 500");
         $stmt->execute($params);
         $helpItems = $stmt->fetchAll();
     } catch (Exception $e) { $helpItems = []; }
