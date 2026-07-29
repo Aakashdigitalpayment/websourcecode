@@ -66,7 +66,7 @@ try {
         $bidWhere .= " AND (ab.bidder_name LIKE ? OR ab.bidder_phone LIKE ? OR ab.bidder_email LIKE ?)";
         $t = "%$bidSearch%"; $bidParams = array_merge($bidParams, [$t,$t,$t]);
     }
-    $stmt = $db->prepare("SELECT ab.*, an.title as auction_title FROM auction_bids ab LEFT JOIN auction_notices an ON ab.auction_id = an.id WHERE $bidWhere ORDER BY ab.bid_amount DESC, ab.created_at DESC");
+    $stmt = $db->prepare("SELECT ab.*, an.title as auction_title FROM auction_bids ab LEFT JOIN auction_notices an ON ab.auction_id = an.id WHERE $bidWhere ORDER BY ab.bid_amount DESC, ab.created_at DESC LIMIT 500");
     $stmt->execute($bidParams);
     $bids = $stmt->fetchAll();
     // Counts

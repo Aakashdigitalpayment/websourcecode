@@ -480,7 +480,7 @@ if ($search !== '') {
 $auctions = [];
 $counts   = ['total'=>0,'upcoming'=>0,'ongoing'=>0,'completed'=>0,'cancelled'=>0];
 try {
-    $stmt = $db->prepare("SELECT * FROM auction_notices WHERE $where ORDER BY auction_date DESC, created_at DESC");
+    $stmt = $db->prepare("SELECT * FROM auction_notices WHERE $where ORDER BY auction_date DESC, created_at DESC LIMIT 500");
     $stmt->execute($params);
     $auctions = $stmt->fetchAll();
     $cntStmt  = $db->query("SELECT status, COUNT(*) as c FROM auction_notices GROUP BY status");

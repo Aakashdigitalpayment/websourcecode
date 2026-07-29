@@ -190,7 +190,7 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch dynamic pages
 $dynamicPages = [];
 try {
-    $sql = "SELECT * FROM pages ORDER BY menu_position, menu_order, id";
+    $sql = "SELECT * FROM pages ORDER BY menu_position, menu_order, id LIMIT 500";
     $st = $db->prepare($sql);
     $st->execute();
     $dynamicPages = $st->fetchAll(PDO::FETCH_ASSOC);

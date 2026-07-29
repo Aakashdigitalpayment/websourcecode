@@ -437,7 +437,7 @@ $extraTypes = [];
 $allCommitteeGroups = [];
 $boardAliasTypeIds = [];
 try {
-    $extraTypes = $db->query("SELECT id, name_np, name FROM committee_types WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+    $extraTypes = $db->query("SELECT id, name_np, name FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 200")->fetchAll();
     foreach ($extraTypes as $ct) {
         if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($ct)) {
             $boardAliasTypeIds[] = (int)$ct['id'];
@@ -449,7 +449,7 @@ try {
             $catColors[$slug] = 'var(--primary-light)';
         }
     }
-    $allCommitteeGroups = $db->query("SELECT * FROM committee_types ORDER BY display_order, id")->fetchAll();
+    $allCommitteeGroups = $db->query("SELECT * FROM committee_types ORDER BY display_order, id LIMIT 200")->fetchAll();
     /* Heal: members wrongly saved under board-alias cmt_* → board */
     foreach ($boardAliasTypeIds as $aliasId) {
         try {

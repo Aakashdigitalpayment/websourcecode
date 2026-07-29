@@ -56,8 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 $links = [];
 try {
-    $check = $db->query("SHOW TABLES LIKE 'useful_links'");
-    if ($check->fetch() !== false) {
+    $hasUsefulLinks = function_exists('dbTableExists')
+        ? dbTableExists('useful_links')
+        : false;
+    if (!$hasUsefulLinks && !function_exists('dbTableExists')) {
+        $check = $db->query("SHOW TABLES LIKE 'useful_links'");
+        $hasUsefulLinks = $check && $check->fetch() !== false;
+    }
+    if ($hasUsefulLinks) {
         $links = $db->query("SELECT * FROM useful_links ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
     } else {
         $error = 'useful_links टेबल छैन। कृपया migration चलाउनुहोस्।';

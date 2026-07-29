@@ -12,11 +12,15 @@ ensureRequestStatusHistoryTable($db);
 $jobAppStatuses = ['pending', 'shortlisted', 'interviewed', 'selected', 'rejected'];
 
 /* पुरानो DB compatibility: job_applications.is_read column नहुन सक्छ */
-$hasIsRead = false;
-try {
-    $colChk = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
-    $hasIsRead = $colChk && $colChk->fetch() !== false;
-} catch (Exception $e) {}
+$hasIsRead = function_exists('dbColumnExists')
+    ? dbColumnExists('job_applications', 'is_read')
+    : false;
+if (!$hasIsRead && !function_exists('dbColumnExists')) {
+    try {
+        $colChk = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
+        $hasIsRead = $colChk && $colChk->fetch() !== false;
+    } catch (Exception $e) {}
+}
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();

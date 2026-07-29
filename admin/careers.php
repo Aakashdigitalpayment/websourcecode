@@ -77,11 +77,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('careers.php');
 }
 
-$isReadExists = false;
-try {
-    $cr = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
-    $isReadExists = $cr && $cr->fetch() !== false;
-} catch (Throwable $e) { error_log("[careers.php] " . $e->getMessage()); }
+$isReadExists = function_exists('dbColumnExists')
+    ? dbColumnExists('job_applications', 'is_read')
+    : false;
+if (!$isReadExists && !function_exists('dbColumnExists')) {
+    try {
+        $cr = $db->query("SHOW COLUMNS FROM job_applications LIKE 'is_read'");
+        $isReadExists = $cr && $cr->fetch() !== false;
+    } catch (Throwable $e) { error_log("[careers.php] " . $e->getMessage()); }
+}
 
 try {
     if ($isReadExists) {
