@@ -674,6 +674,7 @@ try {
         'awards.php', 'downloads.php', 'faqs.php', 'important-links.php', 'useful-links.php',
         'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
+        'committees.php', 'career.php', 'auction.php', 'partner-facilities.php', 'member-of-year.php',
     ];
     $__needsDatepicker = !empty($__forceNepaliDatepicker);
     if (!$__needsDatepicker) {

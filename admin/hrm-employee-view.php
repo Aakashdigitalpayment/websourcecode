@@ -182,13 +182,13 @@ $emp->execute([$id]);
 $emp = $emp->fetch(PDO::FETCH_ASSOC);
 if (!$emp) { setFlash('error','कर्मचारी फेला परेन।'); header('Location: hrm-employees.php'); exit; }
 
-$contracts  = $db->prepare("SELECT * FROM hrm_employee_contracts WHERE employee_id=? ORDER BY id DESC");        $contracts->execute([$id]); $contracts = $contracts->fetchAll(PDO::FETCH_ASSOC);
-$documents  = $db->prepare("SELECT * FROM hrm_employee_documents WHERE employee_id=? ORDER BY id DESC");        $documents->execute([$id]); $documents = $documents->fetchAll(PDO::FETCH_ASSOC);
-$education  = $db->prepare("SELECT * FROM hrm_employee_education WHERE employee_id=? ORDER BY sort_order, id"); $education->execute([$id]); $education = $education->fetchAll(PDO::FETCH_ASSOC);
-$experience = $db->prepare("SELECT * FROM hrm_employee_experience WHERE employee_id=? ORDER BY from_date_ad DESC"); $experience->execute([$id]); $experience = $experience->fetchAll(PDO::FETCH_ASSOC);
-$family     = $db->prepare("SELECT * FROM hrm_employee_family WHERE employee_id=? ORDER BY id");                $family->execute([$id]);    $family = $family->fetchAll(PDO::FETCH_ASSOC);
+$contracts  = $db->prepare("SELECT * FROM hrm_employee_contracts WHERE employee_id=? ORDER BY id DESC LIMIT 100");        $contracts->execute([$id]); $contracts = $contracts->fetchAll(PDO::FETCH_ASSOC);
+$documents  = $db->prepare("SELECT * FROM hrm_employee_documents WHERE employee_id=? ORDER BY id DESC LIMIT 200");        $documents->execute([$id]); $documents = $documents->fetchAll(PDO::FETCH_ASSOC);
+$education  = $db->prepare("SELECT * FROM hrm_employee_education WHERE employee_id=? ORDER BY sort_order, id LIMIT 50"); $education->execute([$id]); $education = $education->fetchAll(PDO::FETCH_ASSOC);
+$experience = $db->prepare("SELECT * FROM hrm_employee_experience WHERE employee_id=? ORDER BY from_date_ad DESC LIMIT 50"); $experience->execute([$id]); $experience = $experience->fetchAll(PDO::FETCH_ASSOC);
+$family     = $db->prepare("SELECT * FROM hrm_employee_family WHERE employee_id=? ORDER BY id LIMIT 50");                $family->execute([$id]);    $family = $family->fetchAll(PDO::FETCH_ASSOC);
 $bank       = $db->prepare("SELECT * FROM hrm_employee_bank WHERE employee_id=?");                              $bank->execute([$id]);      $bank = $bank->fetch(PDO::FETCH_ASSOC) ?: [];
-$history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id=? ORDER BY event_date_ad DESC, id DESC"); $history->execute([$id]); $history = $history->fetchAll(PDO::FETCH_ASSOC);
+$history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id=? ORDER BY event_date_ad DESC, id DESC LIMIT 200"); $history->execute([$id]); $history = $history->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="admin-content">
   <div class="page-header stf-page-head">

@@ -26,7 +26,7 @@ try {
     $programs = $pdo->query("SELECT id, title, event_date, event_time, location, qr_token
                              FROM upcoming_programs
                              WHERE is_active=1
-                             ORDER BY COALESCE(event_date, '9999-12-31') ASC, id DESC")->fetchAll() ?: [];
+                             ORDER BY COALESCE(event_date, '9999-12-31') ASC, id DESC LIMIT 200")->fetchAll() ?: [];
 } catch (Throwable $e) { $programs = []; }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

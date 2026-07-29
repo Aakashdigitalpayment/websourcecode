@@ -7,7 +7,9 @@ if (!function_exists('ensureHrmMessagesTable')) {
         static $done = false;
         if ($done) return;
         try {
-            $exists = $db->query("SHOW TABLES LIKE 'hrm_internal_messages'")->fetchColumn();
+            $exists = function_exists('dbTableExists')
+                ? dbTableExists('hrm_internal_messages')
+                : (bool)$db->query("SHOW TABLES LIKE 'hrm_internal_messages'")->fetchColumn();
             if ($exists) { $done = true; return; }
         } catch (\Throwable $e) {}
         $sqlFile = __DIR__ . '/../../database/install.sql';

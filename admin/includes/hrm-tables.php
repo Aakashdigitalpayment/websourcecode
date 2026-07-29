@@ -11,7 +11,9 @@ if (!function_exists('ensureHrmTables')) {
         if (!is_file($sqlFile)) return;
         // Quick existence probe — skip heavy import on every page load.
         try {
-            $exists = $db->query("SHOW TABLES LIKE 'hrm_employees'")->fetchColumn();
+            $exists = function_exists('dbTableExists')
+                ? dbTableExists('hrm_employees')
+                : (bool)$db->query("SHOW TABLES LIKE 'hrm_employees'")->fetchColumn();
             if ($exists) { $done = true; return; }
         } catch (\Throwable $e) {}
         $sql = file_get_contents($sqlFile);

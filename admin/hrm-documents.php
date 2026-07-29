@@ -21,7 +21,7 @@ $stmt = $db->prepare("SELECT d.*, e.full_name_np, e.employee_code
                       FROM hrm_employee_documents d
                       JOIN hrm_employees e ON e.id=d.employee_id
                       WHERE ".implode(' AND ',$where)."
-                      ORDER BY d.expiry_date_ad IS NULL, d.expiry_date_ad ASC, d.id DESC");
+                      ORDER BY d.expiry_date_ad IS NULL, d.expiry_date_ad ASC, d.id DESC LIMIT 500");
 $stmt->execute($args);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

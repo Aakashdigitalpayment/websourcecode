@@ -6,11 +6,16 @@ require_once 'includes/header.php';
 // Get filter from URL
 $activeTab = $_GET['type'] ?? 'photo';
 $activeCategory = $_GET['category'] ?? 'all';
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 
 // Get gallery items - check if media_type column exists
 $photos = [];
 $videos = [];
 $categories = [];
+$photoTotal = 0;
+$videoTotal = 0;
+$photoPages = 1;
+$videoPages = 1;
 
 try {
     $db = getDB();
@@ -27,33 +32,44 @@ try {
         }
     }
 
-    $photoLimit = 48;
-    $videoLimit = 24;
+    $photoLimit = 24;
+    $videoLimit = 12;
 
     if ($hasMediaType) {
         $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)")->fetchColumn();
         $videoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND media_type = 'video'")->fetchColumn();
-        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL) ORDER BY id DESC LIMIT " . (int)$photoLimit)->fetchAll() ?: [];
-        $videos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video' ORDER BY id DESC LIMIT " . (int)$videoLimit)->fetchAll() ?: [];
+        $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
+        $videoPages = max(1, (int)ceil($videoTotal / $videoLimit));
+        if ($activeTab === 'video') {
+            if ($page > $videoPages) $page = $videoPages;
+            $offset = ($page - 1) * $videoLimit;
+            $videos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video' ORDER BY id DESC LIMIT " . (int)$videoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
+        } else {
+            if ($page > $photoPages) $page = $photoPages;
+            $offset = ($page - 1) * $photoLimit;
+            $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL) ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
+        }
     } else {
         $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1")->fetchColumn();
         $videoTotal = 0;
-        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 ORDER BY id DESC LIMIT " . (int)$photoLimit)->fetchAll() ?: [];
+        $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
+        if ($page > $photoPages) $page = $photoPages;
+        $offset = ($page - 1) * $photoLimit;
+        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
         $videos = [];
     }
 
     // Get unique categories
-    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1 AND category IS NOT NULL AND category <> '' LIMIT 50")->fetchAll(PDO::FETCH_COLUMN) ?: [];
 } catch (Throwable $e) {
     $photos = [];
     $videos = [];
     $categories = [];
     $photoTotal = 0;
     $videoTotal = 0;
+    $photoPages = 1;
+    $videoPages = 1;
 }
-
-if (!isset($photoTotal)) { $photoTotal = count($photos); }
-if (!isset($videoTotal)) { $videoTotal = count($videos); }
 
 if (!in_array($activeTab, ['photo', 'video'], true)) {
     $activeTab = 'photo';
@@ -63,8 +79,12 @@ if ($activeCategory !== 'all' && !in_array($activeCategory, $categories, true)) 
 }
 
 $L = getLangStrings();
+$galleryPageQs = static function (int $p, string $type, string $cat = 'all'): string {
+    $q = ['type' => $type, 'page' => $p];
+    if ($cat !== 'all') $q['category'] = $cat;
+    return '?' . http_build_query($q);
+};
 ?>
-
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
@@ -84,12 +104,12 @@ $L = getLangStrings();
         <!-- Photo/Video Tabs -->
         <div class="gallery-tabs-wrapper">
             <div class="gallery-tabs">
-                <a href="?type=photo" class="gallery-tab <?php echo $activeTab === 'photo' ? 'active' : ''; ?>">
+                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', $activeCategory)); ?>" class="gallery-tab <?php echo $activeTab === 'photo' ? 'active' : ''; ?>">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="images"></i>
                     <span><?php echo isEnglish() ? 'Photos' : 'फोटोहरू'; ?></span>
                     <span class="tab-count"><?php echo (int)$photoTotal; ?></span>
                 </a>
-                <a href="?type=video" class="gallery-tab <?php echo $activeTab === 'video' ? 'active' : ''; ?>">
+                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'video', $activeCategory)); ?>" class="gallery-tab <?php echo $activeTab === 'video' ? 'active' : ''; ?>">
                     <i class="fab fa-youtube"></i>
                     <span><?php echo isEnglish() ? 'Videos' : 'भिडियोहरू'; ?></span>
                     <span class="tab-count"><?php echo (int)$videoTotal; ?></span>
@@ -147,6 +167,23 @@ $L = getLangStrings();
                     </div>
                 <?php endif; ?>
             </div>
+            <?php if ($activeTab === 'photo' && $photoPages > 1): ?>
+            <nav class="pagination-nav mt-4" aria-label="Gallery photo pages">
+                <ul class="pagination justify-content-center">
+                    <?php if ($page > 1): ?>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'photo', $activeCategory)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= $photoPages; $i++): ?>
+                    <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'photo', $activeCategory)); ?>"><?php echo $i; ?></a>
+                    </li>
+                    <?php endfor; ?>
+                    <?php if ($page < $photoPages): ?>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'photo', $activeCategory)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+            <?php endif; ?>
         </div>
 
         <!-- Videos Tab Content -->
@@ -190,6 +227,23 @@ $L = getLangStrings();
                     </div>
                 <?php endif; ?>
             </div>
+            <?php if ($activeTab === 'video' && $videoPages > 1): ?>
+            <nav class="pagination-nav mt-4" aria-label="Gallery video pages">
+                <ul class="pagination justify-content-center">
+                    <?php if ($page > 1): ?>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'video', $activeCategory)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <?php endif; ?>
+                    <?php for ($i = 1; $i <= $videoPages; $i++): ?>
+                    <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
+                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'video', $activeCategory)); ?>"><?php echo $i; ?></a>
+                    </li>
+                    <?php endfor; ?>
+                    <?php if ($page < $videoPages): ?>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'video', $activeCategory)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+            <?php endif; ?>
         </div>
     </div>
 </section>

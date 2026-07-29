@@ -33,7 +33,9 @@ try {
   } else {
     // Fallback for DB users where SELECT probe fails but SHOW TABLES works.
     try {
-      $exists = $db->query("SHOW TABLES LIKE 'hrm_employees'")->fetchColumn();
+      $exists = function_exists('dbTableExists')
+          ? dbTableExists('hrm_employees')
+          : (bool)$db->query("SHOW TABLES LIKE 'hrm_employees'")->fetchColumn();
       $hasHrmTables = !empty($exists);
     } catch (Throwable $e3) {
       $hasHrmTables = false;

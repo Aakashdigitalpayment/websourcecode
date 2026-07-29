@@ -20,7 +20,7 @@ $rows = $db->query("SELECT c.*, e.full_name_np, e.employee_code
                     FROM hrm_employee_contracts c
                     JOIN hrm_employees e ON e.id = c.employee_id
                     WHERE $where
-                    ORDER BY c.end_date_ad IS NULL, c.end_date_ad ASC, c.id DESC")->fetchAll(PDO::FETCH_ASSOC);
+                    ORDER BY c.end_date_ad IS NULL, c.end_date_ad ASC, c.id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="admin-content">
   <div class="page-header stf-page-head">
