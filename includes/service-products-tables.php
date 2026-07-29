@@ -7,10 +7,22 @@ if (!function_exists('ensureServiceProductsTables')) {
     {
         static $done = false;
         if ($done) return;
+        $done = true;
         if (!$db && function_exists('getDB')) {
             try { $db = getDB(); } catch (Throwable $e) { return; }
         }
         if (!$db instanceof PDO) return;
+
+        $lockFile = dirname(__DIR__) . '/.schema.lock';
+        if (@is_file($lockFile)) {
+            try {
+                $db->query('SELECT 1 FROM service_products LIMIT 1');
+                return;
+            } catch (Throwable $e) {
+                /* fall through — create */
+            }
+        }
+
         try {
             $db->exec("CREATE TABLE IF NOT EXISTS service_products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -29,7 +41,6 @@ if (!function_exists('ensureServiceProductsTables')) {
                     FOREIGN KEY (service_id) REFERENCES services(id)
                     ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-            $done = true;
         } catch (Throwable $e) {
         }
     }

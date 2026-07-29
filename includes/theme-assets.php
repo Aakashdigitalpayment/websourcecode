@@ -39,6 +39,19 @@ if (!function_exists('coopThemeCssUrl')) {
         echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . "\n";
     }
 
+    /** Non-blocking stylesheet — first paint छिटो; polish sheets का लागि */
+    function coopThemeLinkDeferred(string $rel, ?string $ver = null): void
+    {
+        $v = $ver ?? coopThemeCssVer($rel);
+        $href = coopThemeCssUrl($rel) . '?v=' . rawurlencode($v);
+        if (coopThemeIsUiTestMode()) {
+            $href .= '&t=' . rawurlencode((string)time());
+        }
+        $safe = htmlspecialchars($href, ENT_QUOTES, 'UTF-8');
+        echo '<link rel="stylesheet" href="' . $safe . '" media="print" onload="this.media=\'all\'">' . "\n";
+        echo '<noscript><link rel="stylesheet" href="' . $safe . '"></noscript>' . "\n";
+    }
+
     /** DB brand colors — always after design-tokens.css */
     function coopThemeRequireGlobal(): void
     {
@@ -66,10 +79,11 @@ if (!function_exists('coopThemeCssUrl')) {
         $done = true;
         echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
         echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-        /* Premium font stack: Plus Jakarta Sans (headings) + Inter (body) + Noto Sans Devanagari (Nepali) */
-        $fontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap';
+        /* Premium font stack — fewer weights; non-blocking for faster first paint */
+        $fontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap';
         echo '<link rel="preload" href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" as="style">' . "\n";
-        echo '<link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet">' . "\n";
+        echo '<link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet" media="print" onload="this.media=\'all\'">' . "\n";
+        echo '<noscript><link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet"></noscript>' . "\n";
     }
 
     /**
@@ -247,7 +261,11 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* ── 1.5. Load unified CSS system (global, forms; admin-ui admin-only) ── */
         coopThemeLink('assets/css/global.css');
-        coopThemeLink('assets/css/forms-tables.css');
+        if (in_array($panel, ['admin', 'admin-auth', 'shell', 'member', 'auth', 'verify'], true)) {
+            coopThemeLink('assets/css/forms-tables.css');
+        } else {
+            coopThemeLinkDeferred('assets/css/forms-tables.css');
+        }
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
             coopThemeLink('assets/css/admin-ui-unified.css');
         }
@@ -260,7 +278,7 @@ if (!function_exists('coopThemeCssUrl')) {
         }
 
         /* ── 2. Load UI/UX enhancements (color fixes, contrast, accessibility) ── */
-        coopThemeLink('assets/css/ui-ux-enhancements.css');
+        coopThemeLinkDeferred('assets/css/ui-ux-enhancements.css');
 
         /* ── 2.5. Load Admin Layout & Icon Color Fixes (tab display, icon colors) ── */
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
@@ -292,15 +310,15 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* ── 6. PREMIUM UI — skip on QR/minimal shells (attend, tracker) ── */
         if ($panel !== 'minimal') {
-            coopThemeLink('assets/css/premium-ui.css');
+            coopThemeLinkDeferred('assets/css/premium-ui.css');
         }
 
         /* ── 7. Universal UI/UX polish utilities — opt-in classes, all panels ── */
-        coopThemeLink('assets/css/ui-ux-polish.css');
+        coopThemeLinkDeferred('assets/css/ui-ux-polish.css');
 
         /* ── 8. Mobile premium polish — homepage/public shell; skip minimal ── */
         if ($panel !== 'minimal') {
-            coopThemeLink('assets/css/mobile-premium-polish.css');
+            coopThemeLinkDeferred('assets/css/mobile-premium-polish.css');
         }
 
         /* ── 9. Admin shell polish — forms/tables/bottom-nav/icons/fonts (LAST) ── */
@@ -323,7 +341,7 @@ if (!function_exists('coopThemeCssUrl')) {
         /* ── 11. Public shell polish — cards/forms/bottom-nav/icons/fonts (LAST) ── */
         if (in_array($panel, ['public', 'minimal'], true)
             || ($panel === 'shell' && !$isAdminShell && !str_contains($script, '/member/'))) {
-            coopThemeLink('assets/css/public-shell-polish.css');
+            coopThemeLinkDeferred('assets/css/public-shell-polish.css');
         }
 
         /* ── 11.5. Minimal QR / standalone pages — attend, tracker-id-card ── */
@@ -332,7 +350,7 @@ if (!function_exists('coopThemeCssUrl')) {
         }
 
         /* ── 12. Readability safe patch — fonts/touch/mobile text ── */
-        coopThemeLink('assets/css/ui-readability-safe-patch.css');
+        coopThemeLinkDeferred('assets/css/ui-readability-safe-patch.css');
 
         /* ── 12.5. Admin deep UX — forms/tables/nav/layout (admin absolute last) ── */
         if (in_array($panel, ['admin', 'admin-auth'], true)

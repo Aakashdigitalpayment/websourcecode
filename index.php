@@ -191,7 +191,11 @@ $L = getLangStrings();
             <?php if (!empty($sliders)): ?>
                 <?php foreach ($sliders as $index => $slider): ?>
                 <div class="carousel-item hero-slide-modern <?php echo $index === 0 ? 'active' : ''; ?>">
+                    <?php if ($index === 0): ?>
                     <div class="slider-bg hero-bg-modern" style="background-image: url('<?php echo e($slider['image']); ?>');">
+                    <?php else: ?>
+                    <div class="slider-bg hero-bg-modern" data-bg="<?php echo e($slider['image']); ?>" style="background-color: var(--primary-dark, #0b3d2e);">
+                    <?php endif; ?>
                         <div class="slider-overlay hero-overlay-modern"></div>
                         <div class="container">
                             <div class="slider-content hero-content-modern">
