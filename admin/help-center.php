@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'सहायता केन्द्र व्यवस्थापन (Help Center)';
 require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 if (!isAdminLoggedIn()) {
     redirect(ADMIN_URL . 'index.php');
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     isset($_POST['is_active']) ? 1 : 0,
                ]);
             setFlash('success', 'सहायता प्रश्न सफलतापूर्वक थपियो।');
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
             redirect('help-center.php');
         }
 
@@ -73,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id,
                ]);
             setFlash('success', 'सहायता प्रश्न सफलतापूर्वक अपडेट भयो।');
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
             redirect('help-center.php');
         }
 
@@ -80,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id = (int)($_POST['id'] ?? 0);
             $db->prepare("DELETE FROM chatbot_faqs WHERE id=?")->execute([$id]);
             setFlash('success', 'सहायता प्रश्न मेटाइयो।');
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
             redirect('help-center.php');
         }
 

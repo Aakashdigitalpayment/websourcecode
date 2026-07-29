@@ -91,7 +91,7 @@ $cardPrefix  = getSetting('card_prefix', '');
 /* ── Admin users list ── */
 $admins = [];
 try {
-    $admins = $db->query("SELECT id, username, full_name, email, role, is_active FROM admin_users ORDER BY id")
+    $admins = $db->query("SELECT id, username, full_name, email, role, is_active FROM admin_users ORDER BY id LIMIT 100")
                  ->fetchAll(PDO::FETCH_ASSOC);
     $admins = filter_out_file_managed_superadmin_rows($admins);
 } catch (Exception $e) {}

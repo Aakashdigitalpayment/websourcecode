@@ -1038,3 +1038,403 @@ body.page-loaded .page-loader {
   pointer-events: none !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   Theme final safe polish (additive) — gallery / banner / pagination
+   Do not edit app-public.css / app-admin.css for these.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Page banner — tighter first paint, keep brand gradient from core */
+.page-banner {
+  padding-block: clamp(1.35rem, 3.2vw, 2.35rem) !important;
+}
+
+.page-banner h1 {
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.page-banner .breadcrumb {
+  opacity: 0.92;
+}
+
+/* Gallery tabs + cards — match final radius / brand */
+.gallery-tabs-wrapper {
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  border-radius: var(--final-radius-lg) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.gallery-tab {
+  border-radius: 10px !important;
+  min-height: 44px;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
+}
+
+.gallery-tab:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+.gallery-tab.active {
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+
+.gallery-category-filter .form-select {
+  min-height: 44px;
+  border-radius: 10px !important;
+}
+
+.gallery-card {
+  border-radius: var(--final-radius) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  background: #fff;
+  overflow: hidden;
+}
+
+.gallery-card img {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  height: auto !important;
+  object-fit: cover;
+  background: #eef3ef;
+}
+
+.gallery-caption {
+  padding: 0.55rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: var(--final-muted) !important;
+  line-height: 1.35;
+}
+
+/* Pagination — notices / news / gallery share the same rhythm */
+.pagination-nav {
+  margin-top: 1.75rem !important;
+}
+
+.pagination-nav .pagination {
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pagination .page-link {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600 !important;
+  color: var(--text-color, #1f2a24) !important;
+}
+
+.pagination .page-link:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.pagination .page-item.disabled .page-link {
+  opacity: 0.45;
+}
+
+/* Notice / news list cards — slightly calmer hover on touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .gallery-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--final-shadow-hover) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-card,
+  .gallery-tab,
+  .news-card,
+  .notice-card,
+  .service-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Content pages — avoid accidental horizontal scroll from wide media */
+.notices-section img,
+.news-section img,
+.gallery-section img,
+.team-section img,
+.awards-section img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dark mode — gallery / pagination / banner crumbs */
+body.dark-mode .gallery-tabs-wrapper {
+  background: color-mix(in srgb, #1a2420 92%, var(--primary-color, #1a5f2a)) !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-tab {
+  background: #1e2823 !important;
+  color: #d5e0d8 !important;
+}
+
+body.dark-mode .gallery-tab.active {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .gallery-card {
+  background: #1a2420 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-caption {
+  color: #a8b5ad !important;
+}
+
+body.dark-mode .pagination .page-link {
+  background: #1a2420 !important;
+  color: #d5e0d8 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Mobile gallery — full-width tabs, larger tap targets */
+@media (max-width: 767.98px) {
+  .gallery-tabs {
+    width: 100%;
+  }
+
+  .gallery-tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .gallery-card img {
+    aspect-ratio: 1 / 1;
+  }
+
+  .pagination .page-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Print: keep banners readable, hide chrome noise */
+@media print {
+  .page-loader,
+  .mob-bottomnav,
+  .mp-bottom-nav,
+  .mem-bottom-nav,
+  .pagination-nav,
+  .gallery-tabs-wrapper {
+    display: none !important;
+  }
+
+  .page-banner {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: none !important;
+  }
+
+  .page-banner h1,
+  .page-banner .breadcrumb,
+  .page-banner .breadcrumb-item,
+  .page-banner .breadcrumb-item a {
+    color: #000 !important;
+  }
+
+  .gallery-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Team photo cards — board/samiti = management size (uniform)
+   Org-chart cells were ~220px while management col-lg-3 is ~280–320px.
+   Force one shared card/photo footprint everywhere.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-card-w: 280px;
+  --team-uniform-photo: 140px;
+  --team-uniform-pad-y: 26px;
+  --team-uniform-pad-x: 18px;
+  --team-card-min-h: 336px;
+  --team-badge-min-h: 2.75em;
+  --team-name-min-h: 2.9em;
+  --team-contact-min-h: 52px;
+}
+
+/* Org-chart cells (board / samiti) — same width as management cards */
+.team-org-cell {
+  flex: 0 1 var(--team-card-w) !important;
+  width: var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.team-org-row-inner {
+  gap: 1.25rem !important;
+  justify-content: center !important;
+}
+
+/* Management / committee Bootstrap cols — don't let cards grow past shared width */
+.team-section .row > [class*="col-"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-"]:has(> .team-card-circular) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-md-4"]:has(> .team-card-circular) {
+  flex: 0 1 var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  width: 100% !important;
+}
+
+.team-section .row > [class*="col-"] > .team-card-circular,
+.committees-section .row > [class*="col-"] > .team-card-circular,
+.team-org-cell > .team-card-circular {
+  width: 100% !important;
+  max-width: var(--team-card-w) !important;
+  min-height: var(--team-card-min-h) !important;
+  height: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* Officer cards stay full column width (do not shrink like team photo cards) */
+.team-section .row > [class*="col-"] > .officer-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+}
+
+/* Same photo ring size for board, management, committees, featured, small */
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small,
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  transform: none !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+/* Featured = border accent only, same footprint */
+.team-section .team-card-circular.featured,
+.team-org-chart .team-card-circular.featured,
+.committees-section .team-card-circular.featured,
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  min-height: var(--team-card-min-h) !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  max-width: var(--team-card-w) !important;
+}
+
+.team-section .team-info-circular h5,
+.team-org-chart .team-info-circular h5,
+.committees-section .team-info-circular h5 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  min-height: var(--team-name-min-h) !important;
+}
+
+.team-section .team-position-badge,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge {
+  min-height: var(--team-badge-min-h) !important;
+  font-size: 0.78rem !important;
+}
+
+.team-section .team-contact-circular,
+.team-org-chart .team-contact-circular,
+.committees-section .team-contact-circular {
+  min-height: var(--team-contact-min-h) !important;
+  margin-top: auto !important;
+}
+
+@media (max-width: 991.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: 250px;
+    --team-uniform-photo: 128px;
+    --team-card-min-h: 320px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: min(100%, 280px);
+    --team-uniform-photo: 120px;
+    --team-uniform-pad-y: 22px;
+    --team-uniform-pad-x: 14px;
+    --team-card-min-h: 300px;
+  }
+
+  .team-org-cell,
+  .team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-sm-6"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-sm-6"]:has(> .team-card-circular) {
+    flex: 0 1 var(--team-card-w) !important;
+    max-width: var(--team-card-w) !important;
+    width: 100% !important;
+  }
+}
+

@@ -107,7 +107,7 @@ $widgetEnabled = getSetting('satisfaction_widget_enabled', '0') == '1';
 // All links
 $links = [];
 try {
-    $linksStmt = $db->query("SELECT * FROM satisfaction_links ORDER BY display_order ASC, id ASC");
+    $linksStmt = $db->query("SELECT * FROM satisfaction_links ORDER BY display_order ASC, id ASC LIMIT 50");
     $links = $linksStmt ? $linksStmt->fetchAll() : [];
 } catch (Exception $e) {
     $links = [];

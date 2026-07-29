@@ -17,9 +17,13 @@ if (function_exists('ensureCardSecurityColumns')) {
 }
 
 ensureMemberTables();
-$hasMemberIdCards = false;
+$hasMemberIdCards = function_exists('dbTableExists')
+    ? dbTableExists('member_id_cards')
+    : false;
 try {
-    $hasMemberIdCards = (bool)$db->query("SHOW TABLES LIKE 'member_id_cards'")->fetchColumn();
+    if (!$hasMemberIdCards && !function_exists('dbTableExists')) {
+        $hasMemberIdCards = (bool)$db->query("SHOW TABLES LIKE 'member_id_cards'")->fetchColumn();
+    }
     if (!$hasMemberIdCards) {
         // Lightweight self-heal for production: avoid full ensure-tables overhead.
         $db->exec("CREATE TABLE IF NOT EXISTS member_id_cards (

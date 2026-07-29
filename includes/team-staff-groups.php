@@ -84,7 +84,7 @@ if (!function_exists('fetchTeamStaffGroups')) {
         if ($activeOnly) {
             $sql .= ' WHERE is_active = 1';
         }
-        $sql .= ' ORDER BY display_order, id';
+        $sql .= ' ORDER BY display_order, id LIMIT 100';
         return $db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }

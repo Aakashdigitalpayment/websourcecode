@@ -44,7 +44,8 @@ try {
         /* One query for all staff groups instead of N round-trips */
         if (!empty($staffSlugs)) {
             $ph = implode(',', array_fill(0, count($staffSlugs), '?'));
-            $st = $db->prepare("SELECT * FROM team_members WHERE is_active = 1 AND category IN ($ph) ORDER BY display_order, id LIMIT 800");
+            $staffFetchLimit = max(100, 100 * count($staffSlugs));
+            $st = $db->prepare("SELECT * FROM team_members WHERE is_active = 1 AND category IN ($ph) ORDER BY category, display_order, id LIMIT " . (int)$staffFetchLimit);
             $st->execute($staffSlugs);
             foreach (($st->fetchAll(PDO::FETCH_ASSOC) ?: []) as $row) {
                 $cat = (string)($row['category'] ?? '');

@@ -291,38 +291,34 @@ $ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executi
 
 // Fallback: Get chairman/CEO from team_members table based on is_chairman/is_ceo flags
 try {
-    // Chairman
-    if (empty($chairmanNameSetting) || empty($chairmanMessageSetting)) {
-        $chairStmt = $db->prepare("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1");
-        $chairStmt->execute();
-        $chairFromTeam = $chairStmt->fetch();
-        if ($chairFromTeam) {
+    $needChair = empty($chairmanNameSetting) || empty($chairmanMessageSetting);
+    $needCeo = empty($ceoNameSetting) || empty($ceoMessageSetting);
+    if (($needChair || $needCeo) && isset($db) && $db instanceof PDO) {
+        $leaders = $db->query("SELECT * FROM team_members WHERE is_active = 1 AND (is_chairman = 1 OR is_ceo = 1) LIMIT 4")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $chairFromTeam = null;
+        $ceoFromTeam = null;
+        foreach ($leaders as $lm) {
+            if ($chairFromTeam === null && !empty($lm['is_chairman'])) $chairFromTeam = $lm;
+            if ($ceoFromTeam === null && !empty($lm['is_ceo'])) $ceoFromTeam = $lm;
+        }
+        if ($needChair && $chairFromTeam) {
             if (empty($chairmanNameSetting)) {
                 $chairmanNameSetting = $chairFromTeam['name_np'] ?: $chairFromTeam['name'];
             }
             if (empty($chairmanPhotoSetting)) {
                 $chairmanPhotoSetting = $chairFromTeam['photo'];
             }
-            // If no message in settings, use position as fallback message
             if (empty($chairmanMessageSetting)) {
                 $chairmanMessageSetting = $chairFromTeam['position_np'] ?: $chairFromTeam['position'];
             }
         }
-    }
-    
-    // CEO
-    if (empty($ceoNameSetting) || empty($ceoMessageSetting)) {
-        $ceoStmt = $db->prepare("SELECT * FROM team_members WHERE is_ceo = 1 AND is_active = 1 LIMIT 1");
-        $ceoStmt->execute();
-        $ceoFromTeam = $ceoStmt->fetch();
-        if ($ceoFromTeam) {
+        if ($needCeo && $ceoFromTeam) {
             if (empty($ceoNameSetting)) {
                 $ceoNameSetting = $ceoFromTeam['name_np'] ?: $ceoFromTeam['name'];
             }
             if (empty($ceoPhotoSetting)) {
                 $ceoPhotoSetting = $ceoFromTeam['photo'];
             }
-            // If no message in settings, use position as fallback message
             if (empty($ceoMessageSetting)) {
                 $ceoMessageSetting = $ceoFromTeam['position_np'] ?: $ceoFromTeam['position'];
             }

@@ -156,7 +156,7 @@ $stmt = $db->prepare("SELECT e.*, d.name_np AS dept_name,
                         LEFT JOIN hrm_departments d ON d.id = e.department_id
                         LEFT JOIN service_centers sc ON sc.id = e.branch_id
                         $whereSql
-                        ORDER BY e.id DESC");
+                        ORDER BY e.id DESC LIMIT 500");
 $stmt->execute($args);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

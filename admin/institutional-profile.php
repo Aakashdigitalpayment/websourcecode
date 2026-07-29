@@ -23,11 +23,15 @@ $db      = getDB();
 $selfUrl = 'institutional-profile.php';
 
 /* ─── 2. Table existence check ─── */
-$tableExists = false;
-try {
-    $r = $db->query("SHOW TABLES LIKE 'institutional_profile'");
-    $tableExists = ($r->rowCount() > 0);
-} catch (Exception $e) {}
+$tableExists = function_exists('dbTableExists')
+    ? dbTableExists('institutional_profile')
+    : false;
+if (!$tableExists && !function_exists('dbTableExists')) {
+    try {
+        $r = $db->query("SHOW TABLES LIKE 'institutional_profile'");
+        $tableExists = ($r && $r->rowCount() > 0);
+    } catch (Exception $e) {}
+}
 
 /* ─── 3. Auto-ALTER: Add missing columns (MySQL 5.7 compatible — no IF NOT EXISTS)
          try-catch प्रत्येकमा: column पहिले नै छ भने "Duplicate column" error → caught ─── */

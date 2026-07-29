@@ -72,7 +72,7 @@ $posts = $db->query('SELECT p.*, ct.name_np AS ctype_name, d.title_np AS desig_n
                      FROM election_posts p
                      LEFT JOIN committee_types ct ON ct.id=p.committee_type_id
                      LEFT JOIN designations d ON d.id=p.designation_id
-                     ORDER BY p.display_order, p.id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                     ORDER BY p.display_order, p.id LIMIT 500')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $committeeTypes = $db->query('SELECT id, name_np FROM committee_types WHERE is_active=1 ORDER BY display_order, id LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $designations = fetchDesignations($db, ['committee', 'staff']);
 $panel = (string)($_GET['panel'] ?? 'list');
