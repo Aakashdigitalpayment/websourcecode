@@ -412,6 +412,9 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
 
     <!-- Preload Logo for faster display -->
     <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">
+    <?php if (!empty($__preloadLcpImage)): ?>
+    <link rel="preload" as="image" href="<?php echo htmlspecialchars($__preloadLcpImage, ENT_QUOTES, 'UTF-8'); ?>" fetchpriority="high">
+    <?php endif; ?>
 
     <!-- Google Fonts — Inter (body) + Plus Jakarta Sans (headings) + Noto Sans Devanagari (नेपाली) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -428,12 +431,14 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <!-- Bootstrap CSS -->
     <link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
 
-    <!-- AOS Animation CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <!-- AOS Animation CSS — non-blocking (local JS already used in footer) -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"></noscript>
     <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted) -->
 
-    <!-- Nepali Datepicker CSS (self-hosted v5) -->
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/nepali.datepicker.min.css">
+    <!-- Nepali Datepicker CSS — defer; homepage rarely needs it for first paint -->
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/nepali.datepicker.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/nepali.datepicker.min.css"></noscript>
 
     <!-- Core CSS bundle (tokens + variables + animations + mobile + shared layout) -->
     <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/app-core.css?v=<?php echo @filemtime((defined("ROOT_PATH")?ROOT_PATH:dirname(__DIR__).DIRECTORY_SEPARATOR).'assets/css/app-core.css') ?: '1'; ?>">
@@ -1571,7 +1576,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                 <div class="col-lg-4 col-md-5 col-8">
                     <div class="logo-banner">
                         <a href="<?php echo SITE_URL; ?>" class="logo-banner-link">
-                            <img src="<?php echo SITE_URL . $logo; ?>?v=<?php echo time(); ?>" alt="<?php echo $siteNameEn; ?>" class="logo-banner-img">
+                            <img src="<?php echo SITE_URL . $logo; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/')) . ltrim($logo, '/')) ?: '1'; ?>" alt="<?php echo $siteNameEn; ?>" class="logo-banner-img">
                         </a>
                     </div>
                 </div>

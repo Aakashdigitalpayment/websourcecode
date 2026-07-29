@@ -39,6 +39,15 @@ function ensurePublicTables(): void {
     if ($done) return; /* एकपटक मात्र run गर्ने */
     $done = true;
 
+    /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
+       Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
+    $schemaVersion = 'v7-enterprise-safe-2026';
+    $lockFile = dirname(__DIR__) . '/.schema.lock';
+    $lockContent = @file_get_contents($lockFile);
+    if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
+        return;
+    }
+
     try {
         $db = getDB();
 
@@ -596,6 +605,13 @@ function ensurePublicTables(): void {
         $addIndex('members', 'idx_members_sadasyata', 'sadasyata_number');
         $addIndex('members', 'idx_members_phone_active', 'phone, is_active');
         $addIndex('members', 'idx_members_email_active', 'email, is_active');
+
+        @file_put_contents(
+            $lockFile,
+            "Schema initialized at " . date('Y-m-d H:i:s') . " [{$schemaVersion}]\n"
+            . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
+            . "schema पुनः verify हुन्छ।\n"
+        );
 
     } catch (\Throwable $e) {
         /* Silent fail — tables नबने पनि page break नगर्ने */

@@ -47,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                    ->execute([$catName, $catNameEn, $catNameNp, $catIcon, $catOrder, $catActive, (int)$_POST['cat_id']]);
                 $success = $__t('श्रेणी अपडेट भयो।', 'Category updated.');
             }
+            require_once __DIR__ . '/../includes/simple-cache.php';
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
             header('Location: services.php?tab=cats&msg=' . urlencode($success)); exit;
         }
         if ($act === 'cat_delete') {
@@ -56,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // Unlink services from this category
                 $db->prepare("UPDATE services SET service_category_id = NULL WHERE service_category_id=?")->execute([$catDel]);
             }
+            require_once __DIR__ . '/../includes/simple-cache.php';
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
             header('Location: services.php?tab=cats'); exit;
         }
 
@@ -138,6 +142,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     } catch (Exception $e) {
         $error = 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।';
+    }
+    if ($success !== '') {
+        require_once __DIR__ . '/../includes/simple-cache.php';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
     }
 }
 

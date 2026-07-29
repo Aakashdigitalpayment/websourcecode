@@ -75,6 +75,8 @@ checkCSRF();
             setFlash('success', $__t('नयाँ सूचना सफलतापूर्वक थपियो।', 'New notice added successfully.'));
             writeAuditLog('notice_create', 'Created: ' . mb_substr($title, 0, 80), 'notice', $newNoticeId);
         }
+        require_once dirname(__DIR__) . '/includes/simple-cache.php';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
         redirect('notices.php');
     } catch (Exception $e) {
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
@@ -99,6 +101,8 @@ if ($action === 'bulk_status' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $st->execute(array_merge([$target], $ids));
         setFlash('success', $__t('Bulk status update सफल भयो।', 'Bulk status update succeeded.'));
         writeAuditLog('notice_bulk_status', "Set {$bulk} on " . count($ids) . ' notice(s): IDs ' . implode(', ', $ids), 'notice');
+        require_once dirname(__DIR__) . '/includes/simple-cache.php';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
     } catch (Exception $e) {
         setFlash('error', $__t('Bulk status update असफल भयो।', 'Bulk status update failed.'));
     }
@@ -112,6 +116,8 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
         $db->prepare("DELETE FROM notices WHERE id=?")->execute([$id]);
         setFlash('success', $__t('सूचना मेटाइयो।', 'Notice deleted.'));
         writeAuditLog('notice_delete', "Deleted notice ID: {$id}", 'notice', $id);
+        require_once dirname(__DIR__) . '/includes/simple-cache.php';
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
     } catch (Exception $e) {
         setFlash('error', $__t('मेटाउन सकिएन।', 'Could not delete notice.'));
     }

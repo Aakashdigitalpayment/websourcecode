@@ -55,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setFlash('success', 'Bulk status update सफल भयो।');
             }
         }
+        if (function_exists('clearHomepageCache')) {
+            clearHomepageCache();
+        } else {
+            require_once dirname(__DIR__) . '/includes/simple-cache.php';
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
+        }
     } catch (Exception $e) {
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');
     }
