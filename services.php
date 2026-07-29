@@ -9,37 +9,45 @@ $L = getLangStrings();
 try {
     $db = getDB();
     ensureServiceProductsTables($db);
-    $hasIsNew = false;
-    $hasNewUntil = false;
-    try {
-        $col = $db->query("SHOW COLUMNS FROM services LIKE 'is_new'");
-        $hasIsNew = ($col && $col->fetch() !== false);
-    } catch (Throwable $e) {
-        $hasIsNew = false;
-    }
-    try {
-        $col = $db->query("SHOW COLUMNS FROM services LIKE 'new_until'");
-        $hasNewUntil = ($col && $col->fetch() !== false);
-    } catch (Throwable $e) {
-        $hasNewUntil = false;
+    $hasIsNew = function_exists('dbColumnExists')
+        ? dbColumnExists('services', 'is_new')
+        : false;
+    $hasNewUntil = function_exists('dbColumnExists')
+        ? dbColumnExists('services', 'new_until')
+        : false;
+    if (!function_exists('dbColumnExists')) {
+        try {
+            $col = $db->query("SHOW COLUMNS FROM services LIKE 'is_new'");
+            $hasIsNew = ($col && $col->fetch() !== false);
+        } catch (Throwable $e) {
+            $hasIsNew = false;
+        }
+        try {
+            $col = $db->query("SHOW COLUMNS FROM services LIKE 'new_until'");
+            $hasNewUntil = ($col && $col->fetch() !== false);
+        } catch (Throwable $e) {
+            $hasNewUntil = false;
+        }
     }
 
+    /* Cap list growth — coops rarely exceed ~50 services */
+    $serviceLimit = 120;
     if ($hasIsNew && $hasNewUntil) {
         $sql = "SELECT *,
             (CASE WHEN is_new = 1 AND (new_until IS NULL OR new_until >= CURDATE()) THEN 1 ELSE 0 END) as show_new_badge
-            FROM services WHERE is_active = 1 ORDER BY display_order";
+            FROM services WHERE is_active = 1 ORDER BY display_order LIMIT " . (int)$serviceLimit;
     } elseif ($hasIsNew) {
         $sql = "SELECT *, (CASE WHEN is_new = 1 THEN 1 ELSE 0 END) as show_new_badge
-            FROM services WHERE is_active = 1 ORDER BY display_order";
+            FROM services WHERE is_active = 1 ORDER BY display_order LIMIT " . (int)$serviceLimit;
     } else {
         $sql = "SELECT *, 0 as show_new_badge
-            FROM services WHERE is_active = 1 ORDER BY display_order";
+            FROM services WHERE is_active = 1 ORDER BY display_order LIMIT " . (int)$serviceLimit;
     }
     $services = $db->query($sql)->fetchAll();
 
     $serviceCategories = [];
     try {
-        $serviceCategories = $db->query("SELECT * FROM service_categories WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        $serviceCategories = $db->query("SELECT * FROM service_categories WHERE is_active = 1 ORDER BY display_order, id LIMIT 50")->fetchAll();
     } catch (Throwable $e) {
         $serviceCategories = [];
     }
@@ -52,7 +60,8 @@ try {
             $pst = $db->prepare("SELECT service_id, title_np, title_en, description_np, description_en
                                  FROM service_products
                                  WHERE is_active = 1 AND service_id IN ($ph)
-                                 ORDER BY service_id, display_order, id");
+                                 ORDER BY service_id, display_order, id
+                                 LIMIT 800");
             $pst->execute($serviceIds);
             foreach (($pst->fetchAll() ?: []) as $pr) {
                 $sid = (int)($pr['service_id'] ?? 0);

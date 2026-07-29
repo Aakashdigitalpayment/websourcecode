@@ -71,7 +71,7 @@ if ($editId > 0) {
     $st->execute([$editId]);
     $edit = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }
-$rows = $db->query("SELECT * FROM upcoming_programs ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$rows = $db->query("SELECT * FROM upcoming_programs ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 
 $preregByProgram = [];
 try {

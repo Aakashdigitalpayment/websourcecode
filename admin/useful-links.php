@@ -58,7 +58,7 @@ $links = [];
 try {
     $check = $db->query("SHOW TABLES LIKE 'useful_links'");
     if ($check->fetch() !== false) {
-        $links = $db->query("SELECT * FROM useful_links ORDER BY display_order, id DESC")->fetchAll();
+        $links = $db->query("SELECT * FROM useful_links ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
     } else {
         $error = 'useful_links टेबल छैन। कृपया migration चलाउनुहोस्।';
     }

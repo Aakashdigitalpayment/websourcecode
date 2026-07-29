@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('service-centers.php');
 }
 
-try { $centers = $db->query("SELECT * FROM service_centers ORDER BY display_order, name")->fetchAll(); }
+try { $centers = $db->query("SELECT * FROM service_centers ORDER BY display_order, name LIMIT 500")->fetchAll(); }
 catch (Exception $e) { $centers = []; }
 
 $scPart = adminPartitionRowsByIsActive($centers);

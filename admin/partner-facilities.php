@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 try {
-    $facilities = $db->query("SELECT * FROM partner_facilities ORDER BY display_order ASC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+    $facilities = $db->query("SELECT * FROM partner_facilities ORDER BY display_order ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
     /* ── Facility types for filter dropdown ── */
     $types = array_unique(array_filter(array_column($facilities, 'facility_type')));
 } catch (\Exception $e) { $facilities = []; $types = []; }

@@ -85,9 +85,9 @@ try {
 
 try {
     if ($isReadExists) {
-        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id AND is_read=0) as unread_count FROM careers c ORDER BY c.created_at DESC")->fetchAll();
+        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id AND is_read=0) as unread_count FROM careers c ORDER BY c.created_at DESC LIMIT 500")->fetchAll();
     } else {
-        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, 0 as unread_count FROM careers c ORDER BY c.created_at DESC")->fetchAll();
+        $careers = $db->query("SELECT c.*, (SELECT COUNT(*) FROM job_applications WHERE career_id=c.id) as application_count, 0 as unread_count FROM careers c ORDER BY c.created_at DESC LIMIT 500")->fetchAll();
     }
 } catch (Exception $e) { $careers = []; }
 

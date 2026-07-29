@@ -7,7 +7,7 @@ $L = getLangStrings();
 // Get FAQs from database
 try {
     $db = getDB();
-    $faqsStmt = $db->query("SELECT * FROM faqs WHERE is_active = 1 ORDER BY display_order ASC, id ASC");
+    $faqsStmt = $db->query("SELECT * FROM faqs WHERE is_active = 1 ORDER BY display_order ASC, id ASC LIMIT 200");
     $faqs = $faqsStmt->fetchAll();
 } catch (Throwable $e) {
     $faqs = [];

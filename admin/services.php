@@ -148,18 +148,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 }
 
 try {
-    $services = $db->query("SELECT * FROM services ORDER BY display_order, id DESC")->fetchAll();
+    $services = $db->query("SELECT * FROM services ORDER BY display_order, id DESC LIMIT 500")->fetchAll();
 } catch (Exception $e) { $services = []; }
 try {
     $serviceProducts = $db->query("SELECT sp.*, s.title_np AS service_title_np, s.title_en AS service_title_en, s.title AS service_title
                                    FROM service_products sp
                                    LEFT JOIN services s ON s.id = sp.service_id
-                                   ORDER BY sp.service_id, sp.display_order, sp.id DESC")->fetchAll();
+                                   ORDER BY sp.service_id, sp.display_order, sp.id DESC LIMIT 1000")->fetchAll();
 } catch (Exception $e) { $serviceProducts = []; }
 
 // Service categories (dynamic mega-menu groups)
 try {
-    $serviceCategories = $db->query("SELECT * FROM service_categories ORDER BY display_order, id")->fetchAll();
+    $serviceCategories = $db->query("SELECT * FROM service_categories ORDER BY display_order, id LIMIT 200")->fetchAll();
 } catch (Exception $e) { $serviceCategories = []; }
 
 $activeTab = $_GET['tab'] ?? 'services';
