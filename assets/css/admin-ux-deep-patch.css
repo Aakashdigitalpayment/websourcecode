@@ -866,3 +866,56 @@ body.admin-auth-page .alert-error {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* ── Theme final admin safe polish (additive) ─────────────────────── */
+body[class*="admin-page-"] .main-content .admin-table-card,
+body[class*="admin-page-"] .main-content .card.admin-table-card {
+  border-radius: 12px !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e2e8e4) !important;
+  box-shadow: 0 2px 12px rgba(15, 31, 23, 0.04) !important;
+  overflow: hidden;
+}
+
+body[class*="admin-page-"] .main-content .table-responsive {
+  -webkit-overflow-scrolling: touch;
+}
+
+body[class*="admin-page-"] .main-content .admin-page-header,
+body[class*="admin-page-"] .main-content .page-header {
+  margin-bottom: 1rem !important;
+}
+
+body[class*="admin-page-"] .main-content .alert {
+  border-radius: 10px !important;
+}
+
+body[class*="admin-page-"] .main-content .form-control:focus,
+body[class*="admin-page-"] .main-content .form-select:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent) !important;
+}
+
+@media (max-width: 767.98px) {
+  body[class*="admin-page-"] .main-content .admin-table-card .table thead th {
+    white-space: nowrap;
+  }
+
+  body[class*="admin-page-"] .main-content .pagination {
+    justify-content: center !important;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  body[class*="admin-page-"] .main-content .pagination .page-link {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[class*="admin-page-"] .main-content .btn,
+  body[class*="admin-page-"] .main-content .card,
+  body[class*="admin-page-"] .sidebar a {
+    transition: none !important;
+  }
+}

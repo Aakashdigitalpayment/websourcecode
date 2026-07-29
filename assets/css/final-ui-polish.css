@@ -1038,3 +1038,224 @@ body.page-loaded .page-loader {
   pointer-events: none !important;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   Theme final safe polish (additive) — gallery / banner / pagination
+   Do not edit app-public.css / app-admin.css for these.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Page banner — tighter first paint, keep brand gradient from core */
+.page-banner {
+  padding-block: clamp(1.35rem, 3.2vw, 2.35rem) !important;
+}
+
+.page-banner h1 {
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.page-banner .breadcrumb {
+  opacity: 0.92;
+}
+
+/* Gallery tabs + cards — match final radius / brand */
+.gallery-tabs-wrapper {
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  border-radius: var(--final-radius-lg) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.gallery-tab {
+  border-radius: 10px !important;
+  min-height: 44px;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
+}
+
+.gallery-tab:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+.gallery-tab.active {
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+
+.gallery-category-filter .form-select {
+  min-height: 44px;
+  border-radius: 10px !important;
+}
+
+.gallery-card {
+  border-radius: var(--final-radius) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  background: #fff;
+  overflow: hidden;
+}
+
+.gallery-card img {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  height: auto !important;
+  object-fit: cover;
+  background: #eef3ef;
+}
+
+.gallery-caption {
+  padding: 0.55rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: var(--final-muted) !important;
+  line-height: 1.35;
+}
+
+/* Pagination — notices / news / gallery share the same rhythm */
+.pagination-nav {
+  margin-top: 1.75rem !important;
+}
+
+.pagination-nav .pagination {
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pagination .page-link {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600 !important;
+  color: var(--text-color, #1f2a24) !important;
+}
+
+.pagination .page-link:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.pagination .page-item.disabled .page-link {
+  opacity: 0.45;
+}
+
+/* Notice / news list cards — slightly calmer hover on touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .gallery-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--final-shadow-hover) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-card,
+  .gallery-tab,
+  .news-card,
+  .notice-card,
+  .service-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Content pages — avoid accidental horizontal scroll from wide media */
+.notices-section img,
+.news-section img,
+.gallery-section img,
+.team-section img,
+.awards-section img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dark mode — gallery / pagination / banner crumbs */
+body.dark-mode .gallery-tabs-wrapper {
+  background: color-mix(in srgb, #1a2420 92%, var(--primary-color, #1a5f2a)) !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-tab {
+  background: #1e2823 !important;
+  color: #d5e0d8 !important;
+}
+
+body.dark-mode .gallery-tab.active {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .gallery-card {
+  background: #1a2420 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-caption {
+  color: #a8b5ad !important;
+}
+
+body.dark-mode .pagination .page-link {
+  background: #1a2420 !important;
+  color: #d5e0d8 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Mobile gallery — full-width tabs, larger tap targets */
+@media (max-width: 767.98px) {
+  .gallery-tabs {
+    width: 100%;
+  }
+
+  .gallery-tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .gallery-card img {
+    aspect-ratio: 1 / 1;
+  }
+
+  .pagination .page-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Print: keep banners readable, hide chrome noise */
+@media print {
+  .page-loader,
+  .mob-bottomnav,
+  .mp-bottom-nav,
+  .mem-bottom-nav,
+  .pagination-nav,
+  .gallery-tabs-wrapper {
+    display: none !important;
+  }
+
+  .page-banner {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: none !important;
+  }
+
+  .page-banner h1,
+  .page-banner .breadcrumb,
+  .page-banner .breadcrumb-item,
+  .page-banner .breadcrumb-item a {
+    color: #000 !important;
+  }
+
+  .gallery-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
