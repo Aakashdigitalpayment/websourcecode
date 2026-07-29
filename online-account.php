@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 try {
     $db = getDB();
     require_once __DIR__ . '/includes/service-centers-helpers.php';
-    $branches = fetchActiveServiceCenters($db);
+    $branches = fetchActiveServiceCenters($db, 100);
 } catch (Throwable $e) {
     $branches = [];
 }
