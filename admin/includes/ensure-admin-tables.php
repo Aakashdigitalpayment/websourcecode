@@ -437,7 +437,14 @@ function ensureAdminTables(): void {
             "ALTER TABLE gallery ADD COLUMN video_url VARCHAR(500) DEFAULT ''",
             "ALTER TABLE gallery ADD COLUMN thumbnail VARCHAR(255) DEFAULT ''",
             "ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL",
+            "ALTER TABLE gallery ADD COLUMN album_id INT NULL",
         ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
+
+        /* ── gallery albums table + legacy migration ── */
+        try {
+            require_once dirname(__DIR__, 2) . '/includes/gallery-albums.php';
+            ensureGalleryAlbumsSchema($db);
+        } catch (Throwable $e) { /* best-effort */ }
 
         /* ── admin_users 2FA columns ── */
         foreach ([

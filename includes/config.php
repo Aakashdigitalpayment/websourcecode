@@ -489,10 +489,17 @@ function seo_canonical_url(): string
         }
         /* Album names often include spaces / Nepali punctuation */
         if ($key === 'album') {
-            if ($val !== 'all' && !preg_match('/^[\p{L}\p{N}\-_.\s]+$/u', $val)) {
+            if ($val === 'all') {
+                $keep[$key] = $val;
                 continue;
             }
-            $keep[$key] = $val;
+            if (ctype_digit($val) && (int)$val > 0) {
+                $keep[$key] = (string)(int)$val;
+                continue;
+            }
+            if (preg_match('/^[\p{L}\p{N}\-_.\s]+$/u', $val)) {
+                $keep[$key] = $val;
+            }
             continue;
         }
         if (!preg_match('/^[\p{L}\p{N}\-_.]+$/u', $val)) {
