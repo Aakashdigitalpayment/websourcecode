@@ -4,6 +4,9 @@ require_once __DIR__ . '/includes/team-staff-groups.php';
 require_once __DIR__ . '/includes/team-menu-categories.php';
 require_once __DIR__ . '/includes/team-chart-helpers.php';
 $pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
+$pageDescription = isEnglish()
+    ? 'Meet our board, management, committees and contact officers.'
+    : 'हाम्रो सञ्चालक समिति, व्यवस्थापन, समिति र सम्पर्क अधिकारीहरूसँग भेट्नुहोस्।';
 require_once 'includes/header.php';
 
 $selectedCommitteeId = isset($_GET['cmt']) ? (int)$_GET['cmt'] : 0;

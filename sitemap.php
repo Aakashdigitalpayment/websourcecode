@@ -39,24 +39,21 @@ $staticPhp = [
     ['contact.php', '0.85', 'yearly'],
 
     /* ── News & announcements ───────────────────────────────────────────── */
-    ['notices.php', '0.85', 'weekly'],
-    ['news.php', '0.85', 'weekly'],
+    ['notices.php', '0.85', 'daily'],
+    ['news.php', '0.85', 'daily'],
     ['career.php', '0.85', 'weekly'],
     ['cooperative-programs.php', '0.8', 'weekly'],
 
-    /* ── Member services / CTAs ─────────────────────────────────────────── */
-    ['loan-apply.php', '0.85', 'monthly'],
-    ['online-account.php', '0.85', 'monthly'],
-    ['appointment.php', '0.75', 'monthly'],
+    /* ── Member-facing info (indexable landing pages) ───────────────────── */
+    ['loan-apply.php', '0.8', 'monthly'],
+    ['online-account.php', '0.8', 'monthly'],
     ['digital-services.php', '0.75', 'monthly'],
-    ['online-kyc.php', '0.75', 'monthly'],
-    ['service-centers.php', '0.75', 'monthly'],
-    ['application-tracker.php', '0.75', 'monthly'],
+    ['service-centers.php', '0.8', 'monthly'],
     ['election-information.php', '0.75', 'weekly'],
     ['institutional-profile.php', '0.75', 'monthly'],
 
     /* ── Organisation info ──────────────────────────────────────────────── */
-    ['team.php', '0.75', 'monthly'],
+    ['team.php', '0.8', 'monthly'],
     ['committees.php', '0.7', 'monthly'],
     ['gallery.php', '0.75', 'weekly'],
     ['partner-facilities.php', '0.7', 'monthly'],
@@ -69,14 +66,11 @@ $staticPhp = [
     ['sahakari-patro.php', '0.7', 'daily'],
 
     /* ── Secondary / engagement ─────────────────────────────────────────── */
-    ['faqs.php', '0.7', 'monthly'],
+    ['faqs.php', '0.8', 'monthly'],
     ['reports.php', '0.65', 'monthly'],
     ['auction.php', '0.65', 'weekly'],
     ['member-welfare.php', '0.65', 'monthly'],
-    ['grievance.php', '0.65', 'monthly'],
     ['awards.php', '0.65', 'monthly'],
-    ['vendor-enlistment.php', '0.65', 'monthly'],
-    ['member-survey.php', '0.65', 'monthly'],
     ['important-links.php', '0.55', 'monthly'],
 ];
 
@@ -132,6 +126,30 @@ try {
                 'lastmod' => $lm,
                 'changefreq' => 'weekly',
                 'priority' => '0.72',
+            ];
+        }
+    }
+
+    $noticeSt = $db->query("SELECT id, notice_date, created_at FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 200");
+    if ($noticeSt) {
+        foreach ($noticeSt->fetchAll(PDO::FETCH_ASSOC) as $n) {
+            $id = (int) ($n['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $raw = $n['notice_date'] ?? $n['created_at'] ?? '';
+            $lm = $today;
+            if ($raw !== '') {
+                $t = strtotime((string) $raw);
+                if ($t !== false) {
+                    $lm = date('Y-m-d', $t);
+                }
+            }
+            $rows[] = [
+                'loc' => $base . '/notices.php?id=' . $id,
+                'lastmod' => $lm,
+                'changefreq' => 'weekly',
+                'priority' => '0.74',
             ];
         }
     }

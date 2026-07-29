@@ -164,7 +164,9 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                 <div class="history-image-box">
                     <img src="<?php echo SITE_URL . $historyPhoto; ?>"
                          alt="<?php echo isEnglish() ? 'Our History' : 'हाम्रो इतिहास'; ?>"
-                         class="img-fluid rounded shadow history-photo-cover">
+                         class="img-fluid rounded shadow history-photo-cover"
+                         loading="lazy"
+                         decoding="async">
                     <!-- Established year badge -->
                     <div class="history-year-badge">
                         <?php echo getSetting('established_year', '२०७५'); ?>
@@ -352,7 +354,7 @@ $ceoMessage = $ceoMessageSetting;
                 <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
                     <div class="leader-photo-large">
                         <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($chairmanPhoto, '/')) ?: '1'; ?>" alt="<?php echo $chairmanName; ?>">
+                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($chairmanPhoto, '/')) ?: '1'; ?>" alt="<?php echo $chairmanName; ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
                             <i class="fas fa-user-tie"></i>
@@ -380,7 +382,7 @@ $ceoMessage = $ceoMessageSetting;
                 <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
                     <div class="leader-photo-large">
                         <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>">
+                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
                             <i class="fas fa-user-tie"></i>

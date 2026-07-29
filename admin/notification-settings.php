@@ -14,6 +14,10 @@
 define('IS_ADMIN_PAGE', true);
 require_once '../includes/config.php';
 requireAdminLogin();
+/* Email/SMS gateway secrets — admin+ only */
+if (function_exists('require_role')) {
+    require_role('admin');
+}
 
   /* ── Early CSRF Protection ── */
   if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {

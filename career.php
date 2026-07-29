@@ -3,6 +3,9 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 ensurePublicTables();
 $pageTitle = isEnglish() ? 'Career Opportunities' : 'रोजगारीका अवसरहरू';
+$pageDescription = isEnglish()
+    ? 'Current job openings and career opportunities at our cooperative.'
+    : 'हाम्रो सहकारीमा हाल खुला रहेका रोजगारीका अवसरहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

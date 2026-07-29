@@ -16,6 +16,12 @@ require_once dirname(__DIR__) . '/includes/superadmin-config.php';
 $pageTitle = 'Site Setup Manager';
 require_once 'includes/admin-header.php';
 
+/* Superadmin only — site identity / setup lock is sensitive (matches manage-admins pattern) */
+if (empty($_SESSION['is_superadmin'])) {
+    setFlash('error', 'यो page केवल Superadmin ले access गर्न सक्छ।');
+    redirect(ADMIN_URL . 'dashboard.php');
+}
+
 $db = getDB();
 
 /* Lock file status */

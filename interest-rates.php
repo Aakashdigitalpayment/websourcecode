@@ -1,5 +1,9 @@
 <?php
-$pageTitle = 'ब्याज दर';
+require_once __DIR__ . '/_bootstrap.php';
+$pageTitle = isEnglish() ? 'Interest Rates' : 'ब्याज दर';
+$pageDescription = isEnglish()
+    ? 'Current savings and loan interest rates published by our cooperative.'
+    : 'हाम्रो सहकारीले प्रकाशित गरेका हालका बचत तथा ऋण ब्याज दरहरू।';
 require_once 'includes/header.php';
 
 // Get interest rates - with table existence check
@@ -28,7 +32,7 @@ try {
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1>ब्याज दरहरू</h1>
+        <h1><?php echo isEnglish() ? 'Interest Rates' : 'ब्याज दरहरू'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>

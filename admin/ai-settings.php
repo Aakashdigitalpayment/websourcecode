@@ -14,6 +14,10 @@ require_once __DIR__ . '/../includes/ai-chat-providers.php';
 if (!isAdminLoggedIn()) {
     redirect(ADMIN_URL . 'index.php');
 }
+/* API keys / provider secrets — admin+ only (editors cannot change) */
+if (function_exists('require_role')) {
+    require_role('admin');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();

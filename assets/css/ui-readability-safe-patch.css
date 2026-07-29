@@ -1267,3 +1267,107 @@ button.qh-item {
 .admin-shell .tm-chart-hint {
   background: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #f8faf9);
 }
+
+/* ── Mobile home: kill giant green hero disc + center profile + lang/logo ── */
+@media (max-width: 767.98px) {
+  .hero-slider .carousel-indicators button,
+  .hero-slider .hero-indicator-btn,
+  .carousel-indicators [data-bs-target] {
+    min-width: 8px !important;
+    min-height: 8px !important;
+    width: 8px !important;
+    height: 8px !important;
+    max-width: 18px !important;
+    max-height: 10px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .hero-slider .hero-indicator-btn.active,
+  .hero-slider .carousel-indicators button.active {
+    width: 18px !important;
+    max-width: 18px !important;
+    height: 8px !important;
+    border-radius: 999px !important;
+    background: #fff !important;
+    border-color: #fff !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-control-prev,
+  .hero-slider .carousel-control-next {
+    display: none !important;
+  }
+
+  .institutional-profile-bar {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .institutional-profile-bar .profile-title-link,
+  .institutional-profile-bar .profile-title {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .institutional-profile-bar .report-quick-links,
+  .institutional-profile-bar .profile-reports {
+    justify-content: center !important;
+    width: 100%;
+  }
+
+  .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-width: 34px !important;
+    min-height: 26px !important;
+    width: auto !important;
+    height: 26px !important;
+    padding: 0 0.5rem !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap a.active,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link.active {
+    background: #fff !important;
+    color: #14532d !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot) {
+    color: inherit !important;
+    opacity: 1 !important;
+    display: inline !important;
+  }
+
+  .pfl-brand-content.has-logo .pfl-brand-logo,
+  .pfl-brand-logo {
+    max-height: 46px !important;
+    height: 44px !important;
+    max-width: min(78vw, 280px) !important;
+    object-fit: contain !important;
+  }
+
+  #scrollAccessibilityPanel.sa-panel {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Position the launcher shell only — FAB is inside it */
+  .qh-launcher {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Keep report chips as readable pills (not icon-only circles) */
+  .institutional-profile-bar .report-quick-link {
+    border-radius: 999px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 36px !important;
+    padding: 0.4rem 0.7rem !important;
+  }
+
+  .institutional-profile-bar .report-quick-link > span {
+    display: inline !important;
+    font-size: 0.72rem !important;
+  }
+}

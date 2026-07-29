@@ -29,6 +29,13 @@ try {
     if ($pageDescription === '') {
         $pageDescription = $pageTitle . (isEnglish() ? ' — Career opportunity' : ' — रोजगारी अवसर');
     }
+    $pageOgType = 'article';
+    $pageOgImageAlt = $pageTitle;
+    $seoBreadcrumbs = [
+        ['name' => isEnglish() ? 'Home' : 'गृहपृष्ठ', 'url' => SITE_URL],
+        ['name' => isEnglish() ? 'Careers' : 'रोजगारी', 'url' => rtrim(SITE_URL, '/') . '/career.php'],
+        ['name' => $pageTitle],
+    ];
 } catch (Exception $e) {
     redirect('career.php');
 }

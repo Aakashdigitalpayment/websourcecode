@@ -5,6 +5,11 @@ require_once '../includes/config.php';
 if (!isAdminLoggedIn()) {
     redirect(ADMIN_URL . 'index.php');
 }
+/* Superadmin only — dump/restore runs arbitrary SQL; menu already hides this from others */
+if (empty($_SESSION['is_superadmin'])) {
+    setFlash('error', 'यो page केवल Superadmin ले access गर्न सक्छ।');
+    redirect(ADMIN_URL . 'dashboard.php');
+}
   /* ── Early CSRF Protection ── */
   if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
       setFlash('error', 'सुरक्षा जाँच असफल। कृपया पुनः प्रयास गर्नुहोस्।');
