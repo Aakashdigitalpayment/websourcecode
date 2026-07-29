@@ -8,6 +8,7 @@ $pageTitle = 'समिति व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/team-menu-categories.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db        = getDB();
 try {
@@ -152,6 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('error', 'त्रुटि भयो।');
     }
 
+    if (function_exists('clearHomepageCache')) {
+        clearHomepageCache();
+    }
     redirect('committees.php?tab=' . $activeTab);
 }
 

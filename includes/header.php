@@ -115,41 +115,56 @@ try {
 $navCommittees = [];
 try {
     if ($db) {
-        $navCommittees = $db->query(
-            "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
-             WHERE is_active = 1 AND show_in_navbar = 1
-             ORDER BY display_order, id"
-        )->fetchAll();
-    }
-} catch (Exception $e) {
-    try {
-        if ($db) {
-            $navCommittees = $db->query(
-                "SELECT id, name, name_np, menu_category_id FROM committee_types
-                 WHERE is_active = 1 AND show_in_navbar = 1
-                 ORDER BY display_order, id"
-            )->fetchAll();
-            foreach ($navCommittees as &$_ncRow) {
-                $_ncRow['icon'] = 'fas fa-users-gear';
-            }
-            unset($_ncRow);
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-    } catch (Exception $e2) {
-        try {
-            if ($db) {
-                $navCommittees = $db->query(
-                    "SELECT id, name, name_np FROM committee_types
+        $navCommittees = getCachedData('nav_committees_v1', 90, function () use ($db) {
+            try {
+                $rows = $db->query(
+                    "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
                      WHERE is_active = 1 AND show_in_navbar = 1
                      ORDER BY display_order, id"
-                )->fetchAll();
-                foreach ($navCommittees as &$_ncRow) {
-                    $_ncRow['menu_category_id'] = null;
-                    $_ncRow['icon'] = 'fas fa-users-gear';
+                )->fetchAll(PDO::FETCH_ASSOC);
+                return is_array($rows) ? $rows : [];
+            } catch (Exception $e) {
+                try {
+                    $rows = $db->query(
+                        "SELECT id, name, name_np, menu_category_id FROM committee_types
+                         WHERE is_active = 1 AND show_in_navbar = 1
+                         ORDER BY display_order, id"
+                    )->fetchAll(PDO::FETCH_ASSOC);
+                    $rows = is_array($rows) ? $rows : [];
+                    foreach ($rows as &$_ncRow) {
+                        $_ncRow['icon'] = 'fas fa-users-gear';
+                    }
+                    unset($_ncRow);
+                    return $rows;
+                } catch (Exception $e2) {
+                    try {
+                        $rows = $db->query(
+                            "SELECT id, name, name_np FROM committee_types
+                             WHERE is_active = 1 AND show_in_navbar = 1
+                             ORDER BY display_order, id"
+                        )->fetchAll(PDO::FETCH_ASSOC);
+                        $rows = is_array($rows) ? $rows : [];
+                        foreach ($rows as &$_ncRow) {
+                            $_ncRow['menu_category_id'] = null;
+                            $_ncRow['icon'] = 'fas fa-users-gear';
+                        }
+                        unset($_ncRow);
+                        return $rows;
+                    } catch (Exception $e3) {
+                        return [];
+                    }
                 }
-                unset($_ncRow);
             }
-        } catch (Exception $e3) { $navCommittees = []; }
+        });
+        if (!is_array($navCommittees)) {
+            $navCommittees = [];
+        }
     }
+} catch (Throwable $e) {
+    $navCommittees = [];
 }
 
 /* ── कर्मचारी वर्ग / समूह (team_staff_groups, show_in_nav) ── */

@@ -90,6 +90,7 @@ function clearHomepageCache(): void {
     clearCache('nav_public_v1');
     clearCache('nav_services_v1');
     clearCache('nav_bell_notices_v1');
+    clearCache('nav_committees_v1');
 }
 
 /**
