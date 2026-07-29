@@ -1877,11 +1877,27 @@ body.dark-mode .job-detail-footer {
   cursor: pointer;
 }
 
+.gallery-photo-popup {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.gallery-photo-popup:focus-visible,
 .gallery-video-popup:focus-visible {
   outline: 3px solid var(--primary-color, #1a5f2a);
   outline-offset: 3px;
 }
 
+.gallery-photo-modal .modal-content,
 .gallery-video-modal .modal-content {
   overflow: hidden;
   border: 0;
@@ -1889,15 +1905,27 @@ body.dark-mode .job-detail-footer {
   background: #000;
 }
 
+.gallery-photo-modal .modal-header,
 .gallery-video-modal .modal-header {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
+}
+
+.gallery-photo-modal-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(82vh, 900px);
+  margin: 0 auto;
+  object-fit: contain;
+  background: #060807;
 }
 
 .gallery-video-modal iframe {
   border: 0;
 }
 
+body.dark-mode .gallery-photo-modal .modal-header,
 body.dark-mode .gallery-video-modal .modal-header {
   background: #17201d;
   color: #f3f7f4;

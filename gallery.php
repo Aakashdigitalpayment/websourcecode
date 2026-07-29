@@ -243,10 +243,16 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                     ?>
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4 gallery-item">
                         <div class="gallery-card">
-                            <a href="<?php echo htmlspecialchars((string)$image['image']); ?>" data-lightbox="photos" data-title="<?php echo htmlspecialchars($caption); ?>">
+                            <button type="button"
+                                    class="gallery-photo-popup"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#galleryPhotoModal"
+                                    data-photo-src="<?php echo htmlspecialchars((string)$image['image']); ?>"
+                                    data-photo-title="<?php echo htmlspecialchars($caption); ?>"
+                                    aria-label="<?php echo htmlspecialchars((isEnglish() ? 'Open photo: ' : 'फोटो खोल्नुहोस्: ') . $caption); ?>">
                                 <img src="<?php echo htmlspecialchars((string)$image['image']); ?>" loading="lazy" alt="<?php echo htmlspecialchars($caption); ?>" class="img-fluid">
                                 <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
-                            </a>
+                            </button>
                             <?php if ($caption !== ''): ?>
                             <div class="gallery-caption"><?php echo htmlspecialchars($caption); ?></div>
                             <?php endif; ?>
@@ -385,6 +391,23 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
     </div>
 </section>
 
+<div class="modal fade gallery-photo-modal" id="galleryPhotoModal" tabindex="-1" aria-labelledby="galleryPhotoModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="galleryPhotoModalTitle"><?php echo isEnglish() ? 'Photo' : 'फोटो'; ?></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"></button>
+            </div>
+            <div class="modal-body p-0 text-center">
+                <img id="galleryPhotoModalImage"
+                     src=""
+                     alt=""
+                     class="gallery-photo-modal-image">
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade gallery-video-modal" id="galleryVideoModal" tabindex="-1" aria-labelledby="galleryVideoModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -405,14 +428,37 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
     </div>
 </div>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
+(function () {
+    var modal = document.getElementById('galleryPhotoModal');
+    var image = document.getElementById('galleryPhotoModalImage');
+    var title = document.getElementById('galleryPhotoModalTitle');
+    if (!modal || !image || !title) return;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        var trigger = event.relatedTarget;
+        var src = trigger ? trigger.getAttribute('data-photo-src') : '';
+        var photoTitle = trigger ? trigger.getAttribute('data-photo-title') : '';
+        title.textContent = photoTitle || <?php echo json_encode(isEnglish() ? 'Photo' : 'फोटो', JSON_UNESCAPED_UNICODE); ?>;
+        image.src = src || '';
+        image.alt = photoTitle || '';
+    });
+
+    modal.addEventListener('hidden.bs.modal', function () {
+        image.src = '';
+        image.alt = '';
+    });
+})();
+
 (function () {
     var modal = document.getElementById('galleryVideoModal');
     var frame = document.getElementById('galleryVideoFrame');
     var title = document.getElementById('galleryVideoModalTitle');
     if (!modal || !frame || !title) return;
+
+    document.body.appendChild(modal);
 
     modal.addEventListener('show.bs.modal', function (event) {
         var trigger = event.relatedTarget;
