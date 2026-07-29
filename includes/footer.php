@@ -675,6 +675,7 @@ try {
         'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
         'committees.php', 'career.php', 'auction.php', 'partner-facilities.php', 'member-of-year.php',
+        'application-tracker.php', 'election-information.php', 'cooperative-programs.php',
     ];
     $__needsDatepicker = !empty($__forceNepaliDatepicker);
     if (!$__needsDatepicker) {

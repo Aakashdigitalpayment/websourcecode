@@ -34,7 +34,7 @@ try {
         "SELECT id, title_np, title_en, period_label, date_from, date_to, sort_order,
                 vote_start_at, vote_end_at, voting_enabled, results_finalized
          FROM election_cycles WHERE is_published = 1
-         ORDER BY sort_order ASC, id DESC"
+         ORDER BY sort_order ASC, id DESC LIMIT 50"
     )->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     if ($reqId > 0) {
@@ -49,7 +49,7 @@ try {
     if ($cycle) {
         $ms = $db->prepare(
             "SELECT * FROM election_milestones WHERE cycle_id = ? AND is_active = 1
-             ORDER BY display_order ASC, event_date ASC, id ASC"
+             ORDER BY display_order ASC, event_date ASC, id ASC LIMIT 200"
         );
         $ms->execute([(int)$cycle['id']]);
         $milestones = $ms->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -66,11 +66,11 @@ if ($cycle && !$dbErr) {
     try {
         $ps = $db->prepare("SELECT p.*, ct.name_np AS ctype_np, ct.name AS ctype_en FROM election_positions p
                             LEFT JOIN committee_types ct ON ct.id=p.committee_type_id
-                            WHERE p.cycle_id=? AND p.is_active=1 ORDER BY p.display_order, p.id");
+                            WHERE p.cycle_id=? AND p.is_active=1 ORDER BY p.display_order, p.id LIMIT 200");
         $ps->execute([(int)$cycle['id']]);
         $pubPositions = $ps->fetchAll(PDO::FETCH_ASSOC) ?: [];
         if (!empty($pubPositions)) {
-            $cs2 = $db->prepare("SELECT * FROM election_candidates WHERE cycle_id=? AND is_active=1 ORDER BY position_id, display_order, id");
+            $cs2 = $db->prepare("SELECT * FROM election_candidates WHERE cycle_id=? AND is_active=1 ORDER BY position_id, display_order, id LIMIT 500");
             $cs2->execute([(int)$cycle['id']]);
             $allC = $cs2->fetchAll(PDO::FETCH_ASSOC) ?: [];
             foreach ($allC as $c) $pubCandidates[(int)$c['position_id']][] = $c;

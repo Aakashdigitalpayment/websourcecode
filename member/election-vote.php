@@ -185,11 +185,11 @@ $positions = []; $candByPos = []; $samitiGroups = [];
 if ($cycle) {
     $ps = $db->prepare('SELECT p.*, ct.name_np AS ctype_np FROM election_positions p
                         LEFT JOIN committee_types ct ON ct.id=p.committee_type_id
-                        WHERE p.cycle_id=? AND p.is_active=1 ORDER BY p.display_order, p.id');
+                        WHERE p.cycle_id=? AND p.is_active=1 ORDER BY p.display_order, p.id LIMIT 200');
     $ps->execute([$cycleId]);
     $positions = $ps->fetchAll(PDO::FETCH_ASSOC) ?: [];
     if (!empty($positions)) {
-        $cs2 = $db->prepare('SELECT * FROM election_candidates WHERE cycle_id=? AND is_active=1 ORDER BY position_id, display_order, id');
+        $cs2 = $db->prepare('SELECT * FROM election_candidates WHERE cycle_id=? AND is_active=1 ORDER BY position_id, display_order, id LIMIT 500');
         $cs2->execute([$cycleId]);
         foreach ($cs2->fetchAll(PDO::FETCH_ASSOC) ?: [] as $c) $candByPos[(int)$c['position_id']][] = $c;
 

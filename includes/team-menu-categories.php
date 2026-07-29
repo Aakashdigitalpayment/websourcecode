@@ -106,7 +106,7 @@ if (!function_exists('fetchTeamMenuCategories')) {
         if ($navOnly) {
             $sql .= ' AND show_in_nav = 1';
         }
-        $sql .= ' ORDER BY display_order, id';
+        $sql .= ' ORDER BY display_order, id LIMIT 100';
         return $db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
@@ -117,7 +117,7 @@ if (!function_exists('fetchAllTeamMenuCategories')) {
     {
         $db = $db ?: getDB();
         ensureTeamMenuCategoriesTable($db);
-        return $db->query('SELECT * FROM team_menu_categories ORDER BY display_order, id')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return $db->query('SELECT * FROM team_menu_categories ORDER BY display_order, id LIMIT 100')->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
 

@@ -102,7 +102,7 @@ try {
         "SELECT DISTINCT action FROM admin_activity_log ORDER BY action"
     )->fetchColumn();
     // Re-fetch properly
-    $atStmt = $db->query("SELECT DISTINCT action FROM admin_activity_log ORDER BY action");
+    $atStmt = $db->query("SELECT DISTINCT action FROM admin_activity_log ORDER BY action LIMIT 200");
     $actionTypes = $atStmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (\Throwable $e) {}
 

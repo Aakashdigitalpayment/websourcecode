@@ -216,7 +216,7 @@ if ($editId > 0) {
 }
 $milestoneRows = [];
 if ($milestonesFor > 0) {
-    $ms = $db->prepare('SELECT * FROM election_milestones WHERE cycle_id=? ORDER BY display_order ASC, event_date ASC, id ASC');
+    $ms = $db->prepare('SELECT * FROM election_milestones WHERE cycle_id=? ORDER BY display_order ASC, event_date ASC, id ASC LIMIT 200');
     $ms->execute([$milestonesFor]);
     $milestoneRows = $ms->fetchAll(PDO::FETCH_ASSOC) ?: [];
 }

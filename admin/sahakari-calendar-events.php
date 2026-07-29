@@ -125,7 +125,7 @@ if ($editId > 0) {
 
 $rows = [];
 try {
-    $st = $db->prepare('SELECT * FROM sahakari_calendar_events WHERE bs_year=? ORDER BY recurrence ASC, bs_month IS NULL ASC, bs_month ASC, bs_day ASC, id ASC');
+    $st = $db->prepare('SELECT * FROM sahakari_calendar_events WHERE bs_year=? ORDER BY recurrence ASC, bs_month IS NULL ASC, bs_month ASC, bs_day ASC, id ASC LIMIT 1000');
     $st->execute([$filterYear]);
     $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
@@ -134,7 +134,7 @@ try {
 
 $yearOptions = [];
 try {
-    $ys = $db->query('SELECT DISTINCT bs_year FROM sahakari_calendar_events ORDER BY bs_year DESC')->fetchAll(PDO::FETCH_COLUMN);
+    $ys = $db->query('SELECT DISTINCT bs_year FROM sahakari_calendar_events ORDER BY bs_year DESC LIMIT 50')->fetchAll(PDO::FETCH_COLUMN);
     foreach ($ys as $y) {
         $yearOptions[] = (int)$y;
     }

@@ -141,13 +141,13 @@ if (($ecid = (int)($_GET['edit_cand'] ?? 0)) > 0) {
     $editCand = $st->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-$positions = $db->prepare('SELECT * FROM election_positions WHERE cycle_id=? ORDER BY display_order, id');
+$positions = $db->prepare('SELECT * FROM election_positions WHERE cycle_id=? ORDER BY display_order, id LIMIT 200');
 $positions->execute([$cycleId]);
 $positions = $positions->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $posMap = [];
 foreach ($positions as $p) $posMap[(int)$p['id']] = $p;
 
-$cands = $db->prepare('SELECT * FROM election_candidates WHERE cycle_id=? ORDER BY position_id, display_order, id');
+$cands = $db->prepare('SELECT * FROM election_candidates WHERE cycle_id=? ORDER BY position_id, display_order, id LIMIT 500');
 $cands->execute([$cycleId]);
 $cands = $cands->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
