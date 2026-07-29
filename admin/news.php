@@ -6,6 +6,7 @@
 $pageTitle = 'समाचार व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once dirname(__DIR__) . '/includes/simple-cache.php';
 
 $db = getDB();
 
@@ -54,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $st->execute(array_merge([$target], $ids));
                 setFlash('success', 'Bulk status update सफल भयो।');
             }
+        }
+        if (function_exists('clearHomepageCache')) {
+            clearHomepageCache();
         }
     } catch (Exception $e) {
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');

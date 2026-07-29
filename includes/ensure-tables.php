@@ -39,6 +39,15 @@ function ensurePublicTables(): void {
     if ($done) return; /* एकपटक मात्र run गर्ने */
     $done = true;
 
+    /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
+       Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
+    $schemaVersion = 'v7-enterprise-safe-2026';
+    $lockFile = dirname(__DIR__) . '/.schema.lock';
+    $lockContent = @file_get_contents($lockFile);
+    if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
+        return;
+    }
+
     try {
         $db = getDB();
 
@@ -597,6 +606,13 @@ function ensurePublicTables(): void {
         $addIndex('members', 'idx_members_phone_active', 'phone, is_active');
         $addIndex('members', 'idx_members_email_active', 'email, is_active');
 
+        @file_put_contents(
+            $lockFile,
+            "Schema initialized at " . date('Y-m-d H:i:s') . " [{$schemaVersion}]\n"
+            . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
+            . "schema पुनः verify हुन्छ।\n"
+        );
+
     } catch (\Throwable $e) {
         /* Silent fail — tables नबने पनि page break नगर्ने */
         /* Production debugging को लागि: error_log('ensure-tables: ' . $e->getMessage()); */
@@ -609,14 +625,12 @@ function ensurePublicTables(): void {
  * AUTO-RUN — versioned lock (admin schema जस्तै)
  * नयाँ safe column migrations थपिए भने version bump → एक पटक re-run।
  * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
+ * Lock file is written inside ensurePublicTables() — no second write here.
  */
 $_publicSchemaVersion = 'v7-enterprise-safe-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {
     ensurePublicTables();
-    @file_put_contents($_lockFile, "Schema initialized at " . date('Y-m-d H:i:s') . " [{$_publicSchemaVersion}]\n"
-        . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
-        . "schema पुनः verify हुन्छ।\n");
 }
 unset($_lockFile, $_lockContent, $_publicSchemaVersion);

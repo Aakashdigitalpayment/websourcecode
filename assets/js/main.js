@@ -6,22 +6,25 @@
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
 
-    // Maximum time to show loader (5 seconds) - prevents infinite loading
-    const MAX_LOADER_TIME = 5000;
+    // Cap loader time — feel fast; don't wait for every image
+    const MAX_LOADER_TIME = 2200;
 
     if (pageLoader && progressFill && progressPercent) {
         let progress = 0;
+        let hidden = false;
         document.body.style.overflow = 'hidden';
 
         const interval = setInterval(function() {
-            progress += Math.random() * 12;
+            progress += Math.random() * 18;
             if (progress > 90) progress = 90;
             progressFill.style.width = progress + '%';
             progressPercent.textContent = Math.round(progress);
-        }, 100);
+        }, 80);
 
         // Function to hide loader
         function hideLoader() {
+            if (hidden) return;
+            hidden = true;
             clearInterval(interval);
             if (progressFill) progressFill.style.width = '100%';
             if (progressPercent) progressPercent.textContent = '100';
@@ -33,30 +36,21 @@
                 }
                 document.body.style.overflow = '';
                 document.body.classList.add('page-loaded');
-            }, 300);
+            }, 120);
         }
 
-        // Hide loader on window load
+        // Prefer DOM ready — don't block on late images/scripts
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(hideLoader, 350);
+        });
         window.addEventListener('load', hideLoader);
 
-        // Safety timeout - hide loader after MAX_LOADER_TIME even if page not fully loaded
-        // This prevents infinite loading on PHP errors
+        // Safety timeout
         setTimeout(function() {
             if (pageLoader && !pageLoader.classList.contains('loaded')) {
-                /* loader timeout — hide silently */
                 hideLoader();
             }
         }, MAX_LOADER_TIME);
-
-        // Also hide on DOMContentLoaded as fallback for faster hiding
-        document.addEventListener('DOMContentLoaded', function() {
-            // Wait a bit after DOM ready, then check if still loading
-            setTimeout(function() {
-                if (pageLoader && !pageLoader.classList.contains('loaded')) {
-                    hideLoader();
-                }
-            }, 2000);
-        });
     } else {
         // If loader elements not found, make sure body is scrollable
         document.body.style.overflow = '';
@@ -391,39 +385,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         lastScroll = currentScroll;
     });
-
-    // Hero Slider
-    const slides = document.querySelectorAll('.hero-slide');
-    const dots = document.querySelectorAll('.slider-dot');
-    let currentSlide = 0;
-
-    function showSlide(index) {
-        slides.forEach((slide, i) => {
-            slide.classList.remove('active');
-            if (dots[i]) dots[i].classList.remove('active');
-        });
-
-        slides[index].classList.add('active');
-        if (dots[index]) dots[index].classList.add('active');
-    }
-
-    function nextSlide() {
-        currentSlide = (currentSlide + 1) % slides.length;
-        showSlide(currentSlide);
-    }
-
-    // Auto slide every 5 seconds
-    if (slides.length > 0) {
-        setInterval(nextSlide, 5000);
-
-        // Dot navigation
-        dots.forEach((dot, index) => {
-            dot.addEventListener('click', () => {
-                currentSlide = index;
-                showSlide(currentSlide);
-            });
-        });
-    }
 
     // Counter Animation
     const counters = document.querySelectorAll('.counter-number');

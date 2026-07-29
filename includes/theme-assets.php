@@ -290,14 +290,18 @@ if (!function_exists('coopThemeCssUrl')) {
         /* ── 5. DB-computed brand colors AFTER static CSS so !important wins ── */
         coopThemeRequireGlobal();
 
-        /* ── 6. PREMIUM UI — loaded absolutely last for maximum override priority ── */
-        coopThemeLink('assets/css/premium-ui.css');
+        /* ── 6. PREMIUM UI — skip on QR/minimal shells (attend, tracker) ── */
+        if ($panel !== 'minimal') {
+            coopThemeLink('assets/css/premium-ui.css');
+        }
 
         /* ── 7. Universal UI/UX polish utilities — opt-in classes, all panels ── */
         coopThemeLink('assets/css/ui-ux-polish.css');
 
-        /* ── 8. Mobile premium polish — additive only, loaded after everything ── */
-        coopThemeLink('assets/css/mobile-premium-polish.css');
+        /* ── 8. Mobile premium polish — homepage/public shell; skip minimal ── */
+        if ($panel !== 'minimal') {
+            coopThemeLink('assets/css/mobile-premium-polish.css');
+        }
 
         /* ── 9. Admin shell polish — forms/tables/bottom-nav/icons/fonts (LAST) ── */
         if (in_array($panel, ['admin', 'admin-auth'], true)

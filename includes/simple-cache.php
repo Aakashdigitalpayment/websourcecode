@@ -80,6 +80,14 @@ function clearCache($key) {
 }
 
 /**
+ * Homepage public blob (sliders, services, notices, rates, news).
+ * Call after admin CRUD so updates show immediately.
+ */
+function clearHomepageCache(): void {
+    clearCache('homepage_data');
+}
+
+/**
  * Clear all cache files
  */
 function clearAllCache() {

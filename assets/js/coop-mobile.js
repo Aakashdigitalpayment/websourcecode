@@ -98,12 +98,16 @@
 
     /* ─── 5. MOBILE BOTTOM NAV — body padding guard ─────────── */
     function fixBottomNavPadding() {
-        var nav = document.querySelector('.mp-bottom-nav, .mem-bottom-nav');
+        var nav = document.querySelector('.mp-bottom-nav, .mem-bottom-nav, .mob-bottomnav');
         if (!nav) return;
         var h = nav.offsetHeight || 64;
-        /* Only apply on small screens */
-        if (window.innerWidth <= 768) {
+        /* Align with CSS bottom-nav cutoff (~900px) */
+        if (window.innerWidth <= 899) {
             document.body.style.paddingBottom = h + 'px';
+            document.body.classList.add('has-bottomnav');
+        } else {
+            document.body.style.paddingBottom = '';
+            document.body.classList.remove('has-bottomnav');
         }
     }
 
@@ -127,7 +131,7 @@
 
     /* ─── 7. STICKY SUBMIT BAR — shows when form submit is off-screen ── */
     function initStickySubmit() {
-        if (window.innerWidth > 768) return;
+        if (window.innerWidth > 899) return;
         document.querySelectorAll('form.coop-form-sticky').forEach(function (form) {
             var origBtn = form.querySelector('[type=submit]');
             if (!origBtn || origBtn.dataset.stickied) return;
@@ -135,7 +139,7 @@
             var bar = document.createElement('div');
             bar.className = 'coop-sticky-submit-bar';
             bar.innerHTML = '<button type="submit" class="btn btn-primary w-100" style="height:48px;font-size:1rem;font-weight:700;border-radius:14px;">' + (origBtn.textContent.trim() || 'पेश गर्नुहोस्') + '</button>';
-            bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;padding:10px 16px 16px;background:#fff;border-top:1px solid var(--border-color,#e5e7eb);z-index:800;box-shadow:0 -4px 16px rgba(0,0,0,.07);display:none;';
+            bar.style.cssText = 'position:fixed;left:0;right:0;padding:10px 16px 16px;background:#fff;border-top:1px solid var(--border-color,#e5e7eb);box-shadow:0 -4px 16px rgba(0,0,0,.07);display:none;';
             document.body.appendChild(bar);
             bar.querySelector('button').addEventListener('click', function () {
                 origBtn.click();

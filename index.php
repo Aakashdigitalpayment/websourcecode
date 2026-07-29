@@ -1,14 +1,13 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/includes/simple-cache.php';
-$pageTitle = isEnglish() ? 'Home' : 'गृहपृष्ठ';
-require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/ensure-tables.php';
 ensurePublicTables();
-?>
-<?php
-// Get homepage data with caching (cache for 30 minutes)
-$homepageData = getCachedData('homepage_data', 1800, function() {
+
+$pageTitle = isEnglish() ? 'Home' : 'गृहपृष्ठ';
+
+// Homepage data BEFORE header so first slider can be preloaded (LCP)
+$homepageData = getCachedData('homepage_data', 900, function() {
     $data = [];
     try {
         $db = getDB();
@@ -41,6 +40,23 @@ $savingRates = $homepageData['savingRates'] ?? [];
 $loanRates = $homepageData['loanRates'] ?? [];
 $latestNews = $homepageData['latestNews'] ?? [];
 $totalServices = $homepageData['totalServices'] ?? 0;
+
+/* First hero image — preload in <head> for faster LCP */
+$__preloadLcpImage = '';
+if (!empty($sliders[0]['image'])) {
+    $__heroImg = trim((string)$sliders[0]['image']);
+    if ($__heroImg !== '') {
+        if (preg_match('#^https?://#i', $__heroImg)) {
+            $__preloadLcpImage = $__heroImg;
+        } else {
+            $__preloadLcpImage = rtrim(SITE_URL, '/') . '/' . ltrim($__heroImg, '/');
+        }
+    }
+}
+
+require_once __DIR__ . '/includes/header.php';
+?>
+<?php
 
 /* Member of the Year — current year को active record ल्याउनुहोस्
    Admin: admin/member-of-year.php बाट manage गरिन्छ */
@@ -174,13 +190,8 @@ if ($db instanceof PDO) {
         }
 
         // Institutional profile availability (badge like monthly/annual)
-        $profileCheck = $db->query("SHOW TABLES LIKE 'institutional_profile'");
-        if ($profileCheck && $profileCheck->fetch() !== false) {
-            $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
-            if ($latestInstitutionalProfile) {
-                $hasInstitutionalProfile = true;
-            }
-        }
+        $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
+        $hasInstitutionalProfile = (bool)$latestInstitutionalProfile;
 
     } catch (Throwable $e) {
         // Tables may not exist - use defaults
@@ -674,7 +685,7 @@ if ($ceoMember) {
                 <div class="leadership-profile-card chairman-card">
                     <div class="profile-photo">
                         <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo time(); ?>" loading="lazy" alt="<?php echo $chairmanName; ?>">
+                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($chairmanPhoto, '/')) ?: '1'; ?>" loading="lazy" alt="<?php echo $chairmanName; ?>">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="fas fa-user-tie"></i>
@@ -698,7 +709,7 @@ if ($ceoMember) {
                 <div class="leadership-profile-card ceo-card">
                     <div class="profile-photo">
                         <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo time(); ?>" alt="<?php echo $ceoName; ?>">
+                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="fas fa-user-tie"></i>
@@ -819,7 +830,7 @@ if ($ceoMember) {
                     $mobileAppPhoto = getSetting('mobile_app_photo', '');
                     if ($mobileAppPhoto):
                     ?>
-                    <img src="<?php echo SITE_URL . $mobileAppPhoto; ?>?v=<?php echo time(); ?>" alt="Mobile Banking App" class="app-phone-img">
+                    <img src="<?php echo SITE_URL . $mobileAppPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($mobileAppPhoto, '/')) ?: '1'; ?>" alt="Mobile Banking App" class="app-phone-img" loading="lazy">
                     <?php else: ?>
                     <div class="app-mockup-default">
                         <div class="phone-frame">

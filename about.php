@@ -356,7 +356,7 @@ $ceoMessage = $ceoMessageSetting;
                 <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
                     <div class="leader-photo-large">
                         <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo time(); ?>" alt="<?php echo $chairmanName; ?>">
+                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($chairmanPhoto, '/')) ?: '1'; ?>" alt="<?php echo $chairmanName; ?>">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
                             <i class="fas fa-user-tie"></i>
@@ -384,7 +384,7 @@ $ceoMessage = $ceoMessageSetting;
                 <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
                     <div class="leader-photo-large">
                         <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo time(); ?>" alt="<?php echo $ceoName; ?>">
+                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>">
                         <?php else: ?>
                         <div class="photo-placeholder-large">
                             <i class="fas fa-user-tie"></i>
