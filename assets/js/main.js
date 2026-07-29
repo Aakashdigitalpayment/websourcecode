@@ -1,18 +1,19 @@
 // Main JavaScript File
 
-// Page Loader with percentage - Fixed to prevent infinite loading
+// Page Loader — early inline hide in header.php handles UX; this is a safe fallback only
 (function() {
+    if (window.__pageLoaderHidden) return;
     const pageLoader = document.getElementById('pageLoader');
     const progressFill = document.getElementById('progressFill');
     const progressPercent = document.getElementById('progressPercent');
-
-    // Cap loader time — feel fast; don't wait for every image
-    const MAX_LOADER_TIME = 2200;
+    const MAX_LOADER_TIME = 1600;
 
     if (pageLoader && progressFill && progressPercent) {
         let progress = 0;
         let hidden = false;
-        document.body.style.overflow = 'hidden';
+        if (!document.body.classList.contains('page-loaded')) {
+            document.body.style.overflow = 'hidden';
+        }
 
         const interval = setInterval(function() {
             progress += Math.random() * 18;
@@ -21,41 +22,49 @@
             progressPercent.textContent = Math.round(progress);
         }, 80);
 
-        // Function to hide loader
         function hideLoader() {
-            if (hidden) return;
+            if (hidden || window.__pageLoaderHidden) {
+                clearInterval(interval);
+                return;
+            }
             hidden = true;
             clearInterval(interval);
             if (progressFill) progressFill.style.width = '100%';
             if (progressPercent) progressPercent.textContent = '100';
-
-            setTimeout(function() {
-                if (pageLoader) {
-                    pageLoader.classList.add('loaded');
-                    pageLoader.style.display = 'none';
-                }
-                document.body.style.overflow = '';
-                document.body.classList.add('page-loaded');
-            }, 120);
+            pageLoader.classList.add('loaded');
+            pageLoader.style.display = 'none';
+            document.body.style.overflow = '';
+            document.body.classList.add('page-loaded');
+            window.__pageLoaderHidden = true;
         }
 
-        // Prefer DOM ready — don't block on late images/scripts
         document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(hideLoader, 350);
+            setTimeout(hideLoader, 40);
         });
         window.addEventListener('load', hideLoader);
-
-        // Safety timeout
-        setTimeout(function() {
-            if (pageLoader && !pageLoader.classList.contains('loaded')) {
-                hideLoader();
-            }
-        }, MAX_LOADER_TIME);
+        setTimeout(hideLoader, MAX_LOADER_TIME);
     } else {
-        // If loader elements not found, make sure body is scrollable
         document.body.style.overflow = '';
         document.body.classList.add('page-loaded');
     }
+})();
+
+/* Lazy hero slide backgrounds (slide 0 already painted) */
+(function () {
+    function paintHeroBgs() {
+        document.querySelectorAll('.hero-bg-modern[data-bg]').forEach(function (el) {
+            var u = el.getAttribute('data-bg');
+            if (!u) return;
+            el.style.backgroundImage = "url('" + u.replace(/'/g, "\\'") + "')";
+            el.removeAttribute('data-bg');
+        });
+    }
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(paintHeroBgs, { timeout: 1200 });
+    } else {
+        setTimeout(paintHeroBgs, 400);
+    }
+    document.addEventListener('slid.bs.carousel', paintHeroBgs);
 })();
 
 document.addEventListener('DOMContentLoaded', function() {

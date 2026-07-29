@@ -63,32 +63,43 @@ try {
     }
 
     try {
-        $noticesStmt = $db->query("SELECT id, title, notice_date FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 3");
-        if ($noticesStmt) {
-            $footerNotices = $noticesStmt->fetchAll() ?: [];
-        }
+        $footerBlob = getCachedData('footer_public_v1', 180, function () use ($db) {
+            $out = ['notices' => [], 'links' => [], 'faqs' => []];
+            try {
+                $noticesStmt = $db->query("SELECT id, title, notice_date FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 3");
+                if ($noticesStmt) {
+                    $out['notices'] = $noticesStmt->fetchAll() ?: [];
+                }
+            } catch (Exception $e) { /* ignore */ }
+
+            $hasUseful = function_exists('dbTableExists')
+                ? dbTableExists('useful_links')
+                : (($ul = $db->query("SHOW TABLES LIKE 'useful_links'")) && $ul->fetch() !== false);
+            if ($hasUseful) {
+                $usefulLinksStmt = $db->query("SELECT * FROM useful_links WHERE is_active = 1 ORDER BY display_order ASC LIMIT 6");
+                if ($usefulLinksStmt) {
+                    $out['links'] = $usefulLinksStmt->fetchAll() ?: [];
+                }
+            }
+
+            $hasFaqs = function_exists('dbTableExists')
+                ? dbTableExists('chatbot_faqs')
+                : (($fq = $db->query("SHOW TABLES LIKE 'chatbot_faqs'")) && $fq->fetch() !== false);
+            if ($hasFaqs) {
+                $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order LIMIT 40");
+                if ($faqsStmt) {
+                    $out['faqs'] = $faqsStmt->fetchAll() ?: [];
+                }
+            }
+            return $out;
+        });
+        $footerNotices = $footerBlob['notices'] ?? [];
+        $usefulLinks = $footerBlob['links'] ?? [];
+        $chatbotFaqs = $footerBlob['faqs'] ?? [];
     } catch (Exception $e) {
         $footerNotices = [];
-    }
-
-    $hasUseful = function_exists('dbTableExists')
-        ? dbTableExists('useful_links')
-        : (($ul = $db->query("SHOW TABLES LIKE 'useful_links'")) && $ul->fetch() !== false);
-    if ($hasUseful) {
-        $usefulLinksStmt = $db->query("SELECT * FROM useful_links WHERE is_active = 1 ORDER BY display_order ASC LIMIT 6");
-        if ($usefulLinksStmt) {
-            $usefulLinks = $usefulLinksStmt->fetchAll() ?: [];
-        }
-    }
-
-    $hasFaqs = function_exists('dbTableExists')
-        ? dbTableExists('chatbot_faqs')
-        : (($fq = $db->query("SHOW TABLES LIKE 'chatbot_faqs'")) && $fq->fetch() !== false);
-    if ($hasFaqs) {
-        $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order LIMIT 40");
-        if ($faqsStmt) {
-            $chatbotFaqs = $faqsStmt->fetchAll() ?: [];
-        }
+        $usefulLinks = [];
+        $chatbotFaqs = [];
     }
 } catch (Exception $e) {
     $totalVisitors = 0;
@@ -650,49 +661,63 @@ try {
 
     </div>
 
+    <?php
+    $__root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+    $__jsVer = static function (string $rel) use ($__root): int {
+        return (int)(@filemtime($__root . ltrim($rel, '/')) ?: time());
+    };
+    $__scriptName = basename((string)($_SERVER['PHP_SELF'] ?? ''));
+    /* Homepage / content pages rarely need Nepali datepicker — skip ~126KB jQuery stack */
+    $__skipDatepickerPages = [
+        'index.php', 'about.php', 'services.php', 'service-detail.php', 'notices.php', 'notice-detail.php',
+        'news.php', 'news-detail.php', 'gallery.php', 'team.php', 'reports.php', 'institutional-profile.php',
+        'awards.php', 'downloads.php', 'faqs.php', 'important-links.php', 'useful-links.php',
+        'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
+        'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
+    ];
+    $__needsDatepicker = !empty($__forceNepaliDatepicker) || !in_array($__scriptName, $__skipDatepickerPages, true);
+    ?>
     <!-- Bootstrap JS -->
-    <script src="assets/vendor/bootstrap.bundle.min.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo $__jsVer('assets/vendor/bootstrap.bundle.min.js'); ?>" defer></script>
 
+    <?php if ($__needsDatepicker): ?>
     <!-- jQuery (required for Nepali Datepicker) -->
-    <script src="assets/vendor/jquery.min.js"></script>
-
-    <!-- Nepali Datepicker JS v5 (self-hosted) -->
-    <script src="<?php echo SITE_URL; ?>assets/js/nepali.datepicker.min.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/vendor/jquery.min.js?v=<?php echo $__jsVer('assets/vendor/jquery.min.js'); ?>" defer></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/nepali.datepicker.min.js?v=<?php echo $__jsVer('assets/js/nepali.datepicker.min.js'); ?>" defer></script>
     <script>
-    /* ─── Nepali Datepicker v5 initialize function ─── */
-    function initNepaliDatePicker(selector) {
+    document.addEventListener('DOMContentLoaded', function () {
         if (typeof $ === 'undefined' || typeof $.fn.nepaliDatePicker === 'undefined') return;
-        $(selector).each(function() {
-            var $inp = $(this);
-            if ($inp.data('ndp-ready')) return;
-            $inp.data('ndp-ready', true);
-            $inp.nepaliDatePicker({
-                dateFormat : 'YYYY-MM-DD',
-                language   : 'nepali'
+        window.initNepaliDatePicker = function (selector) {
+            $(selector).each(function () {
+                var $inp = $(this);
+                if ($inp.data('ndp-ready')) return;
+                $inp.data('ndp-ready', true);
+                $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
+                $inp.closest('.input-group, .nepali-datepicker-wrapper')
+                    .find('.input-group-text, .ndp-trigger')
+                    .off('click.ndp').on('click.ndp', function () { $inp.trigger('focus'); });
             });
-            /* Calendar icon button छ भने click गर्दा datepicker खुल्छ */
-            $inp.closest('.input-group, .nepali-datepicker-wrapper')
-                .find('.input-group-text, .ndp-trigger')
-                .off('click.ndp').on('click.ndp', function() { $inp.trigger('focus'); });
-        });
-    }
-
-    $(document).ready(function() {
-        initNepaliDatePicker('.nepali-datepicker');
+        };
+        window.initNepaliDatePicker('.nepali-datepicker');
     });
     </script>
+    <?php else: ?>
+    <script>function initNepaliDatePicker() { /* datepicker not loaded on this page */ }</script>
+    <?php endif; ?>
 
     <!-- AOS Animation JS -->
-    <script src="assets/vendor/aos.min.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/vendor/aos.min.js?v=<?php echo $__jsVer('assets/vendor/aos.min.js'); ?>" defer></script>
     <script>
-        /* AOS — existing data-aos attributes का लागि */
-        AOS.init({
-            duration: 700,
-            easing: 'ease-out-cubic',
-            once: true,
-            mirror: false,
-            offset: 60,
-            delay: 0
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof AOS === 'undefined') return;
+            AOS.init({
+                duration: 420,
+                easing: 'ease-out-cubic',
+                once: true,
+                mirror: false,
+                offset: 40,
+                delay: 0
+            });
         });
     </script>
 
@@ -830,20 +855,40 @@ try {
     </script>
 
     <!-- Custom JS -->
-    <script src="<?php echo SITE_URL; ?>assets/js/main.js"></script>
-    <script src="<?php echo SITE_URL; ?>assets/js/modal-focus-trap.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/main.js?v=<?php echo $__jsVer('assets/js/main.js'); ?>" defer></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/modal-focus-trap.js?v=<?php echo $__jsVer('assets/js/modal-focus-trap.js'); ?>" defer></script>
 
     <!-- Init uniformity helpers (datepicker init + conservative a11y fixes) -->
-    <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js?v=<?php echo $__jsVer('assets/js/init-uniformity.js'); ?>" defer></script>
 
     <!-- Universal Phone/Email Validation — सबै public forms मा automatic -->
-    <script src="<?php echo SITE_URL; ?>assets/js/form-validation.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
 
     <!-- Enhanced Search with Voice Support (issue #7) -->
-    <script src="<?php echo SITE_URL; ?>assets/js/search-improved.js"></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>
 
-    <!-- Voice/Camera/Tilt Scroll Accessibility — "माथि", "तला" आवाजले scroll -->
-    <script src="<?php echo SITE_URL; ?>assets/js/scroll-accessibility.js"></script>
+    <!-- Voice/Camera/Tilt Scroll Accessibility — idle-load (homepage feel) -->
+    <script>
+    (function () {
+        var loaded = false;
+        function loadScrollA11y() {
+            if (loaded) return;
+            loaded = true;
+            var s = document.createElement('script');
+            s.src = <?php echo json_encode(SITE_URL . 'assets/js/scroll-accessibility.js?v=' . $__jsVer('assets/js/scroll-accessibility.js')); ?>;
+            s.defer = true;
+            document.body.appendChild(s);
+        }
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadScrollA11y, { timeout: 3500 });
+        } else {
+            setTimeout(loadScrollA11y, 2500);
+        }
+        ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) {
+            window.addEventListener(ev, loadScrollA11y, { once: true, passive: true });
+        });
+    })();
+    </script>
 
     <!-- Member Satisfaction Floating Widget (issue #5) -->
     <?php

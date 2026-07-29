@@ -58,7 +58,11 @@ $visionMissionMenuEn = trim($visionMenuLabelEn . ' / ' . $missionMenuLabelEn);
 try { $db = getDB(); } catch (Throwable $e) { $db = null; }
 if ($db) {
     require_once __DIR__ . '/election-tables.php';
-    ensureElectionTables($db);
+    /* Schema lock भए election CREATE skip — public TTFB बचाउने */
+    $__schemaLock = dirname(__DIR__) . '/.schema.lock';
+    if (!@is_file($__schemaLock)) {
+        ensureElectionTables($db);
+    }
 }
 
 /* ── Bell Notification: latest active notices ── */
@@ -154,29 +158,36 @@ if (empty($navTeamMenuCategories)) {
     ];
 }
 
-/* ── Active cooperative programs count (for notices dropdown badge) ── */
+/* ── Nav badge counts — short file cache (TTFB) ── */
 $activeProgramCount = 0;
 $hasRecentNotice = false;
 $hasRecentProgram = false;
-try {
-    if ($db) {
-        $activeProgramCount = (int)$db->query("SELECT COUNT(*) FROM upcoming_programs WHERE is_active=1")->fetchColumn();
-        $recentNoticeStmt = $db->query("SELECT COUNT(*) FROM notices WHERE is_active=1 AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
-        $hasRecentNotice = ((int)($recentNoticeStmt ? $recentNoticeStmt->fetchColumn() : 0) > 0);
-        $recentProgramStmt = $db->query("SELECT COUNT(*) FROM upcoming_programs WHERE is_active=1 AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
-        $hasRecentProgram = ((int)($recentProgramStmt ? $recentProgramStmt->fetchColumn() : 0) > 0);
-    }
-} catch (Exception $e) { $activeProgramCount = 0; }
-
-/* ── निर्वाचन जानकारी — मेनुमा देखाउने चक्र (admin बाट show_in_navbar) ── */
 $electionNavOn = false;
 $hasRecentElectionMilestone = false;
-try {
-    if ($db) {
-        $electionNavOn = ((int)$db->query(
+require_once __DIR__ . '/simple-cache.php';
+$__navBadges = getCachedData('nav_public_v1', 90, function () use ($db) {
+    $out = [
+        'activeProgramCount' => 0,
+        'hasRecentNotice' => false,
+        'hasRecentProgram' => false,
+        'electionNavOn' => false,
+        'hasRecentElectionMilestone' => false,
+    ];
+    if (!$db) {
+        return $out;
+    }
+    try {
+        $out['activeProgramCount'] = (int)$db->query("SELECT COUNT(*) FROM upcoming_programs WHERE is_active=1")->fetchColumn();
+        $recentNoticeStmt = $db->query("SELECT COUNT(*) FROM notices WHERE is_active=1 AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $out['hasRecentNotice'] = ((int)($recentNoticeStmt ? $recentNoticeStmt->fetchColumn() : 0) > 0);
+        $recentProgramStmt = $db->query("SELECT COUNT(*) FROM upcoming_programs WHERE is_active=1 AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        $out['hasRecentProgram'] = ((int)($recentProgramStmt ? $recentProgramStmt->fetchColumn() : 0) > 0);
+    } catch (Exception $e) { /* keep defaults */ }
+    try {
+        $out['electionNavOn'] = ((int)$db->query(
             "SELECT COUNT(*) FROM election_cycles WHERE is_published = 1 AND show_in_navbar = 1"
         )->fetchColumn() > 0);
-        if ($electionNavOn) {
+        if ($out['electionNavOn']) {
             $emStmt = $db->query(
                 "SELECT COUNT(*) FROM election_milestones em
                  INNER JOIN election_cycles ec ON ec.id = em.cycle_id
@@ -184,13 +195,16 @@ try {
                    AND (em.created_at >= DATE_SUB(NOW(), INTERVAL 21 DAY)
                         OR (em.event_date IS NOT NULL AND em.event_date >= DATE_SUB(CURDATE(), INTERVAL 21 DAY)))"
             );
-            $hasRecentElectionMilestone = ((int)($emStmt ? $emStmt->fetchColumn() : 0) > 0);
+            $out['hasRecentElectionMilestone'] = ((int)($emStmt ? $emStmt->fetchColumn() : 0) > 0);
         }
-    }
-} catch (Exception $e) {
-    $electionNavOn = false;
-    $hasRecentElectionMilestone = false;
-}
+    } catch (Exception $e) { /* keep defaults */ }
+    return $out;
+}) ?: [];
+$activeProgramCount = (int)($__navBadges['activeProgramCount'] ?? 0);
+$hasRecentNotice = !empty($__navBadges['hasRecentNotice']);
+$hasRecentProgram = !empty($__navBadges['hasRecentProgram']);
+$electionNavOn = !empty($__navBadges['electionNavOn']);
+$hasRecentElectionMilestone = !empty($__navBadges['hasRecentElectionMilestone']);
 
 if (is_file(__DIR__ . '/nav-menu-badges.php')) { require_once __DIR__ . '/nav-menu-badges.php'; }
 if (is_file(__DIR__ . '/service-products-tables.php')) { require_once __DIR__ . '/service-products-tables.php'; }
@@ -416,24 +430,31 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <link rel="preload" as="image" href="<?php echo htmlspecialchars($__preloadLcpImage, ENT_QUOTES, 'UTF-8'); ?>" fetchpriority="high">
     <?php endif; ?>
 
-    <!-- Google Fonts — Inter (body) + Plus Jakarta Sans (headings) + Noto Sans Devanagari (नेपाली) -->
+    <!-- Google Fonts — fewer weights; non-blocking for faster first paint -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <?php
-    $__pubFontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap';
+    $__pubFontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap';
     ?>
     <link rel="preload" href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" as="style">
-    <link href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet">
+    <link href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="<?php echo htmlspecialchars($__pubFontsCss, ENT_QUOTES, 'UTF-8'); ?>" rel="stylesheet"></noscript>
 
     <!-- Font Awesome Icons -->
     
 
     <!-- Bootstrap CSS -->
-    <link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <?php
+    $__bsCss = (defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/')) . 'assets/vendor/bootstrap.min.css';
+    $__bsVer = @filemtime($__bsCss) ?: '1';
+    $__aosCss = (defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/')) . 'assets/vendor/aos.css';
+    $__aosVer = @filemtime($__aosCss) ?: '1';
+    ?>
+    <link href="<?php echo SITE_URL; ?>assets/vendor/bootstrap.min.css?v=<?php echo (int)$__bsVer; ?>" rel="stylesheet">
 
-    <!-- AOS Animation CSS — non-blocking (local JS already used in footer) -->
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" media="print" onload="this.media='all'">
-    <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"></noscript>
+    <!-- AOS Animation CSS — local + non-blocking -->
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/vendor/aos.css?v=<?php echo (int)$__aosVer; ?>" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/vendor/aos.css?v=<?php echo (int)$__aosVer; ?>"></noscript>
     <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted) -->
 
     <!-- Nepali Datepicker CSS — defer; homepage rarely needs it for first paint -->
@@ -941,6 +962,42 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
             <div class="loader-text"><?php echo isEnglish() ? 'Loading...' : 'लोड हुँदैछ...'; ?></div>
         </div>
     </div>
+    <script>
+    /* Early loader hide — don't wait for footer main.js */
+    (function () {
+        var loader = document.getElementById('pageLoader');
+        var fill = document.getElementById('progressFill');
+        var pct = document.getElementById('progressPercent');
+        if (!loader) { document.body.classList.add('page-loaded'); return; }
+        document.body.style.overflow = 'hidden';
+        var hidden = false;
+        var p = 0;
+        var tick = setInterval(function () {
+            p += Math.random() * 22;
+            if (p > 88) p = 88;
+            if (fill) fill.style.width = p + '%';
+            if (pct) pct.textContent = Math.round(p);
+        }, 70);
+        function hide() {
+            if (hidden) return;
+            hidden = true;
+            clearInterval(tick);
+            if (fill) fill.style.width = '100%';
+            if (pct) pct.textContent = '100';
+            loader.classList.add('loaded');
+            loader.style.display = 'none';
+            document.body.style.overflow = '';
+            document.body.classList.add('page-loaded');
+            window.__pageLoaderHidden = true;
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { setTimeout(hide, 40); });
+        } else {
+            setTimeout(hide, 40);
+        }
+        setTimeout(hide, 1600);
+    })();
+    </script>
     <?php endif; ?>
 
         <!-- ═══════════════════════════════════════════════
