@@ -1603,7 +1603,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     </header>
 
     </div><!-- /pfl-header-wrapper -->
-    <div id="main-content" tabindex="-1"></div>
+    <main id="main-content" tabindex="-1">
 
     <!-- PFL Mobile Toggle + Scroll Shadow Script -->
     <script>

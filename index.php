@@ -743,7 +743,7 @@ if ($ceoMember) {
                 <div class="leadership-profile-card ceo-card">
                     <div class="profile-photo">
                         <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>">
+                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="fas fa-user-tie"></i>
@@ -1129,7 +1129,9 @@ $hasPhoto = !empty($memberSpotlight['photo']) && file_exists(ROOT_PATH . $member
                                 <?php if ($hasPhoto): ?>
                                 <img src="<?php echo SITE_URL . $memberSpotlight['photo']; ?>"
                                      alt="<?php echo htmlspecialchars($spotlightName); ?>"
-                                     class="spotlight-photo">
+                                     class="spotlight-photo"
+                                     loading="lazy"
+                                     decoding="async">
                                 <?php else: ?>
                                 <!-- Photo नभए decorative icon -->
                                 <div class="spotlight-photo-placeholder">

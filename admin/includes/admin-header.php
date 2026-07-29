@@ -831,13 +831,16 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('📖 सहायता / Help', '📖 Help / Guide'); ?></span>
                                 </a>
                             </li>
-                            <!-- Site Setup Manager — setup.php को काम admin panel भित्रबाट -->
+                            <!-- Site Setup Manager — Superadmin only (page also gated) -->
+                            <?php if (!empty($_SESSION['is_superadmin'])): ?>
                             <li class="<?php echo $currentPage=='site-setup' ? 'active' : ''; ?>">
                                 <a href="site-setup.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="sliders"></i></span>
                                     <span><?php echo $adminT('साइट सेटअप', 'Site Setup'); ?></span>
+                                    <span class="sa-label-badge">SA</span>
                                 </a>
                             </li>
+                            <?php endif; ?>
                             <!-- साइट म्याद — Superadmin only -->
                             <?php if (!empty($_SESSION['is_superadmin'])): ?>
                             <li class="<?php echo $currentPage=='site-license' ? 'active' : ''; ?>">
