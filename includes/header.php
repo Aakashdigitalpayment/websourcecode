@@ -366,6 +366,53 @@ try {
     $navServiceLinks = []; $navServiceGroups = [];
 }
 
+/* ── CMS pages in navbar (about / services / more) — one cached query ── */
+$navCmsPages = ['about' => [], 'services' => [], 'more' => []];
+try {
+    if ($db instanceof PDO) {
+        $hasMenuCol = function_exists('dbColumnExists')
+            ? dbColumnExists('pages', 'show_in_menu')
+            : true;
+        if ($hasMenuCol) {
+            if (!function_exists('getCachedData')) {
+                require_once __DIR__ . '/simple-cache.php';
+            }
+            $__cmsRows = getCachedData('nav_cms_pages_v1', 90, function () use ($db) {
+                try {
+                    if (function_exists('dbColumnExists') && !dbColumnExists('pages', 'show_in_menu')) {
+                        return [];
+                    }
+                    $stmt = $db->query(
+                        "SELECT id, slug, title,
+                                COALESCE(title_en, '') AS title_en,
+                                COALESCE(is_new, 0) AS is_new,
+                                new_until, menu_position
+                         FROM pages
+                         WHERE is_active = 1 AND show_in_menu = 1
+                           AND menu_position IN ('about','services','more')
+                         ORDER BY menu_order ASC, id ASC
+                         LIMIT 30"
+                    );
+                    return $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+                } catch (Throwable $e) {
+                    return [];
+                }
+            });
+            if (!is_array($__cmsRows)) {
+                $__cmsRows = [];
+            }
+            foreach ($__cmsRows as $__cmsRow) {
+                $pos = (string)($__cmsRow['menu_position'] ?? '');
+                if (!isset($navCmsPages[$pos]) || count($navCmsPages[$pos]) >= 5) {
+                    continue;
+                }
+                $navCmsPages[$pos][] = $__cmsRow;
+            }
+        }
+    }
+} catch (Throwable $e) {
+    $navCmsPages = ['about' => [], 'services' => [], 'more' => []];
+}
 
 $currentPage = getCurrentPage();
 $L = getLangStrings();
@@ -1734,28 +1781,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     <li><a href="<?php echo SITE_URL; ?>about.php#chairman"><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
-                                    <?php
-                                    // Fetch dynamic pages that should show in about menu
-                                    // Safe query with error handling for missing columns
-                                    try {
-                                        $db = getDB();
-                                        // Check if show_in_menu column exists
-                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
-                                            $pagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'about'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($pagesStmt) {
-                                                $menuPages = $pagesStmt->fetchAll();
-                                                foreach ($menuPages as $mp):
-                                                    $mpTitle = isEnglish() ? ($mp['title_en'] ?: $mp['title']) : ($mp['title'] ?: $mp['title_en']);
-                                                    $isNewPage = !empty($mp['is_new']) && (!$mp['new_until'] || strtotime($mp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['about'] as $mp):
+                                        $mpTitle = isEnglish() ? ($mp['title_en'] ?: $mp['title']) : ($mp['title'] ?: $mp['title_en']);
+                                        $isNewPage = !empty($mp['is_new']) && (empty($mp['new_until']) || strtotime((string)$mp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mp['slug']); ?>"><?php echo htmlspecialchars($mpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Columns may not exist yet - safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
@@ -1770,26 +1801,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                         <li><a href="<?php echo SITE_URL; ?>services.php#loan"><i class="fas fa-hand-holding-usd"></i> <?php echo $L['loan']; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>services.php#remittance"><i class="fas fa-money-bill-wave"></i> <?php echo $L['remittance']; ?></a></li>
                                     <?php endif; ?>
-                                    <?php
-                                    // Fetch dynamic pages for services menu
-                                    try {
-                                        $db = getDB();
-                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
-                                            $servicesPagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'services'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($servicesPagesStmt) {
-                                                $servicesMenuPages = $servicesPagesStmt->fetchAll();
-                                                foreach ($servicesMenuPages as $sp):
-                                                    $spTitle = isEnglish() ? ($sp['title_en'] ?: $sp['title']) : ($sp['title'] ?: $sp['title_en']);
-                                                    $isNewPage = !empty($sp['is_new']) && (!$sp['new_until'] || strtotime($sp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['services'] as $sp):
+                                        $spTitle = isEnglish() ? ($sp['title_en'] ?: $sp['title']) : ($sp['title'] ?: $sp['title_en']);
+                                        $isNewPage = !empty($sp['is_new']) && (empty($sp['new_until']) || strtotime((string)$sp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($sp['slug']); ?>"><?php echo htmlspecialchars($spTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
@@ -1890,26 +1907,12 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
-                                    <?php
-                                    // Fetch dynamic pages for more menu
-                                    try {
-                                        $db = getDB();
-                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
-                                            $morePagesStmt = $db->query("SELECT id, slug, title,
-                                                COALESCE(title_en, '') as title_en,
-                                                COALESCE(is_new, 0) as is_new,
-                                                new_until
-                                                FROM pages
-                                                WHERE is_active = 1 AND show_in_menu = 1 AND menu_position = 'more'
-                                                ORDER BY menu_order ASC LIMIT 5");
-                                            if ($morePagesStmt) {
-                                                $moreMenuPages = $morePagesStmt->fetchAll();
-                                                foreach ($moreMenuPages as $mmp):
-                                                    $mmpTitle = isEnglish() ? ($mmp['title_en'] ?: $mmp['title']) : ($mmp['title'] ?: $mmp['title_en']);
-                                                    $isNewPage = !empty($mmp['is_new']) && (!$mmp['new_until'] || strtotime($mmp['new_until']) >= time());
+                                    <?php foreach ($navCmsPages['more'] as $mmp):
+                                        $mmpTitle = isEnglish() ? ($mmp['title_en'] ?: $mmp['title']) : ($mmp['title'] ?: $mmp['title_en']);
+                                        $isNewPage = !empty($mmp['is_new']) && (empty($mmp['new_until']) || strtotime((string)$mmp['new_until']) >= time());
                                     ?>
                                     <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mmp['slug']); ?>"><?php echo htmlspecialchars($mmpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; } } } catch (Exception $e) { /* Safe to ignore */ } ?>
+                                    <?php endforeach; ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">

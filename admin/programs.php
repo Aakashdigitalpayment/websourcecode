@@ -3,6 +3,7 @@ $pageTitle = 'कार्यक्रम व्यवस्थापन';
 $currentPage = 'programs';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 require_once __DIR__ . '/../includes/program-tables.php';
@@ -59,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } catch (Throwable $e) {
         setFlash('error', $e->getMessage());
     }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('programs.php');
 }
 
