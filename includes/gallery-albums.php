@@ -91,6 +91,89 @@ if (!function_exists('ensureGalleryAlbumsSchema')) {
         }
 
         galleryMigrateLegacyAlbums($db);
+        galleryMigrateLegacyVideos($db);
+    }
+}
+
+if (!function_exists('galleryMigrateLegacyVideos')) {
+    function galleryMigrateLegacyVideos(PDO $db): void
+    {
+        static $migrated = false;
+        if ($migrated) {
+            return;
+        }
+        $migrated = true;
+
+        try {
+            $unassigned = (int)$db->query(
+                "SELECT COUNT(*) FROM gallery
+                 WHERE media_type = 'video' AND album_id IS NULL"
+            )->fetchColumn();
+            if ($unassigned < 1) {
+                return;
+            }
+
+            /* Respect an existing legacy album string when it matches a real album. */
+            $albums = $db->query('SELECT id, name_np, name_en FROM gallery_albums')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $byName = [];
+            foreach ($albums as $album) {
+                foreach (['name_np', 'name_en'] as $column) {
+                    $key = galleryAlbumNormalizeKey((string)($album[$column] ?? ''));
+                    if ($key !== '') {
+                        $byName[$key] = (int)$album['id'];
+                    }
+                }
+            }
+
+            $legacyRows = $db->query(
+                "SELECT DISTINCT TRIM(album) AS album_name
+                 FROM gallery
+                 WHERE media_type = 'video' AND album_id IS NULL
+                   AND album IS NOT NULL AND TRIM(album) <> ''"
+            )->fetchAll(PDO::FETCH_COLUMN) ?: [];
+            $assignNamed = $db->prepare(
+                "UPDATE gallery SET album_id = ?
+                 WHERE media_type = 'video' AND album_id IS NULL AND TRIM(album) = ?"
+            );
+            foreach ($legacyRows as $legacyName) {
+                $key = galleryAlbumNormalizeKey((string)$legacyName);
+                if ($key !== '' && isset($byName[$key])) {
+                    $assignNamed->execute([$byName[$key], $legacyName]);
+                }
+            }
+
+            $remaining = (int)$db->query(
+                "SELECT COUNT(*) FROM gallery
+                 WHERE media_type = 'video' AND album_id IS NULL"
+            )->fetchColumn();
+            if ($remaining < 1) {
+                return;
+            }
+
+            $defaultKey = galleryAlbumNormalizeKey('भिडियोहरू');
+            $defaultId = $byName[$defaultKey] ?? 0;
+            if ($defaultId < 1) {
+                $maxOrder = (int)$db->query(
+                    'SELECT COALESCE(MAX(display_order), 0) + 1 FROM gallery_albums'
+                )->fetchColumn();
+                $stmt = $db->prepare(
+                    "INSERT INTO gallery_albums
+                        (name_np, name_en, category, is_active, display_order)
+                     VALUES ('भिडियोहरू', 'Videos', 'general', 1, ?)"
+                );
+                $stmt->execute([$maxOrder]);
+                $defaultId = (int)$db->lastInsertId();
+            }
+
+            $stmt = $db->prepare(
+                "UPDATE gallery
+                 SET album_id = ?, album = COALESCE(NULLIF(TRIM(album), ''), 'भिडियोहरू')
+                 WHERE media_type = 'video' AND album_id IS NULL"
+            );
+            $stmt->execute([$defaultId]);
+        } catch (Throwable $e) {
+            error_log('[gallery-albums] migrate videos: ' . $e->getMessage());
+        }
     }
 }
 
@@ -253,6 +336,10 @@ if (!function_exists('galleryFetchAdminAlbums')) {
                         (SELECT COUNT(*) FROM gallery g
                          WHERE g.album_id = a.id
                            AND (g.media_type = \'photo\' OR g.media_type IS NULL OR g.media_type = \'\')) AS photo_count
+                        ,(SELECT COUNT(*) FROM gallery g
+                          WHERE g.album_id = a.id AND g.media_type = \'video\') AS video_count
+                        ,(SELECT COUNT(*) FROM gallery g
+                          WHERE g.album_id = a.id) AS media_count
                  FROM gallery_albums a
                  ORDER BY a.display_order DESC, a.id DESC
                  LIMIT 500'
@@ -264,21 +351,27 @@ if (!function_exists('galleryFetchAdminAlbums')) {
 }
 
 if (!function_exists('galleryFetchPublicAlbums')) {
-    function galleryFetchPublicAlbums(PDO $db, bool $hasMediaType): array
+    function galleryFetchPublicAlbums(PDO $db, bool $hasMediaType, string $mediaType = 'photo'): array
     {
         ensureGalleryAlbumsSchema($db);
-        $photoWhere = galleryPhotoWhereSql($hasMediaType);
+        $mediaType = $mediaType === 'video' ? 'video' : 'photo';
+        $mediaWhere = $mediaType === 'video'
+            ? "g.is_active = 1 AND g.media_type = 'video'"
+            : galleryPhotoWhereSql($hasMediaType);
+        $coverExpr = $mediaType === 'video'
+            ? "COALESCE(NULLIF(g.thumbnail, ''), '')"
+            : "g.image";
         try {
             $rows = $db->query(
                 "SELECT a.*,
-                        COUNT(g.id) AS photo_count,
-                        MAX(g.id) AS max_photo_id,
-                        SUBSTRING_INDEX(GROUP_CONCAT(g.image ORDER BY g.id DESC SEPARATOR '||'), '||', 1) AS cover_image
+                        COUNT(g.id) AS media_count,
+                        MAX(g.id) AS max_media_id,
+                        SUBSTRING_INDEX(GROUP_CONCAT({$coverExpr} ORDER BY g.id DESC SEPARATOR '||'), '||', 1) AS cover_image
                  FROM gallery_albums a
-                 INNER JOIN gallery g ON g.album_id = a.id AND {$photoWhere}
+                 INNER JOIN gallery g ON g.album_id = a.id AND {$mediaWhere}
                  WHERE a.is_active = 1
                  GROUP BY a.id
-                 ORDER BY a.display_order DESC, max_photo_id DESC
+                 ORDER BY a.display_order DESC, max_media_id DESC
                  LIMIT 100"
             )->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Throwable $e) {
@@ -286,7 +379,7 @@ if (!function_exists('galleryFetchPublicAlbums')) {
         }
 
         foreach ($rows as &$row) {
-            $row['count'] = (int)($row['photo_count'] ?? 0);
+            $row['count'] = (int)($row['media_count'] ?? 0);
             $row['cover'] = (string)($row['cover_image'] ?? '');
             $row['id'] = (int)($row['id'] ?? 0);
         }
@@ -332,33 +425,55 @@ if (!function_exists('galleryResolveAlbumParam')) {
     }
 }
 
-if (!function_exists('galleryFetchAlbumPhotos')) {
-    function galleryFetchAlbumPhotos(PDO $db, int $albumId, int $page, int $limit, bool $hasMediaType): array
-    {
-        $photoWhere = $hasMediaType
-            ? 'is_active = 1 AND album_id = ? AND (media_type = \'photo\' OR media_type IS NULL OR media_type = \'\')'
-            : 'is_active = 1 AND album_id = ?';
+if (!function_exists('galleryFetchAlbumMedia')) {
+    function galleryFetchAlbumMedia(
+        PDO $db,
+        int $albumId,
+        string $mediaType,
+        int $page,
+        int $limit,
+        bool $hasMediaType
+    ): array {
+        $mediaType = $mediaType === 'video' ? 'video' : 'photo';
+        if ($mediaType === 'video') {
+            $where = "is_active = 1 AND album_id = ? AND media_type = 'video'";
+        } else {
+            $where = $hasMediaType
+                ? "is_active = 1 AND album_id = ? AND (media_type = 'photo' OR media_type IS NULL OR media_type = '')"
+                : 'is_active = 1 AND album_id = ?';
+        }
 
-        $cntStmt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE {$photoWhere}");
+        $cntStmt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE {$where}");
         $cntStmt->execute([$albumId]);
         $total = (int)$cntStmt->fetchColumn();
         $pages = max(1, (int)ceil($total / $limit));
-        if ($page > $pages) {
-            $page = $pages;
-        }
+        $page = min(max(1, $page), $pages);
         $offset = ($page - 1) * $limit;
 
         $stmt = $db->prepare(
-            "SELECT * FROM gallery WHERE {$photoWhere} ORDER BY id DESC LIMIT "
+            "SELECT * FROM gallery WHERE {$where} ORDER BY id DESC LIMIT "
             . (int)$limit . ' OFFSET ' . (int)$offset
         );
         $stmt->execute([$albumId]);
 
         return [
-            'photos' => $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [],
-            'total'  => $total,
-            'pages'  => $pages,
-            'page'   => $page,
+            'items' => $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [],
+            'total' => $total,
+            'pages' => $pages,
+            'page' => $page,
+        ];
+    }
+}
+
+if (!function_exists('galleryFetchAlbumPhotos')) {
+    function galleryFetchAlbumPhotos(PDO $db, int $albumId, int $page, int $limit, bool $hasMediaType): array
+    {
+        $result = galleryFetchAlbumMedia($db, $albumId, 'photo', $page, $limit, $hasMediaType);
+        return [
+            'photos' => $result['items'],
+            'total' => $result['total'],
+            'pages' => $result['pages'],
+            'page' => $result['page'],
         ];
     }
 }
@@ -372,6 +487,19 @@ if (!function_exists('galleryAlbumPhotoCount')) {
                  WHERE album_id = ?
                    AND (media_type = 'photo' OR media_type IS NULL OR media_type = '')"
             );
+            $stmt->execute([$albumId]);
+            return (int)$stmt->fetchColumn();
+        } catch (Throwable $e) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('galleryAlbumMediaCount')) {
+    function galleryAlbumMediaCount(PDO $db, int $albumId): int
+    {
+        try {
+            $stmt = $db->prepare('SELECT COUNT(*) FROM gallery WHERE album_id = ?');
             $stmt->execute([$albumId]);
             return (int)$stmt->fetchColumn();
         } catch (Throwable $e) {

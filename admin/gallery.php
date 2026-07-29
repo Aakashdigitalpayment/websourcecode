@@ -54,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($action === 'delete_album' && $id) {
-            $photoCount = galleryAlbumPhotoCount($db, (int)$id);
-            if ($photoCount > 0) {
-                setFlash('error', 'यो एल्बममा ' . $photoCount . ' तस्विर छन्। पहिले तस्विर हटाउनुहोस् वा अर्को एल्बममा सार्नुहोस्।');
+            $mediaCount = galleryAlbumMediaCount($db, (int)$id);
+            if ($mediaCount > 0) {
+                setFlash('error', 'यो एल्बममा ' . $mediaCount . ' फोटो/भिडियो छन्। पहिले media हटाउनुहोस् वा अर्को एल्बममा सार्नुहोस्।');
             } else {
                 $db->prepare('DELETE FROM gallery_albums WHERE id = ?')->execute([$id]);
                 setFlash('success', 'एल्बम मेटाइयो।');
@@ -76,7 +76,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('gallery.php?tab=list');
         }
 
-        if ($action !== 'delete') {
+        /* ── Edit existing photo/video (album / title / status) ── */
+        if ($action === 'update_media' && $id) {
+            $title = clean_text($_POST['title'] ?? '');
+            $title_np = clean_text($_POST['title_np'] ?? $title);
+            $albumId = (int)($_POST['album_id'] ?? 0);
+            $isActive = isset($_POST['is_active']) ? 1 : 0;
+            $videoUrl = clean_text($_POST['video_url'] ?? '');
+
+            $stmt = $db->prepare('SELECT * FROM gallery WHERE id = ? LIMIT 1');
+            $stmt->execute([$id]);
+            $item = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$item) {
+                setFlash('error', 'मिडिया भेटिएन।');
+                redirect('gallery.php?tab=list');
+            }
+
+            if ($albumId <= 0) {
+                setFlash('error', 'एल्बम छान्नुहोस्।');
+                redirect('gallery.php?tab=list');
+            }
+            $albumRow = galleryFetchAlbumById($db, $albumId);
+            if (!$albumRow) {
+                setFlash('error', 'चयन गरिएको एल्बम भेटिएन।');
+                redirect('gallery.php?tab=list');
+            }
+
+            $albumCategory = (string)($albumRow['category'] ?? 'general');
+            $albumName = (string)($albumRow['name_np'] ?? '');
+            $isVideo = (($item['media_type'] ?? 'photo') === 'video');
+            $t = $title !== '' ? $title : (string)($item['title'] ?? '');
+            $tnp = $title_np !== '' ? $title_np : ($t !== '' ? $t : (string)($item['title_np'] ?? ''));
+
+            if ($isVideo) {
+                $thumb = (string)($item['thumbnail'] ?? '');
+                $finalUrl = $videoUrl !== '' ? $videoUrl : (string)($item['video_url'] ?? '');
+                if ($videoUrl !== '' && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $m)) {
+                    $thumb = 'https://img.youtube.com/vi/' . $m[1] . '/maxresdefault.jpg';
+                }
+                $db->prepare(
+                    'UPDATE gallery
+                     SET title = ?, title_np = ?, video_url = ?, thumbnail = ?,
+                         category = ?, album = ?, album_id = ?, is_active = ?
+                     WHERE id = ? AND media_type = \'video\''
+                )->execute([$t, $tnp, $finalUrl, $thumb, $albumCategory, $albumName, $albumId, $isActive, $id]);
+            } else {
+                $db->prepare(
+                    'UPDATE gallery
+                     SET title = ?, title_np = ?, category = ?, album = ?, album_id = ?, is_active = ?
+                     WHERE id = ? AND (media_type = \'photo\' OR media_type IS NULL OR media_type = \'\')'
+                )->execute([$t, $tnp, $albumCategory, $albumName, $albumId, $isActive, $id]);
+            }
+
+            setFlash('success', 'मिडिया अद्यावधिक भयो।');
+            redirect('gallery.php?tab=list');
+        }
+
+        if ($action !== 'delete' && $action !== 'update_media') {
             $title    = clean_text($_POST['title'] ?? '');
             $title_np = clean_text($_POST['title_np'] ?? $title);
             $category = clean_text($_POST['category'] ?? 'general');
@@ -89,20 +145,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hasAlbumId = function_exists('dbColumnExists') ? dbColumnExists('gallery', 'album_id') : true;
 
             if ($mediaType === 'video' && !empty($videoUrl)) {
+                if ($albumId <= 0) {
+                    setFlash('error', 'भिडियो थप्न पहिले एल्बम छान्नुहोस्।');
+                    redirect('gallery.php?tab=video');
+                }
+                $albumRow = galleryFetchAlbumById($db, $albumId);
+                if (!$albumRow) {
+                    setFlash('error', 'चयन गरिएको एल्बम भेटिएन।');
+                    redirect('gallery.php?tab=video');
+                }
+                $albumCategory = (string)($albumRow['category'] ?? 'general');
+                $albumName = (string)($albumRow['name_np'] ?? '');
                 $thumb = '';
                 if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $videoUrl, $m)) {
                     $thumb = 'https://img.youtube.com/vi/' . $m[1] . '/maxresdefault.jpg';
                 }
                 if ($hasMediaType) {
                     $db->prepare(
-                        "INSERT INTO gallery (title, title_np, image, media_type, video_url, thumbnail, category, is_active)
-                         VALUES (?,?,'','video',?,?,?,?)"
-                    )->execute([$title, $title_np, $videoUrl, $thumb, $category, $isActive]);
+                        "INSERT INTO gallery
+                            (title, title_np, image, media_type, video_url, thumbnail, category, album, album_id, is_active)
+                         VALUES (?,?,'','video',?,?,?,?,?,?)"
+                    )->execute([
+                        $title,
+                        $title_np,
+                        $videoUrl,
+                        $thumb,
+                        $albumCategory,
+                        $albumName,
+                        $albumId,
+                        $isActive,
+                    ]);
                 } else {
                     $db->prepare('INSERT INTO gallery (title, image, category, is_active) VALUES (?,?,?,?)')
                        ->execute([$title . ' (Video)', $thumb ?: '', $category, $isActive]);
                 }
-                setFlash('success', 'भिडियो थपियो।');
+                setFlash('success', 'भिडियो "' . $albumName . '" एल्बममा थपियो।');
                 redirect('gallery.php?tab=video');
             }
 
@@ -215,9 +292,9 @@ foreach ($images as $img) {
 ?>
 <?php echo adminHelpTip('सही क्रम:', [
     '१. "एल्बमहरू" ट्याबमा कार्यक्रम/सभाको नामले एल्बम बनाउनुहोस्।',
-    '२. "फोटो अपलोड" मा एल्बम छानेर एकैपटक धेरै फोटो अपलोड गर्नुहोस्।',
-    '३. Public site मा Photos tab → सबै album cover → click गरेर फोटो हेर्नुहोस्।',
-    '४. भिडियो अलग ट्याबबाट थपिन्छ (album लाग्दैन)।',
+    '२. "फोटो अपलोड" / "भिडियो" मा एल्बम छानेर media थप्नुहोस्।',
+    '३. ग्यालरी सूचीबाट Edit (✏️) थिचेर album change / title / status अपडेट गर्न सकिन्छ।',
+    '४. Public मा Photos/Videos tab → album cover → click गरेर popup मा media हेर्नुहोस्।',
 ]); ?>
 
 <?php if ($flash && $flash['type'] === 'success'): ?>
@@ -322,6 +399,7 @@ foreach ($images as $img) {
                                     <tr>
                                         <th>एल्बम</th>
                                         <th class="text-center">फोटो</th>
+                                        <th class="text-center">भिडियो</th>
                                         <th>वर्ग</th>
                                         <th class="text-center">स्थिति</th>
                                         <th class="text-end">कार्य</th>
@@ -337,6 +415,7 @@ foreach ($images as $img) {
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center"><span class="badge bg-primary"><?php echo (int)($alb['photo_count'] ?? 0); ?></span></td>
+                                        <td class="text-center"><span class="badge bg-danger"><?php echo (int)($alb['video_count'] ?? 0); ?></span></td>
                                         <td><?php echo htmlspecialchars($catOptions[$alb['category'] ?? 'general'] ?? $alb['category']); ?></td>
                                         <td class="text-center">
                                             <?php if ((int)($alb['is_active'] ?? 0) === 1): ?>
@@ -351,7 +430,7 @@ foreach ($images as $img) {
                                                 <?php echo csrfField(); ?>
                                                 <input type="hidden" name="action" value="delete_album">
                                                 <input type="hidden" name="id" value="<?php echo (int)$alb['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्" <?php echo (int)($alb['photo_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="fas fa-trash"></i></button>
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्" <?php echo (int)($alb['media_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="fas fa-trash"></i></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -409,15 +488,28 @@ foreach ($images as $img) {
                             <?php endif; ?>
                             <div class="gallery-hover-overlay">
                                 <small class="text-white fw-semibold d-block mb-1"><?php echo htmlspecialchars(mb_substr((string)$img['title'], 0, 20)); ?></small>
-                                <?php if ($albumLbl !== '' && !$isVideo): ?>
+                                <?php if ($albumLbl !== ''): ?>
                                 <small class="text-white-50 d-block mb-1 gal-album-lbl"><i class="fas fa-folder me-1"></i><?php echo htmlspecialchars(mb_substr($albumLbl, 0, 24)); ?></small>
                                 <?php endif; ?>
                                 <span class="visually-hidden"><?php echo htmlspecialchars($albumLbl . ' ' . ($img['category'] ?? '')); ?></span>
-                                <div class="d-flex gap-1 justify-content-center">
+                                <div class="d-flex gap-1 justify-content-center flex-wrap">
                                     <a href="<?php echo htmlspecialchars($isVideo ? ($img['video_url'] ?? '#') : ('../' . $img['image'])); ?>"
                                        target="_blank" class="btn btn-sm btn-info" title="हेर्नुहोस्">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    <button type="button"
+                                            class="btn btn-sm btn-warning gal-edit-media-btn"
+                                            title="सम्पादन / एल्बम"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#galEditMediaModal"
+                                            data-media-id="<?php echo (int)$img['id']; ?>"
+                                            data-media-type="<?php echo $isVideo ? 'video' : 'photo'; ?>"
+                                            data-media-title="<?php echo htmlspecialchars((string)($img['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                            data-media-url="<?php echo htmlspecialchars((string)($img['video_url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                                            data-album-id="<?php echo (int)($img['album_id'] ?? 0); ?>"
+                                            data-is-active="<?php echo (int)($img['is_active'] ?? 1); ?>">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     <form method="POST" class="gal-inline-form" onsubmit="return confirm('यो फोटो/भिडियो मेटाउने हो?')">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$img['id']; ?>">
@@ -430,9 +522,61 @@ foreach ($images as $img) {
                             </div>
                         </div>
                     </div>
+
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <!-- One reusable modal keeps the DOM light even with hundreds of media rows. -->
+    <div class="modal fade" id="galEditMediaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" action="gallery.php?tab=list" id="galEditMediaForm">
+                    <?php echo csrfField(); ?>
+                    <input type="hidden" name="action" value="update_media">
+                    <input type="hidden" name="id" id="galEditMediaId" value="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="galEditMediaTitle">
+                            <i class="fas fa-edit me-2 text-success"></i>मिडिया सम्पादन
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-success">एल्बम <span class="text-danger">*</span></label>
+                            <select name="album_id" id="galEditAlbumId" class="form-select" required>
+                                <option value="">— एल्बम छान्नुहोस् —</option>
+                                <?php foreach ($albums as $alb): ?>
+                                <option value="<?php echo (int)$alb['id']; ?>"><?php echo htmlspecialchars((string)$alb['name_np']); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php if (empty($albums)): ?>
+                            <small class="text-danger">पहिले एल्बम बनाउनुहोस्।</small>
+                            <?php endif; ?>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">शीर्षक</label>
+                            <input type="text" name="title" id="galEditTitleInput" class="form-control" placeholder="शीर्षक">
+                        </div>
+                        <div class="mb-3" id="galEditVideoUrlWrap">
+                            <label class="form-label fw-semibold">YouTube URL</label>
+                            <input type="url" name="video_url" id="galEditVideoUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="galEditActive">
+                            <label class="form-check-label fw-semibold" for="galEditActive">सक्रिय</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">रद्द</button>
+                        <button type="submit" class="btn btn-success" <?php echo empty($albums) ? 'disabled' : ''; ?>>
+                            <i class="fas fa-save me-1"></i>सेभ गर्नुहोस्
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -508,21 +652,32 @@ foreach ($images as $img) {
                 <h5><i class="fab fa-youtube me-2"></i>YouTube भिडियो थप्नुहोस्</h5>
             </div>
             <div class="card-body p-4">
+                <?php if (empty($albums)): ?>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    भिडियो थप्न पहिले <strong>एल्बमहरू</strong> ट्याबमा एल्बम बनाउनुहोस्।
+                    <a href="gallery.php?tab=albums" class="alert-link ms-1">एल्बम बनाउनुहोस् →</a>
+                </div>
+                <?php else: ?>
                 <form method="POST" action="gallery.php?tab=video" class="needs-validation" novalidate>
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="media_type" value="video">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">भिडियोको शीर्षक</label>
-                            <input type="text" name="title" class="form-control admin-fancy-input" placeholder="भिडियोको नाम">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">वर्ग</label>
-                            <select name="category" class="form-select admin-fancy-input">
-                                <?php foreach ($catOptions as $val => $lbl): ?>
-                                <option value="<?php echo htmlspecialchars($val); ?>"><?php echo htmlspecialchars($lbl); ?></option>
+                            <label class="form-label fw-semibold text-success">एल्बम छान्नुहोस् <span class="text-danger">*</span></label>
+                            <select name="album_id" class="form-select admin-fancy-input" required>
+                                <option value="">— एल्बम छान्नुहोस् —</option>
+                                <?php foreach ($albums as $alb): ?>
+                                <option value="<?php echo (int)$alb['id']; ?>">
+                                    <?php echo htmlspecialchars((string)$alb['name_np']); ?>
+                                    (<?php echo (int)($alb['video_count'] ?? 0); ?> भिडियो)
+                                </option>
                                 <?php endforeach; ?>
                             </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-success">भिडियोको शीर्षक</label>
+                            <input type="text" name="title" class="form-control admin-fancy-input" placeholder="भिडियोको नाम">
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-semibold text-danger"><i class="fab fa-youtube me-1"></i>YouTube URL <span class="text-danger">*</span></label>
@@ -537,6 +692,7 @@ foreach ($images as $img) {
                         </div>
                     </div>
                 </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -562,6 +718,27 @@ function showFileNames(input) {
     }
     if (inp) inp.addEventListener('input', filterCards);
     if (albumFilter) albumFilter.addEventListener('change', filterCards);
+})();
+
+(function () {
+    var modal = document.getElementById('galEditMediaModal');
+    if (!modal) return;
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        var trigger = event.relatedTarget;
+        if (!trigger) return;
+
+        var type = trigger.getAttribute('data-media-type') || 'photo';
+        document.getElementById('galEditMediaId').value = trigger.getAttribute('data-media-id') || '';
+        document.getElementById('galEditTitleInput').value = trigger.getAttribute('data-media-title') || '';
+        document.getElementById('galEditVideoUrl').value = trigger.getAttribute('data-media-url') || '';
+        document.getElementById('galEditAlbumId').value = trigger.getAttribute('data-album-id') || '';
+        document.getElementById('galEditActive').checked = trigger.getAttribute('data-is-active') === '1';
+        document.getElementById('galEditVideoUrlWrap').classList.toggle('d-none', type !== 'video');
+        document.getElementById('galEditMediaTitle').innerHTML =
+            '<i class="fas fa-edit me-2 text-success"></i>'
+            + (type === 'video' ? 'भिडियो सम्पादन' : 'फोटो सम्पादन');
+    });
 })();
 </script>
 
