@@ -6,7 +6,23 @@
 if (!function_exists('ensureTeamMenuCategoriesTable')) {
     function ensureTeamMenuCategoriesTable(?PDO $db = null): void
     {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
         $db = $db ?: getDB();
+
+        $lockFile = dirname(__DIR__) . '/.schema.lock';
+        if (@is_file($lockFile)) {
+            try {
+                $db->query('SELECT 1 FROM team_menu_categories LIMIT 1');
+                return;
+            } catch (Throwable $e) {
+                /* fall through — create */
+            }
+        }
+
         $db->exec("CREATE TABLE IF NOT EXISTS team_menu_categories (
             id INT AUTO_INCREMENT PRIMARY KEY,
             slug VARCHAR(50) NOT NULL,

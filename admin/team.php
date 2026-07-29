@@ -10,6 +10,7 @@ require_once __DIR__ . '/../includes/election-tables.php';
 require_once __DIR__ . '/../includes/team-staff-groups.php';
 require_once __DIR__ . '/../includes/team-menu-categories.php';
 require_once __DIR__ . '/../includes/team-chart-helpers.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 /**
  * टिम सदस्य व्यवस्थापन — Team Members Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
@@ -339,6 +340,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new RuntimeException('Invalid section for groups');
                 }
                 break;
+        }
+        if ($success !== '' && function_exists('clearHomepageCache')) {
+            clearHomepageCache();
         }
     } catch (Exception $e) {
         $error = $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.');

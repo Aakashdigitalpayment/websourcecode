@@ -251,6 +251,29 @@ function getDB() {
 }
 
 /**
+ * Request-scoped table existence check (avoids repeated SHOW TABLES).
+ */
+if (!function_exists('dbTableExists')) {
+    function dbTableExists(string $table): bool
+    {
+        static $cache = [];
+        if (array_key_exists($table, $cache)) {
+            return $cache[$table];
+        }
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $table)) {
+            return $cache[$table] = false;
+        }
+        try {
+            $db = getDB();
+            $r = $db->query('SHOW TABLES LIKE ' . $db->quote($table));
+            return $cache[$table] = ($r && $r->fetch(PDO::FETCH_NUM) !== false);
+        } catch (Throwable $e) {
+            return $cache[$table] = false;
+        }
+    }
+}
+
+/**
  * HTML-escape trimmed string — प्रायः output को लागि मात्र।
  * फर्म/DB इनपुटको लागि `clean_text()` + देखाउँदा `e()` प्रयोग गर्नुहोस्।
  */
@@ -693,16 +716,40 @@ function getSettingInvalidate(string $key, $value = null): void
     $bag[$key] = $value;
 }
 
-// Get site setting from database — statically cached per request
+// Get site setting from database — bulk-loaded once per request (then O(1) lookups)
 function getSetting($key, $default = '') {
     $__cache = &seo_settings_request_cache();
     // Return from cache if already fetched this request
     if (array_key_exists($key, $__cache)) {
         return $__cache[$key] !== null ? $__cache[$key] : $default;
     }
+    static $loadedAll = false;
     try {
         $db = getDB();
-        $stmt = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ?");
+        if (!$loadedAll) {
+            $loadedAll = true;
+            try {
+                $stmt = $db->query('SELECT setting_key, setting_value FROM site_settings');
+                if ($stmt) {
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        $k = (string)($row['setting_key'] ?? '');
+                        if ($k === '' || array_key_exists($k, $__cache)) {
+                            continue;
+                        }
+                        $__cache[$k] = $row['setting_value'];
+                    }
+                }
+            } catch (Exception $e) {
+                /* fall through to single-key lookup */
+            }
+            if (array_key_exists($key, $__cache)) {
+                return $__cache[$key] !== null ? $__cache[$key] : $default;
+            }
+            /* After full load, missing keys are known-absent — avoid extra SELECTs */
+            $__cache[$key] = null;
+            return $default;
+        }
+        $stmt = $db->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ?');
         $stmt->execute([$key]);
         $result = $stmt->fetch();
         $__cache[$key] = $result ? $result['setting_value'] : null;

@@ -85,6 +85,7 @@ function clearCache($key) {
  */
 function clearHomepageCache(): void {
     clearCache('homepage_data');
+    clearCache('homepage_data_v2');
 }
 
 /**

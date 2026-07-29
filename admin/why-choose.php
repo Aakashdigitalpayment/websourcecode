@@ -5,6 +5,7 @@
  */
 $pageTitle = 'किन हामीलाई छान्ने?';
 require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 $db = getDB();
@@ -63,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'स्थिति परिवर्तन भयो।');
         }
     } catch (Exception $e) { setFlash('error', 'त्रुटि भयो: ' . $e->getMessage()); }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('why-choose.php');
 }
 

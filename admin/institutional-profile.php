@@ -16,6 +16,7 @@
 /* ─── 1. Config + session + DB ─── */
 define('IS_ADMIN_PAGE', true);
 require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 requireAdminLogin();
 
 $db      = getDB();
@@ -193,6 +194,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             header('Location: ' . $redirect);
             exit;
         }
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
         header('Location: ' . $selfUrl);
         exit;
     }
@@ -204,6 +206,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("UPDATE institutional_profile SET is_active = 1 - is_active WHERE id = ?")
                ->execute([$id]);
             $_SESSION['flash_success'] = 'स्थिति परिवर्तन भयो।';
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
             $_SESSION['flash_error'] = 'त्रुटि: ' . $e->getMessage();
         }
@@ -217,6 +220,7 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db->prepare("DELETE FROM institutional_profile WHERE id = ?")->execute([$id]);
             $_SESSION['flash_success'] = 'रेकर्ड हटाइयो।';
+            if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
             $_SESSION['flash_error'] = 'त्रुटि: ' . $e->getMessage();
         }

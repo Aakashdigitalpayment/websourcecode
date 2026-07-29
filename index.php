@@ -7,11 +7,27 @@ ensurePublicTables();
 $pageTitle = isEnglish() ? 'Home' : 'गृहपृष्ठ';
 
 // Homepage data BEFORE header so first slider can be preloaded (LCP)
-$homepageData = getCachedData('homepage_data', 900, function() {
-    $data = [];
+$homepageData = getCachedData('homepage_data_v2', 900, function() {
+    $data = [
+        'sliders' => [], 'services' => [], 'notices' => [],
+        'savingRates' => [], 'loanRates' => [], 'latestNews' => [],
+        'totalServices' => 0,
+        'memberSpotlight' => null,
+        'latestMonthlyReport' => null,
+        'latestAnnualReport' => null,
+        'latestInstitutionalProfile' => null,
+        'whyFeatures' => [],
+        'informationOfficer' => null,
+        'grievanceOfficer' => null,
+        'chairmanMember' => null,
+        'ceoMember' => null,
+        'appFeatures' => [],
+        'awards' => [],
+        'totalAwards' => 0,
+    ];
     try {
         $db = getDB();
-        $data['sliders'] = $db->query("SELECT * FROM sliders WHERE is_active = 1 ORDER BY display_order, id")->fetchAll();
+        $data['sliders'] = $db->query("SELECT * FROM sliders WHERE is_active = 1 ORDER BY display_order, id LIMIT 12")->fetchAll();
         /* Homepage मा सिर्फ ३ सेवाहरू देखाउने — बाँकी services.php मा */
         $data['services'] = $db->query("SELECT * FROM services WHERE is_active = 1 ORDER BY display_order LIMIT 3")->fetchAll();
         $totalServicesRow = $db->query("SELECT COUNT(*) as cnt FROM services WHERE is_active = 1")->fetch();
@@ -19,15 +35,86 @@ $homepageData = getCachedData('homepage_data', 900, function() {
         $data['notices'] = $db->query("SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 5")->fetchAll();
         $data['savingRates'] = $db->query("SELECT * FROM interest_rates WHERE category = 'saving' AND is_active = 1 ORDER BY display_order LIMIT 5")->fetchAll();
         $data['loanRates'] = $db->query("SELECT * FROM interest_rates WHERE category = 'loan' AND is_active = 1 ORDER BY display_order LIMIT 5")->fetchAll();
-        // Get latest 3 news
         $data['latestNews'] = $db->query("SELECT * FROM news WHERE is_active = 1 ORDER BY created_at DESC LIMIT 3")->fetchAll();
+
+        try {
+            $spotlightStmt = $db->prepare(
+                "SELECT * FROM member_of_year WHERE spotlight_year = ? AND is_active = 1 LIMIT 1"
+            );
+            $spotlightStmt->execute([date('Y')]);
+            $data['memberSpotlight'] = $spotlightStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (Throwable $e) {
+            $data['memberSpotlight'] = null;
+        }
+
+        if (!function_exists('dbTableExists') || dbTableExists('reports')) {
+            try {
+                $monthlyStmt = $db->query("SELECT * FROM reports WHERE is_active = 1 AND report_type = 'monthly' ORDER BY report_year DESC, created_at DESC LIMIT 1");
+                if ($monthlyStmt) {
+                    $data['latestMonthlyReport'] = $monthlyStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+                $annualStmt = $db->query("SELECT * FROM reports WHERE is_active = 1 AND report_type = 'annual' ORDER BY report_year DESC, created_at DESC LIMIT 1");
+                if ($annualStmt) {
+                    $data['latestAnnualReport'] = $annualStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+            } catch (Throwable $e) { /* optional */ }
+        }
+
+        require_once __DIR__ . '/includes/institutional-profile-helpers.php';
+        $data['latestInstitutionalProfile'] = coopIpFetchLatestProfile($db);
+
+        try {
+            $data['whyFeatures'] = $db->query("SELECT * FROM why_choose_features WHERE is_active=1 ORDER BY sort_order, id LIMIT 24")->fetchAll() ?: [];
+        } catch (Throwable $e) {
+            $data['whyFeatures'] = [];
+        }
+
+        try {
+            $leaders = $db->query(
+                "SELECT * FROM team_members WHERE is_active = 1 AND (
+                    is_information_officer = 1 OR is_grievance_officer = 1
+                    OR is_chairman = 1 OR is_ceo = 1
+                ) LIMIT 8"
+            )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            foreach ($leaders as $lm) {
+                if (!empty($lm['is_information_officer']) && empty($data['informationOfficer'])) {
+                    $data['informationOfficer'] = $lm;
+                }
+                if (!empty($lm['is_grievance_officer']) && empty($data['grievanceOfficer'])) {
+                    $data['grievanceOfficer'] = $lm;
+                }
+                if (!empty($lm['is_chairman']) && empty($data['chairmanMember'])) {
+                    $data['chairmanMember'] = $lm;
+                }
+                if (!empty($lm['is_ceo']) && empty($data['ceoMember'])) {
+                    $data['ceoMember'] = $lm;
+                }
+            }
+        } catch (Throwable $e) {
+            /* older schema without chairman/ceo flags — try officer-only */
+            try {
+                $data['informationOfficer'] = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch(PDO::FETCH_ASSOC) ?: null;
+                $data['grievanceOfficer'] = $db->query("SELECT * FROM team_members WHERE is_grievance_officer = 1 AND is_active = 1 LIMIT 1")->fetch(PDO::FETCH_ASSOC) ?: null;
+            } catch (Throwable $e2) { /* ignore */ }
+        }
+
+        try {
+            $data['appFeatures'] = $db->query("SELECT * FROM app_features WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 24")->fetchAll() ?: [];
+        } catch (Throwable $e) {
+            $data['appFeatures'] = [];
+        }
+
+        try {
+            $data['awards'] = $db->query("SELECT * FROM awards WHERE is_active = 1 ORDER BY display_order ASC, award_date DESC LIMIT 3")->fetchAll() ?: [];
+            $totalAwardsStmt = $db->query("SELECT COUNT(*) as total FROM awards WHERE is_active = 1");
+            $data['totalAwards'] = (int)(($totalAwardsStmt->fetch()['total'] ?? 0));
+        } catch (Throwable $e) {
+            $data['awards'] = [];
+            $data['totalAwards'] = 0;
+        }
         // NOTE: PDO object लाई cache मा नराख्ने — json_encode ले serialize गर्न सक्दैन
     } catch (Throwable $e) {
-        $data = [
-            'sliders' => [], 'services' => [], 'notices' => [], 
-            'savingRates' => [], 'loanRates' => [], 'latestNews' => [],
-            'totalServices' => 0,
-        ];
+        /* keep defaults */
     }
     return $data;
 });
@@ -40,6 +127,19 @@ $savingRates = $homepageData['savingRates'] ?? [];
 $loanRates = $homepageData['loanRates'] ?? [];
 $latestNews = $homepageData['latestNews'] ?? [];
 $totalServices = $homepageData['totalServices'] ?? 0;
+$memberSpotlight = $homepageData['memberSpotlight'] ?? null;
+$latestMonthlyReport = $homepageData['latestMonthlyReport'] ?? null;
+$latestAnnualReport = $homepageData['latestAnnualReport'] ?? null;
+$latestInstitutionalProfile = $homepageData['latestInstitutionalProfile'] ?? null;
+$hasInstitutionalProfile = (bool)$latestInstitutionalProfile;
+$whyFeaturesCached = $homepageData['whyFeatures'] ?? [];
+$informationOfficer = $homepageData['informationOfficer'] ?? null;
+$grievanceOfficer = $homepageData['grievanceOfficer'] ?? null;
+$chairmanMember = $homepageData['chairmanMember'] ?? null;
+$ceoMember = $homepageData['ceoMember'] ?? null;
+$appFeaturesCached = $homepageData['appFeatures'] ?? [];
+$awards = $homepageData['awards'] ?? [];
+$totalAwards = (int)($homepageData['totalAwards'] ?? 0);
 
 /* First hero image — preload in <head> for faster LCP */
 $__preloadLcpImage = '';
@@ -58,27 +158,11 @@ require_once __DIR__ . '/includes/header.php';
 ?>
 <?php
 
-/* Member of the Year — current year को active record ल्याउनुहोस्
-   Admin: admin/member-of-year.php बाट manage गरिन्छ */
-$memberSpotlight = null;
+/* Member spotlight + reports already loaded via homepage_data cache */
 try {
     $db = getDB();
 } catch (Throwable $e) {
     $db = null;
-}
-if ($db instanceof PDO) {
-    try {
-        $spotlightStmt = $db->prepare(
-            "SELECT * FROM member_of_year
-             WHERE spotlight_year = ? AND is_active = 1
-             LIMIT 1"
-        );
-        $spotlightStmt->execute([date('Y')]); /* current year — YYYY */
-        $memberSpotlight = $spotlightStmt->fetch() ?: null;
-    } catch (Throwable $e) {
-        /* Table छैन वा error — section hide हुन्छ */
-        $memberSpotlight = null;
-    }
 }
 
 $heroTitle = getSetting('hero_title', 'तपाईंको भविष्यको लागि बचत गर्नुहोस्');
@@ -168,38 +252,6 @@ $L = getLangStrings();
 <!-- Institutional Profile / Reports Section -->
 <?php
 require_once __DIR__ . '/includes/institutional-profile-helpers.php';
-// Get latest reports and institutional profile - with safe table checks
-$latestMonthlyReport = null;
-$latestAnnualReport = null;
-$hasInstitutionalProfile = false;
-$latestInstitutionalProfile = null;
-if ($db instanceof PDO) {
-    try {
-        // Check if reports table exists
-        $reportsCheck = $db->query("SHOW TABLES LIKE 'reports'");
-        if ($reportsCheck && $reportsCheck->fetch() !== false) {
-            $monthlyStmt = $db->query("SELECT * FROM reports WHERE is_active = 1 AND report_type = 'monthly' ORDER BY report_year DESC, created_at DESC LIMIT 1");
-            if ($monthlyStmt) {
-                $latestMonthlyReport = $monthlyStmt->fetch();
-            }
-
-            $annualStmt = $db->query("SELECT * FROM reports WHERE is_active = 1 AND report_type = 'annual' ORDER BY report_year DESC, created_at DESC LIMIT 1");
-            if ($annualStmt) {
-                $latestAnnualReport = $annualStmt->fetch();
-            }
-        }
-
-        // Institutional profile availability (badge like monthly/annual)
-        $latestInstitutionalProfile = coopIpFetchLatestProfile($db);
-        $hasInstitutionalProfile = (bool)$latestInstitutionalProfile;
-
-    } catch (Throwable $e) {
-        // Tables may not exist - use defaults
-        $latestMonthlyReport = $latestAnnualReport = null;
-        $hasInstitutionalProfile = false;
-        $latestInstitutionalProfile = null;
-    }
-}
 $ipSnapMonth = $latestInstitutionalProfile ? coopIpMonthLabel((int)($latestInstitutionalProfile['_month'] ?? 0), isEnglish()) : '';
 $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProfile['fiscal_year'] ?? '')) : '';
 ?>
@@ -574,15 +626,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
 
 <!-- Why Choose Us Section — DB-driven -->
 <?php
-$whyFeatures = [];
-if ($db instanceof PDO) {
-    try {
-        $whyFeatures = $db->query("SELECT * FROM why_choose_features WHERE is_active=1 ORDER BY sort_order, id")->fetchAll();
-    } catch (Throwable $e) {
-        $whyFeatures = [];
-    }
-}
-
+$whyFeatures = $whyFeaturesCached;
 /* Fallback defaults if table missing or empty */
 if (empty($whyFeatures)) {
     $whyFeatures = [
@@ -629,20 +673,6 @@ $ceoName          = '';
 $ceoPhoto         = '';
 $ceoDesignationNp = trim((string)getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
 $ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executive Officer'));
-
-$informationOfficer = $grievanceOfficer = $chairmanMember = $ceoMember = null;
-if ($db instanceof PDO) {
-    try {
-        $informationOfficer = $db->query("SELECT * FROM team_members WHERE is_information_officer = 1 AND is_active = 1 LIMIT 1")->fetch();
-        $grievanceOfficer   = $db->query("SELECT * FROM team_members WHERE is_grievance_officer  = 1 AND is_active = 1 LIMIT 1")->fetch();
-        try {
-            $chairmanMember = $db->query("SELECT * FROM team_members WHERE is_chairman = 1 AND is_active = 1 LIMIT 1")->fetch();
-            $ceoMember      = $db->query("SELECT * FROM team_members WHERE is_ceo      = 1 AND is_active = 1 LIMIT 1")->fetch();
-        } catch (Throwable $e) { /* column not yet migrated — silently skip */ }
-    } catch (Throwable $e) {
-        $informationOfficer = $grievanceOfficer = null;
-    }
-}
 
 // Get chairman message: settings first, fallback to team member position
 $chairmanMessage = $chairmanMessageSetting;
@@ -849,15 +879,8 @@ if ($ceoMember) {
 
 <!-- Mobile App Features Section -->
 <?php
-// Get app features from database or use defaults
-$appFeatures = [];
-if ($db instanceof PDO) {
-    try {
-        $appFeatures = $db->query("SELECT * FROM app_features WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 24")->fetchAll();
-    } catch (Throwable $e) {
-        $appFeatures = [];
-    }
-}
+// Get app features from cache or use defaults
+$appFeatures = $appFeaturesCached;
 // Default features if database table doesn't exist
 if (empty($appFeatures)) {
     $appFeatures = [
@@ -984,21 +1007,7 @@ if (empty($appFeatures)) {
 
 <!-- Awards Section -->
 <?php
-// Get awards from database (limit to 3 on homepage)
-$awards = [];
-$totalAwards = 0;
-if ($db instanceof PDO) {
-    try {
-        $awardsStmt = $db->query("SELECT * FROM awards WHERE is_active = 1 ORDER BY display_order ASC, award_date DESC LIMIT 3");
-        $awards = $awardsStmt->fetchAll();
-        // Check total count for "View All" link
-        $totalAwardsStmt = $db->query("SELECT COUNT(*) as total FROM awards WHERE is_active = 1");
-        $totalAwards = $totalAwardsStmt->fetch()['total'] ?? 0;
-    } catch (Throwable $e) {
-        $awards = [];
-        $totalAwards = 0;
-    }
-}
+// Awards already loaded via homepage_data cache
 ?>
 <?php if (!empty($awards)): ?>
 <section class="awards-section section-padding bg-light">

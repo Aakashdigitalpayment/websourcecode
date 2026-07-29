@@ -202,6 +202,9 @@ if ($statusFilter !== '' && !in_array($statusFilter, $grievanceListStatuses, tru
     $statusFilter = '';
 }
 $search       = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+$page         = max(1, (int)($_GET['page'] ?? 1));
+$limit        = 25;
+$offset       = ($page - 1) * $limit;
 $where        = '1=1';
 $params       = [];
 if ($statusFilter) { $where .= ' AND status = ?'; $params[] = $statusFilter; }
@@ -210,11 +213,17 @@ if ($search !== '') {
     $t = "%$search%";
     $params = array_merge($params, [$t,$t,$t,$t,$t]);
 }
+$filteredTotal = 0;
 try {
-    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC");
-    $stmt->execute($params);
+    $cnt = $db->prepare("SELECT COUNT(*) FROM grievances WHERE $where");
+    $cnt->execute($params);
+    $filteredTotal = (int)$cnt->fetchColumn();
+    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
+    $stmt->execute(array_merge($params, [$limit, $offset]));
     $grievances = $stmt->fetchAll();
-} catch (Exception $e) { $grievances = []; }
+} catch (Exception $e) { $grievances = []; $filteredTotal = 0; }
+$totalPages = max(1, (int)ceil($filteredTotal / $limit));
+if ($page > $totalPages) { $page = $totalPages; }
 
 /* ── Counts ── */
 $counts = ['pending'=>0,'in_progress'=>0,'resolved'=>0,'closed'=>0];
@@ -642,6 +651,36 @@ if ($viewGrv):
             </tbody>
         </table>
     </div>
+    <?php if ($totalPages > 1): ?>
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3 px-1">
+        <div class="text-muted small">
+            <?php echo $__t('जम्मा', 'Total'); ?> <?php echo (int)$filteredTotal; ?>
+            · <?php echo min($offset + 1, max(0, $filteredTotal)); ?>–<?php echo min($offset + count($grievances), $filteredTotal); ?>
+        </div>
+        <nav aria-label="Grievance pages">
+            <ul class="pagination pagination-sm mb-0">
+                <?php
+                $qBase = array_filter([
+                    'status' => $statusFilter !== '' ? $statusFilter : null,
+                    'search' => $search !== '' ? $search : null,
+                ], static fn($v) => $v !== null && $v !== '');
+                for ($p = 1; $p <= $totalPages; $p++):
+                    if ($totalPages > 9 && abs($p - $page) > 2 && $p !== 1 && $p !== $totalPages) {
+                        if ($p === 2 || $p === $totalPages - 1) {
+                            echo '<li class="page-item disabled"><span class="page-link">…</span></li>';
+                        }
+                        continue;
+                    }
+                    $q = http_build_query(array_merge($qBase, ['page' => $p]));
+                ?>
+                <li class="page-item <?php echo $p === $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="?<?php echo htmlspecialchars($q); ?>"><?php echo $p; ?></a>
+                </li>
+                <?php endfor; ?>
+            </ul>
+        </nav>
+    </div>
+    <?php endif; ?>
 </div>
 
 <?php endif; ?>

@@ -18,6 +18,7 @@ $errors = [];
 
 require_once __DIR__ . '/../includes/ensure-tables.php';
 require_once __DIR__ . '/../includes/member-of-year-tables.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 ensurePublicTables();
 ensureMemberOfYearTable($db);
 
@@ -75,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        ->execute([$spotlightYear, $memberName, $memberNameEn, $memberId, $photoPath, $photoPath, $memberSince, $quote, $quoteEn, $achievement, $achievementEn, $isActive, $id]);
                     setFlash('success', 'Record अपडेट भयो।');
                 }
+                if (function_exists('clearHomepageCache')) clearHomepageCache();
                 redirect('member-of-year.php');
             } catch (Exception $e) { $errors[] = 'Database error: ' . $e->getMessage(); }
         }
@@ -84,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id  = (int)($_POST['id'] ?? 0);
         $val = (int)($_POST['is_active'] ?? 0);
         if ($id) $db->prepare("UPDATE member_of_year SET is_active=? WHERE id=?")->execute([$val, $id]);
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
         setFlash('success', $val ? 'Homepage मा देखाइयो।' : 'Homepage बाट हटाइयो।');
         redirect('member-of-year.php');
     }
@@ -97,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($rec && $rec['photo'] && file_exists(ROOT_PATH . $rec['photo'])) @unlink(ROOT_PATH . $rec['photo']);
             $db->prepare("DELETE FROM member_of_year WHERE id=?")->execute([$id]);
         }
+        if (function_exists('clearHomepageCache')) clearHomepageCache();
         setFlash('success', 'Record हटाइयो।');
         redirect('member-of-year.php');
     }
