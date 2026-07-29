@@ -459,7 +459,7 @@ function seo_canonical_url(): string
     $canon = $path === '/' ? $base . '/' : $base . $path;
 
     $keep = [];
-    $allowed = ['id', 'slug', 'menu', 'type', 'category', 'tab', 'page', 'cat'];
+    $allowed = ['id', 'slug', 'menu', 'item', 'type', 'category', 'tab', 'page', 'cat', 'cmt', 'tenure'];
     foreach ($allowed as $key) {
         if (!isset($_GET[$key])) {
             continue;
@@ -472,8 +472,12 @@ function seo_canonical_url(): string
         if ($val === '' || strlen($val) > 120) {
             continue;
         }
-        if ($key === 'id' || $key === 'page') {
+        if ($key === 'id' || $key === 'page' || $key === 'cmt' || $key === 'tenure') {
             if (!ctype_digit($val) || (int) $val <= 0) {
+                continue;
+            }
+            /* page=1 is noise on list URLs */
+            if ($key === 'page' && (int) $val === 1) {
                 continue;
             }
             $keep[$key] = (string) (int) $val;

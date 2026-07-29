@@ -43,9 +43,9 @@ try {
     $notices = $stmt->fetchAll() ?: [];
 } catch (Throwable $e) {
     $notices = [];
-    $singleNotice = null;
     $totalNotices = 0;
     $totalPages = 1;
+    /* Keep $singleNotice if already loaded — list query failure must not wipe detail view */
 }
 
 if ($singleNotice) {
@@ -95,7 +95,6 @@ require_once 'includes/header.php';
     <div class="container">
         <?php if ($singleNotice): ?>
         <p class="mb-1 small opacity-75"><?php echo $L['notices']; ?></p>
-        <h1 class="h3 mb-0"><?php echo e($singleNotice['title']); ?></h1>
         <?php else: ?>
         <h1><?php echo $L['notices']; ?></h1>
         <?php endif; ?>
@@ -137,6 +136,7 @@ require_once 'includes/header.php';
                             <i class="fas fa-calendar-alt"></i>
                             <?php echo formatDate($singleNotice['notice_date'], 'Y-m-d'); ?>
                         </span>
+                        <h1><?php echo e($singleNotice['title']); ?></h1>
                     </div>
                     <div class="notice-content coop-prose">
                         <?php echo $singleNotice['content']; ?>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_bootstrap.php';
 $pageTitle = isEnglish() ? 'Interest Rates' : 'ब्याज दर';
 $pageDescription = isEnglish()
     ? 'Current savings and loan interest rates published by our cooperative.'
