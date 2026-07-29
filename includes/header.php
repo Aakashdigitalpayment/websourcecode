@@ -219,26 +219,37 @@ $__navGrpIcons    = [];
 try {
     if ($db) {
         if (function_exists('ensureServiceProductsTables')) { ensureServiceProductsTables($db); }
-        try {
-            // Join with service_categories for dynamic mega-menu grouping
-            $svcRows = $db->query("
-                SELECT s.id, s.title, s.title_en, s.title_np, s.icon,
-                       s.service_category_id,
-                       sc.id        AS cat_id,
-                       sc.name      AS cat_name,
-                       sc.name_en   AS cat_name_en,
-                       sc.name_np   AS cat_name_np,
-                       sc.icon      AS cat_icon,
-                       sc.display_order AS cat_order
-                FROM services s
-                LEFT JOIN service_categories sc ON sc.id = s.service_category_id AND sc.is_active = 1
-                WHERE s.is_active = 1
-                ORDER BY sc.display_order, sc.id, s.display_order, s.id
-                LIMIT 60
-            ")->fetchAll();
-        } catch (Throwable $e2) {
-            // Fallback: columns not migrated yet
-            $svcRows = $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll();
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
+        }
+        /* Cache raw rows only — title language still resolved per-request below */
+        $svcRows = getCachedData('nav_services_v1', 90, function () use ($db) {
+            try {
+                return $db->query("
+                    SELECT s.id, s.title, s.title_en, s.title_np, s.icon,
+                           s.service_category_id,
+                           sc.id        AS cat_id,
+                           sc.name      AS cat_name,
+                           sc.name_en   AS cat_name_en,
+                           sc.name_np   AS cat_name_np,
+                           sc.icon      AS cat_icon,
+                           sc.display_order AS cat_order
+                    FROM services s
+                    LEFT JOIN service_categories sc ON sc.id = s.service_category_id AND sc.is_active = 1
+                    WHERE s.is_active = 1
+                    ORDER BY sc.display_order, sc.id, s.display_order, s.id
+                    LIMIT 60
+                ")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e2) {
+                try {
+                    return $db->query("SELECT id, title, title_en, title_np, icon FROM services WHERE is_active = 1 ORDER BY display_order, id LIMIT 40")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                } catch (Throwable $e3) {
+                    return [];
+                }
+            }
+        });
+        if (!is_array($svcRows)) {
+            $svcRows = [];
         }
         $serviceAnchorId = static function (array $service): string {
             $id = (int)($service['id'] ?? 0);
