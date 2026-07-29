@@ -176,12 +176,33 @@ try {
     if ($db) {
         ensureTeamStaffGroupsTable($db);
         ensureTeamMenuCategoriesTable($db);
-        foreach (fetchTeamStaffGroups($db, true) as $_sg) {
-            if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
-                $navStaffGroups[] = $_sg;
-            }
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
         }
-        $navTeamMenuCategories = fetchTeamMenuCategories($db, true);
+        $__teamNav = getCachedData('nav_team_menu_v1', 90, function () use ($db) {
+            $staff = [];
+            try {
+                foreach (fetchTeamStaffGroups($db, true) as $_sg) {
+                    if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
+                        $staff[] = $_sg;
+                    }
+                }
+            } catch (Throwable $e) {
+                $staff = [];
+            }
+            $cats = [];
+            try {
+                $cats = fetchTeamMenuCategories($db, true) ?: [];
+            } catch (Throwable $e) {
+                $cats = [];
+            }
+            return ['staff' => $staff, 'cats' => $cats];
+        });
+        if (!is_array($__teamNav)) {
+            $__teamNav = [];
+        }
+        $navStaffGroups = is_array($__teamNav['staff'] ?? null) ? $__teamNav['staff'] : [];
+        $navTeamMenuCategories = is_array($__teamNav['cats'] ?? null) ? $__teamNav['cats'] : [];
     }
 } catch (Throwable $e) {
     $navStaffGroups = [];
