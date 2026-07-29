@@ -20,12 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
     $title    = clean_text($_POST['title']      ?? '');
     $title_np = clean_text($_POST['title_np']   ?? $title);
     $category = clean_text($_POST['category']   ?? 'general');
+    $albumIn  = clean_text($_POST['album']      ?? '');
     $mediaType = clean_text($_POST['media_type'] ?? 'photo');
     $videoUrl  = clean_text($_POST['video_url'] ?? '');
     $isActive  = isset($_POST['is_active']) ? 1 : 0;
 
     try {
-        /* media_type column check */
+        /* media_type / album column checks */
         $hasMediaType = function_exists('dbColumnExists')
             ? dbColumnExists('gallery', 'media_type')
             : false;
@@ -33,6 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
             try {
                 $chk = $db->query("SHOW COLUMNS FROM gallery LIKE 'media_type'");
                 $hasMediaType = $chk && $chk->fetch() !== false;
+            } catch (Throwable $e) { error_log("[gallery.php] " . $e->getMessage()); }
+        }
+        $hasAlbumCol = function_exists('dbColumnExists')
+            ? dbColumnExists('gallery', 'album')
+            : false;
+        if (!$hasAlbumCol && !function_exists('dbColumnExists')) {
+            try {
+                $chkA = $db->query("SHOW COLUMNS FROM gallery LIKE 'album'");
+                $hasAlbumCol = $chkA && $chkA->fetch() !== false;
             } catch (Throwable $e) { error_log("[gallery.php] " . $e->getMessage()); }
         }
 
@@ -57,15 +67,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'delete') {
         if (isset($_FILES['images']) && $_FILES['images']['error'][0] !== UPLOAD_ERR_NO_FILE) {
             $files = $_FILES['images'];
             $count = 0;
+            /* Empty album → use title (shared across multi-upload = one album) */
+            $albumName = $albumIn !== '' ? $albumIn : ($title_np !== '' ? $title_np : ($title !== '' ? $title : ''));
             for ($i = 0; $i < count($files['name']); $i++) {
                 if ($files['error'][$i] === UPLOAD_ERR_OK) {
                     $file = ['name'=>$files['name'][$i],'type'=>$files['type'][$i],'tmp_name'=>$files['tmp_name'][$i],'error'=>$files['error'][$i],'size'=>$files['size'][$i]];
                     $up = uploadFile($file, 'gallery');
                     if ($up['success']) {
                         $t = $title ?: ('Gallery ' . ($i + 1));
-                        if ($hasMediaType) {
+                        $rowAlbum = $albumName !== '' ? $albumName : $t;
+                        if ($hasMediaType && $hasAlbumCol) {
+                            $db->prepare("INSERT INTO gallery (title, title_np, image, media_type, category, album, is_active) VALUES (?,?,?,'photo',?,?,?)")
+                               ->execute([$t, $title_np !== '' ? $title_np : $t, $up['path'], $category, $rowAlbum, $isActive]);
+                        } elseif ($hasMediaType) {
                             $db->prepare("INSERT INTO gallery (title, title_np, image, media_type, category, is_active) VALUES (?,?,?,'photo',?,?)")
-                               ->execute([$t, $title_np, $up['path'], $category, $isActive]);
+                               ->execute([$t, $title_np !== '' ? $title_np : $t, $up['path'], $category, $isActive]);
+                        } elseif ($hasAlbumCol) {
+                            $db->prepare("INSERT INTO gallery (title, image, category, album, is_active) VALUES (?,?,?,?,?)")
+                               ->execute([$t, $up['path'], $category, $rowAlbum, $isActive]);
                         } else {
                             $db->prepare("INSERT INTO gallery (title, image, category, is_active) VALUES (?,?,?,?)")
                                ->execute([$t, $up['path'], $category, $isActive]);
@@ -102,6 +121,30 @@ if ($action === 'delete' && $id) {
 try { $images = $db->query("SELECT * FROM gallery ORDER BY id DESC LIMIT 500")->fetchAll(); }
 catch (Exception $e) { $images = []; }
 
+$existingAlbums = [];
+try {
+    $hasAlbumColList = function_exists('dbColumnExists') ? dbColumnExists('gallery', 'album') : false;
+    if ($hasAlbumColList) {
+        $existingAlbums = $db->query(
+            "SELECT DISTINCT TRIM(album) AS a FROM gallery
+             WHERE album IS NOT NULL AND TRIM(album) <> ''
+             ORDER BY a ASC LIMIT 100"
+        )->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    }
+    if ($existingAlbums === []) {
+        /* Seed datalist from titles used as album fallback */
+        $existingAlbums = $db->query(
+            "SELECT DISTINCT COALESCE(NULLIF(TRIM(title_np), ''), NULLIF(TRIM(title), '')) AS a
+             FROM gallery
+             WHERE (media_type = 'photo' OR media_type IS NULL OR media_type = '')
+               AND COALESCE(NULLIF(TRIM(title_np), ''), NULLIF(TRIM(title), '')) IS NOT NULL
+             ORDER BY a ASC LIMIT 100"
+        )->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    }
+} catch (Exception $e) {
+    $existingAlbums = [];
+}
+
 $flash = getFlash();
 ?>
 
@@ -112,7 +155,7 @@ $flash = getFlash();
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($images) . ' तस्बिरहरू</span>'
 );
 ?>
-<?php echo adminHelpTip('यो पृष्ठबाट Photo Gallery मा तस्बिरहरू थप्न र हटाउन सकिन्छ।', ['Photo थप्न: "Photo Upload" form मा file छान्नुहोस्।', 'Multiple photos: एकैपटक धेरै photos छान्न सकिन्छ।', 'Photo हटाउन: तस्बिरको Delete बटन थिच्नुहोस्।']); ?>
+<?php echo adminHelpTip('यो पृष्ठबाट Photo Gallery मा तस्बिरहरू थप्न र हटाउन सकिन्छ।', ['Photo थप्न: "Photo Upload" form मा file छान्नुहोस्।', 'एल्बम: एउटै कार्यक्रमका फोटोहरू एउटै Album नाममा राख्नुहोस्।', 'Multiple photos: एकैपटक धेरै photos छान्न सकिन्छ।', 'Photo हटाउन: तस्बिरको Delete बटन थिच्नुहोस्।']); ?>
 
 <?php if ($flash && $flash['type'] === 'success'): ?>
 <div class="alert alert-success alert-dismissible fade show mb-3"><i class="fas fa-check-circle me-2"></i><?php echo $flash['message']; ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -138,7 +181,7 @@ $flash = getFlash();
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3">
                 <div class="input-group input-group-sm gal-search-group">
                     <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control border-start-0 admin-gallery-search" placeholder="शीर्षक वा वर्गले खोज्नुहोस्..." autocomplete="off">
+                    <input type="text" class="form-control border-start-0 admin-gallery-search" placeholder="शीर्षक, एल्बम वा वर्गले खोज्नुहोस्..." autocomplete="off">
                 </div>
             </div>
         <div class="card admin-table-card">
@@ -167,6 +210,16 @@ $flash = getFlash();
                             <?php endif; ?>
                             <div class="gallery-hover-overlay">
                                 <small class="text-white fw-semibold d-block mb-1"><?php echo htmlspecialchars(mb_substr($img['title'], 0, 20)); ?></small>
+                                <?php
+                                $albumLbl = trim((string)($img['album'] ?? ''));
+                                if ($albumLbl === '') {
+                                    $albumLbl = trim((string)($img['title_np'] ?? '')) ?: trim((string)($img['title'] ?? ''));
+                                }
+                                ?>
+                                <?php if ($albumLbl !== '' && !$isVideo): ?>
+                                <small class="text-white-50 d-block mb-1 gal-album-lbl"><i class="fas fa-folder me-1"></i><?php echo htmlspecialchars(mb_substr($albumLbl, 0, 24)); ?></small>
+                                <?php endif; ?>
+                                <span class="visually-hidden"><?php echo htmlspecialchars($albumLbl . ' ' . ($img['category'] ?? '')); ?></span>
                                 <div class="d-flex gap-1 justify-content-center">
                                     <a href="<?php echo htmlspecialchars($isVideo ? ($img['video_url'] ?? '#') : ('../' . $img['image'])); ?>"
                                        target="_blank" class="btn btn-sm btn-info" title="हेर्नुहोस्">
@@ -200,6 +253,17 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                     <input type="hidden" name="media_type" value="photo">
                     <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-success">एल्बम (Album)</label>
+                            <input type="text" name="album" class="form-control admin-fancy-input" list="gal-album-list"
+                                   placeholder="जस्तै: २५ औं साधारण सभा" autocomplete="off">
+                            <datalist id="gal-album-list">
+                                <?php foreach ($existingAlbums as $ea): ?>
+                                <option value="<?php echo htmlspecialchars((string)$ea); ?>">
+                                <?php endforeach; ?>
+                            </datalist>
+                            <small class="text-muted">खाली छोड्दा शीर्षक नै एल्बम बन्छ।</small>
+                        </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold text-success">शीर्षक (वैकल्पिक)</label>
                             <input type="text" name="title" class="form-control admin-fancy-input" placeholder="फोटोको शीर्षक">
