@@ -969,9 +969,9 @@ button.qh-item {
 }
 
 .team-org-cell {
-  flex: 0 0 220px;
-  width: 220px;
-  max-width: 240px;
+  flex: 0 1 280px;
+  width: 280px;
+  max-width: 280px;
   min-width: 0;
 }
 
@@ -989,8 +989,8 @@ button.qh-item {
 .team-section,
 .team-org-chart-wrap,
 .committees-section {
-  --team-uniform-photo: 132px;
-  --team-uniform-pad-y: 24px;
+  --team-uniform-photo: 140px;
+  --team-uniform-pad-y: 26px;
   --team-uniform-pad-x: 18px;
 }
 
@@ -1090,13 +1090,13 @@ button.qh-item {
   .team-section,
   .team-org-chart-wrap,
   .committees-section {
-    --team-uniform-photo: 120px;
+    --team-uniform-photo: 128px;
   }
 
   .team-org-cell {
-    flex: 0 0 200px;
-    width: 200px;
-    max-width: 220px;
+    flex: 0 1 250px;
+    width: 250px;
+    max-width: 250px;
   }
 }
 
@@ -1128,7 +1128,7 @@ button.qh-item {
 .team-section,
 .team-org-chart-wrap,
 .committees-section {
-  --team-card-min-h: 318px;
+  --team-card-min-h: 336px;
   --team-badge-min-h: 2.75em;
   --team-name-min-h: 2.9em;
   --team-contact-min-h: 52px;

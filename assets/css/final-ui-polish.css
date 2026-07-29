@@ -1259,3 +1259,175 @@ body.dark-mode .pagination .page-item.active .page-link {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   Team photo cards — board/samiti = management size (uniform)
+   Org-chart cells were ~220px while management col-lg-3 is ~280–320px.
+   Force one shared card/photo footprint everywhere.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-card-w: 280px;
+  --team-uniform-photo: 140px;
+  --team-uniform-pad-y: 26px;
+  --team-uniform-pad-x: 18px;
+  --team-card-min-h: 336px;
+  --team-badge-min-h: 2.75em;
+  --team-name-min-h: 2.9em;
+  --team-contact-min-h: 52px;
+}
+
+/* Org-chart cells (board / samiti) — same width as management cards */
+.team-org-cell {
+  flex: 0 1 var(--team-card-w) !important;
+  width: var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.team-org-row-inner {
+  gap: 1.25rem !important;
+  justify-content: center !important;
+}
+
+/* Management / committee Bootstrap cols — don't let cards grow past shared width */
+.team-section .row > [class*="col-"],
+.committees-section .row > [class*="col-"] {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .row > [class*="col-lg-3"],
+.team-section .row > [class*="col-md-4"],
+.committees-section .row > [class*="col-lg-3"],
+.committees-section .row > [class*="col-md-4"] {
+  flex: 0 1 var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  width: 100% !important;
+}
+
+.team-section .row > [class*="col-"] > .team-card-circular,
+.committees-section .row > [class*="col-"] > .team-card-circular,
+.team-org-cell > .team-card-circular {
+  width: 100% !important;
+  max-width: var(--team-card-w) !important;
+  min-height: var(--team-card-min-h) !important;
+  height: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* Same photo ring size for board, management, committees, featured, small */
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small,
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  transform: none !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+/* Featured = border accent only, same footprint */
+.team-section .team-card-circular.featured,
+.team-org-chart .team-card-circular.featured,
+.committees-section .team-card-circular.featured,
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  min-height: var(--team-card-min-h) !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  max-width: var(--team-card-w) !important;
+}
+
+.team-section .team-info-circular h5,
+.team-org-chart .team-info-circular h5,
+.committees-section .team-info-circular h5 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  min-height: var(--team-name-min-h) !important;
+}
+
+.team-section .team-position-badge,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge {
+  min-height: var(--team-badge-min-h) !important;
+  font-size: 0.78rem !important;
+}
+
+.team-section .team-contact-circular,
+.team-org-chart .team-contact-circular,
+.committees-section .team-contact-circular {
+  min-height: var(--team-contact-min-h) !important;
+  margin-top: auto !important;
+}
+
+@media (max-width: 991.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: 250px;
+    --team-uniform-photo: 128px;
+    --team-card-min-h: 320px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: min(100%, 280px);
+    --team-uniform-photo: 120px;
+    --team-uniform-pad-y: 22px;
+    --team-uniform-pad-x: 14px;
+    --team-card-min-h: 300px;
+  }
+
+  .team-org-cell,
+  .team-section .row > [class*="col-lg-3"],
+  .team-section .row > [class*="col-md-4"],
+  .team-section .row > [class*="col-sm-6"],
+  .committees-section .row > [class*="col-lg-3"],
+  .committees-section .row > [class*="col-md-4"],
+  .committees-section .row > [class*="col-sm-6"] {
+    flex: 0 1 var(--team-card-w) !important;
+    max-width: var(--team-card-w) !important;
+    width: 100% !important;
+  }
+}
+
