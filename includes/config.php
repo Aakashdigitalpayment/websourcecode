@@ -459,7 +459,7 @@ function seo_canonical_url(): string
     $canon = $path === '/' ? $base . '/' : $base . $path;
 
     $keep = [];
-    $allowed = ['id', 'slug', 'menu', 'item', 'type', 'category', 'tab', 'page', 'cat', 'cmt', 'tenure'];
+    $allowed = ['id', 'slug', 'menu', 'item', 'type', 'category', 'album', 'tab', 'page', 'cat', 'cmt', 'tenure'];
     foreach ($allowed as $key) {
         if (!isset($_GET[$key])) {
             continue;
@@ -469,7 +469,11 @@ function seo_canonical_url(): string
             continue;
         }
         $val = trim((string) $raw);
-        if ($val === '' || strlen($val) > 120) {
+        if ($val === '') {
+            continue;
+        }
+        $maxLen = ($key === 'album') ? 200 : 120;
+        if (strlen($val) > $maxLen) {
             continue;
         }
         if ($key === 'id' || $key === 'page' || $key === 'cmt' || $key === 'tenure') {
@@ -481,6 +485,14 @@ function seo_canonical_url(): string
                 continue;
             }
             $keep[$key] = (string) (int) $val;
+            continue;
+        }
+        /* Album names often include spaces / Nepali punctuation */
+        if ($key === 'album') {
+            if ($val !== 'all' && !preg_match('/^[\p{L}\p{N}\-_.\s]+$/u', $val)) {
+                continue;
+            }
+            $keep[$key] = $val;
             continue;
         }
         if (!preg_match('/^[\p{L}\p{N}\-_.]+$/u', $val)) {

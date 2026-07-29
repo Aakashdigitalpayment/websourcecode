@@ -436,6 +436,7 @@ function ensureAdminTables(): void {
             "ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT 'photo'",
             "ALTER TABLE gallery ADD COLUMN video_url VARCHAR(500) DEFAULT ''",
             "ALTER TABLE gallery ADD COLUMN thumbnail VARCHAR(255) DEFAULT ''",
+            "ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL",
         ] as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
         /* ── admin_users 2FA columns ── */

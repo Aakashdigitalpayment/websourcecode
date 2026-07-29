@@ -6,19 +6,32 @@ $pageDescription = isEnglish()
     : 'सहकारीका कार्यक्रम, बैठक र क्रियाकलापका फोटो तथा भिडियो ग्यालरी।';
 require_once 'includes/header.php';
 
-// Get filter from URL
 $activeTab = $_GET['type'] ?? 'photo';
 $activeCategory = $_GET['category'] ?? 'all';
+$albumParamRaw = isset($_GET['album']) ? trim((string)$_GET['album']) : null;
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 
-// Get gallery items - check if media_type column exists
 $photos = [];
 $videos = [];
 $categories = [];
-$photoTotal = 0;
+$albums = []; // [ ['key'=>..., 'count'=>..., 'cover'=>..., 'max_id'=>...], ... ]
+$photoTotal = 0;   // all photos (tab badge)
 $videoTotal = 0;
+$albumPhotoTotal = 0; // photos in current album (pagination)
 $photoPages = 1;
 $videoPages = 1;
+$activeAlbum = 'all'; // 'all' = cover grid; else album key
+$showAlbumCovers = false;
+$latestAlbumKey = '';
+$hasAlbumCol = false;
+$hasMediaType = false;
+
+$galleryAlbumKeyExpr = static function (bool $hasAlbum): string {
+    if ($hasAlbum) {
+        return "COALESCE(NULLIF(TRIM(album), ''), NULLIF(TRIM(title_np), ''), NULLIF(TRIM(title), ''), 'General')";
+    }
+    return "COALESCE(NULLIF(TRIM(title_np), ''), NULLIF(TRIM(title), ''), 'General')";
+};
 
 try {
     $db = getDB();
@@ -35,14 +48,36 @@ try {
         }
     }
 
+    $hasAlbumCol = function_exists('dbColumnExists')
+        ? dbColumnExists('gallery', 'album')
+        : false;
+    if (!$hasAlbumCol && !function_exists('dbColumnExists')) {
+        try {
+            $checkAlbum = $db->query("SHOW COLUMNS FROM gallery LIKE 'album'");
+            $hasAlbumCol = $checkAlbum && $checkAlbum->fetch() !== false;
+        } catch (Throwable $e) {
+            $hasAlbumCol = false;
+        }
+    }
+
     $photoLimit = 24;
     $videoLimit = 12;
+    $albumExpr = $galleryAlbumKeyExpr($hasAlbumCol);
+    $photoWhere = $hasMediaType
+        ? "is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)"
+        : 'is_active = 1';
+    $videoWhere = $hasMediaType
+        ? "is_active = 1 AND media_type = 'video'"
+        : 'is_active = 0'; // no videos without media_type
 
-    /* Categories first so we can validate filter before COUNT/SELECT */
-    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1 AND category IS NOT NULL AND category <> '' LIMIT 50")->fetchAll(PDO::FETCH_COLUMN) ?: [];
     if (!in_array($activeTab, ['photo', 'video'], true)) {
         $activeTab = 'photo';
     }
+
+    /* Categories — used for video filter only */
+    $categories = $db->query(
+        "SELECT DISTINCT category FROM gallery WHERE is_active = 1 AND category IS NOT NULL AND category <> '' LIMIT 50"
+    )->fetchAll(PDO::FETCH_COLUMN) ?: [];
     if ($activeCategory !== 'all' && !in_array($activeCategory, $categories, true)) {
         $activeCategory = 'all';
     }
@@ -54,67 +89,138 @@ try {
         $catParams[] = $activeCategory;
     }
 
-    if ($hasMediaType) {
-        $photoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)" . $catSql);
-        $photoCnt->execute($catParams);
-        $photoTotal = (int)$photoCnt->fetchColumn();
+    /* Album list (photos only) */
+    try {
+        $albumSql = "SELECT {$albumExpr} AS album_key,
+                            COUNT(*) AS photo_count,
+                            MAX(id) AS max_id,
+                            SUBSTRING_INDEX(GROUP_CONCAT(image ORDER BY id DESC SEPARATOR '||'), '||', 1) AS cover_image
+                     FROM gallery
+                     WHERE {$photoWhere}
+                     GROUP BY {$albumExpr}
+                     ORDER BY max_id DESC
+                     LIMIT 100";
+        $albums = $db->query($albumSql)->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+        $albums = [];
+    }
 
-        $videoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND media_type = 'video'" . $catSql);
+    $albumKeys = [];
+    foreach ($albums as &$aRow) {
+        $aRow['key'] = (string)($aRow['album_key'] ?? '');
+        $aRow['count'] = (int)($aRow['photo_count'] ?? 0);
+        $aRow['cover'] = (string)($aRow['cover_image'] ?? '');
+        $aRow['max_id'] = (int)($aRow['max_id'] ?? 0);
+        if ($aRow['key'] !== '') {
+            $albumKeys[] = $aRow['key'];
+        }
+    }
+    unset($aRow);
+
+    $latestAlbumKey = $albumKeys[0] ?? '';
+
+    /* Resolve active album for photo tab */
+    if ($albumParamRaw === null || $albumParamRaw === '') {
+        $activeAlbum = $latestAlbumKey !== '' ? $latestAlbumKey : 'all';
+    } elseif ($albumParamRaw === 'all') {
+        $activeAlbum = 'all';
+    } elseif (in_array($albumParamRaw, $albumKeys, true)) {
+        $activeAlbum = $albumParamRaw;
+    } else {
+        /* Unknown album → latest (safe) */
+        $activeAlbum = $latestAlbumKey !== '' ? $latestAlbumKey : 'all';
+    }
+    $showAlbumCovers = ($activeTab === 'photo' && $activeAlbum === 'all');
+
+    /* Tab totals */
+    if ($hasMediaType) {
+        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE {$photoWhere}")->fetchColumn();
+        $videoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE {$videoWhere}" . $catSql);
         $videoCnt->execute($catParams);
         $videoTotal = (int)$videoCnt->fetchColumn();
+    } else {
+        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1")->fetchColumn();
+        $videoTotal = 0;
+    }
+    $videoPages = max(1, (int)ceil($videoTotal / $videoLimit));
 
-        $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
-        $videoPages = max(1, (int)ceil($videoTotal / $videoLimit));
-
-        if ($activeTab === 'video') {
-            if ($page > $videoPages) $page = $videoPages;
-            $offset = ($page - 1) * $videoLimit;
-            $vStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video'" . $catSql . " ORDER BY id DESC LIMIT " . (int)$videoLimit . " OFFSET " . (int)$offset);
+    if ($activeTab === 'video') {
+        if ($page > $videoPages) {
+            $page = $videoPages;
+        }
+        $offset = ($page - 1) * $videoLimit;
+        if ($hasMediaType) {
+            $vStmt = $db->prepare(
+                "SELECT * FROM gallery WHERE {$videoWhere}" . $catSql
+                . ' ORDER BY id DESC LIMIT ' . (int)$videoLimit . ' OFFSET ' . (int)$offset
+            );
             $vStmt->execute($catParams);
             $videos = $vStmt->fetchAll() ?: [];
-        } else {
-            if ($page > $photoPages) $page = $photoPages;
-            $offset = ($page - 1) * $photoLimit;
-            $pStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)" . $catSql . " ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset);
-            $pStmt->execute($catParams);
-            $photos = $pStmt->fetchAll() ?: [];
         }
     } else {
-        $photoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1" . $catSql);
-        $photoCnt->execute($catParams);
-        $photoTotal = (int)$photoCnt->fetchColumn();
-        $videoTotal = 0;
-        $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
-        if ($page > $photoPages) $page = $photoPages;
-        $offset = ($page - 1) * $photoLimit;
-        $pStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1" . $catSql . " ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset);
-        $pStmt->execute($catParams);
-        $photos = $pStmt->fetchAll() ?: [];
-        $videos = [];
+        /* Photo tab */
+        if ($showAlbumCovers) {
+            $photos = [];
+            $albumPhotoTotal = 0;
+            $photoPages = 1;
+        } else {
+            $albumSqlFilter = " AND ({$albumExpr}) = ?";
+            $cntStmt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE {$photoWhere}" . $albumSqlFilter);
+            $cntStmt->execute([$activeAlbum]);
+            $albumPhotoTotal = (int)$cntStmt->fetchColumn();
+            $photoPages = max(1, (int)ceil($albumPhotoTotal / $photoLimit));
+            if ($page > $photoPages) {
+                $page = $photoPages;
+            }
+            $offset = ($page - 1) * $photoLimit;
+            $pStmt = $db->prepare(
+                "SELECT * FROM gallery WHERE {$photoWhere}" . $albumSqlFilter
+                . ' ORDER BY id DESC LIMIT ' . (int)$photoLimit . ' OFFSET ' . (int)$offset
+            );
+            $pStmt->execute([$activeAlbum]);
+            $photos = $pStmt->fetchAll() ?: [];
+        }
     }
 } catch (Throwable $e) {
     $photos = [];
     $videos = [];
     $categories = [];
+    $albums = [];
     $photoTotal = 0;
     $videoTotal = 0;
+    $albumPhotoTotal = 0;
     $photoPages = 1;
     $videoPages = 1;
+    $activeAlbum = 'all';
+    $showAlbumCovers = true;
 }
 
 if (!in_array($activeTab, ['photo', 'video'], true)) {
     $activeTab = 'photo';
 }
-if ($activeCategory !== 'all' && !in_array($activeCategory, $categories ?? [], true)) {
-    $activeCategory = 'all';
-}
 
 $L = getLangStrings();
-$galleryPageQs = static function (int $p, string $type, string $cat = 'all'): string {
-    $q = ['type' => $type, 'page' => $p];
-    if ($cat !== 'all') $q['category'] = $cat;
+$galleryPageQs = static function (int $p, string $type, string $albumOrCat = 'all', string $mode = 'album'): string {
+    $q = ['type' => $type];
+    if ($p > 1) {
+        $q['page'] = $p;
+    }
+    if ($mode === 'category') {
+        if ($albumOrCat !== 'all') {
+            $q['category'] = $albumOrCat;
+        }
+    } else {
+        /* Always include album for photo deep-links (incl. all covers) */
+        if ($type === 'photo') {
+            $q['album'] = $albumOrCat;
+        } elseif ($albumOrCat !== 'all') {
+            $q['category'] = $albumOrCat;
+        }
+    }
     return '?' . http_build_query($q);
 };
+
+$albumLabelFallback = isEnglish() ? 'General' : 'सामान्य';
 ?>
 <!-- Page Banner -->
 <section class="page-banner">
@@ -135,23 +241,39 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
         <!-- Photo/Video Tabs -->
         <div class="gallery-tabs-wrapper">
             <div class="gallery-tabs">
-                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', $activeCategory)); ?>" class="gallery-tab <?php echo $activeTab === 'photo' ? 'active' : ''; ?>">
+                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', $latestAlbumKey !== '' ? $latestAlbumKey : 'all')); ?>" class="gallery-tab <?php echo $activeTab === 'photo' ? 'active' : ''; ?>">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="images"></i>
                     <span><?php echo isEnglish() ? 'Photos' : 'फोटोहरू'; ?></span>
                     <span class="tab-count"><?php echo (int)$photoTotal; ?></span>
                 </a>
-                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'video', $activeCategory)); ?>" class="gallery-tab <?php echo $activeTab === 'video' ? 'active' : ''; ?>">
+                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'video', 'all', 'category')); ?>" class="gallery-tab <?php echo $activeTab === 'video' ? 'active' : ''; ?>">
                     <i class="fab fa-youtube"></i>
                     <span><?php echo isEnglish() ? 'Videos' : 'भिडियोहरू'; ?></span>
                     <span class="tab-count"><?php echo (int)$videoTotal; ?></span>
                 </a>
             </div>
 
-            <?php if (!empty($categories) && count($categories) > 1): ?>
-            <!-- Category Dropdown Filter -->
+            <?php if ($activeTab === 'photo' && !empty($albums)): ?>
+            <!-- Album Dropdown Filter -->
+            <div class="gallery-category-filter gallery-album-filter">
+                <label class="visually-hidden" for="albumFilter"><?php echo isEnglish() ? 'Album' : 'एल्बम'; ?></label>
+                <select id="albumFilter" class="form-select" onchange="window.location.href=this.value">
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', 'all')); ?>" <?php echo $activeAlbum === 'all' ? 'selected' : ''; ?>>
+                        <?php echo isEnglish() ? 'All albums' : 'सबै एल्बम'; ?>
+                    </option>
+                    <?php foreach ($albums as $alb): ?>
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', $alb['key'])); ?>" <?php echo $activeAlbum === $alb['key'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($alb['key'] !== '' ? $alb['key'] : $albumLabelFallback); ?>
+                        (<?php echo (int)$alb['count']; ?>)
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php elseif ($activeTab === 'video' && !empty($categories) && count($categories) > 1): ?>
+            <!-- Category filter (videos only) -->
             <div class="gallery-category-filter">
                 <select id="categoryFilter" class="form-select" onchange="window.location.href=this.value">
-                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, $activeTab, 'all')); ?>" <?php echo $activeCategory === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All Categories' : 'सबै वर्ग'; ?></option>
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, 'video', 'all', 'category')); ?>" <?php echo $activeCategory === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All Categories' : 'सबै वर्ग'; ?></option>
                     <?php foreach ($categories as $cat):
                         $catLabels = [
                             'general' => isEnglish() ? 'General' : 'सामान्य',
@@ -160,7 +282,7 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
                             'meetings' => isEnglish() ? 'Meetings' : 'बैठक'
                         ];
                     ?>
-                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, $activeTab, (string)$cat)); ?>" <?php echo $activeCategory === $cat ? 'selected' : ''; ?>>
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, 'video', (string)$cat, 'category')); ?>" <?php echo $activeCategory === $cat ? 'selected' : ''; ?>>
                         <?php echo htmlspecialchars($catLabels[$cat] ?? $cat); ?>
                     </option>
                     <?php endforeach; ?>
@@ -169,23 +291,40 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
             <?php endif; ?>
         </div>
 
+        <?php if ($activeTab === 'photo' && !$showAlbumCovers && $activeAlbum !== 'all'): ?>
+        <div class="gallery-album-heading">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-folder-open me-2 text-success" aria-hidden="true"></i>
+                <?php echo htmlspecialchars($activeAlbum !== '' ? $activeAlbum : $albumLabelFallback); ?>
+            </h2>
+            <a class="gallery-album-all-link" href="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', 'all')); ?>">
+                <?php echo isEnglish() ? 'All albums' : 'सबै एल्बम'; ?>
+            </a>
+        </div>
+        <?php endif; ?>
+
         <!-- Photos Tab Content -->
         <div class="gallery-content" id="photosContent" style="<?php echo $activeTab !== 'photo' ? 'display:none;' : ''; ?>">
-            <div class="row gallery-grid">
-                <?php if (!empty($photos)): ?>
-                    <?php foreach ($photos as $image): ?>
-                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 gallery-item" data-category="<?php echo $image['category']; ?>">
-                        <div class="gallery-card">
-                            <a href="<?php echo $image['image']; ?>" data-lightbox="photos" data-title="<?php echo htmlspecialchars($image['title'] ?? ''); ?>">
-                                <img src="<?php echo $image['image']; ?>" loading="lazy"  alt="<?php echo htmlspecialchars($image['title'] ?? ''); ?>" class="img-fluid">
-                                <div class="gallery-overlay">
-                                    <i class="fas fa-search-plus"></i>
-                                </div>
-                            </a>
-                            <?php if (!empty($image['title'])): ?>
-                            <div class="gallery-caption"><?php echo htmlspecialchars($image['title']); ?></div>
-                            <?php endif; ?>
-                        </div>
+
+            <?php if ($showAlbumCovers): ?>
+            <div class="row gallery-grid gallery-album-grid">
+                <?php if (!empty($albums)): ?>
+                    <?php foreach ($albums as $alb):
+                        $cover = $alb['cover'] !== '' ? $alb['cover'] : '';
+                        $href = $galleryPageQs(1, 'photo', $alb['key']);
+                    ?>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 gallery-item">
+                        <a href="<?php echo htmlspecialchars($href); ?>" class="gallery-album-card">
+                            <div class="gallery-album-cover">
+                                <?php if ($cover !== ''): ?>
+                                <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="" class="img-fluid">
+                                <?php else: ?>
+                                <div class="gallery-album-cover-empty"><i class="fas fa-images" aria-hidden="true"></i></div>
+                                <?php endif; ?>
+                                <span class="gallery-album-count"><?php echo (int)$alb['count']; ?></span>
+                            </div>
+                            <div class="gallery-album-title"><?php echo htmlspecialchars($alb['key'] !== '' ? $alb['key'] : $albumLabelFallback); ?></div>
+                        </a>
                     </div>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -198,22 +337,59 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
                     </div>
                 <?php endif; ?>
             </div>
+            <?php else: ?>
+            <div class="row gallery-grid">
+                <?php if (!empty($photos)): ?>
+                    <?php foreach ($photos as $image):
+                        $caption = trim((string)($image['title_np'] ?? '')) !== '' && !isEnglish()
+                            ? (string)$image['title_np']
+                            : (string)($image['title'] ?? '');
+                    ?>
+                    <div class="col-lg-3 col-md-4 col-sm-6 mb-4 gallery-item" data-category="<?php echo htmlspecialchars((string)($image['category'] ?? '')); ?>">
+                        <div class="gallery-card">
+                            <a href="<?php echo htmlspecialchars((string)$image['image']); ?>" data-lightbox="photos" data-title="<?php echo htmlspecialchars($caption); ?>">
+                                <img src="<?php echo htmlspecialchars((string)$image['image']); ?>" loading="lazy" alt="<?php echo htmlspecialchars($caption); ?>" class="img-fluid">
+                                <div class="gallery-overlay">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                            </a>
+                            <?php if ($caption !== ''): ?>
+                            <div class="gallery-caption"><?php echo htmlspecialchars($caption); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="col-12">
+                        <div class="empty-state text-center py-5">
+                            <i class="lucide-icon fa-4x text-muted mb-3" aria-hidden="true" data-lucide="images"></i>
+                            <h4><?php echo isEnglish() ? 'No photos in this album' : 'यो एल्बममा तस्विर छैन'; ?></h4>
+                            <p class="text-muted">
+                                <a href="<?php echo htmlspecialchars($galleryPageQs(1, 'photo', 'all')); ?>">
+                                    <?php echo isEnglish() ? 'Browse all albums' : 'सबै एल्बम हेर्नुहोस्'; ?>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
             <?php if ($activeTab === 'photo' && $photoPages > 1): ?>
             <nav class="pagination-nav mt-4" aria-label="Gallery photo pages">
                 <ul class="pagination justify-content-center">
                     <?php if ($page > 1): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'photo', $activeCategory)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'photo', $activeAlbum)); ?>"><i class="fas fa-chevron-left"></i></a></li>
                     <?php endif; ?>
                     <?php for ($i = 1; $i <= $photoPages; $i++): ?>
                     <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'photo', $activeCategory)); ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'photo', $activeAlbum)); ?>"><?php echo $i; ?></a>
                     </li>
                     <?php endfor; ?>
                     <?php if ($page < $photoPages): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'photo', $activeCategory)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'photo', $activeAlbum)); ?>"><i class="fas fa-chevron-right"></i></a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
 
@@ -222,18 +398,17 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
             <div class="row gallery-grid">
                 <?php if (!empty($videos)): ?>
                     <?php foreach ($videos as $video):
-                        // Extract YouTube video ID
                         $videoId = '';
                         if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $video['video_url'] ?? '', $matches)) {
                             $videoId = $matches[1];
                         }
                         $thumbnail = $video['thumbnail'] ?? ($videoId ? 'https://img.youtube.com/vi/' . $videoId . '/maxresdefault.jpg' : '');
                     ?>
-                    <div class="col-lg-4 col-md-6 mb-4 gallery-item" data-category="<?php echo $video['category']; ?>">
+                    <div class="col-lg-4 col-md-6 mb-4 gallery-item" data-category="<?php echo htmlspecialchars((string)($video['category'] ?? '')); ?>">
                         <div class="video-card">
-                            <a href="<?php echo $video['video_url'] ?? ''; ?>" target="_blank" class="video-link">
+                            <a href="<?php echo htmlspecialchars((string)($video['video_url'] ?? '')); ?>" target="_blank" rel="noopener" class="video-link">
                                 <div class="video-thumbnail">
-                                    <img src="<?php echo $thumbnail; ?>" loading="lazy"  alt="<?php echo htmlspecialchars($video['title'] ?? ''); ?>" class="img-fluid" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/default/hqdefault.jpg';this.style.opacity='0.5'">
+                                    <img src="<?php echo htmlspecialchars((string)$thumbnail); ?>" loading="lazy" alt="<?php echo htmlspecialchars((string)($video['title'] ?? '')); ?>" class="img-fluid" onerror="this.onerror=null;this.src='https://img.youtube.com/vi/default/hqdefault.jpg';this.style.opacity='0.5'">
                                     <div class="video-play-btn">
                                         <i class="fab fa-youtube"></i>
                                     </div>
@@ -241,7 +416,7 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
                                 <?php if (!empty($video['title'])): ?>
                                 <div class="video-caption">
                                     <i class="fab fa-youtube"></i>
-                                    <?php echo htmlspecialchars($video['title']); ?>
+                                    <?php echo htmlspecialchars((string)$video['title']); ?>
                                 </div>
                                 <?php endif; ?>
                             </a>
@@ -262,15 +437,15 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
             <nav class="pagination-nav mt-4" aria-label="Gallery video pages">
                 <ul class="pagination justify-content-center">
                     <?php if ($page > 1): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'video', $activeCategory)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'video', $activeCategory, 'category')); ?>"><i class="fas fa-chevron-left"></i></a></li>
                     <?php endif; ?>
                     <?php for ($i = 1; $i <= $videoPages; $i++): ?>
                     <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
-                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'video', $activeCategory)); ?>"><?php echo $i; ?></a>
+                        <a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($i, 'video', $activeCategory, 'category')); ?>"><?php echo $i; ?></a>
                     </li>
                     <?php endfor; ?>
                     <?php if ($page < $videoPages): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'video', $activeCategory)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'video', $activeCategory, 'category')); ?>"><i class="fas fa-chevron-right"></i></a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
