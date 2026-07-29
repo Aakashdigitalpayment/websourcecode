@@ -92,6 +92,8 @@ function clearHomepageCache(): void {
     clearCache('nav_bell_notices_v1');
     clearCache('nav_committees_v1');
     clearCache('nav_team_menu_v1');
+    clearCache('nav_career_badge_v1');
+    clearCache('nav_notices_extra_v1');
 }
 
 /**

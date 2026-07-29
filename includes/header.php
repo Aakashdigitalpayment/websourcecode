@@ -1740,8 +1740,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     try {
                                         $db = getDB();
                                         // Check if show_in_menu column exists
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
+                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
                                             $pagesStmt = $db->query("SELECT id, slug, title,
                                                 COALESCE(title_en, '') as title_en,
                                                 COALESCE(is_new, 0) as is_new,
@@ -1775,8 +1774,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     // Fetch dynamic pages for services menu
                                     try {
                                         $db = getDB();
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
+                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
                                             $servicesPagesStmt = $db->query("SELECT id, slug, title,
                                                 COALESCE(title_en, '') as title_en,
                                                 COALESCE(is_new, 0) as is_new,
@@ -1896,8 +1894,7 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
                                     // Fetch dynamic pages for more menu
                                     try {
                                         $db = getDB();
-                                        $checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'");
-                                        if ($checkCol && $checkCol->fetch() !== false) {
+                                        if (function_exists('dbColumnExists') ? dbColumnExists('pages', 'show_in_menu') : (($checkCol = $db->query("SHOW COLUMNS FROM pages LIKE 'show_in_menu'")) && $checkCol->fetch() !== false)) {
                                             $morePagesStmt = $db->query("SELECT id, slug, title,
                                                 COALESCE(title_en, '') as title_en,
                                                 COALESCE(is_new, 0) as is_new,
@@ -2130,14 +2127,35 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     </script>
 
     <?php
-    // Get notices for ticker - with safe query
+    // Ticker + popup notices — one short cache (notices admin already clears homepage cache)
     $tickerNotices = [];
+    $popupNotices = [];
     try {
-        $db = getDB();
-        $tickerStmt = $db->query("SELECT id, title, title_np FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 10");
-        if ($tickerStmt) $tickerNotices = $tickerStmt->fetchAll() ?: [];
+        if (!function_exists('getCachedData')) {
+            require_once __DIR__ . '/simple-cache.php';
+        }
+        $__noticeExtra = getCachedData('nav_notices_extra_v1', 90, function () {
+            $out = ['ticker' => [], 'popup' => []];
+            try {
+                $db = getDB();
+                $tickerStmt = $db->query("SELECT id, title, title_np FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 10");
+                if ($tickerStmt) {
+                    $out['ticker'] = $tickerStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
+                $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
+                if ($popupStmt) {
+                    $out['popup'] = $popupStmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
+            } catch (Exception $e) {
+                /* keep empty */
+            }
+            return $out;
+        }) ?: [];
+        $tickerNotices = is_array($__noticeExtra['ticker'] ?? null) ? $__noticeExtra['ticker'] : [];
+        $popupNotices = is_array($__noticeExtra['popup'] ?? null) ? $__noticeExtra['popup'] : [];
     } catch (Exception $e) {
         $tickerNotices = [];
+        $popupNotices = [];
     }
     ?>
 
@@ -2166,16 +2184,6 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <?php endif; ?>
 
     <?php
-    // Check for popup notices - fetch multiple for carousel
-    $popupNotices = [];
-    try {
-        $db = getDB();
-        $popupStmt = $db->query("SELECT * FROM notices WHERE is_popup = 1 AND is_active = 1 ORDER BY id DESC LIMIT 5");
-        if ($popupStmt) $popupNotices = $popupStmt->fetchAll();
-    } catch (Exception $e) {
-        $popupNotices = [];
-    }
-
     // Only output popup HTML if notices exist
     if (!empty($popupNotices)):
     $noticeIds = implode(',', array_column($popupNotices, 'id'));

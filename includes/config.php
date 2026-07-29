@@ -274,6 +274,30 @@ if (!function_exists('dbTableExists')) {
 }
 
 /**
+ * Request-scoped column existence check (avoids repeated SHOW COLUMNS).
+ */
+if (!function_exists('dbColumnExists')) {
+    function dbColumnExists(string $table, string $column): bool
+    {
+        static $cache = [];
+        $key = $table . '.' . $column;
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $column)) {
+            return $cache[$key] = false;
+        }
+        try {
+            $db = getDB();
+            $r = $db->query('SHOW COLUMNS FROM `' . $table . '` LIKE ' . $db->quote($column));
+            return $cache[$key] = ($r && $r->fetch(PDO::FETCH_ASSOC) !== false);
+        } catch (Throwable $e) {
+            return $cache[$key] = false;
+        }
+    }
+}
+
+/**
  * HTML-escape trimmed string — प्रायः output को लागि मात्र।
  * फर्म/DB इनपुटको लागि `clean_text()` + देखाउँदा `e()` प्रयोग गर्नुहोस्।
  */

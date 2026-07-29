@@ -10,6 +10,7 @@ $__t = static function (string $np, string $en): string {
 $pageTitle = $__t('रोजगारी व्यवस्थापन', 'Career Management');
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 
@@ -69,6 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Exception $e) {
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
+    }
+    if (function_exists('clearHomepageCache')) {
+        clearHomepageCache();
     }
     redirect('careers.php');
 }
