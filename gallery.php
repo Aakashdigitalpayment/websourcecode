@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Gallery' : 'ग्यालरी';
+$pageDescription = isEnglish()
+    ? 'Photo and video gallery of cooperative events, meetings and activities.'
+    : 'सहकारीका कार्यक्रम, बैठक र क्रियाकलापका फोटो तथा भिडियो ग्यालरी।';
 require_once 'includes/header.php';
 
 // Get filter from URL

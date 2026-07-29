@@ -428,7 +428,23 @@ function coopVerifyHmac(string $payload, string $sig): bool
 }
 
 /**
- * Canonical URL (query string हटाउँछ) — meta canonical + og:url
+ * Search crawler UA? (hreflang ?lang= must not 303-redirect for bots)
+ */
+function seo_is_search_crawler(): bool
+{
+    $ua = (string) ($_SERVER['HTTP_USER_AGENT'] ?? '');
+    if ($ua === '') {
+        return false;
+    }
+    return (bool) preg_match(
+        '/googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex(bot|images)|facebookexternalhit|twitterbot|linkedinbot|applebot|semrushbot|ahrefsbot/i',
+        $ua
+    );
+}
+
+/**
+ * Canonical URL — keep SEO-significant query params (id/slug/menu/…);
+ * strip tracking + lang noise so Google indexes the real content URL.
  */
 function seo_canonical_url(): string
 {
@@ -440,7 +456,39 @@ function seo_canonical_url(): string
         $path = rtrim($path, '/');
     }
     $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/');
-    return $path === '/' ? $base . '/' : $base . $path;
+    $canon = $path === '/' ? $base . '/' : $base . $path;
+
+    $keep = [];
+    $allowed = ['id', 'slug', 'menu', 'type', 'category', 'tab', 'page', 'cat'];
+    foreach ($allowed as $key) {
+        if (!isset($_GET[$key])) {
+            continue;
+        }
+        $raw = $_GET[$key];
+        if (is_array($raw)) {
+            continue;
+        }
+        $val = trim((string) $raw);
+        if ($val === '' || strlen($val) > 120) {
+            continue;
+        }
+        if ($key === 'id' || $key === 'page') {
+            if (!ctype_digit($val) || (int) $val <= 0) {
+                continue;
+            }
+            $keep[$key] = (string) (int) $val;
+            continue;
+        }
+        if (!preg_match('/^[\p{L}\p{N}\-_.]+$/u', $val)) {
+            continue;
+        }
+        $keep[$key] = $val;
+    }
+    if ($keep !== []) {
+        ksort($keep);
+        $canon .= '?' . http_build_query($keep, '', '&', PHP_QUERY_RFC3986);
+    }
+    return $canon;
 }
 
 /**
@@ -673,6 +721,143 @@ function seo_website_json_ld(bool $english = false): array
             'url' => $base,
         ],
     ];
+}
+
+/**
+ * BreadcrumbList JSON-LD — $items: [['name'=>…,'url'=>…], …] (last may omit url)
+ *
+ * @param list<array{name?:string,label?:string,url?:string}> $items
+ * @return array<string, mixed>
+ */
+function seo_breadcrumb_json_ld(array $items): array
+{
+    $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/');
+    $elements = [];
+    $pos = 1;
+    foreach ($items as $it) {
+        $name = trim((string) ($it['name'] ?? $it['label'] ?? ''));
+        if ($name === '') {
+            continue;
+        }
+        $url = trim((string) ($it['url'] ?? ''));
+        if ($url !== '' && !preg_match('#^https?://#i', $url)) {
+            $url = $base . '/' . ltrim($url, '/');
+        }
+        $el = [
+            '@type' => 'ListItem',
+            'position' => $pos++,
+            'name' => $name,
+        ];
+        if ($url !== '') {
+            $el['item'] = $url;
+        }
+        $elements[] = $el;
+    }
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => $elements,
+    ];
+}
+
+/**
+ * FAQPage JSON-LD from FAQ rows (question / answer or _np / _en fields).
+ *
+ * @param list<array<string, mixed>> $faqs
+ * @return array<string, mixed>|null
+ */
+function seo_faq_page_json_ld(array $faqs, bool $english = false): ?array
+{
+    $entities = [];
+    foreach ($faqs as $faq) {
+        if ($english) {
+            $q = trim((string) ($faq['question'] ?? $faq['question_en'] ?? $faq['question_np'] ?? ''));
+            $a = trim((string) ($faq['answer'] ?? $faq['answer_en'] ?? $faq['answer_np'] ?? ''));
+        } else {
+            $q = trim((string) ($faq['question_np'] ?? $faq['question'] ?? ''));
+            $a = trim((string) ($faq['answer_np'] ?? $faq['answer'] ?? ''));
+        }
+        $a = trim(preg_replace('/\s+/u', ' ', strip_tags($a)) ?? '');
+        if ($q === '' || $a === '') {
+            continue;
+        }
+        $entities[] = [
+            '@type' => 'Question',
+            'name' => $q,
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => function_exists('seo_meta_description_from_html')
+                    ? seo_meta_description_from_html($a, 500)
+                    : $a,
+            ],
+        ];
+        if (count($entities) >= 40) {
+            break;
+        }
+    }
+    if ($entities === []) {
+        return null;
+    }
+    return [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => $entities,
+    ];
+}
+
+/**
+ * NewsArticle JSON-LD for news-detail / notice detail.
+ *
+ * @return array<string, mixed>
+ */
+function seo_news_article_json_ld(
+    string $headline,
+    string $description,
+    string $url,
+    string $datePublished = '',
+    string $imageUrl = '',
+    bool $english = false
+): array {
+    $brand = trim((string) getSetting($english ? 'site_name_en' : 'site_name', getSetting('site_name', 'सहकारी')));
+    $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/';
+    $data = [
+        '@context' => 'https://schema.org',
+        '@type' => 'NewsArticle',
+        'headline' => $headline,
+        'description' => $description,
+        'mainEntityOfPage' => [
+            '@type' => 'WebPage',
+            '@id' => $url,
+        ],
+        'url' => $url,
+        'author' => [
+            '@type' => 'Organization',
+            'name' => $brand,
+            'url' => $base,
+        ],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => $brand,
+            'url' => $base,
+            'logo' => [
+                '@type' => 'ImageObject',
+                'url' => seo_absolute_asset_url(trim((string) getSetting('logo', ''))),
+            ],
+        ],
+        'inLanguage' => $english ? 'en' : 'ne',
+    ];
+    if ($datePublished !== '') {
+        $ts = strtotime($datePublished);
+        if ($ts !== false) {
+            $iso = date('c', $ts);
+            $data['datePublished'] = $iso;
+            $data['dateModified'] = $iso;
+        }
+    }
+    if ($imageUrl !== '') {
+        $data['image'] = [seo_absolute_asset_url($imageUrl)];
+    }
+    return $data;
 }
 
 /**
@@ -1831,13 +2016,15 @@ if (!function_exists('coopResolveUiLang')) {
 
 // Apply ?lang= for THIS browser only, then strip it from the URL (so shared
 // links / caches do not force English onto other visitors).
+// Search crawlers keep ?lang= (no 303) so hreflang alternates stay crawlable.
 if (
     isset($_GET['lang'])
     && in_array($_GET['lang'], ['en', 'np'], true)
     && strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')) === 'GET'
 ) {
     coopSetUiLang((string)$_GET['lang']);
-    if (!headers_sent()) {
+    $__seoSkipLangRedirect = function_exists('seo_is_search_crawler') && seo_is_search_crawler();
+    if (!$__seoSkipLangRedirect && !headers_sent()) {
         $uri  = (string)($_SERVER['REQUEST_URI'] ?? '/');
         $path = parse_url($uri, PHP_URL_PATH);
         if (!is_string($path) || $path === '') {

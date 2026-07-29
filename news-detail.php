@@ -28,6 +28,24 @@ try {
     if ($imgRaw !== '' && ($safe = safe_public_upload_path($imgRaw)) !== '') {
         $pageOgImage = $safe;
     }
+    $pageOgType = 'article';
+    $pageOgImageAlt = $pageTitle;
+    $pageJsonLd = [];
+    $seoBreadcrumbs = [
+        ['name' => isEnglish() ? 'Home' : 'गृहपृष्ठ', 'url' => SITE_URL],
+        ['name' => isEnglish() ? 'News' : 'समाचार', 'url' => rtrim(SITE_URL, '/') . '/news.php'],
+        ['name' => $pageTitle],
+    ];
+    if (function_exists('seo_news_article_json_ld') && function_exists('seo_canonical_url')) {
+        $pageJsonLd[] = seo_news_article_json_ld(
+            $pageTitle,
+            $pageDescription,
+            seo_canonical_url(),
+            (string) ($news['created_at'] ?? ''),
+            $pageOgImage !== '' ? $pageOgImage : '',
+            isEnglish()
+        );
+    }
 
     // Get related news (other news)
     $relatedStmt = $db->prepare("SELECT * FROM news WHERE id != ? AND is_active = 1 ORDER BY created_at DESC LIMIT 3");
@@ -45,7 +63,8 @@ $L = getLangStrings();
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><?php echo isEnglish() ? 'News Detail' : 'समाचार विवरण'; ?></h1>
+        <p class="mb-1 small opacity-75"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></p>
+        <h1><?php echo e(getLangField($news, 'title')); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
@@ -64,7 +83,6 @@ $L = getLangStrings();
             <div class="col-lg-8">
                 <article class="news-detail-article">
                     <div class="news-detail-header">
-                        <h1><?php echo e(getLangField($news, 'title')); ?></h1>
                         <div class="news-meta">
                             <span class="news-date">
                                 <i class="fas fa-calendar-alt"></i>

@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
-$pageTitle = isEnglish() ? 'Notices' : 'सूचनाहरू';
-require_once 'includes/header.php';
 
 $L = getLangStrings();
 $noticeId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
@@ -12,8 +10,13 @@ $offset = ($page - 1) * $perPage;
 $notices = [];
 $totalNotices = 0;
 $totalPages = 1;
+$pageJsonLd = [];
+$seoBreadcrumbs = [
+    ['name' => $L['home'], 'url' => SITE_URL],
+    ['name' => isEnglish() ? 'Notices' : 'सूचनाहरू', 'url' => rtrim(SITE_URL, '/') . '/notices.php'],
+];
 
-// Get single notice or paginated list
+// Load notice BEFORE header so title/description/canonical/OG are unique
 try {
     $db = getDB();
 
@@ -21,6 +24,9 @@ try {
         $stmt = $db->prepare("SELECT * FROM notices WHERE id = ? AND is_active = 1");
         $stmt->execute([$noticeId]);
         $singleNotice = $stmt->fetch();
+        if (!$singleNotice) {
+            redirect('notices.php');
+        }
     }
 
     $totalNotices = (int)$db->query("SELECT COUNT(*) FROM notices WHERE is_active = 1")->fetchColumn();
@@ -41,15 +47,67 @@ try {
     $totalNotices = 0;
     $totalPages = 1;
 }
+
+if ($singleNotice) {
+    $pageTitle = trim((string) ($singleNotice['title'] ?? ''));
+    if ($pageTitle === '') {
+        $pageTitle = isEnglish() ? 'Notice' : 'सूचना';
+    }
+    $pageDescription = function_exists('seo_meta_description_from_html')
+        ? seo_meta_description_from_html((string) ($singleNotice['content'] ?? ''))
+        : '';
+    if ($pageDescription === '') {
+        $pageDescription = $pageTitle . (isEnglish()
+            ? ' — Official notice from our cooperative.'
+            : ' — हाम्रो सहकारीको आधिकारिक सूचना।');
+    }
+    $pageOgType = 'article';
+    $pageOgImageAlt = $pageTitle;
+    $attach = trim((string) ($singleNotice['attachment'] ?? ''));
+    if ($attach !== '' && function_exists('safe_public_upload_path')) {
+        $safeAtt = safe_public_upload_path($attach);
+        if ($safeAtt !== '' && preg_match('/\.(jpe?g|png|webp|gif)$/i', $safeAtt)) {
+            $pageOgImage = $safeAtt;
+        }
+    }
+    $seoBreadcrumbs[] = ['name' => $pageTitle];
+    if (function_exists('seo_news_article_json_ld') && function_exists('seo_canonical_url')) {
+        $pageJsonLd[] = seo_news_article_json_ld(
+            $pageTitle,
+            $pageDescription,
+            seo_canonical_url(),
+            (string) ($singleNotice['notice_date'] ?? $singleNotice['created_at'] ?? ''),
+            isset($pageOgImage) ? (string) $pageOgImage : '',
+            isEnglish()
+        );
+    }
+} else {
+    $pageTitle = isEnglish() ? 'Notices' : 'सूचनाहरू';
+    $pageDescription = isEnglish()
+        ? 'Official notices and announcements from our cooperative — stay updated with the latest circulars and information.'
+        : 'हाम्रो सहकारीका आधिकारिक सूचना तथा घोषणाहरू — नवीनतम परिपत्र र जानकारीसँग अपडेट रहनुहोस्।';
+}
+
+require_once 'includes/header.php';
 ?>
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
+        <?php if ($singleNotice): ?>
+        <p class="mb-1 small opacity-75"><?php echo $L['notices']; ?></p>
+        <h1 class="h3 mb-0"><?php echo e($singleNotice['title']); ?></h1>
+        <?php else: ?>
         <h1><?php echo $L['notices']; ?></h1>
+        <?php endif; ?>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <?php if ($singleNotice): ?>
+                <li class="breadcrumb-item"><a href="notices.php"><?php echo $L['notices']; ?></a></li>
+                <li class="breadcrumb-item active"><?php echo e(truncateText((string)$singleNotice['title'], 40)); ?></li>
+                <?php else: ?>
                 <li class="breadcrumb-item active"><?php echo $L['notices']; ?></li>
+                <?php endif; ?>
             </ol>
         </nav>
     </div>
@@ -79,7 +137,6 @@ try {
                             <i class="fas fa-calendar-alt"></i>
                             <?php echo formatDate($singleNotice['notice_date'], 'Y-m-d'); ?>
                         </span>
-                        <h2><?php echo e($singleNotice['title']); ?></h2>
                     </div>
                     <div class="notice-content coop-prose">
                         <?php echo $singleNotice['content']; ?>

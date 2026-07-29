@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Downloads' : 'डाउनलोडहरू';
+$pageDescription = isEnglish()
+    ? 'Download forms, policies, reports and official documents from our cooperative.'
+    : 'हाम्रो सहकारीका फारम, नीति, प्रतिवेदन र आधिकारिक कागजातहरू डाउनलोड गर्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

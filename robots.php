@@ -14,8 +14,8 @@ header('Content-Type: text/plain; charset=UTF-8');
 header('Cache-Control: public, max-age=3600');
 header('X-Robots-Tag: noindex'); /* robots.txt itself should not be indexed as a page */
 
-/* वास्तविक फाइल sitemap.php; .xml → rewrite (.htaccess) भए दुवै काम गर्छ */
-$sitemap = rtrim(SITE_URL, '/') . '/sitemap.php';
+/* वास्तविक फाइल sitemap.php; /sitemap.xml → rewrite (.htaccess) */
+$sitemap = rtrim(SITE_URL, '/') . '/sitemap.xml';
 
 /* ── All crawlers ─────────────────────────────────────────────────────────── */
 echo "User-agent: *\n";
@@ -37,13 +37,16 @@ echo "Disallow: /assets/uploads/digital_services/\n";
 echo "Disallow: /assets/uploads/grievances/\n";
 echo "Disallow: /assets/uploads/appointments/\n\n";
 
-/* utility / token-gated / maintenance pages */
+/* utility / token-gated / thin form flows (keep crawl budget for content) */
 echo "Disallow: /install.php\n";
 echo "Disallow: /cron-cleanup.php\n";
 echo "Disallow: /attend.php\n";
 echo "Disallow: /program-attendance-verify.php\n";
 echo "Disallow: /tracker-id-card.php\n";
 echo "Disallow: /verify.php\n";
+echo "Disallow: /application-tracker.php\n";
+echo "Disallow: /online-kyc.php\n";
+echo "Disallow: /member-survey.php\n";
 echo "Disallow: /member/session-check.php\n\n";
 
 /* ── Search engines: allow full crawl (no extra restrictions) ─────────────── */

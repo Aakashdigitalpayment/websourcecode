@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Service Center Network' : 'सेवा केन्द्र नेटवर्क';
+$pageDescription = isEnglish()
+    ? 'Find our service centers and branch network across Nepal.'
+    : 'नेपालभर रहेका हाम्रा सेवा केन्द्र तथा शाखा नेटवर्क खोज्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

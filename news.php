@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'News & Activities' : 'समाचार तथा क्रियाकलापहरू';
+$pageDescription = isEnglish()
+    ? 'Latest news, events and activities from our cooperative community.'
+    : 'हाम्रो सहकारी समुदायका नवीनतम समाचार, कार्यक्रम र क्रियाकलापहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

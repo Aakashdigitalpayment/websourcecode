@@ -456,6 +456,12 @@ if (isset($pageOgImage) && (string) $pageOgImage !== '') {
         $__seoOgImg = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($logo) : (SITE_URL . ltrim($logo, '/'));
     }
 }
+$__seoOgType = (isset($pageOgType) && in_array((string) $pageOgType, ['website', 'article'], true))
+    ? (string) $pageOgType
+    : 'website';
+$__seoOgImgAlt = isset($pageOgImageAlt) && trim((string) $pageOgImageAlt) !== ''
+    ? trim((string) $pageOgImageAlt)
+    : $siteBrandName;
 $__htmlLang = ($currentLang === 'en') ? 'en' : 'ne';
 $__ogLocale = ($currentLang === 'en') ? 'en_US' : 'ne_NP';
 $__ogLocaleAlt = ($currentLang === 'en') ? 'ne_NP' : 'en_US';
@@ -479,6 +485,22 @@ $__isHomePage = !isset($pageTitle) || preg_match('/^(गृहपृष्ठ|ho
     || (isset($currentPage) && $currentPage === 'index');
 if ($__isHomePage && function_exists('seo_website_json_ld')) {
     $__seoWebsite = seo_website_json_ld($__seoEnglish);
+}
+
+/* Optional page-level JSON-LD: set $pageJsonLd = [ [...], [...] ] before header */
+$__seoExtraLd = [];
+if (!empty($pageJsonLd) && is_array($pageJsonLd)) {
+    foreach ($pageJsonLd as $__ldBlock) {
+        if (is_array($__ldBlock) && isset($__ldBlock['@type'])) {
+            $__seoExtraLd[] = $__ldBlock;
+        }
+    }
+}
+if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo_breadcrumb_json_ld')) {
+    $__bc = seo_breadcrumb_json_ld($seoBreadcrumbs);
+    if (!empty($__bc['itemListElement'])) {
+        $__seoExtraLd[] = $__bc;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -507,16 +529,17 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
     <title><?php echo e($__seoDocTitle); ?></title>
 
-    <!-- Canonical URL (query string बिना) -->
+    <!-- Canonical URL (keeps id/slug; strips tracking) -->
     <link rel="canonical" href="<?php echo e($__seoCanon); ?>">
 
     <!-- Open Graph / Social Media -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<?php echo e($__seoOgType); ?>">
     <meta property="og:site_name" content="<?php echo e($siteBrandName); ?>">
     <meta property="og:url" content="<?php echo e($__seoCanon); ?>">
     <meta property="og:title" content="<?php echo e($__seoDocTitle); ?>">
     <meta property="og:description" content="<?php echo e($__seoDesc); ?>">
     <meta property="og:image" content="<?php echo e($__seoOgImg); ?>">
+    <meta property="og:image:alt" content="<?php echo e($__seoOgImgAlt); ?>">
     <meta property="og:locale" content="<?php echo e($__ogLocale); ?>">
     <meta property="og:locale:alternate" content="<?php echo e($__ogLocaleAlt); ?>">
 
@@ -525,8 +548,9 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <meta name="twitter:title" content="<?php echo e($__seoDocTitle); ?>">
     <meta name="twitter:description" content="<?php echo e($__seoDesc); ?>">
     <meta name="twitter:image" content="<?php echo e($__seoOgImg); ?>">
+    <meta name="twitter:image:alt" content="<?php echo e($__seoOgImgAlt); ?>">
 
-    <!-- hreflang — NP/EN (यो साइट ?lang= ले भाषा बदल्छ) -->
+    <!-- hreflang — NP/EN (?lang= kept for crawlers; humans still get session redirect) -->
     <link rel="alternate" hreflang="ne-NP" href="<?php echo e($__hrefLangNe); ?>" />
     <link rel="alternate" hreflang="en" href="<?php echo e($__hrefLangEn); ?>" />
     <link rel="alternate" hreflang="x-default" href="<?php echo e($__seoCanon); ?>" />
@@ -540,6 +564,9 @@ if ($__isHomePage && function_exists('seo_website_json_ld')) {
     <?php if (!empty($__seoWebsite)): ?>
     <script type="application/ld+json"><?php echo json_encode($__seoWebsite, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>
     <?php endif; ?>
+    <?php foreach ($__seoExtraLd as $__ldOut): ?>
+    <script type="application/ld+json"><?php echo json_encode($__ldOut, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP); ?></script>
+    <?php endforeach; ?>
 
     <!-- Preload Logo for faster display -->
     <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">

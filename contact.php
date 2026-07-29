@@ -1,5 +1,8 @@
 <?php
-$pageTitle = 'सम्पर्क';
+$pageTitle = isEnglish() ? 'Contact Us' : 'सम्पर्क';
+$pageDescription = isEnglish()
+    ? 'Contact our cooperative — phone, email, address and online message form.'
+    : 'हाम्रो सहकारीसँग सम्पर्क गर्नुहोस् — फोन, इमेल, ठेगाना र अनलाइन सन्देश फारम।';
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 

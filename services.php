@@ -2,6 +2,9 @@
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/service-products-tables.php';
 $pageTitle = isEnglish() ? 'Services' : 'सेवाहरू';
+$pageDescription = isEnglish()
+    ? 'Explore savings, loans, remittance and member services offered by our cooperative.'
+    : 'हाम्रो सहकारीका बचत, ऋण, रेमिट्यान्स र सदस्य सेवाहरू अन्वेषण गर्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

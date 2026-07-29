@@ -1,10 +1,17 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
-$pageTitle = isEnglish() ? 'Frequently Asked Questions' : 'बारम्बार सोधिने प्रश्नहरू';
-require_once 'includes/header.php';
-$L = getLangStrings();
 
-// Get FAQs from database
+$pageTitle = isEnglish() ? 'Frequently Asked Questions' : 'बारम्बार सोधिने प्रश्नहरू';
+$pageDescription = isEnglish()
+    ? 'Answers to common questions about membership, savings, loans, and cooperative services.'
+    : 'सदस्यता, बचत, ऋण र सहकारी सेवाबारे बारम्बार सोधिने प्रश्नहरूको जवाफ।';
+$pageJsonLd = [];
+$seoBreadcrumbs = [
+    ['name' => isEnglish() ? 'Home' : 'गृहपृष्ठ', 'url' => SITE_URL],
+    ['name' => isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'],
+];
+
+// Get FAQs before header — enables unique FAQPage schema in <head>
 try {
     $db = getDB();
     $faqsStmt = $db->query("SELECT * FROM faqs WHERE is_active = 1 ORDER BY display_order ASC, id ASC LIMIT 200");
@@ -12,6 +19,16 @@ try {
 } catch (Throwable $e) {
     $faqs = [];
 }
+
+if (!empty($faqs) && function_exists('seo_faq_page_json_ld')) {
+    $faqLd = seo_faq_page_json_ld($faqs, isEnglish());
+    if ($faqLd) {
+        $pageJsonLd[] = $faqLd;
+    }
+}
+
+require_once 'includes/header.php';
+$L = getLangStrings();
 ?>
 
 <!-- Page Banner -->
