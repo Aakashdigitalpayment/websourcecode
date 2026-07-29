@@ -41,7 +41,7 @@ function ensurePublicTables(): void {
 
     /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
        Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
-    $schemaVersion = 'v7-enterprise-safe-2026';
+    $schemaVersion = 'v8-query-perf-2026';
     $lockFile = dirname(__DIR__) . '/.schema.lock';
     $lockContent = @file_get_contents($lockFile);
     if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
@@ -605,6 +605,23 @@ function ensurePublicTables(): void {
         $addIndex('members', 'idx_members_sadasyata', 'sadasyata_number');
         $addIndex('members', 'idx_members_phone_active', 'phone, is_active');
         $addIndex('members', 'idx_members_email_active', 'email, is_active');
+
+        /* Public content / growth-safe indexes (homepage, footer, lists) */
+        $addIndex('visitor_counter', 'idx_ip_date', 'ip_address, visit_date');
+        $addIndex('notices', 'idx_notices_active_id', 'is_active, id');
+        $addIndex('notices', 'idx_notices_popup', 'is_popup, is_active');
+        $addIndex('news', 'idx_news_active_created', 'is_active, created_at');
+        $addIndex('services', 'idx_services_active_order', 'is_active, display_order');
+        $addIndex('sliders', 'idx_sliders_active_order', 'is_active, display_order');
+        $addIndex('interest_rates', 'idx_rates_cat_active_order', 'category, is_active, display_order');
+        $addIndex('team_members', 'idx_team_active_order', 'is_active, display_order');
+        $addIndex('awards', 'idx_awards_active_order', 'is_active, display_order');
+        $addIndex('app_features', 'idx_appfeat_active_order', 'is_active, sort_order');
+        $addIndex('useful_links', 'idx_ul_active_order', 'is_active, display_order');
+        $addIndex('chatbot_faqs', 'idx_faq_active_order', 'is_active, display_order');
+        $addIndex('reports', 'idx_reports_type_active', 'report_type, is_active, report_year');
+        $addIndex('institutional_profile', 'idx_ip_active_fy_month', 'is_active, fiscal_year, report_month');
+        $addIndex('careers', 'idx_careers_active_deadline', 'is_active, deadline');
 
         @file_put_contents(
             $lockFile,

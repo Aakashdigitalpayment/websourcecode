@@ -14,7 +14,8 @@ $aiChatWelcome = $aiChatEnabled
     ? ai_chat_welcome(function_exists('isEnglish') && isEnglish())
     : '';
 
-// Track visitors + footer data — one DB handle, one site_stats probe
+// Track visitors + footer data — one DB handle; cached today-count; request-scoped table checks
+require_once __DIR__ . '/simple-cache.php';
 $totalVisitors = 0;
 $todayVisitors = 0;
 $footerNotices = [];
@@ -24,15 +25,16 @@ try {
     $db = getDB();
     $visitorIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
     $today = date('Y-m-d');
-    $hasSiteStats = false;
+    $hasVisitorTable = function_exists('dbTableExists')
+        ? dbTableExists('visitor_counter')
+        : (($tc = $db->query("SHOW TABLES LIKE 'visitor_counter'")) && $tc->fetch() !== false);
+    $hasSiteStats = function_exists('dbTableExists')
+        ? dbTableExists('site_stats')
+        : (($sc = $db->query("SHOW TABLES LIKE 'site_stats'")) && $sc->fetch() !== false);
 
-    $tableCheck = $db->query("SHOW TABLES LIKE 'visitor_counter'");
-    if ($tableCheck && $tableCheck->fetch() !== false) {
-        $checkStmt = $db->prepare("SELECT id FROM visitor_counter WHERE ip_address = ? AND visit_date = ?");
+    if ($hasVisitorTable) {
+        $checkStmt = $db->prepare("SELECT id FROM visitor_counter WHERE ip_address = ? AND visit_date = ? LIMIT 1");
         $checkStmt->execute([$visitorIp, $today]);
-
-        $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
-        $hasSiteStats = ($statsCheck && $statsCheck->fetch() !== false);
 
         if (!$checkStmt->fetch()) {
             $insertStmt = $db->prepare("INSERT INTO visitor_counter (ip_address, user_agent, page_visited, visit_date) VALUES (?, ?, ?, ?)");
@@ -41,19 +43,19 @@ try {
             if ($hasSiteStats) {
                 $db->query("UPDATE site_stats SET stat_value = stat_value + 1 WHERE stat_key = 'total_visitors'");
             }
+            clearCache('visitor_today_' . $today);
         }
 
-        $todayStmt = $db->prepare("SELECT COUNT(DISTINCT ip_address) as count FROM visitor_counter WHERE visit_date = ?");
-        $todayStmt->execute([$today]);
-        $todayRow = $todayStmt->fetch();
-        $todayVisitors = $todayRow['count'] ?? 0;
-    } else {
-        $statsCheck = $db->query("SHOW TABLES LIKE 'site_stats'");
-        $hasSiteStats = ($statsCheck && $statsCheck->fetch() !== false);
+        $todayVisitors = (int) getCachedData('visitor_today_' . $today, 120, function () use ($db, $today) {
+            $todayStmt = $db->prepare("SELECT COUNT(DISTINCT ip_address) AS count FROM visitor_counter WHERE visit_date = ?");
+            $todayStmt->execute([$today]);
+            $todayRow = $todayStmt->fetch();
+            return (int)($todayRow['count'] ?? 0);
+        });
     }
 
     if ($hasSiteStats) {
-        $totalStmt = $db->query("SELECT stat_value FROM site_stats WHERE stat_key = 'total_visitors'");
+        $totalStmt = $db->query("SELECT stat_value FROM site_stats WHERE stat_key = 'total_visitors' LIMIT 1");
         if ($totalStmt) {
             $totalRow = $totalStmt->fetch();
             $totalVisitors = $totalRow['stat_value'] ?? 0;
@@ -62,21 +64,31 @@ try {
 
     try {
         $noticesStmt = $db->query("SELECT id, title, notice_date FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT 3");
-        if ($noticesStmt) $footerNotices = $noticesStmt->fetchAll() ?: [];
+        if ($noticesStmt) {
+            $footerNotices = $noticesStmt->fetchAll() ?: [];
+        }
     } catch (Exception $e) {
         $footerNotices = [];
     }
 
-    $ulCheck = $db->query("SHOW TABLES LIKE 'useful_links'");
-    if ($ulCheck && $ulCheck->fetch() !== false) {
+    $hasUseful = function_exists('dbTableExists')
+        ? dbTableExists('useful_links')
+        : (($ul = $db->query("SHOW TABLES LIKE 'useful_links'")) && $ul->fetch() !== false);
+    if ($hasUseful) {
         $usefulLinksStmt = $db->query("SELECT * FROM useful_links WHERE is_active = 1 ORDER BY display_order ASC LIMIT 6");
-        if ($usefulLinksStmt) $usefulLinks = $usefulLinksStmt->fetchAll() ?: [];
+        if ($usefulLinksStmt) {
+            $usefulLinks = $usefulLinksStmt->fetchAll() ?: [];
+        }
     }
 
-    $faqCheck = $db->query("SHOW TABLES LIKE 'chatbot_faqs'");
-    if ($faqCheck && $faqCheck->fetch() !== false) {
-        $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order");
-        if ($faqsStmt) $chatbotFaqs = $faqsStmt->fetchAll() ?: [];
+    $hasFaqs = function_exists('dbTableExists')
+        ? dbTableExists('chatbot_faqs')
+        : (($fq = $db->query("SHOW TABLES LIKE 'chatbot_faqs'")) && $fq->fetch() !== false);
+    if ($hasFaqs) {
+        $faqsStmt = $db->query("SELECT * FROM chatbot_faqs WHERE is_active = 1 ORDER BY display_order LIMIT 40");
+        if ($faqsStmt) {
+            $chatbotFaqs = $faqsStmt->fetchAll() ?: [];
+        }
     }
 } catch (Exception $e) {
     $totalVisitors = 0;

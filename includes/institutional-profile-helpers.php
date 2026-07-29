@@ -72,28 +72,37 @@ if (!function_exists('coopIpSortKey')) {
 if (!function_exists('coopIpFetchLatestProfile')) {
     function coopIpFetchLatestProfile(?PDO $db = null): ?array
     {
+        static $memo = false;
+        static $cached = null;
+        if ($memo) {
+            return $cached;
+        }
+        $memo = true;
+
         if (!$db instanceof PDO) {
             $db = function_exists('getDB') ? getDB() : null;
         }
         if (!$db instanceof PDO) {
-            return null;
+            return $cached = null;
         }
         try {
-            $r = $db->query("SHOW TABLES LIKE 'institutional_profile'");
-            if (!$r || $r->rowCount() === 0) {
-                return null;
+            $exists = function_exists('dbTableExists')
+                ? dbTableExists('institutional_profile')
+                : (($r = $db->query("SHOW TABLES LIKE 'institutional_profile'")) && $r->rowCount() > 0);
+            if (!$exists) {
+                return $cached = null;
             }
             $row = $db->query(
                 "SELECT * FROM institutional_profile WHERE is_active = 1
                  ORDER BY fiscal_year DESC, report_month DESC, id DESC LIMIT 1"
             )->fetch(PDO::FETCH_ASSOC);
             if (!$row) {
-                return null;
+                return $cached = null;
             }
             $row['_month'] = coopIpResolveMonth($row);
-            return $row;
+            return $cached = $row;
         } catch (Throwable $e) {
-            return null;
+            return $cached = null;
         }
     }
 }

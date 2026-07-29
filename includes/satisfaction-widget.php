@@ -24,8 +24,10 @@ try {
     /* ── Table existence check — fetch() प्रयोग गर्नुहोस्, rowCount() होइन ──
        PDO को rowCount() ले SHOW TABLES query मा MySQL मा गलत result
        दिन्छ (always 0 फर्काउन सक्छ)। fetch() !== false मात्र reliable छ। */
-    $tableCheck = $db->query("SHOW TABLES LIKE 'satisfaction_links'");
-    if ($tableCheck && $tableCheck->fetch() !== false) {
+    $tableOk = function_exists('dbTableExists')
+        ? dbTableExists('satisfaction_links')
+        : (($tableCheck = $db->query("SHOW TABLES LIKE 'satisfaction_links'")) && $tableCheck->fetch() !== false);
+    if ($tableOk) {
 
         /* Widget enabled छ कि छैन — getSetting() function use गर्नुहोस् */
         $satisfactionEnabled = (getSetting('satisfaction_widget_enabled', '0') == '1');

@@ -9,6 +9,7 @@ $__t = static function (string $np, string $en): string {
 };
 $pageTitle = $__t('एप सुविधाहरू', 'App Features');
 require_once '../includes/config.php';
+require_once __DIR__ . '/../includes/simple-cache.php';
 if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 $db = getDB();
@@ -49,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'New badge परिवर्तन भयो।');
         }
     } catch (Exception $e) { setFlash('error', 'त्रुटि भयो।'); }
+    if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('app-features.php');
 }
 

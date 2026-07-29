@@ -6,7 +6,24 @@
 if (!function_exists('ensureTeamStaffGroupsTable')) {
     function ensureTeamStaffGroupsTable(?PDO $db = null): void
     {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
         $db = $db ?: getDB();
+
+        /* After schema lock, skip CREATE/seed when table already exists */
+        $lockFile = dirname(__DIR__) . '/.schema.lock';
+        if (@is_file($lockFile)) {
+            try {
+                $db->query('SELECT 1 FROM team_staff_groups LIMIT 1');
+                return;
+            } catch (Throwable $e) {
+                /* fall through — create */
+            }
+        }
+
         $db->exec("CREATE TABLE IF NOT EXISTS team_staff_groups (
             id INT AUTO_INCREMENT PRIMARY KEY,
             slug VARCHAR(50) NOT NULL,
