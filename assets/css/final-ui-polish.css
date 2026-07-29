@@ -1295,17 +1295,17 @@ body.dark-mode .pagination .page-item.active .page-link {
 }
 
 /* Management / committee Bootstrap cols — don't let cards grow past shared width */
-.team-section .row > [class*="col-"],
-.committees-section .row > [class*="col-"] {
+.team-section .row > [class*="col-"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-"]:has(> .team-card-circular) {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
 }
 
-.team-section .row > [class*="col-lg-3"],
-.team-section .row > [class*="col-md-4"],
-.committees-section .row > [class*="col-lg-3"],
-.committees-section .row > [class*="col-md-4"] {
+.team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-md-4"]:has(> .team-card-circular) {
   flex: 0 1 var(--team-card-w) !important;
   max-width: var(--team-card-w) !important;
   width: 100% !important;
@@ -1325,6 +1325,13 @@ body.dark-mode .pagination .page-item.active .page-link {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
+}
+
+/* Officer cards stay full column width (do not shrink like team photo cards) */
+.team-section .row > [class*="col-"] > .officer-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
 }
 
 /* Same photo ring size for board, management, committees, featured, small */
@@ -1419,12 +1426,12 @@ body.dark-mode .pagination .page-item.active .page-link {
   }
 
   .team-org-cell,
-  .team-section .row > [class*="col-lg-3"],
-  .team-section .row > [class*="col-md-4"],
-  .team-section .row > [class*="col-sm-6"],
-  .committees-section .row > [class*="col-lg-3"],
-  .committees-section .row > [class*="col-md-4"],
-  .committees-section .row > [class*="col-sm-6"] {
+  .team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-sm-6"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-sm-6"]:has(> .team-card-circular) {
     flex: 0 1 var(--team-card-w) !important;
     max-width: var(--team-card-w) !important;
     width: 100% !important;

@@ -35,32 +35,60 @@ try {
     $photoLimit = 24;
     $videoLimit = 12;
 
+    /* Categories first so we can validate filter before COUNT/SELECT */
+    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1 AND category IS NOT NULL AND category <> '' LIMIT 50")->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    if (!in_array($activeTab, ['photo', 'video'], true)) {
+        $activeTab = 'photo';
+    }
+    if ($activeCategory !== 'all' && !in_array($activeCategory, $categories, true)) {
+        $activeCategory = 'all';
+    }
+
+    $catSql = '';
+    $catParams = [];
+    if ($activeCategory !== 'all') {
+        $catSql = ' AND category = ?';
+        $catParams[] = $activeCategory;
+    }
+
     if ($hasMediaType) {
-        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)")->fetchColumn();
-        $videoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND media_type = 'video'")->fetchColumn();
+        $photoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)" . $catSql);
+        $photoCnt->execute($catParams);
+        $photoTotal = (int)$photoCnt->fetchColumn();
+
+        $videoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1 AND media_type = 'video'" . $catSql);
+        $videoCnt->execute($catParams);
+        $videoTotal = (int)$videoCnt->fetchColumn();
+
         $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
         $videoPages = max(1, (int)ceil($videoTotal / $videoLimit));
+
         if ($activeTab === 'video') {
             if ($page > $videoPages) $page = $videoPages;
             $offset = ($page - 1) * $videoLimit;
-            $videos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video' ORDER BY id DESC LIMIT " . (int)$videoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
+            $vStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1 AND media_type = 'video'" . $catSql . " ORDER BY id DESC LIMIT " . (int)$videoLimit . " OFFSET " . (int)$offset);
+            $vStmt->execute($catParams);
+            $videos = $vStmt->fetchAll() ?: [];
         } else {
             if ($page > $photoPages) $page = $photoPages;
             $offset = ($page - 1) * $photoLimit;
-            $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL) ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
+            $pStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1 AND (media_type = 'photo' OR media_type IS NULL)" . $catSql . " ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset);
+            $pStmt->execute($catParams);
+            $photos = $pStmt->fetchAll() ?: [];
         }
     } else {
-        $photoTotal = (int)$db->query("SELECT COUNT(*) FROM gallery WHERE is_active = 1")->fetchColumn();
+        $photoCnt = $db->prepare("SELECT COUNT(*) FROM gallery WHERE is_active = 1" . $catSql);
+        $photoCnt->execute($catParams);
+        $photoTotal = (int)$photoCnt->fetchColumn();
         $videoTotal = 0;
         $photoPages = max(1, (int)ceil($photoTotal / $photoLimit));
         if ($page > $photoPages) $page = $photoPages;
         $offset = ($page - 1) * $photoLimit;
-        $photos = $db->query("SELECT * FROM gallery WHERE is_active = 1 ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset)->fetchAll() ?: [];
+        $pStmt = $db->prepare("SELECT * FROM gallery WHERE is_active = 1" . $catSql . " ORDER BY id DESC LIMIT " . (int)$photoLimit . " OFFSET " . (int)$offset);
+        $pStmt->execute($catParams);
+        $photos = $pStmt->fetchAll() ?: [];
         $videos = [];
     }
-
-    // Get unique categories
-    $categories = $db->query("SELECT DISTINCT category FROM gallery WHERE is_active = 1 AND category IS NOT NULL AND category <> '' LIMIT 50")->fetchAll(PDO::FETCH_COLUMN) ?: [];
 } catch (Throwable $e) {
     $photos = [];
     $videos = [];
@@ -74,7 +102,7 @@ try {
 if (!in_array($activeTab, ['photo', 'video'], true)) {
     $activeTab = 'photo';
 }
-if ($activeCategory !== 'all' && !in_array($activeCategory, $categories, true)) {
+if ($activeCategory !== 'all' && !in_array($activeCategory, $categories ?? [], true)) {
     $activeCategory = 'all';
 }
 
@@ -119,8 +147,8 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
             <?php if (!empty($categories) && count($categories) > 1): ?>
             <!-- Category Dropdown Filter -->
             <div class="gallery-category-filter">
-                <select id="categoryFilter" class="form-select" onchange="filterByCategory(this.value)">
-                    <option value="all"><?php echo isEnglish() ? 'All Categories' : 'सबै वर्ग'; ?></option>
+                <select id="categoryFilter" class="form-select" onchange="window.location.href=this.value">
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, $activeTab, 'all')); ?>" <?php echo $activeCategory === 'all' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'All Categories' : 'सबै वर्ग'; ?></option>
                     <?php foreach ($categories as $cat):
                         $catLabels = [
                             'general' => isEnglish() ? 'General' : 'सामान्य',
@@ -129,8 +157,8 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
                             'meetings' => isEnglish() ? 'Meetings' : 'बैठक'
                         ];
                     ?>
-                    <option value="<?php echo $cat; ?>" <?php echo $activeCategory === $cat ? 'selected' : ''; ?>>
-                        <?php echo $catLabels[$cat] ?? $cat; ?>
+                    <option value="<?php echo htmlspecialchars($galleryPageQs(1, $activeTab, (string)$cat)); ?>" <?php echo $activeCategory === $cat ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($catLabels[$cat] ?? $cat); ?>
                     </option>
                     <?php endforeach; ?>
                 </select>
@@ -251,32 +279,5 @@ $galleryPageQs = static function (int $p, string $type, string $cat = 'all'): st
 <!-- Lightbox CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-
-
-<script>
-// Category Filter
-function filterByCategory(category) {
-    var activeContent = document.querySelector('.gallery-content:not([style*="display: none"])');
-    if (!activeContent) activeContent = document.getElementById('photosContent');
-
-    var items = activeContent.querySelectorAll('.gallery-item');
-    items.forEach(function(item) {
-        if (category === 'all' || item.dataset.category === category) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Initialize filter from URL if category is set
-document.addEventListener('DOMContentLoaded', function() {
-    var urlParams = new URLSearchParams(window.location.search);
-    var category = urlParams.get('category');
-    if (category) {
-        filterByCategory(category);
-    }
-});
-</script>
 
 <?php require_once 'includes/footer.php'; ?>
