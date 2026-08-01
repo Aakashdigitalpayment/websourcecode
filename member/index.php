@@ -142,10 +142,10 @@ $quickActions = [
     ['href' => $siteUrl.'member/apply-frame.php?p=emi',         'icon' => 'fa-calculator',          'color' => 'var(--accent-color)', 'label' => 'EMI Calculator'],
 ];
 try {
-    if (!function_exists('honorHasOpenProgram')) {
+    if (!function_exists('honorHasPublicProgram')) {
         require_once __DIR__ . '/../includes/honor-tables.php';
     }
-    if (honorHasOpenProgram(getDB())) {
+    if (honorHasPublicProgram(getDB())) {
         array_splice($quickActions, 7, 0, [[
             'href' => $siteUrl.'member/honor-apply.php',
             'icon' => 'fa-award',

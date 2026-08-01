@@ -55,7 +55,9 @@ if ($kycRow) {
 
 ensureHonorTables($db);
 $openPrograms = honorFetchOpenPrograms($db);
+$upcomingPrograms = honorFetchUpcomingPrograms($db);
 $hasOpen = !empty($openPrograms);
+$hasUpcoming = !empty($upcomingPrograms);
 
 $selectedProgramId = (int)($_POST['program_id'] ?? $_GET['program_id'] ?? 0);
 $openIds = array_map(static fn($p) => (int)$p['id'], $openPrograms);
@@ -145,7 +147,23 @@ require __DIR__ . '/includes/chrome.php';
     <?php endif; ?>
 
     <?php if (!$hasOpen): ?>
+    <?php if ($hasUpcoming): ?>
+    <div class="alert alert-warning">
+        <strong><?php echo $_t('दरखास्त चाँडै खुल्नेछ', 'Applications open soon'); ?></strong>
+        <p class="mb-2 small"><?php echo $_t('खुल्ने मितिपछि मात्र फारम भर्न सकिन्छ।', 'You can submit only after the open date.'); ?></p>
+        <ul class="mb-0 small">
+            <?php foreach ($upcomingPrograms as $up): ?>
+            <li>
+                <?php echo htmlspecialchars(honorProgramLabel($up, isEnglish())); ?> —
+                <?php echo $_t('खुल्ने', 'Opens'); ?>:
+                <strong><?php echo htmlspecialchars(honorFormatDtBs((string)$up['opens_at'])); ?></strong>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php else: ?>
     <div class="alert alert-info"><?php echo $_t('हाल कुनै खुला सम्मान दरखास्त कार्यक्रम छैन।', 'No honor application program is open right now.'); ?></div>
+    <?php endif; ?>
     <?php elseif ($memSadasyata === ''): ?>
     <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। दरखास्त दिन पहिले KYC / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
     <?php else: ?>
@@ -168,7 +186,7 @@ require __DIR__ . '/includes/chrome.php';
                 </div>
                 <?php else: ?>
                 <input type="hidden" name="program_id" value="<?php echo (int)$selectedProgramId; ?>">
-                <p class="small text-muted"><?php echo htmlspecialchars(honorProgramLabel($openPrograms[0], isEnglish())); ?> · <?php echo $_t('बन्द', 'Closes'); ?>: <?php echo htmlspecialchars((string)$openPrograms[0]['closes_at']); ?></p>
+                <p class="small text-muted"><?php echo htmlspecialchars(honorProgramLabel($openPrograms[0], isEnglish())); ?> · <?php echo $_t('बन्द', 'Closes'); ?>: <?php echo htmlspecialchars(honorFormatDtBs((string)$openPrograms[0]['closes_at'])); ?></p>
                 <?php endif; ?>
 
                 <div class="mb-3">

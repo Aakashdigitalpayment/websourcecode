@@ -37,16 +37,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $titleEn = clean_text($_POST['title_en'] ?? '', 200);
             $eventLabel = clean_text($_POST['event_label'] ?? '', 120);
             $fiscalYear = clean_text($_POST['fiscal_year'] ?? '', 40);
-            $opensAt = clean_text($_POST['opens_at'] ?? '', 40);
-            $closesAt = clean_text($_POST['closes_at'] ?? '', 40);
+            $opensBs = clean_text($_POST['opens_at_bs'] ?? '', 40);
+            $opensTime = clean_text($_POST['opens_at_time'] ?? '', 12);
+            $closesBs = clean_text($_POST['closes_at_bs'] ?? '', 40);
+            $closesTime = clean_text($_POST['closes_at_time'] ?? '', 12);
             $isActive = isset($_POST['is_active']) ? 1 : 0;
             $showNew = isset($_POST['show_new_badge']) ? 1 : 0;
             $instNp = clean_text($_POST['instructions_np'] ?? '', 8000);
             $instEn = clean_text($_POST['instructions_en'] ?? '', 8000);
             $catIds = array_values(array_unique(array_filter(array_map('intval', (array)($_POST['category_ids'] ?? [])))));
 
-            $opensNorm = $opensAt !== '' ? date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $opensAt))) : '';
-            $closesNorm = $closesAt !== '' ? date('Y-m-d H:i:s', strtotime(str_replace('T', ' ', $closesAt))) : '';
+            $opensNorm = honorCombineBsDateTime($opensBs, $opensTime !== '' ? $opensTime : '00:00');
+            $closesNorm = honorCombineBsDateTime($closesBs, $closesTime !== '' ? $closesTime : '23:59');
 
             if ($titleNp === '' || $opensNorm === '' || $closesNorm === '') {
                 setFlash('error', $__t('शीर्षक र खुल्ने/बन्द मिति अनिवार्य छन्।', 'Title and open/close dates are required.'));
@@ -145,20 +147,37 @@ try {
     $programs = [];
 }
 
-function honorAdminDtLocal(?string $mysqlDt): string
+function honorAdminBsDate(?string $mysqlDt): string
 {
     if (!$mysqlDt) {
         return '';
     }
-    $ts = strtotime($mysqlDt);
-    return $ts ? date('Y-m-d\TH:i', $ts) : '';
+    $ad = substr((string)$mysqlDt, 0, 10);
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+        return '';
+    }
+    if (function_exists('adToBs')) {
+        $bs = trim((string)adToBs($ad));
+        if (preg_match('/^\d{4}-\d{2}-\d{2}/', $bs)) {
+            return substr($bs, 0, 10);
+        }
+    }
+    return $ad;
+}
+
+function honorAdminTimePart(?string $mysqlDt, string $fallback = '00:00'): string
+{
+    if (!$mysqlDt || strlen((string)$mysqlDt) < 16) {
+        return $fallback;
+    }
+    return substr((string)$mysqlDt, 11, 5) ?: $fallback;
 }
 ?>
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h4 class="mb-1"><?php echo $__t('सम्मान दरखास्त कार्यक्रम', 'Honor Application Programs'); ?></h4>
-        <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्।', 'Create programs with open/close dates for AGM / annual celebrations.'); ?></p>
+        <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्। सक्रिय भए पनि खुल्ने मिति अगाडि भए public मा “चाँडै खुल्ने” देखिन्छ; दरखास्त त्यसपछि मात्र।', 'Create programs with open/close dates. Even when Active, before opens_at the public shows “coming soon”; apply only after open.'); ?></p>
     </div>
     <div class="d-flex gap-2">
         <a href="honor-applications.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-inbox me-1"></i><?php echo $__t('आवेदनहरू', 'Applications'); ?></a>
@@ -228,15 +247,44 @@ $selectedCats = $editCatIds;
                     <label class="form-check-label" for="hpNew"><?php echo $__t('नयाँ ब्याज', 'NEW badge'); ?></label>
                 </div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('खुल्ने मिति/समय', 'Opens at'); ?> *</label>
-                <input type="datetime-local" name="opens_at" class="form-control" required
-                       value="<?php echo htmlspecialchars(honorAdminDtLocal((string)$form['opens_at'])); ?>">
+            <?php
+            $opensBsVal = honorAdminBsDate((string)$form['opens_at']);
+            $closesBsVal = honorAdminBsDate((string)$form['closes_at']);
+            $opensTimeVal = honorAdminTimePart((string)$form['opens_at'], '00:00');
+            $closesTimeVal = honorAdminTimePart((string)$form['closes_at'], '23:59');
+            ?>
+            <div class="col-md-3">
+                <label class="form-label"><?php echo $__t('खुल्ने मिति (वि.सं.)', 'Opens date (BS)'); ?> *</label>
+                <div class="input-group">
+                    <input type="text" name="opens_at_bs" class="form-control nepali-datepicker" required
+                           placeholder="YYYY-MM-DD" autocomplete="off"
+                           value="<?php echo htmlspecialchars($opensBsVal); ?>">
+                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('बन्द मिति/समय', 'Closes at'); ?> *</label>
-                <input type="datetime-local" name="closes_at" class="form-control" required
-                       value="<?php echo htmlspecialchars(honorAdminDtLocal((string)$form['closes_at'])); ?>">
+            <div class="col-md-3">
+                <label class="form-label"><?php echo $__t('खुल्ने समय', 'Opens time'); ?> *</label>
+                <input type="time" name="opens_at_time" class="form-control" required
+                       value="<?php echo htmlspecialchars($opensTimeVal); ?>">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><?php echo $__t('बन्द मिति (वि.सं.)', 'Closes date (BS)'); ?> *</label>
+                <div class="input-group">
+                    <input type="text" name="closes_at_bs" class="form-control nepali-datepicker" required
+                           placeholder="YYYY-MM-DD" autocomplete="off"
+                           value="<?php echo htmlspecialchars($closesBsVal); ?>">
+                    <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label"><?php echo $__t('बन्द समय', 'Closes time'); ?> *</label>
+                <input type="time" name="closes_at_time" class="form-control" required
+                       value="<?php echo htmlspecialchars($closesTimeVal); ?>">
+            </div>
+            <div class="col-12">
+                <div class="form-text">
+                    <?php echo $__t('मिति नेपाली (वि.सं.) छान्नुहोस् — DB मा AD मा सुरक्षित हुन्छ। सक्रिय ≠ खुला: खुल्ने मिति आएपछि मात्र public मा दरखास्त खुल्छ; त्यसअघि “चाँडै खुल्ने” देखिन्छ।', 'Pick Nepali (BS) dates — stored as AD. Active ≠ Open: applications open only after opens_at; before that the public shows “coming soon”.'); ?>
+                </div>
             </div>
             <div class="col-12">
                 <label class="form-label"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
@@ -297,7 +345,7 @@ $selectedCats = $editCatIds;
                 <?php if (empty($programs)): ?>
                     <tr><td colspan="6" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै कार्यक्रम छैन।', 'No programs yet.'); ?></td></tr>
                 <?php else: foreach ($programs as $p):
-                    $openNow = honorIsProgramOpenRow($p);
+                    $winState = honorProgramWindowState($p);
                 ?>
                     <tr>
                         <td>
@@ -307,10 +355,14 @@ $selectedCats = $editCatIds;
                             <?php endif; ?>
                         </td>
                         <td class="small">
-                            <?php echo htmlspecialchars((string)$p['opens_at']); ?><br>
-                            <span class="text-muted">→ <?php echo htmlspecialchars((string)$p['closes_at']); ?></span>
-                            <?php if ($openNow): ?>
-                            <div><span class="badge bg-success"><?php echo $__t('खुला', 'Open'); ?></span></div>
+                            <?php echo htmlspecialchars(honorFormatDtBs((string)$p['opens_at'])); ?><br>
+                            <span class="text-muted">→ <?php echo htmlspecialchars(honorFormatDtBs((string)$p['closes_at'])); ?></span>
+                            <?php if ($winState === 'open'): ?>
+                            <div><span class="badge bg-success"><?php echo $__t('खुला (दरखास्त)', 'Open (apply)'); ?></span></div>
+                            <?php elseif ($winState === 'upcoming'): ?>
+                            <div><span class="badge bg-warning text-dark"><?php echo $__t('चाँडै खुल्ने', 'Upcoming'); ?></span></div>
+                            <?php elseif ($winState === 'closed' && !empty($p['is_active'])): ?>
+                            <div><span class="badge bg-secondary"><?php echo $__t('अवधि सकियो', 'Window ended'); ?></span></div>
                             <?php endif; ?>
                         </td>
                         <td class="text-center"><?php echo (int)$p['cat_count']; ?></td>
