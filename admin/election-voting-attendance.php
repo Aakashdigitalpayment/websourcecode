@@ -60,11 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('Member ID/phone match हुने सक्रिय सदस्य भेटिएन।');
             }
             $memberId = (int)$member['id'];
-            $dup = $db->prepare('SELECT id, source, submitted_at FROM election_vote_submissions WHERE cycle_id=? AND member_id=? LIMIT 1');
-            $dup->execute([$cycleId, $memberId]);
-            if ($old = $dup->fetch(PDO::FETCH_ASSOC)) {
-                throw new RuntimeException('Duplicate: यो सदस्यले पहिल्यै voting attendance/vote गरिसक्नु भएको छ (' . (string)$old['source'] . ').');
-            }
 
             $positions = $db->prepare('SELECT id, max_votes_per_voter FROM election_positions WHERE cycle_id=? AND is_active=1');
             $positions->execute([$cycleId]);
@@ -80,30 +75,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $validCandIds[(int)$c['id']] = (int)$c['position_id'];
             }
 
-            $db->beginTransaction();
-            $adminId = (int)($_SESSION['admin_id'] ?? 0);
-            $adminName = (string)($_SESSION['admin_name'] ?? 'Admin');
-            $db->prepare('INSERT INTO election_vote_submissions (cycle_id, member_id, source, proof_type, verified_by_admin_id, verified_by_name, note, ip, user_agent) VALUES (?,?,?,?,?,?,?,?,?)')
-                ->execute([$cycleId, $memberId, 'manual_staff', $proofType, $adminId ?: null, $adminName, $note, substr($_SERVER['REMOTE_ADDR'] ?? '', 0, 64), substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)]);
-
+            $normalizedPicks = [];
             if (is_array($picks) && !empty($picks)) {
-                if (!$manualVoteOpen) {
-                    throw new RuntimeException('मतदान समय बन्द छ — attendance मात्र वा समय खोलेर vote दर्ता गर्नुहोस्।');
-                }
-                $ins = $db->prepare('INSERT INTO election_votes (cycle_id, position_id, candidate_id, member_id) VALUES (?,?,?,?)');
                 foreach ($picks as $pid => $candList) {
                     $pid = (int)$pid;
                     if (!isset($posLimit[$pid])) continue;
                     if (!is_array($candList)) $candList = [$candList];
                     $candList = array_slice(array_unique(array_map('intval', $candList)), 0, $posLimit[$pid]);
+                    $ok = [];
                     foreach ($candList as $candId) {
-                        if (($validCandIds[$candId] ?? 0) !== $pid) continue;
+                        if (($validCandIds[$candId] ?? 0) === $pid) {
+                            $ok[] = $candId;
+                        }
+                    }
+                    if ($ok !== []) {
+                        $normalizedPicks[$pid] = $ok;
+                    }
+                }
+            }
+            $isBallot = $normalizedPicks !== [];
+            if ($isBallot && !$manualVoteOpen) {
+                throw new RuntimeException('मतदान समय बन्द छ — उम्मेदवार नछानी attendance मात्र दर्ता गर्नुहोस्, वा मतदान समय खोल्नुहोस्।');
+            }
+            $source = $isBallot ? 'manual_staff' : 'manual_attendance';
+
+            $dup = $db->prepare('SELECT id, source, is_ballot, submitted_at FROM election_vote_submissions WHERE cycle_id=? AND member_id=? LIMIT 1');
+            $dup->execute([$cycleId, $memberId]);
+            $old = $dup->fetch(PDO::FETCH_ASSOC) ?: null;
+            if ($old) {
+                $oldIsBallot = array_key_exists('is_ballot', $old) ? ((int)$old['is_ballot'] === 1) : true;
+                if ($oldIsBallot) {
+                    throw new RuntimeException('Duplicate: यो सदस्यले पहिल्यै मत (ballot) हालिसक्नु भएको छ (' . (string)$old['source'] . ').');
+                }
+                if (!$isBallot) {
+                    throw new RuntimeException('Duplicate: यो सदस्यको attendance पहिल्यै दर्ता छ। Portal बाट मत हाल्न सक्नुहुन्छ।');
+                }
+                /* Upgrade attendance-only → manual ballot */
+                $db->beginTransaction();
+                $adminId = (int)($_SESSION['admin_id'] ?? 0);
+                $adminName = (string)($_SESSION['admin_name'] ?? 'Admin');
+                $db->prepare('UPDATE election_vote_submissions SET source=?, proof_type=?, verified_by_admin_id=?, verified_by_name=?, note=?, is_ballot=1 WHERE id=?')
+                    ->execute([$source, $proofType, $adminId ?: null, $adminName, $note, (int)$old['id']]);
+                $ins = $db->prepare('INSERT INTO election_votes (cycle_id, position_id, candidate_id, member_id) VALUES (?,?,?,?)');
+                foreach ($normalizedPicks as $pid => $candList) {
+                    foreach ($candList as $candId) {
+                        $ins->execute([$cycleId, $pid, $candId, $memberId]);
+                    }
+                }
+                $db->commit();
+                setFlash('success', 'Attendance बाट manual ballot अपग्रेड भयो।');
+                redirect('election-voting-attendance.php?cycle=' . $cycleId);
+            }
+
+            $db->beginTransaction();
+            $adminId = (int)($_SESSION['admin_id'] ?? 0);
+            $adminName = (string)($_SESSION['admin_name'] ?? 'Admin');
+            $db->prepare('INSERT INTO election_vote_submissions (cycle_id, member_id, source, proof_type, verified_by_admin_id, verified_by_name, note, is_ballot, ip, user_agent) VALUES (?,?,?,?,?,?,?,?,?,?)')
+                ->execute([$cycleId, $memberId, $source, $proofType, $adminId ?: null, $adminName, $note, $isBallot ? 1 : 0, substr($_SERVER['REMOTE_ADDR'] ?? '', 0, 64), substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)]);
+
+            if ($isBallot) {
+                $ins = $db->prepare('INSERT INTO election_votes (cycle_id, position_id, candidate_id, member_id) VALUES (?,?,?,?)');
+                foreach ($normalizedPicks as $pid => $candList) {
+                    foreach ($candList as $candId) {
                         $ins->execute([$cycleId, $pid, $candId, $memberId]);
                     }
                 }
             }
             $db->commit();
-            setFlash('success', 'Manual voting attendance सुरक्षित भयो।');
+            setFlash('success', $isBallot ? 'Manual ballot सुरक्षित भयो।' : 'Attendance only सुरक्षित भयो — सदस्य Portal बाट अझै मत हाल्न सक्नुहुन्छ।');
         } catch (Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
             setFlash('error', $e->getMessage());
@@ -129,13 +168,19 @@ $recent->execute([$cycleId]);
 $recentRows = $recent->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $digitalCount = 0;
 $manualCount = 0;
+$attendanceOnlyCount = 0;
+$ballotCount = 0;
 try {
     $sc = $db->prepare('SELECT source, COUNT(*) AS c FROM election_vote_submissions WHERE cycle_id=? GROUP BY source');
     $sc->execute([$cycleId]);
     foreach ($sc->fetchAll(PDO::FETCH_ASSOC) ?: [] as $sr) {
         if (($sr['source'] ?? '') === 'member_portal') $digitalCount = (int)$sr['c'];
         if (($sr['source'] ?? '') === 'manual_staff') $manualCount = (int)$sr['c'];
+        if (($sr['source'] ?? '') === 'manual_attendance') $attendanceOnlyCount = (int)$sr['c'];
     }
+    $bc = $db->prepare('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=? AND is_ballot=1');
+    $bc->execute([$cycleId]);
+    $ballotCount = (int)$bc->fetchColumn();
 } catch (Throwable $e) {
 }
 ?>
@@ -149,8 +194,8 @@ try {
             <?php foreach ($allCycles as $cy): ?><option value="<?php echo (int)$cy['id']; ?>" <?php echo (int)$cy['id']===$cycleId?'selected':''; ?>><?php echo htmlspecialchars((string)$cy['title_np']); ?></option><?php endforeach; ?>
         </select></div>
         <div class="col-md-6"><div class="alert <?php echo $manualVoteOpen ? 'alert-success' : 'alert-warning'; ?> mb-0 py-2">
-            <?php echo $manualVoteOpen ? 'मतदान समय खुला छ — manual vote पनि दर्ता गर्न मिल्छ।' : 'मतदान समय बन्द छ — duplicate check मात्र; मत दर्ता हुँदैन।'; ?>
-            <div class="small mt-1">Digital: <?php echo (int)$digitalCount; ?> · Manual: <?php echo (int)$manualCount; ?></div>
+            <?php echo $manualVoteOpen ? 'मतदान समय खुला छ — manual ballot पनि दर्ता गर्न मिल्छ।' : 'मतदान समय बन्द छ — attendance only दर्ता हुन्छ; ballot होइन।'; ?>
+            <div class="small mt-1">Ballot: <?php echo (int)$ballotCount; ?> · Digital: <?php echo (int)$digitalCount; ?> · Manual ballot: <?php echo (int)$manualCount; ?> · Attendance only: <?php echo (int)$attendanceOnlyCount; ?></div>
         </div></div>
     </form>
 </div></div>
@@ -160,7 +205,7 @@ try {
         <div class="card admin-table-card h-100">
             <div class="card-header"><h6 class="mb-0"><i class="fas fa-id-card me-2"></i>Manual Voting Attendance</h6></div>
             <div class="card-body">
-                <form method="post" class="row g-2" onsubmit="return confirm('यो सदस्यको voting attendance/vote confirm गर्ने? Confirm पछि duplicate मानिन्छ।');">
+                <form method="post" class="row g-2" onsubmit="return confirm('Confirm गर्ने? Attendance only ले Portal मत रोक्दैन; ballot (उम्मेदवार छानेपछि) ले रोक्छ।');">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="mark_manual_vote">
                     <div class="col-md-6"><label class="form-label small">Member ID / सदस्य नं.</label><input name="member_key" class="form-control" placeholder="MEM-... / ID"></div>
@@ -175,11 +220,13 @@ try {
                     <div class="col-md-6"><label class="form-label small">Note</label><input name="note" class="form-control" placeholder="कर्मचारी नोट"></div>
                     <div class="col-12">
                         <div class="alert alert-info small py-2 mb-0">
-                            Member Portal बाट vote गरेको सदस्य manual मा आए duplicate देखिन्छ। Manual मा proof verify गरेर confirm गरेपछि यो सदस्य फेरि digital/manual vote गर्न पाउँदैन।
+                            <strong>Attendance only</strong> (उम्मेदवार खाली) = उपस्थिति मात्र; सदस्य Portal बाट अझै मत हाल्न सक्छ।
+                            <strong>Manual ballot</strong> (उम्मेदवार छानेपछि) = मत दर्ता; फेरि digital/manual मत रोकिन्छ।
                         </div>
                     </div>
-                    <?php if ($manualVoteOpen && !empty($positions)): ?>
-                    <div class="col-12"><hr><div class="small text-muted mb-2">कागजी/manual ballot यहीँ दर्ता गर्नुपरे उम्मेदवार छान्नुहोस्। उम्मेदवार खाली राखे <strong>attendance only</strong> record हुन्छ।</div></div>
+                    <?php if (!empty($positions)): ?>
+                    <div class="col-12"><hr><div class="small text-muted mb-2"><?php echo $manualVoteOpen ? 'Manual ballot चाहियो भने उम्मेदवार छान्नुहोस्। खाली = attendance only।' : 'मतदान बन्द हुँदा उम्मेदवार छान्न मिल्दैन — attendance only मात्र।'; ?></div></div>
+                    <?php if ($manualVoteOpen): ?>
                     <?php foreach ($positions as $pos): $list = $candByPos[(int)$pos['id']] ?? []; $maxV = max(1, (int)$pos['max_votes_per_voter']); ?>
                         <div class="col-12 border rounded p-2">
                             <div class="fw-semibold small mb-2"><?php echo htmlspecialchars((string)$pos['title_np']); ?> <span class="badge bg-info text-dark">Max <?php echo $maxV; ?></span></div>
@@ -193,6 +240,7 @@ try {
                         </div>
                     <?php endforeach; ?>
                     <?php endif; ?>
+                    <?php endif; ?>
                     <div class="col-12"><button class="btn btn-primary w-100"><i class="fas fa-check me-1"></i>Confirm Manual Attendance</button></div>
                 </form>
             </div>
@@ -204,7 +252,13 @@ try {
             <div class="table-responsive"><table class="table table-sm table-hover align-middle mb-0">
                 <thead><tr><th>Member</th><th>Source</th><th>Proof</th><th>Verified By</th><th>Time</th></tr></thead><tbody>
                 <?php foreach ($recentRows as $r): ?>
-                    <tr><td><strong><?php echo htmlspecialchars((string)($r['name'] ?? '—')); ?></strong><div class="small text-muted"><?php echo htmlspecialchars((string)($r['sadasyata_number'] ?? '')); ?> <?php echo htmlspecialchars((string)($r['phone'] ?? '')); ?></div></td><td><?php echo htmlspecialchars((string)$r['source']); ?></td><td><?php echo htmlspecialchars((string)$r['proof_type']); ?></td><td><?php echo htmlspecialchars((string)$r['verified_by_name']); ?></td><td class="small"><?php echo htmlspecialchars((string)$r['submitted_at']); ?></td></tr>
+                    <tr><td><strong><?php echo htmlspecialchars((string)($r['name'] ?? '—')); ?></strong><div class="small text-muted"><?php echo htmlspecialchars((string)($r['sadasyata_number'] ?? '')); ?> <?php echo htmlspecialchars((string)($r['phone'] ?? '')); ?></div></td><td><?php
+                        $src = (string)($r['source'] ?? '');
+                        $isB = array_key_exists('is_ballot', $r) ? ((int)$r['is_ballot'] === 1) : ($src !== 'manual_attendance');
+                        echo htmlspecialchars($src);
+                        if (!$isB) echo ' <span class="badge bg-secondary">attendance</span>';
+                        else echo ' <span class="badge bg-success">ballot</span>';
+                    ?></td><td><?php echo htmlspecialchars((string)$r['proof_type']); ?></td><td><?php echo htmlspecialchars((string)$r['verified_by_name']); ?></td><td class="small"><?php echo htmlspecialchars((string)$r['submitted_at']); ?></td></tr>
                 <?php endforeach; ?>
                 <?php if (empty($recentRows)): ?><tr><td colspan="5" class="text-center text-muted py-3">अझै voting attendance छैन।</td></tr><?php endif; ?>
                 </tbody></table></div>

@@ -17,6 +17,7 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/card-verify-helpers.php';
 require_once __DIR__ . '/includes/program-tables.php';
 require_once __DIR__ . '/includes/member-partner-services-tables.php';
+require_once __DIR__ . '/includes/partner-facilities-tables.php';
 $_t = static function (string $np, string $en): string {
     return isEnglish() ? $en : $np;
 };
@@ -28,6 +29,7 @@ try {
     if ($pdo) {
         if (function_exists('ensureProgramTables')) { ensureProgramTables($pdo); }
         if (function_exists('ensureMemberPartnerServicesTable')) { ensureMemberPartnerServicesTable($pdo); }
+        if (function_exists('ensurePartnerFacilitiesTables')) { ensurePartnerFacilitiesTables($pdo); }
     }
 } catch (\Throwable $_e) {
     $_dbError = 'DB जडान भएन। कृपया पछि प्रयास गर्नुहोस्।';
@@ -41,6 +43,7 @@ $verifyName = '';
 $verifyMemberId = '';
 $verifyMode = 'name'; // name | legacy
 $logSaved = false;
+$logError = '';
 $programSaved = false;
 $programAlreadyRegistered = false;
 $preregSaved = false;
@@ -83,29 +86,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = ['ok' => false, 'error' => $postCsrfError];
     } elseif (($_POST['action'] ?? '') === 'log_service') {
         $mid       = (int)($_POST['member_id'] ?? 0);
-        $cardNo    = trim($_POST['member_card_no'] ?? '');
+        $cardNo    = trim((string)($_POST['member_card_no'] ?? ''));
         $partnerId = (int)($_POST['partner_id'] ?? 0);
-        $partnerNm = trim($_POST['partner_name'] ?? '');
-        $serviceNm = trim($_POST['service_name'] ?? '');
-        $taken     = (isset($_POST['service_taken']) && $_POST['service_taken'] === 'yes') ? 1 : 0;
-        $note      = trim($_POST['service_note'] ?? '');
-        if ($mid && $partnerNm !== '' && $partnerId > 0) {
-            try {
-                $ins = $pdo->prepare("INSERT INTO member_partner_services
-                    (member_id, member_card_no, partner_id, partner_name, service_name, service_taken, service_note, verified_by_ip)
-                    VALUES (?,?,?,?,?,?,?,?)");
-                $ins->execute([$mid, $cardNo, $partnerId, $partnerNm, mb_substr($serviceNm, 0, 255), $taken, mb_substr($note, 0, 500), $ip]);
-                $logSaved = true;
-            } catch (\Throwable $e) { error_log('mps insert: ' . $e->getMessage()); }
-        }
-        /* re-verify so the success card stays visible after logging */
+        $serviceNm = trim((string)($_POST['service_name'] ?? ''));
+        $taken     = (isset($_POST['service_taken']) && $_POST['service_taken'] === 'yes');
+        $note      = trim((string)($_POST['service_note'] ?? ''));
+        $pin       = (string)($_POST['partner_pin'] ?? '');
         $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
         $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
-        $code = trim($_POST['code'] ?? '');
+        $code = trim((string)($_POST['code'] ?? ''));
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
-        $cvv  = trim($_POST['cvv']  ?? '');
+        $cvv  = trim((string)($_POST['cvv'] ?? ''));
         $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
-        $result = $runPrimaryVerify();
+
+        if ($mid < 1 || $partnerId < 1) {
+            $logError = $_t('साझेदार संस्था छान्नुहोस्।', 'Please select a partner organization.');
+        } elseif (function_exists('checkRateLimit') && !checkRateLimit('partner_service_log', 40, 3600)) {
+            $logError = $_t('धेरै पटक लग भयो। केही समयपछि प्रयास गर्नुहोस्।', 'Too many service logs. Please try again later.');
+        } else {
+            $lr = logMemberPartnerService($pdo, $mid, $cardNo, $partnerId, $serviceNm, $taken, $note, $pin, $ip);
+            if (!empty($lr['ok'])) {
+                $logSaved = true;
+            } else {
+                $errMap = [
+                    'pin' => $_t('साझेदार Desk PIN गलत भयो।', 'Partner desk PIN is incorrect.'),
+                    'partner' => $_t('साझेदार सक्रिय छैन वा भेटिएन।', 'Partner not found or inactive.'),
+                    'duplicate' => $_t('यो साझेदारमा भर्खरै लग भइसकेको छ (९० सेकेन्ड)।', 'Already logged for this partner just now (90s).'),
+                    'db' => $_t('लग सेभ गर्न सकिएन।', 'Could not save service log.'),
+                ];
+                $logError = $errMap[$lr['error'] ?? ''] ?? $_t('सेवा लग असफल।', 'Service log failed.');
+            }
+        }
+        /* Prefer display rebuild — full re-verify can wipe UI via rate-limit */
+        $disp = partnerBuildVerifyDisplayResult($pdo, $mid, $cardNo);
+        $result = !empty($disp['ok']) ? $disp : $runPrimaryVerify();
     } elseif (($_POST['action'] ?? '') === 'program_preregister') {
         $programId = (int)($_POST['program_id'] ?? 0);
         $memberIdInput = trim((string)($_POST['member_id_input'] ?? ''));
@@ -229,11 +243,27 @@ try {
 
 /* Active partner list — only if verify successful, to keep guest queries low */
 $partners = [];
-if ($result && !empty($result['ok'])) {
+$preselectPartnerId = (int)($_POST['partner_id'] ?? $_GET['partner_id'] ?? 0);
+$preselectPartnerCode = strtoupper(trim((string)($_GET['partner'] ?? $_POST['partner_code_hint'] ?? '')));
+if ($result && !empty($result['ok']) && $pdo) {
     try {
-        $partners = $pdo->query("SELECT id, partner_name FROM partner_facilities WHERE is_active=1 ORDER BY partner_name ASC LIMIT 50")
-                        ->fetchAll(PDO::FETCH_ASSOC);
-    } catch (\Throwable $e) { $partners = []; }
+        $partners = $pdo->query(
+            "SELECT id, partner_name, partner_name_en, partner_code, facility_type,
+                    (pin_hash IS NOT NULL AND pin_hash<>'') AS needs_pin
+             FROM partner_facilities WHERE is_active=1
+             ORDER BY is_featured DESC, partner_name ASC LIMIT 200"
+        )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        if ($preselectPartnerId < 1 && $preselectPartnerCode !== '') {
+            foreach ($partners as $p) {
+                if (strcasecmp((string)($p['partner_code'] ?? ''), $preselectPartnerCode) === 0) {
+                    $preselectPartnerId = (int)$p['id'];
+                    break;
+                }
+            }
+        }
+    } catch (\Throwable $e) {
+        $partners = [];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -470,9 +500,132 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 
 <?php if (!empty($logSaved)): ?>
 <div class="vp-success-alert">
-    <i class="fas fa-check me-2"></i><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो।', 'Service log recorded successfully.') ?>
+    <i class="fas fa-check me-2"></i><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?>
 </div>
 <?php endif; ?>
+<?php if (!empty($logError)): ?>
+<div class="vp-alert-error" style="margin-top:12px;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span><?= htmlspecialchars($logError) ?></span>
+</div>
+<?php endif; ?>
+
+<?php if (!empty($partners)): ?>
+<div class="vp-programs-card vp-partner-log-card" style="margin-top:14px;" id="vpPartnerLog">
+    <h3 class="vp-programs-title">
+        <i class="fas fa-handshake"></i> <?= $_t('साझेदार सेवा लग','Log partner service') ?>
+    </h3>
+    <p class="vp-partner-log-hint">
+        <?= $_t('यो सदस्यले तपाईंको संस्थामा सेवा/छुट लिए भने तलबाट लग गर्नुहोस् — सदस्य पोर्टलमा इतिहास देखिन्छ।', 'If this member used your discount/service, log it below — it appears in their member portal history.') ?>
+    </p>
+    <form method="POST" action="" class="vp-partner-log-form">
+        <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
+        <input type="hidden" name="action" value="log_service">
+        <input type="hidden" name="member_id" value="<?= (int)($__m['id'] ?? 0) ?>">
+        <input type="hidden" name="member_card_no" value="<?= htmlspecialchars((string)($__c['card_no'] ?? $__m['member_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="verify_mode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name') ?>">
+        <input type="hidden" name="member_name" value="<?= htmlspecialchars($verifyName !== '' ? $verifyName : (string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="member_id_no" value="<?= htmlspecialchars($verifyMemberId !== '' ? $verifyMemberId : (string)($__m['member_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="code" value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="cvv" value="<?= htmlspecialchars($cvv, ENT_QUOTES, 'UTF-8') ?>">
+
+        <div class="vp-field">
+            <label class="vp-label"><?= $_t('Desk code बाट छिटो','Quick by desk code') ?></label>
+            <input type="text" id="vpPartnerCodeQuick" class="vp-input" placeholder="PF-XXXXXX" autocomplete="off" spellcheck="false" style="letter-spacing:.04em;text-transform:uppercase;">
+            <div class="vp-partner-code-hint"><?= $_t('Code टाइप गर्दा तलको सूची auto-select हुन्छ।', 'Typing a code auto-selects the partner below.') ?></div>
+        </div>
+        <div class="vp-field">
+            <label class="vp-label"><?= $_t('साझेदार संस्था','Partner organization') ?> <span class="req">*</span></label>
+            <select name="partner_id" id="vpPartnerSelect" class="vp-input" required>
+                <option value=""><?= $_t('— छान्नुहोस् —','— Select —') ?></option>
+                <?php foreach ($partners as $p):
+                    $label = partnerFacilityDisplayName($p);
+                    $codeL = trim((string)($p['partner_code'] ?? ''));
+                    $typeL = trim((string)($p['facility_type'] ?? ''));
+                    $opt = $label . ($codeL !== '' ? ' (' . $codeL . ')' : '') . ($typeL !== '' ? ' · ' . $typeL : '');
+                    $sel = ((int)$p['id'] === $preselectPartnerId) ? ' selected' : '';
+                ?>
+                <option value="<?= (int)$p['id'] ?>"
+                        data-code="<?= htmlspecialchars(strtoupper($codeL), ENT_QUOTES, 'UTF-8') ?>"
+                        data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"<?= $sel ?>>
+                    <?= htmlspecialchars($opt) ?>
+                </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="vp-field" id="vpPartnerPinWrap" style="display:none;">
+            <label class="vp-label"><?= $_t('Desk PIN','Desk PIN') ?> <span class="req">*</span></label>
+            <input type="password" name="partner_pin" id="vpPartnerPin" class="vp-input" autocomplete="off" placeholder="••••">
+        </div>
+        <div class="vp-field">
+            <label class="vp-label"><?= $_t('सेवा / वस्तु','Service / item') ?></label>
+            <input type="text" name="service_name" class="vp-input" maxlength="255" placeholder="<?= $_t('जस्तै: ल्याब टेस्ट, खाना','e.g. Lab test, meal') ?>" value="">
+        </div>
+        <div class="vp-field">
+            <label class="vp-label"><?= $_t('नोट','Note') ?></label>
+            <input type="text" name="service_note" class="vp-input" maxlength="500" placeholder="<?= $_t('ऐच्छिक','Optional') ?>">
+        </div>
+        <div class="vp-field" style="margin-bottom:14px;">
+            <label class="vp-label"><?= $_t('सेवा लिइयो?','Service taken?') ?></label>
+            <select name="service_taken" class="vp-input">
+                <option value="yes" selected><?= $_t('हो — लिए','Yes — taken') ?></option>
+                <option value="no"><?= $_t('होइन — verify मात्र','No — verify only') ?></option>
+            </select>
+        </div>
+        <button type="submit" class="vp-btn vp-partner-log-btn">
+            <i class="fas fa-save"></i> <?= $_t('सेवा लग सेभ गर्नुहोस्','Save service log') ?>
+        </button>
+    </form>
+</div>
+<script>
+(function(){
+    var sel = document.getElementById('vpPartnerSelect');
+    var wrap = document.getElementById('vpPartnerPinWrap');
+    var pin = document.getElementById('vpPartnerPin');
+    var quick = document.getElementById('vpPartnerCodeQuick');
+    if (!sel || !wrap) return;
+    function sync() {
+        var opt = sel.options[sel.selectedIndex];
+        var need = opt && opt.getAttribute('data-needs-pin') === '1';
+        wrap.style.display = need ? '' : 'none';
+        if (pin) pin.required = !!need;
+        if (!need && pin) pin.value = '';
+        if (quick && opt && opt.value) {
+            var c = opt.getAttribute('data-code') || '';
+            if (c && document.activeElement !== quick) quick.value = c;
+        }
+    }
+    sel.addEventListener('change', sync);
+    if (quick) {
+        quick.addEventListener('input', function () {
+            var q = (quick.value || '').trim().toUpperCase();
+            if (q.length < 4) return;
+            for (var i = 0; i < sel.options.length; i++) {
+                var oc = (sel.options[i].getAttribute('data-code') || '').toUpperCase();
+                if (oc && oc === q) {
+                    sel.selectedIndex = i;
+                    sync();
+                    break;
+                }
+            }
+        });
+    }
+    sync();
+    <?php if (!empty($logSaved)): ?>
+    var box = document.getElementById('vpPartnerLog');
+    if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    <?php endif; ?>
+})();
+</script>
+<?php elseif (empty($partners) && !empty($result['ok'])): ?>
+<div class="vp-programs-card" style="margin-top:14px;">
+    <p style="font-size:.85rem;color:#6b7280;margin:0;">
+        <?= $_t('अहिले सक्रिय साझेदार सुविधा सूचीमा छैन।','No active partner facilities are listed yet.') ?>
+        <a href="<?= htmlspecialchars(rtrim(SITE_URL,'/') . '/partner-facilities.php') ?>"><?= $_t('सूची हेर्नुहोस्','Browse list') ?></a>
+    </p>
+</div>
+<?php endif; ?>
+
 <?php if (!empty($programSaved)): ?>
 <div class="vp-success-alert">
     <i class="fas fa-check me-2"></i><?= $_t('उपस्थिति दर्ता भयो।', 'Attendance recorded.') ?>
@@ -511,7 +664,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         <div class="vp-card-head-icon"><i class="fas fa-id-card"></i></div>
         <div class="vp-card-head-text">
             <div class="vp-card-head-title"><?= htmlspecialchars($__pageTitleDisplay) ?></div>
-            <div class="vp-card-head-sub"><?= $_t('सदस्यको नाम र सदस्यता नं. राखेर प्रमाणित गर्नुहोस्।', 'Verify with member name and member ID.') ?></div>
+            <div class="vp-card-head-sub"><?= $_t('सदस्यको नाम र सदस्यता नं. राखेर प्रमाणित गर्नुहोस्। साझेदार डेस्कले सेवा लग पनि गर्न सक्छ।', 'Verify with member name and member ID. Partner desks can also log services after verify.') ?></div>
         </div>
     </div>
     <div class="vp-card-body">

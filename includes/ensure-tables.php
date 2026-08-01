@@ -22,6 +22,7 @@ foreach ([
     __DIR__ . '/digital-service-requests-tables.php',
     __DIR__ . '/honor-tables.php',
     __DIR__ . '/partner-facilities-tables.php',
+    __DIR__ . '/member-partner-services-tables.php',
     __DIR__ . '/auction-tables.php',
     __DIR__ . '/vendors-tables.php',
     __DIR__ . '/careers-tables.php',
@@ -394,6 +395,7 @@ function ensurePublicTables(): void {
         if (function_exists('ensureVendorsTables')) { ensureVendorsTables($db); }
 
         if (function_exists('ensurePartnerFacilitiesTables')) { ensurePartnerFacilitiesTables($db); }
+        if (function_exists('ensureMemberPartnerServicesTable')) { ensureMemberPartnerServicesTable($db); }
         if (function_exists('ensureServiceProductsTables')) { ensureServiceProductsTables($db); }
 
         /* ──────────────────────────────────────────────────
