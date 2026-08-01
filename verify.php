@@ -243,6 +243,7 @@ try {
 
 /* Active partner list — only if verify successful, to keep guest queries low */
 $partners = [];
+$memberPartnerLogs = [];
 $preselectPartnerId = (int)($_POST['partner_id'] ?? $_GET['partner_id'] ?? 0);
 $preselectPartnerCode = strtoupper(trim((string)($_GET['partner'] ?? $_POST['partner_code_hint'] ?? '')));
 if ($result && !empty($result['ok']) && $pdo) {
@@ -261,8 +262,13 @@ if ($result && !empty($result['ok']) && $pdo) {
                 }
             }
         }
+        $midForLogs = (int)($result['member']['id'] ?? 0);
+        if ($midForLogs > 0 && function_exists('fetchMemberPartnerServiceLogs')) {
+            $memberPartnerLogs = fetchMemberPartnerServiceLogs($pdo, $midForLogs, 0, 40);
+        }
     } catch (\Throwable $e) {
         $partners = [];
+        $memberPartnerLogs = [];
     }
 }
 ?>
@@ -518,6 +524,56 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
     <p class="vp-partner-log-hint">
         <?= $_t('यो सदस्यले तपाईंको संस्थामा सेवा/छुट लिए भने तलबाट लग गर्नुहोस् — सदस्य पोर्टलमा इतिहास देखिन्छ।', 'If this member used your discount/service, log it below — it appears in their member portal history.') ?>
     </p>
+
+    <!-- Member visit history at partners (filters when partner is chosen) -->
+    <div class="vp-visit-panel" id="vpVisitPanel">
+        <div class="vp-visit-head">
+            <div class="vp-visit-title">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span id="vpVisitTitleText"><?= $_t('यस सदस्यको सेवा इतिहास', 'This member\'s service history') ?></span>
+            </div>
+            <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
+        </div>
+        <div class="vp-visit-list" id="vpVisitList">
+            <?php if (empty($memberPartnerLogs)): ?>
+            <div class="vp-visit-empty" data-empty-all="1">
+                <i class="fas fa-inbox"></i>
+                <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। पहिलो लग तलबाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save the first log below.') ?></span>
+            </div>
+            <?php else:
+                foreach ($memberPartnerLogs as $vl):
+                    $taken = !empty($vl['service_taken']);
+                    $pid = (int)($vl['partner_id'] ?? 0);
+                    $when = function_exists('formatNepaliDate')
+                        ? formatNepaliDate($vl['created_at'] ?? '', true)
+                        : (string)($vl['created_at'] ?? '');
+            ?>
+            <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
+                <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
+                <div class="vp-visit-body">
+                    <div class="vp-visit-org"><?= htmlspecialchars((string)($vl['partner_name'] ?? '—')) ?></div>
+                    <div class="vp-visit-svc">
+                        <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
+                        <?php if (!empty($vl['service_note'])): ?>
+                            <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="vp-visit-meta">
+                        <time><?= htmlspecialchars($when) ?></time>
+                        <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
+                            <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; endif; ?>
+            <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
+                <i class="fas fa-building"></i>
+                <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
+            </div>
+        </div>
+    </div>
+
     <form method="POST" action="" class="vp-partner-log-form">
         <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
         <input type="hidden" name="action" value="log_service">
@@ -547,7 +603,8 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
                 ?>
                 <option value="<?= (int)$p['id'] ?>"
                         data-code="<?= htmlspecialchars(strtoupper($codeL), ENT_QUOTES, 'UTF-8') ?>"
-                        data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"<?= $sel ?>>
+                        data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"
+                        data-name="<?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>"<?= $sel ?>>
                     <?= htmlspecialchars($opt) ?>
                 </option>
                 <?php endforeach; ?>
@@ -583,7 +640,35 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
     var wrap = document.getElementById('vpPartnerPinWrap');
     var pin = document.getElementById('vpPartnerPin');
     var quick = document.getElementById('vpPartnerCodeQuick');
+    var list = document.getElementById('vpVisitList');
+    var countEl = document.getElementById('vpVisitCount');
+    var titleEl = document.getElementById('vpVisitTitleText');
+    var emptyFilter = document.getElementById('vpVisitEmptyFilter');
+    var titleAll = <?= json_encode($_t('यस सदस्यको सेवा इतिहास', "This member's service history"), JSON_UNESCAPED_UNICODE) ?>;
+    var titleAt = <?= json_encode($_t('यस संस्थामा भेट / सेवा लग', 'Visits / service logs at this partner'), JSON_UNESCAPED_UNICODE) ?>;
     if (!sel || !wrap) return;
+
+    function filterVisits() {
+        if (!list) return;
+        var pid = sel.value || '';
+        var rows = list.querySelectorAll('.vp-visit-row');
+        var emptyAll = list.querySelector('[data-empty-all="1"]');
+        var visible = 0;
+        rows.forEach(function (row) {
+            var match = !pid || String(row.getAttribute('data-partner-id') || '') === String(pid);
+            row.hidden = !match;
+            if (match) visible++;
+        });
+        if (emptyAll) emptyAll.hidden = rows.length > 0;
+        if (emptyFilter) emptyFilter.hidden = !(pid && visible === 0);
+        if (countEl) countEl.textContent = String(pid ? visible : rows.length);
+        if (titleEl) {
+            var opt = sel.options[sel.selectedIndex];
+            var nm = opt && opt.value ? (opt.getAttribute('data-name') || '') : '';
+            titleEl.textContent = pid ? (titleAt + (nm ? ' — ' + nm : '')) : titleAll;
+        }
+    }
+
     function sync() {
         var opt = sel.options[sel.selectedIndex];
         var need = opt && opt.getAttribute('data-needs-pin') === '1';
@@ -594,6 +679,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
             var c = opt.getAttribute('data-code') || '';
             if (c && document.activeElement !== quick) quick.value = c;
         }
+        filterVisits();
     }
     sel.addEventListener('change', sync);
     if (quick) {

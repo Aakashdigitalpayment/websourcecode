@@ -100,27 +100,42 @@ try {
         require_once __DIR__ . '/../includes/partner-facilities-tables.php';
         ensurePartnerFacilitiesTables($db);
     }
-    $ph = $db->prepare("SELECT s.partner_name, s.service_name, s.service_taken, s.service_note, s.created_at,
-                               p.facility_type, p.logo_path
-                        FROM member_partner_services s
-                        LEFT JOIN partner_facilities p ON p.id = s.partner_id
-                        WHERE s.member_id = ?
-                        ORDER BY s.created_at DESC
-                        LIMIT 50");
-    $ph->execute([$memberId]);
-    $partnerHistory = $ph->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    if (function_exists('fetchMemberPartnerServiceLogs')) {
+        $partnerHistory = fetchMemberPartnerServiceLogs($db, $memberId, 0, 80);
+    } else {
+        $ph = $db->prepare("SELECT s.partner_id, s.partner_name, s.service_name, s.service_taken, s.service_note, s.created_at,
+                                   p.facility_type, p.logo_path
+                            FROM member_partner_services s
+                            LEFT JOIN partner_facilities p ON p.id = s.partner_id
+                            WHERE s.member_id = ?
+                            ORDER BY s.created_at DESC
+                            LIMIT 80");
+        $ph->execute([$memberId]);
+        $partnerHistory = $ph->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 } catch (Throwable $e) { $partnerHistory = []; }
 
-/* Per-partner summary (name => count taken) */
+/* Per-partner summary (partner_id => stats) */
 $partnerSummary = [];
 foreach ($partnerHistory as $h) {
+    $pid = (int)($h['partner_id'] ?? 0);
     $pn = trim((string)($h['partner_name'] ?? ''));
     if ($pn === '') continue;
-    if (!isset($partnerSummary[$pn])) $partnerSummary[$pn] = ['total' => 0, 'taken' => 0];
-    $partnerSummary[$pn]['total']++;
-    if (!empty($h['service_taken'])) $partnerSummary[$pn]['taken']++;
+    $key = $pid > 0 ? ('id:' . $pid) : ('n:' . $pn);
+    if (!isset($partnerSummary[$key])) {
+        $partnerSummary[$key] = [
+            'partner_id' => $pid,
+            'name' => $pn,
+            'total' => 0,
+            'taken' => 0,
+            'logo' => (string)($h['logo_path'] ?? ''),
+            'type' => (string)($h['facility_type'] ?? ''),
+        ];
+    }
+    $partnerSummary[$key]['total']++;
+    if (!empty($h['service_taken'])) $partnerSummary[$key]['taken']++;
 }
-arsort($partnerSummary); // most-used first
+uasort($partnerSummary, static fn($a, $b) => ($b['total'] <=> $a['total'])); // most-used first
 
 $welcome  = $_GET['welcome'] ?? '';
 if (!in_array($welcome, ['google','facebook'], true)) $welcome = '';
@@ -404,7 +419,7 @@ require __DIR__ . '/includes/chrome.php';
     </div>
 
     <!-- ══════════════════════════════════════════════════════
-         साझेदार संस्था सेवा इतिहास — v6 redesigned
+         साझेदार संस्था सेवा इतिहास — v7 timeline + logos
     ═══════════════════════════════════════════════════════════ -->
     <div class="mem-card midx-card-mt" id="partner-section">
         <div class="mem-card-header">
@@ -415,14 +430,15 @@ require __DIR__ . '/includes/chrome.php';
         </div>
         <div class="mem-card-body">
             <?php if (empty($partnerHistory)): ?>
-            <div class="mem-empty">
+            <div class="mem-empty ph-empty-panel">
                 <span class="mem-empty-icon"><i class="fas fa-handshake"></i></span>
-                <div><?php echo $_t('अहिलेसम्म कुनै साझेदार संस्थामा सेवा लिइएको छैन।', 'No partner services taken yet.'); ?></div>
+                <div class="ph-empty-title"><?php echo $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन', 'No partner service logs yet'); ?></div>
                 <div class="midx-empty-note">
-                    <?php echo $_t('साझेदार संस्थामा Member Card देखाएपछि यहाँ history देखिन्छ।', 'History appears here after showing your Member Card at partner organizations.'); ?>
+                    <?php echo $_t('साझेदार संस्थामा Member Card देखाएर verify भएपछि डेस्कले सेवा लग गर्दा यहाँ इतिहास देखिन्छ।', 'After you show your Member Card at a partner and the desk logs the service, history appears here.'); ?>
                 </div>
                 <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center">
                     <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars($siteUrl); ?>partner-facilities.php"><i class="fas fa-list me-1"></i><?php echo $_t('साझेदार सूची', 'Browse partners'); ?></a>
+                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($siteUrl); ?>verify.php" target="_blank" rel="noopener"><i class="fas fa-id-card me-1"></i><?php echo $_t('Verify पेज', 'Verify page'); ?></a>
                 </div>
             </div>
             <?php else:
@@ -446,35 +462,46 @@ require __DIR__ . '/includes/chrome.php';
                     <div class="ph-total-lbl"><?php echo $_t('संस्थाहरू', 'Organizations'); ?></div>
                 </div>
             </div>
+            <p class="ph-cap-note"><?php echo $_t('पछिल्ला भेटहरू — संस्था छानेर फिल्टर गर्न सकिन्छ।', 'Recent visits — filter by organization.'); ?></p>
 
             <!-- Per-partner filter pills -->
-            <div class="ph-summary-row">
-                <span class="ph-summary-pill active" data-filter="all" onclick="phFilter('all', this)">
+            <div class="ph-summary-row" role="tablist" aria-label="<?php echo htmlspecialchars($_t('संस्था फिल्टर', 'Partner filter')); ?>">
+                <button type="button" class="ph-summary-pill active" data-filter="all" onclick="phFilter('all', this)">
                     <i class="fas fa-th-large midx-ph-mini"></i>
                     <?php echo $_t('सबै', 'All'); ?>
                     <span class="ph-pill-count"><?php echo count($partnerHistory); ?></span>
-                </span>
-                <?php foreach ($partnerSummary as $pname => $pdata): ?>
-                <span class="ph-summary-pill" data-filter="<?php echo htmlspecialchars($pname, ENT_QUOTES); ?>" onclick="phFilter(<?php echo json_encode($pname); ?>, this)">
+                </button>
+                <?php foreach ($partnerSummary as $pdata):
+                    $fkey = ((int)$pdata['partner_id'] > 0) ? ('pid:' . (int)$pdata['partner_id']) : ('name:' . $pdata['name']);
+                ?>
+                <button type="button" class="ph-summary-pill" data-filter="<?php echo htmlspecialchars($fkey, ENT_QUOTES); ?>" onclick="phFilter(<?php echo json_encode($fkey); ?>, this)">
                     <i class="fas fa-building midx-ph-mini"></i>
-                    <?php echo htmlspecialchars($pname); ?>
-                    <span class="ph-pill-count"><?php echo $pdata['total']; ?> <?php echo $_t('पटक', 'times'); ?></span>
-                </span>
+                    <?php echo htmlspecialchars($pdata['name']); ?>
+                    <span class="ph-pill-count"><?php echo (int)$pdata['total']; ?></span>
+                </button>
                 <?php endforeach; ?>
             </div>
 
             <!-- History rows -->
-            <div id="phList">
+            <div id="phList" class="ph-timeline">
                 <?php foreach ($partnerHistory as $h):
-                    $pnAttr = htmlspecialchars(trim((string)($h['partner_name'] ?? '')), ENT_QUOTES);
+                    $pid = (int)($h['partner_id'] ?? 0);
+                    $pn  = trim((string)($h['partner_name'] ?? ''));
+                    $fkey = $pid > 0 ? ('pid:' . $pid) : ('name:' . $pn);
                     $taken  = !empty($h['service_taken']);
+                    $logoUrl = function_exists('partnerFacilityLogoUrl') ? partnerFacilityLogoUrl($h) : '';
+                    $isHospital = (($h['facility_type'] ?? '') === 'अस्पताल');
                 ?>
-                <div class="ph-history-item" data-org="<?php echo $pnAttr; ?>">
-                    <div class="ph-org-icon">
-                        <i class="fas fa-<?php echo ($h['facility_type'] ?? '') === 'अस्पताल' ? 'hospital' : 'building-columns'; ?>"></i>
+                <div class="ph-history-item" data-filter-key="<?php echo htmlspecialchars($fkey, ENT_QUOTES); ?>">
+                    <div class="ph-org-icon<?php echo $logoUrl !== '' ? ' has-logo' : ''; ?>">
+                        <?php if ($logoUrl !== ''): ?>
+                        <img src="<?php echo htmlspecialchars($logoUrl); ?>" alt="" loading="lazy" width="40" height="40">
+                        <?php else: ?>
+                        <i class="fas fa-<?php echo $isHospital ? 'hospital' : 'building-columns'; ?>"></i>
+                        <?php endif; ?>
                     </div>
                     <div class="ph-info">
-                        <div class="ph-org-name"><?php echo htmlspecialchars($h['partner_name'] ?? '—'); ?></div>
+                        <div class="ph-org-name"><?php echo htmlspecialchars($pn !== '' ? $pn : '—'); ?></div>
                         <div class="ph-svc-name">
                             <i class="fas fa-stethoscope midx-ph-org"></i>
                             <?php echo htmlspecialchars($h['service_name'] ?: $_t('सेवा उल्लेख छैन', 'Service not specified')); ?>
@@ -491,13 +518,12 @@ require __DIR__ . '/includes/chrome.php';
                 </div>
                 <?php endforeach; ?>
             </div>
+            <div class="ph-footer-links">
+                <a href="<?php echo htmlspecialchars($siteUrl); ?>partner-facilities.php"><i class="fas fa-list me-1"></i><?php echo $_t('सबै साझेदार हेर्नुहोस्', 'See all partners'); ?></a>
+            </div>
             <?php endif; ?>
         </div>
     </div>
-
-<script>
-/* Partner history filter */
-</script>
 
     <!-- ─────── Quick Apply (moved to bottom) ─────── -->
     <div class="mem-card midx-card-mt">
@@ -544,7 +570,7 @@ function phFilter(val, pill) {
     document.querySelectorAll('.ph-summary-pill').forEach(function(p){ p.classList.remove('active'); });
     if (pill) pill.classList.add('active');
     document.querySelectorAll('#phList .ph-history-item').forEach(function(row){
-        var match = val === 'all' || row.getAttribute('data-org') === val;
+        var match = val === 'all' || row.getAttribute('data-filter-key') === val;
         row.classList.toggle('ph-hidden', !match);
     });
 }
