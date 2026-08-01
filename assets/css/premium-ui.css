@@ -84,7 +84,7 @@ p, li, td, th, label, span,
 .pfl-top-bar span,
 .pfl-top-bar li {
   font-family: var(--prem-font-body) !important;
-  font-size: 0.8125rem !important;
+  font-size: 0.875rem !important;
   letter-spacing: 0.01em;
 }
 
