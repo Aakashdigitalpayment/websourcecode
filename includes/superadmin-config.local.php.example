@@ -2,8 +2,9 @@
 /**
  * कपी गरेर `superadmin-config.local.php` बनाउनुहोस् (gitignore)।
  *
- * फ्लो: तलका define → `admin/index.php` मा login → panel → `manage-admins.php` मा अरू admin/editor।
- * Superadmin पासवर्ड बदल्न: cPanel मा यही फाइल edit (अलग setup URL छैन)।
+ * नयाँ client: database.local.php भरेपछि यहीँ username + password सेट → /admin/ login।
+ * Tables auto बन्छन् — install.php / db-setup अनिवार्य होइन।
+ * पासवर्ड बदल्न: cPanel मा यही फाइल edit (login गर्दा DB sync)।
  *
  * SUPER_ADMIN_INITIAL_PASSWORD खाली ('') पारेपछि superadmin पनि change-password / DB मार्फत।
  */

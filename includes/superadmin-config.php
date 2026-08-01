@@ -1,16 +1,14 @@
 <?php
 /**
- * Superadmin — तपाईंको “पहिले जस्तै” मोडेल (admin login नै प्रवेशद्वार)
+ * Superadmin — फाइलबाट (admin login नै प्रवेशद्वार)
  *
- * १) cPanel → `includes/superadmin-config.local.php` (example बाट कपी)।
- * २) त्यसमा `SUPER_ADMIN_USERNAME` + `SUPER_ADMIN_INITIAL_PASSWORD` — यही superadmin को hardcode।
- * ३) DB पहिले नमिलेको: `includes/database.local.php` भरिसकेको छ भने `…/admin/db-setup.php` सिधै खुल्छ;
- *    नभए `superadmin-config.local.php` को user/pass ले unlock। install.sql पछि `admin/index.php` login।
- * ४) Login ले DB मा super_admin row बनाउँछ/मिलाउँछ; पछि panel खुल्छ।
- * ५) Superadmin ले `manage-admins.php` मा अरू admin/editor create गर्छ (नयाँ staff को पासवर्ड DB)।
- * ६) Superadmin पासवर्ड बदल्न फेरि मात्र फाइल edit + login (hash sync)।
- * ७) `SUPER_ADMIN_INITIAL_PASSWORD` खाली नभएसम्म यो username admin सूची/UI मा देखिँदैन।
+ * नयाँ client (theme) — सरल:
+ * १) `includes/database.local.php` — DB host/name/user/pass
+ * २) `includes/superadmin-config.local.php` — SUPER_ADMIN_USERNAME + SUPER_ADMIN_INITIAL_PASSWORD
+ * ३) `admin/index.php` login → tables auto · superadmin seed · dashboard
+ * ४) `manage-admins.php` मा अरू admin/editor
  *
+ * Optional wizard: `install.php` · Emergency: `admin/db-setup.php` (sidebar मा छैन)
  * Local फाइल छैन भने: `install.sql` को `admin` / `password` (backup) प्रयोग हुन सक्छ।
  */
 declare(strict_types=1);

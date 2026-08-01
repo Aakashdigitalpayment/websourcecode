@@ -41,6 +41,14 @@ if (!function_exists('fa_to_lucide')) {
 require_once __DIR__ . '/../../includes/notifications.php';
 /* Admin tables auto-create — DB मा tables नभएमा automatically बनाउँछ */
 require_once __DIR__ . '/../includes/ensure-admin-tables.php';
+/* Public install wizard lock — auto-heal when local DB config exists */
+$__installerLock = __DIR__ . '/../../includes/installer-lock.php';
+if (is_file($__installerLock)) {
+    require_once $__installerLock;
+    if (function_exists('coop_installer_auto_lock')) {
+        coop_installer_auto_lock();
+    }
+}
 
 /* IS_ADMIN_PAGE — admin-ui.php को security guard — यहाँ एकै पटक define गर्नुहोस् */
 if (!defined('IS_ADMIN_PAGE')) define('IS_ADMIN_PAGE', true);
@@ -264,9 +272,9 @@ $pageGroups = [
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-import','member-activities'],
     'memportal'=> ['member-online-portal'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
-    'prawidhi'=> ['system-info','run-migration','backup-restore','update-checklist','site-health','db-setup','site-license'],
-    /* admin management pages */
-    'superadmin'=> ['manage-admins','site-setup'],
+    'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
+    /* admin management pages — site-setup kept for direct URL; not in daily nav */
+    'superadmin'=> ['manage-admins','site-setup','db-setup','run-migration'],
 ];
 $activeGroup = '';
 foreach ($pageGroups as $group => $pages) {
@@ -852,13 +860,6 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="system-info.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="server"></i></span><span><?php echo $adminT('प्रणाली जानकारी', 'System Info'); ?></span></a>
                             </li>
                             <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                            <li class="<?php echo $currentPage=='run-migration' ? 'active' : ''; ?>">
-                                <a href="run-migration.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="database"></i></span>
-                                    <span><?php echo $adminT('डेटाबेस Migration', 'Database Migration'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
                             <li class="<?php echo $currentPage=='backup-restore' ? 'active' : ''; ?>">
                                 <a href="backup-restore.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
@@ -892,29 +893,12 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('📖 सहायता / Help', '📖 Help / Guide'); ?></span>
                                 </a>
                             </li>
-                            <!-- Site Setup Manager — Superadmin only (page also gated) -->
-                            <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                            <li class="<?php echo $currentPage=='site-setup' ? 'active' : ''; ?>">
-                                <a href="site-setup.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="sliders"></i></span>
-                                    <span><?php echo $adminT('साइट सेटअप', 'Site Setup'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
-                            <?php endif; ?>
                             <!-- साइट म्याद — Superadmin only -->
                             <?php if (!empty($_SESSION['is_superadmin'])): ?>
                             <li class="<?php echo $currentPage=='site-license' ? 'active' : ''; ?>">
                                 <a href="site-license.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="calendar-check"></i></span>
                                     <span><?php echo $adminT('साइट म्याद', 'Site License'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='db-setup' ? 'active' : ''; ?>">
-                                <a href="db-setup.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary-soft" aria-hidden="true" data-lucide="database"></i></span>
-                                    <span><?php echo $adminT('DB सेटअप', 'DB Setup'); ?></span>
                                     <span class="sa-label-badge">SA</span>
                                 </a>
                             </li>

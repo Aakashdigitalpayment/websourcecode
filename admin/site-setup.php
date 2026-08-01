@@ -12,8 +12,10 @@
  */
 
 require_once dirname(__DIR__) . '/includes/superadmin-config.php';
+require_once dirname(__DIR__) . '/includes/installer-lock.php';
 
 $pageTitle = 'Site Setup Manager';
+$currentPage = 'site-setup';
 require_once 'includes/admin-header.php';
 
 /* Superadmin only — site identity / setup lock is sensitive (matches manage-admins pattern) */
@@ -24,9 +26,9 @@ if (empty($_SESSION['is_superadmin'])) {
 
 $db = getDB();
 
-/* Lock file status */
-$lockFile    = dirname(__DIR__) . '/.setup.lock';
-$setupLocked = file_exists($lockFile);
+coop_installer_auto_lock();
+$installer = coop_installer_status();
+$setupLocked = $installer['public_safe'];
 
 /* setup-config.php owner email (for display only) */
 $ownerEmail = '';
@@ -44,7 +46,7 @@ if (file_exists($configFile)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
-    /* ── १. Site Settings Update — setup.php र admin panel दुवैले same table use गर्छन् ── */
+    /* ── १. Site Settings Update — install wizard र admin panel दुवैले same table use गर्छन् ── */
     if ($action === 'update_settings') {
         $updates = [
             'site_name'  => trim($_POST['site_name']   ?? ''),
@@ -62,31 +64,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         setFlash($saved > 0 ? 'success' : 'warning',
-                 $saved > 0 ? 'Site settings save भयो। दुवै ठाउँ (setup.php र admin panel) मा same data देखिनेछ।'
+                 $saved > 0 ? 'Site settings save भयो।'
                             : 'केही पनि update भएन — fields खाली थिए।');
         redirect('site-setup.php');
     }
 
-    /* ── २. Setup Lock Toggle (superadmin only) ── */
+    /* ── २. Install wizard Lock Toggle (superadmin only) ── */
     if ($action === 'toggle_lock') {
         if (!$isSuperAdmin) {
             setFlash('error', 'यो कार्य केवल Superadmin ले गर्न सक्छ।');
         } else {
-            if ($setupLocked) {
-                @unlink($lockFile);
-                setFlash('info', 'setup.php unlock भयो — public URL बाट फेरि setup गर्न सकिन्छ।');
-            } else {
-                file_put_contents($lockFile,
-                    date('Y-m-d H:i:s') . ' — Admin Panel बाट lock: '
-                    . ($_SESSION['admin_username'] ?? $_SESSION['admin_name'] ?? 'admin'));
-                setFlash('success', 'setup.php lock भयो — public URL बाट access बन्द।');
-            }
+            $wantLock = !$setupLocked;
+            coop_installer_toggle_lock($wantLock);
+            $installer = coop_installer_status();
+            $setupLocked = $installer['public_safe'];
+            setFlash(
+                $wantLock ? 'success' : 'info',
+                $wantLock
+                    ? 'Public install wizard lock भयो (install.lock)।'
+                    : 'Install lock हटाइयो — database.local.php भए .htaccess ले install.php अझै रोक्न सक्छ।'
+            );
         }
         redirect('site-setup.php');
     }
 }
 
-/* ── Current site settings (setup.php र यहाँबाट — same DB table) ── */
+/* ── Current site settings ── */
 $siteName    = getSetting('site_name', 'Aakash Cooperative');
 $siteEmail   = getSetting('email', '');
 $sitePhone   = getSetting('phone', '');
@@ -147,9 +150,9 @@ try {
                         ? '<i class="fas fa-lock ss-icon-locked"></i>'
                         : '<i class="fas fa-lock-open ss-icon-unlocked"></i>'; ?>
                 </div>
-                <div class="fw-bold"><?php echo $setupLocked ? 'Setup Locked ✓' : '⚠️ Unlocked'; ?></div>
+                <div class="fw-bold"><?php echo $setupLocked ? 'Install Locked ✓' : '⚠️ Unlocked'; ?></div>
                 <div class="text-muted small mt-1">
-                    <?php echo $setupLocked ? 'setup.php public access बन्द' : 'setup.php public मा खुल्छ'; ?>
+                    <?php echo htmlspecialchars($installer['detail'], ENT_QUOTES, 'UTF-8'); ?>
                 </div>
             </div>
         </div>
@@ -166,15 +169,11 @@ try {
         <div class="col-sm-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100 text-center p-3">
                 <div class="ss-status-icon ss-icon-info">
-                    <i class="fas fa-table-list"></i>
+                    <i class="fas fa-sliders"></i>
                 </div>
-                <div class="fw-bold">DB Setup</div>
-                <div class="text-muted small mt-1">तालिका सूची र install.sql</div>
-                <?php if ($isSuperAdmin): ?>
-                <a href="db-setup.php" class="btn btn-sm btn-outline-primary mt-2">खोल्नुहोस्</a>
-                <?php else: ?>
-                <div class="text-muted small mt-2">Superadmin</div>
-                <?php endif; ?>
+                <div class="fw-bold">Site Settings</div>
+                <div class="text-muted small mt-1">दैनिक सेटिङहरू</div>
+                <a href="settings.php" class="btn btn-sm btn-outline-primary mt-2">खोल्नुहोस्</a>
             </div>
         </div>
         <div class="col-sm-6 col-lg-3">
@@ -228,13 +227,15 @@ try {
                     <i class="fas fa-cog me-2"></i>
                     Site Settings
                     <span class="ss-site-settings-subtitle">
-                        — setup.php र admin panel दुवैले यही table use गर्छन्
+                        — admin Settings सँग एउटै <code>site_settings</code> table
                     </span>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info py-2 small mb-3">
                         <i class="fas fa-sync-alt me-1"></i>
-                        यहाँ update गरेको setup.php मा र setup.php बाट update गरेको यहाँ — <strong>automatically same</strong> देखिन्छ। एउटै database table (<code>site_settings</code>) प्रयोग हुन्छ।
+                        दैनिक सेटिङका लागि <a href="settings.php" class="alert-link">Full Settings</a> प्रयोग गर्नुहोस्।
+                        पहिलो पटक DB: public <code>install.php</code> वा <code>includes/database.local.php</code>।
+                        नयाँ column/table: page load मा auto (<code>ensure*Tables</code>) — admin मा छुट्टै Migration चाहिँदैन।
                     </div>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="update_settings">
@@ -316,66 +317,62 @@ try {
         <!-- ════ RIGHT ════ -->
         <div class="col-lg-5">
 
-            <!-- ── Database — विस्तृत सूची `db-setup.php` मा मात्र (दोहोरो हटाइयो) ── -->
+            <!-- ── Database — दैनिक admin मा चाहिँदैन; emergency URL मात्र ── -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <span><i class="fas fa-database me-2"></i>Database & migration</span>
+                    <span><i class="fas fa-database me-2"></i>Database (emergency)</span>
                 </div>
                 <div class="card-body">
-                    <p class="small text-muted mb-3">
-                        सबै तालिकाको स्थिति, <code>install.sql</code> चलाउने, SQL upload, schema lock reset —
-                        <strong>DB Setup</strong> पृष्ठमा एउटै ठाउँमा छ। यहाँको छोटो सूची हटाइएको छ ताकि <code>db-setup.php</code> नै स्रोत हुन्।
+                    <p class="small text-muted mb-2">
+                        सामान्य अपडेटमा column/table आफैं बन्छ।
+                        DB credentials: <code>install.php</code> (पहिलो पटक) वा cPanel मा <code>includes/database.local.php</code>।
+                        Admin sidebar बाट DB Setup / Migration हटाइएको छ — फाइलहरू project मा छन्।
                     </p>
                     <?php if ($isSuperAdmin): ?>
-                    <a href="db-setup.php" class="btn btn-success btn-sm w-100 mb-2">
-                        <i class="fas fa-table-list me-1"></i>DB Setup खोल्नुहोस्
-                    </a>
-                    <a href="run-migration.php" class="btn btn-outline-secondary btn-sm w-100">
-                        <i class="fas fa-terminal me-1"></i>Advanced Migration / SQL Upload
-                    </a>
-                    <?php else: ?>
-                    <p class="text-muted small mb-0">
-                        <i class="fas fa-shield-alt me-1"></i>DB Setup र install.sql चलाउन Superadmin चाहिन्छ।
+                    <p class="small mb-0 text-muted">
+                        Emergency (direct URL):
+                        <code>admin/db-setup.php</code> ·
+                        <code>admin/run-migration.php</code>
                     </p>
                     <?php endif; ?>
                 </div>
             </div>
 
-            <!-- ── setup.php Lock / Unlock ── -->
+            <!-- ── Public install lock ── -->
             <div class="card border-0 shadow-sm mb-4 ss-lock-card <?php echo $setupLocked ? 'is-locked' : 'is-unlocked'; ?>">
                 <div class="card-header py-2"
                      >
                     <i class="fas fa-<?php echo $setupLocked ? 'lock' : 'lock-open'; ?> me-2"></i>
-                    setup.php — <?php echo $setupLocked ? 'Locked ✓' : '⚠️ Unlocked'; ?>
+                    install.php — <?php echo $setupLocked ? 'Locked ✓' : '⚠️ Unlocked'; ?>
                 </div>
                 <div class="card-body">
                     <?php if ($setupLocked): ?>
                     <p class="text-muted small mb-3">
                         <i class="fas fa-shield-halved me-1 text-success"></i>
-                        setup.php public URL बाट access बन्द छ। सुरक्षित अवस्था।<br>
-                        Re-setup चाहिन्छ भने Superadmin ले unlock गर्न सक्छ।
+                        <?php echo htmlspecialchars($installer['detail'], ENT_QUOTES, 'UTF-8'); ?>
+                        <?php if (!$installer['setup_php']): ?>
+                            <br><span class="text-success">legacy <code>setup.php</code> package मा छैन।</span>
+                        <?php endif; ?>
                     </p>
                     <?php else: ?>
                     <div class="alert alert-danger py-2 small mb-3">
                         <i class="fas fa-exclamation-triangle me-1"></i>
-                        <strong>Warning:</strong> setup.php unlock छ!
-                        जो कोहीले पनि public URL बाट admin बनाउन सक्छ।
-                        तुरुन्त lock गर्नुहोस्!
+                        <strong>Warning:</strong> Public install wizard unlock देखिन्छ — तुरुन्त lock गर्नुहोस्।
                     </div>
                     <?php endif; ?>
 
                     <?php if ($isSuperAdmin): ?>
                     <form method="POST"
                           onsubmit="return confirm('<?php echo $setupLocked
-                              ? 'setup.php unlock गर्ने? Public URL बाट access खुल्नेछ!'
-                              : '⚠️ setup.php lock गर्ने?'; ?>');">
+                              ? 'Install lock हटाउने? (local DB फाइल भए .htaccess ले अझै रोक्न सक्छ)'
+                              : '⚠️ Public install wizard lock गर्ने?'; ?>');">
                         <input type="hidden" name="action" value="toggle_lock">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <button type="submit"
                                 class="btn btn-sm <?php echo $setupLocked ? 'btn-outline-danger' : 'btn-danger'; ?>">
                             <i class="fas fa-<?php echo $setupLocked ? 'lock-open' : 'lock'; ?> me-1"></i>
                             <?php echo $setupLocked
-                                ? 'Unlock गर्नुहोस् (Public Access)'
+                                ? 'Unlock locks (सावधानी)'
                                 : 'Lock गर्नुहोस् (बन्द गर्नुहोस्)'; ?>
                         </button>
                     </form>
@@ -410,21 +407,14 @@ try {
                     <a href="settings.php" class="list-group-item list-group-item-action">
                         <i class="fas fa-sliders me-2 text-warning"></i>Full Site Settings
                     </a>
-                    <?php if ($isSuperAdmin): ?>
-                    <a href="db-setup.php" class="list-group-item list-group-item-action">
-                        <i class="fas fa-table-list me-2 text-success"></i>DB Setup (तालिका + install.sql)
-                    </a>
-                    <?php endif; ?>
-                    <a href="run-migration.php" class="list-group-item list-group-item-action">
-                        <i class="fas fa-database me-2 text-success"></i>Database Migration
-                    </a>
                     <a href="site-health.php" class="list-group-item list-group-item-action">
                         <i class="fas fa-heart-pulse me-2 text-danger"></i>Site Health Check
                     </a>
-                    <a href="../setup.php" target="_blank" class="list-group-item list-group-item-action">
-                        <i class="fas fa-external-link-alt me-2 text-secondary"></i>
-                        setup.php Public URL
-                        <?php echo $setupLocked ? '<span class="badge bg-success ms-1">Locked</span>' : '<span class="badge bg-danger ms-1">Unlocked ⚠️</span>'; ?>
+                    <a href="system-info.php" class="list-group-item list-group-item-action">
+                        <i class="fas fa-server me-2 text-secondary"></i>System Info
+                        <?php echo $setupLocked
+                            ? '<span class="badge bg-success ms-1">Install Locked</span>'
+                            : '<span class="badge bg-danger ms-1">Install Unlocked ⚠️</span>'; ?>
                     </a>
                 </div>
             </div>

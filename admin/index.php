@@ -2,22 +2,24 @@
 /**
  * Admin Login — `admin/index.php` (एउटै URL, सबै admin/superadmin यहीँबाट)
  * =====================================================================
- * पहिले जस्तै फ्लो:
- *   १) Superadmin को username/password → `includes/superadmin-config.local.php` (cPanel, hardcode)।
- *   २) यही पृष्ठमा login — पहिलो पटक DB मा super_admin row seed/sync हुन्छ।
- *   ३) Dashboard खुल्छ → `manage-admins.php` मा अरू admin/editor बनाउन सकिन्छ।
- *   ४) Superadmin पासवर्ड बदल्न फेरि मात्र त्यो फाइल edit (अलग superadmin setup URL छैन)।
+ * नयाँ client (theme) — सरल ४ कदम (db-setup / install.php अनिवार्य होइन):
+ *   १) Repo → public_html
+ *   २) cPanel मा MySQL database बनाउने
+ *   ३) `includes/database.local.php` मा host/name/user/pass
+ *   ४) `includes/superadmin-config.local.php` मा username + password → यहीँ login
+ * Tables/columns पहिलो login / page load मा auto (`ensure*Tables`).
  *
- * `database/install.sql` को default `admin`/`password` = backup जब local फाइल हुँदैन;
- * production मा local फाइल राख्नु नै राम्रो।
- *
- * DB जडान नभए login चल्दैन — पहिलो पटक `admin/db-setup.php` (`database.local.php` भरे सिधै, नभए superadmin unlock)।
+ * Optional: `install.php` wizard · Emergency: `admin/db-setup.php` (direct URL)
  */
 
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/site-license-renewal.php';
 require_once __DIR__ . '/../includes/superadmin-config.php';
 require_once __DIR__ . '/../includes/totp-2fa.php';
+/* Fresh empty DB: admin_users + core tables — login अघि नै (install.sql नचलाए पनि) */
+if (defined('DB_NAME') && DB_NAME !== '') {
+    require_once __DIR__ . '/includes/ensure-admin-tables.php';
+}
 
 if (!function_exists('coop_admin_ensure_twofa_columns')) {
     /** admin_users मा 2FA columns — प्रति request एक पटक मात्र */
@@ -384,17 +386,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
         } catch (Throwable $e) {
             error_log('Admin login error: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
             $em = $e->getMessage();
-            if (str_contains($em, 'Database connection not available')) {
-                $dsu = defined('ADMIN_URL') ? ADMIN_URL . 'db-setup.php' : 'admin/db-setup.php';
-                $error = 'डेटाबेस जडान उपलब्ध छैन। `public_html/includes/database.local.php` मा DB host/name/user/pass जाँच गर्नुहोस्। पहिलो install: ' . $dsu;
+            if (str_contains($em, 'Database connection not available') || str_contains($em, 'DB_NAME')) {
+                $error = 'डेटाबेस जडान छैन। `includes/database.local.php` मा DB host/name/user/pass भर्नुहोस् (example बाट कपी)।';
             } elseif (str_contains($em, '2002') || str_contains($em, '2006') || str_contains($em, 'Connection refused')) {
                 $error = 'MySQL server मा जडान हुन सकेन (host/socket)। hosting मा DB host जाँच गर्नुहोस्।';
             } elseif (str_contains($em, '1045') || str_contains($em, 'Access denied')) {
-                $error = 'डेटाबेस user वा password गलत छ।';
+                $error = 'डेटाबेस user वा password गलत छ — `database.local.php` जाँच गर्नुहोस्।';
             } elseif (str_contains($em, '1049') || str_contains($em, "Unknown database")) {
-                $error = 'डेटाबेस नाम (DB name) भेटिएन।';
+                $error = 'डेटाबेस नाम भेटिएन — cPanel मा DB बनाई `database.local.php` मा सही name राख्नुहोस्।';
             } elseif (str_contains($em, '1146') || str_contains($em, "doesn't exist")) {
-                $error = 'डेटाबेस तालिका छैन। `install.sql` import वा admin मा run-migration चलाउनुहोस्।';
+                /* Auto-heal: schema miss हुँदा ensure फेरि चलाएर login retry गर्न भन्ने */
+                try {
+                    if (function_exists('ensureAdminTables')) {
+                        ensureAdminTables();
+                    } else {
+                        require_once __DIR__ . '/includes/ensure-admin-tables.php';
+                    }
+                    $error = 'तालिका तयार पारियो। युजरनेम/पासवर्ड फेरि submit गर्नुहोस्।';
+                } catch (Throwable $e2) {
+                    $error = 'तालिका बन्न सकेन। `database.local.php` सही छ कि हेर्नुहोस्, अनि refresh गरी login।';
+                }
             } else {
                 $error = 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।';
             }

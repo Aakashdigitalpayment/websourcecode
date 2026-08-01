@@ -1,7 +1,13 @@
 <?php
 /**
  * Copy to database.local.php (same folder). That file is gitignored.
- * cPanel / प्रत्येक install मा फरक — Git मा यो फाइल जाँदैन (pull conflict हुँदैन)।
+ *
+ * नयाँ client — सरल setup (यो नै पर्याप्त):
+ *   1) Repo → public_html
+ *   2) cPanel → MySQL database + user बनाउने
+ *   3) यो फाइल कपी: database.local.php.example → database.local.php (तल details)
+ *   4) superadmin-config.local.php.example → superadmin-config.local.php (पासवर्ड)
+ *   5) /admin/ मा login — tables आफैं बन्छन्
  *
  *   cp includes/database.local.php.example includes/database.local.php
  *   chmod 600 includes/database.local.php   # optional

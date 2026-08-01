@@ -263,6 +263,49 @@ try {
         </div>
     </div>
 
+    <?php
+    $__il = dirname(__DIR__) . '/includes/installer-lock.php';
+    if (is_file($__il)) {
+        require_once $__il;
+        coop_installer_auto_lock();
+        $__inst = coop_installer_status();
+    } else {
+        $__inst = null;
+    }
+    ?>
+    <?php if (!empty($_SESSION['is_superadmin']) && is_array($__inst)): ?>
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-toolbox me-2"></i>Install / DB maintenance (emergency)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2">
+                        नयाँ client: <code>database.local.php</code> + <code>superadmin-config.local.php</code> → <code>/admin/</code> login।
+                        Tables auto। Sidebar मा DB Setup छैन।
+                    </p>
+                    <p class="mb-2">
+                        Public install:
+                        <?php if (!empty($__inst['public_safe'])): ?>
+                            <span class="badge bg-success">Locked / Safe</span>
+                        <?php else: ?>
+                            <span class="badge bg-danger">Unlocked</span>
+                        <?php endif; ?>
+                        <span class="text-muted small ms-1"><?php echo htmlspecialchars($__inst['detail'], ENT_QUOTES, 'UTF-8'); ?></span>
+                    </p>
+                    <p class="small mb-0 text-muted">
+                        Emergency URLs (Superadmin):
+                        <code>admin/db-setup.php</code> ·
+                        <code>admin/run-migration.php</code> ·
+                        <code>admin/site-setup.php</code>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Compatibility File Location -->
     <div class="row">
         <div class="col-12">

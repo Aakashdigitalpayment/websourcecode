@@ -5,17 +5,13 @@ require_once __DIR__ . '/../../includes/member-of-year-tables.php';
 require_once __DIR__ . '/../../includes/notification-templates-tables.php';
 require_once __DIR__ . '/../../includes/honor-tables.php';
 /**
- * =====================================================
- * ENSURE ADMIN TABLES
  * Admin panel मा आवश्यक सबै tables automatically create गर्छ
- * यो file admin-header.php बाट include हुन्छ
- * Re-run safe — CREATE TABLE IF NOT EXISTS प्रयोग गरिएको छ
- * =====================================================
+ * Re-run safe — CREATE TABLE IF NOT EXISTS
+ * @return bool true जब schema ensure सफल
  */
-function ensureAdminTables(): void {
+function ensureAdminTables(): bool {
     static $done = false;
-    if ($done) return;
-    $done = true;
+    if ($done) return true;
 
     try {
         $db = getDB();
@@ -582,18 +578,23 @@ function ensureAdminTables(): void {
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-    } catch (\Exception $e) {
-        /* Silent — admin देख्छन् errors admin pages मा नै */
+        $done = true;
+        return true;
+    } catch (\Throwable $e) {
+        /* Silent — admin देख्छन् errors admin pages मा नै; $done नराख्नु ताकि retry होस् */
+        error_log('[ensureAdminTables] ' . $e->getMessage());
+        return false;
     }
 }
 
-/* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
- * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
+/* Admin header / login include — `.admin-schema.lock` बाट guard
+ * सफल भए मात्र lock लेख्ने (खाली DB मा false lock नहोस्) */
 $_adminSchemaVersion = 'v9-honor-darkhasta-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {
-    ensureAdminTables();
-    @file_put_contents($_adminLock, "Admin schema initialized at " . date('Y-m-d H:i:s') . " [{$_adminSchemaVersion}]\n");
+    if (ensureAdminTables()) {
+        @file_put_contents($_adminLock, "Admin schema initialized at " . date('Y-m-d H:i:s') . " [{$_adminSchemaVersion}]\n");
+    }
 }
 unset($_adminLock, $_lockContent, $_adminSchemaVersion);
