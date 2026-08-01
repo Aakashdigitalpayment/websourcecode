@@ -100,11 +100,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             }
-            // Public quick KYC (minimal fields only)
+            /* ── Public verify: Member ID + mobile (session gate) ── */
+            if (!$isMemberLoggedIn && isset($_POST['public_kym_verify'])) {
+                $member_id = function_exists('memberSsotNormalizeId')
+                    ? memberSsotNormalizeId(clean_text($_POST['member_id'] ?? '', 80))
+                    : strtoupper(trim(clean_text($_POST['member_id'] ?? '', 80)));
+                $mobile = function_exists('memberSsotNormalizeMobile')
+                    ? memberSsotNormalizeMobile(clean_text($_POST['mobile'] ?? '', 15))
+                    : preg_replace('/[^0-9]/', '', clean_text($_POST['mobile'] ?? '', 15));
+                if ($member_id === '') {
+                    $error = isEnglish() ? 'Member ID is required.' : 'सदस्यता नम्बर अनिवार्य छ।';
+                } elseif (function_exists('memberSsotRequireMemberIdAndMobile')) {
+                    $gate = memberSsotRequireMemberIdAndMobile($db, $member_id, (string)$mobile);
+                    if (empty($gate['ok'])) {
+                        $error = isEnglish()
+                            ? ($gate['error_en'] ?? 'Verification failed.')
+                            : ($gate['error_np'] ?? 'प्रमाणीकरण असफल।');
+                    } else {
+                        memberSsotPublicGateStore($member_id, (string)$mobile);
+                        logSecurityEvent('kyc_public_verify', 'Public KYM gate ok: ' . $member_id);
+                        header('Location: online-kyc.php?path=member&verified=1');
+                        exit;
+                    }
+                } else {
+                    $error = isEnglish() ? 'Verification unavailable.' : 'प्रमाणीकरण उपलब्ध छैन।';
+                }
+            }
+            // Public quick KYC — Member ID + mobile match; fill empty only
             elseif (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) {
                 $full_name = clean_text($_POST['full_name'] ?? '', 200);
-                $member_id = strtoupper(trim(clean_text($_POST['member_id'] ?? '', 80)));
-                $mobile = preg_replace('/[^0-9]/', '', clean_text($_POST['mobile'] ?? '', 15));
+                $member_id = function_exists('memberSsotNormalizeId')
+                    ? memberSsotNormalizeId(clean_text($_POST['member_id'] ?? '', 80))
+                    : strtoupper(trim(clean_text($_POST['member_id'] ?? '', 80)));
+                $mobile = function_exists('memberSsotNormalizeMobile')
+                    ? memberSsotNormalizeMobile(clean_text($_POST['mobile'] ?? '', 15))
+                    : preg_replace('/[^0-9]/', '', clean_text($_POST['mobile'] ?? '', 15));
                 $email = strtolower(clean_text($_POST['email'] ?? '', 254));
                 $national_id_number = clean_text($_POST['national_id_number'] ?? '', 80);
 
@@ -112,49 +142,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
                 } elseif ($member_id === '') {
                     $error = isEnglish() ? 'Member ID is required.' : 'सदस्यता नम्बर (Member ID) अनिवार्य छ।';
-                } elseif (function_exists('memberSsotRequireExistingMember')
-                    && ($gate = memberSsotRequireExistingMember($db, $member_id))
+                } elseif (function_exists('memberSsotRequireMemberIdAndMobile')
+                    && ($gate = memberSsotRequireMemberIdAndMobile($db, $member_id, (string)$mobile))
                     && empty($gate['ok'])) {
                     $error = isEnglish()
-                        ? ($gate['error_en'] ?? 'Member ID not found in members list.')
-                        : ($gate['error_np'] ?? 'सदस्यता नम्बर सदस्य सूचीमा छैन।');
-                } elseif (!preg_match('/^[0-9]{10}$/', $mobile)) {
+                        ? ($gate['error_en'] ?? 'Member ID / mobile mismatch.')
+                        : ($gate['error_np'] ?? 'Member ID / मोबाइल मिलेन।');
+                } elseif (!preg_match('/^[0-9]{10}$/', (string)$mobile)) {
                     $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-                } elseif (!isValidEmail($email)) {
+                } elseif ($email !== '' && !isValidEmail($email)) {
                     $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-                } elseif ($national_id_number === '') {
-                    $error = isEnglish() ? 'National ID number is required.' : 'National ID नम्बर अनिवार्य छ।';
                 } else {
-                    $existingKyc = null;
-                    /* Member ID SSOT: match by सदस्यता नं. only — mobile/email OR ले अर्को मान्छेको KYM overwrite नहोस् */
-                    $q = $db->prepare("SELECT id, tracking_id FROM kyc_applications
-                                       WHERE member_id=?
+                    if (function_exists('memberSsotPublicGateStore')) {
+                        memberSsotPublicGateStore($member_id, (string)$mobile);
+                    }
+                    $q = $db->prepare("SELECT * FROM kyc_applications
+                                       WHERE UPPER(TRIM(member_id))=?
                                        ORDER BY id DESC LIMIT 1");
                     $q->execute([$member_id]);
                     $existingKyc = $q->fetch(PDO::FETCH_ASSOC) ?: null;
 
+                    $incoming = [
+                        'full_name' => $full_name,
+                        'mobile' => $mobile,
+                        'email' => $email,
+                        'national_id_number' => $national_id_number,
+                    ];
                     $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
                     $linkedKycPk = 0;
                     if ($existingKyc) {
                         $kycWasUpdate = true;
-                        $u = $db->prepare("UPDATE kyc_applications SET
-                            tracking_id=?, member_id=?, full_name=?, mobile=?, email=?, national_id_number=?,
-                            status='partial', risk_category='medium', updated_at=NOW()
-                            WHERE id=?");
-                        $u->execute([$kycTrackingId, $member_id, $full_name, $mobile, $email, $national_id_number, (int)$existingKyc['id']]);
-                        $linkedKycPk = (int)$existingKyc['id'];
+                        $merge = function_exists('memberSsotMergePublicKycFillEmpty')
+                            ? memberSsotMergePublicKycFillEmpty($existingKyc, $incoming)
+                            : ['merged' => array_merge($existingKyc, $incoming), 'filled' => 1, 'blocked' => 0];
+                        $mrow = $merge['merged'];
+                        if ((int)($merge['filled'] ?? 0) < 1 && (int)($merge['blocked'] ?? 0) > 0) {
+                            $error = isEnglish()
+                                ? 'Existing KYM fields are already filled. Login to the portal to request changes (admin approve).'
+                                : 'पहिले नै भरिएको केवाइएम field फेर्न मिल्दैन। परिवर्तनका लागि पोर्टल लगइन गरी update अनुरोध गर्नुहोस्।';
+                        } else {
+                            $newStatus = (string)($existingKyc['status'] ?? 'partial');
+                            if ($newStatus === 'rejected') {
+                                $newStatus = 'pending';
+                            } elseif ($newStatus === 'approved' && (int)($merge['filled'] ?? 0) > 0) {
+                                $newStatus = 'pending';
+                            } elseif ($newStatus !== 'approved') {
+                                $newStatus = 'partial';
+                            }
+                            $u = $db->prepare("UPDATE kyc_applications SET
+                                tracking_id=?, member_id=?,
+                                full_name=?, mobile=?, email=?, national_id_number=?,
+                                status=?, updated_at=NOW()
+                                WHERE id=?");
+                            $u->execute([
+                                $kycTrackingId,
+                                $member_id,
+                                (string)($mrow['full_name'] ?? $full_name),
+                                (string)($mrow['mobile'] ?? $mobile),
+                                (string)($mrow['email'] ?? $email),
+                                (string)($mrow['national_id_number'] ?? $national_id_number),
+                                $newStatus,
+                                (int)$existingKyc['id'],
+                            ]);
+                            $linkedKycPk = (int)$existingKyc['id'];
+                            $success = true;
+                        }
                     } else {
                         $i = $db->prepare("INSERT INTO kyc_applications
                             (tracking_id, member_id, full_name, mobile, email, national_id_number, risk_category, status, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, 'medium', 'partial', NOW())");
-                        $i->execute([$kycTrackingId, $member_id, $full_name, $mobile, $email, $national_id_number]);
+                        $i->execute([
+                            $kycTrackingId,
+                            $member_id,
+                            $full_name,
+                            $mobile,
+                            $email !== '' ? $email : null,
+                            $national_id_number !== '' ? $national_id_number : null,
+                        ]);
                         $linkedKycPk = (int)$db->lastInsertId();
+                        $success = true;
                     }
-                    if ($linkedKycPk > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                    if ($success && $linkedKycPk > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
                         memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $linkedKycPk);
                     }
-                    $success = true;
-                    logSecurityEvent('kyc_quick_public', 'Public quick KYC submitted: ' . $full_name . ' (' . $member_id . ')');
+                    if ($success) {
+                        logSecurityEvent('kyc_quick_public', 'Public quick KYC (fill-empty): ' . $full_name . ' (' . $member_id . ')');
+                    }
                 }
             } else {
 
@@ -173,8 +246,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mobile = clean_text($_POST['mobile'] ?? '');
             $email = clean_text($_POST['email'] ?? '');
             // v10.4 — Structured address (Province/District/Municipality/Ward/Tole) auto-composed
+            $existingKycAddr = []; // filled later on update path
             $sameAddress = !empty($_POST['same_as_permanent']);
-            $permanent_address = composeAddress('permanent') ?: ($existingKyc['permanent_address'] ?? '');
+            $permanent_address = composeAddress('permanent') ?: '';
             // Fallback: keep textarea support if user used legacy form
             if ($permanent_address === '' && !empty($_POST['permanent_address'])) {
                 $permanent_address = clean_text($_POST['permanent_address']);
@@ -182,7 +256,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($sameAddress) {
                 $temporary_address = $permanent_address;
             } else {
-                $temporary_address = composeAddress('temporary') ?: ($existingKyc['temporary_address'] ?? '');
+                $temporary_address = composeAddress('temporary') ?: '';
                 if ($temporary_address === '' && !empty($_POST['temporary_address'])) {
                     $temporary_address = clean_text($_POST['temporary_address']);
                 }
@@ -376,7 +450,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
             } elseif (empty($member_id)) {
                 $error = isEnglish() ? 'Member ID is required.' : 'सदस्यता नम्बर (Member ID) अनिवार्य छ।';
-            } elseif (function_exists('memberSsotRequireExistingMember')
+            } elseif (!$isMemberLoggedIn && function_exists('memberSsotRequireMemberIdAndMobile')
+                && ($gate = memberSsotRequireMemberIdAndMobile($db, $member_id, (string)$mobile))
+                && empty($gate['ok'])) {
+                $error = isEnglish()
+                    ? ($gate['error_en'] ?? 'Member ID / mobile mismatch.')
+                    : ($gate['error_np'] ?? 'Member ID / मोबाइल मिलेन।');
+            } elseif ($isMemberLoggedIn && function_exists('memberSsotRequireExistingMember')
                 && ($gate = memberSsotRequireExistingMember($db, $member_id))
                 && empty($gate['ok'])) {
                 $error = isEnglish()
@@ -457,17 +537,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // एउटै member ID को KYM: नयाँ insert होइन, existing record update गर्ने
-                // (rejected समेत — prefill ले देखाएको docs खाली INSERT नहोस्)
                 $existingKyc = null;
                 try {
                     $linkedKycId = (int)($loggedMember['kyc_application_id'] ?? 0);
-                    if ($linkedKycId > 0) {
-                        $dup = $db->prepare("SELECT id, tracking_id, status FROM kyc_applications WHERE id=? LIMIT 1");
+                    if ($isMemberLoggedIn && $linkedKycId > 0) {
+                        $dup = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
                         $dup->execute([$linkedKycId]);
                         $existingKyc = $dup->fetch(PDO::FETCH_ASSOC) ?: null;
                     }
                     if (!$existingKyc && $member_id !== '') {
-                        $dup = $db->prepare("SELECT id, tracking_id, status FROM kyc_applications
+                        $dup = $db->prepare("SELECT * FROM kyc_applications
                                              WHERE UPPER(TRIM(member_id)) = ?
                                              ORDER BY FIELD(status,'approved','pending','incomplete','partial','rejected') ASC, id DESC
                                              LIMIT 1");
@@ -493,7 +572,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         : 'फोटो गुणस्तर धेरै कम छ (Score: ' . $photo_quality_score . '/100)। राम्रो उज्यालोमा स्पष्ट अनुहार देखिने फोटो फेरि खिच्नुहोस्।';
                 }
 
-                /* New KYM row: docs अनिवार्य (update मा COALESCE ले पुरानो राख्छ) */
+                /* New KYM row: docs अनिवार्य (update मा COALESCE / fill-empty ले पुरानो राख्छ) */
                 if (!$error && !$existingKyc) {
                     if ($photo === '' || $citizenship_front === '' || $citizenship_back === '' || $signature === '') {
                         $error = isEnglish()
@@ -502,7 +581,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+                /* Public: fill-empty merge — पहिले भरिएको field overwrite नगर्ने */
+                $publicFillEmpty = !$isMemberLoggedIn && $existingKyc && function_exists('memberSsotMergePublicKycFillEmpty');
+                $publicMergeMeta = ['filled' => 0, 'blocked' => 0];
+                if (!$error && $publicFillEmpty) {
+                    $incomingMerge = [
+                        'full_name' => $full_name,
+                        'full_name_en' => $full_name_en,
+                        'dob_bs' => $dob_bs,
+                        'dob_ad' => $dob_ad,
+                        'gender' => $gender,
+                        'marital_status' => $marital_status,
+                        'nationality' => $nationality,
+                        'mobile' => $mobile,
+                        'email' => $email,
+                        'permanent_address' => $permanent_address,
+                        'temporary_address' => $temporary_address,
+                        'citizenship_no' => $citizenship_no,
+                        'citizenship_issued_date' => $citizenship_issued_date,
+                        'citizenship_issued_place' => $citizenship_issued_place,
+                        'national_id_number' => $national_id_number,
+                        'risk_category' => $risk_category,
+                        'father_name' => $father_name,
+                        'mother_name' => $mother_name,
+                        'grandfather_name' => $grandfather_name,
+                        'spouse_name' => $spouse_name,
+                        'family_details_json' => $family_details_json,
+                        'occupation' => $occupation,
+                        'organization_name' => $organization_name,
+                        'monthly_income' => $monthly_income,
+                        'account_type' => $account_type,
+                        'branch' => $branch,
+                        'photo' => $photo,
+                        'citizenship_front' => $citizenship_front,
+                        'citizenship_back' => $citizenship_back,
+                        'national_id_card' => $national_id_card,
+                        'signature' => $signature,
+                        'left_thumb' => $left_thumb,
+                        'right_thumb' => $right_thumb,
+                        'aml_details_json' => $aml_details_json,
+                        'permanent_province' => clean_text($_POST['permanent_province'] ?? ''),
+                        'permanent_district' => clean_text($_POST['permanent_district'] ?? ''),
+                        'permanent_municipality' => clean_text($_POST['permanent_municipality'] ?? ''),
+                        'permanent_ward' => clean_text($_POST['permanent_ward'] ?? ''),
+                        'permanent_tole' => clean_text($_POST['permanent_tole'] ?? ''),
+                    ];
+                    $publicMergeMeta = memberSsotMergePublicKycFillEmpty($existingKyc, $incomingMerge);
+                    $m = $publicMergeMeta['merged'];
+                    $full_name = (string)($m['full_name'] ?? $full_name);
+                    $full_name_en = (string)($m['full_name_en'] ?? $full_name_en);
+                    $dob_bs = (string)($m['dob_bs'] ?? $dob_bs);
+                    $dob_ad = $m['dob_ad'] ?? $dob_ad;
+                    $gender = (string)($m['gender'] ?? $gender);
+                    $marital_status = (string)($m['marital_status'] ?? $marital_status);
+                    $nationality = (string)($m['nationality'] ?? $nationality);
+                    $mobile = (string)($m['mobile'] ?? $mobile);
+                    $email = (string)($m['email'] ?? $email);
+                    $permanent_address = (string)($m['permanent_address'] ?? $permanent_address);
+                    $temporary_address = (string)($m['temporary_address'] ?? $temporary_address);
+                    $citizenship_no = (string)($m['citizenship_no'] ?? $citizenship_no);
+                    $citizenship_issued_date = (string)($m['citizenship_issued_date'] ?? $citizenship_issued_date);
+                    $citizenship_issued_place = (string)($m['citizenship_issued_place'] ?? $citizenship_issued_place);
+                    $national_id_number = (string)($m['national_id_number'] ?? $national_id_number);
+                    $risk_category = (string)($m['risk_category'] ?? $risk_category);
+                    $father_name = (string)($m['father_name'] ?? $father_name);
+                    $mother_name = (string)($m['mother_name'] ?? $mother_name);
+                    $grandfather_name = (string)($m['grandfather_name'] ?? $grandfather_name);
+                    $spouse_name = (string)($m['spouse_name'] ?? $spouse_name);
+                    $family_details_json = $m['family_details_json'] ?? $family_details_json;
+                    $occupation = (string)($m['occupation'] ?? $occupation);
+                    $organization_name = (string)($m['organization_name'] ?? $organization_name);
+                    $monthly_income = (string)($m['monthly_income'] ?? $monthly_income);
+                    $account_type = (string)($m['account_type'] ?? $account_type);
+                    $branch = (string)($m['branch'] ?? $branch);
+                    $photo = (string)($m['photo'] ?? $photo);
+                    $citizenship_front = (string)($m['citizenship_front'] ?? $citizenship_front);
+                    $citizenship_back = (string)($m['citizenship_back'] ?? $citizenship_back);
+                    $national_id_card = (string)($m['national_id_card'] ?? $national_id_card);
+                    $signature = (string)($m['signature'] ?? $signature);
+                    $left_thumb = (string)($m['left_thumb'] ?? $left_thumb);
+                    $right_thumb = (string)($m['right_thumb'] ?? $right_thumb);
+                    $aml_details_json = $m['aml_details_json'] ?? $aml_details_json;
+                    if ((int)($publicMergeMeta['filled'] ?? 0) < 1 && (int)($publicMergeMeta['blocked'] ?? 0) > 0) {
+                        $error = isEnglish()
+                            ? 'Nothing new to add — existing fields stay locked on the public form. Portal login to request changes (admin approve).'
+                            : 'नयाँ खाली field भेटिएन — पहिले भरिएको डेटा public बाट फेर्न मिल्दैन। परिवर्तनका लागि पोर्टल लगइन गर्नुहोस्।';
+                    }
+                }
+
                 if (!$error) {
+                    if (!$isMemberLoggedIn && function_exists('memberSsotPublicGateStore')) {
+                        memberSsotPublicGateStore($member_id, (string)$mobile);
+                    }
                     $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
                     $want_id_card  = isset($_POST['want_id_card']) ? 1 : 0;
 
@@ -525,6 +695,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $tMuni = $sameAddress ? clean_text($_POST['permanent_municipality'] ?? '')  : clean_text($_POST['temporary_municipality'] ?? '');
                     $tWard = $sameAddress ? clean_text($_POST['permanent_ward'] ?? '')          : clean_text($_POST['temporary_ward'] ?? '');
                     $tTole = $sameAddress ? clean_text($_POST['permanent_tole'] ?? '')          : clean_text($_POST['temporary_tole'] ?? '');
+                    if ($publicFillEmpty && !empty($publicMergeMeta['merged'])) {
+                        $mm = $publicMergeMeta['merged'];
+                        $tProv = (string)($mm['temporary_province'] ?? $tProv);
+                        $tDist = (string)($mm['temporary_district'] ?? $tDist);
+                        $tMuni = (string)($mm['temporary_municipality'] ?? $tMuni);
+                        $tWard = (string)($mm['temporary_ward'] ?? $tWard);
+                        $tTole = (string)($mm['temporary_tole'] ?? $tTole);
+                    }
+
+                    /* Portal full update of approved → pending (admin re-review); public fill-empty may also reopen */
+                    $statusSql = "status = CASE WHEN status = 'rejected' THEN 'pending' ELSE status END";
+                    if ($isMemberLoggedIn) {
+                        $statusSql = "status = CASE
+                            WHEN status = 'rejected' THEN 'pending'
+                            WHEN status = 'approved' THEN 'pending'
+                            ELSE status END";
+                    } elseif ($publicFillEmpty && (int)($publicMergeMeta['filled'] ?? 0) > 0) {
+                        $statusSql = "status = CASE
+                            WHEN status IN ('rejected','approved') THEN 'pending'
+                            WHEN status IN ('incomplete','partial','') OR status IS NULL THEN 'partial'
+                            ELSE status END";
+                    }
 
                     if ($existingKyc) {
                         $kycWasUpdate = true;
@@ -538,7 +730,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             permanent_province=?, permanent_district=?, permanent_municipality=?, permanent_ward=?, permanent_tole=?,
                             temporary_province=?, temporary_district=?, temporary_municipality=?, temporary_ward=?, temporary_tole=?,
                             aml_details_json=?, updated_at=NOW(),
-                            status = CASE WHEN status = 'rejected' THEN 'pending' ELSE status END,
+                            {$statusSql},
                             photo = COALESCE(NULLIF(?, ''), photo),
                             citizenship_front = COALESCE(NULLIF(?, ''), citizenship_front),
                             citizenship_back = COALESCE(NULLIF(?, ''), citizenship_back),
@@ -547,6 +739,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             left_thumb = COALESCE(NULLIF(?, ''), left_thumb),
                             right_thumb = COALESCE(NULLIF(?, ''), right_thumb)
                             WHERE id=?");
+                        $permProv = $publicFillEmpty && !empty($publicMergeMeta['merged']['permanent_province'])
+                            ? (string)$publicMergeMeta['merged']['permanent_province']
+                            : clean_text($_POST['permanent_province'] ?? '');
+                        $permDist = $publicFillEmpty && !empty($publicMergeMeta['merged']['permanent_district'])
+                            ? (string)$publicMergeMeta['merged']['permanent_district']
+                            : clean_text($_POST['permanent_district'] ?? '');
+                        $permMuni = $publicFillEmpty && !empty($publicMergeMeta['merged']['permanent_municipality'])
+                            ? (string)$publicMergeMeta['merged']['permanent_municipality']
+                            : clean_text($_POST['permanent_municipality'] ?? '');
+                        $permWard = $publicFillEmpty && isset($publicMergeMeta['merged']['permanent_ward']) && trim((string)$publicMergeMeta['merged']['permanent_ward']) !== ''
+                            ? (string)$publicMergeMeta['merged']['permanent_ward']
+                            : clean_text($_POST['permanent_ward'] ?? '');
+                        $permTole = $publicFillEmpty && !empty($publicMergeMeta['merged']['permanent_tole'])
+                            ? (string)$publicMergeMeta['merged']['permanent_tole']
+                            : clean_text($_POST['permanent_tole'] ?? '');
                         $update->execute([
                             $kycTrackingId, $want_id_card, $member_id,
                             $full_name, $full_name_en, $dob_bs, $dob_ad, $gender, $marital_status, $nationality,
@@ -554,11 +761,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $citizenship_no, $citizenship_issued_date, $citizenship_issued_place, $national_id_number,
                             $photo_quality_score ?: null, $risk_category, $father_name, $mother_name, $grandfather_name, $spouse_name, $family_details_json,
                             $occupation, $organization_name, $monthly_income, $account_type, $branch,
-                            clean_text($_POST['permanent_province'] ?? ''),
-                            clean_text($_POST['permanent_district'] ?? ''),
-                            clean_text($_POST['permanent_municipality'] ?? ''),
-                            clean_text($_POST['permanent_ward'] ?? ''),
-                            clean_text($_POST['permanent_tole'] ?? ''),
+                            $permProv, $permDist, $permMuni, $permWard, $permTole,
                             $tProv, $tDist, $tMuni, $tWard, $tTole,
                             $aml_details_json,
                             $photo, $citizenship_front, $citizenship_back, $national_id_card, $signature, $left_thumb, $right_thumb,
@@ -646,7 +849,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ], $kycTrackingId);
                 }
             }
-            }
+            } // end full-form else (vs quick/verify)
         } catch (Throwable $e) {
             error_log('online-kyc submit error: ' . $e->getMessage());
             $error = isEnglish() ? 'An error occurred. Please try again.' : 'त्रुटि भयो। कृपया पुन: प्रयास गर्नुहोस्।';
@@ -838,12 +1041,43 @@ try {
         }
     }
     } /* end $isMemberLoggedIn prefill */
+
+    /* Public verified session: show existing (locked) + empty fields only — no data without ID+mobile */
+    if (!$isMemberLoggedIn && function_exists('memberSsotPublicGateCheck')) {
+        $pg = memberSsotPublicGateCheck();
+        if (!empty($pg['ok'])) {
+            $prefillInput['member_id'] = (string)($pg['member_id'] ?? '');
+            $prefillInput['mobile'] = (string)($pg['mobile'] ?? '');
+            try {
+                $gm = memberSsotFindBySadasyata($db, (string)$pg['member_id']);
+                if ($gm && empty($prefillInput['full_name'])) {
+                    $prefillInput['full_name'] = (string)($gm['name'] ?? '');
+                }
+                $gkyc = $gm ? memberSsotLoadLinkedKyc($db, $gm) : null;
+                if (!$gkyc) {
+                    $gkyc = memberSsotFindKycByMemberId($db, (string)$pg['member_id']);
+                }
+                if ($gkyc && function_exists('memberSsotPrefillEmptyOnlyFromKyc')) {
+                    $pack = memberSsotPrefillEmptyOnlyFromKyc($gkyc);
+                    foreach ($pack['prefill'] as $pk => $pv) {
+                        if (!isset($prefillInput[$pk]) || trim((string)$prefillInput[$pk]) === '') {
+                            $prefillInput[$pk] = $pv;
+                        }
+                    }
+                    $GLOBALS['publicKycLockedFields'] = $pack['locked'];
+                }
+            } catch (Throwable $ignored) {}
+        }
+    }
 } catch (Throwable $ignored) {}
 
+$publicKycLockedFields = is_array($GLOBALS['publicKycLockedFields'] ?? null) ? $GLOBALS['publicKycLockedFields'] : [];
+$publicGateOk = !$isMemberLoggedIn && function_exists('memberSsotPublicGateCheck') && !empty(memberSsotPublicGateCheck()['ok']);
 $existingDocs = function_exists('memberSsotExistingDocFlags')
     ? memberSsotExistingDocFlags($prefillInput)
     : ['photo' => false, 'citizenship_front' => false, 'citizenship_back' => false, 'signature' => false, 'any' => false];
-$lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
+$lockMemberId = ($isMemberLoggedIn && !empty($prefillInput['member_id'])) || ($publicGateOk && !empty($prefillInput['member_id']));
+$lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 ?>
 
 <!-- Page Banner -->
@@ -986,13 +1220,53 @@ $lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
                     </form>
                 </div>
                 <?php else: ?>
-                <div class="alert alert-info d-flex flex-wrap align-items-center gap-2" style="font-size:.86rem;">
-                    <i class="fas fa-circle-info"></i>
+                <div class="alert alert-info small mb-3">
+                    <?php echo isEnglish()
+                        ? '<strong>Verify first:</strong> Member ID + registered mobile must match. Public form only fills <em>empty</em> fields — already filled data cannot be overwritten here. Full changes: portal login → update → admin approve.'
+                        : '<strong>पहिले प्रमाणित गर्नुहोस्:</strong> Member ID + दर्ता मोबाइल मिल्नुपर्छ। Public बाट <em>खाली</em> field मात्र भर्न मिल्छ — पहिले भरिएको फेर्न मिल्दैन। पूर्ण परिवर्तन: पोर्टल लगइन → update → admin approve।'; ?>
+                </div>
+
+                <?php if (!$publicGateOk): ?>
+                <div class="kyc-form-box mb-3 border border-success border-opacity-25">
+                    <form method="POST" class="needs-validation" novalidate>
+                        <?php echo csrfField(); ?>
+                        <input type="hidden" name="public_kym_verify" value="1">
+                        <div class="form-section">
+                            <h5><i class="fas fa-shield-halved me-1 text-success"></i><?php echo isEnglish() ? 'Verify Member ID + Mobile' : 'Member ID + मोबाइल प्रमाणित'; ?></h5>
+                            <p class="small text-muted"><?php echo isEnglish()
+                                ? 'Use the mobile number stored in the cooperative members list (from CBS/import).'
+                                : 'सहकारी सदस्य सूचीमा भएको मोबाइल (CBS/import) नै प्रयोग गर्नुहोस्।'; ?></p>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="member_id" class="form-control" required
+                                           value="<?php echo htmlspecialchars($_POST['member_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX"
+                                           value="<?php echo htmlspecialchars($_POST['mobile'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i><?php echo isEnglish() ? 'Verify & continue' : 'प्रमाणित गरी अगाडि'; ?>
+                            </button>
+                            <a href="<?php echo SITE_URL; ?>member/login.php?tab=register" class="btn btn-outline-secondary ms-2">
+                                <?php echo isEnglish() ? 'Request portal login' : 'पोर्टल लगइन अनुरोध'; ?>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <?php else: ?>
+                <div class="alert alert-success small d-flex flex-wrap align-items-center gap-2">
+                    <i class="fas fa-circle-check"></i>
                     <span><?php echo isEnglish()
-                        ? 'Online KYM needs an existing Member ID. New person? Choose “Become a new member” above — admin assigns ID first.'
-                        : 'Online केवाइएम मा Member ID अनिवार्य। नयाँ व्यक्ति? माथि “नयाँ सदस्य बन्नुस्” छान्नुहोस् — admin ले पहिले ID दिन्छ।'; ?></span>
+                        ? 'Verified. Empty fields below can be filled. Locked fields stay as-is.'
+                        : 'प्रमाणित भयो। तल खाली field भर्नुहोस्। लक भएका field जस्ताको त्यस्तै रहन्छन्।'; ?>
+                        (<code><?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code>
+                    </span>
                     <button type="button" id="toggleQuickKycBtn" class="btn btn-sm btn-outline-primary ms-auto">
-                        <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (same Member ID)' : 'Quick KYC (उही Member ID)'; ?>
+                        <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick fill' : 'Quick भर्ने'; ?>
                     </button>
                 </div>
                 <div id="publicQuickKycPanel" class="kyc-form-box mb-3" style="display:<?php echo isset($_POST['public_quick_submit']) ? 'block' : 'none'; ?>;">
@@ -1000,31 +1274,39 @@ $lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="public_quick_submit" value="1">
                         <div class="form-section">
-                            <h5><i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'छोटो KYC (पहिलेको सदस्य)'; ?></h5>
+                            <h5><i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYM (empty fields only)' : 'Quick केवाइएम (खाली मात्र)'; ?></h5>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label><input type="text" name="full_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नम्बर'; ?> <span class="text-danger">*</span></label><input type="text" name="member_id" class="form-control" required value="<?php echo htmlspecialchars($_POST['member_id'] ?? ''); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label><input type="tel" name="mobile" class="form-control" required placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger">*</span></label><input type="email" name="email" class="form-control" required value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'National ID Number' : 'National ID नम्बर'; ?> <span class="text-danger">*</span></label><input type="text" name="national_id_number" class="form-control" required value="<?php echo htmlspecialchars($_POST['national_id_number'] ?? ''); ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?></label>
+                                    <input type="text" name="member_id" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Mobile' : 'मोबाइल'; ?></label>
+                                    <input type="tel" name="mobile" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
+                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" class="form-control" required value="<?php echo htmlspecialchars((string)($prefillInput['full_name'] ?? $_POST['full_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>></div>
+                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['email'] ?? $_POST['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['email']) ? ' readonly' : ''; ?>></div>
+                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'National ID (if empty)' : 'National ID (खाली भए)'; ?></label>
+                                    <input type="text" name="national_id_number" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['national_id_number'] ?? $_POST['national_id_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['national_id_number']) ? ' readonly' : ''; ?>></div>
                             </div>
+                            <button type="submit" class="btn btn-primary"><?php echo isEnglish() ? 'Save empty fields' : 'खाली field सुरक्षित'; ?></button>
                         </div>
-                        <div class="text-center"><button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-1"></i><?php echo isEnglish() ? 'Save Basic KYC' : 'Basic KYC सेभ गर्नुहोस्'; ?></button></div>
                     </form>
                 </div>
-                <?php endif; ?>
+                <?php endif; /* publicGateOk */ ?>
+                <?php endif; /* publicPath new vs member */ ?>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; /* !isMemberLoggedIn */ ?>
 
-        <?php if ($isMemberLoggedIn || $publicPath === 'member'): ?>
+        <?php if ($isMemberLoggedIn || ($publicPath === 'member' && $publicGateOk)): ?>
         <div class="row justify-content-center" id="fullKycRow" style="<?php echo (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) ? 'display:none;' : ''; ?>">
             <div class="col-lg-10">
                 <div class="kyc-form-box" data-aos="fade-up">
                     <div class="form-header text-center mb-4">
                         <div class="form-icon"><i class="fas fa-user-check"></i></div>
                         <h3><?php echo isEnglish() ? 'Know Your Member (KYM) Form' : 'सदस्य पहिचान (केवाइएम) फारम'; ?></h3>
-                        <p><?php echo isEnglish() ? 'Fill out the form below to complete your KYM verification' : 'केवाइएम प्रमाणीकरण पूरा गर्न तलको फारम भर्नुहोस्'; ?></p>
+                        <p><?php echo $isMemberLoggedIn
+                            ? (isEnglish() ? 'Portal update is sent for admin re-approval if previously approved.' : 'पोर्टलबाट update गर्दा पहिले approved भए admin ले फेरि approve गर्नुपर्छ।')
+                            : (isEnglish() ? 'Only empty fields are saved on the public form.' : 'Public फारममा खाली field मात्र सुरक्षित हुन्छ।'); ?></p>
                     </div>
 
                     <form method="POST" enctype="multipart/form-data" class="kyc-form needs-validation" id="fullKymForm" novalidate>
@@ -1042,11 +1324,11 @@ $lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपालीमा)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" required>
+                                    <input type="text" name="full_name" class="form-control" required<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Full Name (English)' : 'पूरा नाम (अंग्रेजीमा)'; ?></label>
-                                    <input type="text" name="full_name_en" class="form-control">
+                                    <input type="text" name="full_name_en" class="form-control"<?php echo !empty($publicKycLockedFields['full_name_en']) ? ' readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Member ID / Membership Number' : 'सदस्यता नम्बर (Member ID)'; ?> <span class="text-danger">*</span></label>
@@ -1103,7 +1385,10 @@ $lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="mobile" class="form-control" required placeholder="98XXXXXXXX">
+                                    <input type="tel" name="mobile" class="form-control" required placeholder="98XXXXXXXX"
+                                           <?php echo !empty($lockPublicMobile) ? 'readonly' : ''; ?>
+                                           <?php echo !empty($publicKycLockedFields['mobile']) ? 'readonly' : ''; ?>
+                                           value="<?php echo ($lockPublicMobile || !empty($publicKycLockedFields['mobile'])) ? htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') : ''; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">
