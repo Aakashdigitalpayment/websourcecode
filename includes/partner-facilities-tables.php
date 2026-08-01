@@ -335,8 +335,13 @@ if (!function_exists('partnerBuildVerifyDisplayResult')) {
         try {
             $st = $db->prepare(
                 "SELECT m.id, m.name, m.sadasyata_number, m.member_card_no, m.phone, m.avatar_url,
-                        m.approval_status, m.is_active, m.created_at
-                 FROM members m WHERE m.id=? LIMIT 1"
+                        m.approval_status, m.is_active, m.created_at,
+                        k.full_name AS kyc_full_name, k.photo AS kyc_photo,
+                        k.mobile AS kyc_mobile, k.father_name AS kyc_father_name,
+                        k.dob_bs AS kyc_dob_bs, k.dob_ad AS kyc_dob_ad
+                 FROM members m
+                 LEFT JOIN kyc_applications k ON k.id = m.kyc_application_id
+                 WHERE m.id=? LIMIT 1"
             );
             $st->execute([$memberId]);
             $m = $st->fetch(PDO::FETCH_ASSOC);
@@ -349,16 +354,24 @@ if (!function_exists('partnerBuildVerifyDisplayResult')) {
             $dispId = $cardNo !== ''
                 ? $cardNo
                 : (string)($m['sadasyata_number'] ?: ($m['member_card_no'] ?: $m['id']));
+            $photo = trim((string)($m['kyc_photo'] ?? ''));
+            if ($photo === '') {
+                $photo = trim((string)($m['avatar_url'] ?? ''));
+            }
+            $fullName = trim((string)(($m['kyc_full_name'] ?? '') ?: ($m['name'] ?? '')));
+            $mobile = trim((string)(($m['kyc_mobile'] ?? '') ?: ($m['phone'] ?? '')));
             return [
                 'ok' => true,
                 'member' => [
                     'id' => (int)$m['id'],
                     'member_id' => $dispId,
-                    'full_name' => (string)($m['name'] ?? ''),
-                    'photo_path' => (string)($m['avatar_url'] ?? ''),
-                    'mobile' => (string)($m['phone'] ?? ''),
+                    'full_name' => $fullName,
+                    'photo_path' => $photo,
+                    'mobile' => $mobile,
                     'email' => '',
-                    'father_name' => '',
+                    'father_name' => (string)($m['kyc_father_name'] ?? ''),
+                    'dob_bs' => (string)($m['kyc_dob_bs'] ?? ''),
+                    'dob_ad' => (string)($m['kyc_dob_ad'] ?? ''),
                     'member_since' => (string)($m['created_at'] ?? ''),
                 ],
                 'card' => [
