@@ -442,19 +442,21 @@ if (isset($_POST['update_status'])) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                     $notifyOutcome['sms']   = $r['sms']   ?? $notifyOutcome['sms'];
                 }
-                /* KYM approved → SSOT: upsert/link members by Member ID, then ID card if wanted */
-                if ($status === 'approved') {
-                    try {
+                /* Shared contact सधैं sync; approve मा stub/link समेत */
+                try {
+                    if (function_exists('memberSsotAfterKycWrite')) {
+                        memberSsotAfterKycWrite($db, $id);
+                    } elseif ($status === 'approved' && function_exists('memberSsotUpsertMemberFromKyc')) {
                         $fullKyc = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
                         $fullKyc->execute([$id]);
                         $kycRowFull = $fullKyc->fetch(PDO::FETCH_ASSOC) ?: ($nData ?: []);
                         $kycRowFull['id'] = $id;
-                        if (function_exists('memberSsotUpsertMemberFromKyc')) {
-                            memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
-                        }
-                    } catch (Throwable $e) {
-                        error_log('[kyc-approve ssot] ' . $e->getMessage());
+                        memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
                     }
+                } catch (Throwable $e) {
+                    error_log('[kyc-approve ssot] ' . $e->getMessage());
+                }
+                if ($status === 'approved') {
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
                         $nData['mobile'] ?? '');

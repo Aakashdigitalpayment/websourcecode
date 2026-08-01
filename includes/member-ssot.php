@@ -800,7 +800,7 @@ if (!function_exists('memberSsotPrefillEmptyOnlyFromKyc')) {
 
 if (!function_exists('memberSsotAfterKycWrite')) {
     /**
-     * KYM save पछि: लिंक + shared contact soft-sync to members (खाली मात्र)।
+     * KYM save पछि: लिंक + shared contact members मा sync (KYM मा सच्याए = members मा पनि)।
      */
     function memberSsotAfterKycWrite(PDO $db, int $kycId): void
     {
@@ -851,7 +851,10 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
         if ($existing) {
             $pk = (int)$existing['id'];
             memberSsotLinkMemberToKyc($db, $pk, $kycId);
-            /* Shared contact: KYM → members (खाली मात्र) — दोहोरो entry होइन, sync */
+            /*
+             * Shared contact: KYM = सच्याउने ठाउँ → members मा सधैं sync (खाली मात्र होइन)।
+             * KYM मा value खाली भए members को पुरानो नमेट्ने।
+             */
             $address = trim((string)($kyc['permanent_address'] ?? ''));
             $gender = trim((string)($kyc['gender'] ?? ''));
             $dobAd = trim((string)($kyc['dob_ad'] ?? ''));
@@ -861,32 +864,36 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
             try {
                 $db->prepare(
                     "UPDATE members SET
-                        name = CASE WHEN name IS NULL OR name = '' THEN ? ELSE name END,
-                        phone = CASE WHEN (phone IS NULL OR phone = '') AND ? IS NOT NULL THEN ? ELSE phone END,
-                        email = CASE WHEN (email IS NULL OR email = '') AND ? IS NOT NULL THEN ? ELSE email END,
-                        address = CASE WHEN (address IS NULL OR address = '') AND ? <> '' THEN ? ELSE address END,
-                        gender = CASE WHEN (gender IS NULL OR gender = '') AND ? <> '' THEN ? ELSE gender END,
-                        dob = CASE WHEN (dob IS NULL OR dob = '' OR dob = '0000-00-00') AND ? <> '' THEN ? ELSE dob END
+                        name = CASE WHEN ? <> '' THEN ? ELSE name END,
+                        phone = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE phone END,
+                        email = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE email END,
+                        address = CASE WHEN ? <> '' THEN ? ELSE address END,
+                        gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
+                        dob = CASE WHEN ? <> '' THEN ? ELSE dob END
                      WHERE id = ?"
                 )->execute([
-                    $name,
-                    $phone, $phone,
-                    $email, $email,
+                    $name, $name,
+                    $phone, $phone, $phone,
+                    $email, $email, $email,
                     $address, $address,
                     $gender, $gender,
                     $dobAd, $dobAd,
                     $pk,
                 ]);
             } catch (Throwable $e) {
-                /* Older schema without address/gender/dob — contact only */
                 try {
                     $db->prepare(
                         "UPDATE members SET
-                            name = CASE WHEN name IS NULL OR name = '' THEN ? ELSE name END,
-                            phone = CASE WHEN (phone IS NULL OR phone = '') AND ? IS NOT NULL THEN ? ELSE phone END,
-                            email = CASE WHEN (email IS NULL OR email = '') AND ? IS NOT NULL THEN ? ELSE email END
+                            name = CASE WHEN ? <> '' THEN ? ELSE name END,
+                            phone = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE phone END,
+                            email = CASE WHEN ? IS NOT NULL AND ? <> '' THEN ? ELSE email END
                          WHERE id = ?"
-                    )->execute([$name, $phone, $phone, $email, $email, $pk]);
+                    )->execute([
+                        $name, $name,
+                        $phone, $phone, $phone,
+                        $email, $email, $email,
+                        $pk,
+                    ]);
                 } catch (Throwable $e2) {
                     error_log('[member-ssot] upsert update: ' . $e2->getMessage());
                 }
@@ -1079,9 +1086,9 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
             . 'CBS Import एक पटक → stub → online/portal भर्ने।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = '<strong>दिशा:</strong> पहिले Member (CBS/अनुरोध) → अनि KYM भर्ने। '
-                . 'Members मा भएको नाम/मोबाइल stub मा जान्छ; KYM भरेपछि खाली members field मा फर्कन्छ — <em>दुवैतिर छुट्टै import होइन</em>। '
-                . 'यो पेज = समीक्षा/approve मात्र। KYM Excel import छैन — stub Members बाट, बाँकी online/portal।';
+            $body = '<strong>दिशा:</strong> पहिले Member → अनि KYM। '
+                . '<strong>सच्याउने ठाउँ = KYM</strong> (admin / online / portal) — नाम/मोबाइल/इमेल members मा <em>auto sync</em>, फरक रहँदैन। '
+                . 'यो पेज = समीक्षा/approve। KYM Excel import छैन।';
         } elseif ($context === 'portal') {
             $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {
