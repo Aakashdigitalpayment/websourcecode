@@ -141,6 +141,21 @@ $quickActions = [
     ['href' => $siteUrl.'member/apply-frame.php?p=career',      'icon' => 'fa-briefcase',           'color' => 'var(--primary-dark)', 'label' => $_t('जागिर', 'Career')],
     ['href' => $siteUrl.'member/apply-frame.php?p=emi',         'icon' => 'fa-calculator',          'color' => 'var(--accent-color)', 'label' => 'EMI Calculator'],
 ];
+try {
+    if (!function_exists('honorHasOpenProgram')) {
+        require_once __DIR__ . '/../includes/honor-tables.php';
+    }
+    if (honorHasOpenProgram(getDB())) {
+        array_splice($quickActions, 7, 0, [[
+            'href' => $siteUrl.'member/honor-apply.php',
+            'icon' => 'fa-award',
+            'color' => 'var(--primary-color)',
+            'label' => $_t('सम्मान दरखास्त', 'Honor Apply'),
+        ]]);
+    }
+} catch (Throwable $e) {
+    /* hide when schema not ready */
+}
 $iconMap = [
     'success'=>['fas fa-circle-check','var(--primary-color)','color-mix(in srgb, var(--primary-color) 12%, white)'],
     'error'  =>['fas fa-circle-xmark','var(--secondary-color)','color-mix(in srgb, var(--secondary-color) 14%, white)'],

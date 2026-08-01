@@ -145,6 +145,7 @@ $adminAlertCounts = [
     'appointment' => 0,   /* नयाँ: pending भेटघाट */
     'attend'      => 0,   /* कार्यक्रम उपस्थिति अनुरोध */
     'survey'      => 0,   /* नयाँ: unread survey */
+    'honor'       => 0,   /* सम्मान दरखास्त */
 ];
 try {
     /* पुरानो DB मा job_applications.is_read नहुन सक्छ — fallback */
@@ -175,6 +176,7 @@ $adminAlertCounts['auction']     = $__adminCount("SELECT COUNT(*) FROM auction_b
 $adminAlertCounts['vendor']      = $__adminCount("SELECT COUNT(*) FROM vendors WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header vendor]');
 $adminAlertCounts['account']     = $__adminCount("SELECT COUNT(*) FROM account_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header account]');
 $adminAlertCounts['digital']     = $__adminCount("SELECT COUNT(*) FROM digital_service_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header digital]');
+$adminAlertCounts['honor']       = $__adminCount("SELECT COUNT(*) FROM honor_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header honor]');
 $adminAlertCounts['kyc_risk']    = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]');
 $adminAlertCounts['appointment'] = $__adminCount("SELECT COUNT(*) FROM appointments WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header appointment]');
 $adminAlertCounts['attend']      = $__adminCount("SELECT COUNT(*) FROM member_program_attendance_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header attend]');
@@ -218,11 +220,11 @@ $pageGroups = [
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
-    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','appointments','auctions','auction-bids','vendor-enlistment'],
+    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
-    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
+    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-import','member-activities'],
     'memportal'=> ['member-online-portal'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','run-migration','backup-restore','update-checklist','site-health','db-setup','site-license'],
@@ -493,7 +495,7 @@ set_exception_handler(function (\Throwable $ex) {
 
                     <!-- ── आवेदनहरू ── -->
                     <li class="nav-group-wrap">
-                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
+                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('आवेदनहरू', 'Applications'); ?></span>
@@ -534,6 +536,19 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="laptop-code"></i></span>
                                     <span><?php echo $adminT('डिजिटल सेवा', 'Digital Services'); ?></span>
                                     <?php if ($adminAlertCounts['digital'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['digital']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='honor-applications' ? 'active' : ''; ?>">
+                                <a href="honor-applications.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i></span>
+                                    <span><?php echo $adminT('सम्मान दरखास्त', 'Honor Applications'); ?></span>
+                                    <?php if ($adminAlertCounts['honor'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['honor']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='honor-programs' ? 'active' : ''; ?>">
+                                <a href="honor-programs.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-range"></i></span>
+                                    <span><?php echo $adminT('दरखास्त कार्यक्रम', 'Honor Programs'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
@@ -688,6 +703,12 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="members.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
                                     <span><?php echo $adminT('सदस्य पोर्टल', 'Member Portal'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
+                                <a href="member-import.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-emerald" aria-hidden="true" data-lucide="upload"></i></span>
+                                    <span><?php echo $adminT('सदस्य Bulk Import', 'Member Bulk Import'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='member-activities' ? 'active' : ''; ?>">
@@ -969,6 +990,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],
                         ['label'=>$adminT('डिजिटल सेवा', 'Digital Services'),      'count'=>$adminAlertCounts['digital'],           'href'=>'digital-service-requests.php?status=pending','icon'=>'fa-mobile-alt', 'tone'=>'cyan'],
+                        ['label'=>$adminT('सम्मान दरखास्त', 'Honor Applications'), 'count'=>$adminAlertCounts['honor'],             'href'=>'honor-applications.php?status=pending',     'icon'=>'fa-award',       'tone'=>'green'],
                         ['label'=>$adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'), 'count'=>$adminAlertCounts['appointment'], 'href'=>'appointments.php?status=pending', 'icon'=>'fa-calendar-check', 'tone'=>'red'],
                         ['label'=>$adminT('जागिर आवेदन', 'Job Applications'),      'count'=>$adminAlertCounts['job'],               'href'=>'job-applications.php?status=pending', 'icon'=>'fa-briefcase',           'tone'=>'green'],
                         ['label'=>$adminT('गुनासो', 'Grievances'),            'count'=>$adminAlertCounts['grievance'],         'href'=>'grievances.php?status=pending',       'icon'=>'fa-comment-dots',        'tone'=>'red'],

@@ -507,6 +507,84 @@ CREATE TABLE IF NOT EXISTS digital_service_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- 17c. HONOR / SAMMAN DARKHASTA — includes/honor-tables.php
+-- =====================================================
+
+CREATE TABLE IF NOT EXISTS honor_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(60) NOT NULL,
+    name_np VARCHAR(160) NOT NULL,
+    name_en VARCHAR(160) DEFAULT '',
+    requires_nominee TINYINT(1) NOT NULL DEFAULT 1,
+    requires_document TINYINT(1) NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    display_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_honor_cat_slug (slug),
+    INDEX idx_honor_cat_active (is_active),
+    INDEX idx_honor_cat_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS honor_programs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title_np VARCHAR(200) NOT NULL,
+    title_en VARCHAR(200) DEFAULT '',
+    event_label VARCHAR(120) DEFAULT '',
+    fiscal_year VARCHAR(40) DEFAULT '',
+    opens_at DATETIME NOT NULL,
+    closes_at DATETIME NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    show_new_badge TINYINT(1) NOT NULL DEFAULT 1,
+    instructions_np TEXT,
+    instructions_en TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_honor_prog_active (is_active),
+    INDEX idx_honor_prog_window (opens_at, closes_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS honor_program_categories (
+    program_id INT NOT NULL,
+    category_id INT NOT NULL,
+    PRIMARY KEY (program_id, category_id),
+    INDEX idx_hpc_cat (category_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS honor_applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    tracking_id VARCHAR(60) NOT NULL,
+    program_id INT NOT NULL,
+    category_id INT NOT NULL,
+    applicant_name VARCHAR(160) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    email VARCHAR(120) DEFAULT '',
+    address VARCHAR(255) DEFAULT '',
+    is_member TINYINT(1) NOT NULL DEFAULT 0,
+    member_id VARCHAR(50) DEFAULT '',
+    member_portal_id INT NULL,
+    nominee_name VARCHAR(160) DEFAULT '',
+    nominee_relation VARCHAR(80) DEFAULT '',
+    exam_year VARCHAR(40) DEFAULT '',
+    institution VARCHAR(200) DEFAULT '',
+    business_note VARCHAR(255) DEFAULT '',
+    description TEXT,
+    attachment VARCHAR(255) DEFAULT '',
+    status ENUM('pending','under_review','shortlisted','selected','rejected','closed') NOT NULL DEFAULT 'pending',
+    admin_remarks TEXT,
+    reviewed_by VARCHAR(100) DEFAULT '',
+    reviewed_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_honor_tracking (tracking_id),
+    INDEX idx_honor_app_program (program_id),
+    INDEX idx_honor_app_category (category_id),
+    INDEX idx_honor_app_status (status),
+    INDEX idx_honor_app_phone (phone),
+    INDEX idx_honor_app_created (created_at),
+    INDEX idx_honor_app_portal (member_portal_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- 18. USEFUL LINKS TABLE
 -- =====================================================
 

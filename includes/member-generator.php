@@ -115,7 +115,11 @@ function generateMemberFromKyc(PDO $pdo, int $kycId, int $adminId): array {
         /* v10.4: ID card with domain-prefixed card_no + verification_code */
         require_once __DIR__ . '/card-verify-helpers.php';
         $cardNo                 = generateCardNumber($newMemberDbId);
-        [$verifyCode, $cvv]     = generateCardVerification($pdo);
+        [$verifyCode, $cvv]     = generateCardVerification(
+            $pdo,
+            (string)($kyc['full_name'] ?? ''),
+            (string)$memberId
+        );
         $card = $pdo->prepare("INSERT INTO member_id_cards
                   (member_id, card_no, verification_code, cvv, issued_date, status, created_by)
                 VALUES (:mid, :card, :vcode, :cvv, CURDATE(), 'active', :admin)");

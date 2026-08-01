@@ -1,0 +1,2 @@
+# Deny web access to uploaded import CSVs
+Deny from all

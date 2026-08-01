@@ -2,7 +2,7 @@
 /**
  * ═══════════════════════════════════════════════════════════
  *  UNIVERSAL PRINT FORM — Bank-style printable/PDF form
- *  Supports: kyc | loan | welfare | digital | account
+ *  Supports: kyc | loan | welfare | digital | account | honor
  *  URL: admin/print-form.php?type=kyc&id=5
  * ═══════════════════════════════════════════════════════════
  */
@@ -21,10 +21,10 @@ $db   = getDB();
 $type = trim($_GET['type'] ?? '');
 $id   = (int)($_GET['id'] ?? 0);
 
-$allowedTypes = ['kyc', 'loan', 'welfare', 'digital', 'account'];
+$allowedTypes = ['kyc', 'loan', 'welfare', 'digital', 'account', 'honor'];
 if (!in_array($type, $allowedTypes, true) || $id <= 0) {
     http_response_code(400);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Invalid request. Use ?type=kyc|loan|welfare|digital|account&amp;id=N</p>';
+    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Invalid request. Use ?type=kyc|loan|welfare|digital|account|honor&amp;id=N</p>';
     exit;
 }
 
@@ -248,6 +248,46 @@ case 'digital':
     ];
     break;
 
+/* ════════════════════════════ HONOR ════════════════════════════ */
+case 'honor':
+    require_once __DIR__ . '/../includes/honor-tables.php';
+    ensureHonorTables($db);
+    $st = $db->prepare("SELECT a.*, p.title_np AS program_title, c.name_np AS category_name
+        FROM honor_applications a
+        LEFT JOIN honor_programs p ON p.id = a.program_id
+        LEFT JOIN honor_categories c ON c.id = a.category_id
+        WHERE a.id=?");
+    $st->execute([$id]);
+    $data = $st->fetch();
+    if (!$data) goto NOT_FOUND;
+    $formTitle   = 'सम्मान दरखास्त फारम — ' . ($data['category_name'] ?: 'Honor');
+    $formTitleEn = 'Honor Application Form';
+    $trackId     = $data['tracking_id'] ?? 'HNR-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
+    $slMap       = ['pending'=>'पेन्डिङ','under_review'=>'समीक्षामा','shortlisted'=>'छनोट सूची','selected'=>'चयनित','rejected'=>'अस्वीकृत','closed'=>'बन्द'];
+    $statusLabel = $slMap[$data['status']] ?? $data['status'];
+    $sections = [
+        ['title'=>'आवेदक जानकारी / Applicant Information', 'rows'=>[
+            ['नाम', 'Applicant Name', pf_e($data['applicant_name'])],
+            ['सदस्य', 'Member', !empty($data['is_member']) ? 'हो / Yes' : 'होइन / No'],
+            ['सदस्य नं.', 'Member ID', pf_e($data['member_id'])],
+            ['फोन', 'Phone', pf_e($data['phone'])],
+            ['इमेल', 'Email', pf_e($data['email'])],
+            ['ठेगाना', 'Address', pf_e($data['address'])],
+            ['आवेदन मिति', 'Application Date', pf_d($data['created_at'])],
+        ]],
+        ['title'=>'कार्यक्रम / कोटि / Program & Category', 'rows'=>[
+            ['कार्यक्रम', 'Program', pf_e($data['program_title'])],
+            ['कोटि', 'Category', pf_e($data['category_name'])],
+            ['नामांकित', 'Nominee', pf_e($data['nominee_name'])],
+            ['नाता', 'Relation', pf_e($data['nominee_relation'])],
+            ['परीक्षा वर्ष', 'Exam Year', pf_e($data['exam_year'])],
+            ['संस्था', 'Institution', pf_e($data['institution'])],
+            ['कारोबार नोट', 'Business Note', pf_e($data['business_note'])],
+            ['विवरण', 'Description', pf_e($data['description'])],
+        ]],
+    ];
+    break;
+
 /* ════════════════════════════ ACCOUNT ════════════════════════════ */
 case 'account':
     $st = $db->prepare("SELECT * FROM account_applications WHERE id=?");
@@ -317,9 +357,10 @@ $checklists = [
     'loan'    => ['नागरिकताको फोटोकपी','आय प्रमाण / तलब स्लिप','धितो सम्बन्धी कागजात','जमानीको नागरिकताको प्रति'],
     'welfare' => ['नागरिकताको फोटोकपी','सम्बन्धित प्रमाण कागजात','बैंक खाता विवरण'],
     'digital' => ['नागरिकताको फोटोकपी','खाता नम्बर प्रमाण'],
+    'honor'   => ['प्रमाण पत्र / मार्कसीट','नागरिकताको फोटोकपी (आवश्यक परे)','सदस्यता कार्ड प्रतिलिपि'],
     'account' => ['नागरिकताको फोटोकपी','फोटो (पासपोर्ट साइज ×२)','ठेगाना प्रमाण'],
 ];
-$checklist = $checklists[$type];
+$checklist = $checklists[$type] ?? [];
 ?>
 <!DOCTYPE html>
 <html lang="ne">

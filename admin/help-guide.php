@@ -41,6 +41,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <a href="#sec-loan"><i class="fas fa-hand-holding-usd"></i>ऋण आवेदन</a>
     <a href="#sec-account"><i class="fas fa-piggy-bank"></i>खाता आवेदन</a>
     <a href="#sec-digital"><i class="fas fa-mobile-screen"></i>डिजिटल सेवा अनुरोध</a>
+    <a href="#sec-honor"><i class="fas fa-award"></i>सम्मान दरखास्त</a>
     <a href="#sec-welfare"><i class="fas fa-heart"></i>कल्याण दाबी</a>
     <a href="#sec-grievance"><i class="fas fa-comment-dots"></i>गुनासो व्यवस्थापन</a>
     <a href="#sec-appointment"><i class="fas fa-calendar-check"></i>अपोइन्टमेन्ट</a>
@@ -158,7 +159,9 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
       <h5>📥 Bulk Import:</h5>
       <div class="hg-step">
-        <a href="kyc-import-sample.php">KYC Import Sample</a> page बाट CSV template download गरेर bulk member KYC import गर्न सकिन्छ। पहिले template fill गर्नुहोस् → फेरि import गर्नुहोस्।
+        <b>KYC documents/applications:</b> <a href="kyc-import-sample.php">KYC Import Sample</a> → CSV fill → KYC page बाट import।
+        <br>
+        <b>पुराना सदस्य (portal + ID card):</b> <a href="member-import.php">Member Bulk Import</a> / <a href="member-import-sample.php">Member Sample CSV</a> — Excel → Save As CSV UTF-8।
       </div>
 
       <div class="hg-warn">
@@ -221,6 +224,19 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <div class="hg-info">💡 Member Portal को <a href="../member/service-request.php" target="_blank">Service Request</a> page बाट पनि member ले request पठाउन सक्छ।</div>
     </section>
 
+    <!-- ══ 7b. HONOR APPLICATIONS ══ -->
+    <section id="sec-honor" class="hg-section">
+      <h3><span class="hg-icon"><i class="fas fa-award"></i></span> सम्मान दरखास्त (Honor Applications)</h3>
+      <p>AGM / वार्षिक उत्सवमा SEE, +2, स्नातक, चिकित्सक, ज्येष्ठ सदस्य, असल कारोबारी आदि सम्मानका लागि अनलाइन दरखास्त संकलन।</p>
+      <ol class="hg-steps-list">
+        <li>पहिले <a href="honor-programs.php"><b>दरखास्त कार्यक्रम</b></a> बनाउनुहोस् — खुल्ने/बन्द मिति + कोटि छान्नुहोस्।</li>
+        <li>खुला अवधिमा मात्र सार्वजनिक टप बारमा <b>दर्खास्त / नयाँ</b> देखिन्छ; सदस्य पोर्टलमा पनि tile आउँछ।</li>
+        <li>आवेदनहरू <a href="honor-applications.php"><b>सम्मान दरखास्त</b></a> मा program-wise filter, CSV export, print, status update।</li>
+        <li>Tracking ID: <code>HNR-YYYYMMDD-XXXXXX</code> — application-tracker बाट पनि खोजिन्छ।</li>
+      </ol>
+      <div class="hg-info">💡 कार्यक्रम बन्द भएपछि सार्वजनिक icon स्वतः हराउँछ; पुराना आवेदन admin मा program अनुसार सुरक्षित रहन्छन्।</div>
+    </section>
+
     <!-- ══ 8. WELFARE ══ -->
     <section id="sec-welfare" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-heart"></i></span> कल्याण दाबी (Welfare Claims)</h3>
@@ -276,12 +292,24 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>Filter: <code>Active</code>, <code>Inactive</code>, <code>Pending Approval</code>।</li>
       </ol>
 
+      <h5>📥 पुराना सदस्य Bulk Import (CSV / Excel):</h5>
+      <ol class="hg-steps-list">
+        <li><a href="member-import.php">Member Bulk Import</a> खोल्नुहोस् (वा <a href="members.php">Members</a> → <span class="kbd">Bulk Import</span>)।</li>
+        <li><a href="member-import-sample.php">Sample CSV</a> download गर्नुहोस्।</li>
+        <li>Excel मा खोलेर सदस्य भर्नुहोस्। <b>Required:</b> <code>sadasyata_number</code>, <code>full_name</code>, <code>mobile</code>। Optional: email, address, dob (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>), gender, branch, remarks।</li>
+        <li>Excel बाट <b>File → Save As → CSV UTF-8</b> (नेपाली नाम नबिग्रियोस्)।</li>
+        <li>CSV upload गर्नुहोस्। Duplicate मा <code>Skip</code> (सिफारिस) वा <code>Update</code> छान्नुहोस्।</li>
+        <li>Import सुरु — ठूलो फाइल (१०–५० हजार) मा progress बारले chunk-chunk मा चल्छ; timeout हुँदैन। कार्ड auto-generate हुन्छ।</li>
+        <li>Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>। Bulk SMS पठाइँदैन।</li>
+      </ol>
+      <div class="hg-info">
+        ✨ Online KYC भरेर आउने नयाँ सदस्यको लागि अझै <a href="kyc-applications.php">KYC Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a> use गर्नुहोस्। Bulk Import पुराना सूचीका लागि हो।
+      </div>
+
       <h5>➕ नयाँ Member थप्ने (Admin बाट):</h5>
       <ol class="hg-steps-list">
-        <li><a href="members.php">Members</a> page → <span class="kbd">Add New Member</span> button।</li>
-        <li>नाम, email, phone, Member ID भर्नुहोस्।</li>
-        <li>Password set गर्नुहोस् (member पछि आफैं बदल्न सक्छ)।</li>
-        <li><span class="kbd">Save</span> click गर्नुहोस्।</li>
+        <li>एक-एक जनाका लागि: Member Online Portal बाट approve, वा Bulk Import CSV।</li>
+        <li>Password: bulk import मा माथि उल्लेखित temp password; सदस्यले पछि reset गर्न सक्छन्।</li>
       </ol>
 
       <h5>✏️ Member Edit / Activate / Deactivate:</h5>

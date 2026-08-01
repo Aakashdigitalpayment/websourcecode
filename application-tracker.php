@@ -17,6 +17,7 @@ function trackerHistoryModuleKeyFromType(string $appType): ?string {
         'job' => 'job_application',
         'feedback' => 'feedback',
         'digital_service' => 'digital_service',
+        'honor_application' => 'honor_application',
         default => null,
     };
 }
@@ -354,6 +355,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($digitalResults) $allResults = array_merge($allResults, $digitalResults);
             } catch (Exception $e) {}
 
+            try {
+                if ($searchType === 'tracking_id') {
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE UPPER(a.tracking_id) = UPPER(?)");
+                    $stmt->execute([$searchValue]);
+                } elseif ($searchType === 'phone') {
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE a.phone = ? ORDER BY a.created_at DESC LIMIT 20");
+                    $stmt->execute([$searchValue]);
+                } else {
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE a.email = ? ORDER BY a.created_at DESC LIMIT 20");
+                    $stmt->execute([$searchValue]);
+                }
+                $honorResults = $stmt->fetchAll();
+                if ($honorResults) $allResults = array_merge($allResults, $honorResults);
+            } catch (Exception $e) {}
+
             // Vendor enlistment खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
@@ -374,8 +390,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 /* खोजिएको आवेदन नभेटिएमा — helpful message */
                 if ($searchType === 'tracking_id') {
                     $error = isEnglish()
-                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, GRV-123</small>'
-                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, GRV-123</small>';
+                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, GRV-123</small>'
+                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, GRV-123</small>';
                 } elseif ($searchType === 'phone') {
                     $error = isEnglish()
                         ? 'No application found with this phone number. Please check the number.'
@@ -518,6 +534,14 @@ function getStatusText($status, $type = 'job') {
             'rejected' => 'अस्वीकृत / Rejected',
             'completed' => 'सम्पन्न / Completed',
         ],
+        'honor_application' => [
+            'pending' => 'पेन्डिङ / Pending',
+            'under_review' => 'समीक्षाधीन / Under Review',
+            'shortlisted' => 'छनोट सूची / Shortlisted',
+            'selected' => 'चयनित / Selected',
+            'rejected' => 'अस्वीकृत / Rejected',
+            'closed' => 'बन्द / Closed',
+        ],
         '__default' => [
             'pending' => 'पेन्डिङ / Pending',
             'shortlisted' => 'छनोट भयो / Shortlisted',
@@ -542,6 +566,7 @@ function getAppTypeLabel($type) {
         'feedback' => ['icon' => 'fa-comments', 'label' => 'सदस्य सर्वेक्षण/गुनासो', 'label_en' => 'Feedback/Survey', 'color' => 'purple'],
         'welfare_claim' => ['icon' => 'fa-hand-holding-heart', 'label' => 'कल्याण दाबी', 'label_en' => 'Welfare Claim', 'color' => 'pink'],
         'digital_service' => ['icon' => 'fa-mobile-alt', 'label' => 'डिजिटल सेवा अनुरोध', 'label_en' => 'Digital Service Request', 'color' => 'info'],
+        'honor_application' => ['icon' => 'fa-award', 'label' => 'सम्मान दरखास्त', 'label_en' => 'Honor Application', 'color' => 'success'],
         'vendor' => ['icon' => 'fa-store', 'label' => 'सप्लायर दर्ता', 'label_en' => 'Vendor Enlistment', 'color' => 'warning'],
     ];
     return $typeMap[$type] ?? ['icon' => 'fa-file-alt', 'label' => 'आवेदन', 'label_en' => 'Application', 'color' => 'dark'];
@@ -672,7 +697,7 @@ function getAppTypeLabel($type) {
                                            placeholder="<?php echo isEnglish() ? 'e.g. JOB-20240101-XXXX / APT-…' : 'जस्तै: JOB-20240101-XXXX / APT-…'; ?>"
                                            value="<?php echo htmlspecialchars($_POST['search_value'] ?? ''); ?>">
                                     <small class="text-muted tracker-hint d-none d-md-inline" id="hintTrackingIdWrap">
-                                        <span id="hintTrackingId"><?php echo isEnglish() ? 'Examples: JOB-, APT-, FBK-, WLF-…' : 'उदाहरण: JOB-, APT-, FBK-, WLF-…'; ?></span>
+                                        <span id="hintTrackingId"><?php echo isEnglish() ? 'Examples: JOB-, APT-, FBK-, WLF-, HNR-…' : 'उदाहरण: JOB-, APT-, FBK-, WLF-, HNR-…'; ?></span>
                                     </small>
                                 </div>
 
@@ -885,6 +910,8 @@ function getAppTypeLabel($type) {
                                         } elseif ($app['app_type'] === 'digital_service') {
                                             $dsLabels = ['statement_request'=>'खाता विवरण','bill_payment'=>'बिल भुक्तानी','mobile_recharge'=>'मोबाइल रिचार्ज','fund_transfer'=>'रकम स्थानान्तरण','loan_statement'=>'ऋण विवरण','cheque_book'=>'चेकबुक','atm_card'=>'ATM कार्ड','internet_banking'=>'इन्टरनेट बैंकिङ','mobile_banking'=>'मोबाइल बैंकिङ','other_service'=>'अन्य सेवा'];
                                             echo htmlspecialchars($dsLabels[$app['service_type'] ?? ''] ?? $app['service_type_np'] ?? $app['service_type'] ?? 'डिजिटल सेवा अनुरोध');
+                                        } elseif ($app['app_type'] === 'honor_application') {
+                                            echo htmlspecialchars($app['nominee_name'] ?: $app['applicant_name'] ?: (isEnglish() ? 'Honor Application' : 'सम्मान दरखास्त'));
                                         } else {
                                             echo isEnglish() ? $typeInfo['label_en'] : $typeInfo['label'];
                                         }
@@ -892,7 +919,7 @@ function getAppTypeLabel($type) {
                                     </h5>
 
                                     <div class="rcp-chips mt-1">
-                                        <span class="rcp-chip"><i class="fas fa-user"></i><?php echo htmlspecialchars(mb_substr((string)($app['full_name'] ?? $app['name'] ?? $app['member_name'] ?? $app['requester_name'] ?? $app['bidder_name'] ?? '-'), 0, 30, 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?></span>
+                                        <span class="rcp-chip"><i class="fas fa-user"></i><?php echo htmlspecialchars(mb_substr((string)($app['full_name'] ?? $app['name'] ?? $app['member_name'] ?? $app['requester_name'] ?? $app['applicant_name'] ?? $app['bidder_name'] ?? '-'), 0, 30, 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?></span>
                                         <span class="rcp-chip"><i class="fas fa-calendar-alt"></i><?php echo date('Y-m-d', strtotime($app['created_at'])); ?></span>
                                         <?php if (!empty($app['tracking_id'])): ?>
                                         <span class="rcp-chip"><i class="fas fa-hashtag"></i><?php echo htmlspecialchars($app['tracking_id']); ?></span>
@@ -926,7 +953,7 @@ function getAppTypeLabel($type) {
 
                                     <!-- ══ Applicant Detail Info Grid (all types) ══ -->
                                     <?php
-                                    $diName   = $app['full_name']  ?? $app['name']        ?? $app['member_name']   ?? $app['requester_name'] ?? $app['bidder_name']  ?? '';
+                                    $diName   = $app['full_name']  ?? $app['name']        ?? $app['member_name']   ?? $app['requester_name'] ?? $app['applicant_name'] ?? $app['bidder_name']  ?? '';
                                     $diPhone  = $app['mobile']     ?? $app['phone']        ?? $app['bidder_phone']  ?? '';
                                     $diEmail  = $app['email']      ?? $app['bidder_email'] ?? '';
                                     $diAddr   = $app['address']    ?? $app['permanent_address'] ?? '';
