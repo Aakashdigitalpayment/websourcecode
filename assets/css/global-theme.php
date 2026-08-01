@@ -1964,6 +1964,10 @@ body.verify-auth-page .vp-outer                     {
     max-width: 560px !important;
     margin: 0 auto !important;
 }
+/* Verified result: wide 2-col desk layout */
+body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+    max-width: min(1380px, 98vw) !important;
+}
 body.verify-auth-page .vp-card                      {
     background: var(--bg-card,#fff) !important;
     border-radius: 14px !important;

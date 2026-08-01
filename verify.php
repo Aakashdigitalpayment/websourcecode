@@ -383,46 +383,178 @@ if ($result && !empty($result['ok']) && $pdo) {
 .vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
 .vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
 
-/* Success: desktop 2-col — ID card | partner log (खाली किनारा कम, scroll कम) */
-.vp-success-alerts { margin-bottom: 12px; }
-.vp-success-layout { display: grid; gap: 14px; align-items: start; }
-.vp-success-layout .vp-id-card { margin-bottom: 0; }
-.vp-success-layout .vp-partner-log-card { margin-top: 0 !important; height: 100%; }
-.vp-success-layout .vp-visit-list { max-height: min(280px, 42vh); overflow-y: auto; }
-@media (min-width: 960px) {
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-        max-width: min(1120px, 96vw);
+/* ── Success desk UI polish: Card | Action | Log ── */
+.vp-success-alerts { margin-bottom: 14px; }
+.vp-success-layout {
+    display: grid; gap: 16px; align-items: stretch; width: 100%;
+    animation: vpFadeUp .35s ease both;
+}
+@keyframes vpFadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.vp-success-col { min-width: 0; display: flex; flex-direction: column; }
+.vp-success-layout .vp-id-card,
+.vp-success-layout .vp-desk-card {
+    margin: 0 !important; flex: 1; display: flex; flex-direction: column;
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .07);
+}
+.vp-success-layout .vp-visit-list {
+    max-height: min(460px, 58vh); overflow-y: auto;
+    margin: 0 -4px; padding: 0 4px;
+    scrollbar-width: thin;
+}
+
+.vp-desk-card {
+    background: #fff;
+    border: 1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #e5e7eb);
+    padding: 0; overflow: hidden;
+}
+.vp-desk-head {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px 12px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--primary-color,#1a5f2a) 7%, #fff), #fff 85%);
+    border-bottom: 1px solid #f1f5f9;
+}
+.vp-partner-history-card .vp-desk-head { align-items: center; }
+.vp-step {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 9px;
+    display: grid; place-items: center;
+    font-size: .82rem; font-weight: 800; color: #fff;
+    background: var(--primary-color, #1a5f2a);
+    box-shadow: 0 4px 10px rgba(var(--primary-rgb,26,95,42), .28);
+}
+.vp-desk-head-text { min-width: 0; flex: 1; }
+.vp-desk-head-text h3 {
+    margin: 0; font-size: .98rem; font-weight: 800; line-height: 1.25;
+    color: var(--primary-color,#1a5f2a);
+    display: flex; align-items: center; gap: 7px;
+}
+.vp-desk-head-text p {
+    margin: 4px 0 0; font-size: .78rem; color: #64748b; line-height: 1.4;
+}
+.vp-desk-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+.vp-partner-action-card .vp-desk-head { border-top: 3px solid var(--primary-color,#1a5f2a); }
+.vp-partner-history-card .vp-desk-head {
+    border-top: 3px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 55%, #0ea5e9);
+}
+.vp-partner-action-card .vp-field { margin-bottom: 12px; }
+.vp-partner-action-card .vp-label { font-size: .8rem; margin-bottom: 5px; color: #334155; }
+.vp-partner-action-card .vp-input {
+    padding: 10px 12px; font-size: .9rem; border-radius: 11px;
+    border-color: #e2e8f0; background: #f8fafc;
+}
+.vp-partner-action-card .vp-input:focus { background: #fff; }
+.vp-partner-code-hint { font-size: .72rem; color: #94a3b8; margin-top: 5px; }
+.vp-partner-log-btn {
+    margin-top: auto; min-height: 44px; border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(var(--primary-rgb,26,95,42), .22);
+}
+.vp-partner-log-btn:hover { transform: translateY(-1px); }
+
+.vp-visit-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0 0 10px;
+}
+.vp-visit-count {
+    min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 800; color: #fff;
+    background: var(--primary-color,#1a5f2a);
+}
+.vp-visit-row {
+    display: grid; grid-template-columns: 10px minmax(0,1fr); gap: 10px;
+    padding: 10px 11px; margin-bottom: 8px;
+    border: 1px solid #eef2f7; border-radius: 12px; background: #fbfcfd;
+    transition: border-color .15s, background .15s;
+}
+.vp-visit-row:hover { border-color: color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #e2e8f0); background: #fff; }
+.vp-visit-dot {
+    width: 8px; height: 8px; margin-top: 6px; border-radius: 50%;
+}
+.vp-visit-dot.is-taken { background: #16a34a; box-shadow: 0 0 0 3px #dcfce7; }
+.vp-visit-dot.is-skip { background: #94a3b8; box-shadow: 0 0 0 3px #f1f5f9; }
+.vp-visit-org { font-weight: 700; font-size: .88rem; color: #0f172a; }
+.vp-visit-svc { font-size: .8rem; color: #64748b; margin-top: 2px; line-height: 1.35; }
+.vp-visit-meta {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin-top: 7px; font-size: .72rem; color: #94a3b8;
+}
+.vp-visit-badge {
+    font-weight: 700; border-radius: 999px; padding: 2px 8px; font-size: .68rem;
+}
+.vp-visit-badge.yes { background: #dcfce7; color: #166534; }
+.vp-visit-badge.no { background: #f1f5f9; color: #475569; }
+.vp-visit-empty {
+    text-align: center; padding: 28px 14px; color: #94a3b8; font-size: .84rem; line-height: 1.45;
+    border: 1px dashed #e2e8f0; border-radius: 14px; background: #f8fafc;
+}
+.vp-visit-empty i { display: block; font-size: 1.35rem; margin-bottom: 8px; opacity: .7; }
+
+@media (min-width: 1100px) {
+    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) {
+        align-items: flex-start !important;
+        padding: 18px 18px 36px !important;
     }
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
-        max-width: 40rem;
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+        max-width: min(1380px, 98vw) !important;
+        width: 100% !important;
+    }
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name,
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
+        max-width: 52rem !important;
+    }
+    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) .vp-logo-wrap {
+        margin-bottom: 1rem;
+    }
+    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) .vp-logo-wrap img {
+        max-height: 72px;
     }
     .vp-success-layout.has-partner {
-        grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+        grid-template-columns: minmax(280px, 1fr) minmax(300px, 1.05fr) minmax(280px, .95fr);
         gap: 18px;
     }
-    .vp-success-layout.has-partner .vp-partner-log-card {
-        position: sticky;
-        top: 12px;
+    .vp-success-layout.has-partner .vp-desk-card,
+    .vp-success-layout.has-partner .vp-id-card { position: sticky; top: 14px; }
+    .vp-success-layout.has-partner .vp-id-main {
+        grid-template-columns: 100px minmax(0, 1fr);
+        gap: 12px; padding: 14px;
     }
+    .vp-success-layout.has-partner .vp-id-photo-wrap { width: 100px; }
+    .vp-success-layout.has-partner .vp-id-name { font-size: 1.05rem; }
 }
-@media (max-width: 959px) {
+@media (min-width: 700px) and (max-width: 1099px) {
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+        max-width: min(980px, 98vw) !important;
+    }
+    .vp-success-layout.has-partner { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .vp-success-col-id { grid-column: 1 / -1; }
+    .vp-success-layout.has-partner .vp-id-card { position: static; }
+}
+@media (max-width: 699px) {
     .vp-success-layout.has-partner { grid-template-columns: 1fr; }
+    .vp-success-layout.has-partner .vp-desk-card,
+    .vp-success-layout.has-partner .vp-id-card { position: static; }
 }
 
 /* Employee-style member ID card after verify */
 .vp-id-card {
-    background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 1.1rem;
+    background: #fff; border-radius: 18px; overflow: hidden; margin-bottom: 1.1rem;
     border: 1px solid rgba(var(--primary-rgb,26,95,42),.16);
-    box-shadow: 0 8px 28px rgba(var(--primary-rgb,26,95,42),.12);
+    box-shadow: 0 10px 28px rgba(var(--primary-rgb,26,95,42),.12);
 }
 .vp-id-band {
-    background: linear-gradient(135deg, var(--primary-color,#1a5f2a), color-mix(in srgb, var(--primary-color,#1a5f2a) 70%, #0e9b53));
-    color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: linear-gradient(135deg, var(--primary-color,#1a5f2a), color-mix(in srgb, var(--primary-color,#1a5f2a) 68%, #0e9b53));
+    color: #fff; padding: 11px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
 }
-.vp-id-band-title { font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; opacity: .95; }
+.vp-id-band-title { font-size: .76rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; opacity: .96; }
 .vp-id-band-badge {
-    font-size: .72rem; font-weight: 700; background: rgba(255,255,255,.2);
-    border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+    font-size: .7rem; font-weight: 700; background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 4px 10px; white-space: nowrap;
+    backdrop-filter: blur(4px);
 }
 .vp-id-main {
     display: grid; grid-template-columns: 118px minmax(0,1fr); gap: 14px;
@@ -430,32 +562,51 @@ if ($result && !empty($result['ok']) && $pdo) {
 }
 .vp-id-photo-wrap {
     width: 118px; aspect-ratio: 3 / 3.6; border-radius: 12px; overflow: hidden;
-    border: 2px solid rgba(var(--primary-rgb,26,95,42),.2); background: #f3f4f6;
+    border: 2px solid rgba(var(--primary-rgb,26,95,42),.18); background: #f1f5f9;
     display: grid; place-items: center; flex-shrink: 0;
 }
 .vp-id-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.vp-id-photo-fallback { color: #9ca3af; font-size: 2.2rem; }
+.vp-id-photo-fallback { color: #94a3b8; font-size: 2.2rem; }
 .vp-id-info { min-width: 0; }
 .vp-id-name { font-size: 1.15rem; font-weight: 800; color: var(--primary-color,#1a5f2a); line-height: 1.3; margin: 0 0 4px; }
-.vp-id-status { font-size: .82rem; color: #15803d; font-weight: 700; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 6px; }
+.vp-id-status {
+    font-size: .8rem; color: #15803d; font-weight: 700; margin-bottom: 10px;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 999px; padding: 3px 10px;
+}
 .vp-id-grid { display: grid; gap: 0; }
 .vp-id-row {
-    display: grid; grid-template-columns: minmax(5.5rem, 38%) 1fr; gap: 8px;
-    padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: .88rem;
+    display: grid; grid-template-columns: minmax(5.2rem, 36%) 1fr; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid #f1f5f9; font-size: .86rem;
 }
 .vp-id-row:last-child { border-bottom: none; }
-.vp-id-label { color: #6b7280; font-weight: 600; }
-.vp-id-value { font-weight: 700; color: #111827; word-break: break-word; }
-.vp-id-secret { margin-top: 8px; padding-top: 10px; border-top: 1px dashed rgba(var(--primary-rgb,26,95,42),.2); }
-.vp-id-secret .vp-secret-code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em;
-    color: var(--primary-color,#1a5f2a); font-weight: 800;
+.vp-id-label { color: #64748b; font-weight: 600; }
+.vp-id-value { font-weight: 700; color: #0f172a; word-break: break-word; }
+.vp-id-secret {
+    margin-top: 10px; padding: 10px 12px; border-radius: 12px;
+    background: color-mix(in srgb, var(--primary-color,#1a5f2a) 7%, #fff);
+    border: 1px dashed color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #e2e8f0);
 }
+.vp-id-secret .vp-id-row { border-bottom: 0; padding: 0; }
+.vp-id-secret .vp-secret-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .1em;
+    color: var(--primary-color,#1a5f2a); font-weight: 800; font-size: 1.05rem;
+}
+.vp-secret-hint { font-size: .72rem; color: #64748b; margin: 8px 0 0; line-height: 1.4; }
 .vp-success-alert {
     display: flex; align-items: flex-start; gap: 10px;
     background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px;
     padding: 12px 14px; margin: 0 0 14px; color: #166534; font-size: .9rem; line-height: 1.45;
 }
+.vp-reverify-link { text-align: center; margin-top: 18px; }
+.vp-reverify-link a {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--primary-color,#1a5f2a); font-weight: 700; font-size: .88rem;
+    text-decoration: none; padding: 8px 14px; border-radius: 999px;
+    background: color-mix(in srgb, var(--primary-color,#1a5f2a) 8%, #fff);
+    border: 1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 16%, #e2e8f0);
+}
+.vp-reverify-link a:hover { background: color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #fff); }
 @media (max-width: 480px) {
     .vp-id-main { grid-template-columns: 96px minmax(0,1fr); gap: 12px; padding: 14px; }
     .vp-id-photo-wrap { width: 96px; }
@@ -633,7 +784,7 @@ $__hasPartnerCol = !empty($partners);
 <div class="vp-success-col vp-success-col-id">
 <div class="vp-id-card vp-result-card" role="region" aria-label="<?= htmlspecialchars($_t('सदस्य परिचय पत्र', 'Member ID Card'), ENT_QUOTES, 'UTF-8') ?>">
     <div class="vp-id-band">
-        <span class="vp-id-band-title"><?= $_t('सदस्य परिचय पत्र', 'Member ID Card') ?></span>
+        <span class="vp-id-band-title"><span class="vp-step" style="width:22px;height:22px;font-size:.68rem;border-radius:7px;display:inline-grid;place-items:center;margin-right:8px;box-shadow:none;vertical-align:middle;">१</span><?= $_t('सदस्य परिचय पत्र', 'Member ID Card') ?></span>
         <span class="vp-id-band-badge"><i class="fas fa-shield-halved me-1"></i><?= $_t('प्रमाणित', 'Verified') ?></span>
     </div>
     <div class="vp-id-main">
@@ -678,73 +829,16 @@ $__hasPartnerCol = !empty($partners);
 </div><!-- /.vp-success-col-id -->
 
 <?php if ($__hasPartnerCol): ?>
-<div class="vp-success-col vp-success-col-partner">
-<div class="vp-programs-card vp-partner-log-card" id="vpPartnerLog">
-    <h3 class="vp-programs-title">
-        <i class="fas fa-handshake"></i> <?= $_t('साझेदार सेवा लग','Log partner service') ?>
-    </h3>
-    <p class="vp-partner-log-hint">
-        <?= $_t('यो सदस्यले तपाईंको संस्थामा सेवा/छुट लिए भने तलबाट लग गर्नुहोस् — सदस्य पोर्टलमा इतिहास देखिन्छ।', 'If this member used your discount/service, log it below — it appears in their member portal history.') ?>
-    </p>
-
-    <!-- Member visit history at partners (filters when partner is chosen) -->
-    <div class="vp-visit-panel" id="vpVisitPanel">
-        <div class="vp-visit-head">
-            <div class="vp-visit-title">
-                <i class="fas fa-clock-rotate-left"></i>
-                <span id="vpVisitTitleText"><?= $_t('यस सदस्यको सेवा इतिहास', 'This member\'s service history') ?></span>
-            </div>
-            <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
-        </div>
-        <div class="vp-visit-list" id="vpVisitList">
-            <?php if (empty($memberPartnerLogs)): ?>
-            <div class="vp-visit-empty" data-empty-all="1">
-                <i class="fas fa-inbox"></i>
-                <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। पहिलो लग तलबाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save the first log below.') ?></span>
-            </div>
-            <?php else:
-                foreach ($memberPartnerLogs as $vl):
-                    $taken = !empty($vl['service_taken']);
-                    $pid = (int)($vl['partner_id'] ?? 0);
-                    $when = function_exists('formatNepaliDate')
-                        ? formatNepaliDate($vl['created_at'] ?? '', true)
-                        : (string)($vl['created_at'] ?? '');
-            ?>
-            <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
-                <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
-                <div class="vp-visit-body">
-                    <div class="vp-visit-org"><?php
-                        $vOrg = (string)($vl['partner_name'] ?? '—');
-                        if (function_exists('partnerFacilityDisplayName')) {
-                            $vOrg = partnerFacilityDisplayName([
-                                'partner_name' => (string)($vl['partner_name'] ?? ''),
-                                'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
-                            ]) ?: $vOrg;
-                        }
-                        echo htmlspecialchars($vOrg);
-                    ?></div>
-                    <div class="vp-visit-svc">
-                        <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
-                        <?php if (!empty($vl['service_note'])): ?>
-                            <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vp-visit-meta">
-                        <time><?= htmlspecialchars($when) ?></time>
-                        <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
-                            <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; endif; ?>
-            <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
-                <i class="fas fa-building"></i>
-                <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
-            </div>
+<div class="vp-success-col vp-success-col-action">
+<div class="vp-desk-card vp-partner-action-card" id="vpPartnerLog">
+    <div class="vp-desk-head">
+        <span class="vp-step">२</span>
+        <div class="vp-desk-head-text">
+            <h3><i class="fas fa-pen-to-square"></i> <?= $_t('सेवा लग्नुहोस्', 'Log service') ?></h3>
+            <p><?= $_t('डेस्कबाट सेवा/छुट दिएपछि यहाँ सेभ गर्नुहोस्।', 'Save here after the desk provides a service or discount.') ?></p>
         </div>
     </div>
-
+    <div class="vp-desk-body">
     <form method="POST" action="" class="vp-partner-log-form">
         <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
         <input type="hidden" name="action" value="log_service">
@@ -804,8 +898,71 @@ $__hasPartnerCol = !empty($partners);
             <i class="fas fa-save"></i> <?= $_t('सेवा लग सेभ गर्नुहोस्','Save service log') ?>
         </button>
     </form>
+    </div>
 </div>
-</div><!-- /.vp-success-col-partner -->
+</div><!-- /.vp-success-col-action -->
+
+<div class="vp-success-col vp-success-col-log">
+<div class="vp-desk-card vp-partner-history-card" id="vpVisitPanel">
+    <div class="vp-desk-head">
+        <span class="vp-step">३</span>
+        <div class="vp-desk-head-text">
+            <h3><i class="fas fa-clock-rotate-left"></i> <?= $_t('सेवा इतिहास', 'Service history') ?></h3>
+            <p id="vpVisitTitleText"><?= $_t('यस सदस्यका साझेदार सेवा लगहरू', "This member's partner service logs") ?></p>
+        </div>
+        <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
+    </div>
+    <div class="vp-desk-body">
+    <div class="vp-visit-list" id="vpVisitList">
+        <?php if (empty($memberPartnerLogs)): ?>
+        <div class="vp-visit-empty" data-empty-all="1">
+            <i class="fas fa-inbox"></i>
+            <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। Action बाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save from Action.') ?></span>
+        </div>
+        <?php else:
+            foreach ($memberPartnerLogs as $vl):
+                $taken = !empty($vl['service_taken']);
+                $pid = (int)($vl['partner_id'] ?? 0);
+                $when = function_exists('formatNepaliDate')
+                    ? formatNepaliDate($vl['created_at'] ?? '', true)
+                    : (string)($vl['created_at'] ?? '');
+        ?>
+        <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
+            <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
+            <div class="vp-visit-body">
+                <div class="vp-visit-org"><?php
+                    $vOrg = (string)($vl['partner_name'] ?? '—');
+                    if (function_exists('partnerFacilityDisplayName')) {
+                        $vOrg = partnerFacilityDisplayName([
+                            'partner_name' => (string)($vl['partner_name'] ?? ''),
+                            'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
+                        ]) ?: $vOrg;
+                    }
+                    echo htmlspecialchars($vOrg);
+                ?></div>
+                <div class="vp-visit-svc">
+                    <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
+                    <?php if (!empty($vl['service_note'])): ?>
+                        <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="vp-visit-meta">
+                    <time><?= htmlspecialchars($when) ?></time>
+                    <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
+                        <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; endif; ?>
+        <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
+            <i class="fas fa-building"></i>
+            <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
+        </div>
+    </div>
+    </div>
+</div>
+</div><!-- /.vp-success-col-log -->
 </div><!-- /.vp-success-layout -->
 <script>
 (function(){
@@ -817,7 +974,7 @@ $__hasPartnerCol = !empty($partners);
     var countEl = document.getElementById('vpVisitCount');
     var titleEl = document.getElementById('vpVisitTitleText');
     var emptyFilter = document.getElementById('vpVisitEmptyFilter');
-    var titleAll = <?= json_encode($_t('यस सदस्यको सेवा इतिहास', "This member's service history"), JSON_UNESCAPED_UNICODE) ?>;
+    var titleAll = <?= json_encode($_t('यस सदस्यका साझेदार सेवा लगहरू', "This member's partner service logs"), JSON_UNESCAPED_UNICODE) ?>;
     var titleAt = <?= json_encode($_t('यस संस्थामा भेट / सेवा लग', 'Visits / service logs at this partner'), JSON_UNESCAPED_UNICODE) ?>;
     if (!sel || !wrap) return;
 
