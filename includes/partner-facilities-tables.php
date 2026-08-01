@@ -294,6 +294,9 @@ if (!function_exists('logMemberPartnerService')) {
         if (!partnerVerifyPin($partner, $pin)) {
             return ['ok' => false, 'error' => 'pin'];
         }
+        if (partnerRecentDuplicateLog($db, $memberId, $partnerId, 90)) {
+            return ['ok' => false, 'error' => 'duplicate'];
+        }
         $ip = $ip ?? (string)($_SERVER['REMOTE_ADDR'] ?? '');
         try {
             $ins = $db->prepare(
@@ -315,6 +318,79 @@ if (!function_exists('logMemberPartnerService')) {
         } catch (Throwable $e) {
             error_log('logMemberPartnerService: ' . $e->getMessage());
             return ['ok' => false, 'error' => 'db'];
+        }
+    }
+}
+
+if (!function_exists('partnerBuildVerifyDisplayResult')) {
+    /**
+     * After service log: show success card without re-running CVV verify (avoids rate-limit wipe).
+     * @return array{ok:bool,member?:array,card?:array,error?:string}
+     */
+    function partnerBuildVerifyDisplayResult(PDO $db, int $memberId, string $cardNo = ''): array
+    {
+        if ($memberId < 1) {
+            return ['ok' => false, 'error' => 'invalid'];
+        }
+        try {
+            $st = $db->prepare(
+                "SELECT m.id, m.name, m.sadasyata_number, m.member_card_no, m.phone, m.avatar_url,
+                        m.approval_status, m.is_active, m.created_at
+                 FROM members m WHERE m.id=? LIMIT 1"
+            );
+            $st->execute([$memberId]);
+            $m = $st->fetch(PDO::FETCH_ASSOC);
+            if (!$m) {
+                return ['ok' => false, 'error' => 'not_found'];
+            }
+            $dispId = $cardNo !== ''
+                ? $cardNo
+                : (string)($m['sadasyata_number'] ?: ($m['member_card_no'] ?: $m['id']));
+            return [
+                'ok' => true,
+                'member' => [
+                    'id' => (int)$m['id'],
+                    'member_id' => $dispId,
+                    'full_name' => (string)($m['name'] ?? ''),
+                    'photo_path' => (string)($m['avatar_url'] ?? ''),
+                    'mobile' => (string)($m['phone'] ?? ''),
+                    'email' => '',
+                    'father_name' => '',
+                    'member_since' => (string)($m['created_at'] ?? ''),
+                ],
+                'card' => [
+                    'card_no' => $dispId,
+                    'legacy_card_no' => (string)($m['member_card_no'] ?? ''),
+                    'verification_code' => '',
+                    'issued_date' => '',
+                    'expires_at' => '',
+                    'verify_count' => 0,
+                    'secret_cvv' => '',
+                ],
+            ];
+        } catch (Throwable $e) {
+            return ['ok' => false, 'error' => 'db'];
+        }
+    }
+}
+
+if (!function_exists('partnerRecentDuplicateLog')) {
+    /** Same member+partner logged within N seconds (spam guard). */
+    function partnerRecentDuplicateLog(PDO $db, int $memberId, int $partnerId, int $withinSeconds = 120): bool
+    {
+        if ($memberId < 1 || $partnerId < 1) {
+            return false;
+        }
+        try {
+            $since = date('Y-m-d H:i:s', time() - max(30, $withinSeconds));
+            $st = $db->prepare(
+                'SELECT COUNT(*) FROM member_partner_services
+                 WHERE member_id=? AND partner_id=? AND created_at >= ?'
+            );
+            $st->execute([$memberId, $partnerId, $since]);
+            return (int)$st->fetchColumn() > 0;
+        } catch (Throwable $e) {
+            return false;
         }
     }
 }

@@ -91,6 +91,30 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
         </div>
     </div>
 
+    <div class="pf-how-row" aria-label="<?php echo isEnglish() ? 'How it works' : 'कसरी काम गर्छ'; ?>">
+        <div class="pf-how-step">
+            <span class="pf-how-num">1</span>
+            <div>
+                <strong><?php echo isEnglish() ? 'Choose a partner' : 'साझेदार छान्नुहोस्'; ?></strong>
+                <p><?php echo isEnglish() ? 'Browse discounts by type or search below.' : 'तल प्रकार/खोजबाट छुट सूची हेर्नुहोस्।'; ?></p>
+            </div>
+        </div>
+        <div class="pf-how-step">
+            <span class="pf-how-num">2</span>
+            <div>
+                <strong><?php echo isEnglish() ? 'Show your member card' : 'सदस्य कार्ड देखाउनुहोस्'; ?></strong>
+                <p><?php echo isEnglish() ? 'At the partner desk, present your cooperative ID card.' : 'साझेदार डेस्कमा सहकारीको सदस्य कार्ड देखाउनुहोस्।'; ?></p>
+            </div>
+        </div>
+        <div class="pf-how-step">
+            <span class="pf-how-num">3</span>
+            <div>
+                <strong><?php echo isEnglish() ? 'Desk verifies & logs' : 'डेस्क verify र लग'; ?></strong>
+                <p><?php echo isEnglish() ? 'Staff confirms on verify page — history appears in your portal.' : 'कर्मचारी verify पृष्ठबाट पुष्टि गर्छ — इतिहास पोर्टलमा देखिन्छ।'; ?></p>
+            </div>
+        </div>
+    </div>
+
     <?php if (empty($facilities)): ?>
     <div class="text-center py-5 pf-empty-block">
         <div class="pf-empty-icon"><i class="fas fa-handshake"></i></div>
@@ -103,6 +127,23 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
         </a>
     </div>
     <?php else: ?>
+
+    <?php if (!empty($featured) && $activeType === ''): ?>
+    <div class="pf-featured-strip mb-3">
+        <div class="pf-featured-strip-title"><i class="fas fa-star me-1"></i><?php echo isEnglish() ? 'Featured partners' : 'विशेष साझेदारहरू'; ?></div>
+        <div class="pf-featured-chips">
+            <?php foreach (array_slice($featured, 0, 8) as $ff):
+                $fn = partnerFacilityDisplayName($ff);
+                $fd = partnerDiscountDisplay($ff);
+            ?>
+            <span class="pf-featured-chip-item">
+                <strong><?php echo htmlspecialchars($fn); ?></strong>
+                <?php if ($fd !== ''): ?><em><?php echo htmlspecialchars($fd); ?></em><?php endif; ?>
+            </span>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <?php if (!empty($types)): ?>
     <div class="pf-filter-wrap" role="tablist" aria-label="<?php echo isEnglish() ? 'Facility types' : 'सुविधा प्रकार'; ?>">
@@ -134,7 +175,7 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                    oninput="pfSearchFn()">
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <div class="pf-view-toggle" role="group" aria-label="View">
+            <div class="pf-view-toggle pf-view-toggle-desktop" role="group" aria-label="View">
                 <?php
                 $baseQ = $activeType !== '' ? ('type=' . urlencode($activeType) . '&') : '';
                 ?>
@@ -202,6 +243,11 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                 <?php if ($web !== ''): ?>
                     <a href="<?php echo htmlspecialchars($web); ?>" class="pf-action-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?></a>
                 <?php endif; ?>
+                <?php
+                $deskCode = trim((string)($f['partner_code'] ?? ''));
+                $verifyHref = SITE_URL . 'verify.php' . ($deskCode !== '' ? ('?partner=' . rawurlencode($deskCode)) : '');
+                ?>
+                <a href="<?php echo htmlspecialchars($verifyHref); ?>" class="pf-action-link pf-action-verify"><i class="fas fa-shield-halved"></i><?php echo isEnglish() ? 'Desk verify' : 'डेस्क verify'; ?></a>
             </div>
         </article>
         <?php endforeach; ?>

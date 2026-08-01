@@ -828,6 +828,25 @@ body.verify-auth-page .vp-secure {
   font-family: var(--mem-font-head) !important;
 }
 
+.vp-partner-log-hint {
+  font-size: .82rem;
+  color: #6b7280;
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+.vp-partner-code-hint {
+  font-size: .75rem;
+  color: #9ca3af;
+  margin-top: 5px;
+}
+.vp-partner-log-card {
+  border: 1px solid rgba(var(--primary-rgb, 26, 95, 42), .18);
+  background: linear-gradient(180deg, rgba(var(--primary-rgb, 26, 95, 42), .04), #fff 28%);
+}
+.vp-partner-log-btn {
+  max-width: 280px;
+}
+
 .vp-program-item {
   padding: 0.65rem 0.85rem;
   background: #f9fafb;
