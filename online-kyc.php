@@ -158,12 +158,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $existingKyc = null;
                     if (function_exists('memberSsotFindKycByMemberId')) {
-                        $existingKyc = memberSsotFindKycByMemberId($db, $member_id);
+                        $existingKyc = memberSsotFindKycByMemberId($db, $member_id, true);
                     } else {
                         $q = $db->prepare("SELECT * FROM kyc_applications
                                            WHERE UPPER(TRIM(member_id))=?
-                                             AND status <> 'rejected'
-                                           ORDER BY FIELD(status,'approved','pending','incomplete','partial') ASC, id DESC
+                                           ORDER BY FIELD(status,'approved','pending','incomplete','partial','rejected') ASC, id DESC
                                            LIMIT 1");
                         $q->execute([$member_id]);
                         $existingKyc = $q->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -558,12 +557,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     if (!$existingKyc && $member_id !== '') {
                         if (function_exists('memberSsotFindKycByMemberId')) {
-                            $existingKyc = memberSsotFindKycByMemberId($db, $member_id);
+                            $existingKyc = memberSsotFindKycByMemberId($db, $member_id, true);
                         } else {
                             $dup = $db->prepare("SELECT * FROM kyc_applications
                                                  WHERE UPPER(TRIM(member_id)) = ?
-                                                   AND status <> 'rejected'
-                                                 ORDER BY FIELD(status,'approved','pending','incomplete','partial') ASC, id DESC
+                                                 ORDER BY FIELD(status,'approved','pending','incomplete','partial','rejected') ASC, id DESC
                                                  LIMIT 1");
                             $dup->execute([$member_id]);
                             $existingKyc = $dup->fetch(PDO::FETCH_ASSOC) ?: null;

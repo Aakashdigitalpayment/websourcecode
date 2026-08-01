@@ -141,9 +141,10 @@ if (!function_exists('memberSsotFindBySadasyata')) {
 if (!function_exists('memberSsotFindKycByMemberId')) {
     /**
      * Prefer approved, then newest non-rejected.
+     * If $includeRejectedFallback: reopen newest rejected when no active row (avoid duplicate inserts).
      * @return array<string,mixed>|null
      */
-    function memberSsotFindKycByMemberId(PDO $db, string $memberId): ?array
+    function memberSsotFindKycByMemberId(PDO $db, string $memberId, bool $includeRejectedFallback = false): ?array
     {
         $memberId = memberSsotNormalizeId($memberId);
         if ($memberId === '') {
@@ -174,12 +175,32 @@ if (!function_exists('memberSsotFindKycByMemberId')) {
                 );
                 $st->execute([$memberId]);
                 $row = $st->fetch(PDO::FETCH_ASSOC);
-                return $row ?: null;
+                if ($row) {
+                    return $row;
+                }
             } catch (Throwable $e2) {
                 error_log('[member-ssot] findKyc: ' . $e2->getMessage());
             }
         }
-        return null;
+
+        if (!$includeRejectedFallback) {
+            return null;
+        }
+        try {
+            $st = $db->prepare(
+                "SELECT * FROM kyc_applications
+                 WHERE UPPER(TRIM(member_id)) = ?
+                   AND status = 'rejected'
+                 ORDER BY id DESC
+                 LIMIT 1"
+            );
+            $st->execute([$memberId]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            return $row ?: null;
+        } catch (Throwable $e) {
+            error_log('[member-ssot] findKyc rejected fallback: ' . $e->getMessage());
+            return null;
+        }
     }
 }
 
@@ -840,10 +861,13 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
         }
 
         $name = trim((string)(($kyc['full_name'] ?? '') ?: ($kyc['full_name_en'] ?? '')));
-        if ($name === '') {
-            $name = 'Member ' . $sadasyata;
+        $phoneRaw = function_exists('memberSsotNormalizeMobile')
+            ? memberSsotNormalizeMobile((string)($kyc['mobile'] ?? ''))
+            : (preg_replace('/[^0-9]/', '', (string)($kyc['mobile'] ?? '')) ?: '');
+        if (strlen($phoneRaw) > 10 && str_starts_with($phoneRaw, '977')) {
+            $phoneRaw = substr($phoneRaw, -10);
         }
-        $phone = preg_replace('/[^0-9]/', '', (string)($kyc['mobile'] ?? '')) ?: null;
+        $phone = $phoneRaw !== '' ? $phoneRaw : null;
         $email = trim((string)($kyc['email'] ?? ''));
         $email = $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
 
@@ -852,8 +876,8 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
             $pk = (int)$existing['id'];
             memberSsotLinkMemberToKyc($db, $pk, $kycId);
             /*
-             * Shared contact: KYM = सच्याउने ठाउँ → members मा सधैं sync (खाली मात्र होइन)।
-             * KYM मा value खाली भए members को पुरानो नमेट्ने।
+             * Shared contact: KYM = सच्याउने ठाउँ → members मा sync।
+             * खाली KYM name ले members.name overwrite नगर्ने (placeholder "Member ID" नहाल्ने)।
              */
             $address = trim((string)($kyc['permanent_address'] ?? ''));
             $gender = trim((string)($kyc['gender'] ?? ''));
@@ -902,6 +926,7 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
         }
 
         /* Create stub — pending until portal password / approve */
+        $nameForInsert = $name !== '' ? $name : ('Member ' . $sadasyata);
         try {
             $cardNo = 'M-' . date('Y') . '-' . str_pad((string)random_int(1, 99999), 5, '0', STR_PAD_LEFT);
             $st = $db->prepare(
@@ -910,7 +935,7 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
                      approval_status, is_active, kyc_application_id, approved_at, approved_by)
                  VALUES (?,?,?,?,NULL,?, 'pending', 1, ?, NULL, NULL)"
             );
-            $st->execute([$name, $email, $phone, $sadasyata, $cardNo, $kycId]);
+            $st->execute([$nameForInsert, $email, $phone, $sadasyata, $cardNo, $kycId]);
             $pk = (int)$db->lastInsertId();
             return [
                 'ok' => true,
