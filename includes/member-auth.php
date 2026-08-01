@@ -740,9 +740,13 @@ function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = fa
         if (!$member) return false;
 
         $wasGenerated = !empty($member['id_card_generated']);
+        $faceId = trim((string)($member['sadasyata_number'] ?? ''));
+        if ($faceId === '') {
+            $faceId = 'M-' . str_pad((string)$memberId, 5, '0', STR_PAD_LEFT);
+        }
         $cardNo = '';
 
-        // member_id_cards मा भएको latest card number लाई single source मान्ने
+        // Prefer existing card row; ignore legacy PREFIX-YYYY-NNNNN for face ID
         try {
             $cs = $db->prepare("SELECT id, card_no
                                   FROM member_id_cards
@@ -754,23 +758,28 @@ function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = fa
             ]);
             $cardRow = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
             if ($cardRow && !empty($cardRow['card_no'])) {
-                $cardNo = trim((string)$cardRow['card_no']);
+                $existingNo = trim((string)$cardRow['card_no']);
+                $isLegacyPrefix = (bool)preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $existingNo);
+                $cardNo = $isLegacyPrefix ? $faceId : $existingNo;
+                if ($isLegacyPrefix) {
+                    try {
+                        $db->prepare("UPDATE member_id_cards SET card_no = ? WHERE id = ?")
+                            ->execute([$faceId, (int)$cardRow['id']]);
+                    } catch (\Throwable $e) { /* non-fatal */ }
+                }
             }
         } catch (\Throwable $e) { /* fallback create below */ }
 
-        // नभए नयाँ standardized card create गर्ने
+        // नभए नयाँ कार्ड — Member ID नै card_no (पुरानो PREFIX नम्बर होइन)
         if ($cardNo === '') {
-            $cardNo = function_exists('generateCardNumber')
-                ? generateCardNumber((int)$memberId)
-                : ('M-' . date('Y') . '-' . str_pad((string)$memberId, 5, '0', STR_PAD_LEFT));
+            $cardNo = $faceId;
 
             try {
                 $vCode = '';
                 $cvv   = '';
                 if (function_exists('generateCardVerification')) {
                     $dispName = (string)($member['name'] ?? '');
-                    $dispMid  = (string)(($member['sadasyata_number'] ?? '') ?: ($member['member_card_no'] ?? '') ?: $memberId);
-                    [$vCode, $cvv] = generateCardVerification($db, $dispName, $dispMid);
+                    [$vCode, $cvv] = generateCardVerification($db, $dispName, $faceId);
                 }
                 $ins = $db->prepare("INSERT INTO member_id_cards
                     (member_id, card_no, verification_code, cvv, issued_date, status)
@@ -784,12 +793,17 @@ function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = fa
             } catch (\Throwable $e) { /* non-fatal */ }
         }
 
+        /* members.member_card_no: keep real IDs; replace empty/legacy PREFIX only */
+        $curMc = trim((string)($member['member_card_no'] ?? ''));
+        $curIsLegacy = $curMc !== '' && (bool)preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $curMc);
+        $mcToStore = ($curMc === '' || $curIsLegacy) ? $faceId : $curMc;
+
         $up = $db->prepare("UPDATE members
             SET member_card_no = ?,
                 id_card_generated = 1,
                 id_card_generated_at = COALESCE(id_card_generated_at, NOW())
             WHERE id = ?");
-        $up->execute([$cardNo, $memberId]);
+        $up->execute([$mcToStore, $memberId]);
 
         $verify = $db->prepare("SELECT id_card_generated, id_card_generated_at, member_card_no FROM members WHERE id=? LIMIT 1");
         $verify->execute([$memberId]);

@@ -438,8 +438,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <span class="badge <?php echo $viewMember['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $viewMember['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span>
             </div>
             <ul class="list-group list-group-flush small portal-member-meta-list">
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">सदस्यता नं</span><span><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></span></li>
-                <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">Card No</span><code><?php echo htmlspecialchars($viewCard['card_no'] ?? $viewMember['member_card_no'] ?? '—'); ?></code></li>
+                <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">सदस्यता नं. / Member ID</span><span><code><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code></span></li>
                 <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">इमेल</span><span><?php echo htmlspecialchars($vmEmail ?: '—'); ?></span></li>
                 <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">मोबाइल</span><span><?php echo htmlspecialchars($vmPhone ?: '—'); ?></span></li>
                 <li class="list-group-item d-flex justify-content-between"><span class="text-muted fw-bold">दर्ता मिति</span><span><?php echo formatNepaliDate($viewMember['created_at']); ?></span></li>
@@ -460,18 +459,23 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <li class="list-group-item"><span class="text-danger fw-bold small"><?php echo $__t('अस्वीकृतिको कारण','Rejection Reason'); ?>:</span><div class="small"><?php echo htmlspecialchars($viewMember['rejection_reason']); ?></div></li>
                 <?php endif; ?>
             </ul>
-            <?php if ($viewCard && (!empty($viewCard['cvv']) || !empty($viewCard['verification_code']))): ?>
+            <?php
+            $portalFaceId = trim((string)($viewMember['sadasyata_number'] ?? ''));
+            if ($portalFaceId === '') {
+                $rawPc = trim((string)($viewCard['card_no'] ?? $viewMember['member_card_no'] ?? ''));
+                if ($rawPc !== '' && !preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $rawPc)) {
+                    $portalFaceId = $rawPc;
+                }
+            }
+            ?>
+            <?php if ($viewCard && (!empty($viewCard['cvv']) || $portalFaceId !== '' || ($viewCard['status'] ?? '') === 'locked')): ?>
             <div class="card-body border-top portal-card-security-wrap">
                 <div class="fw-bold small text-warning-emphasis mb-2">
                     <i class="fas fa-shield-halved"></i> ID Card विवरण (Admin)
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted fw-bold small">Card No.</span>
-                    <code class="small"><?php echo htmlspecialchars($viewCard['card_no'] ?? '—'); ?></code>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted fw-bold small">Verification Code</span>
-                    <code class="small text-success fw-bold"><?php echo htmlspecialchars($viewCard['verification_code'] ?? '—'); ?></code>
+                    <span class="text-muted fw-bold small">सदस्यता नं. / Member ID</span>
+                    <code class="small text-success fw-bold"><?php echo htmlspecialchars($portalFaceId !== '' ? $portalFaceId : '—'); ?></code>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted fw-bold small">CVV</span>
@@ -481,6 +485,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <span class="text-muted fw-bold small">Security Fail Count</span>
                     <code class="small"><?php echo (int)($viewCard['failed_verify_count'] ?? 0); ?></code>
                 </div>
+                <div class="small text-muted mt-2">Member ID नै पहिचान हो। Verify: नाम + Member ID + मोबाइल।</div>
                 <?php if (($viewCard['status'] ?? '') === 'locked'): ?>
                 <div class="alert alert-danger py-2 mt-2 mb-0 small">
                     <i class="fas fa-lock me-1"></i> यो कार्ड LOCK छ।

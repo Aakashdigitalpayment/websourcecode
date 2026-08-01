@@ -108,8 +108,11 @@ document.addEventListener('keydown', e => {
     </div>
 <?php else: ?>
     <?php
-        $cardNo   = htmlspecialchars($mem['member_card_no'] ?: ('MEM-'.str_pad($mem['id'],6,'0',STR_PAD_LEFT)));
-        $sadNo    = htmlspecialchars($mem['sadasyata_number'] ?? '—');
+        $sadRaw = trim((string)($mem['sadasyata_number'] ?? ''));
+        $mcRaw = trim((string)($mem['member_card_no'] ?? ''));
+        $legacyMc = $mcRaw !== '' && (bool)preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $mcRaw);
+        $memberIdFace = $sadRaw !== '' ? $sadRaw : ($legacyMc ? ('M-' . str_pad((string)$mem['id'], 5, '0', STR_PAD_LEFT)) : ($mcRaw ?: ('M-' . str_pad((string)$mem['id'], 5, '0', STR_PAD_LEFT))));
+        $cardNo   = htmlspecialchars($memberIdFace);
         $name     = htmlspecialchars($mem['name']);
         $phone    = htmlspecialchars($mem['phone'] ?? '—');
         $emailMa  = $mem['email'] ?? '';
@@ -149,8 +152,8 @@ document.addEventListener('keydown', e => {
                 <div class="id-fields">
                     <div class="id-name"><?php echo $name; ?></div>
                     <div class="id-num"><?php echo $cardNo; ?></div>
-                    <div class="id-row"><span class="lbl"><?php echo t('सदस्यता', 'Member'); ?>:</span><span class="val"><?php echo $sadNo; ?></span></div>
-                    <div class="id-row"><span class="lbl"><?php echo t('फोन', 'Phone'); ?>:</span><span class="val"><?php echo $phone; ?></span></div>
+                    <div class="id-row"><span class="lbl"><?php echo t('सदस्यता नं.', 'Member ID'); ?>:</span><span class="val"><?php echo $cardNo; ?></span></div>
+                    <div class="id-row"><span class="lbl"><?php echo t('मोबाइल', 'Mobile'); ?>:</span><span class="val"><?php echo $phone; ?></span></div>
                     <div class="id-row"><span class="lbl"><?php echo t('इमेल', 'Email'); ?>:</span><span class="val"><?php echo $emailMa; ?></span></div>
                     <div class="id-row"><span class="lbl"><?php echo t('जारी मिति', 'Issued Date'); ?>:</span><span class="val"><?php echo $genTs; ?></span></div>
                 </div>

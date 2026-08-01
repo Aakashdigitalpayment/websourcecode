@@ -6,9 +6,10 @@
  * URL: /verify.php
  *
  * कुनै पनि व्यक्ति (हस्पिटल, पसल, अन्य संस्था) ले member ले
- * देखाएको ID Card को नाम र सदस्यता नं. enter गरेर तुरुन्तै
+ * देखाएको ID Card को नाम, सदस्यता नं. र मोबाइल enter गरेर तुरुन्तै
  * सक्रिय सदस्य हो/होइन verify गर्न सक्छन्। मिल्दा गोप्य CVV
  * (नामको पहिलो ३ + सदस्यताको पछिल्लो ४) tracker जस्तै खुल्छ।
+ * सुरक्षा: नाम + सदस्यता नं. + मोबाइल मिल्नुपर्छ — गलत व्यक्तिले दुरुपयोग गर्न नसकोस्।
  * पुराना कार्डका लागि Verification Code + CVV path पनि उपलब्ध छ।
  * ════════════════════════════════════════════════════════════
  */
@@ -41,6 +42,7 @@ $code   = '';
 $cvv    = '';
 $verifyName = '';
 $verifyMemberId = '';
+$verifyMobile = '';
 $verifyMode = 'name'; // name | legacy
 $logSaved = false;
 $logError = '';
@@ -60,6 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
     $verifyName = trim((string)($_POST['member_name'] ?? ''));
     $verifyMemberId = trim((string)($_POST['member_id_no'] ?? ''));
+    $verifyMobile = function_exists('memberSsotNormalizeMobile')
+        ? memberSsotNormalizeMobile((string)($_POST['member_mobile'] ?? ''))
+        : preg_replace('/\D+/', '', (string)($_POST['member_mobile'] ?? ''));
     $code = (string)($_POST['code'] ?? '');
     $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
     $cvv  = trim((string)($_POST['cvv']  ?? ''));
@@ -71,14 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-    $runPrimaryVerify = static function () use ($pdo, $ip, &$verifyMode, &$verifyName, &$verifyMemberId, &$code, &$cvv) {
+    $runPrimaryVerify = static function () use ($pdo, $ip, &$verifyMode, &$verifyName, &$verifyMemberId, &$verifyMobile, &$code, &$cvv) {
         if (!$pdo) {
             return ['ok' => false, 'error' => 'DB जडान भएन। कृपया पछि प्रयास गर्नुहोस्।'];
         }
         if ($verifyMode === 'legacy') {
             return verifyCardCredentials($pdo, $code, $cvv, $ip);
         }
-        return verifyCardByNameAndMemberId($pdo, $verifyName, $verifyMemberId, $ip, $cvv);
+        return verifyCardByNameAndMemberId($pdo, $verifyName, $verifyMemberId, $ip, $cvv, (string)$verifyMobile);
     };
 
     /* (a) Service-log POST — verify पछि सेवा लिएको record छुट्टै submit */
@@ -94,6 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pin       = (string)($_POST['partner_pin'] ?? '');
         $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
         $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
+        $verifyMobile = function_exists('memberSsotNormalizeMobile')
+            ? memberSsotNormalizeMobile((string)($_POST['member_mobile'] ?? $verifyMobile))
+            : preg_replace('/\D+/', '', (string)($_POST['member_mobile'] ?? $verifyMobile));
         $code = trim((string)($_POST['code'] ?? ''));
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
         $cvv  = trim((string)($_POST['cvv'] ?? ''));
@@ -227,6 +235,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cvv  = trim($_POST['cvv']  ?? '');
         $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
         $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
+        $verifyMobile = function_exists('memberSsotNormalizeMobile')
+            ? memberSsotNormalizeMobile((string)($_POST['member_mobile'] ?? $verifyMobile))
+            : preg_replace('/\D+/', '', (string)($_POST['member_mobile'] ?? $verifyMobile));
         $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
         $result = $runPrimaryVerify();
     } else {
@@ -320,7 +331,7 @@ if ($result && !empty($result['ok']) && $pdo) {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?= htmlspecialchars($pageTitle) ?></title>
-<meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। नाम र सदस्यता नं. राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using name and member ID.'), ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। नाम, सदस्यता नं. र मोबाइल राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using name, member ID and mobile.'), ENT_QUOTES, 'UTF-8'); ?>">
 <?php if (function_exists('seo_canonical_url')): ?>
 <link rel="canonical" href="<?= htmlspecialchars(seo_canonical_url(), ENT_QUOTES, 'UTF-8') ?>">
 <?php endif; ?>
@@ -672,7 +683,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         </div>
     </div>
     <div class="vp-rate-body" style="text-align:center;">
-        <p style="color:#92400e;font-size:.92rem;margin:0 0 18px;"><?= $_t('५ पटक गलत Verification Code वा CVV प्रविष्ट गरिएकाले यो IP ठेगाना अस्थायी रूपमा ब्लक गरिएको छ।','This IP was temporarily blocked after 5 failed verification attempts.') ?></p>
+        <p style="color:#92400e;font-size:.92rem;margin:0 0 18px;"><?= $_t('५ पटक गलत नाम / सदस्यता नं. / मोबाइल वा CVV प्रविष्ट गरिएकाले यो IP ठेगाना अस्थायी रूपमा ब्लक गरिएको छ।','This IP was temporarily blocked after 5 failed name / member ID / mobile or CVV attempts.') ?></p>
 
         <!-- Countdown display -->
         <div id="vp-countdown-wrap" style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:18px 32px;">
@@ -753,10 +764,9 @@ $__father = trim((string)($__m['father_name'] ?? ''));
 $__secretCvv = (string)($__c['secret_cvv'] ?? '');
 $__idFields = [
     [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
-    [$_t('कार्ड नं.','Card No.'),      $__c['card_no']     ?? ''],
+    [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
     [$_t('बुबाको नाम',"Father's Name"), $__father],
     [$_t('जन्म मिति','Date of Birth'), $__dob],
-    [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
     [$_t('सदस्यता मिति','Member Since'),$__m['member_since']?? ''],
     [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
     [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],
@@ -847,6 +857,7 @@ $__hasPartnerCol = !empty($partners);
         <input type="hidden" name="verify_mode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name') ?>">
         <input type="hidden" name="member_name" value="<?= htmlspecialchars($verifyName !== '' ? $verifyName : (string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="member_id_no" value="<?= htmlspecialchars($verifyMemberId !== '' ? $verifyMemberId : (string)($__m['member_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="member_mobile" value="<?= htmlspecialchars($verifyMobile !== '' ? $verifyMobile : (string)($__m['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="code" value="<?= htmlspecialchars($code, ENT_QUOTES, 'UTF-8') ?>">
         <input type="hidden" name="cvv" value="<?= htmlspecialchars($cvv, ENT_QUOTES, 'UTF-8') ?>">
 
@@ -1081,7 +1092,7 @@ $__hasPartnerCol = !empty($partners);
         <div class="vp-card-head-icon"><i class="fas fa-id-card"></i></div>
         <div class="vp-card-head-text">
             <div class="vp-card-head-title"><?= htmlspecialchars($__pageTitleDisplay) ?></div>
-            <div class="vp-card-head-sub"><?= $_t('सदस्यको नाम र सदस्यता नं. राखेर प्रमाणित गर्नुहोस्। साझेदार डेस्कले सेवा लग पनि गर्न सक्छ।', 'Verify with member name and member ID. Partner desks can also log services after verify.') ?></div>
+            <div class="vp-card-head-sub"><?= $_t('नाम, सदस्यता नं. र मोबाइल राखेर प्रमाणित गर्नुहोस् — गलत व्यक्तिले दुरुपयोग गर्न नसकोस्।', 'Verify with name, member ID and mobile so the wrong person cannot misuse the card.') ?></div>
         </div>
     </div>
     <div class="vp-card-body">
@@ -1109,6 +1120,19 @@ $__hasPartnerCol = !empty($partners);
                            value="<?= htmlspecialchars($verifyMemberId ?? '') ?>"
                            placeholder="<?= $_t('कार्डमा देखिने सदस्यता नं.', 'Member ID shown on card') ?>"
                            autocomplete="off" spellcheck="false" required>
+                </div>
+                <div class="vp-field">
+                    <label class="vp-label">
+                        <i class="fas fa-mobile-screen-button" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('मोबाइल नम्बर', 'Mobile number') ?> <span class="req">*</span>
+                    </label>
+                    <input type="tel" name="member_mobile" class="vp-input" id="vpMemberMobile"
+                           value="<?= htmlspecialchars($verifyMobile ?? '') ?>"
+                           placeholder="<?= $_t('दर्ता भएको १० अंकको मोबाइल', 'Registered 10-digit mobile') ?>"
+                           inputmode="numeric" autocomplete="tel" maxlength="15" required>
+                    <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
+                        <?= $_t('सहकारीमा दर्ता मोबाइल मिल्नुपर्छ — सुरक्षाका लागि।', 'Must match the registered cooperative mobile — for security.') ?>
+                    </div>
                 </div>
                 <div class="vp-field" style="margin-bottom:22px;">
                     <label class="vp-label">
