@@ -56,8 +56,8 @@ if ($kycRow) {
 /* Applications */
 $apps      = getMemberApplications($memEmail, $memPhone, 200, $mem['id'] ?? null);
 $totalApps = count($apps);
-$pending   = count(array_filter($apps, fn($a) => $a['status'] === 'pending'));
-$approved  = count(array_filter($apps, fn($a) => in_array($a['status'], ['approved','completed','resolved'])));
+$pending   = count(array_filter($apps, fn($a) => in_array($a['status'] ?? '', ['pending', 'under_review', 'processing'], true)));
+$approved  = count(array_filter($apps, fn($a) => in_array($a['status'], ['approved','completed','resolved','accepted','selected'])));
 $raStatus  = $_GET['ra_status'] ?? 'all';
 if (!in_array($raStatus, ['all','pending','approved','rejected'], true)) $raStatus = 'all';
 $raQ = mb_substr(trim((string)($_GET['ra_q'] ?? '')), 0, 120);
@@ -356,10 +356,10 @@ require __DIR__ . '/includes/chrome.php';
                 <div class="mem-empty">
                     <span class="mem-empty-icon">📭</span>
                     <div><?php echo $_t('अहिलेसम्म कुनै आवेदन छैन।', 'No applications yet.'); ?></div>
-                    <div class="midx-empty-sub"><?php echo $_t('माथि Quick Apply बाट सेवा लिनुहोस्।', 'Use Quick Apply above to request services.'); ?></div>
+                    <div class="midx-empty-sub"><?php echo $_t('तल Quick Apply बाट सेवा लिनुहोस्।', 'Use Quick Apply below to request services.'); ?></div>
                 </div>
                 <?php else: foreach ($recentApps as $app): ?>
-                <div class="mem-app-item">
+                <a href="<?php echo $siteUrl; ?>member/tracker.php?view=<?php echo (int)$app['id']; ?>&amp;tbl=<?php echo urlencode((string)($app['_table'] ?? '')); ?>" class="mem-app-item" style="text-decoration:none;color:inherit;display:flex;">
                     <div class="mem-app-icon midx-action-icon" style="--midx-action-color:<?php echo htmlspecialchars($app['service_color'], ENT_QUOTES, 'UTF-8'); ?>;"><i class="fas <?php echo $app['service_icon']; ?>"></i></div>
                     <div class="mem-app-info">
                         <div class="mem-app-service midx-stat-brand" style="--midx-action-color:<?php echo htmlspecialchars($app['service_color'], ENT_QUOTES, 'UTF-8'); ?>;color:var(--midx-action-color);"><?php echo htmlspecialchars($app['service_name']); ?></div>
@@ -370,7 +370,7 @@ require __DIR__ . '/includes/chrome.php';
                         <?php echo memberStatusBadge($app['status']); ?>
                         <?php if ($app['tracking_id']): ?><span class="midx-track"><?php echo htmlspecialchars($app['tracking_id']); ?></span><?php endif; ?>
                     </div>
-                </div>
+                </a>
                 <?php endforeach; endif; ?>
             </div>
         </div>

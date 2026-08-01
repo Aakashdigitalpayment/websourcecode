@@ -18,8 +18,43 @@ function trackerHistoryModuleKeyFromType(string $appType): ?string {
         'feedback' => 'feedback',
         'digital_service' => 'digital_service',
         'honor_application' => 'honor_application',
+        'auction_bid' => 'auction_bid',
         default => null,
     };
+}
+
+function trackerNormalizePhone(string $phone): string
+{
+    return preg_replace('/\D+/', '', $phone) ?? '';
+}
+
+function trackerPhoneSqlExpr(string $col): string
+{
+    /* Strip common separators for match against digit-only input */
+    return "REPLACE(REPLACE(REPLACE(REPLACE(COALESCE({$col},''),'-',''),' ',''),'+',''),'.','')";
+}
+
+function trackerRowMatchesBothContacts(array $row, string $phoneDigits, string $email): bool
+{
+    $rowPhone = trackerNormalizePhone((string)($row['phone'] ?? $row['mobile'] ?? $row['bidder_phone'] ?? ''));
+    $rowEmail = strtolower(trim((string)($row['email'] ?? $row['bidder_email'] ?? '')));
+    $email = strtolower(trim($email));
+    if ($phoneDigits === '' || $email === '') {
+        return false;
+    }
+    return $rowPhone === $phoneDigits && $rowEmail === $email;
+}
+
+function trackerLegacyNumericId(string $raw, string $prefix): int
+{
+    $raw = trim($raw);
+    if ($raw !== '' && ctype_digit($raw)) {
+        return (int)$raw;
+    }
+    if (preg_match('/^' . preg_quote($prefix, '/') . '-(\d{1,12})$/i', $raw, $m)) {
+        return (int)$m[1];
+    }
+    return 0;
 }
 
 function trackerFetchHistoryEntries(array $app): array {
@@ -158,6 +193,13 @@ if ($trackerIsPost || $trackerGetDeepLink) {
     if ($verificationOk) {
         try {
             $db = getDB();
+            if ($searchType === 'phone') {
+                $searchValue = trackerNormalizePhone((string)$searchValue);
+            } elseif ($searchType === 'tracking_id') {
+                $searchValue = trim((string)$searchValue);
+            } elseif ($searchType === 'email') {
+                $searchValue = strtolower(trim((string)$searchValue));
+            }
 
             // रोजगारी आवेदन खोज्ने
             try {
@@ -165,7 +207,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE ja.tracking_id = ?");
+                                          WHERE UPPER(TRIM(ja.tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
@@ -187,7 +229,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             // ऋण आवेदन खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
@@ -203,7 +245,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             // खाता आवेदन खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
@@ -220,18 +262,26 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
-                    // Match by full tracking_id (case-insensitive) OR legacy numeric id
-                    $numericId = (int) preg_replace('/[^0-9]/', '', $rawSv);
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(tracking_id) = UPPER(?) OR id = ?");
-                    $stmt->execute([$rawSv, $numericId]);
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
+                    $stmt->execute([$rawSv]);
+                    $grvResults = $stmt->fetchAll();
+                    if (!$grvResults) {
+                        $legacyId = trackerLegacyNumericId($rawSv, 'GRV');
+                        if ($legacyId > 0) {
+                            $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE id = ?");
+                            $stmt->execute([$legacyId]);
+                            $grvResults = $stmt->fetchAll();
+                        }
+                    }
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
+                    $grvResults = $stmt->fetchAll();
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
+                    $grvResults = $stmt->fetchAll();
                 }
-                $grvResults = $stmt->fetchAll();
                 if ($grvResults) $allResults = array_merge($allResults, $grvResults);
             } catch (Exception $e) {}
 
@@ -239,17 +289,26 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
-                    $numericId = (int) preg_replace('/[^0-9]/', '', $rawSv);
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(tracking_id) = UPPER(?) OR id = ?");
-                    $stmt->execute([$rawSv, $numericId]);
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
+                    $stmt->execute([$rawSv]);
+                    $kycResults = $stmt->fetchAll();
+                    if (!$kycResults) {
+                        $legacyId = trackerLegacyNumericId($rawSv, 'KYC');
+                        if ($legacyId > 0) {
+                            $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE id = ?");
+                            $stmt->execute([$legacyId]);
+                            $kycResults = $stmt->fetchAll();
+                        }
+                    }
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
+                    $kycResults = $stmt->fetchAll();
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
+                    $kycResults = $stmt->fetchAll();
                 }
-                $kycResults = $stmt->fetchAll();
                 if ($kycResults) $allResults = array_merge($allResults, $kycResults);
             } catch (Exception $e) {}
 
@@ -335,7 +394,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             /* सदस्य सर्वेक्षण खोज्ने — FBK-YYYY-XXXXXX format को tracking_id बाट खोज्छु */
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
@@ -355,7 +414,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     if (preg_match('/WLF-?[\w-]+/i', $searchValue)) {
                         $wlfId = $searchValue;
                     }
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$wlfId]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
@@ -370,7 +429,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
 
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
@@ -401,7 +460,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             // Vendor enlistment खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE tracking_id = ?");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
@@ -414,12 +473,22 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($vendorResults) $allResults = array_merge($allResults, $vendorResults);
             } catch (Exception $e) {}
 
+            /* Phone/email खोज: दुवै contact मिलेका row मात्र (faux-code बाट leak रोक्न) */
+            if (in_array($searchType, ['phone', 'email'], true)) {
+                $phoneDigits = trackerNormalizePhone((string)$secPhone);
+                $emailNorm = strtolower(trim((string)$secEmail));
+                $allResults = array_values(array_filter(
+                    $allResults,
+                    static fn(array $r): bool => trackerRowMatchesBothContacts($r, $phoneDigits, $emailNorm)
+                ));
+            }
+
             if (empty($allResults)) {
                 /* खोजिएको आवेदन नभेटिएमा — helpful message */
                 if ($searchType === 'tracking_id') {
                     $error = isEnglish()
-                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, GRV-123</small>'
-                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, GRV-123</small>';
+                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, BID-… / HNR-…</small>'
+                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, BID-… / HNR-…</small>';
                 } elseif ($searchType === 'phone') {
                     $error = isEnglish()
                         ? 'No application found with this phone number. Please check the number.'
@@ -616,8 +685,8 @@ function getAppTypeLabel($type) {
             </h1>
             <p class="tracker-hero-sub">
                 <?php echo isEnglish()
-                    ? 'Track job, loan, account, grievance and more in one place.'
-                    : 'रोजगारी, ऋण, खाता, गुनासो लगायत सबै आवेदनको स्थिति — एकैठाउँमा।'; ?>
+                    ? 'Track job, loan, honor, auction bids, account, grievance and more in one place.'
+                    : 'रोजगारी, ऋण, सम्मान, लिलामी, खाता, गुनासो लगायत सबै आवेदनको स्थिति — एकैठाउँमा।'; ?>
             </p>
             <nav aria-label="breadcrumb" class="d-flex justify-content-center">
                 <ol class="breadcrumb tracker-breadcrumb mb-0">
@@ -677,6 +746,14 @@ function getAppTypeLabel($type) {
                         <div class="type-pill" style="--pill-color:var(--primary-color)">
                             <div class="type-pill-icon"><i class="fas fa-mobile-alt"></i></div>
                             <span><?php echo isEnglish() ? 'Digital' : 'डिजिटल'; ?></span>
+                        </div>
+                        <div class="type-pill" style="--pill-color:var(--primary-dark)">
+                            <div class="type-pill-icon"><i class="fas fa-award"></i></div>
+                            <span><?php echo isEnglish() ? 'Honor' : 'सम्मान'; ?></span>
+                        </div>
+                        <div class="type-pill" style="--pill-color:var(--accent-color)">
+                            <div class="type-pill-icon"><i class="fas fa-store"></i></div>
+                            <span><?php echo isEnglish() ? 'Vendor' : 'सप्लायर'; ?></span>
                         </div>
                     </div>
                 </div>
@@ -758,7 +835,7 @@ function getAppTypeLabel($type) {
                                                         <?php echo isEnglish() ? 'Email Address (used when applying)' : 'इमेल ठेगाना (आवेदनमा प्रयोग गरिएको)'; ?>
                                                     </label>
                                                     <input type="email" name="sec_email" id="secEmail" class="form-control"
-                                                           placeholder="akashpame@gmail.com"
+                                                           placeholder="name@example.com"
                                                            value="<?php echo htmlspecialchars($_POST['sec_email'] ?? ''); ?>">
                                                 </div>
                                                 <div class="col-md-4">
@@ -1229,6 +1306,15 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['message'])); ?></p>
                                     </div>
                                     <?php endif; ?>
+                                    <?php
+                                    $fbReply = trim((string)($app['admin_reply'] ?? $app['admin_response'] ?? ''));
+                                    if ($fbReply !== ''):
+                                    ?>
+                                    <div class="admin-response-block mt-2">
+                                        <strong><i class="fas fa-reply tracker-ico-primary"></i> <?php echo isEnglish() ? 'Admin reply:' : 'Admin प्रतिक्रिया:'; ?></strong>
+                                        <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($fbReply)); ?></p>
+                                    </div>
+                                    <?php endif; ?>
                                     <?php elseif ($app['app_type'] === 'digital_service'): ?>
                                     <div class="status-timeline">
                                         <div class="d-flex justify-content-between position-relative">
@@ -1517,8 +1603,8 @@ function getAppTypeLabel($type) {
                                         <?php foreach ($statusHistory as $h):
                                             $emS = (string)($h['notify_email_status'] ?? '');
                                             $smS = (string)($h['notify_sms_status']   ?? '');
-                                            $emR = (string)($h['notify_email_reason'] ?? '');
-                                            $smR = (string)($h['notify_sms_reason']   ?? '');
+                                            $emR = ''; /* hide ops failure reasons from public */
+                                            $smR = '';
                                             $hasV2 = ($emS !== '' || $smS !== '');
                                             $renderChannelChip = static function (string $kind, string $st, string $reason) {
                                                 if ($st === '' || $st === 'not_attempted') return '';
@@ -1588,7 +1674,7 @@ function getAppTypeLabel($type) {
                                 </div>
                                 <div>
                                     <h6 class="mb-1"><?php echo isEnglish() ? 'Tracking ID' : 'ट्र्याकिङ ID'; ?></h6>
-                                    <p class="mb-0 text-muted small"><?php echo isEnglish() ? 'JOB-XXXX, APT-YYYYMMDD-XXXXXX, GRV-123, WLF-XXXX, DSR-XXXX' : 'JOB-XXXX, APT-YYYYMMDD-XXXXXX, GRV-123, WLF-XXXX, DSR-XXXX'; ?></p>
+                                    <p class="mb-0 text-muted small"><?php echo isEnglish() ? 'JOB-XXXX, APT-YYYYMMDD-XXXXXX, BID-… / HNR-…, WLF-XXXX, DSR-XXXX' : 'JOB-XXXX, APT-YYYYMMDD-XXXXXX, BID-… / HNR-…, WLF-XXXX, DSR-XXXX'; ?></p>
                                 </div>
                             </div>
                         </div>
@@ -1641,7 +1727,7 @@ function updateSearchHint() {
         if (val === 'phone') {
             searchValue.placeholder = '<?php echo isEnglish() ? "e.g.: 9827157000" : "जस्तै: 9827157000"; ?>';
         } else if (val === 'email') {
-            searchValue.placeholder = '<?php echo isEnglish() ? "e.g.: akashpame@gmail.com" : "जस्तै: akashpame@gmail.com"; ?>';
+            searchValue.placeholder = '<?php echo isEnglish() ? "e.g. name@example.com" : "जस्तै: name@example.com"; ?>';
         } else {
             searchValue.placeholder = '<?php echo isEnglish() ? "e.g.: JOB-20240101-XXXX, APT-20260505-XXXXXX" : "जस्तै: JOB-20240101-XXXX, APT-20260505-XXXXXX"; ?>';
         }

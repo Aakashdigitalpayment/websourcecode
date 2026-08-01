@@ -14,7 +14,9 @@ checkCSRF();
 $auction_id = intval($_GET['auction_id'] ?? 0);
 
 require_once __DIR__ . '/../includes/auction-tables.php';
+require_once __DIR__ . '/../includes/request-status-history.php';
 ensureAuctionTables($db);
+ensureRequestStatusHistoryTable($db);
 
 /* ── POST handlers ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,6 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id     = intval($_POST['id']);
             $status = clean_text($_POST['status'] ?? 'pending');
             if (!in_array($status, ['pending','accepted','rejected'], true)) $status = 'pending';
+            $oldSt = $db->prepare('SELECT status, tracking_id, bidder_name, bidder_email, bidder_phone FROM auction_bids WHERE id=?');
+            $oldSt->execute([$id]);
+            $oldBid = $oldSt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $oldStatus = (string)($oldBid['status'] ?? '');
             if ($status === 'accepted') {
                 /* Exclusive winner: reject other bids for same auction (transactional) */
                 $stA = $db->prepare('SELECT auction_id FROM auction_bids WHERE id=?');
@@ -63,6 +69,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 setFlash('success', 'बोलपत्र स्थिति अपडेट भयो।');
+            }
+            try {
+                logRequestStatusHistory(
+                    $db,
+                    'auction_bid',
+                    $id,
+                    $oldStatus !== '' ? $oldStatus : null,
+                    $status,
+                    '',
+                    false,
+                    (int)($_SESSION['admin_id'] ?? 0),
+                    (string)($_SESSION['admin_name'] ?? 'Admin')
+                );
+            } catch (Throwable $e) {
             }
             redirect('auction-bids.php?auction_id=' . $auction_id);
         }

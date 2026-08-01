@@ -933,6 +933,15 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, position_applied as detail, status, tracking_id, created_at, NULL as branch'],
+        ['table' => 'digital_service_requests', 'service' => 'डिजिटल सेवा', 'icon' => 'fa-mobile-alt', 'color' => '#0277bd',
+         'contact' => 'phone', 'member_col' => 'member_id',
+         'fields' => 'id, requester_name as full_name, phone, email, NULL as app_date, service_type as detail, status, tracking_id, created_at, NULL as branch, member_id'],
+        ['table' => 'auction_bids', 'service' => 'लिलामी बोलपत्र', 'icon' => 'fa-gavel', 'color' => '#b71c1c',
+         'contact' => 'bidder_phone', 'member_col' => null,
+         'fields' => 'id, bidder_name as full_name, bidder_phone as phone, bidder_email as email, NULL as app_date, bid_amount as detail, status, tracking_id, created_at, NULL as branch'],
+        ['table' => 'member_feedback', 'service' => 'सर्वेक्षण/प्रतिक्रिया', 'icon' => 'fa-comments', 'color' => '#6a1b9a',
+         'contact' => 'phone', 'member_col' => null,
+         'fields' => 'id, name as full_name, phone, email, NULL as app_date, COALESCE(subject, type, message) as detail, status, tracking_id, created_at, NULL as branch'],
     ];
 
     foreach ($queries as $q) {
@@ -964,19 +973,23 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
 
 /* ─── Status helpers ─── */
 function memberStatusBadge($status) {
+    $en = function_exists('isEnglish') && isEnglish();
     $map = [
-        'pending'      => ['bg' => '#fff8e1', 'color' => '#f59e0b', 'text' => 'विचाराधीन',   'dot' => '#f59e0b'],
-        'under_review' => ['bg' => '#fef2f2', 'color' => 'var(--secondary-color,#c0392b)', 'text' => 'समीक्षामा',    'dot' => 'var(--secondary-color,#c0392b)'],
-        'shortlisted'  => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => 'छनोट सूची',   'dot' => '#4338ca'],
-        'selected'     => ['bg' => '#ecfdf5', 'color' => '#047857', 'text' => 'चयनित',      'dot' => '#047857'],
-        'approved'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => 'स्वीकृत',      'dot' => '#2e7d32'],
-        'rejected'     => ['bg' => '#ffebee', 'color' => '#c62828', 'text' => 'अस्वीकृत',    'dot' => '#c62828'],
-        'completed'    => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'सम्पन्न',      'dot' => 'var(--primary-color)'],
-        'resolved'     => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'समाधान भयो',  'dot' => 'var(--primary-color)'],
-        'closed'       => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'बन्द',         'dot' => '#6b7280'],
-        'cancelled'    => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'रद्द',         'dot' => '#6b7280'],
+        'pending'      => ['bg' => '#fff8e1', 'color' => '#f59e0b', 'text' => $en ? 'Pending' : 'विचाराधीन',   'dot' => '#f59e0b'],
+        'under_review' => ['bg' => '#fef2f2', 'color' => 'var(--secondary-color,#c0392b)', 'text' => $en ? 'Under review' : 'समीक्षामा',    'dot' => 'var(--secondary-color,#c0392b)'],
+        'processing'   => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Processing' : 'प्रक्रियामा', 'dot' => '#4338ca'],
+        'shortlisted'  => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Shortlisted' : 'छनोट सूची',   'dot' => '#4338ca'],
+        'selected'     => ['bg' => '#ecfdf5', 'color' => '#047857', 'text' => $en ? 'Selected' : 'चयनित',      'dot' => '#047857'],
+        'accepted'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => $en ? 'Accepted' : 'स्वीकृत',      'dot' => '#2e7d32'],
+        'approved'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => $en ? 'Approved' : 'स्वीकृत',      'dot' => '#2e7d32'],
+        'rejected'     => ['bg' => '#ffebee', 'color' => '#c62828', 'text' => $en ? 'Rejected' : 'अस्वीकृत',    'dot' => '#c62828'],
+        'completed'    => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => $en ? 'Completed' : 'सम्पन्न',      'dot' => 'var(--primary-color)'],
+        'resolved'     => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => $en ? 'Resolved' : 'समाधान भयो',  'dot' => 'var(--primary-color)'],
+        'reviewed'     => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Reviewed' : 'समीक्षा भयो', 'dot' => '#4338ca'],
+        'closed'       => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => $en ? 'Closed' : 'बन्द',         'dot' => '#6b7280'],
+        'cancelled'    => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => $en ? 'Cancelled' : 'रद्द',         'dot' => '#6b7280'],
     ];
-    $s = $map[$status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280','text'=>ucfirst($status),'dot'=>'#9ca3af'];
+    $s = $map[$status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280','text'=>ucfirst((string)$status),'dot'=>'#9ca3af'];
     return "<span class='mem-badge' style='background:{$s['bg']};color:{$s['color']};'>
         <span style='background:{$s['dot']};width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;'></span>
         {$s['text']}</span>";

@@ -527,8 +527,8 @@ function sendMemberStatusUpdate(
 
         /* Tracking link */
         $trackingLink = $trackingId
-            ? "<a href='{$siteUrl}application-tracker.php' style='color:{$primaryColor};font-weight:600;'>
-                Application Tracker ({$trackingId})
+            ? "<a href='{$siteUrl}application-tracker.php?id=" . rawurlencode((string)$trackingId) . "' style='color:{$primaryColor};font-weight:600;'>
+                Application Tracker (" . htmlspecialchars((string)$trackingId) . ")
                </a>"
             : "<a href='{$siteUrl}application-tracker.php' style='color:{$primaryColor};'>Application Tracker</a>";
 
@@ -578,7 +578,7 @@ function sendMemberStatusUpdate(
       {$commentBlock}
 
       <div style='text-align:center;margin-top:24px;'>
-        <a href='{$siteUrl}application-tracker.php'
+        <a href='{$siteUrl}application-tracker.php" . ($trackingId ? ('?id=' . rawurlencode((string)$trackingId)) : '') . "'
            style='background:linear-gradient(135deg,{$primaryColor},{$primaryLight});color:var(--text-on-primary,white);padding:12px 28px;
                   border-radius:8px;text-decoration:none;font-weight:600;display:inline-block;'>
           आफ्नो स्थिति हेर्नुहोस्
