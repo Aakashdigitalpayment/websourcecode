@@ -48,6 +48,18 @@ function pf_cur($v): string {
     $n = (float)($v ?? 0);
     return $n > 0 ? 'रू. ' . number_format($n, 2) : '—';
 }
+function pf_url(?string $path): string {
+    $path = trim((string)$path);
+    if ($path === '') return '';
+    if (preg_match('#^https?://#i', $path)) return $path;
+    return rtrim(SITE_URL, '/') . '/' . ltrim($path, '/');
+}
+/** Add a print row; skip when $onlyFilled and value empty. */
+function pf_add_row(array &$rows, string $np, string $en, $val, bool $onlyFilled = false): void {
+    $s = trim((string)($val ?? ''));
+    if ($onlyFilled && $s === '') return;
+    $rows[] = [$np, $en, $s === '' ? '—' : pf_e($s)];
+}
 
 /* ── Data fetch & section builder ── */
 $data        = null;
@@ -56,51 +68,209 @@ $formTitleEn = '';
 $trackId     = '';
 $statusLabel = '';
 $photoPath   = '';
-$sections    = [];   // [ ['title'=>'…', 'rows'=>[ [np, en, value], … ]] ]
+$sections    = [];   // [ ['title'=>'…', 'rows'=>… ] ] or kind=family|income_expense|docs
+$extraDocs   = [];
 
 switch ($type) {
 
 /* ════════════════════════════ KYC ════════════════════════════ */
 case 'kyc':
     $st = $db->prepare("SELECT * FROM kyc_applications WHERE id=?");
-    $st->execute([$id]);  $data = $st->fetch();
+    $st->execute([$id]);  $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
-    $formTitle   = 'केवाइसी (KYC) आवेदन फारम';
-    $formTitleEn = 'Know Your Customer (KYC) Application Form';
-    $trackId     = $data['tracking_id'] ?? 'KYC-' . str_pad($id, 6, '0', STR_PAD_LEFT);
+    $formTitle   = 'व्यक्तिगत सदस्य पहिचान फारम (KYC/KYM)';
+    $formTitleEn = 'Know Your Customer / Member (KYC/KYM) Application Form';
+    $trackId     = $data['tracking_id'] ?? 'KYC-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
     $slMap       = ['pending'=>'पेन्डिङ','approved'=>'स्वीकृत','rejected'=>'अस्वीकृत','incomplete'=>'अपूर्ण','partial'=>'आंशिक'];
-    $statusLabel = $slMap[$data['status']] ?? $data['status'];
-    if (!empty($data['photo'])) $photoPath = rtrim(SITE_URL,'/').'/'.ltrim($data['photo'],'/');
+    $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
+    if (!empty($data['photo'])) $photoPath = pf_url($data['photo']);
+
+    $aml = [];
+    $amlRaw = trim((string)($data['aml_details_json'] ?? ''));
+    if ($amlRaw !== '') {
+        $decoded = json_decode($amlRaw, true);
+        if (is_array($decoded)) $aml = $decoded;
+    }
+    $familyRows = [];
+    $famRaw = trim((string)($data['family_details_json'] ?? ''));
+    if ($famRaw !== '') {
+        $fd = json_decode($famRaw, true);
+        if (is_array($fd)) {
+            foreach ($fd as $fr) {
+                if (!is_array($fr)) continue;
+                $familyRows[] = [
+                    'relation' => trim((string)($fr['relation'] ?? '')),
+                    'name'     => trim((string)($fr['name'] ?? '')),
+                    'phone'    => trim((string)($fr['phone'] ?? '')),
+                ];
+            }
+        }
+    }
+    $incomeItems  = (isset($aml['income_items']) && is_array($aml['income_items'])) ? $aml['income_items'] : [];
+    $expenseItems = (isset($aml['expense_items']) && is_array($aml['expense_items'])) ? $aml['expense_items'] : [];
+
+    $personal = [];
+    pf_add_row($personal, 'पूरा नाम (नेपाली)', 'Full Name (Nepali)', $data['full_name'] ?? '');
+    pf_add_row($personal, 'पूरा नाम (अंग्रेजी)', 'Full Name (English)', $data['full_name_en'] ?? '');
+    pf_add_row($personal, 'सदस्यता नं.', 'Member ID', $data['member_id'] ?? '');
+    pf_add_row($personal, 'Tracking ID', 'Tracking ID', $trackId);
+    pf_add_row($personal, 'जन्म मिति (BS)', 'Date of Birth (BS)', $data['dob_bs'] ?? '');
+    pf_add_row($personal, 'जन्म मिति (AD)', 'Date of Birth (AD)', $data['dob_ad'] ?? '');
+    pf_add_row($personal, 'लिङ्ग', 'Gender', $data['gender'] ?? '');
+    pf_add_row($personal, 'वैवाहिक अवस्था', 'Marital Status', $data['marital_status'] ?? '');
+    pf_add_row($personal, 'राष्ट्रियता', 'Nationality', $data['nationality'] ?? 'नेपाली');
+    pf_add_row($personal, 'मोबाइल', 'Mobile', $data['mobile'] ?? '');
+    pf_add_row($personal, 'इमेल', 'Email', $data['email'] ?? '');
+    pf_add_row($personal, 'आवेदन मिति', 'Application Date', pf_d($data['created_at'] ?? ''));
+    if (!empty($data['want_id_card'])) {
+        pf_add_row($personal, 'परिचय पत्र चाहियो', 'Want ID Card', 'हो / Yes');
+    }
+
+    $idRows = [];
+    pf_add_row($idRows, 'नागरिकता नं.', 'Citizenship No.', $data['citizenship_no'] ?? '');
+    pf_add_row($idRows, 'जारी मिति', 'Issued Date', $data['citizenship_issued_date'] ?? '');
+    pf_add_row($idRows, 'जारी जिल्ला', 'Issued District', $data['citizenship_issued_place'] ?? '');
+    pf_add_row($idRows, 'National ID नं.', 'National ID No.', $data['national_id_number'] ?? '');
+    pf_add_row($idRows, 'Passport नं.', 'Passport No.', $aml['passport_no'] ?? '', true);
+    pf_add_row($idRows, 'PAN नं.', 'PAN No.', $aml['pan_no'] ?? '', true);
+    pf_add_row($idRows, 'Driving License नं.', 'Driving License', $aml['driving_license_no'] ?? '', true);
+    pf_add_row($idRows, 'शैक्षिक योग्यता', 'Education', $aml['education_qualification'] ?? '', true);
+    pf_add_row($idRows, 'धर्म', 'Religion', $aml['religion'] ?? '', true);
+    pf_add_row($idRows, 'जात', 'Caste', $aml['caste'] ?? '', true);
+
+    $familyCol = [];
+    pf_add_row($familyCol, 'बुबाको नाम', "Father's Name", $data['father_name'] ?? '');
+    pf_add_row($familyCol, 'आमाको नाम', "Mother's Name", $data['mother_name'] ?? '');
+    pf_add_row($familyCol, 'हजुरबुबाको नाम', "Grandfather's Name", $data['grandfather_name'] ?? '');
+    pf_add_row($familyCol, 'पति/पत्नीको नाम', "Spouse's Name", $data['spouse_name'] ?? '');
+
+    $addrRows = [];
+    pf_add_row($addrRows, 'स्थायी ठेगाना', 'Permanent Address', $data['permanent_address'] ?? $data['address'] ?? '');
+    pf_add_row($addrRows, 'अस्थायी ठेगाना', 'Temporary Address', $data['temporary_address'] ?? '');
+    pf_add_row($addrRows, 'घरधनीको नाम', 'Landlord Name', $aml['landlord_name'] ?? '', true);
+    pf_add_row($addrRows, 'घरधनी सम्पर्क', 'Landlord Contact', $aml['landlord_contact'] ?? '', true);
+    pf_add_row($addrRows, 'भाडामा बस्ने', 'Is Rented', $aml['is_rented'] ?? '', true);
+    pf_add_row($addrRows, 'मतदाता परिचयपत्र नं.', 'Voter ID', $aml['voter_id_card_no'] ?? '', true);
+    pf_add_row($addrRows, 'मतदान स्थल', 'Polling Station', $aml['polling_station'] ?? '', true);
+    pf_add_row($addrRows, 'Map ठेगाना', 'Map Address', $aml['map_resolved_address'] ?? '', true);
+    pf_add_row($addrRows, 'देशान्तर/अक्षांश', 'Lat/Lng', $aml['longitude_latitude'] ?? '', true);
+
+    $occRows = [];
+    pf_add_row($occRows, 'पेशा', 'Occupation', $data['occupation'] ?? '');
+    pf_add_row($occRows, 'संस्था / संगठन', 'Organization', $data['organization_name'] ?? $data['organization'] ?? '');
+    pf_add_row($occRows, 'मासिक आय', 'Monthly Income', $data['monthly_income'] ?? '');
+    pf_add_row($occRows, 'आय स्रोत', 'Income Source', $data['income_source'] ?? '', true);
+    if (isset($data['annual_income']) && (float)$data['annual_income'] > 0) {
+        pf_add_row($occRows, 'वार्षिक आय', 'Annual Income', pf_cur($data['annual_income']));
+    }
+    pf_add_row($occRows, 'पेशा/व्यवसाय स्थान', 'Occupation Location', $aml['occupation_location'] ?? '', true);
+    pf_add_row($occRows, 'व्यवसाय नाम', 'Business Name', $aml['occupation_business_name'] ?? '', true);
+    pf_add_row($occRows, 'Business PAN नं.', 'Business PAN', $aml['business_pan_no'] ?? '', true);
+    pf_add_row($occRows, 'Business दर्ता प्रकार', 'Reg. Type', $aml['business_registration_type'] ?? '', true);
+    pf_add_row($occRows, 'Business दर्ता नं.', 'Reg. No.', $aml['business_registration_no'] ?? '', true);
+    pf_add_row($occRows, 'दर्ता निकाय', 'Reg. Office', $aml['business_registration_office'] ?? '', true);
+    pf_add_row($occRows, 'Business दर्ता मिति (BS)', 'Reg. Date (BS)', $aml['business_registration_date_bs'] ?? '', true);
+    pf_add_row($occRows, 'व्यवसाय प्रकृति', 'Business Nature', $aml['business_nature'] ?? '', true);
+    pf_add_row($occRows, 'अनुमानित वार्षिक आय', 'Est. Annual Income', $aml['estimated_annual_income'] ?? '', true);
+
+    $coopRows = [];
+    pf_add_row($coopRows, 'खाता प्रकार', 'Account Type', $data['account_type'] ?? '');
+    pf_add_row($coopRows, 'शाखा', 'Branch', isset($data['branch']) ? str_replace('_', ' ', (string)$data['branch']) : '');
+    pf_add_row($coopRows, 'सदस्यता उद्देश्य', 'Membership Purpose', $aml['member_purpose'] ?? '', true);
+    pf_add_row($coopRows, 'आफू अन्य सहकारी सदस्य', 'Other Coop Member', $aml['self_other_coop_member'] ?? '', true);
+    pf_add_row($coopRows, 'अन्य सहकारी विवरण', 'Other Coop Details', $aml['self_other_coop_details'] ?? '', true);
+    pf_add_row($coopRows, 'परिवार यसै सहकारीमा', 'Family in Same Coop', $aml['family_same_coop_member'] ?? '', true);
+    pf_add_row($coopRows, 'परिवार सदस्य विवरण', 'Family Coop Details', $aml['family_same_coop_details'] ?? '', true);
+    pf_add_row($coopRows, 'परिवार सदस्य नाम', 'Family Member Name', $aml['family_same_member_name'] ?? '', true);
+    pf_add_row($coopRows, 'परिवार सदस्य ID', 'Family Member ID', $aml['family_same_member_id'] ?? '', true);
+    pf_add_row($coopRows, 'PEP स्थिति', 'Politically Exposed', $aml['politically_exposed'] ?? '', true);
+    pf_add_row($coopRows, 'अपराध घोषणा', 'Past Crime Declared', $aml['past_crime_declared'] ?? '', true);
+
+    $finRows = [];
+    pf_add_row($finRows, 'वार्षिक डेबिट/क्रेडिट', 'Annual Debit/Credit', $aml['annual_debit_credit_estimate'] ?? '', true);
+    pf_add_row($finRows, 'वार्षिक कारोबार संख्या', 'Annual Turnover Count', $aml['annual_turnover_numbers'] ?? '', true);
+    pf_add_row($finRows, 'वार्षिक जम्मा अनुमान', 'Annual Deposit Est.', $aml['annual_deposit_estimate'] ?? '', true);
+    pf_add_row($finRows, 'संस्थासँग ऋणधन अनुमान', 'Institution Debt Est.', $aml['institution_debt_estimate'] ?? '', true);
+    pf_add_row($finRows, 'वार्षिक पारिवारिक आम्दानी', 'Annual Family Income', $aml['annual_family_income'] ?? '', true);
+    pf_add_row($finRows, 'सम्पत्ति / Net Worth', 'Net Worth', $aml['net_worth_details'] ?? '', true);
+    pf_add_row($finRows, 'नजिकको व्यक्ति', 'Nearest Person', $aml['nearest_person_name'] ?? '', true);
+    pf_add_row($finRows, 'नजिकको व्यक्ति नाता', 'Nearest Relation', $aml['nearest_person_relation'] ?? '', true);
+    pf_add_row($finRows, 'अन्य संलग्न कागजात', 'Other Attached Docs', $aml['other_attached_docs'] ?? '', true);
+
+    $nomRows = [];
+    pf_add_row($nomRows, 'हकवाला नाम', 'Nominee Name', $aml['nominee_name'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला जन्म मिति', 'Nominee DOB', $aml['nominee_dob'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला नागरिकता नं.', 'Nominee Citizenship', $aml['nominee_citizenship_no'] ?? '', true);
+    pf_add_row($nomRows, 'हकवालासँग नाता', 'Nominee Relation', $aml['nominee_relation'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला जारी जिल्ला', 'Nominee Issue District', $aml['nominee_issue_district'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला जारी मिति', 'Nominee Issue Date', $aml['nominee_issue_date'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला स्थायी ठेगाना', 'Nominee Permanent Addr.', $aml['nominee_permanent_address'] ?? '', true);
+    pf_add_row($nomRows, 'हकवाला अस्थायी ठेगाना', 'Nominee Temporary Addr.', $aml['nominee_temporary_address'] ?? '', true);
+
+    $riskRows = [];
+    pf_add_row($riskRows, 'जोखिम श्रेणी', 'Risk Category', $data['risk_category'] ?? '', true);
+    pf_add_row($riskRows, 'KYC verified at', 'KYC Verified At', $data['kyc_verified_at'] ?? '', true);
+    pf_add_row($riskRows, 'Risk review due', 'Risk Review Due', $data['risk_review_due_at'] ?? '', true);
+    pf_add_row($riskRows, 'Risk review status', 'Risk Review Status', $data['risk_review_status'] ?? '', true);
+    if (isset($data['photo_quality_score']) && (int)$data['photo_quality_score'] > 0) {
+        pf_add_row($riskRows, 'Photo quality score', 'Photo Quality', (string)(int)$data['photo_quality_score']);
+    }
+    pf_add_row($riskRows, 'Admin टिप्पणी', 'Admin Remarks', $data['remarks'] ?? '', true);
+
     $sections = [
-        ['title'=>'व्यक्तिगत जानकारी / Personal Information', 'rows'=>[
-            ['पूरा नाम (नेपाली)',   'Full Name (Nepali)',    pf_e($data['full_name'])],
-            ['पूरा नाम (अंग्रेजी)','Full Name (English)',   pf_e($data['full_name_en'])],
-            ['सदस्यता नं.',         'Member ID',             pf_e($data['member_id'])],
-            ['जन्म मिति (BS)',      'Date of Birth (BS)',    pf_e($data['dob_bs'])],
-            ['लिङ्ग',              'Gender',                pf_e($data['gender'])],
-            ['वैवाहिक अवस्था',     'Marital Status',        pf_e($data['marital_status'] ?? '')],
-        ]],
-        ['title'=>'सम्पर्क विवरण / Contact Details', 'rows'=>[
-            ['मोबाइल',             'Mobile',                pf_e($data['mobile'])],
-            ['इमेल',               'Email',                 pf_e($data['email'])],
-            ['स्थायी ठेगाना',      'Permanent Address',     pf_e($data['permanent_address'] ?? $data['address'] ?? '')],
-            ['अस्थायी ठेगाना',     'Temporary Address',     pf_e($data['temporary_address'] ?? '')],
-        ]],
-        ['title'=>'नागरिकता विवरण / Citizenship Details', 'rows'=>[
-            ['नागरिकता नं.',        'Citizenship No.',       pf_e($data['citizenship_no'])],
-            ['जारी मिति',           'Issued Date',           pf_e($data['citizenship_issued_date'])],
-            ['जारी जिल्ला',        'Issued Place',          pf_e($data['citizenship_issued_place'])],
-            ['बुबाको नाम',          "Father's Name",         pf_e($data['father_name'] ?? '')],
-            ['आमाको नाम',          "Mother's Name",         pf_e($data['mother_name'] ?? '')],
-        ]],
-        ['title'=>'पेशागत / आर्थिक जानकारी / Professional & Financial', 'rows'=>[
-            ['पेशा',               'Occupation',            pf_e($data['occupation'] ?? '')],
-            ['संस्था',             'Organization',          pf_e($data['organization'] ?? $data['organization_name'] ?? '')],
-            ['आय स्रोत',           'Income Source',         pf_e($data['income_source'] ?? '')],
-            ['वार्षिक आय',         'Annual Income',         pf_cur($data['annual_income'] ?? 0)],
-            ['आवेदन मिति',         'Application Date',      pf_d($data['created_at'])],
-        ]],
+        ['title' => 'क. व्यक्तिगत विवरण / Personal Information', 'rows' => $personal],
+        ['title' => 'ख. परिचय पत्र विवरण / Identity Documents', 'rows' => $idRows],
+        ['title' => 'ग. परिवार (स्तम्भ) / Family Columns', 'rows' => $familyCol],
     ];
+    if (!empty($familyRows)) {
+        $sections[] = ['title' => 'घ. पारिवारिक विवरण (तालिका) / Family Details', 'kind' => 'family', 'family' => $familyRows];
+    }
+    $sections[] = ['title' => 'ङ. ठेगाना / Address & Residence', 'rows' => $addrRows];
+    $sections[] = ['title' => 'च. पेशा / व्यवसाय / Occupation & Business', 'rows' => $occRows];
+    $sections[] = ['title' => 'छ. सहकारी सदस्यता / Cooperative Membership', 'rows' => $coopRows];
+    if (!empty($finRows)) {
+        $sections[] = ['title' => 'ज. वित्तीय कारोबार / Financial Activity', 'rows' => $finRows];
+    }
+    if (!empty($nomRows)) {
+        $sections[] = ['title' => 'झ. हकवाला / Nominee Details', 'rows' => $nomRows];
+    }
+    if (!empty($incomeItems) || !empty($expenseItems)) {
+        $sections[] = [
+            'title'  => 'ञ. आय र खर्च विवरण / Income & Expense',
+            'kind'   => 'income_expense',
+            'income' => $incomeItems,
+            'expense'=> $expenseItems,
+            'income_total'  => (float)($aml['income_total'] ?? 0),
+            'expense_total' => (float)($aml['expense_total'] ?? 0),
+            'net'           => (float)($aml['net_saving_estimate'] ?? ((float)($aml['income_total'] ?? 0) - (float)($aml['expense_total'] ?? 0))),
+        ];
+    }
+    if (!empty($riskRows)) {
+        $sections[] = ['title' => 'ट. जोखिम / Admin Notes', 'rows' => $riskRows];
+    }
+
+    $docDefs = [
+        ['नागरिकता अगाडि', 'Citizenship Front', $data['citizenship_front'] ?? ''],
+        ['नागरिकता पछाडि', 'Citizenship Back', $data['citizenship_back'] ?? ''],
+        ['National ID कार्ड', 'National ID Card', $data['national_id_card'] ?? ''],
+        ['दस्तखत', 'Signature', $data['signature'] ?? ''],
+        ['फोटो', 'Photo', $data['photo'] ?? ''],
+    ];
+    foreach ($docDefs as [$lnp, $len, $p]) {
+        $u = pf_url($p);
+        if ($u !== '') $extraDocs[] = ['label_np' => $lnp, 'label_en' => $len, 'url' => $u];
+    }
+    if (!empty($data['admin_attachment'])) {
+        $extraDocs[] = [
+            'label_np' => 'Admin संलग्न',
+            'label_en' => 'Admin Attachment',
+            'url' => pf_url($data['admin_attachment']),
+            'is_file' => true,
+        ];
+    }
+    if (!empty($extraDocs)) {
+        $sections[] = ['title' => 'ठ. संलग्न कागजात / Attached Documents', 'kind' => 'docs', 'docs' => $extraDocs];
+    }
     break;
 
 /* ════════════════════════════ LOAN ════════════════════════════ */
@@ -353,7 +523,14 @@ if (!$data) {
 
 /* ── Document checklist per type ── */
 $checklists = [
-    'kyc'     => ['नागरिकताको फोटोकपी','फोटो (पासपोर्ट साइज ×२)','सदस्यता कार्ड प्रतिलिपि'],
+    'kyc'     => [
+        'नागरिकताको फोटोकपी (अगाडि/पछाडि)',
+        'National ID कार्ड',
+        'फोटो (पासपोर्ट साइज ×२)',
+        'दस्तखत',
+        'सदस्यता कार्ड प्रतिलिपि',
+        'आय/व्यवसाय प्रमाण (आवश्यक परे)',
+    ],
     'loan'    => ['नागरिकताको फोटोकपी','आय प्रमाण / तलब स्लिप','धितो सम्बन्धी कागजात','जमानीको नागरिकताको प्रति'],
     'welfare' => ['नागरिकताको फोटोकपी','सम्बन्धित प्रमाण कागजात','बैंक खाता विवरण'],
     'digital' => ['नागरिकताको फोटोकपी','खाता नम्बर प्रमाण'],
@@ -370,6 +547,7 @@ $checklist = $checklists[$type] ?? [];
 <title><?php echo pf_e($formTitle); ?> — <?php echo pf_e($trackId); ?></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/assets/vendor/fontawesome/css/all.min.css', ENT_QUOTES, 'UTF-8'); ?>">
 
 <style>
 /* ═══ RESET & BASE ═══ */
@@ -491,6 +669,30 @@ body {
 .pf-tbl .len { display: block; font-size: 10.5px; color: var(--c-muted); }
 .pf-tbl td.empty { color: #9ca3af; font-style: italic; font-size: 12px; }
 
+/* Family / money / docs */
+.pf-subtbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.pf-subtbl th, .pf-subtbl td { padding: 6px 10px; border-bottom: 1px solid var(--c-border); text-align: left; }
+.pf-subtbl thead th { background: #f3f9f5; font-weight: 700; color: #374151; font-size: 11px; }
+.pf-money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.pf-money-grid > div { border-right: 1px solid var(--c-border); }
+.pf-money-grid > div:last-child { border-right: none; }
+.pf-docs-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    padding: 12px;
+}
+.pf-doc-card {
+    border: 1px solid var(--c-border); border-radius: 4px; overflow: hidden;
+    background: #f9fafb; text-align: center;
+}
+.pf-doc-card img {
+    width: 100%; height: 140px; object-fit: contain; background: #fff;
+    border-bottom: 1px solid var(--c-border); display: block;
+}
+.pf-doc-card .pf-doc-label { padding: 6px 8px; font-size: 11px; font-weight: 600; }
+.pf-doc-card .pf-doc-en { display: block; font-size: 10px; color: var(--c-muted); font-weight: 400; }
+.pf-doc-file { padding: 18px 10px; font-size: 12px; }
+.pf-doc-file a { color: var(--c-primary); font-weight: 700; text-decoration: none; }
+
 /* ── Declaration ── */
 .pf-decl {
     border: 1px solid #fde68a; border-radius: 5px;
@@ -558,7 +760,9 @@ body {
         box-shadow: none !important; border: none !important; border-radius: 0 !important;
     }
     .pf-body { padding: 12px 16px 18px !important; }
-    .pf-section, .pf-office, .pf-decl { page-break-inside: avoid; }
+    .pf-section, .pf-office, .pf-decl, .pf-doc-card { page-break-inside: avoid; }
+    .pf-docs-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    .pf-money-grid { grid-template-columns: 1fr 1fr !important; }
     @page { size: A4; margin: 13mm 11mm 15mm 11mm; }
 }
 
@@ -568,6 +772,8 @@ body {
     .pf-org-header { grid-template-columns: 60px 1fr; }
     .pf-photo-box { display: none; }
     .pf-officers { grid-template-columns: 1fr; }
+    .pf-docs-grid { grid-template-columns: 1fr 1fr; }
+    .pf-money-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -634,12 +840,112 @@ body {
         </div>
 
         <!-- ── Data Sections ── -->
-        <?php foreach ($sections as $sec): ?>
+        <?php foreach ($sections as $sec):
+            $kind = $sec['kind'] ?? 'rows';
+        ?>
         <div class="pf-section">
             <div class="pf-section-head"><?php echo pf_e($sec['title']); ?></div>
+
+            <?php if ($kind === 'family'): ?>
+            <table class="pf-subtbl">
+                <thead>
+                    <tr>
+                        <th>सम्बन्ध / Relation</th>
+                        <th>नाम / Name</th>
+                        <th>फोन / Phone</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (($sec['family'] ?? []) as $fr): ?>
+                    <tr>
+                        <td><?php echo pf_e(($fr['relation'] ?? '') !== '' ? $fr['relation'] : '—'); ?></td>
+                        <td><?php echo pf_e(($fr['name'] ?? '') !== '' ? $fr['name'] : '—'); ?></td>
+                        <td><?php echo pf_e(($fr['phone'] ?? '') !== '' ? $fr['phone'] : '—'); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <?php elseif ($kind === 'income_expense'): ?>
+            <div class="pf-money-grid">
+                <div>
+                    <table class="pf-subtbl">
+                        <thead><tr><th colspan="2">आय स्रोतहरू / Income Sources</th></tr></thead>
+                        <tbody>
+                            <?php if (empty($sec['income'])): ?>
+                            <tr><td colspan="2" class="empty">—</td></tr>
+                            <?php else: foreach ($sec['income'] as $it): ?>
+                            <tr>
+                                <td><?php echo pf_e($it['name'] ?? '—'); ?></td>
+                                <td><?php echo pf_cur($it['amount'] ?? 0); ?></td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                            <tr>
+                                <th>जम्मा आय / Total Income</th>
+                                <th><?php echo pf_cur($sec['income_total'] ?? 0); ?></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <table class="pf-subtbl">
+                        <thead><tr><th colspan="2">खर्च स्रोतहरू / Expense Sources</th></tr></thead>
+                        <tbody>
+                            <?php if (empty($sec['expense'])): ?>
+                            <tr><td colspan="2" class="empty">—</td></tr>
+                            <?php else: foreach ($sec['expense'] as $it): ?>
+                            <tr>
+                                <td><?php echo pf_e($it['name'] ?? '—'); ?></td>
+                                <td><?php echo pf_cur($it['amount'] ?? 0); ?></td>
+                            </tr>
+                            <?php endforeach; endif; ?>
+                            <tr>
+                                <th>जम्मा खर्च / Total Expense</th>
+                                <th><?php echo pf_cur($sec['expense_total'] ?? 0); ?></th>
+                            </tr>
+                            <tr>
+                                <th>अन्तर (आय−खर्च) / Net</th>
+                                <th><?php echo pf_cur($sec['net'] ?? 0); ?></th>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <?php elseif ($kind === 'docs'): ?>
+            <div class="pf-docs-grid">
+                <?php foreach (($sec['docs'] ?? []) as $doc):
+                    $isFile = !empty($doc['is_file']);
+                    $url = (string)($doc['url'] ?? '');
+                    $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+                    $isImg = in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
+                ?>
+                <div class="pf-doc-card">
+                    <?php if (!$isFile && $isImg): ?>
+                    <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener">
+                        <img src="<?php echo pf_e($url); ?>" alt="<?php echo pf_e($doc['label_np'] ?? ''); ?>"
+                             onerror="this.parentElement.innerHTML='<div class=\'pf-doc-file\'>Image unavailable</div>'">
+                    </a>
+                    <?php else: ?>
+                    <div class="pf-doc-file">
+                        <i class="fas fa-file-alt" style="font-size:22px;opacity:.55;display:block;margin-bottom:6px;"></i>
+                        <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener">खोल्नुहोस् / Open</a>
+                    </div>
+                    <?php endif; ?>
+                    <div class="pf-doc-label">
+                        <?php echo pf_e($doc['label_np'] ?? ''); ?>
+                        <?php if (!empty($doc['label_en'])): ?>
+                        <span class="pf-doc-en"><?php echo pf_e($doc['label_en']); ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <?php else: ?>
             <table class="pf-tbl">
-                <?php foreach ($sec['rows'] as $row):
-                    [$labelNp, $labelEn, $val] = count($row) === 3 ? $row : [$row[0], '', $row[1]];
+                <?php foreach (($sec['rows'] ?? []) as $row):
+                    [$labelNp, $labelEn, $val] = count($row) === 3 ? $row : [$row[0], '', $row[1] ?? '—'];
                     $empty = ($val === '' || $val === '—');
                 ?>
                 <tr>
@@ -653,6 +959,7 @@ body {
                 </tr>
                 <?php endforeach; ?>
             </table>
+            <?php endif; ?>
         </div>
         <?php endforeach; ?>
 
