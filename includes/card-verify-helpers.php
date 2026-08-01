@@ -432,7 +432,8 @@ if (!function_exists('verifyCardCredentials')) {
             return "SELECT c.id AS card_id, c.card_no, c.verification_code, c.cvv,
                            c.issued_date, c.status, c.verify_count, {$failedExpr} AS failed_verify_count,
                            m.id AS member_pk,
-                           m.sadasyata_number, m.member_card_no, {$memberNameExpr}, m.avatar_url, m.kyc_application_id,
+                           m.sadasyata_number, m.member_card_no, {$memberNameExpr}, m.phone AS member_phone,
+                           m.avatar_url, m.kyc_application_id,
                            m.approval_status, m.created_at AS member_since,
                            m.card_expires_at,
                            k.full_name AS kyc_full_name, k.photo AS kyc_photo,
@@ -499,7 +500,7 @@ if (!function_exists('verifyCardCredentials')) {
                     'member_id'    => $memberIdDisp,
                     'full_name'    => $displayName,
                     'photo_path'   => $displayPhoto,
-                    'mobile'       => (string)($row['kyc_mobile'] ?? ''),
+                    'mobile'       => (string)(($row['member_phone'] ?? '') !== '' ? ($row['member_phone'] ?? '') : ($row['kyc_mobile'] ?? '')),
                     'email'        => (string)($row['kyc_email'] ?? ''),
                     'father_name'  => (string)($row['kyc_father_name'] ?? ''),
                     'dob_bs'       => (string)($row['kyc_dob_bs'] ?? ''),
@@ -608,21 +609,39 @@ if (!function_exists('verifyCardCredentials')) {
     }
 
     /**
-     * Primary vendor path: member name + member ID (CVV optional).
+     * Primary vendor path: member name + member ID + mobile (CVV optional).
+     * Mobile must match ledger/KYM so गलत व्यक्तिले verify दुरुपयोग गर्न नसकोस्।
      * On match, derived CVV is revealed like a secret tracker code.
      */
-    function verifyCardByNameAndMemberId(PDO $pdo, string $name, string $memberId, string $ip, string $optionalCvv = ''): array {
+    function verifyCardByNameAndMemberId(
+        PDO $pdo,
+        string $name,
+        string $memberId,
+        string $ip,
+        string $optionalCvv = '',
+        string $mobile = ''
+    ): array {
         ensureCardSecurityColumns($pdo);
         $name = trim($name);
         $memberId = trim($memberId);
         $optionalCvv = normalizeCvvInput($optionalCvv);
+        $mobile = function_exists('memberSsotNormalizeMobile')
+            ? memberSsotNormalizeMobile($mobile)
+            : (preg_replace('/\D+/', '', $mobile) ?? '');
+        if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
+            $mobile = substr($mobile, -10);
+        }
 
         $rl = _cardVerifyRateLimited($pdo, $ip);
         if ($rl !== null) return $rl;
 
-        if ($name === '' || $memberId === '') {
+        if ($name === '' || $memberId === '' || $mobile === '') {
             _logVerifyAttempt($pdo, $ip, $memberId, false);
-            return ['ok' => false, 'error' => 'कृपया सदस्यको नाम र सदस्यता नं. दुवै प्रविष्ट गर्नुहोस्।'];
+            return ['ok' => false, 'error' => 'कृपया नाम, सदस्यता नं. र मोबाइल नम्बर तीनै प्रविष्ट गर्नुहोस्।'];
+        }
+        if (strlen($mobile) < 7) {
+            _logVerifyAttempt($pdo, $ip, $memberId, false);
+            return ['ok' => false, 'error' => 'कृपया सही मोबाइल नम्बर प्रविष्ट गर्नुहोस्।'];
         }
 
         try {
@@ -657,7 +676,8 @@ if (!function_exists('verifyCardCredentials')) {
                     "SELECT 0 AS card_id, NULL AS card_no, NULL AS verification_code, NULL AS cvv,
                             NULL AS issued_date, 'active' AS status, 0 AS verify_count, 0 AS failed_verify_count,
                             m.id AS member_pk,
-                            m.sadasyata_number, m.member_card_no, {$nameSelect}, m.avatar_url, m.kyc_application_id,
+                            m.sadasyata_number, m.member_card_no, {$nameSelect}, m.phone AS member_phone,
+                            m.avatar_url, m.kyc_application_id,
                             m.approval_status, m.created_at AS member_since,
                             m.card_expires_at,
                             k.full_name AS kyc_full_name, k.photo AS kyc_photo,
@@ -686,7 +706,7 @@ if (!function_exists('verifyCardCredentials')) {
 
         if (!$rows) {
             _logVerifyAttempt($pdo, $ip, $memberId, false);
-            return ['ok' => false, 'error' => 'नाम वा सदस्यता नं. मेल खाएन। कार्ड हेरेर पुनः प्रयास गर्नुहोस्।'];
+            return ['ok' => false, 'error' => 'नाम / सदस्यता नं. / मोबाइल मेल खाएन। कार्ड हेरेर पुनः प्रयास गर्नुहोस्।'];
         }
 
         $row = null;
@@ -695,10 +715,27 @@ if (!function_exists('verifyCardCredentials')) {
             if ($candName === '') {
                 $candName = trim((string)(($cand['kyc_full_name'] ?? '') ?: ($cand['name'] ?? '')));
             }
-            if (memberNamesMatch($name, $candName)) {
-                $row = $cand;
-                break;
+            if (!memberNamesMatch($name, $candName)) {
+                continue;
             }
+            $ledgerPhone = (string)($cand['member_phone'] ?? '');
+            $kycPhone = (string)($cand['kyc_mobile'] ?? '');
+            $phoneOk = false;
+            if (function_exists('memberSsotPhonesMatch')) {
+                $phoneOk = memberSsotPhonesMatch($mobile, $ledgerPhone) || memberSsotPhonesMatch($mobile, $kycPhone);
+            } else {
+                $norm = static function (string $p): string {
+                    $d = preg_replace('/\D+/', '', $p) ?? '';
+                    return (strlen($d) > 10 && str_starts_with($d, '977')) ? substr($d, -10) : $d;
+                };
+                $mIn = $norm($mobile);
+                $phoneOk = ($mIn !== '' && ($mIn === $norm($ledgerPhone) || $mIn === $norm($kycPhone)));
+            }
+            if (!$phoneOk) {
+                continue;
+            }
+            $row = $cand;
+            break;
         }
 
         if ($row === null) {
@@ -710,7 +747,7 @@ if (!function_exists('verifyCardCredentials')) {
             if ($remaining <= 0 && !empty($rows[0]['card_id'])) {
                 return ['ok' => false, 'error' => 'यो कार्ड 5 पटक गलत प्रयासका कारण LOCK भएको छ। कृपया कार्यालय/Admin सँग unlock अनुरोध गर्नुहोस्।'];
             }
-            return ['ok' => false, 'error' => "नाम वा सदस्यता नं. मेल खाएन। बाँकी प्रयास: {$remaining}"];
+            return ['ok' => false, 'error' => "नाम / सदस्यता नं. / मोबाइल मेल खाएन। बाँकी प्रयास: {$remaining}"];
         }
 
         $displayName = _cardDisplayNameFromRow($row);
