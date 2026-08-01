@@ -611,6 +611,18 @@ body.auth-portal-page:not(.verify-auth-page) .card-header {
     var(--primary-color, #1a5f2a),
     color-mix(in srgb, var(--primary-color, #1a5f2a) 72%, #0e9b53)
   ) !important;
+  border-bottom-color: transparent !important;
+  color: color-mix(in srgb, #fff 84%, #94a3b8) !important;
+}
+
+/* Soft footer-like muted light grey on green (not dark muted text) */
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-portal-label,
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-portal-label i,
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-portal-label [data-lucide],
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-portal-label svg.lucide {
+  color: color-mix(in srgb, #ffffff 78%, #94a3b8) !important;
+  opacity: 1 !important;
+  stroke: currentColor !important;
 }
 
 body.auth-portal-page:not(.verify-auth-page) .page-back,
