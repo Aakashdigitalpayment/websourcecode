@@ -383,41 +383,58 @@ if ($result && !empty($result['ok']) && $pdo) {
 .vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
 .vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
 
-/* Success: desktop 2-col — ID card | partner log
-   NOTE: app-member/global-theme force vp-outer max-width:560px !important — override here. */
+/* Success layout:
+   - verify form stays centered (560px theme)
+   - after verify + partners: 3 cols — Card | Action | Log */
 .vp-success-alerts { margin-bottom: 12px; }
 .vp-success-layout { display: grid; gap: 14px; align-items: stretch; width: 100%; }
 .vp-success-layout .vp-id-card { margin-bottom: 0; overflow: visible; }
-.vp-success-layout .vp-partner-log-card { margin-top: 0 !important; height: auto; min-height: 100%; }
-.vp-success-layout .vp-visit-list { max-height: min(220px, 36vh); overflow-y: auto; }
+.vp-success-layout .vp-desk-card { margin-top: 0 !important; height: 100%; }
+.vp-success-layout .vp-visit-list { max-height: min(420px, 55vh); overflow-y: auto; }
 .vp-success-col { min-width: 0; }
-@media (min-width: 900px) {
+.vp-desk-card {
+    background: #fff; border-radius: 16px; border: 1px solid var(--border-color, #e5e7eb);
+    box-shadow: 0 2px 18px rgba(0,0,0,.08); padding: 16px 18px 18px;
+}
+.vp-desk-card .vp-programs-title { margin: 0 0 8px; font-size: 1rem; font-weight: 800; color: var(--primary-color,#1a5f2a); display: flex; align-items: center; gap: 8px; }
+.vp-desk-card .vp-partner-log-hint { font-size: .8rem; color: #6b7280; margin: 0 0 12px; line-height: 1.45; }
+@media (min-width: 1100px) {
     body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) {
         align-items: flex-start !important;
         padding: 16px 16px 32px !important;
     }
     body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
     body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-        max-width: min(1240px, 98vw) !important;
+        max-width: min(1380px, 98vw) !important;
         width: 100% !important;
     }
     body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name,
     body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
-        max-width: 48rem !important;
+        max-width: 52rem !important;
     }
     .vp-success-layout.has-partner {
-        grid-template-columns: minmax(320px, 1fr) minmax(340px, 1.05fr);
-        gap: 20px;
+        grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.05fr) minmax(260px, 0.95fr);
+        gap: 16px;
     }
-    .vp-success-layout.has-partner .vp-partner-log-card {
-        position: sticky;
-        top: 12px;
-    }
+    .vp-success-layout.has-partner .vp-desk-card { position: sticky; top: 12px; }
     .vp-success-layout.has-partner .vp-id-main {
-        grid-template-columns: 110px minmax(0, 1fr);
+        grid-template-columns: 96px minmax(0, 1fr);
+        gap: 12px; padding: 14px;
     }
+    .vp-success-layout.has-partner .vp-id-photo-wrap { width: 96px; }
+    .vp-success-layout.has-partner .vp-id-name { font-size: 1.02rem; }
 }
-@media (max-width: 899px) {
+@media (min-width: 700px) and (max-width: 1099px) {
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+        max-width: min(960px, 98vw) !important;
+    }
+    .vp-success-layout.has-partner {
+        grid-template-columns: 1fr 1fr;
+    }
+    .vp-success-col-id { grid-column: 1 / -1; }
+}
+@media (max-width: 699px) {
     .vp-success-layout.has-partner { grid-template-columns: 1fr; }
 }
 
@@ -690,72 +707,14 @@ $__hasPartnerCol = !empty($partners);
 </div><!-- /.vp-success-col-id -->
 
 <?php if ($__hasPartnerCol): ?>
-<div class="vp-success-col vp-success-col-partner">
-<div class="vp-programs-card vp-partner-log-card" id="vpPartnerLog">
+<div class="vp-success-col vp-success-col-action">
+<div class="vp-desk-card vp-partner-action-card" id="vpPartnerLog">
     <h3 class="vp-programs-title">
-        <i class="fas fa-handshake"></i> <?= $_t('साझेदार सेवा लग','Log partner service') ?>
+        <i class="fas fa-bolt"></i> <?= $_t('सेवा लग (Action)','Service log (Action)') ?>
     </h3>
     <p class="vp-partner-log-hint">
-        <?= $_t('यो सदस्यले तपाईंको संस्थामा सेवा/छुट लिए भने तलबाट लग गर्नुहोस् — सदस्य पोर्टलमा इतिहास देखिन्छ।', 'If this member used your discount/service, log it below — it appears in their member portal history.') ?>
+        <?= $_t('साझेदार डेस्कबाट सेवा/छुट लिए भने यहाँ सेभ गर्नुहोस्।', 'Save here when the partner desk provides a service/discount.') ?>
     </p>
-
-    <!-- Member visit history at partners (filters when partner is chosen) -->
-    <div class="vp-visit-panel" id="vpVisitPanel">
-        <div class="vp-visit-head">
-            <div class="vp-visit-title">
-                <i class="fas fa-clock-rotate-left"></i>
-                <span id="vpVisitTitleText"><?= $_t('यस सदस्यको सेवा इतिहास', 'This member\'s service history') ?></span>
-            </div>
-            <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
-        </div>
-        <div class="vp-visit-list" id="vpVisitList">
-            <?php if (empty($memberPartnerLogs)): ?>
-            <div class="vp-visit-empty" data-empty-all="1">
-                <i class="fas fa-inbox"></i>
-                <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। पहिलो लग तलबाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save the first log below.') ?></span>
-            </div>
-            <?php else:
-                foreach ($memberPartnerLogs as $vl):
-                    $taken = !empty($vl['service_taken']);
-                    $pid = (int)($vl['partner_id'] ?? 0);
-                    $when = function_exists('formatNepaliDate')
-                        ? formatNepaliDate($vl['created_at'] ?? '', true)
-                        : (string)($vl['created_at'] ?? '');
-            ?>
-            <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
-                <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
-                <div class="vp-visit-body">
-                    <div class="vp-visit-org"><?php
-                        $vOrg = (string)($vl['partner_name'] ?? '—');
-                        if (function_exists('partnerFacilityDisplayName')) {
-                            $vOrg = partnerFacilityDisplayName([
-                                'partner_name' => (string)($vl['partner_name'] ?? ''),
-                                'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
-                            ]) ?: $vOrg;
-                        }
-                        echo htmlspecialchars($vOrg);
-                    ?></div>
-                    <div class="vp-visit-svc">
-                        <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
-                        <?php if (!empty($vl['service_note'])): ?>
-                            <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vp-visit-meta">
-                        <time><?= htmlspecialchars($when) ?></time>
-                        <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
-                            <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; endif; ?>
-            <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
-                <i class="fas fa-building"></i>
-                <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
-            </div>
-        </div>
-    </div>
 
     <form method="POST" action="" class="vp-partner-log-form">
         <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
@@ -817,7 +776,66 @@ $__hasPartnerCol = !empty($partners);
         </button>
     </form>
 </div>
-</div><!-- /.vp-success-col-partner -->
+</div><!-- /.vp-success-col-action -->
+
+<div class="vp-success-col vp-success-col-log">
+<div class="vp-desk-card vp-partner-history-card" id="vpVisitPanel">
+    <div class="vp-visit-head" style="margin-bottom:10px;">
+        <div class="vp-visit-title">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span id="vpVisitTitleText"><?= $_t('सेवा लग (Log)', 'Service log (Log)') ?></span>
+        </div>
+        <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
+    </div>
+    <div class="vp-visit-list" id="vpVisitList">
+        <?php if (empty($memberPartnerLogs)): ?>
+        <div class="vp-visit-empty" data-empty-all="1">
+            <i class="fas fa-inbox"></i>
+            <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। Action बाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save from Action.') ?></span>
+        </div>
+        <?php else:
+            foreach ($memberPartnerLogs as $vl):
+                $taken = !empty($vl['service_taken']);
+                $pid = (int)($vl['partner_id'] ?? 0);
+                $when = function_exists('formatNepaliDate')
+                    ? formatNepaliDate($vl['created_at'] ?? '', true)
+                    : (string)($vl['created_at'] ?? '');
+        ?>
+        <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
+            <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
+            <div class="vp-visit-body">
+                <div class="vp-visit-org"><?php
+                    $vOrg = (string)($vl['partner_name'] ?? '—');
+                    if (function_exists('partnerFacilityDisplayName')) {
+                        $vOrg = partnerFacilityDisplayName([
+                            'partner_name' => (string)($vl['partner_name'] ?? ''),
+                            'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
+                        ]) ?: $vOrg;
+                    }
+                    echo htmlspecialchars($vOrg);
+                ?></div>
+                <div class="vp-visit-svc">
+                    <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
+                    <?php if (!empty($vl['service_note'])): ?>
+                        <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="vp-visit-meta">
+                    <time><?= htmlspecialchars($when) ?></time>
+                    <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
+                        <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <?php endforeach; endif; ?>
+        <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
+            <i class="fas fa-building"></i>
+            <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
+        </div>
+    </div>
+</div>
+</div><!-- /.vp-success-col-log -->
 </div><!-- /.vp-success-layout -->
 <script>
 (function(){
@@ -829,7 +847,7 @@ $__hasPartnerCol = !empty($partners);
     var countEl = document.getElementById('vpVisitCount');
     var titleEl = document.getElementById('vpVisitTitleText');
     var emptyFilter = document.getElementById('vpVisitEmptyFilter');
-    var titleAll = <?= json_encode($_t('यस सदस्यको सेवा इतिहास', "This member's service history"), JSON_UNESCAPED_UNICODE) ?>;
+    var titleAll = <?= json_encode($_t('सेवा लग (Log)', 'Service log (Log)'), JSON_UNESCAPED_UNICODE) ?>;
     var titleAt = <?= json_encode($_t('यस संस्थामा भेट / सेवा लग', 'Visits / service logs at this partner'), JSON_UNESCAPED_UNICODE) ?>;
     if (!sel || !wrap) return;
 

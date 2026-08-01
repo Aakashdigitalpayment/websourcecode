@@ -1966,7 +1966,7 @@ body.verify-auth-page .vp-outer                     {
 }
 /* Verified result: wide 2-col desk layout */
 body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-    max-width: min(1240px, 98vw) !important;
+    max-width: min(1380px, 98vw) !important;
 }
 body.verify-auth-page .vp-card                      {
     background: var(--bg-card,#fff) !important;

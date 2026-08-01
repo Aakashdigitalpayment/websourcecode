@@ -3921,7 +3921,7 @@ body.auth-portal-page.verify-auth-page .vp-outer {
   margin: 0 auto;
 }
 body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-  max-width: min(1240px, 98vw);
+  max-width: min(1380px, 98vw);
 }
 
 @media (max-width: 768px) {
