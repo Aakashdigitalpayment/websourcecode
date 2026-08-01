@@ -163,3 +163,43 @@ if (!function_exists('ensureProgramTables')) {
         }
     }
 }
+
+/**
+ * कार्यक्रम event_date (BS वा AD) लाई AD Y-m-d मा।
+ * Admin nepali-datepicker ले BS (२०७०+) राख्छ — strtotime सिधै चलाउँदा expiry/past गलत हुन्छ।
+ */
+if (!function_exists('programEventDateToAd')) {
+    function programEventDateToAd(?string $date): string
+    {
+        $date = trim((string)$date);
+        if ($date === '' || !preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $date, $m)) {
+            return '';
+        }
+        $y = (int)$m[1];
+        if ($y >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd(substr($date, 0, 10)));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}/', $ad)) {
+                return substr($ad, 0, 10);
+            }
+        }
+        return substr($date, 0, 10);
+    }
+}
+
+/** Admin UI मा attendance request source लेबल */
+if (!function_exists('programAttendanceSourceLabel')) {
+    function programAttendanceSourceLabel(?string $source): string
+    {
+        $s = trim((string)$source);
+        $map = [
+            'member_portal_qr_pending' => 'Portal QR',
+            'member_portal_pending' => 'Portal Attend',
+            'public_qr_unmatched_request' => 'Public (unmatched)',
+            'public_attend' => 'Public attend',
+            'program_verify_page' => 'Staff Verify',
+            'admin_request_approve' => 'Admin approve',
+            'verify_portal' => 'Verify portal',
+        ];
+        return $map[$s] ?? ($s !== '' ? $s : '—');
+    }
+}

@@ -529,28 +529,28 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <!-- ══ 24. PROGRAMS ══ -->
     <section id="sec-programs" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-calendar-days"></i></span> कार्यक्रमहरू (Programs)</h3>
-      <p>Training, seminar, AGM, annual gathering जस्ता events manage गर्ने ठाउँ।</p>
+      <p>Training, seminar, AGM जस्ता events: pre-registration, QR उपस्थिति, र रिपोर्ट। Public page: <a href="../cooperative-programs.php" target="_blank">cooperative-programs.php</a>।</p>
 
       <h5>नयाँ कार्यक्रम थप्ने:</h5>
       <ol class="hg-steps-list">
-        <li>बायाँ menu → <b>कार्यक्रमहरू</b> (<a href="programs.php">वा यहाँ</a>) → <span class="kbd">Add Program</span>।</li>
-        <li>कार्यक्रम नाम, मिति, स्थान, र विवरण भर्नुहोस्।</li>
-        <li>QR Code Attendance enable गर्न "Enable QR Attendance" toggle ON राख्नुहोस्।</li>
-        <li><span class="kbd">Save</span> → Website calendar मा देखिन्छ।</li>
+        <li>बायाँ menu → <b>कार्यक्रमहरू</b> (<a href="programs.php">वा यहाँ</a>) → Add / Save।</li>
+        <li>शीर्षक, मिति, समय, स्थान, विवरण भर्नुहोस्। Pre-registration खुला गर्न toggle ON।</li>
+        <li><span class="kbd">Generate QR</span> → सदस्यले Member Portal बाट scan गर्छन्। Default expiry: कार्यक्रम मिति + १ दिन (मिति नभए +७ दिन)।</li>
+        <li>Public list: <a href="../cooperative-programs.php" target="_blank">Cooperative Programs</a>।</li>
       </ol>
+      <p class="small text-muted mb-0"><b>Pre-reg</b> = अगाडि नाम दर्ता (गणना होइन)। <b>QR / Check-in</b> = स्थल उपस्थिति अनुरोध → Admin approve पछि गणना।</p>
     </section>
 
     <!-- ══ 25. ATTENDANCE ══ -->
     <section id="sec-attendance" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-clipboard-check"></i></span> उपस्थिति (Attendance)</h3>
-      <p>QR code scan गरेर कार्यक्रममा सदस्यको उपस्थिति दर्ता गर्ने system।</p>
+      <p>सदस्य QR scan / portal check-in → pending request → Admin approve → इतिहास र रिपोर्ट। Staff Verify बाट तत्काल पनि राख्न सकिन्छ।</p>
 
       <h5>Attendance कसरी लिने:</h5>
       <ol class="hg-steps-list">
-        <li><b>Option 1 (QR Code):</b> <a href="../attend.php" target="_blank">attend.php</a> page खोल्नुहोस् — सदस्यले आफ्नो QR code scan गर्छन्।</li>
-        <li><b>Option 2 (Manual):</b> Admin → <a href="program-attendance.php">Program Attendance</a> → Member ID manually enter गर्नुहोस्।</li>
-        <li>Attendance report हेर्न: कार्यक्रम छान्नुहोस् → <span class="kbd">View Report</span>।</li>
-        <li>Excel/CSV export गर्न: <span class="kbd">Export</span> button।</li>
+        <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank">Member Portal → Scan</a> वा Attend बाट check-in → Admin approve।</li>
+        <li><b>Staff Verify (तत्काल):</b> <a href="../program-attendance-verify.php" target="_blank">program-attendance-verify.php</a> (admin login) — कार्ड Verification Code + CVV।</li>
+        <li><b>Approve / रिपोर्ट:</b> Admin → <a href="program-attendance.php">Program Attendance</a> — pending approve, program-wise list, CSV download।</li>
       </ol>
     </section>
 

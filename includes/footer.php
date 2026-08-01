@@ -674,20 +674,20 @@ try {
         'index.php', 'about.php', 'services.php', 'service-detail.php', 'notices.php', 'notice-detail.php',
         'news.php', 'news-detail.php', 'gallery.php', 'team.php', 'reports.php', 'institutional-profile.php',
         'awards.php', 'downloads.php', 'faqs.php', 'important-links.php', 'useful-links.php',
-        'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
+        'service-centers.php', 'interest-rates.php', 'election.php', 'cooperative-programs.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
         'committees.php', 'career.php', 'auction.php', 'partner-facilities.php', 'member-of-year.php',
-        'application-tracker.php', 'election-information.php', 'cooperative-programs.php',
+        'application-tracker.php', 'election-information.php',
     ];
     /* Content-only pages — no phone/email forms (separate from datepicker skip) */
     $__skipFormValidationPages = [
         'index.php', 'about.php', 'services.php', 'service-detail.php', 'notices.php', 'notice-detail.php',
         'news.php', 'news-detail.php', 'gallery.php', 'team.php', 'reports.php', 'institutional-profile.php',
         'awards.php', 'downloads.php', 'faqs.php', 'important-links.php', 'useful-links.php',
-        'service-centers.php', 'interest-rates.php', 'election.php', 'programs.php', 'program-detail.php',
+        'service-centers.php', 'interest-rates.php', 'election.php', 'cooperative-programs.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
         'committees.php', 'career.php', 'partner-facilities.php', 'member-of-year.php',
-        'election-information.php', 'cooperative-programs.php',
+        'election-information.php',
     ];
     $__needsDatepicker = !empty($__forceNepaliDatepicker);
     if (!$__needsDatepicker) {

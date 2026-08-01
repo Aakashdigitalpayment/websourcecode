@@ -692,11 +692,11 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   <div class="tab-pane fade show active" id="pa-pane-req" role="tabpanel" aria-labelledby="pa-tab-req">
 <div class="card admin-table-card mb-3 border-warning" style="border-width:2px;">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo $__t('उपस्थिति अनुरोध (QR / मोबाइल बिना)', 'Attendance Requests (without QR/mobile)'); ?></h6>
+    <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo $__t('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
     <span class="badge bg-warning text-dark">Pending <?php echo (int)$reqPendingCount; ?></span>
   </div>
   <div class="card-body py-2 small text-muted border-bottom">
-    सार्वजनिक <code>attend.php?token=…</code> मा सदस्यले सदस्यता/फोन भरेर पठाएको अनुरोध। स्थलमा उपस्थिति पुष्टि भएपछि <strong>स्वीकृत</strong> गर्नुहोस् — तब मात्र माथिल्लो उपस्थिति सूची र सदस्यको Member Portal इतिहासमा जान्छ।
+    Member Portal QR / Attend, वा (वैकल्पिक) <code>attend.php?token=…</code> बाट आएका pending अनुरोध। <strong>Approve</strong> पछि मात्र उपस्थिति सूची र सदस्य इतिहासमा जान्छ। Staff Verify ले तत्काल राख्दा matching pending स्वतः बन्द हुन्छ।
     <?php if ($reqPendingCount > count($reqRows)): ?>
       <div class="alert alert-info py-1 px-2 mt-2 mb-0 small">Pending जम्मा <?php echo (int)$reqPendingCount; ?> — तालिकामा पहिलो <?php echo count($reqRows); ?> मात्र (छिटो लोड)। बाँकी स्वीकृत गर्दै जाँदा सूची छोटो हुन्छ।</div>
     <?php endif; ?>
@@ -708,7 +708,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   </div>
   <div class="table-responsive">
     <table class="table table-hover table-sm align-middle mb-0">
-      <thead><tr><th><?php echo $__t('कार्यक्रम','Program'); ?></th><th><?php echo $__t('मिति / स्थान','Date / Location'); ?></th><th><?php echo $__t('सदस्य','Member'); ?></th><th><?php echo $__t('सदस्य नं.','Member No.'); ?></th><th><?php echo $__t('फोन','Phone'); ?></th><th><?php echo $__t('अनुरोध समय','Request Time'); ?></th><th><?php echo $__t('कार्य','Actions'); ?></th></tr></thead>
+      <thead><tr><th><?php echo $__t('कार्यक्रम','Program'); ?></th><th><?php echo $__t('मिति / स्थान','Date / Location'); ?></th><th><?php echo $__t('सदस्य','Member'); ?></th><th><?php echo $__t('सदस्य नं.','Member No.'); ?></th><th><?php echo $__t('स्रोत','Source'); ?></th><th><?php echo $__t('अनुरोध समय','Request Time'); ?></th><th><?php echo $__t('कार्य','Actions'); ?></th></tr></thead>
       <tbody>
       <?php if (empty($reqRows)): ?>
       <tr><td colspan="7" class="text-center text-muted py-3"><?php echo $__t('कुनै pending अनुरोध छैन।', 'No pending requests.'); ?></td></tr>
@@ -718,13 +718,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         $rn = trim((string)($rx['mname'] ?: $rx['member_name'] ?: ''));
         $rph = trim((string)($rx['mphone'] ?: ($rx['mmobile'] ?? $rx['member_phone'] ?? '')));
         $raddr = trim((string)($rx['member_address'] ?? ''));
+        $rsrc = function_exists('programAttendanceSourceLabel') ? programAttendanceSourceLabel($rx['source'] ?? '') : (string)($rx['source'] ?? '—');
       ?>
       <tr>
         <td><?php echo htmlspecialchars($rx['program_title'] ?? ''); ?></td>
         <td class="small"><?php echo htmlspecialchars(trim(($rx['event_date'] ?? '') . ' ' . ($rx['location'] ?? ''))); ?></td>
-        <td><?php echo htmlspecialchars($rn ?: '—'); ?><?php if ($raddr !== ''): ?><div class="small text-muted"><?php echo htmlspecialchars($raddr); ?></div><?php endif; ?></td>
+        <td><?php echo htmlspecialchars($rn ?: '—'); ?><?php if ($raddr !== ''): ?><div class="small text-muted"><?php echo htmlspecialchars($raddr); ?></div><?php endif; ?><?php if ($rph !== ''): ?><div class="small text-muted"><?php echo htmlspecialchars($rph); ?></div><?php endif; ?></td>
         <td><code><?php echo htmlspecialchars($rx['member_card_no'] ?: '—'); ?></code></td>
-        <td><?php echo htmlspecialchars($rph ?: '—'); ?></td>
+        <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rsrc); ?></span></td>
         <td class="small"><?php echo htmlspecialchars($rx['requested_at'] ?? ''); ?></td>
         <td>
           <div class="d-flex flex-wrap gap-1">

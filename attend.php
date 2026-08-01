@@ -34,6 +34,10 @@ if ($db && $token) {
         $st->execute([$token]);
         $prog = $st->fetch(PDO::FETCH_ASSOC) ?: null;
         if (!$prog) $err = t('यो QR code मान्य छैन वा कार्यक्रम समाप्त भयो।', 'This QR code is invalid or the program has ended.');
+        elseif ((int)($prog['qr_enabled'] ?? 1) !== 1) {
+            $err = t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
+            $prog = null;
+        }
         if ($prog && !empty($prog['qr_starts_at']) && strtotime((string)$prog['qr_starts_at']) > time()) {
             $err = t('यो QR scan समय अझै सुरु भएको छैन।', 'This QR scan window has not started yet.');
             $prog = null;
@@ -228,7 +232,7 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
   </div>
 
   <div class="card-body">
-    <?php if ($err && !$done && !$requestSubmitted): ?>
+    <?php if ($err && !$requestSubmitted): ?>
     <div class="error-box"><i class="fas fa-circle-xmark icon-shrink"></i><div><?= htmlspecialchars($err) ?></div></div>
     <?php elseif ($requestSubmitted && $prog): ?>
     <div class="msg-center">
@@ -239,17 +243,6 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
       </p>
       <div class="msg-box-warn">
         <i class="fas fa-user-shield req-icon"></i><strong>Admin</strong> ले कार्यक्रम स्थलमा/panel मा <strong>स्वीकृत</strong> गरेपछि मात्र उपस्थिति सूची र सदस्यको इतिहासमा देखिन्छ। कृपया प्रतिक्षा गर्नुहोस् वा कर्मचारीलाई भन्नुहोस्।
-      </div>
-    </div>
-    <?php elseif ($done): ?>
-    <div class="msg-center">
-      <div class="success-icon"><i class="fas fa-check"></i></div>
-      <h2 class="msg-title-ok"><?php echo t('उपस्थिति दर्ता भयो!', 'Attendance Recorded!'); ?></h2>
-      <p class="msg-sub">
-        <?= htmlspecialchars($memName ?: 'सदस्य') ?><?php if ($memCard): ?> (<?= htmlspecialchars($memCard) ?>)<?php endif; ?> — <strong><?= htmlspecialchars($prog['title']) ?></strong>
-      </p>
-      <div class="msg-box-ok">
-        <i class="fas fa-circle-check req-icon"></i>Check-in समय: <?= date('H:i A') ?>, <?= date('Y-m-d') ?>
       </div>
     </div>
     <?php elseif ($alreadyDone && $prog): ?>

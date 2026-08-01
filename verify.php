@@ -171,28 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } elseif (($_POST['action'] ?? '') === 'log_program_attendance') {
-        $mid         = (int)($_POST['member_id'] ?? 0);
-        $cardNo      = trim($_POST['member_card_no'] ?? '');
-        $programId   = (int)($_POST['program_id'] ?? 0);
-        $programTit  = trim($_POST['program_title'] ?? '');
-        $isPriority  = !empty($_POST['is_priority']) ? 1 : 0;
-        $note        = trim($_POST['attendance_note'] ?? '');
-        if ($mid > 0 && $programId > 0 && $programTit !== '') {
-            try {
-                $chk = $pdo->prepare("SELECT id FROM member_program_attendance WHERE member_id=? AND program_id=? LIMIT 1");
-                $chk->execute([$mid, $programId]);
-                $exists = $chk->fetchColumn();
-                if ($exists) {
-                    $programAlreadyRegistered = true;
-                } else {
-                    $ins = $pdo->prepare("INSERT INTO member_program_attendance
-                        (member_id, member_card_no, program_id, program_title, is_priority, attendance_note, verified_by_ip, source)
-                        VALUES (?,?,?,?,?,?,?,?)");
-                    $ins->execute([$mid, $cardNo, $programId, mb_substr($programTit, 0, 180), $isPriority, mb_substr($note, 0, 500), $ip, 'verify_portal']);
-                    $programSaved = true;
-                }
-            } catch (\Throwable $e) { error_log('program attendance insert: ' . $e->getMessage()); }
-        }
+        // Legacy action removed — attendance must go via Member Portal QR (pending→approve) or Staff Verify
+        $error = $_t('यो मार्ग बन्द छ। Member Portal QR वा Staff Verify प्रयोग गर्नुहोस्।', 'This path is closed. Use Member Portal QR or Staff Verify.');
         $code = trim($_POST['code'] ?? '');
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
         $cvv  = trim($_POST['cvv']  ?? '');
