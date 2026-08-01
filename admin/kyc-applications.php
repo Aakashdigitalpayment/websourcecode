@@ -4,7 +4,12 @@
  * =====================================================
  * feedbacks.php pattern: ?view=ID → full-page detail + edit form।
  * Modal पूर्ण रूपले हटाइयो।
+ * Excel/CSV: ?export=csv (+ status/search/date_from/date_to) वा ?export=csv&id=N
  */
+/* CSV export अघि HTML नछापियोस् — नत्र Excel मा page source देखिन्छ */
+if (!ob_get_level()) {
+    ob_start();
+}
 $pageTitle   = 'केवाइसी आवेदन व्यवस्थापन';
 $currentPage = 'kyc';
 require_once 'includes/admin-header.php';
@@ -15,6 +20,203 @@ require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
+
+/**
+ * Flatten one KYC row (+ AML JSON) for Excel/CSV export.
+ * @return array{0: list<string>, 1: list<string>} [headers, values] when $headersOnly;
+ *         or list<string> values for a row
+ */
+if (!function_exists('kycExportAmlLabelMap')) {
+    function kycExportAmlLabelMap(): array
+    {
+        return [
+            'passport_no' => 'Passport No',
+            'pan_no' => 'PAN No',
+            'driving_license_no' => 'Driving License',
+            'education_qualification' => 'Education',
+            'religion' => 'Religion',
+            'caste' => 'Caste',
+            'occupation_location' => 'Occupation Location',
+            'occupation_business_name' => 'Business Name',
+            'business_pan_no' => 'Business PAN',
+            'business_registration_type' => 'Business Reg Type',
+            'business_registration_no' => 'Business Reg No',
+            'business_registration_office' => 'Business Reg Office',
+            'business_registration_date_bs' => 'Business Reg Date BS',
+            'business_nature' => 'Business Nature',
+            'estimated_annual_income' => 'Est Annual Income',
+            'politically_exposed' => 'PEP',
+            'past_crime_declared' => 'Past Crime Declared',
+            'landlord_name' => 'Landlord Name',
+            'landlord_contact' => 'Landlord Contact',
+            'is_rented' => 'Is Rented',
+            'voter_id_card_no' => 'Voter ID',
+            'polling_station' => 'Polling Station',
+            'member_purpose' => 'Member Purpose',
+            'self_other_coop_member' => 'Other Coop Member',
+            'self_other_coop_details' => 'Other Coop Details',
+            'family_same_coop_member' => 'Family Same Coop',
+            'family_same_coop_details' => 'Family Same Coop Details',
+            'family_same_member_name' => 'Family Member Name',
+            'family_same_member_id' => 'Family Member ID',
+            'annual_family_income' => 'Annual Family Income',
+            'net_worth_details' => 'Net Worth',
+            'annual_debit_credit_estimate' => 'Annual Debit/Credit',
+            'annual_turnover_numbers' => 'Annual Turnover Count',
+            'annual_deposit_estimate' => 'Annual Deposit Est',
+            'institution_debt_estimate' => 'Institution Debt Est',
+            'nearest_person_name' => 'Nearest Person',
+            'nearest_person_relation' => 'Nearest Relation',
+            'nominee_name' => 'Nominee Name',
+            'nominee_dob' => 'Nominee DOB',
+            'nominee_citizenship_no' => 'Nominee Citizenship',
+            'nominee_relation' => 'Nominee Relation',
+            'nominee_issue_district' => 'Nominee Issue District',
+            'nominee_issue_date' => 'Nominee Issue Date',
+            'nominee_permanent_address' => 'Nominee Permanent Addr',
+            'nominee_temporary_address' => 'Nominee Temporary Addr',
+            'longitude_latitude' => 'Lat/Lng',
+            'map_resolved_address' => 'Map Address',
+            'other_attached_docs' => 'Other Attached Docs',
+            'income_total' => 'Income Total',
+            'expense_total' => 'Expense Total',
+            'net_saving_estimate' => 'Net Saving Est',
+        ];
+    }
+
+    function kycExportHeaders(): array
+    {
+        $base = [
+            'ID', 'Tracking ID', 'Member ID', 'Full Name', 'Full Name EN',
+            'DOB BS', 'DOB AD', 'Gender', 'Marital Status', 'Nationality',
+            'Mobile', 'Email', 'Permanent Address', 'Temporary Address',
+            'Citizenship No', 'Citizenship Issued Date', 'Citizenship Issued Place',
+            'National ID', 'Father Name', 'Mother Name', 'Grandfather Name', 'Spouse Name',
+            'Occupation', 'Organization', 'Monthly Income', 'Account Type', 'Branch',
+            'Status', 'Risk Category', 'Risk Review Status', 'Want ID Card',
+            'KYC Verified At', 'Risk Review Due', 'Photo Quality',
+            'Family Details', 'Income Items', 'Expense Items',
+            'Remarks', 'Created At', 'Updated At',
+        ];
+        return array_merge($base, array_values(kycExportAmlLabelMap()));
+    }
+
+    function kycExportFamilySummary(array $row): string
+    {
+        $raw = trim((string)($row['family_details_json'] ?? ''));
+        if ($raw === '') return '';
+        $fd = json_decode($raw, true);
+        if (!is_array($fd)) return '';
+        $parts = [];
+        foreach ($fd as $fr) {
+            if (!is_array($fr)) continue;
+            $n = trim((string)($fr['name'] ?? ''));
+            $r = trim((string)($fr['relation'] ?? ''));
+            $p = trim((string)($fr['phone'] ?? ''));
+            if ($n === '' && $r === '') continue;
+            $parts[] = trim($r . ': ' . $n . ($p !== '' ? " ($p)" : ''));
+        }
+        return implode(' | ', $parts);
+    }
+
+    function kycExportMoneyItemsSummary($items): string
+    {
+        if (!is_array($items) || empty($items)) return '';
+        $parts = [];
+        foreach ($items as $it) {
+            if (!is_array($it)) continue;
+            $n = trim((string)($it['name'] ?? ''));
+            $a = (float)($it['amount'] ?? 0);
+            if ($n === '' && $a <= 0) continue;
+            $parts[] = $n . ' (Rs. ' . number_format($a, 2) . ')';
+        }
+        return implode('; ', $parts);
+    }
+
+    function kycExportRowValues(array $row): array
+    {
+        $aml = [];
+        $amlRaw = trim((string)($row['aml_details_json'] ?? ''));
+        if ($amlRaw !== '') {
+            $d = json_decode($amlRaw, true);
+            if (is_array($d)) $aml = $d;
+        }
+        $track = (string)($row['tracking_id'] ?? '');
+        if ($track === '') {
+            $track = 'KYC-' . str_pad((string)(int)($row['id'] ?? 0), 6, '0', STR_PAD_LEFT);
+        }
+        $vals = [
+            (string)(int)($row['id'] ?? 0),
+            $track,
+            (string)($row['member_id'] ?? ''),
+            (string)($row['full_name'] ?? ''),
+            (string)($row['full_name_en'] ?? ''),
+            (string)($row['dob_bs'] ?? ''),
+            (string)($row['dob_ad'] ?? ''),
+            (string)($row['gender'] ?? ''),
+            (string)($row['marital_status'] ?? ''),
+            (string)($row['nationality'] ?? ''),
+            (string)($row['mobile'] ?? ''),
+            (string)($row['email'] ?? ''),
+            (string)($row['permanent_address'] ?? ''),
+            (string)($row['temporary_address'] ?? ''),
+            (string)($row['citizenship_no'] ?? ''),
+            (string)($row['citizenship_issued_date'] ?? ''),
+            (string)($row['citizenship_issued_place'] ?? ''),
+            (string)($row['national_id_number'] ?? ''),
+            (string)($row['father_name'] ?? ''),
+            (string)($row['mother_name'] ?? ''),
+            (string)($row['grandfather_name'] ?? ''),
+            (string)($row['spouse_name'] ?? ''),
+            (string)($row['occupation'] ?? ''),
+            (string)($row['organization_name'] ?? ($row['organization'] ?? '')),
+            (string)($row['monthly_income'] ?? ''),
+            (string)($row['account_type'] ?? ''),
+            (string)($row['branch'] ?? ''),
+            (string)($row['status'] ?? ''),
+            (string)($row['risk_category'] ?? ''),
+            (string)($row['risk_review_status'] ?? ''),
+            !empty($row['want_id_card']) ? 'Yes' : 'No',
+            (string)($row['kyc_verified_at'] ?? ''),
+            (string)($row['risk_review_due_at'] ?? ''),
+            isset($row['photo_quality_score']) && $row['photo_quality_score'] !== null && $row['photo_quality_score'] !== ''
+                ? (string)(int)$row['photo_quality_score'] : '',
+            kycExportFamilySummary($row),
+            kycExportMoneyItemsSummary($aml['income_items'] ?? null),
+            kycExportMoneyItemsSummary($aml['expense_items'] ?? null),
+            (string)($row['remarks'] ?? ''),
+            (string)($row['created_at'] ?? ''),
+            (string)($row['updated_at'] ?? ''),
+        ];
+        foreach (kycExportAmlLabelMap() as $key => $_lbl) {
+            $v = $aml[$key] ?? '';
+            if (is_array($v)) {
+                $v = json_encode($v, JSON_UNESCAPED_UNICODE);
+            }
+            $vals[] = (string)$v;
+        }
+        return $vals;
+    }
+
+    function kycStreamExcelCsv(array $rows, string $filename): void
+    {
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: no-store');
+        $out = fopen('php://output', 'w');
+        fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); /* Excel UTF-8 BOM */
+        fputcsv($out, kycExportHeaders());
+        foreach ($rows as $row) {
+            if (!is_array($row)) continue;
+            fputcsv($out, kycExportRowValues($row));
+        }
+        fclose($out);
+        exit;
+    }
+}
 
 /* admin-header मा contact_messages आदि fail भए $db null हुन सक्छ — यहाँ PDO पक्का गर्नुहोस् */
 if (!($db instanceof PDO) && function_exists('getDB')) {
@@ -384,9 +586,11 @@ if (isset($_POST['quick_status'])) {
         $redKycSt = '';
     }
     $qs = http_build_query([
-        'status' => $redKycSt,
-        'search' => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
-        'page'   => max(1, (int)($_GET['page'] ?? 1)),
+        'status'    => $redKycSt,
+        'search'    => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
+        'date_from' => trim((string)($_GET['date_from'] ?? '')),
+        'date_to'   => trim((string)($_GET['date_to'] ?? '')),
+        'page'      => max(1, (int)($_GET['page'] ?? 1)),
     ]);
     redirect('kyc-applications.php?' . $qs);
 }
@@ -397,12 +601,66 @@ if ($status_filter !== '' && !in_array($status_filter, $kycListStatuses, true)) 
     $status_filter = '';
 }
 $search  = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+$dateFrom = trim((string)($_GET['date_from'] ?? ''));
+$dateTo   = trim((string)($_GET['date_to'] ?? ''));
+if ($dateFrom !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = '';
+if ($dateTo !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = '';
+if ($dateFrom !== '' && $dateTo !== '' && $dateFrom > $dateTo) {
+    $tmp = $dateFrom; $dateFrom = $dateTo; $dateTo = $tmp;
+}
+
 $where   = "1=1"; $params2 = [];
 if ($status_filter) { $where .= " AND status = ?"; $params2[] = $status_filter; }
 if ($search !== '') {
     $where .= " AND (member_id LIKE ? OR full_name LIKE ? OR full_name_en LIKE ? OR mobile LIKE ? OR citizenship_no LIKE ? OR national_id_number LIKE ? OR tracking_id LIKE ?)";
     $t = "%$search%"; $params2 = array_merge($params2, [$t,$t,$t,$t,$t,$t,$t]);
 }
+if ($dateFrom !== '') {
+    $where .= " AND DATE(created_at) >= ?";
+    $params2[] = $dateFrom;
+}
+if ($dateTo !== '') {
+    $where .= " AND DATE(created_at) <= ?";
+    $params2[] = $dateTo;
+}
+
+/* ── Excel/CSV export (bulk filter वा individual id) — HTML अघि ── */
+$exportMode = (string)($_GET['export'] ?? '');
+if ($exportMode === 'csv' || $exportMode === 'excel') {
+    if (!($db instanceof PDO)) {
+        while (ob_get_level() > 0) ob_end_clean();
+        http_response_code(503);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Database unavailable.';
+        exit;
+    }
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $ex = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
+            $ex->execute([$exportId]);
+            $exportRows = $ex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = 'kyc-' . $exportId . '-' . date('Ymd-His') . '.csv';
+        } else {
+            $ex = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT 10000");
+            $ex->execute($params2);
+            $exportRows = $ex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = 'kyc-export-' . date('Ymd-His') . '.csv';
+            if ($dateFrom !== '' || $dateTo !== '') {
+                $fname = 'kyc-' . ($dateFrom !== '' ? $dateFrom : 'start') . '_to_' . ($dateTo !== '' ? $dateTo : 'end') . '-' . date('His') . '.csv';
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('[kyc-export] ' . $e->getMessage());
+        while (ob_get_level() > 0) ob_end_clean();
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=UTF-8');
+        echo 'Export failed.';
+        exit;
+    }
+    kycStreamExcelCsv($exportRows, $fname);
+}
+
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 15;
 $offset = ($page - 1) * $limit;
@@ -476,6 +734,8 @@ if ($viewApp):
         </h5>
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
+            <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$viewApp['id']; ?>"
+               class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Excel</a>
             <a href="print-form.php?type=kyc&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
                class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
         </div>
@@ -1017,9 +1277,18 @@ if ($viewApp):
 </div>
 
 <!-- ── Filter Bar ── -->
+<?php
+$kycFilterQs = array_filter([
+    'status'    => $status_filter,
+    'search'    => $search,
+    'date_from' => $dateFrom,
+    'date_to'   => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
+$kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
+?>
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
-        <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
             <label>स्थिति</label>
             <select name="status" id="qf_kyc_status" class="form-select form-select-sm">
                 <option value="">सबै स्थिति</option>
@@ -1030,19 +1299,39 @@ if ($viewApp):
                 <option value="partial" <?php echo $status_filter==='partial'?'selected':''; ?>>🧩 आंशिक</option>
             </select>
         </div>
-        <div class="col-md-7 col-12">
+        <div class="col-md-2 col-6">
+            <label>मिति देखि</label>
+            <input type="date" name="date_from" class="form-control form-control-sm"
+                   value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
+        </div>
+        <div class="col-md-2 col-6">
+            <label>मिति सम्म</label>
+            <input type="date" name="date_to" class="form-control form-control-sm"
+                   value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
+        </div>
+        <div class="col-md-4 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="Member ID, नाम, मोबाइल, नागरिकता नं., Tracking ID...">
-                <?php if ($search): ?><a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                <?php if ($search || $dateFrom || $dateTo): ?>
+                <a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm" title="Clear"><i class="fas fa-times"></i></a>
+                <?php endif; ?>
             </div>
         </div>
         <div class="col-md-2 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
         </div>
     </form>
+    <div class="d-flex flex-wrap gap-2 mt-2 align-items-center">
+        <a href="kyc-applications.php?<?php echo htmlspecialchars(http_build_query($kycExportQs), ENT_QUOTES, 'UTF-8'); ?>"
+           class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel me-1"></i>Excel डाउनलोड
+            <span class="opacity-75">(<?php echo (int)$total; ?> — फिल्टर अनुसार)</span>
+        </a>
+        <span class="small text-muted">मिति / स्थिति / खोज अनुसार bulk CSV — Excel ले सिधै खोल्छ (UTF-8)।</span>
+    </div>
     <script>document.getElementById('qf_kyc_status').addEventListener('change',function(){this.closest('form').submit();});</script>
 </div>
 
@@ -1104,6 +1393,11 @@ if ($viewApp):
                 <td class="no-print" data-label="कार्यहरू">
                     <div class="adm-action-icons">
                         <a href="kyc-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>"
+                           class="adm-icon-btn" title="Excel डाउनलोड" aria-label="Excel"
+                           style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
+                        <a href="print-form.php?type=kyc&amp;id=<?php echo (int)$app['id']; ?>" target="_blank"
+                           class="adm-icon-btn" title="Print" aria-label="Print"><i class="fas fa-print"></i></a>
                         <?php if ($app['status'] === 'pending'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('KYC स्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
@@ -1137,7 +1431,7 @@ if ($viewApp):
     <?php if ($totalPages > 1): ?>
     <div class="p-3 border-top no-print">
         <div class="adm-pagination">
-            <?php $qs = ['status'=>$status_filter,'search'=>$search]; ?>
+            <?php $qs = $kycFilterQs; ?>
             <a href="?<?php echo http_build_query(array_merge($qs,['page'=>1])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="fas fa-angle-double-left"></i></a>
             <a href="?<?php echo http_build_query(array_merge($qs,['page'=>max(1,$page-1)])); ?>" class="<?php echo $page==1?'disabled':''; ?>"><i class="fas fa-angle-left"></i></a>
             <?php $start=max(1,$page-2);$end=min($totalPages,$page+2); for($i=$start;$i<=$end;$i++): ?>
