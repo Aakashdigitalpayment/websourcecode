@@ -220,9 +220,44 @@ if (!function_exists('adminPrintFormIcon')) {
             return '';
         }
         $type = preg_replace('/[^a-z_]/', '', strtolower($type)) ?: '';
+        $allowed = ['kyc','loan','account','digital','welfare','honor','appointment','grievance','job'];
+        if (!in_array($type, $allowed, true)) {
+            return '';
+        }
         $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
-        return '<a href="' . $href . '" target="_blank" rel="noopener" class="adm-icon-btn" title="Print" aria-label="Print">'
+        return '<a href="' . $href . '" target="_blank" rel="noopener" class="adm-icon-btn adm-icon-btn--print" title="Print" aria-label="Print">'
             . '<i class="fas fa-print"></i></a>';
+    }
+}
+
+if (!function_exists('adminPublicFileUrl')) {
+    /** Join SITE_URL + relative upload path safely (always one slash). */
+    function adminPublicFileUrl(?string $path): string
+    {
+        $path = trim((string)$path);
+        if ($path === '') {
+            return '';
+        }
+        if (preg_match('#^https?://#i', $path)) {
+            return $path;
+        }
+        if (!defined('SITE_URL')) {
+            return '/' . ltrim($path, '/');
+        }
+        return rtrim((string)SITE_URL, '/') . '/' . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('adminExcelIcon')) {
+    /** Compact list-row Excel download icon */
+    function adminExcelIcon(string $baseUrl, int $id): string
+    {
+        if ($id < 1) {
+            return '';
+        }
+        $href = htmlspecialchars($baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . 'export=csv&id=' . $id, ENT_QUOTES, 'UTF-8');
+        return '<a href="' . $href . '" class="adm-icon-btn" title="Excel" aria-label="Excel">'
+            . '<i class="fas fa-file-excel text-success"></i></a>';
     }
 }
 

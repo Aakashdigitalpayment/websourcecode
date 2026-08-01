@@ -169,7 +169,8 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
         'Is Member' => static fn(array $r) => !empty($r['is_member']) ? 'yes' : 'no',
         'Member ID' => 'member_id', 'Nominee Name' => 'nominee_name', 'Nominee Relation' => 'nominee_relation',
         'Exam Year' => 'exam_year', 'Institution' => 'institution', 'Business Note' => 'business_note',
-        'Status' => 'status', 'Created At' => 'created_at',
+        'Description' => 'description', 'Status' => 'status', 'Admin Remarks' => 'admin_remarks',
+        'Created At' => 'created_at',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
@@ -461,9 +462,11 @@ $exportQs = array_filter([
                     <td><span class="badge bg-secondary"><?php echo e(honorStatusLabel((string)$a['status'], false)); ?></span></td>
                     <td class="small"><?php echo e($a['created_at']); ?></td>
                     <td>
-                        <a class="btn btn-sm btn-primary" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>"><i class="fas fa-eye"></i></a>
-                        <a class="btn btn-sm btn-success" href="?export=csv&amp;id=<?php echo (int)$a['id']; ?>" title="Excel"><i class="fas fa-file-excel"></i></a>
+                        <div class="adm-action-icons">
+                        <a class="adm-icon-btn adm-icon-btn--view" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>" title="View" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <?php echo adminExcelIcon('honor-applications.php', (int)$a['id']); ?>
                         <?php echo adminPrintFormIcon('honor', (int)$a['id']); ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; endif; ?>

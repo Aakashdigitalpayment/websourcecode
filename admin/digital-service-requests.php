@@ -249,7 +249,7 @@ try {
                     <div class="dsr-soft-bg p-3 rounded"><?php echo nl2br(e($request['request_details'])); ?></div>
                     <?php endif; ?>
                     <?php if ($request['attachment']): ?>
-                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo SITE_URL . e($request['attachment']); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn"><i class="fas fa-file"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
+                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo htmlspecialchars(adminPublicFileUrl($request['attachment']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn"><i class="fas fa-file"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
                     <?php endif; ?>
                 </div>
                 <?php if ($request['admin_remarks']): ?>

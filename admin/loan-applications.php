@@ -62,12 +62,12 @@ if (isset($_POST['update_status'])) {
         }
         /* Member लाई status notification — email/SMS, channel-wise audit */
         try {
-            $nRow = $db->prepare("SELECT full_name, email, phone, tracking_id FROM loan_applications WHERE id=?");
+            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM loan_applications WHERE id=?");
             $nRow->execute([$id]);
             $nData = $nRow->fetch();
             if ($nData) {
                 $r = sendMemberStatusUpdate('loan',
-                    $nData['email'] ?? '', $nData['phone'] ?? '', $nData['full_name'] ?? '',
+                    $nData['email'] ?? '', $nData['mobile'] ?? '', $nData['full_name'] ?? '',
                     $status, $remarks, $nData['tracking_id'] ?? '', !$notifyOptIn);
                 if (is_array($r)) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
@@ -209,8 +209,9 @@ $offset = ($page - 1) * $limit;
 try {
     $lcnt = $db->prepare("SELECT COUNT(*) FROM loan_applications WHERE $where"); $lcnt->execute($lparams); $total = $lcnt->fetchColumn();
     $totalPages = ceil($total / $limit);
-    $lstmt = $db->prepare("SELECT * FROM loan_applications WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $lstmt->execute(array_merge($lparams, [$limit, $offset])); $applications = $lstmt->fetchAll();
+    $lim = (int)$limit; $off = (int)$offset;
+    $lstmt = $db->prepare("SELECT * FROM loan_applications WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $lstmt->execute($lparams); $applications = $lstmt->fetchAll();
     $totalAmount = $db->query("SELECT SUM(loan_amount) FROM loan_applications WHERE status='pending'")->fetchColumn();
 } catch (Exception $e) { $applications = []; $total = 0; $totalPages = 0; $totalAmount = 0; }
 
@@ -599,7 +600,7 @@ $loanFilterQs = array_filter([
             <?php if (empty($applications)): ?>
             <tr class="no-results-row"><td colspan="8"><i class="fas fa-inbox fa-2x d-block mb-2"></i><?php echo $__t('कुनै आवेदन फेला परेन।', 'No applications found.'); ?></td></tr>
             <?php else: foreach ($applications as $app):
-                $trackId = $app['tracking_id'] ?: 'LNP-' . str_pad($app['id'], 6, '0', STR_PAD_LEFT);
+                $trackId = $app['tracking_id'] ?: 'LOAN-' . str_pad((string)$app['id'], 6, '0', STR_PAD_LEFT);
                 $initLetter = mb_strtoupper(mb_substr($app['full_name'] ?? 'A', 0, 1));
             ?>
             <tr data-status="<?php echo htmlspecialchars($app['status']); ?>">
@@ -635,8 +636,8 @@ $loanFilterQs = array_filter([
                         <a href="loan-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत हेर्नुहोस्', 'View details'); ?>" aria-label="View">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="loan-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel" style="color:#15803d;">
-                            <i class="fas fa-file-excel"></i>
+                        <a href="loan-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel">
+                            <i class="fas fa-file-excel text-success"></i>
                         </a>
                         <?php echo adminPrintFormIcon('loan', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending' || $app['status'] === 'processing'): ?>

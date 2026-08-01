@@ -200,8 +200,10 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
     $cols = [
         'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Name' => 'name', 'Phone' => 'phone',
         'Email' => 'email', 'Member ID' => 'member_id', 'Purpose' => 'purpose',
-        'Preferred Date' => 'preferred_date', 'Preferred Time' => 'preferred_time',
-        'Branch' => 'branch', 'Visit Kind' => 'visit_kind', 'Status' => 'status', 'Created At' => 'created_at',
+        'Purpose Detail' => 'purpose_detail', 'Preferred Date' => 'preferred_date',
+        'Preferred Time' => 'preferred_time', 'Branch' => 'branch', 'Visit Kind' => 'visit_kind',
+        'Contact Person' => 'contact_person', 'Org Address' => 'organization_address',
+        'Status' => 'status', 'Remarks' => 'remarks', 'Created At' => 'created_at',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
@@ -212,8 +214,9 @@ $offset = ($page - 1) * $limit;
 try {
     $cnt = $db->prepare("SELECT COUNT(*) FROM appointments WHERE $where"); $cnt->execute($aptParams); $total = $cnt->fetchColumn();
     $totalPages = ceil($total / $limit);
-    $stmt = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
-    $stmt->execute(array_merge($aptParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY preferred_date DESC, created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt->execute($aptParams); $appointments = $stmt->fetchAll();
 } catch (Exception $e) {
     error_log('[admin/appointments list] ' . $e->getMessage());
     /* Fallback without coop columns if older DB somehow skipped safeAddColumn */
@@ -226,8 +229,9 @@ try {
         }
         $cnt = $db->prepare("SELECT COUNT(*) FROM appointments WHERE $whereFb"); $cnt->execute($fbParams); $total = $cnt->fetchColumn();
         $totalPages = ceil($total / $limit);
-        $stmt = $db->prepare("SELECT * FROM appointments WHERE $whereFb ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
-        $stmt->execute(array_merge($fbParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
+        $lim = (int)$limit; $off = (int)$offset;
+        $stmt = $db->prepare("SELECT * FROM appointments WHERE $whereFb ORDER BY preferred_date DESC, created_at DESC LIMIT {$lim} OFFSET {$off}");
+        $stmt->execute($fbParams); $appointments = $stmt->fetchAll();
     } catch (Exception $e2) {
         error_log('[admin/appointments list fallback] ' . $e2->getMessage());
         $appointments = []; $total = 0; $totalPages = 0;
@@ -301,7 +305,7 @@ if ($viewApt):
         <h5 class="mb-0">
             <i class="lucide-icon me-2" aria-hidden="true" data-lucide="calendar-check"></i>भेटघाट विवरण
             <code class="apt-track-chip">
-                APT-<?php echo str_pad($viewApt['id'], 6, '0', STR_PAD_LEFT); ?>
+                <?php echo htmlspecialchars($viewApt['tracking_id'] ?: ('APT-' . str_pad((string)$viewApt['id'], 6, '0', STR_PAD_LEFT))); ?>
             </code>
             <?php if ($isCoopVisit): ?>
             <span class="badge bg-primary ms-1">सहकारी भ्रमण</span>

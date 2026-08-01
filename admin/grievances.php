@@ -244,7 +244,11 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
     }
     $cols = [
         'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Name' => 'name', 'Phone' => 'phone',
-        'Email' => 'email', 'Subject' => 'subject', 'Status' => 'status', 'Created At' => 'created_at',
+        'Email' => 'email', 'Member ID' => 'member_id', 'Category' => 'category',
+        'Subject' => 'subject', 'Description' => 'description',
+        'Anonymous' => static fn(array $r) => !empty($r['is_anonymous']) ? 'yes' : 'no',
+        'Status' => 'status', 'Admin Response' => 'admin_response', 'Admin Note' => 'admin_note',
+        'Created At' => 'created_at',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
@@ -254,8 +258,9 @@ try {
     $cnt = $db->prepare("SELECT COUNT(*) FROM grievances WHERE $where");
     $cnt->execute($params);
     $filteredTotal = (int)$cnt->fetchColumn();
-    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $stmt->execute(array_merge($params, [$limit, $offset]));
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt->execute($params);
     $grievances = $stmt->fetchAll();
 } catch (Exception $e) { $grievances = []; $filteredTotal = 0; }
 $totalPages = max(1, (int)ceil($filteredTotal / $limit));

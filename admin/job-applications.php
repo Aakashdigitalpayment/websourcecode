@@ -207,8 +207,11 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
         $fname = adminExcelFilename('job-applications');
     }
     $cols = [
-        'ID' => 'id', 'Job Title' => 'job_title', 'Full Name' => 'full_name',
-        'Phone' => 'phone', 'Email' => 'email', 'Status' => 'status', 'Created At' => 'created_at',
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Job Title' => 'job_title', 'Full Name' => 'full_name',
+        'Phone' => 'phone', 'Email' => 'email', 'Address' => 'address',
+        'Education' => 'education', 'Experience' => 'experience',
+        'Expected Salary' => 'expected_salary', 'Status' => 'status',
+        'Admin Notes' => 'admin_notes', 'Created At' => 'created_at',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }

@@ -174,7 +174,14 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
         'Member ID' => 'member_id', 'Phone' => 'phone', 'Email' => 'email',
         'Claim Type' => 'claim_type', 'Claim Amount' => 'claim_amount',
         'Approved Amount' => 'approved_amount', 'Status' => 'status',
-        'Description' => 'description', 'Created At' => 'created_at', 'Admin Remarks' => 'admin_remarks',
+        'Description' => 'description',
+        'Deceased Name' => 'deceased_name', 'Deceased Relation' => 'deceased_relation',
+        'Death Date' => 'death_date', 'Beneficiary' => 'beneficiary_name',
+        'Delivery Date' => 'delivery_date', 'Hospital' => 'hospital_name',
+        'Disease/Injury' => 'disease_illness', 'Treatment Date' => 'treatment_date',
+        'Hospital/Clinic' => 'hospital_clinic', 'Policy No' => 'policy_number',
+        'Insurer' => 'insurer_name', 'Supporting Docs' => 'supporting_documents',
+        'Created At' => 'created_at', 'Admin Remarks' => 'admin_remarks',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }

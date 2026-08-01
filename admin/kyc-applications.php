@@ -91,6 +91,8 @@ if (!function_exists('kycExportAmlLabelMap')) {
             'ID', 'Tracking ID', 'Member ID', 'Full Name', 'Full Name EN',
             'DOB BS', 'DOB AD', 'Gender', 'Marital Status', 'Nationality',
             'Mobile', 'Email', 'Permanent Address', 'Temporary Address',
+            'Perm Province', 'Perm District', 'Perm Municipality', 'Perm Ward', 'Perm Tole',
+            'Temp Province', 'Temp District', 'Temp Municipality', 'Temp Ward', 'Temp Tole',
             'Citizenship No', 'Citizenship Issued Date', 'Citizenship Issued Place',
             'National ID', 'Father Name', 'Mother Name', 'Grandfather Name', 'Spouse Name',
             'Occupation', 'Organization', 'Monthly Income', 'Account Type', 'Branch',
@@ -161,6 +163,16 @@ if (!function_exists('kycExportAmlLabelMap')) {
             (string)($row['email'] ?? ''),
             (string)($row['permanent_address'] ?? ''),
             (string)($row['temporary_address'] ?? ''),
+            (string)($row['permanent_province'] ?? ''),
+            (string)($row['permanent_district'] ?? ''),
+            (string)($row['permanent_municipality'] ?? ''),
+            (string)($row['permanent_ward'] ?? ''),
+            (string)($row['permanent_tole'] ?? ''),
+            (string)($row['temporary_province'] ?? ''),
+            (string)($row['temporary_district'] ?? ''),
+            (string)($row['temporary_municipality'] ?? ''),
+            (string)($row['temporary_ward'] ?? ''),
+            (string)($row['temporary_tole'] ?? ''),
             (string)($row['citizenship_no'] ?? ''),
             (string)($row['citizenship_issued_date'] ?? ''),
             (string)($row['citizenship_issued_place'] ?? ''),
@@ -482,12 +494,12 @@ if (isset($_POST['update_status'])) {
         }
         /* Member लाई status notification — email/SMS */
         try {
-            $nRow = $db->prepare("SELECT full_name, email, phone, mobile, tracking_id FROM kyc_applications WHERE id=?");
+            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=?");
             $nRow->execute([$id]);
             $nData = $nRow->fetch();
             if ($nData) {
                 $r = sendMemberStatusUpdate('kyc',
-                    $nData['email'] ?? '', $nData['phone'] ?? $nData['mobile'] ?? '', $nData['full_name'] ?? '',
+                    $nData['email'] ?? '', $nData['mobile'] ?? '', $nData['full_name'] ?? '',
                     $status, $remarks, $nData['tracking_id'] ?? '', !$notifyOptIn);
                 if (is_array($r)) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
@@ -497,7 +509,7 @@ if (isset($_POST['update_status'])) {
                 if ($status === 'approved') {
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
-                        $nData['mobile'] ?? $nData['phone'] ?? '');
+                        $nData['mobile'] ?? '');
                 }
             }
         } catch (Exception $e) {}
@@ -669,9 +681,13 @@ $offset = ($page - 1) * $limit;
 try {
     $cntStmt2 = $db->prepare("SELECT COUNT(*) FROM kyc_applications WHERE $where"); $cntStmt2->execute($params2); $total = $cntStmt2->fetchColumn();
     $totalPages    = ceil($total / $limit);
-    $stmt2 = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $stmt2->execute(array_merge($params2, [$limit, $offset])); $applications = $stmt2->fetchAll();
-} catch (Throwable $e) { $applications = []; $total = 0; $totalPages = 0; }
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt2 = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt2->execute($params2); $applications = $stmt2->fetchAll();
+} catch (Throwable $e) {
+    error_log('[kyc-applications list] ' . $e->getMessage());
+    $applications = []; $total = 0; $totalPages = 0;
+}
 
 $pendingCount = $approvedCount = $rejectedCount = $incompleteCount = $partialCount = 0;
 if ($db instanceof PDO) {
@@ -735,8 +751,7 @@ if ($viewApp):
         </h5>
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
-            <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$viewApp['id']; ?>"
-               class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Excel</a>
+            <?php echo adminExcelSingleLink('kyc-applications.php', (int)$viewApp['id']); ?>
             <?php echo adminPrintFormLink('kyc', (int)$viewApp['id']); ?>
         </div>
     </div>
@@ -766,10 +781,16 @@ if ($viewApp):
                             <td><code class="text-primary fw-bold"><?php echo htmlspecialchars($viewApp['member_id'] ?? '—'); ?></code></td></tr>
                         <tr><th>Full Name (EN)</th>
                             <td><?php echo htmlspecialchars($viewApp['full_name_en'] ?: '—'); ?></td></tr>
-                        <tr><th>जन्म मिति</th>
+                        <tr><th>जन्म मिति (BS)</th>
                             <td><?php echo htmlspecialchars($viewApp['dob_bs'] ?: '—'); ?></td></tr>
+                        <tr><th>जन्म मिति (AD)</th>
+                            <td><?php echo htmlspecialchars($viewApp['dob_ad'] ?? '—'); ?></td></tr>
                         <tr><th>लिङ्ग</th>
                             <td><?php echo htmlspecialchars($viewApp['gender'] ?: '—'); ?></td></tr>
+                        <tr><th>वैवाहिक अवस्था</th>
+                            <td><?php echo htmlspecialchars($viewApp['marital_status'] ?? '—'); ?></td></tr>
+                        <tr><th>राष्ट्रियता</th>
+                            <td><?php echo htmlspecialchars($viewApp['nationality'] ?? '—'); ?></td></tr>
                         <tr><th>मोबाइल</th>
                             <td><a href="tel:<?php echo htmlspecialchars($viewApp['mobile'] ?? ''); ?>" class="text-decoration-none fw-semibold"><?php echo htmlspecialchars($viewApp['mobile'] ?? '—'); ?></a></td></tr>
                         <tr><th>इमेल</th>
@@ -817,15 +838,47 @@ if ($viewApp):
                             </td>
                         </tr>
                         <tr><th>स्थायी ठेगाना</th>
-                            <td><?php echo htmlspecialchars($viewApp['permanent_address'] ?: '—'); ?></td></tr>
+                            <td><?php
+                                $permBits = array_filter([
+                                    $viewApp['permanent_address'] ?? '',
+                                    trim(implode(', ', array_filter([
+                                        !empty($viewApp['permanent_tole']) ? $viewApp['permanent_tole'] : '',
+                                        !empty($viewApp['permanent_ward']) ? ('वडा ' . $viewApp['permanent_ward']) : '',
+                                        $viewApp['permanent_municipality'] ?? '',
+                                        $viewApp['permanent_district'] ?? '',
+                                        $viewApp['permanent_province'] ?? '',
+                                    ]))),
+                                ]);
+                                echo htmlspecialchars($permBits ? implode(' · ', array_unique($permBits)) : '—');
+                            ?></td></tr>
                         <tr><th>अस्थायी ठेगाना</th>
-                            <td><?php echo htmlspecialchars($viewApp['temporary_address'] ?: '—'); ?></td></tr>
+                            <td><?php
+                                $tempBits = array_filter([
+                                    $viewApp['temporary_address'] ?? '',
+                                    trim(implode(', ', array_filter([
+                                        !empty($viewApp['temporary_tole']) ? $viewApp['temporary_tole'] : '',
+                                        !empty($viewApp['temporary_ward']) ? ('वडा ' . $viewApp['temporary_ward']) : '',
+                                        $viewApp['temporary_municipality'] ?? '',
+                                        $viewApp['temporary_district'] ?? '',
+                                        $viewApp['temporary_province'] ?? '',
+                                    ]))),
+                                ]);
+                                echo htmlspecialchars($tempBits ? implode(' · ', array_unique($tempBits)) : '—');
+                            ?></td></tr>
                         <tr><th>बुबाको नाम</th>
                             <td><?php echo htmlspecialchars($viewApp['father_name'] ?: '—'); ?></td></tr>
                         <tr><th>आमाको नाम</th>
                             <td><?php echo htmlspecialchars($viewApp['mother_name'] ?: '—'); ?></td></tr>
+                        <tr><th>हजुरबुबाको नाम</th>
+                            <td><?php echo htmlspecialchars($viewApp['grandfather_name'] ?? '—'); ?></td></tr>
+                        <tr><th>पति/पत्नीको नाम</th>
+                            <td><?php echo htmlspecialchars($viewApp['spouse_name'] ?? '—'); ?></td></tr>
                         <tr><th>पेशा</th>
                             <td><?php echo htmlspecialchars($viewApp['occupation'] ?: '—'); ?></td></tr>
+                        <tr><th>संस्था / संगठन</th>
+                            <td><?php echo htmlspecialchars($viewApp['organization_name'] ?? ($viewApp['organization'] ?? '—')); ?></td></tr>
+                        <tr><th>मासिक आय</th>
+                            <td><?php echo htmlspecialchars($viewApp['monthly_income'] ?? '—'); ?></td></tr>
                         <tr><th>खाता प्रकार</th>
                             <td><?php echo htmlspecialchars($viewApp['account_type'] ?: '—'); ?></td></tr>
                         <tr><th>शाखा</th>
@@ -846,9 +899,9 @@ if ($viewApp):
                     </table>
                 </div>
 
-                <?php if (!empty($viewApp['citizenship_front']) || !empty($viewApp['citizenship_back']) || !empty($viewApp['national_id_card'])): ?>
+                <?php if (!empty($viewApp['citizenship_front']) || !empty($viewApp['citizenship_back']) || !empty($viewApp['national_id_card']) || !empty($viewApp['signature']) || !empty($viewApp['left_thumb']) || !empty($viewApp['right_thumb'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-id-card"></i>नागरिकता / National ID प्रतिलिपिहरू</div>
+                    <div class="adm-info-group-header"><i class="fas fa-id-card"></i>नागरिकता / National ID / औंठाछाप</div>
                     <div class="p-3">
                     <div class="row g-3">
                         <?php if (!empty($viewApp['citizenship_front'])): ?>
@@ -875,6 +928,33 @@ if ($viewApp):
                                 <img src="../<?php echo htmlspecialchars($viewApp['national_id_card']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="National ID Card">
                                 <div class="small text-muted fw-semibold">National ID</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['signature'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['signature']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['signature']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Signature">
+                                <div class="small text-muted fw-semibold">दस्तखत</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['left_thumb'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Left Thumb">
+                                <div class="small text-muted fw-semibold">बायाँ औंठाछाप</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['right_thumb'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Right Thumb">
+                                <div class="small text-muted fw-semibold">दायाँ औंठाछाप</div>
                             </a>
                         </div>
                         <?php endif; ?>
@@ -954,6 +1034,7 @@ if ($viewApp):
                             'past_crime_declared' => 'अपराध घोषणा',
                             'landlord_name' => 'घरधनीको नाम',
                             'landlord_contact' => 'घरधनी सम्पर्क',
+                            'is_rented' => 'भाडामा बस्ने',
                             'voter_id_card_no' => 'मतदाता परिचयपत्र नं.',
                             'polling_station' => 'मतदान स्थल',
                             'member_purpose' => 'सदस्यता उद्देश्य',
@@ -961,6 +1042,8 @@ if ($viewApp):
                             'self_other_coop_details' => 'अन्य सहकारी विवरण',
                             'family_same_coop_member' => 'परिवार यसै सहकारीमा',
                             'family_same_coop_details' => 'परिवार सदस्य विवरण',
+                            'family_same_member_name' => 'परिवार सदस्य नाम',
+                            'family_same_member_id' => 'परिवार सदस्य ID',
                             'annual_family_income' => 'वार्षिक पारिवारिक आम्दानी',
                             'net_worth_details' => 'सम्पत्ति/Net Worth',
                             'annual_debit_credit_estimate' => 'वार्षिक डेबिट/क्रेडिट',

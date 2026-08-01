@@ -61,6 +61,46 @@ function pf_add_row(array &$rows, string $np, string $en, $val, bool $onlyFilled
     if ($onlyFilled && $s === '') return;
     $rows[] = [$np, $en, $s === '' ? '—' : pf_e($s)];
 }
+/** Compose address from structured columns, fall back to flat text. */
+function pf_addr_line(array $data, string $prefix, string $flatKey = ''): string {
+    $flatKey = $flatKey !== '' ? $flatKey : ($prefix . '_address');
+    $flat = trim((string)($data[$flatKey] ?? ''));
+    $parts = [];
+    foreach (['tole', 'ward', 'municipality', 'district', 'province'] as $k) {
+        $v = trim((string)($data[$prefix . '_' . $k] ?? ''));
+        if ($v === '') continue;
+        $parts[] = ($k === 'ward') ? ('वडा ' . $v) : $v;
+    }
+    $composed = implode(', ', $parts);
+    if ($flat !== '' && $composed !== '' && mb_stripos($flat, $composed) === false) {
+        return $flat . ' · ' . $composed;
+    }
+    return $flat !== '' ? $flat : $composed;
+}
+/** Push image/file docs into $extraDocs from [np, en, path] defs (path may be CSV). */
+function pf_collect_docs(array &$extraDocs, array $defs): void {
+    foreach ($defs as $def) {
+        $lnp = (string)($def[0] ?? '');
+        $len = (string)($def[1] ?? '');
+        $raw = trim((string)($def[2] ?? ''));
+        if ($raw === '') continue;
+        $paths = preg_split('/\s*,\s*/', $raw) ?: [$raw];
+        $i = 0;
+        foreach ($paths as $p) {
+            $p = trim((string)$p);
+            if ($p === '') continue;
+            $u = pf_url($p);
+            if ($u === '') continue;
+            $i++;
+            $extraDocs[] = [
+                'label_np' => $i > 1 ? ($lnp . ' #' . $i) : $lnp,
+                'label_en' => $i > 1 ? ($len . ' #' . $i) : $len,
+                'url' => $u,
+                'is_file' => !preg_match('/\.(jpe?g|png|gif|webp)$/i', $p),
+            ];
+        }
+    }
+}
 
 /* ── Data fetch & section builder ── */
 $data        = null;
@@ -69,6 +109,9 @@ $formTitleEn = '';
 $trackId     = '';
 $statusLabel = '';
 $photoPath   = '';
+$sigPath     = '';
+$leftThumbPath = '';
+$rightThumbPath = '';
 $sections    = [];   // [ ['title'=>'…', 'rows'=>… ] ] or kind=family|income_expense|docs
 $extraDocs   = [];
 
@@ -146,8 +189,22 @@ case 'kyc':
     pf_add_row($familyCol, 'पति/पत्नीको नाम', "Spouse's Name", $data['spouse_name'] ?? '');
 
     $addrRows = [];
-    pf_add_row($addrRows, 'स्थायी ठेगाना', 'Permanent Address', $data['permanent_address'] ?? $data['address'] ?? '');
-    pf_add_row($addrRows, 'अस्थायी ठेगाना', 'Temporary Address', $data['temporary_address'] ?? '');
+    $permLine = pf_addr_line($data, 'permanent', 'permanent_address');
+    if ($permLine === '') {
+        $permLine = trim((string)($data['address'] ?? ''));
+    }
+    pf_add_row($addrRows, 'स्थायी ठेगाना', 'Permanent Address', $permLine);
+    pf_add_row($addrRows, 'अस्थायी ठेगाना', 'Temporary Address', pf_addr_line($data, 'temporary', 'temporary_address'));
+    pf_add_row($addrRows, 'स्थायी प्रदेश', 'Permanent Province', $data['permanent_province'] ?? '', true);
+    pf_add_row($addrRows, 'स्थायी जिल्ला', 'Permanent District', $data['permanent_district'] ?? '', true);
+    pf_add_row($addrRows, 'स्थायी न.पा./गा.पा.', 'Permanent Municipality', $data['permanent_municipality'] ?? '', true);
+    pf_add_row($addrRows, 'स्थायी वडा', 'Permanent Ward', $data['permanent_ward'] ?? '', true);
+    pf_add_row($addrRows, 'स्थायी टोल', 'Permanent Tole', $data['permanent_tole'] ?? '', true);
+    pf_add_row($addrRows, 'अस्थायी प्रदेश', 'Temporary Province', $data['temporary_province'] ?? '', true);
+    pf_add_row($addrRows, 'अस्थायी जिल्ला', 'Temporary District', $data['temporary_district'] ?? '', true);
+    pf_add_row($addrRows, 'अस्थायी न.पा./गा.पा.', 'Temporary Municipality', $data['temporary_municipality'] ?? '', true);
+    pf_add_row($addrRows, 'अस्थायी वडा', 'Temporary Ward', $data['temporary_ward'] ?? '', true);
+    pf_add_row($addrRows, 'अस्थायी टोल', 'Temporary Tole', $data['temporary_tole'] ?? '', true);
     pf_add_row($addrRows, 'घरधनीको नाम', 'Landlord Name', $aml['landlord_name'] ?? '', true);
     pf_add_row($addrRows, 'घरधनी सम्पर्क', 'Landlord Contact', $aml['landlord_contact'] ?? '', true);
     pf_add_row($addrRows, 'भाडामा बस्ने', 'Is Rented', $aml['is_rented'] ?? '', true);
@@ -160,10 +217,6 @@ case 'kyc':
     pf_add_row($occRows, 'पेशा', 'Occupation', $data['occupation'] ?? '');
     pf_add_row($occRows, 'संस्था / संगठन', 'Organization', $data['organization_name'] ?? $data['organization'] ?? '');
     pf_add_row($occRows, 'मासिक आय', 'Monthly Income', $data['monthly_income'] ?? '');
-    pf_add_row($occRows, 'आय स्रोत', 'Income Source', $data['income_source'] ?? '', true);
-    if (isset($data['annual_income']) && (float)$data['annual_income'] > 0) {
-        pf_add_row($occRows, 'वार्षिक आय', 'Annual Income', pf_cur($data['annual_income']));
-    }
     pf_add_row($occRows, 'पेशा/व्यवसाय स्थान', 'Occupation Location', $aml['occupation_location'] ?? '', true);
     pf_add_row($occRows, 'व्यवसाय नाम', 'Business Name', $aml['occupation_business_name'] ?? '', true);
     pf_add_row($occRows, 'Business PAN नं.', 'Business PAN', $aml['business_pan_no'] ?? '', true);
@@ -255,12 +308,11 @@ case 'kyc':
         ['नागरिकता पछाडि', 'Citizenship Back', $data['citizenship_back'] ?? ''],
         ['National ID कार्ड', 'National ID Card', $data['national_id_card'] ?? ''],
         ['दस्तखत', 'Signature', $data['signature'] ?? ''],
+        ['बायाँ औंठाछाप', 'Left Thumb', $data['left_thumb'] ?? ''],
+        ['दायाँ औंठाछाप', 'Right Thumb', $data['right_thumb'] ?? ''],
         ['फोटो', 'Photo', $data['photo'] ?? ''],
     ];
-    foreach ($docDefs as [$lnp, $len, $p]) {
-        $u = pf_url($p);
-        if ($u !== '') $extraDocs[] = ['label_np' => $lnp, 'label_en' => $len, 'url' => $u];
-    }
+    pf_collect_docs($extraDocs, $docDefs);
     if (!empty($data['admin_attachment'])) {
         $extraDocs[] = [
             'label_np' => 'Admin संलग्न',
@@ -272,6 +324,9 @@ case 'kyc':
     if (!empty($extraDocs)) {
         $sections[] = ['title' => 'ठ. संलग्न कागजात / Attached Documents', 'kind' => 'docs', 'docs' => $extraDocs];
     }
+    $sigPath = pf_url($data['signature'] ?? '');
+    $leftThumbPath = pf_url($data['left_thumb'] ?? '');
+    $rightThumbPath = pf_url($data['right_thumb'] ?? '');
     break;
 
 /* ════════════════════════════ LOAN ════════════════════════════ */
@@ -325,9 +380,15 @@ case 'loan':
             ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['remarks'])],
         ]];
     }
+    $loanDocs = [];
+    pf_collect_docs($loanDocs, [
+        ['आवेदक कागजात', 'Applicant Documents', $data['documents'] ?? ''],
+        ['Admin संलग्न', 'Admin Attachment', $data['admin_attachment'] ?? ''],
+    ]);
+    if (!empty($loanDocs)) {
+        $sections[] = ['title'=>'संलग्न कागजात / Attached Documents', 'kind'=>'docs', 'docs'=>$loanDocs];
+    }
     break;
-
-/* ════════════════════════════ WELFARE ════════════════════════════ */
 case 'welfare':
     $st = $db->prepare("SELECT * FROM member_welfare_claims WHERE id=?");
     $st->execute([$id]);  $data = $st->fetch();
@@ -383,6 +444,20 @@ case 'welfare':
             ['बीमा कम्पनी',      'Insurer',               pf_e($data['insurer_name'])],
         ]];
     }
+    if (!empty($data['admin_remarks'])) {
+        $sections[] = ['title'=>'टिप्पणी / Remarks', 'rows'=>[
+            ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['admin_remarks'])],
+        ]];
+    }
+    $wlfDocs = [];
+    pf_collect_docs($wlfDocs, [
+        ['समर्थन कागजात', 'Supporting Documents', $data['supporting_documents'] ?? ''],
+        ['मृत्यु प्रमाणपत्र', 'Death Certificate', $data['death_certificate'] ?? ''],
+        ['संलग्न', 'Attachment', $data['attachment_path'] ?? ($data['attachment'] ?? '')],
+    ]);
+    if (!empty($wlfDocs)) {
+        $sections[] = ['title'=>'संलग्न कागजात / Attached Documents', 'kind'=>'docs', 'docs'=>$wlfDocs];
+    }
     break;
 
 /* ════════════════════════════ DIGITAL ════════════════════════════ */
@@ -437,11 +512,15 @@ case 'digital':
         ['title'=>'अनुरोधकर्ताको जानकारी / Requester Information', 'rows'=>$reqRows],
         ['title'=>'सेवा विवरण / Service Details', 'rows'=>$svcRows],
     ];
-    if (!empty($data['admin_attachment'])) {
-        $sections[] = ['title'=>'संलग्न / Attachment', 'kind'=>'docs', 'docs'=>[[
-            'label_np'=>'Admin संलग्न','label_en'=>'Admin Attachment',
-            'url'=>pf_url($data['admin_attachment']),'is_file'=>true,
-        ]]];
+    if (!empty($data['admin_attachment']) || !empty($data['attachment'])) {
+        $dsrDocs = [];
+        pf_collect_docs($dsrDocs, [
+            ['आवेदक संलग्न', 'Requester Attachment', $data['attachment'] ?? ''],
+            ['Admin संलग्न', 'Admin Attachment', $data['admin_attachment'] ?? ''],
+        ]);
+        if (!empty($dsrDocs)) {
+            $sections[] = ['title'=>'संलग्न / Attachment', 'kind'=>'docs', 'docs'=>$dsrDocs];
+        }
     }
     break;
 
@@ -483,6 +562,18 @@ case 'honor':
             ['विवरण', 'Description', pf_e($data['description'])],
         ]],
     ];
+    if (!empty($data['admin_remarks'])) {
+        $sections[] = ['title'=>'टिप्पणी / Remarks', 'rows'=>[
+            ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['admin_remarks'])],
+        ]];
+    }
+    $hnrDocs = [];
+    pf_collect_docs($hnrDocs, [
+        ['संलग्न', 'Attachment', $data['attachment'] ?? ''],
+    ]);
+    if (!empty($hnrDocs)) {
+        $sections[] = ['title'=>'संलग्न कागजात / Attached Documents', 'kind'=>'docs', 'docs'=>$hnrDocs];
+    }
     break;
 
 /* ════════════════════════════ ACCOUNT ════════════════════════════ */
@@ -501,10 +592,12 @@ case 'account':
         ['title'=>'व्यक्तिगत जानकारी / Personal Information', 'rows'=>[
             ['पूरा नाम (नेपाली)',  'Full Name (Nepali)',    pf_e($data['full_name'])],
             ['पूरा नाम (EN)',      'Full Name (English)',   pf_e($data['full_name_en'])],
-            ['जन्म मिति',         'Date of Birth',         pf_e($data['dob_bs'])],
+            ['जन्म मिति (BS)',     'Date of Birth (BS)',    pf_e($data['dob_bs'])],
+            ['जन्म मिति (AD)',     'Date of Birth (AD)',    pf_e($data['dob_ad'] ?? '')],
             ['लिङ्ग',             'Gender',                pf_e($data['gender'])],
             ['वैवाहिक अवस्था',    'Marital Status',        pf_e($data['marital_status'])],
             ['पेशा',              'Occupation',            pf_e($data['occupation'])],
+            ['मासिक आय',          'Monthly Income',        pf_e($data['monthly_income'] ?? '')],
         ]],
         ['title'=>'सम्पर्क / ठेगाना / Contact & Address', 'rows'=>[
             ['मोबाइल',            'Mobile',                pf_e($data['mobile'])],
@@ -538,6 +631,21 @@ case 'account':
             ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['remarks'])],
         ]];
     }
+    if (!empty($data['photo'])) {
+        $photoPath = pf_url($data['photo']);
+    }
+    $accDocs = [];
+    pf_collect_docs($accDocs, [
+        ['फोटो', 'Photo', $data['photo'] ?? ''],
+        ['नागरिकता अगाडि', 'Citizenship Front', $data['citizenship_front'] ?? ''],
+        ['नागरिकता पछाडि', 'Citizenship Back', $data['citizenship_back'] ?? ''],
+        ['दस्तखत', 'Signature', $data['signature'] ?? ''],
+        ['Admin संलग्न', 'Admin Attachment', $data['admin_attachment'] ?? ''],
+    ]);
+    if (!empty($accDocs)) {
+        $sections[] = ['title'=>'संलग्न कागजात / Attached Documents', 'kind'=>'docs', 'docs'=>$accDocs];
+    }
+    $sigPath = pf_url($data['signature'] ?? '');
     break;
 
 /* ════════════════════════════ APPOINTMENT ════════════════════════════ */
@@ -892,6 +1000,7 @@ body {
 }
 .pf-sig-box { flex: 1; min-width: 140px; }
 .pf-sig-line { border-bottom: 1.5px solid #374151; height: 38px; margin-bottom: 4px; }
+.pf-sig-img { max-height: 56px; max-width: 100%; object-fit: contain; display: block; margin: 0 auto 6px; }
 .pf-sig-label { font-size: 10.5px; color: var(--c-muted); }
 
 /* ── Office section ── */
@@ -1156,16 +1265,32 @@ body {
             <small>I hereby declare that all information provided above is true, correct and complete. This application was submitted through digital medium and I accept all applicable rules, regulations and terms of the cooperative act and institution. I understand that any false information may result in rejection or legal action by the institution.</small></p>
             <div class="pf-sig-row">
                 <div class="pf-sig-box">
+                    <?php if ($sigPath): ?>
+                    <img class="pf-sig-img" src="<?php echo pf_e($sigPath); ?>" alt="Signature">
+                    <?php else: ?>
                     <div class="pf-sig-line"></div>
+                    <?php endif; ?>
                     <div class="pf-sig-label">आवेदकको दस्तखत / Applicant's Signature</div>
                 </div>
                 <div class="pf-sig-box">
+                    <?php if ($leftThumbPath): ?>
+                    <img class="pf-sig-img" src="<?php echo pf_e($leftThumbPath); ?>" alt="Left Thumb">
+                    <?php else: ?>
                     <div class="pf-sig-line"></div>
-                    <div class="pf-sig-label">औंठाछाप (बायाँ बुढी औंला) / Left Thumb Print</div>
+                    <?php endif; ?>
+                    <div class="pf-sig-label">औंठाछाप (बायाँ) / Left Thumb Print</div>
                 </div>
                 <div class="pf-sig-box">
+                    <?php if ($rightThumbPath): ?>
+                    <img class="pf-sig-img" src="<?php echo pf_e($rightThumbPath); ?>" alt="Right Thumb">
+                    <div class="pf-sig-label">औंठाछाप (दायाँ) / Right Thumb Print</div>
+                    <?php elseif ($type === 'kyc'): ?>
+                    <div class="pf-sig-line"></div>
+                    <div class="pf-sig-label">औंठाछाप (दायाँ) / Right Thumb Print</div>
+                    <?php else: ?>
                     <div class="pf-sig-line"></div>
                     <div class="pf-sig-label">मिति / Date</div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

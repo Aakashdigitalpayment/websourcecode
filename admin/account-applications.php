@@ -191,8 +191,11 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
     $cols = [
         'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Full Name' => 'full_name', 'Full Name EN' => 'full_name_en',
         'Mobile' => 'mobile', 'Email' => 'email', 'Account Type' => 'account_type', 'Branch' => 'branch',
-        'Citizenship No' => 'citizenship_no', 'DOB BS' => 'dob_bs', 'Gender' => 'gender',
-        'Permanent Address' => 'permanent_address', 'Status' => 'status', 'Remarks' => 'remarks',
+        'Citizenship No' => 'citizenship_no', 'DOB BS' => 'dob_bs', 'DOB AD' => 'dob_ad', 'Gender' => 'gender',
+        'Permanent Address' => 'permanent_address', 'Monthly Income' => 'monthly_income',
+        'Initial Deposit' => 'initial_deposit', 'Nominee Name' => 'nominee_name',
+        'Nominee Relation' => 'nominee_relation', 'Nominee Phone' => 'nominee_phone',
+        'Status' => 'status', 'Remarks' => 'remarks',
         'Created At' => 'created_at', 'Updated At' => 'updated_at',
     ];
     adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
@@ -201,9 +204,13 @@ if (adminExcelIsExportRequest() && $db instanceof PDO) {
 try {
     $cntS = $db->prepare("SELECT COUNT(*) FROM account_applications WHERE $where"); $cntS->execute($params); $totalCount = (int)$cntS->fetchColumn();
     $totalPages = max(1, ceil($totalCount / $limit));
-    $stmt = $db->prepare("SELECT * FROM account_applications WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $stmt->execute(array_merge($params, [$limit, $offset])); $applications = $stmt->fetchAll();
-} catch (Exception $e) { $applications = []; $totalCount = 0; $totalPages = 1; }
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt = $db->prepare("SELECT * FROM account_applications WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt->execute($params); $applications = $stmt->fetchAll();
+} catch (Exception $e) {
+    error_log('[account-applications list] ' . $e->getMessage());
+    $applications = []; $totalCount = 0; $totalPages = 1;
+}
 
 /* ─── Single view ─── */
 $viewApp = null;
