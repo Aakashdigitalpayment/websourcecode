@@ -798,6 +798,28 @@ if (!function_exists('memberSsotPrefillEmptyOnlyFromKyc')) {
     }
 }
 
+if (!function_exists('memberSsotAfterKycWrite')) {
+    /**
+     * KYM save पछि: लिंक + shared contact soft-sync to members (खाली मात्र)।
+     */
+    function memberSsotAfterKycWrite(PDO $db, int $kycId): void
+    {
+        if ($kycId < 1) {
+            return;
+        }
+        try {
+            $st = $db->prepare('SELECT * FROM kyc_applications WHERE id = ? LIMIT 1');
+            $st->execute([$kycId]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            if ($row && function_exists('memberSsotUpsertMemberFromKyc')) {
+                memberSsotUpsertMemberFromKyc($db, $row, 0);
+            }
+        } catch (Throwable $e) {
+            error_log('[member-ssot] afterKycWrite: ' . $e->getMessage());
+        }
+    }
+}
+
 if (!function_exists('memberSsotUpsertMemberFromKyc')) {
     /**
      * On KYM approve: ensure a members row exists for kyc.member_id (SSOT).
@@ -829,17 +851,45 @@ if (!function_exists('memberSsotUpsertMemberFromKyc')) {
         if ($existing) {
             $pk = (int)$existing['id'];
             memberSsotLinkMemberToKyc($db, $pk, $kycId);
-            /* Soft-fill empty contact fields from KYM */
+            /* Shared contact: KYM → members (खाली मात्र) — दोहोरो entry होइन, sync */
+            $address = trim((string)($kyc['permanent_address'] ?? ''));
+            $gender = trim((string)($kyc['gender'] ?? ''));
+            $dobAd = trim((string)($kyc['dob_ad'] ?? ''));
+            if ($dobAd !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dobAd)) {
+                $dobAd = '';
+            }
             try {
                 $db->prepare(
                     "UPDATE members SET
                         name = CASE WHEN name IS NULL OR name = '' THEN ? ELSE name END,
                         phone = CASE WHEN (phone IS NULL OR phone = '') AND ? IS NOT NULL THEN ? ELSE phone END,
-                        email = CASE WHEN (email IS NULL OR email = '') AND ? IS NOT NULL THEN ? ELSE email END
+                        email = CASE WHEN (email IS NULL OR email = '') AND ? IS NOT NULL THEN ? ELSE email END,
+                        address = CASE WHEN (address IS NULL OR address = '') AND ? <> '' THEN ? ELSE address END,
+                        gender = CASE WHEN (gender IS NULL OR gender = '') AND ? <> '' THEN ? ELSE gender END,
+                        dob = CASE WHEN (dob IS NULL OR dob = '' OR dob = '0000-00-00') AND ? <> '' THEN ? ELSE dob END
                      WHERE id = ?"
-                )->execute([$name, $phone, $phone, $email, $email, $pk]);
+                )->execute([
+                    $name,
+                    $phone, $phone,
+                    $email, $email,
+                    $address, $address,
+                    $gender, $gender,
+                    $dobAd, $dobAd,
+                    $pk,
+                ]);
             } catch (Throwable $e) {
-                error_log('[member-ssot] upsert update: ' . $e->getMessage());
+                /* Older schema without address/gender/dob — contact only */
+                try {
+                    $db->prepare(
+                        "UPDATE members SET
+                            name = CASE WHEN name IS NULL OR name = '' THEN ? ELSE name END,
+                            phone = CASE WHEN (phone IS NULL OR phone = '') AND ? IS NOT NULL THEN ? ELSE phone END,
+                            email = CASE WHEN (email IS NULL OR email = '') AND ? IS NOT NULL THEN ? ELSE email END
+                         WHERE id = ?"
+                    )->execute([$name, $phone, $phone, $email, $email, $pk]);
+                } catch (Throwable $e2) {
+                    error_log('[member-ssot] upsert update: ' . $e2->getMessage());
+                }
             }
             return ['ok' => true, 'member_pk' => $pk, 'created' => false, 'message' => 'Existing member linked to KYM'];
         }
@@ -1023,26 +1073,24 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
         $title = 'एक Member ID = एक मान्छे (SSOT)';
-        $flow = '<strong>Members Import (CBS एक पटक)</strong> → KYM stub · बाँकी online/portal · '
-            . '<strong>Portal</strong> = लगइन · नयाँ व्यक्ति = सदस्यता अनुरोध → Member ID।';
+        $flow = '<strong>SSOT = Member ID मात्र।</strong> '
+            . 'Shared (नाम/मोबाइल/इमेल/ठेगान) = <em>एक पटक भर्ने</em> — Members↔KYM auto soft-sync। '
+            . 'KYM-only = कागजात/AML/पूरा फारम · Members-only = पोर्टल पासवर्ड। '
+            . 'CBS Import एक पटक → stub → online/portal भर्ने।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = 'यो पेज = <strong>KYM फाइल समीक्षा</strong>। सामान्य flow: <a href="member-import.php">Members Import (CBS)</a> → KYM stub → सदस्यले online/portal भर्ने → यहाँ approve। '
-                . 'तलको Excel bulk <strong>वैकल्पिक</strong> मात्र — दोहोरो Excel हाल्दा mismatch हुन सक्छ, सामान्यतया नचलाउनुहोस्। '
-                . 'Public: <strong>Member ID + मोबाइल</strong> · खाली field मात्र।';
+            $body = '<strong>दिशा:</strong> पहिले Member (CBS/अनुरोध) → अनि KYM भर्ने। '
+                . 'Members मा भएको नाम/मोबाइल stub मा जान्छ; KYM भरेपछि खाली members field मा फर्कन्छ — <em>दुवैतिर छुट्टै import होइन</em>। '
+                . 'यो पेज = समीक्षा/approve। Excel bulk वैकल्पिक।';
         } elseif ($context === 'portal') {
-            $body = 'पोर्टल अनुरोध: <strong>Member ID + मोबाइल</strong> members सूचीसँग मिल्नुपर्छ। यो पेजले लगइन unlock मात्र गर्छ। '
-                . 'KYM approved देखिन्छ; update गरेपछि admin ले फेरि approve गर्छ।';
+            $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID SSOT)। विस्तृत पहिचान/कागजात यहाँ होइन — <a href="kyc-applications.php">KYM</a> मा। '
-                . 'CBS Excel → <a href="member-import.php">Members Import</a> (KYM stub समेत) · नयाँ: <a href="membership-applications.php">सदस्यता अनुरोध</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
+            $body = 'यो सूची = सदस्यता खाता + लगइन। Shared contact KYM सँग sync। विस्तृत कागजात <a href="kyc-applications.php">KYM</a> मा। '
+                . 'CBS → <a href="member-import.php">Import एक पटक</a>।';
         } elseif ($context === 'import') {
-            $body = 'CBS Excel = <strong>Members Import एक पटक</strong>। त्यसैले KYM stub बन्छ वा खाली field soft-fill — '
-                . '<strong>पहिले भरिएको KYM overwrite हुँदैन</strong>। बाँकी कागजात/फारम online वा portal। '
-                . 'छुट्टै KYM Excel सामान्यतया नचाहिने।';
+            $body = 'CBS Excel <strong>एक पटक</strong> Members मा। Shared field KYM stub मा auto copy — दोहोरो Excel नहाल्नुहोस्। बाँकी online/portal।';
         } elseif ($context === 'membership') {
-            $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा Member ID दिनुहोस् → members stub। '
-                . 'त्यसपछि Online KYM (ID+mobile) / Portal register (उही)।';
+            $body = 'नयाँ व्यक्ति → Member ID दिनुहोस् → members stub (+ पछि KYM)। अनि Online KYM / portal।';
         }
         return '<div class="alert alert-info border-0 shadow-sm py-2 px-3 mb-3 member-ssot-help" role="note">'
             . '<div class="fw-semibold small mb-1"><i class="fas fa-link me-1"></i>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>'
