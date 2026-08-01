@@ -133,6 +133,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     } else {
         $picks = $_POST['picks'] ?? [];   /* picks[position_id] = [candidate_id,...] */
         if (!is_array($picks)) $picks = [];
+        $pickCount = 0;
+        foreach ($picks as $candList) {
+            if (!is_array($candList)) $candList = [$candList];
+            $pickCount += count(array_filter(array_map('intval', $candList)));
+        }
+        if ($pickCount < 1) {
+            $flash = $_t('कम्तीमा एक उम्मेदवार छान्नुहोस्।', 'Please select at least one candidate.'); $flashType = 'warning';
+        } else {
         try {
             $positions = $db->prepare('SELECT id, max_votes_per_voter FROM election_positions WHERE cycle_id=? AND is_active=1');
             $positions->execute([$cycleId]);
@@ -173,6 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                 $flash = $_t('त्रुटि', 'Error') . ': ' . $e->getMessage(); $flashType = 'danger';
             }
         }
+        } // end non-empty picks
     }
 }
 
@@ -234,7 +243,14 @@ require __DIR__ . '/includes/chrome.php';
 <div class="mp-container mp-container-medium">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h1 class="h4 mb-0"><i class="fas fa-check-to-slot me-2"></i><?php echo $_t('मतदान', 'Voting'); ?></h1>
-        <?php if ($cycle): ?><span class="badge bg-light text-dark border"><?php echo $_t('कुल मतदाता', 'Total Voters'); ?>: <?php echo $totalVoters; ?></span><?php endif; ?>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <?php if ($cycle): ?>
+            <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/election-information.php?cycle=' . (int)$cycleId); ?>">
+                <i class="fas fa-info-circle me-1"></i><?php echo $_t('सार्वजनिक जानकारी', 'Public info'); ?>
+            </a>
+            <span class="badge bg-light text-dark border"><?php echo $_t('कुल मतदाता', 'Total Voters'); ?>: <?php echo $totalVoters; ?></span>
+            <?php endif; ?>
+        </div>
     </div>
 
     <?php if ($flash): ?>
@@ -253,17 +269,13 @@ require __DIR__ . '/includes/chrome.php';
                     <?php endif; ?>
                 </div>
                 <?php if (!empty($cycle['vote_start_at'])): ?>
-                    <div class="small mt-1"><i class="fas fa-clock me-1"></i><?php echo htmlspecialchars((string)$cycle['vote_start_at']); ?> <?php echo $_t('देखि', 'to'); ?> <?php echo htmlspecialchars((string)$cycle['vote_end_at']); ?> <?php echo $_t('सम्म (नेपाल समय)', '(Nepal Time)'); ?></div>
+                    <div class="small mt-1"><i class="fas fa-clock me-1"></i><?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_start_at'])); ?> <?php echo $_t('देखि', 'to'); ?> <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_end_at'])); ?> <?php echo $_t('सम्म (नेपाल समय)', '(Nepal Time)'); ?></div>
                 <?php endif; ?>
                 <div class="mt-2">
                     <?php if ($alreadyVoted): ?>
                         <span class="badge bg-success"><i class="fas fa-check me-1"></i><?php echo $_t('मत दिइसकिएको छ', 'Vote already submitted'); ?></span>
-                    <?php elseif ($votingOpen): ?>
-                        <span class="badge bg-success"><?php echo $_t('मतदान खुला छ', 'Voting is open'); ?></span>
-                    <?php elseif (!empty($cycle['voting_enabled'])): ?>
-                        <span class="badge bg-warning text-dark"><?php echo $_t('समय बाहिर', 'Outside time window'); ?></span>
                     <?php else: ?>
-                        <span class="badge bg-secondary"><?php echo $_t('मतदान बन्द', 'Voting closed'); ?></span>
+                        <?php echo electionVoteStateBadgeHtml($cycle); ?>
                     <?php endif; ?>
                 </div>
                 <?php if (!$alreadyVoted && !empty($cycle['vote_start_at']) && !empty($cycle['vote_end_at'])): ?>
@@ -452,18 +464,13 @@ require __DIR__ . '/includes/chrome.php';
     var endRaw = el.getAttribute('data-end') || '';
     if (!startRaw || !endRaw) return;
 
-    // Parse "YYYY-MM-DD HH:MM:SS" into local Date.
+    // Parse DB datetime as Asia/Kathmandu (NPT, UTC+05:45), not browser local.
     function parseDbDateTime(s) {
         var m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
         if (!m) return null;
-        return new Date(
-            Number(m[1]),
-            Number(m[2]) - 1,
-            Number(m[3]),
-            Number(m[4]),
-            Number(m[5]),
-            Number(m[6] || 0)
-        );
+        var iso = m[1] + '-' + m[2] + '-' + m[3] + 'T' + m[4] + ':' + m[5] + ':' + (m[6] || '00') + '+05:45';
+        var d = new Date(iso);
+        return isNaN(d.getTime()) ? null : d;
     }
     var start = parseDbDateTime(startRaw);
     var end = parseDbDateTime(endRaw);

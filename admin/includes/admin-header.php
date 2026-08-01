@@ -222,7 +222,7 @@ $pageGroups = [
     'rojgar' => ['careers','job-applications'],
     'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
-    'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
+    'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-import','member-activities'],
     'memportal'=> ['member-online-portal'],
@@ -644,6 +644,9 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='election-candidates' ? 'active' : ''; ?>">
                                 <a href="election-candidates.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i></span><span><?php echo $adminT('उम्मेदवार/पद', 'Candidates/Posts'); ?></span></a>
+                            </li>
+                            <li class="<?php echo $currentPage=='election-voting-attendance' ? 'active' : ''; ?>">
+                                <a href="election-voting-attendance.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="person-standing"></i></span><span><?php echo $adminT('मतदान उपस्थिति', 'Voting Attendance'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='election-results' ? 'active' : ''; ?>">
                                 <a href="election-results.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-bar"></i></span><span><?php echo $adminT('निर्वाचन नतिजा', 'Election Results'); ?></span></a>

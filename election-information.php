@@ -43,7 +43,7 @@ try {
         $cycle = $st->fetch(PDO::FETCH_ASSOC) ?: null;
     }
     if (!$cycle && !empty($archiveCycles)) {
-        $cycle = $archiveCycles[0];
+        $cycle = electionPickDefaultPublicCycle($archiveCycles);
     }
 
     if ($cycle) {
@@ -168,16 +168,44 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                     <i class="fas fa-user-tie me-2"></i>उम्मेदवारहरू
                 </h3>
                 <?php
-                $vOpenPub = isElectionVotingOpen($cycle);
+                $voteStatePub = electionVoteWindowState($cycle);
+                $vOpenPub = $voteStatePub === 'open';
                 if ($vOpenPub):
                 ?>
                 <div class="alert alert-success text-center">
-                    <i class="fas fa-check-circle me-1"></i> मतदान सक्रिय छ।
-                    <a href="<?php echo SITE_URL; ?>member/election-vote.php?cycle=<?php echo (int)$cycle['id']; ?>" class="btn btn-sm btn-success ms-2">सदस्य पोर्टलमा गएर मत दिनुहोस्</a>
+                    <i class="fas fa-check-circle me-1"></i>
+                    <?php echo isEnglish() ? 'Voting is open now.' : 'मतदान अहिले खुला छ।'; ?>
+                    <div class="small mt-1 text-muted"><?php echo isEnglish() ? 'Candidates are public; casting ballots requires Member Portal login.' : 'उम्मेदवार सार्वजनिक छन्; मत दिन सदस्य पोर्टल लगिन चाहिन्छ।'; ?></div>
+                    <a href="<?php echo SITE_URL; ?>member/election-vote.php?cycle=<?php echo (int)$cycle['id']; ?>" class="btn btn-sm btn-success mt-2">
+                        <?php echo isEnglish() ? 'Login & vote in Member Portal' : 'लगिन गरेर सदस्य पोर्टलमा मत दिनुहोस्'; ?>
+                    </a>
+                </div>
+                <?php elseif ($voteStatePub === 'upcoming'): ?>
+                <div class="alert alert-warning text-center">
+                    <i class="fas fa-hourglass-half me-1"></i>
+                    <?php echo isEnglish() ? 'Voting opens soon' : 'मतदान चाँडै खुल्नेछ'; ?>
+                    <div class="small mt-1">
+                        <?php echo isEnglish() ? 'Opens' : 'खुल्ने'; ?>:
+                        <strong><?php echo htmlspecialchars(electionFormatDtBs((string)($cycle['vote_start_at'] ?? ''))); ?></strong>
+                        → <?php echo htmlspecialchars(electionFormatDtBs((string)($cycle['vote_end_at'] ?? ''))); ?>
+                        <span class="text-muted">(NPT)</span>
+                    </div>
+                </div>
+                <?php elseif ($voteStatePub === 'ended'): ?>
+                <div class="alert alert-secondary text-center small">
+                    <i class="fas fa-flag-checkered me-1"></i>
+                    <?php echo isEnglish() ? 'Voting has ended for this cycle.' : 'यो चक्रको मतदान सकिएको छ।'; ?>
+                    <?php if (!empty($cycle['results_finalized'])): ?>
+                    <div class="mt-1"><?php echo isEnglish() ? 'Results are available in the Member Portal.' : 'नतिजा सदस्य पोर्टलमा उपलब्ध छ।'; ?></div>
+                    <?php endif; ?>
                 </div>
                 <?php elseif (!empty($cycle['vote_start_at'])): ?>
                 <div class="alert alert-info text-center small">
-                    <i class="fas fa-clock me-1"></i> मतदान समय: <?php echo htmlspecialchars((string)$cycle['vote_start_at']); ?> देखि <?php echo htmlspecialchars((string)$cycle['vote_end_at']); ?> सम्म (नेपाल समय)
+                    <i class="fas fa-clock me-1"></i>
+                    <?php echo isEnglish() ? 'Scheduled voting window' : 'तोकिएको मतदान समय'; ?>:
+                    <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_start_at'])); ?>
+                    → <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_end_at'])); ?>
+                    <span class="text-muted">(NPT)</span>
                 </div>
                 <?php endif; ?>
                 <?php
@@ -211,7 +239,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                 <div class="row justify-content-center">
                                 <?php foreach ($list as $idx => $cd): ?>
                                     <div class="col-lg-3 col-md-4 col-sm-6 mb-4" data-aos="fade-up" data-aos-delay="<?php echo ($idx % 4) * 50; ?>">
-                                        <div class="team-card-circular <?php echo $idx === 0 ? 'featured' : ''; ?>">
+                                        <div class="team-card-circular">
                                             <div class="team-photo-circular">
                                                 <?php if (!empty($cd['photo'])): ?>
                                                     <img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" loading="lazy" alt="<?php echo htmlspecialchars($cd['name']); ?>">

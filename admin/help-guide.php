@@ -66,6 +66,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <div class="grp">कार्यक्रम र संचार</div>
     <a href="#sec-programs"><i class="fas fa-calendar-days"></i>कार्यक्रमहरू</a>
     <a href="#sec-attendance"><i class="fas fa-clipboard-check"></i>उपस्थिति</a>
+    <a href="#sec-election"><i class="fas fa-check-to-slot"></i>निर्वाचन</a>
     <a href="#sec-messages"><i class="fas fa-envelope"></i>सन्देशहरू</a>
     <a href="#sec-feedback"><i class="fas fa-star"></i>प्रतिक्रिया</a>
 
@@ -552,6 +553,22 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li><b>Staff Verify (तत्काल):</b> <a href="../program-attendance-verify.php" target="_blank">program-attendance-verify.php</a> (admin login) — कार्ड Verification Code + CVV।</li>
         <li><b>Approve / रिपोर्ट:</b> Admin → <a href="program-attendance.php">Program Attendance</a> — pending approve, program-wise list, CSV download।</li>
       </ol>
+    </section>
+
+    <!-- ══ ELECTION ══ -->
+    <section id="sec-election" class="hg-section">
+      <h3><span class="hg-icon"><i class="fas fa-check-to-slot"></i></span> निर्वाचन (Election)</h3>
+      <p>सञ्चालक/लेखा समिति निर्वाचन: चक्र बनाउने → पद/उम्मेदवार → मतदान समय → सदस्य मत → नतिजा। Public: <a href="../election-information.php" target="_blank">election-information.php</a>।</p>
+
+      <h5>Setup क्रम:</h5>
+      <ol class="hg-steps-list">
+        <li><a href="election-information.php">निर्वाचन जानकारी</a> → नयाँ चक्र: शीर्षक, प्रकाशित, मेनुमा देखाउने।</li>
+        <li>मतदान सुरु/समाप्ति: <b>वि.सं. मिति</b> + समय (NPT)। <b>मतदान सक्रिय</b> चेक — तर खुला = समय भित्र मात्र।</li>
+        <li><a href="election-posts.php">पद Master</a> / <a href="election-candidates.php">उम्मेदवार/पद</a> — सिट, max votes, उम्मेदवार।</li>
+        <li>सदस्य: Member Portal → मतदान। Staff: <a href="election-voting-attendance.php">मतदान उपस्थिति</a> (कागज मत)।</li>
+        <li><a href="election-results.php">नतिजा</a> → finalize / विजेता समितिमा convert।</li>
+      </ol>
+      <p class="small text-muted mb-0"><b>Active ≠ Open:</b> मतदान सक्रिय + समय सेट भए पनि खुल्ने मिति अगाडि भए public/member मा “चाँडै खुल्ने” देखिन्छ।</p>
     </section>
 
     <!-- ══ 26. MESSAGES ══ -->

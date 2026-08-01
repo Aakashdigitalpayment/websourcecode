@@ -235,19 +235,169 @@ if (!function_exists('ensureElectionVotingTables')) {
 if (!function_exists('isElectionVotingOpen')) {
     function isElectionVotingOpen(array $cycle): bool
     {
-        if (empty($cycle['voting_enabled'])) return false;
+        return electionVoteWindowState($cycle) === 'open';
+    }
+}
+
+/**
+ * BS (वा AD) मिति + समय → AD DATETIME (Asia/Kathmandu storage).
+ * nepali-datepicker ले BS दिन्छ; strtotime सिधै चलाउनु हुँदैन।
+ */
+if (!function_exists('electionCombineBsDateTime')) {
+    function electionCombineBsDateTime(string $dateIn, string $timeIn): string
+    {
+        $dateIn = trim($dateIn);
+        $timeIn = trim($timeIn);
+        if ($dateIn === '' || $timeIn === '') {
+            return '';
+        }
+        /* Support "10:00 AM" / "10:00AM" / "10:00" */
+        $timeNorm = '';
+        if (preg_match('/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i', $timeIn, $tm)) {
+            $h = (int)$tm[1];
+            $m = (int)$tm[2];
+            $ap = strtoupper($tm[3]);
+            if ($ap === 'PM' && $h < 12) {
+                $h += 12;
+            }
+            if ($ap === 'AM' && $h === 12) {
+                $h = 0;
+            }
+            $timeNorm = sprintf('%02d:%02d:00', $h, $m);
+        } elseif (preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $timeIn)) {
+            $timeNorm = substr_count($timeIn, ':') === 1 ? ($timeIn . ':00') : $timeIn;
+            if (preg_match('/^(\d{1,2}):(\d{2}):(\d{2})$/', $timeNorm, $tm2)) {
+                $timeNorm = sprintf('%02d:%02d:%02d', (int)$tm2[1], (int)$tm2[2], (int)$tm2[3]);
+            }
+        } else {
+            return '';
+        }
+        $datePart = substr($dateIn, 0, 10);
+        if (!preg_match('/^(\d{4})-\d{2}-\d{2}$/', $datePart, $m)) {
+            return '';
+        }
+        $y = (int)$m[1];
+        if ($y >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($datePart));
+            $ad = preg_match('/^\d{4}-\d{2}-\d{2}/', $ad) ? substr($ad, 0, 10) : '';
+        } else {
+            $ad = $datePart;
+        }
+        if ($ad === '') {
+            return '';
+        }
+        try {
+            $tz = new DateTimeZone('Asia/Kathmandu');
+            $dt = new DateTime($ad . ' ' . $timeNorm, $tz);
+            return $dt->format('Y-m-d H:i:s');
+        } catch (Throwable $e) {
+            $ts = strtotime($ad . ' ' . $timeNorm);
+            return $ts ? date('Y-m-d H:i:s', $ts) : '';
+        }
+    }
+}
+
+if (!function_exists('electionFormatDtBs')) {
+    /** Display MySQL DATETIME as BS + time (NPT). */
+    function electionFormatDtBs(?string $mysqlDt): string
+    {
+        $mysqlDt = trim((string)$mysqlDt);
+        if ($mysqlDt === '') {
+            return '';
+        }
+        $ad = substr($mysqlDt, 0, 10);
+        $time = strlen($mysqlDt) >= 16 ? substr($mysqlDt, 11, 5) : '';
+        $bs = (function_exists('adToBs') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad))
+            ? trim((string)adToBs($ad))
+            : $ad;
+        if ($bs === '') {
+            $bs = $ad;
+        }
+        if (function_exists('toNepaliNumeral') && function_exists('isEnglish') && !isEnglish()) {
+            $bs = toNepaliNumeral($bs);
+            if ($time !== '') {
+                $time = toNepaliNumeral($time);
+            }
+        }
+        return trim($bs . ($time !== '' ? ' ' . $time : ''));
+    }
+}
+
+/**
+ * @return 'draft'|'disabled'|'upcoming'|'open'|'ended'|'unset'
+ */
+if (!function_exists('electionVoteWindowState')) {
+    function electionVoteWindowState(?array $cycle): string
+    {
+        if (!$cycle) {
+            return 'unset';
+        }
+        if (empty($cycle['is_published'])) {
+            return 'draft';
+        }
         $start = trim((string)($cycle['vote_start_at'] ?? ''));
-        $end   = trim((string)($cycle['vote_end_at'] ?? ''));
-        if ($start === '' || $end === '') return false;
+        $end = trim((string)($cycle['vote_end_at'] ?? ''));
+        $enabled = !empty($cycle['voting_enabled']);
+        if ($start === '' || $end === '') {
+            return $enabled ? 'unset' : 'disabled';
+        }
         try {
             $tz = new DateTimeZone('Asia/Kathmandu');
             $now = new DateTime('now', $tz);
             $s = new DateTime($start, $tz);
             $e = new DateTime($end, $tz);
-            return ($now >= $s && $now <= $e);
+            if ($now < $s) {
+                return $enabled ? 'upcoming' : 'disabled';
+            }
+            if ($now > $e) {
+                return 'ended';
+            }
+            return $enabled ? 'open' : 'disabled';
         } catch (Throwable $e) {
-            return false;
+            return 'unset';
         }
+    }
+}
+
+if (!function_exists('electionVoteStateBadgeHtml')) {
+    function electionVoteStateBadgeHtml(?array $cycle): string
+    {
+        $st = electionVoteWindowState($cycle);
+        $map = [
+            'draft' => ['bg-secondary', 'मस्यौदा'],
+            'disabled' => ['bg-secondary', 'मतदान बन्द'],
+            'upcoming' => ['bg-warning text-dark', 'चाँडै खुल्ने'],
+            'open' => ['bg-success', 'मतदान खुला'],
+            'ended' => ['bg-dark', 'मतदान सकियो'],
+            'unset' => ['bg-info text-dark', 'समय सेट छैन'],
+        ];
+        [$cls, $lab] = $map[$st] ?? $map['unset'];
+        return '<span class="badge ' . $cls . '">' . htmlspecialchars($lab) . '</span>';
+    }
+}
+
+/**
+ * Pick best public default cycle: open → upcoming → newest published.
+ * @param list<array<string,mixed>> $cycles
+ */
+if (!function_exists('electionPickDefaultPublicCycle')) {
+    function electionPickDefaultPublicCycle(array $cycles): ?array
+    {
+        if ($cycles === []) {
+            return null;
+        }
+        $open = null;
+        $upcoming = null;
+        foreach ($cycles as $c) {
+            $st = electionVoteWindowState($c);
+            if ($st === 'open' && $open === null) {
+                $open = $c;
+            }
+            if ($st === 'upcoming' && $upcoming === null) {
+                $upcoming = $c;
+            }
+        }
+        return $open ?? $upcoming ?? $cycles[0];
     }
 }
 

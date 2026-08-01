@@ -38,38 +38,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pub = isset($_POST['is_published']) ? 1 : 0;
                 $nav = isset($_POST['show_in_navbar']) ? 1 : 0;
                 $sort = (int)($_POST['sort_order'] ?? 0);
-                /* मतदान schedule (Nepal Time) */
-                $vs = trim((string)($_POST['vote_start_at'] ?? ''));
-                $ve = trim((string)($_POST['vote_end_at'] ?? ''));
-                if ($vs === '') {
-                    $vsDate = trim((string)($_POST['vote_start_date'] ?? ''));
-                    $vsTime = trim((string)($_POST['vote_start_time'] ?? ''));
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $vsDate) && preg_match('/^\d{1,2}:\d{2}\s?(AM|PM)$/i', $vsTime)) {
-                        $vs = $vsDate . ' ' . strtoupper(str_replace(' ', '', $vsTime));
-                    }
-                }
-                if ($ve === '') {
-                    $veDate = trim((string)($_POST['vote_end_date'] ?? ''));
-                    $veTime = trim((string)($_POST['vote_end_time'] ?? ''));
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $veDate) && preg_match('/^\d{1,2}:\d{2}\s?(AM|PM)$/i', $veTime)) {
-                        $ve = $veDate . ' ' . strtoupper(str_replace(' ', '', $veTime));
-                    }
-                }
-                $vs = preg_match('/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/', $vs) ? str_replace('T', ' ', $vs) : null;
-                $ve = preg_match('/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}(:\d{2})?$/', $ve) ? str_replace('T', ' ', $ve) : null;
-                if ($vs === null && isset($_POST['vote_start_date'], $_POST['vote_start_time'])) {
-                    $vsDate = trim((string)($_POST['vote_start_date'] ?? ''));
-                    $vsTime = trim((string)($_POST['vote_start_time'] ?? ''));
-                    $ts = strtotime($vsDate . ' ' . $vsTime);
-                    if ($ts !== false) $vs = date('Y-m-d H:i:s', $ts);
-                }
-                if ($ve === null && isset($_POST['vote_end_date'], $_POST['vote_end_time'])) {
-                    $veDate = trim((string)($_POST['vote_end_date'] ?? ''));
-                    $veTime = trim((string)($_POST['vote_end_time'] ?? ''));
-                    $te = strtotime($veDate . ' ' . $veTime);
-                    if ($te !== false) $ve = date('Y-m-d H:i:s', $te);
-                }
+                /* मतदान schedule — BS date + time → AD DATETIME (NPT) */
+                $vsDate = trim((string)($_POST['vote_start_date'] ?? ''));
+                $vsTime = trim((string)($_POST['vote_start_time'] ?? ''));
+                $veDate = trim((string)($_POST['vote_end_date'] ?? ''));
+                $veTime = trim((string)($_POST['vote_end_time'] ?? ''));
+                $vs = ($vsDate !== '' && $vsTime !== '') ? electionCombineBsDateTime($vsDate, $vsTime) : null;
+                $ve = ($veDate !== '' && $veTime !== '') ? electionCombineBsDateTime($veDate, $veTime) : null;
+                if ($vs === '') $vs = null;
+                if ($ve === '') $ve = null;
                 $vEnabled = isset($_POST['voting_enabled']) ? 1 : 0;
+                if ($vEnabled && ($vs === null || $ve === null)) {
+                    setFlash('error', 'मतदान सक्रिय गर्न खुल्ने/बन्द मिति (वि.सं.) र समय अनिवार्य छ।');
+                    redirect('election-information.php' . ($cid > 0 ? ('?edit=' . $cid) : '?panel=form'));
+                }
+                if ($vs !== null && $ve !== null && strtotime($ve) < strtotime($vs)) {
+                    setFlash('error', 'बन्द समय खुल्ने समयभन्दा पछि हुनुपर्छ।');
+                    redirect('election-information.php' . ($cid > 0 ? ('?edit=' . $cid) : '?panel=form'));
+                }
                 if ($cid > 0) {
                     $db->prepare(
                         'UPDATE election_cycles SET title_np=?, title_en=?, intro_np=?, intro_en=?, period_label=?, date_from=?, date_to=?, is_published=?, show_in_navbar=?, sort_order=?, vote_start_at=?, vote_end_at=?, voting_enabled=? WHERE id=?'
@@ -88,9 +74,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'delete_cycle') {
             $cid = (int)($_POST['cycle_id'] ?? 0);
             if ($cid > 0) {
-                $db->prepare('DELETE FROM election_milestones WHERE cycle_id=?')->execute([$cid]);
-                $db->prepare('DELETE FROM election_cycles WHERE id=?')->execute([$cid]);
-                setFlash('success', 'चक्र मेटाइयो।');
+                $voteCount = 0;
+                try {
+                    $vc = $db->prepare('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=?');
+                    $vc->execute([$cid]);
+                    $voteCount = (int)$vc->fetchColumn();
+                } catch (Throwable $e) { $voteCount = 0; }
+                if ($voteCount > 0) {
+                    setFlash('error', 'यो चक्रमा मत/उपस्थिति रेकर्ड छ — मेटाउन सकिँदैन। मतदान बन्द गरी मस्यौदा बनाउनुहोस्।');
+                } else {
+                    $db->beginTransaction();
+                    try {
+                        $db->prepare('DELETE FROM election_votes WHERE cycle_id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_vote_submissions WHERE cycle_id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_candidates WHERE cycle_id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_positions WHERE cycle_id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_milestones WHERE cycle_id=?')->execute([$cid]);
+                        $db->prepare('DELETE FROM election_cycles WHERE id=?')->execute([$cid]);
+                        $db->commit();
+                        setFlash('success', 'चक्र र सम्बन्धित डेटा मेटाइयो।');
+                    } catch (Throwable $e) {
+                        if ($db->inTransaction()) $db->rollBack();
+                        throw $e;
+                    }
+                }
             }
             $__clearNavCache();
             redirect('election-information.php');
@@ -171,19 +178,12 @@ catch (Throwable $e) { $tz = null; $now = null; }
 
 $bucket = ['upcoming'=>[], 'active'=>[], 'past'=>[], 'draft'=>[]];
 foreach ($cycles as $c) {
-    if (empty($c['is_published'])) { $bucket['draft'][] = $c; continue; }
-    $vs = trim((string)($c['vote_start_at'] ?? ''));
-    $ve = trim((string)($c['vote_end_at'] ?? ''));
-    if ($tz && $vs !== '' && $ve !== '') {
-        try {
-            $s = new DateTime($vs, $tz); $e = new DateTime($ve, $tz);
-            if ($now < $s) $bucket['upcoming'][] = $c;
-            elseif ($now > $e) $bucket['past'][] = $c;
-            else { if (!empty($c['voting_enabled'])) $bucket['active'][] = $c; else $bucket['upcoming'][] = $c; }
-            continue;
-        } catch (Throwable $e2) { /* fall through */ }
-    }
-    if (!empty($c['voting_enabled'])) $bucket['active'][] = $c; else $bucket['upcoming'][] = $c;
+    $st = electionVoteWindowState($c);
+    if ($st === 'draft') { $bucket['draft'][] = $c; continue; }
+    if ($st === 'open') { $bucket['active'][] = $c; continue; }
+    if ($st === 'ended') { $bucket['past'][] = $c; continue; }
+    /* upcoming / disabled / unset → upcoming tab for planning */
+    $bucket['upcoming'][] = $c;
 }
 $counts = ['all'=>count($cycles), 'upcoming'=>count($bucket['upcoming']), 'active'=>count($bucket['active']), 'past'=>count($bucket['past']), 'draft'=>count($bucket['draft'])];
 
@@ -230,33 +230,35 @@ if ($editRow) {
     $vsRaw = trim((string)($editRow['vote_start_at'] ?? ''));
     $veRaw = trim((string)($editRow['vote_end_at'] ?? ''));
     if ($vsRaw !== '') {
-        $ts = strtotime($vsRaw);
-        if ($ts !== false) {
-            $voteStartDateVal = date('Y-m-d', $ts);
-            $voteStartTimeVal = date('h:i A', $ts);
+        $ad = substr($vsRaw, 0, 10);
+        if (function_exists('adToBs') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+            $bs = trim((string)adToBs($ad));
+            $voteStartDateVal = preg_match('/^\d{4}-\d{2}-\d{2}/', $bs) ? substr($bs, 0, 10) : $ad;
+        } else {
+            $voteStartDateVal = $ad;
         }
+        $ts = strtotime($vsRaw);
+        if ($ts !== false) $voteStartTimeVal = date('h:i A', $ts);
     }
     if ($veRaw !== '') {
-        $te = strtotime($veRaw);
-        if ($te !== false) {
-            $voteEndDateVal = date('Y-m-d', $te);
-            $voteEndTimeVal = date('h:i A', $te);
+        $ad = substr($veRaw, 0, 10);
+        if (function_exists('adToBs') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+            $bs = trim((string)adToBs($ad));
+            $voteEndDateVal = preg_match('/^\d{4}-\d{2}-\d{2}/', $bs) ? substr($bs, 0, 10) : $ad;
+        } else {
+            $voteEndDateVal = $ad;
         }
+        $te = strtotime($veRaw);
+        if ($te !== false) $voteEndTimeVal = date('h:i A', $te);
     }
 }
 
-/* status badge helper */
-$statusBadge = function (array $c) use ($tz, $now): string {
-    if (empty($c['is_published'])) return '<span class="badge bg-secondary">मस्यौदा</span>';
-    $vs = trim((string)($c['vote_start_at'] ?? '')); $ve = trim((string)($c['vote_end_at'] ?? ''));
-    if ($tz && $vs && $ve) {
-        try { $s = new DateTime($vs,$tz); $e = new DateTime($ve,$tz);
-            if ($now < $s) return '<span class="badge bg-info text-dark">आगामी</span>';
-            if ($now > $e) return '<span class="badge bg-dark">सकिएको</span>';
-            return !empty($c['voting_enabled']) ? '<span class="badge bg-success">सक्रिय</span>' : '<span class="badge bg-warning text-dark">तय</span>';
-        } catch (Throwable $e) {}
-    }
-    return !empty($c['voting_enabled']) ? '<span class="badge bg-success">सक्रिय</span>' : '<span class="badge bg-info text-dark">तय</span>';
+/* status badge helper — Open ≠ Enabled ≠ Published */
+$statusBadge = static function (array $c): string {
+    $pub = empty($c['is_published'])
+        ? '<span class="badge bg-secondary me-1">मस्यौदा</span>'
+        : '<span class="badge bg-primary me-1">प्रकाशित</span>';
+    return $pub . electionVoteStateBadgeHtml($c);
 };
 
 ?>
@@ -265,7 +267,7 @@ $statusBadge = function (array $c) use ($tz, $now): string {
 echo adminPageHeader(
     'निर्वाचन जानकारी',
     'fa-check-to-slot',
-    'सञ्चालक/लेखा समिति निर्वाचन — सार्वजनिक पृष्ठ, मेनु देखाउने, कार्यतालिका।',
+    'चक्र → पद/उम्मेदवार → मतदान समय (वि.सं.) → सदस्य मत → नतिजा। मतदान खुला = समय भित्र + मतदान सक्रिय।',
     '<a class="btn btn-outline-primary btn-sm" href="' . SITE_URL . 'election-information.php" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>सार्वजनिक पृष्ठ</a>'
 );
 ?>
@@ -312,7 +314,7 @@ echo adminPageHeader(
                     $tabs = [
                         'all' => ['सबै', 'fa-list'],
                         'upcoming' => ['आगामी', 'fa-hourglass-start'],
-                        'active' => ['सक्रिय', 'fa-circle-dot'],
+                        'active' => ['मतदान खुला', 'fa-circle-dot'],
                         'past' => ['सकिएको', 'fa-flag-checkered'],
                         'draft' => ['मस्यौदा', 'fa-pen-ruler'],
                     ];
@@ -431,9 +433,9 @@ echo adminPageHeader(
                     </div>
                     <div class="col-12"><hr class="my-2"><h6 class="small text-muted mb-2"><i class="fas fa-clock me-1"></i>मतदान समय (नेपाल समय) — सञ्चालक/लेखा समिति निर्वाचन</h6></div>
                     <div class="col-md-5">
-                        <label class="form-label small">मतदान सुरु (NPT)</label>
+                        <label class="form-label small">मतदान सुरु मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
-                            <input type="text" class="form-control nepali-datepicker" name="vote_start_date" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($voteStartDateVal); ?>">
+                            <input type="text" class="form-control nepali-datepicker" name="vote_start_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteStartDateVal); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                         <select class="form-select form-select-sm" name="vote_start_time">
@@ -444,9 +446,9 @@ echo adminPageHeader(
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label small">मतदान समाप्ति (NPT)</label>
+                        <label class="form-label small">मतदान समाप्ति मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
-                            <input type="text" class="form-control nepali-datepicker" name="vote_end_date" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($voteEndDateVal); ?>">
+                            <input type="text" class="form-control nepali-datepicker" name="vote_end_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteEndDateVal); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                         <select class="form-select form-select-sm" name="vote_end_time">
@@ -460,6 +462,7 @@ echo adminPageHeader(
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="voting_enabled" id="vec" value="1" <?php echo !empty($editRow['voting_enabled']) ? 'checked' : ''; ?>>
                             <label class="form-check-label" for="vec">मतदान सक्रिय</label>
+                            <div class="form-text">मिति वि.सं.। Active ≠ Open — समय आएपछि मात्र खुल्छ।</div>
                         </div>
                     </div>
                     <?php if ($editRow): ?>
