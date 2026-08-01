@@ -764,10 +764,9 @@ $__father = trim((string)($__m['father_name'] ?? ''));
 $__secretCvv = (string)($__c['secret_cvv'] ?? '');
 $__idFields = [
     [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
-    [$_t('कार्ड नं.','Card No.'),      $__c['card_no']     ?? ''],
+    [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
     [$_t('बुबाको नाम',"Father's Name"), $__father],
     [$_t('जन्म मिति','Date of Birth'), $__dob],
-    [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
     [$_t('सदस्यता मिति','Member Since'),$__m['member_since']?? ''],
     [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
     [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],

@@ -466,7 +466,12 @@ if (!function_exists('verifyCardCredentials')) {
             }
             $displayPhoto = trim((string)($row['kyc_photo'] ?? ''));
             if ($displayPhoto === '') $displayPhoto = trim((string)($row['avatar_url'] ?? ''));
-            $memberIdDisp = (string)(($row['sadasyata_number'] ?? '') ?: ($row['member_card_no'] ?? ''));
+            $rawMc = trim((string)($row['member_card_no'] ?? ''));
+            $legacyPrefixMc = $rawMc !== '' && (bool)preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $rawMc);
+            $memberIdDisp = trim((string)($row['sadasyata_number'] ?? ''));
+            if ($memberIdDisp === '' && !$legacyPrefixMc) {
+                $memberIdDisp = $rawMc;
+            }
             $derivedCvv = deriveMemberCardCvv($displayName, $memberIdDisp !== '' ? $memberIdDisp : (string)($row['member_pk'] ?? ''));
 
             $cardId = (int)($row['card_id'] ?? 0);
@@ -772,11 +777,11 @@ if (!function_exists('verifyCardCredentials')) {
         $gate = _cardVerifyStatusGate($pdo, $row, $ip, $memberId);
         if ($gate !== null) return $gate;
 
-        // Lazily create card so future legacy / admin views stay consistent
+        // Lazily create card so future admin views stay consistent
         if ((int)($row['card_id'] ?? 0) <= 0 && !empty($row['member_pk'])) {
             try {
                 [$vCode, $gCvv] = generateCardVerification($pdo, $displayName, $memberIdDisp !== '' ? $memberIdDisp : (string)$row['member_pk']);
-                $newCardNo = generateCardNumber((int)$row['member_pk']);
+                $newCardNo = $memberIdDisp !== '' ? $memberIdDisp : ('M-' . str_pad((string)$row['member_pk'], 5, '0', STR_PAD_LEFT));
                 $ins = $pdo->prepare(
                     "INSERT INTO member_id_cards
                         (member_id, card_no, verification_code, cvv, issued_date, status)
