@@ -48,12 +48,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('कार्यक्रम छान्नुहोस्।');
             }
             $token = bin2hex(random_bytes(16));
-            $db->prepare('UPDATE upcoming_programs SET qr_token=?, qr_starts_at=COALESCE(qr_starts_at, NOW()), qr_expires_at=COALESCE(qr_expires_at, DATE_ADD(NOW(), INTERVAL 1 DAY)) WHERE id=?')->execute([$token, $id]);
-            setFlash('success', 'QR लिंक तयार भयो। सदस्यले Member Portal बाट scan गर्छन्।');
+            // Default QR window: event day end + 1 day (BS→AD) — or +7 days if no event_date
+            $evSt = $db->prepare('SELECT event_date, qr_starts_at, qr_expires_at FROM upcoming_programs WHERE id=? LIMIT 1');
+            $evSt->execute([$id]);
+            $evRow = $evSt->fetch(PDO::FETCH_ASSOC) ?: [];
+            $startsSql = 'COALESCE(qr_starts_at, NOW())';
+            $expiresAt = null;
+            if (empty($evRow['qr_expires_at'])) {
+                $adDate = function_exists('programEventDateToAd')
+                    ? programEventDateToAd((string)($evRow['event_date'] ?? ''))
+                    : '';
+                if ($adDate !== '') {
+                    $expiresAt = date('Y-m-d 23:59:59', strtotime($adDate . ' +1 day'));
+                } else {
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+7 days'));
+                }
+            }
+            if ($expiresAt !== null) {
+                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql}, qr_expires_at=? WHERE id=?")
+                    ->execute([$token, $expiresAt, $id]);
+            } else {
+                $db->prepare("UPDATE upcoming_programs SET qr_token=?, qr_enabled=1, qr_starts_at={$startsSql} WHERE id=?")
+                    ->execute([$token, $id]);
+            }
+            setFlash('success', 'QR लिंक तयार भयो। सदस्य scan गर्दा उपस्थिति अनुरोध Admin approve पछि गणना हुन्छ।');
         } elseif ($action === 'clear_qr') {
             $id = (int)($_POST['id'] ?? 0);
             if ($id > 0) {
-                $db->prepare('UPDATE upcoming_programs SET qr_token=NULL, qr_starts_at=NULL, qr_expires_at=NULL WHERE id=?')->execute([$id]);
+                $db->prepare('UPDATE upcoming_programs SET qr_token=NULL, qr_enabled=0, qr_starts_at=NULL, qr_expires_at=NULL WHERE id=?')->execute([$id]);
                 setFlash('success', 'QR हटाइयो।');
             }
         }
@@ -119,9 +141,10 @@ foreach ($rows as $_r) {
 ?>
 
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। QR = स्थल उपस्थिति — सदस्य Member Portal बाट scan गर्दा attendance सूची र इतिहासमा थपिन्छ (कार्यक्रम जति, गणना उति)।',
+  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। QR scan = स्थल उपस्थिति अनुरोध — Admin approve पछि सूची/इतिहासमा थपिन्छ। Staff Verify बाट तत्काल पनि राख्न सकिन्छ।',
       '<div class="d-flex gap-2 flex-wrap">'
-      . '<a href="../program-attendance-verify.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-check me-1"></i>Attendance Verify</a>'
+      . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
+      . '<a href="../program-attendance-verify.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-check me-1"></i>Staff Verify</a>'
       . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>उपस्थिति रिपोर्ट</a>'
       . '</div>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
@@ -164,8 +187,8 @@ foreach ($rows as $_r) {
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
         </div>
-        <div class="col-md-6"><label class="form-label">QR सुरु समय</label><input type="datetime-local" name="qr_starts_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_starts_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_starts_at'])) : ''); ?>"></div>
-        <div class="col-md-6"><label class="form-label">QR समाप्त समय</label><input type="datetime-local" name="qr_expires_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_expires_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_expires_at'])) : ''); ?>"></div>
+        <div class="col-md-6"><label class="form-label">QR सुरु समय <span class="text-muted small">(AD)</span></label><input type="datetime-local" name="qr_starts_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_starts_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_starts_at'])) : ''); ?>"><div class="form-text">खाली = Generate QR गर्दा अहिलेबाट</div></div>
+        <div class="col-md-6"><label class="form-label">QR समाप्त समय <span class="text-muted small">(AD)</span></label><input type="datetime-local" name="qr_expires_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_expires_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_expires_at'])) : ''); ?>"><div class="form-text">खाली = कार्यक्रम मिति (BS→AD) + १ दिन</div></div>
         <div class="col-12 d-flex gap-2">
           <button class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button>
           <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
@@ -295,13 +318,14 @@ foreach ($rows as $_r) {
       </div>
       <div class="modal-body text-center px-2 px-md-3">
         <p class="small text-muted text-start mb-2">
-          <strong>QR = कार्यक्रम स्थल उपस्थिति दर्ता</strong> (pre-registration भन्दा फरक)। सदस्य <strong>कार्यक्रममा उपस्थित भइसकेपछि</strong> आफ्नो मोबाइलबाट Member Portal खोली यो QR scan गर्छन् (लगिन आवश्यक)। एक ट्यापमा check-in भएपछि:
-          <br>• <strong>Admin</strong> → उपस्थिति रिपोर्ट / सूचीमा सदस्य विवरणसहित देखिन्छ
-          <br>• <strong>सदस्य पोर्टल</strong> → उपस्थिति इतिहासमा थपिन्छ — <strong>जति कार्यक्रममा आउनुहुन्छ, त्यति नै गणना बढ्दै जान्छ</strong>
+          <strong>QR = कार्यक्रम स्थल उपस्थिति</strong> (pre-registration भन्दा फरक)। सदस्य कार्यक्रममा उपस्थित भएपछि Member Portal बाट QR scan गर्छन् (लगिन आवश्यक)।
+          <br>• Scan पछि <strong>Admin स्वीकृतिका लागि अनुरोध (pending)</strong> जान्छ
+          <br>• <strong>Admin → उपस्थिति रिपोर्ट</strong> बाट Approve गरेपछि मात्र गणना / इतिहासमा थपिन्छ
+          <br>• Staff लाई तत्काल राख्नु परे <strong>Staff Verify</strong> (कार्ड Verification Code + CVV) प्रयोग गर्नुहोस्
           <br><br>
-          <strong>Pre-registration</strong> भनेको “कार्यक्रममा आउँछु” भनी अगाडि दर्ता गर्ने छुट्टै प्रक्रिया हो; त्यसले उपस्थिति गणना बढाउँदैन। उपस्थिति गणना QR / आजको मितिमा check-in बटन / Staff verify बाट मात्र।
-          <br><br>
-          <span class="text-secondary">थप कडा प्रमाण चाहिएमा Staff <strong>Attendance Verify</strong> (कार्ड + CVV) पनि प्रयोग गर्न सकिन्छ।</span>
+          <strong>Pre-registration</strong> = “आउँछु” भनी अगाडि नाम दर्ता — उपस्थिति गणना बढाउँदैन।
+          <br>
+          <span class="text-secondary">QR समय AD (server) हो; कार्यक्रम मिति BS हुन सक्छ। समाप्त समय खाली छोड्दा Generate QR ले (BS→AD) मिति + १ दिन सेट गर्छ।</span>
         </p>
         <div class="p-2 p-md-3 bg-light rounded-3 d-inline-block mb-3 shadow-sm">
           <img id="programQrModalImg" src="" alt="QR" width="480" height="480" class="img-fluid mx-auto d-block" style="max-width:min(92vw, 480px);width:100%;height:auto;border:1px solid #dee2e6;border-radius:12px;background:#fff;">

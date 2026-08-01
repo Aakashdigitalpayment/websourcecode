@@ -60,6 +60,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $ins->execute([$mid, $cardNo, $programId, mb_substr((string)$pg['title'], 0, 180), 0, 'Program attendance verify page', $ip, 'program_verify_page']);
                         $saved = true;
                     }
+                    // Close any matching pending QR/portal requests so admin list stays clean
+                    try {
+                        $adminId = (int)($_SESSION['admin_id'] ?? 0);
+                        $pdo->prepare("UPDATE member_program_attendance_requests
+                            SET status='approved', processed_at=NOW(), admin_id=?, admin_note='Closed by Staff Verify'
+                            WHERE member_id=? AND program_id=? AND status='pending'")
+                            ->execute([$adminId > 0 ? $adminId : null, $mid, $programId]);
+                    } catch (Throwable $e) {
+                        error_log('[staff verify close pending] ' . $e->getMessage());
+                    }
                 }
             } catch (Throwable $e) {
                 $error = isEnglish() ? 'Could not save attendance.' : 'Attendance सुरक्षित गर्न सकिएन।';

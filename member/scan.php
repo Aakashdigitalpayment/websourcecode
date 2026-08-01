@@ -1,7 +1,7 @@
 <?php
 /**
  * Member Portal — कार्यक्रम QR स्क्यान (क्यामेरा)
- * सफल scan पछि attend.php?qr_token=... मा जान्छ — त्यहाँ Check-in (OK) थिच्नुपर्छ।
+ * सफल scan पछि attend.php?qr_token=... मा जान्छ — त्यहाँ Check-in थिचेर CSRF POST हुन्छ।
  */
 require_once __DIR__ . '/_bootstrap.php';
 requireMemberLogin();
@@ -154,7 +154,7 @@ require __DIR__ . '/includes/chrome.php';
 
   <div class="scan-hero">
     <strong><?php echo $_t('कसरी?', 'How?'); ?></strong> <?php echo $_t('स्थलमा राखिएको', 'Scan the'); ?> <strong><?php echo $_t('कार्यक्रम QR', 'program QR'); ?></strong> <?php echo $_t('क्यामेराले स्क्यान गर्नुहोस्। पछि खुल्ने पृष्ठमा', 'at the venue with camera. On the next page, press'); ?>
-    <strong><?php echo $_t('Check-in / OK', 'Check-in / OK'); ?></strong> <?php echo $_t('थिच्नुहोस् — उपस्थिति Admin र तपाईंको', '— attendance goes to admin and your'); ?> <strong><?php echo $_t('उपस्थिति इतिहास', 'attendance history'); ?></strong><?php echo $_t('मा जान्छ। (Pre-registration मात्र उपस्थिति होइन।)', '. (Pre-registration alone is not attendance.)'); ?>
+    <strong><?php echo $_t('Check-in', 'Check-in'); ?></strong> <?php echo $_t('थिच्नुहोस् — Admin स्वीकृतिका लागि अनुरोध जान्छ; approve पछि मात्र', '— a request goes for admin approval; only after approve it appears in'); ?> <strong><?php echo $_t('उपस्थिति इतिहास', 'attendance history'); ?></strong><?php echo $_t('मा देखिन्छ। (Pre-registration उपस्थिति होइन।)', '. (Pre-registration is not attendance.)'); ?>
   </div>
 
   <div id="scan-loading" style="display:none;text-align:center;padding:20px;color:var(--text-muted,#6b7280);font-size:.88rem;"><i class="fas fa-spinner" style="animation:spin 1s linear infinite;display:block;font-size:1.8rem;margin-bottom:8px;"></i><?php echo $_t('क्यामेरा खुल्दैछ…', 'Opening camera…'); ?></div>
@@ -253,7 +253,7 @@ require __DIR__ . '/includes/chrome.php';
     showSuccess(msgFound);
     readerEl.classList.remove('scanning');
     stopCamera(function() {
-      window.location.href = base + 'member/attend.php?qr_token=' + encodeURIComponent(token) + '&auto=1';
+      window.location.href = base + 'member/attend.php?qr_token=' + encodeURIComponent(token);
     });
   }
 
