@@ -81,3 +81,13 @@ if (!function_exists('sqCount')) {
         }
     }
 }
+
+if (!function_exists('core_safe_count')) {
+    /**
+     * Alias used by admin dashboards — always available once safe-query is loaded
+     * (even when core/init.php was skipped via admin-header-only bootstraps).
+     */
+    function core_safe_count(PDO $db, string $sql, string $logPrefix = '[core-safe-count]'): int {
+        return sqCount($db, $sql, $logPrefix);
+    }
+}

@@ -30,7 +30,9 @@ $error   = '';
    POST: स्थिति परिवर्तन / मेटाउने
 ───────────────────────────────────────────── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+    if (!($db instanceof PDO)) {
+        $error = 'डेटाबेस जडान उपलब्ध छैन।';
+    } elseif (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = 'सुरक्षा जाँच असफल भयो।';
     } else {
         $action = clean_text($_POST['action'] ?? '');
@@ -93,6 +95,9 @@ if (!in_array($tab, $validTabs, true)) {
 }
 
 try {
+    if (!($db instanceof PDO)) {
+        throw new RuntimeException('DB unavailable');
+    }
     $counts = [
         'all'      => core_safe_count($db, "SELECT COUNT(*) FROM vendors", '[vendor-enlistment all]'),
         'pending'  => core_safe_count($db, "SELECT COUNT(*) FROM vendors WHERE status='pending'", '[vendor-enlistment pending]'),
@@ -106,7 +111,7 @@ try {
         $vendors->execute([$tab]);
         $vendors = $vendors->fetchAll();
     }
-} catch (Exception $e) {
+} catch (Throwable $e) {
     $vendors = [];
     $counts = ['all'=>0,'pending'=>0,'approved'=>0,'rejected'=>0];
 }

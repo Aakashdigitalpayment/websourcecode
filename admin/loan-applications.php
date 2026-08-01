@@ -20,11 +20,13 @@ require_once __DIR__ . '/../includes/auth-roles.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
 
 /* ── Auto-ALTER: admin_attachment column थप्ने — MySQL 5.7+ compatible ── */
-safeAddColumn($db, 'loan_applications', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
-safeAddColumn($db, 'loan_applications', 'updated_at', "TIMESTAMP NULL DEFAULT NULL");
+if ($db instanceof PDO) {
+    safeAddColumn($db, 'loan_applications', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
+    safeAddColumn($db, 'loan_applications', 'updated_at', "TIMESTAMP NULL DEFAULT NULL");
+    ensureRequestStatusHistoryTable($db);
+}
 
 $loanListStatuses = ['pending', 'processing', 'approved', 'rejected', 'disbursed'];
-ensureRequestStatusHistoryTable($db);
 
 /* ─── Status Update ─── */
 if (isset($_POST['update_status'])) {
@@ -168,10 +170,15 @@ try {
     $totalAmount = $db->query("SELECT SUM(loan_amount) FROM loan_applications WHERE status='pending'")->fetchColumn();
 } catch (Exception $e) { $applications = []; $total = 0; $totalPages = 0; $totalAmount = 0; }
 
-$pendingCount    = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='pending'", '[loan-applications pending]');
-$approvedCount   = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='approved'", '[loan-applications approved]');
-$rejectedCount   = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='rejected'", '[loan-applications rejected]');
-$processingCount = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='processing'", '[loan-applications processing]');
+$pendingCount = $approvedCount = $rejectedCount = $processingCount = 0;
+if ($db instanceof PDO) {
+    try {
+        $pendingCount    = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='pending'", '[loan-applications pending]');
+        $approvedCount   = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='approved'", '[loan-applications approved]');
+        $rejectedCount   = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='rejected'", '[loan-applications rejected]');
+        $processingCount = core_safe_count($db, "SELECT COUNT(*) FROM loan_applications WHERE status='processing'", '[loan-applications processing]');
+    } catch (Throwable $e) { /* keep zeros */ }
+}
 
 /* ─── Single view ─── */
 $viewApp = null;

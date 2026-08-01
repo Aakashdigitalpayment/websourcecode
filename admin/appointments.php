@@ -13,14 +13,16 @@ require_once __DIR__ . '/includes/admin-request-view.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 
 /* ── Auto-ALTER: admin_attachment column थप्ने — MySQL 5.7+ compatible ── */
-safeAddColumn($db, 'appointments', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
-safeAddColumn($db, 'appointments', 'visit_kind', "VARCHAR(20) NOT NULL DEFAULT 'member'");
-safeAddColumn($db, 'appointments', 'organization_address', 'VARCHAR(500) NULL DEFAULT NULL');
-safeAddColumn($db, 'appointments', 'organization_website', 'VARCHAR(255) NULL DEFAULT NULL');
-safeAddColumn($db, 'appointments', 'contact_person', 'VARCHAR(120) NULL DEFAULT NULL');
+if ($db instanceof PDO) {
+    safeAddColumn($db, 'appointments', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
+    safeAddColumn($db, 'appointments', 'visit_kind', "VARCHAR(20) NOT NULL DEFAULT 'member'");
+    safeAddColumn($db, 'appointments', 'organization_address', 'VARCHAR(500) NULL DEFAULT NULL');
+    safeAddColumn($db, 'appointments', 'organization_website', 'VARCHAR(255) NULL DEFAULT NULL');
+    safeAddColumn($db, 'appointments', 'contact_person', 'VARCHAR(120) NULL DEFAULT NULL');
+    ensureRequestStatusHistoryTable($db);
+}
 
 $appointmentListStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-ensureRequestStatusHistoryTable($db);
 
 /* ─── Status Update ─── */
 if (isset($_POST['update_status'])) {

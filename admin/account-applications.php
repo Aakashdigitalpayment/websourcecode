@@ -20,11 +20,13 @@ require_once __DIR__ . '/../includes/auth-roles.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
 
 /* ── Auto-ALTER — MySQL 5.7+ compatible ── */
-safeAddColumn($db, 'account_applications', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
-safeAddColumn($db, 'account_applications', 'updated_at', "TIMESTAMP NULL DEFAULT NULL");
+if ($db instanceof PDO) {
+    safeAddColumn($db, 'account_applications', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply मा संलग्न file'");
+    safeAddColumn($db, 'account_applications', 'updated_at', "TIMESTAMP NULL DEFAULT NULL");
+    ensureRequestStatusHistoryTable($db);
+}
 
 $accountListStatuses = ['pending', 'approved', 'rejected'];
-ensureRequestStatusHistoryTable($db);
 
 /* ─── Status Update ─── */
 if (isset($_POST['update_status'])) {

@@ -27,6 +27,8 @@ if (!defined('ENVIRONMENT')) {
 // PHP Version Check + Polyfills
 // (सबै version-related code: includes/compatibility.php मा छ)
 require_once __DIR__ . '/compatibility.php';
+/* Safe SQL helpers (sqCount / core_safe_count) — admin pages that skip core/init still need these */
+require_once __DIR__ . '/safe-query.php';
 
 /**
  * =====================================================
