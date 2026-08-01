@@ -289,7 +289,16 @@ if (!function_exists('memberSsotBatchStatusForKycRows')) {
                 $out[$kid] = 'kym_only';
                 continue;
             }
-            $out[$kid] = empty($m['password_hash']) ? 'no_password' : 'linked';
+            $linkedId = (int)($m['kyc_application_id'] ?? 0);
+            $hasPass = !empty($m['password_hash']);
+            if ($linkedId === $kid) {
+                $out[$kid] = $hasPass ? 'linked' : 'no_password';
+            } elseif ($linkedId === 0) {
+                $out[$kid] = $hasPass ? 'member_only' : 'no_password';
+            } else {
+                /* Same Member ID, linked to another KYM row */
+                $out[$kid] = $hasPass ? 'linked' : 'no_password';
+            }
         }
         return $out;
     }
@@ -457,6 +466,220 @@ if (!function_exists('memberSsotRequireExistingMember')) {
     }
 }
 
+if (!function_exists('memberSsotNormalizeMobile')) {
+    function memberSsotNormalizeMobile(?string $phone): string
+    {
+        $d = preg_replace('/\D+/', '', (string)$phone) ?? '';
+        if (strlen($d) > 10 && str_starts_with($d, '977')) {
+            $d = substr($d, -10);
+        }
+        return $d;
+    }
+}
+
+if (!function_exists('memberSsotPhonesMatch')) {
+    function memberSsotPhonesMatch(?string $a, ?string $b): bool
+    {
+        $a = memberSsotNormalizeMobile($a);
+        $b = memberSsotNormalizeMobile($b);
+        if ($a === '' || $b === '') {
+            return false;
+        }
+        return $a === $b || str_ends_with($a, $b) || str_ends_with($b, $a);
+    }
+}
+
+if (!function_exists('memberSsotRequireMemberIdAndMobile')) {
+    /**
+     * Public KYM / portal attach gate: Member ID exists AND mobile matches ledger (and KYM if present).
+     * @return array{ok:bool,member?:array,kyc?:?array,error_np?:string,error_en?:string}
+     */
+    function memberSsotRequireMemberIdAndMobile(PDO $db, string $memberId, string $mobile): array
+    {
+        $base = memberSsotRequireExistingMember($db, $memberId);
+        if (empty($base['ok'])) {
+            return $base;
+        }
+        $mobile = memberSsotNormalizeMobile($mobile);
+        if (!preg_match('/^[0-9]{10}$/', $mobile)) {
+            return [
+                'ok' => false,
+                'error_np' => '१० अंकको मोबाइल नम्बर राख्नुहोस् (सदस्य सूचीसँग मिल्नुपर्छ)।',
+                'error_en' => 'Enter a valid 10-digit mobile that matches the members list.',
+            ];
+        }
+        if (!memberSsotKymRequiresExistingMember()) {
+            return $base + ['kyc' => null];
+        }
+        $m = $base['member'] ?? null;
+        if (!$m) {
+            return $base + ['kyc' => null];
+        }
+        $ledgerPhone = memberSsotNormalizeMobile((string)($m['phone'] ?? ''));
+        if ($ledgerPhone === '') {
+            return [
+                'ok' => false,
+                'error_np' => 'सदस्य सूचीमा यो Member ID को मोबाइल खाली छ। कार्यालयमा सम्पर्क गरी मोबाइल अपडेट गराउनुहोस्।',
+                'error_en' => 'This Member ID has no mobile on the members list. Please ask the office to update it.',
+            ];
+        }
+        if (!memberSsotPhonesMatch($ledgerPhone, $mobile)) {
+            return [
+                'ok' => false,
+                'error_np' => 'Member ID र मोबाइल मिलेन। सहकारीमा दर्ता भएको मोबाइल नै प्रयोग गर्नुहोस्।',
+                'error_en' => 'Member ID and mobile do not match. Use the mobile registered with the cooperative.',
+            ];
+        }
+        $kyc = memberSsotLoadLinkedKyc($db, $m);
+        if ($kyc) {
+            $kycMobile = memberSsotNormalizeMobile((string)($kyc['mobile'] ?? ''));
+            if ($kycMobile !== '' && !memberSsotPhonesMatch($kycMobile, $mobile)) {
+                return [
+                    'ok' => false,
+                    'error_np' => 'यो Member ID को केवाइएममा अर्कै मोबाइल छ। गलत मान्छेको डेटा अपडेट गर्न मिल्दैन।',
+                    'error_en' => 'Linked KYM has a different mobile. You cannot update another person\'s record.',
+                ];
+            }
+        }
+        return ['ok' => true, 'member' => $m, 'kyc' => $kyc];
+    }
+}
+
+if (!function_exists('memberSsotMergePublicKycFillEmpty')) {
+    /**
+     * Public path: never overwrite non-empty DB values (text or docs).
+     * @param array<string,mixed> $existing
+     * @param array<string,mixed> $incoming
+     * @return array{merged:array<string,mixed>,filled:int,blocked:int}
+     */
+    function memberSsotMergePublicKycFillEmpty(array $existing, array $incoming): array
+    {
+        $docKeys = ['photo', 'citizenship_front', 'citizenship_back', 'national_id_card', 'signature', 'left_thumb', 'right_thumb'];
+        $merged = $existing;
+        $filled = 0;
+        $blocked = 0;
+        foreach ($incoming as $key => $val) {
+            if ($key === 'id' || $key === 'tracking_id' || $key === 'member_id' || $key === 'status') {
+                continue;
+            }
+            if (in_array($key, $docKeys, true)) {
+                $have = memberSsotHasDocPath(isset($existing[$key]) ? (string)$existing[$key] : '');
+                $new = is_string($val) ? trim($val) : '';
+                if ($have) {
+                    if ($new !== '' && $new !== (string)($existing[$key] ?? '')) {
+                        $blocked++;
+                    }
+                    continue;
+                }
+                if ($new !== '') {
+                    $merged[$key] = $new;
+                    $filled++;
+                }
+                continue;
+            }
+            $cur = trim((string)($existing[$key] ?? ''));
+            $new = is_array($val) ? '' : trim((string)$val);
+            if ($cur !== '') {
+                if ($new !== '' && $new !== $cur) {
+                    $blocked++;
+                }
+                continue;
+            }
+            if ($new !== '') {
+                $merged[$key] = $val;
+                $filled++;
+            }
+        }
+        return ['merged' => $merged, 'filled' => $filled, 'blocked' => $blocked];
+    }
+}
+
+if (!function_exists('memberSsotPublicGateStore')) {
+    function memberSsotPublicGateStore(string $memberId, string $mobile): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return;
+        }
+        $_SESSION['public_kym_gate'] = [
+            'member_id' => memberSsotNormalizeId($memberId),
+            'mobile' => memberSsotNormalizeMobile($mobile),
+            'at' => time(),
+        ];
+    }
+}
+
+if (!function_exists('memberSsotPublicGateClear')) {
+    function memberSsotPublicGateClear(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            unset($_SESSION['public_kym_gate']);
+        }
+    }
+}
+
+if (!function_exists('memberSsotPublicGateCheck')) {
+    /** @return array{ok:bool,member_id?:string,mobile?:string} */
+    function memberSsotPublicGateCheck(?string $memberId = null, ?string $mobile = null): array
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            return ['ok' => false];
+        }
+        $g = $_SESSION['public_kym_gate'] ?? null;
+        if (!is_array($g)) {
+            return ['ok' => false];
+        }
+        $at = (int)($g['at'] ?? 0);
+        if ($at < 1 || (time() - $at) > 7200) {
+            memberSsotPublicGateClear();
+            return ['ok' => false];
+        }
+        $sid = memberSsotNormalizeId((string)($g['member_id'] ?? ''));
+        $mob = memberSsotNormalizeMobile((string)($g['mobile'] ?? ''));
+        if ($sid === '' || $mob === '') {
+            return ['ok' => false];
+        }
+        if ($memberId !== null && memberSsotNormalizeId($memberId) !== $sid) {
+            return ['ok' => false];
+        }
+        if ($mobile !== null && !memberSsotPhonesMatch($mobile, $mob)) {
+            return ['ok' => false];
+        }
+        return ['ok' => true, 'member_id' => $sid, 'mobile' => $mob];
+    }
+}
+
+if (!function_exists('memberSsotPrefillEmptyOnlyFromKyc')) {
+    /**
+     * For public verified session: expose existing values for display/lock, mark which are locked.
+     * @param array<string,mixed> $kyc
+     * @return array{prefill:array<string,mixed>,locked:array<string,bool>}
+     */
+    function memberSsotPrefillEmptyOnlyFromKyc(array $kyc): array
+    {
+        $keys = [
+            'full_name', 'full_name_en', 'member_id', 'dob_bs', 'dob_ad', 'gender', 'marital_status',
+            'mobile', 'email', 'citizenship_no', 'citizenship_issued_date', 'citizenship_issued_place',
+            'national_id_number', 'risk_category', 'occupation', 'organization_name', 'monthly_income',
+            'account_type', 'branch',
+            'permanent_province', 'permanent_district', 'permanent_municipality', 'permanent_ward', 'permanent_tole',
+            'temporary_province', 'temporary_district', 'temporary_municipality', 'temporary_ward', 'temporary_tole',
+            'photo', 'citizenship_front', 'citizenship_back', 'national_id_card', 'signature', 'left_thumb', 'right_thumb',
+            'father_name', 'mother_name', 'grandfather_name', 'spouse_name',
+        ];
+        $prefill = [];
+        $locked = [];
+        foreach ($keys as $k) {
+            $v = isset($kyc[$k]) ? trim((string)$kyc[$k]) : '';
+            if ($v === '') {
+                continue;
+            }
+            $prefill[$k] = (string)$kyc[$k];
+            $locked[$k] = true;
+        }
+        return ['prefill' => $prefill, 'locked' => $locked];
+    }
+}
+
 if (!function_exists('memberSsotUpsertMemberFromKyc')) {
     /**
      * On KYM approve: ensure a members row exists for kyc.member_id (SSOT).
@@ -611,10 +834,12 @@ if (!function_exists('memberSsotDuplicateSadasyataReport')) {
     {
         try {
             $st = $db->query(
-                "SELECT sadasyata_number, COUNT(*) AS cnt, GROUP_CONCAT(id ORDER BY id) AS ids
+                "SELECT UPPER(TRIM(sadasyata_number)) AS sadasyata_number,
+                        COUNT(*) AS cnt,
+                        GROUP_CONCAT(id ORDER BY id) AS ids
                  FROM members
                  WHERE sadasyata_number IS NOT NULL AND TRIM(sadasyata_number) <> ''
-                 GROUP BY sadasyata_number
+                 GROUP BY UPPER(TRIM(sadasyata_number))
                  HAVING COUNT(*) > 1
                  ORDER BY cnt DESC
                  LIMIT 500"
@@ -680,29 +905,29 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
         $title = 'एक Member ID = एक मान्छे (SSOT)';
-        $flow = '१) Members सूची/Import = सदस्यता ledger · '
-            . '२) KYM = कागजात · '
-            . '३) Portal unlock = लगइन मात्र · '
-            . '४) नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID दिन्छ।';
+        $flow = '<strong>Members</strong> = पातलो ledger (ID, नाम, मोबाइल, पोर्टल पासवर्ड) · '
+            . '<strong>KYM</strong> = बाक्लो फाइल (पूरा फारम + कागजात + AML + approve/reject) · '
+            . '<strong>Portal</strong> = लगइन मात्र · '
+            . 'नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = 'यो पेज = कागजात/AML मात्र। Bulk import मा <strong>member_id अनिवार्य</strong>। '
-                . 'पहिले <a href="member-import.php">Members Import</a> वा सूचीमा Member ID राख्नुहोस्, अनि KYM। '
-                . 'Approve = लिंक/stub; लगइन छुट्टै Portal unlock।';
+            $body = 'यो पेज = <strong>KYM फाइल समीक्षा</strong> (फारम + फोटो/नागरिकता + AML) — Members ledger होइन। '
+                . 'Online भरिएको डेटा पहिले यहाँ बस्छ; <strong>approve</strong> गर्दा members मा खाली name/phone/email मात्र soft-fill। '
+                . 'Excel bulk = पहिले Members मा भएको ID का लागि KYM seed (नयाँ सदस्य बनाउँदैन)। '
+                . 'Verify: <strong>Member ID + मोबाइल</strong> · खाली field मात्र भर्ने। '
+                . 'पहिले <a href="member-import.php">Members Import</a>।';
         } elseif ($context === 'portal') {
-            $body = 'यो पेजले <strong>त्यही Member ID</strong> को लगइन unlock गर्छ (approve/password)। नयाँ सदस्यता नं. बन्दैन। '
-                . 'सूची: <a href="members.php">Members</a> · कागजात: <a href="kyc-applications.php">KYM</a>।';
+            $body = 'पोर्टल अनुरोध: <strong>Member ID + मोबाइल</strong> members सूचीसँग मिल्नुपर्छ। यो पेजले लगइन unlock मात्र गर्छ। '
+                . 'KYM approved देखिन्छ; update गरेपछि admin ले फेरि approve गर्छ।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID)। '
-                . 'थप्न: <a href="member-import.php">Bulk Import</a> · नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a> · '
-                . 'कागजात: <a href="kyc-applications.php">KYM</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
+            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID SSOT)। विस्तृत पहिचान/कागजात यहाँ होइन — <a href="kyc-applications.php">KYM</a> मा। '
+                . 'CBS Excel → <a href="member-import.php">Members Import</a> · नयाँ: <a href="membership-applications.php">सदस्यता अनुरोध</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
         } elseif ($context === 'import') {
-            $body = 'Members CSV = <strong>सदस्यता ledger</strong> (sadasyata_number = Member ID)। ID invent हुँदैन। '
-                . 'मिल्दो KYM भए स्वतः लिंक। कागजात छुट्टै: <a href="kyc-applications.php">KYM Bulk Import</a> '
-                . '(त्यहाँ पनि एउटै Member ID)।';
+            $body = 'Members CSV = <strong>सदस्यता ledger</strong> मात्र (CBS)। KYM Excel अर्कै हो — <a href="kyc-applications.php">KYM पेज</a> मा bulk; त्यसले members बनाउँदैन। '
+                . 'पोर्टल verify का लागि मोबाइल सही राख्नुहोस्।';
         } elseif ($context === 'membership') {
-            $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा तपाईंले Member ID दिनुहोस् → members stub। '
-                . 'त्यसपछि Online KYM / Members सूची / Portal unlock — सबै त्यही नम्बर।';
+            $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा Member ID दिनुहोस् → members stub। '
+                . 'त्यसपछि Online KYM (ID+mobile) / Portal register (उही)।';
         }
         return '<div class="alert alert-info border-0 shadow-sm py-2 px-3 mb-3 member-ssot-help" role="note">'
             . '<div class="fw-semibold small mb-1"><i class="fas fa-link me-1"></i>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>'

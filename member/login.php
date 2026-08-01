@@ -214,6 +214,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
             $db = getDB();
             $kycMatched = false;
             $kycRow = null;
+            $stubMember = null;
+            /* Primary: Member ID + mobile must match members ledger (CBS/import) */
+            if (function_exists('memberSsotRequireMemberIdAndMobile')) {
+                $gate = memberSsotRequireMemberIdAndMobile($db, $sadasyata, $phone);
+                if (empty($gate['ok'])) {
+                    $error = $_t(
+                        (string)($gate['error_np'] ?? 'Member ID र मोबाइल मिलेन।'),
+                        (string)($gate['error_en'] ?? 'Member ID and mobile do not match.')
+                    );
+                } else {
+                    $stubMember = $gate['member'] ?? null;
+                    $kycRow = $gate['kyc'] ?? null;
+                    if (!$kycRow && function_exists('memberSsotFindKycByMemberId')) {
+                        $kycRow = memberSsotFindKycByMemberId($db, $sadasyata);
+                    }
+                    $kycMatched = true; /* ledger verified — KYM optional for portal attach */
+                    if ($kycRow && ($kycRow['status'] ?? '') === 'rejected') {
+                        $error = $_t('तपाईंको केवाइएम अस्वीकृत छ। कृपया सहकारीमा सम्पर्क गरी KYC अपडेट गर्नुहोस्।', 'Your KYC is rejected. Please contact cooperative and update KYC.');
+                        $kycMatched = false;
+                    }
+                }
+            } else {
             try {
                 $memberIdCol = '';
                 foreach (['member_id', 'sadasyata_number'] as $c) {
@@ -249,19 +271,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
             } elseif (($kycRow['status'] ?? '') === 'rejected') {
                 $error = $_t('तपाईंको केवाइएम अस्वीकृत छ। कृपया सहकारीमा सम्पर्क गरी KYC अपडेट गर्नुहोस्।', 'Your KYC is rejected. Please contact cooperative and update KYC.');
             }
-            if (!$error && $kycRow) {
+            } /* end legacy KYM-only match */
+            if (!$error && $kycMatched && $kycRow) {
                 // Signup data KYM बाट नै लिने — duplicate typing हटाउने
                 $name  = trim($kycRow['full_name'] ?? '');
                 $email = strtolower(trim($kycRow['email'] ?? $email));
                 $phone = preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? $phone));
                 if ($name === '') $error = $_t('KYC record मा नाम खाली छ। कृपया KYC update गर्नुहोस्।', 'Name is empty in KYC record. Please update KYC.');
-            }
-            $stubMember = null;
-            if (!$error && function_exists('memberSsotFindBySadasyata')) {
-                $stubMember = memberSsotFindBySadasyata($db, $sadasyata);
-                if ($stubMember && !empty($stubMember['password_hash'])) {
-                    $error = $_t('यो सदस्यता नम्बर पहिले नै दर्ता भएको छ। लगिन गर्नुहोस्।', 'This member number is already registered. Please login.');
+            } elseif (!$error && $kycMatched && $stubMember) {
+                $name = trim((string)($stubMember['name'] ?? $name));
+                if ($name === '') {
+                    $name = trim((string)($_POST['name'] ?? 'Member'));
                 }
+            }
+            if (!$error && $stubMember === null && function_exists('memberSsotFindBySadasyata')) {
+                $stubMember = memberSsotFindBySadasyata($db, $sadasyata);
+            }
+            if (!$error && $stubMember && !empty($stubMember['password_hash'])) {
+                    $error = $_t('यो सदस्यता नम्बर पहिले नै दर्ता भएको छ। लगिन गर्नुहोस्।', 'This member number is already registered. Please login.');
             }
             if (!$error && $email) {
                 $chk = $db->prepare('SELECT id FROM members WHERE email=? LIMIT 1');

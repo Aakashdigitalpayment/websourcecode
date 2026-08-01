@@ -266,7 +266,7 @@ if ($db instanceof PDO) {
     ensureRequestStatusHistoryTable($db);
 }
 
-/* ── Bulk Import (Excel CSV) — KYM docs only; Member ID SSOT link ── */
+/* ── Bulk Import (Excel CSV) — KYM dossier seed only; does not create members ── */
 if (isset($_POST['import_kyc_csv'])) {
     $file = $_FILES['kyc_csv_file'] ?? null;
     if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
@@ -366,10 +366,15 @@ if (isset($_POST['import_kyc_csv'])) {
             continue;
         }
 
-        /* Warn if Member ID not in members ledger (still allow KYM — link later after import) */
+        /* Skip if Member ID not in members ledger — no orphan KYM dossiers */
         $memberExists = function_exists('memberSsotFindBySadasyata')
             ? (bool)memberSsotFindBySadasyata($db, $memberId)
             : false;
+        if (!$memberExists) {
+            $skip++;
+            $skipReasons[] = "row {$rowNo}: Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
+            continue;
+        }
 
         $status = strtolower($val('status'));
         if (!in_array($status, $allowedStatuses, true)) {
@@ -405,9 +410,6 @@ if (isset($_POST['import_kyc_csv'])) {
                 if (memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId)) {
                     $linked++;
                 }
-            }
-            if (!$memberExists) {
-                $skipReasons[] = "row {$rowNo}: KYM थपियो तर Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
             }
             $ok++;
         } catch (Throwable $e) {
@@ -1503,14 +1505,15 @@ if ($viewApp):
 <div class="card border-0 shadow-sm mb-3 no-print kyc-rounded-card">
     <div class="card-body py-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-            <h6 class="mb-0"><i class="fas fa-file-import me-2 text-primary"></i>KYC Bulk Import (Excel/CSV)</h6>
+            <h6 class="mb-0"><i class="fas fa-file-import me-2 text-primary"></i>KYM Bulk Import (Excel/CSV) — फाइल seed</h6>
             <a href="kyc-import-sample.php" class="btn btn-outline-success btn-sm">
                 <i class="fas fa-download me-1"></i>Sample Format डाउनलोड
             </a>
         </div>
         <p class="small text-muted mb-2 mb-md-0">
-            <strong>कागजात/KYM मात्र</strong> — <code>member_id</code> (Member ID) <strong>अनिवार्य</strong>। खाली ID = skip (orphan बन्दैन)।
-            पहिले <a href="member-import.php">Members Bulk Import</a> ले ledger हाल्नुहोस्; अनि यही नम्बरले KYM लिंक हुन्छ।
+            <strong>Members बनाउँदैन</strong> — पहिले CBS बाट <a href="member-import.php">Members Import</a>।
+            यो Excel ले <code>kyc_applications</code> मा KYM फाइल (नाम/मोबाइल/ठेगान/status…) seed गर्छ; फोटो/स्क्यान पछि online वा admin बाट।
+            <code>member_id</code> <strong>अनिवार्य</strong> (खाली = skip)। Members मा भएको ID सँग लिंक हुन्छ।
         </p>
         <form method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
             <?php echo csrfField(); ?>

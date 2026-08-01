@@ -74,6 +74,43 @@ if (!function_exists('verifyPublicFormKycApprovedByMemberId')) {
 if (!function_exists('verifyPublicFormKycTriple')) {
     function verifyPublicFormKycTriple($db, $memberIdRaw, $emailRaw, $phoneRaw)
     {
+        $fail = static function ($np, $en) {
+            return ['ok' => false, 'row' => null, 'msg_np' => $np, 'msg_en' => $en];
+        };
+        if ($db instanceof PDO && function_exists('memberSsotRequireMemberIdAndMobile')) {
+            $gate = memberSsotRequireMemberIdAndMobile($db, (string)$memberIdRaw, (string)$phoneRaw);
+            if (empty($gate['ok'])) {
+                return $fail(
+                    (string)($gate['error_np'] ?? 'Member ID / मोबाइल मिलेन।'),
+                    (string)($gate['error_en'] ?? 'Member ID / mobile mismatch.')
+                );
+            }
+            $kyc = $gate['kyc'] ?? null;
+            if (!$kyc && function_exists('memberSsotFindKycByMemberId')) {
+                $kyc = memberSsotFindKycByMemberId($db, (string)($gate['member']['sadasyata_number'] ?? $memberIdRaw));
+            }
+            if ($kyc) {
+                $email = strtolower(trim((string)$emailRaw));
+                $kycEmail = strtolower(trim((string)($kyc['email'] ?? '')));
+                if ($email !== '' && $kycEmail !== '' && $email !== $kycEmail) {
+                    return $fail('Member ID सँग इमेल मिलेन।', 'Email does not match this Member ID.');
+                }
+                return ['ok' => true, 'row' => $kyc, 'msg_np' => '', 'msg_en' => ''];
+            }
+            /* Ledger match OK but no KYM yet */
+            return [
+                'ok' => true,
+                'row' => [
+                    'member_id' => memberSsotNormalizeId((string)$memberIdRaw),
+                    'full_name' => (string)(($gate['member']['name'] ?? '')),
+                    'mobile' => memberSsotNormalizeMobile((string)$phoneRaw),
+                    'email' => strtolower(trim((string)$emailRaw)),
+                    'status' => 'incomplete',
+                ],
+                'msg_np' => '',
+                'msg_en' => '',
+            ];
+        }
         return verifyPublicFormKycByMemberId($db, $memberIdRaw);
     }
 }
