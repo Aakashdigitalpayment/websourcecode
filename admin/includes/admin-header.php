@@ -1,5 +1,15 @@
 <?php
 require_once __DIR__ . '/../../includes/config.php';
+/* Core helpers (fa_to_lucide, etc.) — admin-header-only pages skip core/init */
+$__coreHelpers = __DIR__ . '/../../core/helpers.php';
+if (is_file($__coreHelpers)) {
+    require_once $__coreHelpers;
+}
+/* RBAC helpers — require_role() for HRM / KYC pages */
+$__authRoles = __DIR__ . '/../../includes/auth-roles.php';
+if (is_file($__authRoles)) {
+    require_once $__authRoles;
+}
 /* Safe COUNT helper — available even if older deploys skip core/init or safe-query.
    Data-safe: PHP function only, no schema / migration / DELETE. */
 if (!function_exists('core_safe_count')) {
@@ -17,6 +27,14 @@ if (!function_exists('sqCount')) {
     function sqCount(PDO $db, string $sql, string $logPrefix = '[sqCount]'): int
     {
         return core_safe_count($db, $sql, $logPrefix);
+    }
+}
+/* Soft icon map when helpers failed to load */
+if (!function_exists('fa_to_lucide')) {
+    function fa_to_lucide(string $fa): string
+    {
+        $fa = trim($fa);
+        return preg_replace('/^fa[srb]?\s+fa-|^fa-/', '', $fa) ?: 'circle';
     }
 }
 /* Notification system — email/SMS पठाउन — सबै admin pages मा available */

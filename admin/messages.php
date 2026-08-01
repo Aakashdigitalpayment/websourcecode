@@ -168,6 +168,9 @@ if ($action === 'view' && isset($_GET['id'])) {
     $messages = [];
     $totalCount = $unreadCount = $readCount = 0;
     try {
+        if (!($db instanceof PDO)) {
+            throw new RuntimeException('DB unavailable');
+        }
         $stmt = $db->prepare("SELECT * FROM contact_messages {$w['sql']} ORDER BY created_at DESC LIMIT 500");
         $stmt->execute($w['params']);
         $messages = $stmt->fetchAll();
@@ -175,7 +178,7 @@ if ($action === 'view' && isset($_GET['id'])) {
         $totalCount  = core_safe_count($db, "SELECT COUNT(*) FROM contact_messages", '[messages total]');
         $unreadCount = core_safe_count($db, "SELECT COUNT(*) FROM contact_messages WHERE is_read=0", '[messages unread]');
         $readCount   = $totalCount - $unreadCount;
-    } catch (Exception $e) {}
+    } catch (Throwable $e) {}
 
     /* Page header */
     echo adminPageHeader(

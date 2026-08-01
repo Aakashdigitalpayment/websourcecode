@@ -412,13 +412,20 @@ try {
     $totalPages    = ceil($total / $limit);
     $stmt2 = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
     $stmt2->execute(array_merge($params2, [$limit, $offset])); $applications = $stmt2->fetchAll();
-} catch (Exception $e) { $applications = []; $total = 0; $totalPages = 0; }
+} catch (Throwable $e) { $applications = []; $total = 0; $totalPages = 0; }
 
-$pendingCount    = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='pending'", '[kyc-applications pending]');
-$approvedCount   = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='approved'", '[kyc-applications approved]');
-$rejectedCount   = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='rejected'", '[kyc-applications rejected]');
-$incompleteCount = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='incomplete'", '[kyc-applications incomplete]');
-$partialCount    = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='partial'", '[kyc-applications partial]');
+$pendingCount = $approvedCount = $rejectedCount = $incompleteCount = $partialCount = 0;
+if ($db instanceof PDO) {
+    try {
+        $pendingCount    = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='pending'", '[kyc-applications pending]');
+        $approvedCount   = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='approved'", '[kyc-applications approved]');
+        $rejectedCount   = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='rejected'", '[kyc-applications rejected]');
+        $incompleteCount = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='incomplete'", '[kyc-applications incomplete]');
+        $partialCount    = core_safe_count($db, "SELECT COUNT(*) FROM kyc_applications WHERE status='partial'", '[kyc-applications partial]');
+    } catch (Throwable $e) {
+        /* keep zeros */
+    }
+}
 
 /* ─── Single view ─── */
 $viewApp = null;
