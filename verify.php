@@ -383,29 +383,41 @@ if ($result && !empty($result['ok']) && $pdo) {
 .vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
 .vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
 
-/* Success: desktop 2-col — ID card | partner log (खाली किनारा कम, scroll कम) */
+/* Success: desktop 2-col — ID card | partner log
+   NOTE: app-member/global-theme force vp-outer max-width:560px !important — override here. */
 .vp-success-alerts { margin-bottom: 12px; }
-.vp-success-layout { display: grid; gap: 14px; align-items: start; }
-.vp-success-layout .vp-id-card { margin-bottom: 0; }
-.vp-success-layout .vp-partner-log-card { margin-top: 0 !important; height: 100%; }
-.vp-success-layout .vp-visit-list { max-height: min(280px, 42vh); overflow-y: auto; }
-@media (min-width: 960px) {
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
-        max-width: min(1120px, 96vw);
+.vp-success-layout { display: grid; gap: 14px; align-items: stretch; width: 100%; }
+.vp-success-layout .vp-id-card { margin-bottom: 0; overflow: visible; }
+.vp-success-layout .vp-partner-log-card { margin-top: 0 !important; height: auto; min-height: 100%; }
+.vp-success-layout .vp-visit-list { max-height: min(220px, 36vh); overflow-y: auto; }
+.vp-success-col { min-width: 0; }
+@media (min-width: 900px) {
+    body.auth-portal-page.verify-auth-page:has(.vp-success-layout.has-partner) {
+        align-items: flex-start !important;
+        padding: 16px 16px 32px !important;
     }
-    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
-        max-width: 40rem;
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner),
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+        max-width: min(1240px, 98vw) !important;
+        width: 100% !important;
+    }
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name,
+    body.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
+        max-width: 48rem !important;
     }
     .vp-success-layout.has-partner {
-        grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-        gap: 18px;
+        grid-template-columns: minmax(320px, 1fr) minmax(340px, 1.05fr);
+        gap: 20px;
     }
     .vp-success-layout.has-partner .vp-partner-log-card {
         position: sticky;
         top: 12px;
     }
+    .vp-success-layout.has-partner .vp-id-main {
+        grid-template-columns: 110px minmax(0, 1fr);
+    }
 }
-@media (max-width: 959px) {
+@media (max-width: 899px) {
     .vp-success-layout.has-partner { grid-template-columns: 1fr; }
 }
 
