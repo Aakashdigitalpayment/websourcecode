@@ -551,7 +551,16 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
             <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
                 <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
                 <div class="vp-visit-body">
-                    <div class="vp-visit-org"><?= htmlspecialchars((string)($vl['partner_name'] ?? '—')) ?></div>
+                    <div class="vp-visit-org"><?php
+                        $vOrg = (string)($vl['partner_name'] ?? '—');
+                        if (function_exists('partnerFacilityDisplayName')) {
+                            $vOrg = partnerFacilityDisplayName([
+                                'partner_name' => (string)($vl['partner_name'] ?? ''),
+                                'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
+                            ]) ?: $vOrg;
+                        }
+                        echo htmlspecialchars($vOrg);
+                    ?></div>
                     <div class="vp-visit-svc">
                         <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
                         <?php if (!empty($vl['service_note'])): ?>
@@ -659,7 +668,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
             row.hidden = !match;
             if (match) visible++;
         });
-        if (emptyAll) emptyAll.hidden = rows.length > 0;
+        if (emptyAll) emptyAll.hidden = !!pid || rows.length > 0;
         if (emptyFilter) emptyFilter.hidden = !(pid && visible === 0);
         if (countEl) countEl.textContent = String(pid ? visible : rows.length);
         if (titleEl) {

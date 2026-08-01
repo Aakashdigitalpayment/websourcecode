@@ -2004,6 +2004,9 @@ html, body {
 }
 .ph-timeline {
     position: relative;
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 2px;
 }
 .ph-history-item {
     display:flex; gap:12px; align-items:flex-start;

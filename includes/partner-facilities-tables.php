@@ -414,7 +414,7 @@ if (!function_exists('fetchMemberPartnerServiceLogs')) {
                 $st = $db->prepare(
                     "SELECT s.id, s.member_id, s.member_card_no, s.partner_id, s.partner_name,
                             s.service_name, s.service_taken, s.service_note, s.created_at,
-                            p.facility_type, p.logo_path, p.partner_code
+                            p.facility_type, p.logo_path, p.partner_code, p.partner_name_en
                      FROM member_partner_services s
                      LEFT JOIN partner_facilities p ON p.id = s.partner_id
                      WHERE s.member_id = ? AND s.partner_id = ?
@@ -426,7 +426,7 @@ if (!function_exists('fetchMemberPartnerServiceLogs')) {
                 $st = $db->prepare(
                     "SELECT s.id, s.member_id, s.member_card_no, s.partner_id, s.partner_name,
                             s.service_name, s.service_taken, s.service_note, s.created_at,
-                            p.facility_type, p.logo_path, p.partner_code
+                            p.facility_type, p.logo_path, p.partner_code, p.partner_name_en
                      FROM member_partner_services s
                      LEFT JOIN partner_facilities p ON p.id = s.partner_id
                      WHERE s.member_id = ?

@@ -757,7 +757,10 @@ require_once 'includes/header.php';
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
             <span class="sp-badge" style="background:var(--sp-primary);color:#fff;">
                 <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="calendar-days"></i>
-                <?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np']; ?>
+                <?php
+                $datebarMonth = isEnglish() ? $SP_BS_MONTHS_EN[$pg['bs_month'] - 1] : $pg['bs_month_name'];
+                echo $pg['bs_day_np'].' '.$datebarMonth.' '.$pg['bs_year_np'];
+                ?>
             </span>
             <span class="sp-datebar-meta"><?php echo $pg['ad_date'].' · '.$pg['vaar_np']; ?></span>
             <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo htmlspecialchars($pg['tithi']); ?></span>
@@ -867,7 +870,11 @@ if($activeTab==='patro'): ?>
       <div class="sp-cal-body">
         <div class="sp-cal-grid">
           <!-- Weekday headers -->
-          <?php foreach(['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'] as $wi=>$wn): ?>
+          <?php
+          $weekHdr = isEnglish()
+            ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+            : ['आइत','सोम','मंगल','बुध','बिहि','शुक्र','शनि'];
+          foreach($weekHdr as $wi=>$wn): ?>
           <div class="sp-cal-weekhdr <?php echo $wi===6?'sat':($wi===0?'sun':''); ?>"><?php echo $wn; ?></div>
           <?php endforeach; ?>
 
@@ -913,13 +920,17 @@ if($activeTab==='patro'): ?>
 
       <!-- Legend -->
       <div class="sp-cal-legend">
-        <?php foreach([['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a'],['सहकारी कार्यक्रम','#ecfdf5','#047857']] as [$l,$bg,$tc]): ?>
+        <?php
+        $legendItems = isEnglish()
+          ? [['Purnima','#eff6ff','#3b82f6'],['Aunsi','#f3f4f6','#374151'],['Ekadashi','#f5f3ff','#7c3aed'],['Ashtami','#ecfeff','#0891b2'],['Festival','#fff7ed','#ea580c'],['Holiday','#fef2f2','#dc2626'],['Auspicious','#dcfce7','#16a34a'],['Coop program','#ecfdf5','#047857']]
+          : [['पूर्णिमा','#eff6ff','#3b82f6'],['औंसी','#f3f4f6','#374151'],['एकादशी','#f5f3ff','#7c3aed'],['अष्टमी','#ecfeff','#0891b2'],['पर्व','#fff7ed','#ea580c'],['बिदा','#fef2f2','#dc2626'],['शुभ दिन','#dcfce7','#16a34a'],['सहकारी कार्यक्रम','#ecfdf5','#047857']];
+        foreach($legendItems as [$l,$bg,$tc]): ?>
         <div class="sp-cal-leg-item">
           <span class="sp-cal-leg-swatch" style="background:<?php echo $bg; ?>;border:1px solid <?php echo $tc; ?>;"></span>
           <?php echo $l; ?>
         </div>
         <?php endforeach; ?>
-        <div class="sp-cal-leg-item"><span style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0;display:inline-block;"></span>शुभ संकेत</div>
+        <div class="sp-cal-leg-item"><span style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0;display:inline-block;"></span><?php echo isEnglish()?'Auspicious mark':'शुभ संकेत'; ?></div>
       </div>
     </div><!-- /sp-cal-card -->
 
@@ -927,9 +938,10 @@ if($activeTab==='patro'): ?>
     <?php
     $selIsToday = ($calY === $pg['bs_year'] && $calM === $pg['bs_month'] && $selD === $pg['bs_day']);
     $panchaSrc = $selPg;
+    $todayMonthLabel = isEnglish() ? $SP_BS_MONTHS_EN[$pg['bs_month'] - 1] : $pg['bs_month_name'];
     $panchaTitle = $selIsToday
         ? (isEnglish()
-            ? ('Today\'s panchanga — ' . $pg['bs_day_np'] . ' ' . $pg['bs_month_name'] . ' ' . $pg['bs_year_np'])
+            ? ('Today\'s panchanga — ' . $pg['bs_day_np'] . ' ' . $todayMonthLabel . ' ' . $pg['bs_year_np'])
             : ('आजको पूर्ण पञ्चाङ्ग — ' . $pg['bs_day_np'] . ' ' . $pg['bs_month_name'] . ' ' . $pg['bs_year_np']))
         : (isEnglish()
             ? ('Panchanga — ' . sp_np($selD) . ' ' . $SP_BS_MONTHS_EN[$calM - 1] . ' ' . sp_np($calY))
@@ -974,7 +986,7 @@ if($activeTab==='patro'): ?>
     <div class="sp-minical-card" style="margin-top:16px;">
       <div class="sp-minical-hdr">
         <span><i class="lucide-icon" style="width:13px;height:13px;" data-lucide="calendar"></i>
-        आगामी महिना — <?php echo (isEnglish() ? $SP_BS_MONTHS_EN[$nextM-1] : $SP_BS_MONTHS_NP[$nextM-1]).' '.sp_np($nextY); ?></span>
+        <?php echo isEnglish() ? 'Next month — ' : 'आगामी महिना — '; ?><?php echo (isEnglish() ? $SP_BS_MONTHS_EN[$nextM-1] : $SP_BS_MONTHS_NP[$nextM-1]).' '.sp_np($nextY); ?></span>
         <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1&rf=<?php echo $rfPeriod; ?>" style="font-size:13px;font-weight:600;color:var(--sp-primary);text-decoration:none;"><?php echo isEnglish()?'View full →':'पूरा हेर्नुहोस् →'; ?></a>
       </div>
       <div class="sp-minical-body">
@@ -989,7 +1001,7 @@ if($activeTab==='patro'): ?>
               $me=sp_main_event($mc['evs']??[]);
               $mcls='sp-minical-cell'.($mc['wd']===6?' sat':'');
               if($me) $mcls.=' '.($me['type']==='holiday'?'holiday':($me['type']==='festival'?'festival':($me['type']==='purnima'?'purnima':($me['type']==='ekadashi'?'ekadashi':($me['type']==='sahakari'?'sahakari':'has-ev'))))); ?>
-            <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=<?php echo $mc['d']; ?>" class="<?php echo $mcls; ?>" title="<?php echo $me?htmlspecialchars($me['name']):''; ?>" style="text-decoration:none;">
+            <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=<?php echo $mc['d']; ?>&rf=<?php echo $rfPeriod; ?>" class="<?php echo $mcls; ?>" title="<?php echo $me?htmlspecialchars($me['name']):''; ?>" style="text-decoration:none;">
               <?php echo sp_np($mc['d']); ?>
             </a>
             <?php endif; ?>
@@ -1065,7 +1077,7 @@ if($activeTab==='patro'): ?>
         <div style="margin-top:12px;">
           <a href="#spPanchaDetail" class="sp-chip-link" style="width:100%;justify-content:center;">
             <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="sparkles"></i>
-            <?php echo isEnglish() ? 'Full panchanga below' : 'पूर्ण पञ्चाङ्ग तल हेर्नुहोस्'; ?>
+            <?php echo isEnglish() ? 'Full panchanga' : 'पूर्ण पञ्चाङ्ग हेर्नुहोस्'; ?>
           </a>
         </div>
       </div>

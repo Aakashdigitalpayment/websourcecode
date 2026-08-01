@@ -465,8 +465,8 @@ require __DIR__ . '/includes/chrome.php';
             <p class="ph-cap-note"><?php echo $_t('पछिल्ला भेटहरू — संस्था छानेर फिल्टर गर्न सकिन्छ।', 'Recent visits — filter by organization.'); ?></p>
 
             <!-- Per-partner filter pills -->
-            <div class="ph-summary-row" role="tablist" aria-label="<?php echo htmlspecialchars($_t('संस्था फिल्टर', 'Partner filter')); ?>">
-                <button type="button" class="ph-summary-pill active" data-filter="all" onclick="phFilter('all', this)">
+            <div class="ph-summary-row" role="group" aria-label="<?php echo htmlspecialchars($_t('संस्था फिल्टर', 'Partner filter')); ?>">
+                <button type="button" class="ph-summary-pill active" data-filter="all" aria-pressed="true" onclick="phFilter('all', this)">
                     <i class="fas fa-th-large midx-ph-mini"></i>
                     <?php echo $_t('सबै', 'All'); ?>
                     <span class="ph-pill-count"><?php echo count($partnerHistory); ?></span>
@@ -474,7 +474,7 @@ require __DIR__ . '/includes/chrome.php';
                 <?php foreach ($partnerSummary as $pdata):
                     $fkey = ((int)$pdata['partner_id'] > 0) ? ('pid:' . (int)$pdata['partner_id']) : ('name:' . $pdata['name']);
                 ?>
-                <button type="button" class="ph-summary-pill" data-filter="<?php echo htmlspecialchars($fkey, ENT_QUOTES); ?>" onclick="phFilter(<?php echo json_encode($fkey); ?>, this)">
+                <button type="button" class="ph-summary-pill" data-filter="<?php echo htmlspecialchars($fkey, ENT_QUOTES); ?>" aria-pressed="false" onclick="phFilter(<?php echo json_encode($fkey); ?>, this)">
                     <i class="fas fa-building midx-ph-mini"></i>
                     <?php echo htmlspecialchars($pdata['name']); ?>
                     <span class="ph-pill-count"><?php echo (int)$pdata['total']; ?></span>
@@ -490,7 +490,8 @@ require __DIR__ . '/includes/chrome.php';
                     $fkey = $pid > 0 ? ('pid:' . $pid) : ('name:' . $pn);
                     $taken  = !empty($h['service_taken']);
                     $logoUrl = function_exists('partnerFacilityLogoUrl') ? partnerFacilityLogoUrl($h) : '';
-                    $isHospital = (($h['facility_type'] ?? '') === 'अस्पताल');
+                    $ftype = mb_strtolower(trim((string)($h['facility_type'] ?? '')));
+                    $isHospital = ($ftype === 'अस्पताल' || str_contains($ftype, 'hospital') || str_contains($ftype, 'clinic'));
                 ?>
                 <div class="ph-history-item" data-filter-key="<?php echo htmlspecialchars($fkey, ENT_QUOTES); ?>">
                     <div class="ph-org-icon<?php echo $logoUrl !== '' ? ' has-logo' : ''; ?>">
@@ -501,7 +502,16 @@ require __DIR__ . '/includes/chrome.php';
                         <?php endif; ?>
                     </div>
                     <div class="ph-info">
-                        <div class="ph-org-name"><?php echo htmlspecialchars($pn !== '' ? $pn : '—'); ?></div>
+                        <div class="ph-org-name"><?php
+                            $dispPartner = $pn;
+                            if (function_exists('isEnglish') && isEnglish() && function_exists('partnerFacilityDisplayName')) {
+                                $dispPartner = partnerFacilityDisplayName([
+                                    'partner_name' => $pn,
+                                    'partner_name_en' => (string)($h['partner_name_en'] ?? ''),
+                                ]) ?: $pn;
+                            }
+                            echo htmlspecialchars($dispPartner !== '' ? $dispPartner : '—');
+                        ?></div>
                         <div class="ph-svc-name">
                             <i class="fas fa-stethoscope midx-ph-org"></i>
                             <?php echo htmlspecialchars($h['service_name'] ?: $_t('सेवा उल्लेख छैन', 'Service not specified')); ?>
@@ -513,7 +523,7 @@ require __DIR__ . '/includes/chrome.php';
                     </div>
                     <div class="ph-taken-badge <?php echo $taken ? 'ph-taken-yes' : 'ph-taken-no'; ?>">
                         <?php if ($taken): ?><i class="fas fa-circle-check midx-ph-mini"></i><?php else: ?><i class="fas fa-circle-xmark midx-ph-mini"></i><?php endif; ?>
-                        <?php echo $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('नलिइएको', 'Not taken'); ?>
+                        <?php echo $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only'); ?>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -567,8 +577,14 @@ require __DIR__ . '/includes/chrome.php';
 <script>
 /* Partner history filter */
 function phFilter(val, pill) {
-    document.querySelectorAll('.ph-summary-pill').forEach(function(p){ p.classList.remove('active'); });
-    if (pill) pill.classList.add('active');
+    document.querySelectorAll('.ph-summary-pill').forEach(function(p){
+        p.classList.remove('active');
+        p.setAttribute('aria-pressed', 'false');
+    });
+    if (pill) {
+        pill.classList.add('active');
+        pill.setAttribute('aria-pressed', 'true');
+    }
     document.querySelectorAll('#phList .ph-history-item').forEach(function(row){
         var match = val === 'all' || row.getAttribute('data-filter-key') === val;
         row.classList.toggle('ph-hidden', !match);

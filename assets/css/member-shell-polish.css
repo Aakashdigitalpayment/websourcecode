@@ -901,7 +901,8 @@ body.verify-auth-page .vp-secure {
   padding: 8px 6px;
   border-bottom: 1px dashed #f1f5f9;
 }
-.vp-visit-row:last-of-type { border-bottom: 0; }
+.vp-visit-row[hidden] { display: none !important; }
+.vp-visit-row:not([hidden]):last-of-type { border-bottom: 0; }
 .vp-visit-dot {
   width: 10px;
   height: 10px;

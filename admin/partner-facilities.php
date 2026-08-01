@@ -153,10 +153,15 @@ if ($typeFilter !== '' && !in_array($typeFilter, $types, true)) {
 $viewLogsId = (int)($_GET['logs'] ?? 0);
 $viewLogsPartner = null;
 $viewLogsRows = [];
+$viewLogsMissing = false;
+$viewLogsTotal = 0;
 if ($viewLogsId > 0) {
     $viewLogsPartner = partnerFindById($db, $viewLogsId);
     if ($viewLogsPartner && function_exists('fetchPartnerFacilityServiceLogs')) {
         $viewLogsRows = fetchPartnerFacilityServiceLogs($db, $viewLogsId, 80, false);
+        $viewLogsTotal = (int)($usageMap[$viewLogsId] ?? count($viewLogsRows));
+    } else {
+        $viewLogsMissing = true;
     }
 }
 
@@ -254,6 +259,13 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
 
+<?php if ($viewLogsMissing): ?>
+<div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" id="pf-usage-logs">
+    <span><i class="fas fa-triangle-exclamation me-2"></i>साझेदार भेटिएन वा लग लोड गर्न सकिएन (ID: <?php echo (int)$viewLogsId; ?>).</span>
+    <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary">सूचीमा फर्कनुहोस्</a>
+</div>
+<?php endif; ?>
+
 <?php if ($viewLogsPartner): ?>
 <div class="card admin-table-card mb-3" id="pf-usage-logs">
     <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white">
@@ -262,7 +274,10 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
             <?php if (!empty($viewLogsPartner['partner_code'])): ?>
                 <code class="ms-2 small"><?php echo htmlspecialchars((string)$viewLogsPartner['partner_code']); ?></code>
             <?php endif; ?>
-            <span class="badge bg-info text-dark ms-2"><?php echo count($viewLogsRows); ?> रेकर्ड</span>
+            <span class="badge bg-info text-dark ms-2"><?php echo (int)$viewLogsTotal; ?> जम्मा</span>
+            <?php if ($viewLogsTotal > count($viewLogsRows)): ?>
+            <span class="badge bg-light text-muted border ms-1">पछिल्ला <?php echo count($viewLogsRows); ?> देखाइएको</span>
+            <?php endif; ?>
         </div>
         <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-xmark me-1"></i>बन्द</a>
     </div>
@@ -293,7 +308,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                         <td><?php echo htmlspecialchars((string)(($lr['service_name'] ?? '') !== '' ? $lr['service_name'] : '—')); ?></td>
                         <td class="small text-muted"><?php echo htmlspecialchars((string)($lr['service_note'] ?: '—')); ?></td>
                         <td class="text-center">
-                            <span class="badge bg-<?php echo $taken ? 'success' : 'secondary'; ?>"><?php echo $taken ? 'लिइयो' : 'verify मात्र'; ?></span>
+                            <span class="badge bg-<?php echo $taken ? 'success' : 'secondary'; ?>"><?php echo $taken ? 'सेवा लिइयो' : 'verify मात्र'; ?></span>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
