@@ -6,11 +6,10 @@
  * URL: /verify.php
  *
  * कुनै पनि व्यक्ति (हस्पिटल, पसल, अन्य संस्था) ले member ले
- * देखाएको ID Card को Verification Code (AKS-XXXX-XXXX) र
- * 4-अङ्कको CVV enter गरेर तुरुन्तै सक्रिय सदस्य हो/होइन
- * verify गर्न सक्छन्।
- *
- * Card duplicate/नक्कली कि होइन check गर्न सजिलो।
+ * देखाएको ID Card को नाम र सदस्यता नं. enter गरेर तुरुन्तै
+ * सक्रिय सदस्य हो/होइन verify गर्न सक्छन्। मिल्दा गोप्य CVV
+ * (नामको पहिलो ३ + सदस्यताको पछिल्लो ४) tracker जस्तै खुल्छ।
+ * पुराना कार्डका लागि Verification Code + CVV path पनि उपलब्ध छ।
  * ════════════════════════════════════════════════════════════
  */
 
@@ -38,6 +37,9 @@ try {
 $result = null;
 $code   = '';
 $cvv    = '';
+$verifyName = '';
+$verifyMemberId = '';
+$verifyMode = 'name'; // name | legacy
 $logSaved = false;
 $programSaved = false;
 $programAlreadyRegistered = false;
@@ -52,10 +54,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $postCsrfError = isEnglish() ? 'Security validation failed. Please retry.' : 'सुरक्षा जाँच असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।';
     }
+    $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
+    $verifyName = trim((string)($_POST['member_name'] ?? ''));
+    $verifyMemberId = trim((string)($_POST['member_id_no'] ?? ''));
     $code = (string)($_POST['code'] ?? '');
     $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
-    $cvv  = (string)($_POST['cvv']  ?? '');
+    $cvv  = trim((string)($_POST['cvv']  ?? ''));
+    if ($cvv === '' && isset($_POST['cvv_legacy'])) {
+        $cvv = trim((string)$_POST['cvv_legacy']);
+    }
+    if (function_exists('normalizeCvvInput')) {
+        $cvv = normalizeCvvInput($cvv);
+    }
     $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+
+    $runPrimaryVerify = static function () use ($pdo, $ip, &$verifyMode, &$verifyName, &$verifyMemberId, &$code, &$cvv) {
+        if (!$pdo) {
+            return ['ok' => false, 'error' => 'DB जडान भएन। कृपया पछि प्रयास गर्नुहोस्।'];
+        }
+        if ($verifyMode === 'legacy') {
+            return verifyCardCredentials($pdo, $code, $cvv, $ip);
+        }
+        return verifyCardByNameAndMemberId($pdo, $verifyName, $verifyMemberId, $ip, $cvv);
+    };
 
     /* (a) Service-log POST — verify पछि सेवा लिएको record छुट्टै submit */
     if ($postCsrfError !== '') {
@@ -78,12 +99,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (\Throwable $e) { error_log('mps insert: ' . $e->getMessage()); }
         }
         /* re-verify so the success card stays visible after logging */
+        $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
+        $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
         $code = trim($_POST['code'] ?? '');
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
         $cvv  = trim($_POST['cvv']  ?? '');
-        if ($code && $cvv) {
-            $result = verifyCardCredentials($pdo, $code, $cvv, $ip);
-        }
+        $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
+        $result = $runPrimaryVerify();
     } elseif (($_POST['action'] ?? '') === 'program_preregister') {
         $programId = (int)($_POST['program_id'] ?? 0);
         $memberIdInput = trim((string)($_POST['member_id_input'] ?? ''));
@@ -174,11 +196,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $code = trim($_POST['code'] ?? '');
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
         $cvv  = trim($_POST['cvv']  ?? '');
-        if ($code && $cvv) {
-            $result = verifyCardCredentials($pdo, $code, $cvv, $ip);
-        }
+        $verifyName = trim((string)($_POST['member_name'] ?? $verifyName));
+        $verifyMemberId = trim((string)($_POST['member_id_no'] ?? $verifyMemberId));
+        $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
+        $result = $runPrimaryVerify();
     } else {
-        $result = verifyCardCredentials($pdo, $code, $cvv, $ip);
+        $result = $runPrimaryVerify();
     }
 }
 
@@ -240,7 +263,7 @@ if ($result && !empty($result['ok'])) {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?= htmlspecialchars($pageTitle) ?></title>
-<meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। Verification Code र CVV राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using Verification Code and CVV.'), ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="description" content="<?php echo htmlspecialchars($_t('Member ID card सत्यता check गर्नुहोस्। नाम र सदस्यता नं. राखेर सक्रिय सदस्य हो/होइन प्रमाणित गर्नुहोस्।', 'Check Member ID card authenticity. Verify active membership using name and member ID.'), ENT_QUOTES, 'UTF-8'); ?>">
 <?php if (function_exists('seo_canonical_url')): ?>
 <link rel="canonical" href="<?= htmlspecialchars(seo_canonical_url(), ENT_QUOTES, 'UTF-8') ?>">
 <?php endif; ?>
@@ -438,6 +461,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
     </div>
     <div class="vp-result-body">
         <?php
+        $__secretCvv = (string)($__c['secret_cvv'] ?? '');
         $__fields = [
             [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
             [$_t('कार्ड नं.','Card No.'),      $__c['card_no']     ?? ''],
@@ -454,6 +478,13 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
             <span class="vp-result-value"><?= htmlspecialchars((string)$val) ?></span>
         </div>
         <?php endforeach; ?>
+        <?php if ($__secretCvv !== ''): ?>
+        <div class="vp-result-row vp-secret-row">
+            <span class="vp-result-label"><?= $_t('गोप्य CVV / Secret Code','Secret CVV Code') ?></span>
+            <span class="vp-result-value vp-secret-code"><?= htmlspecialchars($__secretCvv) ?></span>
+        </div>
+        <p class="vp-secret-hint"><?= $_t('यो कोड नामको पहिलो ३ अक्षर + सदस्यता नं. को पछिल्लो ४ अङ्कबाट बनेको हो (tracker जस्तै)।', 'Built from first 3 letters of first name + last 4 digits of member ID (like a tracker secret).') ?></p>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -500,36 +531,140 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         <div class="vp-card-head-icon"><i class="fas fa-id-card"></i></div>
         <div class="vp-card-head-text">
             <div class="vp-card-head-title"><?= htmlspecialchars($__pageTitleDisplay) ?></div>
-            <div class="vp-card-head-sub"><?= $_t('Verification Code र CVV राखेर प्रमाणित गर्नुहोस्।', 'Enter Verification Code and CVV to verify.') ?></div>
+            <div class="vp-card-head-sub"><?= $_t('सदस्यको नाम र सदस्यता नं. राखेर प्रमाणित गर्नुहोस्।', 'Verify with member name and member ID.') ?></div>
         </div>
     </div>
     <div class="vp-card-body">
-        <form method="POST" action="">
-            <?php echo function_exists('csrfInput') ? csrfInput() : ''; ?>
-            <div class="vp-field">
-                <label class="vp-label">
-                    <i class="fas fa-key" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
-                    <?= $_t('Verification Code', 'Verification Code') ?> <span class="req">*</span>
-                </label>
-                <input type="text" name="code" required class="vp-input"
-                       value="<?= htmlspecialchars($code ?? '') ?>"
-                       placeholder="<?= $_t('जस्तै: AKS-2081-00123', 'e.g. AKS-2081-00123') ?>"
-                       autocomplete="off" spellcheck="false" style="letter-spacing:.5px;">
+        <form method="POST" action="" id="vpVerifyForm">
+            <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
+            <input type="hidden" name="verify_mode" id="vpVerifyMode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name') ?>">
+
+            <div id="vpModeName" style="<?= $verifyMode === 'legacy' ? 'display:none;' : '' ?>">
+                <div class="vp-field">
+                    <label class="vp-label">
+                        <i class="fas fa-user" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('सदस्यको नाम', 'Member Name') ?> <span class="req">*</span>
+                    </label>
+                    <input type="text" name="member_name" class="vp-input" id="vpMemberName"
+                           value="<?= htmlspecialchars($verifyName ?? '') ?>"
+                           placeholder="<?= $_t('कार्डमा लेखिएको पूरा नाम', 'Full name as on card') ?>"
+                           autocomplete="name" <?= $verifyMode === 'legacy' ? '' : 'required' ?>>
+                </div>
+                <div class="vp-field">
+                    <label class="vp-label">
+                        <i class="fas fa-hashtag" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('सदस्यता नं. / Member ID', 'Member ID') ?> <span class="req">*</span>
+                    </label>
+                    <input type="text" name="member_id_no" class="vp-input" id="vpMemberId"
+                           value="<?= htmlspecialchars($verifyMemberId ?? '') ?>"
+                           placeholder="<?= $_t('कार्डमा देखिने सदस्यता नं.', 'Member ID shown on card') ?>"
+                           autocomplete="off" spellcheck="false" <?= $verifyMode === 'legacy' ? '' : 'required' ?>>
+                </div>
+                <div class="vp-field" style="margin-bottom:22px;">
+                    <label class="vp-label">
+                        <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('CVV (ऐच्छिक)', 'CVV (optional)') ?>
+                    </label>
+                    <input type="text" name="cvv" maxlength="20" class="vp-input" id="vpCvv"
+                           value="<?= htmlspecialchars($cvv ?? '') ?>"
+                           placeholder="<?= $_t('खाली छोड्न सकिन्छ — मिल्दा गोप्य कोड खुल्छ', 'Can leave blank — secret code appears on match') ?>"
+                           autocomplete="off" spellcheck="false" style="letter-spacing:1px;">
+                    <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
+                        <?= $_t('CVV कार्डको पछाडि छ (नामको पहिलो ३ + सदस्यताको पछिल्लो ४)। खाली छोड्न पनि सकिन्छ।', 'CVV is on the card back (first 3 of name + last 4 of member ID). You can also leave it blank.') ?>
+                    </div>
+                </div>
             </div>
-            <div class="vp-field" style="margin-bottom:22px;">
-                <label class="vp-label">
-                    <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
-                    <?= $_t('4-अङ्कको CVV / PIN', '4-digit CVV / PIN') ?> <span class="req">*</span>
-                </label>
-                <input type="password" name="cvv" required maxlength="4" inputmode="numeric"
-                       pattern="[0-9]{4}" placeholder="****" class="vp-input" style="letter-spacing:4px;">
+
+            <div id="vpModeLegacy" style="<?= $verifyMode === 'legacy' ? '' : 'display:none;' ?>">
+                <div class="vp-field">
+                    <label class="vp-label">
+                        <i class="fas fa-key" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('पुरानो Verification Code', 'Legacy Verification Code') ?> <span class="req">*</span>
+                    </label>
+                    <input type="text" name="code" class="vp-input" id="vpCode"
+                           value="<?= htmlspecialchars($code ?? '') ?>"
+                           placeholder="<?= $_t('जस्तै: AKS-XXXX-XXXX', 'e.g. AKS-XXXX-XXXX') ?>"
+                           autocomplete="off" spellcheck="false" style="letter-spacing:.5px;" <?= $verifyMode === 'legacy' ? 'required' : '' ?>>
+                </div>
+                <div class="vp-field" style="margin-bottom:22px;">
+                    <label class="vp-label">
+                        <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
+                        <?= $_t('CVV', 'CVV') ?> <span class="req">*</span>
+                    </label>
+                    <input type="password" name="cvv_legacy" maxlength="20" class="vp-input" id="vpCvvLegacy"
+                           placeholder="****" autocomplete="off" style="letter-spacing:4px;" <?= $verifyMode === 'legacy' ? 'required' : '' ?>>
+                    <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
+                        <?= $_t('पुराना कार्डका लागि मात्र।', 'For older cards only.') ?>
+                    </div>
+                </div>
             </div>
+
             <button type="submit" class="vp-btn">
                 <i class="fas fa-shield-halved"></i> <?= $_t('प्रमाणित गर्नुहोस्', 'Verify Now') ?>
+            </button>
+            <button type="button" class="vp-btn-link" id="vpToggleMode" style="display:block;width:100%;margin-top:14px;background:none;border:none;color:#6b7280;font-size:.85rem;cursor:pointer;text-decoration:underline;">
+                <?= $verifyMode === 'legacy'
+                    ? $_t('← नाम + सदस्यता नं. बाट verify', '← Verify with name + member ID')
+                    : $_t('पुरानो Verification Code प्रयोग गर्ने?', 'Use legacy verification code?') ?>
             </button>
         </form>
     </div>
 </div>
+
+<style>
+.vp-secret-row { background: color-mix(in srgb, var(--primary-color,#1a5f2a) 8%, #fff); border-radius: 10px; padding: 10px 12px; margin-top: 8px; }
+.vp-secret-code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; letter-spacing: .12em; color: var(--primary-dark,#0a4a25); font-size: 1.15rem; }
+.vp-secret-hint { font-size: .78rem; color: #6b7280; margin: 8px 0 0; line-height: 1.45; }
+</style>
+<script>
+(function () {
+    var modeInput = document.getElementById('vpVerifyMode');
+    var btn = document.getElementById('vpToggleMode');
+    var nameBox = document.getElementById('vpModeName');
+    var legacyBox = document.getElementById('vpModeLegacy');
+    var nameEl = document.getElementById('vpMemberName');
+    var midEl = document.getElementById('vpMemberId');
+    var codeEl = document.getElementById('vpCode');
+    var cvvEl = document.getElementById('vpCvv');
+    var cvvLegacy = document.getElementById('vpCvvLegacy');
+    var form = document.getElementById('vpVerifyForm');
+    if (!btn || !modeInput) return;
+
+    var labels = {
+        toLegacy: <?= json_encode($_t('पुरानो Verification Code प्रयोग गर्ने?', 'Use legacy verification code?')) ?>,
+        toName: <?= json_encode($_t('← नाम + सदस्यता नं. बाट verify', '← Verify with name + member ID')) ?>
+    };
+
+    function setMode(mode) {
+        var legacy = mode === 'legacy';
+        modeInput.value = legacy ? 'legacy' : 'name';
+        if (nameBox) nameBox.style.display = legacy ? 'none' : '';
+        if (legacyBox) legacyBox.style.display = legacy ? '' : 'none';
+        if (nameEl) nameEl.required = !legacy;
+        if (midEl) midEl.required = !legacy;
+        if (codeEl) codeEl.required = legacy;
+        if (cvvLegacy) cvvLegacy.required = legacy;
+        btn.textContent = legacy ? labels.toName : labels.toLegacy;
+    }
+
+    btn.addEventListener('click', function () {
+        setMode(modeInput.value === 'legacy' ? 'name' : 'legacy');
+    });
+
+    if (form) {
+        form.addEventListener('submit', function () {
+            // Map legacy CVV field into shared name=cvv for PHP
+            if (modeInput.value === 'legacy' && cvvLegacy && cvvEl) {
+                cvvEl.name = '';
+                cvvLegacy.name = 'cvv';
+            } else if (cvvLegacy) {
+                cvvLegacy.name = 'cvv_legacy';
+                if (cvvEl) cvvEl.name = 'cvv';
+            }
+        });
+    }
+})();
+</script>
 
 <div class="vp-secure">
     <i class="fas fa-shield-halved" style="margin-right:4px;"></i>

@@ -31,7 +31,7 @@ try {
             member_id VARCHAR(50) NOT NULL,
             card_no VARCHAR(40) NOT NULL UNIQUE,
             verification_code VARCHAR(20) NULL UNIQUE,
-            cvv CHAR(4) NULL,
+            cvv VARCHAR(20) NULL,
             issued_date DATE NOT NULL,
             expiry_date DATE NULL,
             status ENUM('active','expired','revoked') DEFAULT 'active',

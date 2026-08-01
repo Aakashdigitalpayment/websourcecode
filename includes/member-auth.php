@@ -763,7 +763,9 @@ function adminGenerateMemberIdCard($memberId, $adminId = null) {
                 $vCode = '';
                 $cvv   = '';
                 if (function_exists('generateCardVerification')) {
-                    [$vCode, $cvv] = generateCardVerification($db);
+                    $dispName = (string)($member['name'] ?? '');
+                    $dispMid  = (string)(($member['sadasyata_number'] ?? '') ?: ($member['member_card_no'] ?? '') ?: $memberId);
+                    [$vCode, $cvv] = generateCardVerification($db, $dispName, $dispMid);
                 }
                 $ins = $db->prepare("INSERT INTO member_id_cards
                     (member_id, card_no, verification_code, cvv, issued_date, status)

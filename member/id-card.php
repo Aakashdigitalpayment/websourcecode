@@ -140,27 +140,40 @@ if ($me) {
         $card = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
     } catch (Throwable $e) { error_log('[id-card-row] ' . $e->getMessage()); }
 
-    /* Backfill verification_code / cvv if missing */
-    if ($card && (empty($card['verification_code']) || empty($card['cvv']))) {
+    /* Member display ID + derived CVV (name first3 + member last4) */
+    $memberDispId = (string)(($me['sadasyata_number'] ?? '') ?: ($me['member_card_no'] ?? '') ?: ('M-' . str_pad((string)($me['id'] ?? 0), 5, '0', STR_PAD_LEFT)));
+    $memberDispName = function_exists('pickNameForCardCvv')
+        ? pickNameForCardCvv(
+            (string)(($me['full_name'] ?? '') ?: ($me['name'] ?? '')),
+            (string)($me['full_name_np'] ?? '')
+          )
+        : trim((string)(($me['full_name'] ?? '') ?: ($me['name'] ?? '')));
+    $derivedCvv = function_exists('deriveMemberCardCvv')
+        ? deriveMemberCardCvv($memberDispName, $memberDispId)
+        : '';
+
+    /* Backfill verification_code; sync CVV to derived formula */
+    if ($card && (empty($card['verification_code']) || empty($card['cvv']) || ($derivedCvv !== '' && (string)$card['cvv'] !== $derivedCvv))) {
         try {
-            [$gCode, $gCvv] = generateCardVerification($pdo);
+            [$gCode, $gCvv] = generateCardVerification($pdo, $memberDispName, $memberDispId);
+            if ($derivedCvv !== '') $gCvv = $derivedCvv;
             $u = $pdo->prepare(
                 "UPDATE member_id_cards
                     SET verification_code = COALESCE(NULLIF(verification_code,''), :code),
-                        cvv               = COALESCE(NULLIF(cvv,''),               :cvv)
+                        cvv               = :cvv
                   WHERE id = :rid"
             );
             $u->execute([':code' => $gCode, ':cvv' => $gCvv, ':rid' => $card['card_row_id']]);
             if (empty($card['verification_code'])) $card['verification_code'] = $gCode;
-            if (empty($card['cvv']))               $card['cvv']               = $gCvv;
+            $card['cvv'] = $gCvv;
         } catch (Throwable $e) { error_log('[id-card-cvv-backfill] ' . $e->getMessage()); }
     }
 
     /* Auto-create a card on the fly if none exists yet */
     if (!$card) {
         try {
-            [$gCode, $gCvv] = generateCardVerification($pdo);
-            $newCardNo      = generateCardNumber((int) $me['id']);   // ← v10.4 helper
+            [$gCode, $gCvv] = generateCardVerification($pdo, $memberDispName, $memberDispId);
+            $newCardNo      = generateCardNumber((int) $me['id']);   // ← v10.4 helper (legacy internal)
             $ins = $pdo->prepare(
                 "INSERT INTO member_id_cards
                     (member_id, card_no, verification_code, cvv, issued_date, status)
@@ -256,11 +269,23 @@ $photo = (!empty($me['photo_path']) && $docRoot && file_exists($docRoot . '/' . 
 $pageTitle = $_t('डिजिटल ID कार्ड', 'Digital ID Card');
 require __DIR__ . '/includes/chrome.php';
 
-/* ─── Card metadata ─── */
-$cn       = $me['card_no'] ?? generateCardNumber((int) $me['id']);
-$cnSpaced = wordwrap(preg_replace('/[^A-Z0-9]/', '', strtoupper($cn)), 4, ' ', true);
+/* ─── Card metadata — visible number = सदस्यता नं; CVV = derived formula ─── */
+$cn       = (string)(($me['member_id'] ?? '') ?: ($me['sadasyata_number'] ?? '') ?: ($me['member_card_no'] ?? '') ?: ('M-' . str_pad((string)$me['id'], 5, '0', STR_PAD_LEFT)));
+$cnSpaced = $cn;
 $vCode    = $me['verification_code'] ?? '';
-$cvv      = $me['cvv'] ?? '';
+$displayNameForCvv = function_exists('pickNameForCardCvv')
+    ? pickNameForCardCvv(
+        (string)(($me['full_name'] ?? '') ?: ($me['name'] ?? '')),
+        (string)($me['full_name_np'] ?? '')
+      )
+    : trim((string)(($me['full_name'] ?? '') ?: ($me['name'] ?? '')));
+$cvv      = (function_exists('deriveMemberCardCvv') && $displayNameForCvv !== '')
+          ? deriveMemberCardCvv($displayNameForCvv, $cn)
+          : (string)($me['cvv'] ?? '');
+$orgName  = function_exists('getSetting') ? getSetting('site_name', 'सहकारी') : 'सहकारी';
+$orgNameEn = function_exists('getSetting') ? getSetting('site_name_en', '') : '';
+$memberDisplayName = trim((string)(($me['full_name_np'] ?? '') ?: ($me['full_name'] ?? '') ?: ($me['name'] ?? '')));
+$memberNameEn = trim((string)(($me['full_name'] ?? '') ?: ($me['name'] ?? '')));
 
 /* Issue dates — prefer card.issued_date, then approved_at, then created_at */
 $issuedTs = strtotime(!empty($me['issued_date']) ? $me['issued_date']
@@ -335,82 +360,122 @@ if ($cardLogoRaw !== '') {
   </div>
   <?php endif; ?>
 
-  <!-- ═══════ ATM-STYLE FLIP CARD ═══════ -->
-  <div class="idcard-flip" id="idcardFlip">
+  <!-- ═══════ PREMIUM FLIP MEMBER CARD ═══════ -->
+  <div class="idcard-flip" id="idcardFlip" role="button" tabindex="0" aria-label="<?php echo $_t('कार्ड उल्ट्याउन क्लिक गर्नुहोस्', 'Click to flip card'); ?>">
     <div class="idcard-flip-inner">
 
       <!-- ─── FRONT ─── -->
       <div class="idcard idcard-front">
-        <div class="idcard-shine"></div>
+        <div class="idcard-mesh" aria-hidden="true"></div>
+        <div class="idcard-orb idcard-orb-a" aria-hidden="true"></div>
+        <div class="idcard-orb idcard-orb-b" aria-hidden="true"></div>
+        <div class="idcard-shine" aria-hidden="true"></div>
+        <div class="idcard-edge" aria-hidden="true"></div>
 
         <div class="idcard-top">
           <div class="idcard-brand">
             <?php if ($cardLogoUrl !== ''): ?>
-            <img src="<?= htmlspecialchars($cardLogoUrl) ?>" alt="" class="idcard-logo" onerror="this.style.display='none'">
+            <div class="idcard-logo-wrap">
+              <img src="<?= htmlspecialchars($cardLogoUrl) ?>" alt="" class="idcard-logo" onerror="this.parentElement.style.display='none'">
+            </div>
             <?php endif; ?>
-            <div>
-              <div class="idcard-org"><?= htmlspecialchars(function_exists('getSetting') ? getSetting('site_name', 'सहकारी') : 'सहकारी') ?></div>
-              <div class="idcard-org-en"><?= htmlspecialchars(function_exists('getSetting') ? getSetting('site_name_en', '') : '') ?></div>
+            <div class="idcard-brand-text">
+              <div class="idcard-org"><?= htmlspecialchars($orgName) ?></div>
+              <?php if ($orgNameEn !== ''): ?>
+              <div class="idcard-org-en"><?= htmlspecialchars($orgNameEn) ?></div>
+              <?php endif; ?>
             </div>
           </div>
-          <span class="idcard-tag">MEMBER&nbsp;CARD</span>
+          <div class="idcard-tag-stack">
+            <span class="idcard-tag">MEMBER</span>
+            <span class="idcard-tag-sub">DIGITAL ID</span>
+          </div>
         </div>
 
         <div class="idcard-mid">
-          <div class="idcard-chip" aria-hidden="true">
-            <span class="chip-l1"></span><span class="chip-l2"></span>
-            <span class="chip-l3"></span><span class="chip-l4"></span>
+          <div class="idcard-chip-stack">
+            <div class="idcard-chip" aria-hidden="true">
+              <span class="chip-l1"></span><span class="chip-l2"></span>
+              <span class="chip-l3"></span><span class="chip-l4"></span>
+              <span class="chip-center"></span>
+            </div>
+            <span class="idcard-contactless" aria-hidden="true">
+              <i class="fas fa-wifi"></i>
+            </span>
           </div>
-          <span class="idcard-wifi" aria-hidden="true"><i class="fas fa-wifi"></i></span>
           <div class="idcard-photo">
             <img src="<?= htmlspecialchars($photo) ?>" alt="Member photo">
+            <span class="idcard-photo-ring" aria-hidden="true"></span>
           </div>
         </div>
 
-        <div class="idcard-cardno"><?= htmlspecialchars($cnSpaced) ?></div>
+        <div class="idcard-number-block">
+          <div class="idcard-label"><?php echo $_t('सदस्यता नं. / MEMBER ID', 'MEMBER ID'); ?></div>
+          <div class="idcard-cardno"><?= htmlspecialchars($cnSpaced) ?></div>
+        </div>
 
         <div class="idcard-bottom">
           <div class="idcard-name-block">
-            <div class="idcard-label">सदस्यको नाम / MEMBER NAME</div>
-            <div class="idcard-name"><?= htmlspecialchars($me['full_name_np'] ?: $me['full_name']) ?></div>
+            <div class="idcard-label"><?php echo $_t('सदस्यको नाम', 'CARD HOLDER'); ?></div>
+            <div class="idcard-name"><?= htmlspecialchars($memberDisplayName) ?></div>
           </div>
           <div class="idcard-valid">
-            <div class="idcard-label">VALID&nbsp;THRU</div>
+            <div class="idcard-label">VALID THRU</div>
             <div class="idcard-valid-val"><?= $expMo ?>/<?= $expYr ?></div>
           </div>
         </div>
 
         <div class="idcard-id-row">
           <span class="idcard-status"><i class="fas fa-circle-check"></i> <?php echo $_t('सक्रिय', 'Active'); ?></span>
-          <span class="idcard-mid-no"><?php echo $_t('सदस्यता नं', 'Member No'); ?>: <b><?= htmlspecialchars($me['member_id'] ?: ('M-' . str_pad((string) $me['id'], 5, '0', STR_PAD_LEFT))) ?></b></span>
+          <span class="idcard-mid-no"><i class="fas fa-globe"></i> <?= htmlspecialchars($cardWebsite ?: 'website') ?></span>
         </div>
       </div>
 
       <!-- ─── BACK ─── -->
       <div class="idcard idcard-back">
-        <div class="idcard-magstripe"></div>
+        <div class="idcard-mesh idcard-mesh-back" aria-hidden="true"></div>
+        <div class="idcard-magstripe" aria-hidden="true">
+          <span class="idcard-magstripe-gloss"></span>
+        </div>
         <div class="idcard-back-body">
           <div class="idcard-sigpanel">
-            <span class="idcard-sigpanel-text"><?= htmlspecialchars($me['full_name'] ?: '') ?></span>
-            <span class="idcard-cvv-box">
+            <div class="idcard-sig-left">
+              <span class="idcard-sig-label">AUTHORIZED SIGNATURE</span>
+              <span class="idcard-sigpanel-text"><?= htmlspecialchars($memberNameEn ?: $memberDisplayName) ?></span>
+            </div>
+            <span class="idcard-cvv-box" title="CVV">
               <span class="cvv-label">CVV</span>
-              <span class="cvv-value"><?= $cvv ? htmlspecialchars($cvv) : '••••' ?></span>
+              <span class="cvv-value"><?= $cvv !== '' ? htmlspecialchars($cvv) : '••••' ?></span>
             </span>
           </div>
 
-          <?php if ($vCode): ?>
-          <div class="idcard-back-vcode">
-            <span class="bv-label">VERIFICATION CODE</span>
-            <span class="bv-value"><?= htmlspecialchars($vCode) ?></span>
+          <div class="idcard-back-meta">
+            <div class="idcard-back-vcode">
+              <span class="bv-label"><?php echo $_t('सदस्यता नं.', 'MEMBER ID'); ?></span>
+              <span class="bv-value"><?= htmlspecialchars($cn) ?></span>
+            </div>
+            <div class="idcard-back-issued">
+              <span class="bv-label"><?php echo $_t('जारी', 'ISSUED'); ?></span>
+              <span class="bv-value bv-value-sm"><?= date('m/y', $issuedTs) ?></span>
+            </div>
           </div>
-          <?php endif; ?>
+
+          <div class="idcard-holo" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
 
           <div class="idcard-back-note">
-            <?php echo $_t('यो कार्ड सहकारीको सम्पत्ति हो। हराएमा वा चोरी भएमा तुरुन्तै कार्यालयलाई सूचित गर्नुहोस्।', 'This card is property of the cooperative. Report immediately if lost or stolen.'); ?><br>
-            <b><?php echo $_t('CVV कसैलाई नदेखाउनुहोस् —', 'Do not share CVV —'); ?></b> <?php echo $_t('verify पोर्टलमा मात्र प्रयोग गर्नुहोस्।', 'use it only in verification portal.'); ?>
+            <?php echo $_t('यो कार्ड सहकारीको सम्पत्ति हो। हराएमा तुरुन्तै कार्यालयलाई सूचित गर्नुहोस्।', 'This card is property of the cooperative. Report loss immediately.'); ?>
+            <br>
+            <b><?php echo $_t('प्रमाणीकरण:', 'Verify:'); ?></b>
+            <?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?>
+            — <?php echo $_t('नाम + सदस्यता नं. (CVV ऐच्छिक)।', 'name + member ID (CVV optional).'); ?>
           </div>
           <div class="idcard-back-foot">
             <span><i class="fas fa-phone"></i> <?= htmlspecialchars($cardPhone) ?></span>
+            <?php if ($cardLogoUrl !== ''): ?>
+            <img src="<?= htmlspecialchars($cardLogoUrl) ?>" alt="" class="idcard-back-logo" onerror="this.style.display='none'">
+            <?php endif; ?>
             <span><i class="fas fa-globe"></i> <?= htmlspecialchars($cardWebsite ?: 'website') ?></span>
           </div>
         </div>
@@ -418,29 +483,28 @@ if ($cardLogoRaw !== '') {
 
     </div>
   </div>
+  <p class="idcard-flip-hint"><i class="fas fa-hand-pointer"></i> <?php echo $_t('कार्डमा टच/क्लिक गरेर उल्ट्याउनुहोस्', 'Tap or click the card to flip'); ?></p>
 
   <!-- Details list below card -->
   <div class="idcard-details">
-    <div class="idcard-detail"><div class="dl">CARD NUMBER</div><div class="dv code"><?= htmlspecialchars($cn) ?></div></div>
+    <div class="idcard-detail"><div class="dl"><?php echo $_t('सदस्यता नं.', 'MEMBER ID'); ?></div><div class="dv code"><?= htmlspecialchars($cn) ?></div></div>
+    <div class="idcard-detail idcard-detail-cvv">
+      <div class="dl idcard-detail-cvv-label"><i class="fas fa-shield-halved"></i> CVV</div>
+      <div class="dv code idcard-detail-cvv-value"><?= htmlspecialchars($cvv !== '' ? $cvv : '—') ?></div>
+    </div>
     <div class="idcard-detail"><div class="dl"><?php echo $_t('जारी मिति', 'Issued Date'); ?></div><div class="dv"><?= date('Y-m-d', $issuedTs) ?></div></div>
     <div class="idcard-detail"><div class="dl"><?php echo $_t('म्याद सकिने मिति', 'Expiry Date'); ?></div><div class="dv <?= $isExpired ? 'dv-expired' : '' ?>"><?= date('Y-m-d', $expiryTs) ?><?= $isExpired ? ($_t(' (म्याद सकिएको)', ' (Expired)')) : '' ?></div></div>
     <div class="idcard-detail"><div class="dl"><?php echo $_t('मोबाइल', 'Mobile'); ?></div><div class="dv"><?= htmlspecialchars($me['mobile'] ?: '-') ?></div></div>
     <div class="idcard-detail"><div class="dl"><?php echo $_t('इमेल', 'Email'); ?></div><div class="dv"><?= htmlspecialchars($me['email'] ?: '-') ?></div></div>
     <div class="idcard-detail" style="grid-column: 1/-1;"><div class="dl"><?php echo $_t('ठेगाना', 'Address'); ?></div><div class="dv"><?= htmlspecialchars($me['address'] ?: '-') ?></div></div>
+    <div class="idcard-detail" style="grid-column: 1/-1;"><div class="dl"><?php echo $_t('वेबसाइट', 'Website'); ?></div><div class="dv"><?= htmlspecialchars($cardWebsite ?: '-') ?></div></div>
 
-    <?php if ($vCode || $cvv): ?>
-    <div class="idcard-detail idcard-detail-full idcard-detail-vcode">
-      <div class="dl idcard-detail-vcode-label"><i class="fas fa-shield-halved"></i> Verification Code</div>
-      <div class="dv code idcard-detail-vcode-value"><?= htmlspecialchars($vCode) ?></div>
-    </div>
-    <div class="idcard-detail idcard-detail-full idcard-detail-cvv">
-      <div class="dl idcard-detail-cvv-label"><i class="fas fa-eye-slash"></i> CVV <?php echo $_t('(गोप्य 4 अङ्क)', '(secret 4 digits)'); ?></div>
-      <div class="dv code idcard-detail-cvv-value"><?= htmlspecialchars($cvv) ?></div>
-      <div class="idcard-detail-cvv-help">
-        ⚠ <?php echo $_t('यो CVV कसैलाई share नगर्नुहोस्। यो र Verification Code राखेर मात्र अरूले तपाईंको सदस्यता verify गर्न सक्छन्।', 'Do not share this CVV. Only CVV + verification code can verify your membership.'); ?>
+    <div class="idcard-detail idcard-detail-full" style="background:color-mix(in srgb, var(--primary-color) 8%, white); border-color:color-mix(in srgb, var(--primary-color) 28%, #e5e7eb);">
+      <div class="dl" style="color:var(--primary-dark);"><i class="fas fa-info-circle"></i> <?php echo $_t('CVV कसरी बन्छ?', 'How is CVV built?'); ?></div>
+      <div class="idcard-detail-cvv-help" style="margin-top:4px; color:#374151;">
+        <?php echo $_t('नामको पहिलो शब्दका पहिलो ३ अक्षर + सदस्यता नं. को पछिल्लो ४ अङ्क। याद राख्नु पर्दैन — कार्डको पछाडि देखिन्छ।', 'First 3 characters of first name + last 4 digits of member ID. No need to memorize — shown on the back of the card.'); ?>
       </div>
     </div>
-    <?php endif; ?>
   </div>
 
   <!-- Help banner -->
@@ -449,7 +513,7 @@ if ($cardLogoRaw !== '') {
     <div>
       <div class="vh-title"><?php echo $_t('हस्पिटल/पसलमा discount लिँदा सत्यता कसरी देखाउने?', 'How to show verification at hospital/shop discount?'); ?></div>
       <div class="vh-text">
-        <?php echo $_t('उनीहरूलाई', 'Ask them to open'); ?> <b><?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?></b> <?php echo $_t('मा गएर Verification Code र CVV राख्न भन्नुहोस् — तुरुन्तै तपाईंको name, photo र active status देखिन्छ।', 'and enter verification code + CVV. Your name, photo and active status appear instantly.'); ?>
+        <?php echo $_t('उनीहरूलाई', 'Ask them to open'); ?> <b><?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?></b> <?php echo $_t('मा गएर तपाईंको नाम र सदस्यता नं. राख्न भन्नुहोस् — CVV कार्डमा पनि छ, ऐच्छिक रूपमा राख्न सकिन्छ।', 'and enter your name + member ID. CVV is also printed on the card and can be entered optionally.'); ?>
       </div>
     </div>
   </div>
@@ -479,98 +543,234 @@ if ($cardLogoRaw !== '') {
 .idcard-note-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
 .idcard-form-inline { margin:0; }
 
-.idcard-flip { perspective: 1400px; max-width: 440px; margin: 0 auto 22px; }
+.idcard-flip {
+  perspective: 1600px; max-width: 460px; margin: 0 auto 8px;
+  cursor: pointer; outline: none;
+}
+.idcard-flip:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 45%, transparent); border-radius: 22px; }
 .idcard-flip-inner {
-  position: relative; width: 100%; aspect-ratio: 1.586 / 1; min-height: 240px;
-  transition: transform .7s cubic-bezier(.4,.2,.2,1); transform-style: preserve-3d;
+  position: relative; width: 100%; aspect-ratio: 1.586 / 1; min-height: 250px;
+  transition: transform .75s cubic-bezier(.2,.8,.2,1); transform-style: preserve-3d;
+  filter: drop-shadow(0 24px 40px rgba(5, 40, 22, .42));
 }
 .idcard-flip.is-flipped .idcard-flip-inner { transform: rotateY(180deg); }
+.idcard-flip-hint {
+  text-align: center; font-size: .75rem; color: #6b7280; margin: 0 auto 20px; max-width: 460px;
+}
+.idcard-flip-hint i { margin-right: 4px; opacity: .7; }
 
 .idcard {
-  position: absolute; inset: 0; backface-visibility: hidden;
-  border-radius: 18px; padding: 20px 22px; color: #fff;
-  box-shadow: 0 22px 48px rgba(8,55,28,.38), inset 0 1px 0 rgba(255,255,255,.18), inset 0 -1px 0 rgba(0,0,0,.2);
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 20px; padding: 18px 20px; color: #fff;
   overflow: hidden; display: flex; flex-direction: column;
   font-family: 'Mukta', 'Noto Sans Devanagari', system-ui, sans-serif;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(0,0,0,.22);
 }
 .idcard-front {
   background:
-    radial-gradient(120% 160% at 0% 0%, rgba(255,255,255,.18), transparent 55%),
-    radial-gradient(120% 160% at 100% 100%, rgba(0,0,0,.25), transparent 55%),
-    linear-gradient(135deg, #053a1a 0%, #0a4a25 35%, var(--primary-dark) 65%, #1a8754 100%);
+    linear-gradient(145deg, rgba(255,255,255,.12) 0%, transparent 38%),
+    linear-gradient(160deg, #03401f 0%, #0a5c32 38%, #117a48 72%, #0d6b3c 100%);
+}
+.idcard-mesh {
+  position: absolute; inset: 0; pointer-events: none; opacity: .22;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 80% 60%, rgba(255,255,255,.2) 0 1px, transparent 1.5px);
+  background-size: 18px 18px, 22px 22px;
+  mix-blend-mode: soft-light;
+}
+.idcard-mesh-back { opacity: .12; }
+.idcard-orb {
+  position: absolute; border-radius: 50%; pointer-events: none; filter: blur(2px);
+}
+.idcard-orb-a {
+  width: 180px; height: 180px; right: -50px; top: -60px;
+  background: radial-gradient(circle, rgba(255,215,128,.28), transparent 68%);
+  animation: idcardOrbFloat 8s ease-in-out infinite;
+}
+.idcard-orb-b {
+  width: 140px; height: 140px; left: -40px; bottom: -50px;
+  background: radial-gradient(circle, rgba(120,255,200,.18), transparent 70%);
+  animation: idcardOrbFloat 10s ease-in-out infinite reverse;
+}
+@keyframes idcardOrbFloat {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(-8px, 10px) scale(1.06); }
 }
 .idcard-shine {
-  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.08) 50%, transparent 70%);
+  position: absolute; top: -60%; left: -40%; width: 70%; height: 220%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.16) 50%, transparent 60%);
   pointer-events: none;
+  animation: idcardSheen 5.5s ease-in-out infinite;
 }
-.idcard-top { display:flex; justify-content:space-between; align-items:flex-start; }
-.idcard-brand { display:flex; align-items:center; gap:9px; }
-.idcard-logo { width:34px; height:34px; border-radius:7px; background:white; padding:3px; object-fit:contain; }
-.idcard-org { font-weight:800; font-size:.95rem; line-height:1.1; letter-spacing:.01em; }
-.idcard-org-en { font-size:.62rem; opacity:.85; letter-spacing:.04em; margin-top:1px; }
+@keyframes idcardSheen {
+  0%, 100% { transform: translateX(-20%) rotate(18deg); opacity: .35; }
+  50% { transform: translateX(160%) rotate(18deg); opacity: .7; }
+}
+.idcard-edge {
+  position: absolute; inset: 8px; border-radius: 14px; pointer-events: none;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.idcard-top { display:flex; justify-content:space-between; align-items:flex-start; position: relative; z-index: 1; }
+.idcard-brand { display:flex; align-items:center; gap:10px; min-width: 0; }
+.idcard-logo-wrap {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  background: linear-gradient(145deg, #fff, #f3f4f6);
+  padding: 4px; box-shadow: 0 4px 12px rgba(0,0,0,.25), inset 0 1px 0 #fff;
+}
+.idcard-logo { width:100%; height:100%; object-fit:contain; display:block; }
+.idcard-brand-text { min-width: 0; }
+.idcard-org {
+  font-weight:800; font-size: .98rem; line-height:1.15; letter-spacing:.01em;
+  text-shadow: 0 1px 8px rgba(0,0,0,.25);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;
+}
+.idcard-org-en { font-size:.62rem; opacity:.88; letter-spacing:.05em; margin-top:2px; font-weight:500; }
+.idcard-tag-stack { text-align: right; flex-shrink: 0; }
 .idcard-tag {
-  font-size:.6rem; background:rgba(255,255,255,.18); padding:4px 9px;
-  border-radius:6px; letter-spacing:.18em; font-weight:700;
-  border:1px solid rgba(255,255,255,.18);
+  display: block; font-size:.58rem; background:rgba(255,255,255,.16); padding:4px 9px;
+  border-radius:999px; letter-spacing:.2em; font-weight:800;
+  border:1px solid rgba(255,255,255,.22); backdrop-filter: blur(6px);
 }
-.idcard-mid { display:flex; align-items:center; gap:14px; margin-top:14px; position:relative; }
+.idcard-tag-sub {
+  display:block; font-size:.48rem; letter-spacing:.16em; opacity:.75; margin-top:4px; font-weight:600;
+}
+
+.idcard-mid { display:flex; align-items:center; gap:14px; margin-top:12px; position:relative; z-index:1; }
+.idcard-chip-stack { display:flex; align-items:center; gap:10px; }
 .idcard-chip {
-  position: relative; width:46px; height:36px; border-radius:6px;
-  background: linear-gradient(135deg,color-mix(in srgb, var(--secondary-color) 26%, white) 0%, var(--secondary-color) 50%, var(--secondary-dark,var(--secondary-color)) 100%);
-  box-shadow: inset 0 0 0 1px rgba(120,53,15,.4), 0 1px 2px rgba(0,0,0,.25);
+  position: relative; width:48px; height:36px; border-radius:7px;
+  background:
+    linear-gradient(145deg, #f6e27a 0%, #d4a017 45%, #b8860b 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(120,53,15,.35),
+    0 3px 8px rgba(0,0,0,.28);
 }
-.idcard-chip span { position:absolute; background:rgba(120,53,15,.4); border-radius:1px; }
-.chip-l1 { top:6px;  left:6px;  width:14px; height:2px; }
-.chip-l2 { top:13px; left:6px;  width:14px; height:2px; }
-.chip-l3 { top:6px;  right:6px; width:14px; height:2px; }
-.chip-l4 { top:13px; right:6px; width:14px; height:2px; }
-.idcard-wifi { font-size:18px; opacity:.65; }
+.idcard-chip span { position:absolute; background:rgba(90,40,10,.35); border-radius:1px; }
+.chip-l1 { top:7px;  left:6px;  width:14px; height:2px; }
+.chip-l2 { top:14px; left:6px;  width:14px; height:2px; }
+.chip-l3 { top:7px;  right:6px; width:14px; height:2px; }
+.chip-l4 { top:14px; right:6px; width:14px; height:2px; }
+.chip-center {
+  top: 50%; left: 50%; width: 10px; height: 14px; margin: -7px 0 0 -5px;
+  border: 1px solid rgba(90,40,10,.4); border-radius: 2px; background: transparent !important;
+}
+.idcard-contactless {
+  font-size: 17px; opacity: .7; transform: rotate(90deg);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.3));
+}
 .idcard-photo {
-  margin-left:auto; width:64px; height:80px; border-radius:6px; overflow:hidden;
-  background:white; padding:2px; box-shadow:0 2px 6px rgba(0,0,0,.3);
+  margin-left:auto; width:68px; height:84px; border-radius:10px; overflow:hidden;
+  background: linear-gradient(145deg, #fff, #e8e8e8); padding:3px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.6);
+  position: relative;
 }
-.idcard-photo img { width:100%; height:100%; object-fit:cover; border-radius:4px; }
+.idcard-photo img { width:100%; height:100%; object-fit:cover; border-radius:7px; display:block; }
+.idcard-photo-ring {
+  position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(255,215,128,.35);
+}
+
+.idcard-number-block { margin-top: 12px; position: relative; z-index: 1; }
 .idcard-cardno {
-  margin-top:14px; font-family:'Courier New',monospace; font-size:1.05rem;
-  letter-spacing:.18em; font-weight:700; text-shadow:0 1px 2px rgba(0,0,0,.4);
+  margin-top: 3px;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: 1.18rem; letter-spacing: .14em; font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0,0,0,.35);
 }
-.idcard-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; gap:10px; }
-.idcard-label { font-size:.5rem; opacity:.7; letter-spacing:.1em; font-weight:600; }
-.idcard-name { font-size:.85rem; font-weight:700; line-height:1.2; }
-.idcard-valid { text-align:right; }
-.idcard-valid-val { font-family:'Courier New',monospace; font-weight:700; font-size:.85rem; letter-spacing:.05em; }
-.idcard-id-row { display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:.62rem; opacity:.92; }
-.idcard-status { display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,.18); padding:2px 8px; border-radius:999px; }
-.idcard-mid-no b { letter-spacing:.05em; }
+.idcard-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; gap:10px; position: relative; z-index: 1; }
+.idcard-label { font-size:.5rem; opacity:.72; letter-spacing:.12em; font-weight:700; text-transform: uppercase; }
+.idcard-name { font-size:.9rem; font-weight:700; line-height:1.2; margin-top:2px; text-shadow: 0 1px 4px rgba(0,0,0,.25); }
+.idcard-valid { text-align:right; flex-shrink: 0; }
+.idcard-valid-val { font-family:'Courier New',monospace; font-weight:700; font-size:.9rem; letter-spacing:.08em; margin-top:2px; }
+.idcard-id-row {
+  display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;
+  font-size:.62rem; opacity:.95; position: relative; z-index: 1;
+  border-top: 1px solid rgba(255,255,255,.12);
+}
+.idcard-status {
+  display:inline-flex; align-items:center; gap:5px;
+  background:rgba(34,197,94,.22); padding:3px 9px; border-radius:999px;
+  border: 1px solid rgba(134,239,172,.35); font-weight: 700;
+}
+.idcard-mid-no { opacity: .9; letter-spacing: .02em; }
+.idcard-mid-no i { margin-right: 4px; opacity: .8; }
 
 /* ─── BACK ─── */
 .idcard-back {
   background:
-    radial-gradient(120% 160% at 100% 0%, rgba(255,255,255,.12), transparent 50%),
-    linear-gradient(135deg, #1f2937 0%, #111827 50%, #0a4a25 100%);
+    linear-gradient(160deg, #0b1f14 0%, #123526 42%, #0f2f22 100%);
   transform: rotateY(180deg);
 }
-.idcard-magstripe { height:36px; background:#000; margin:14px -22px 0; }
-.idcard-back-body { display:flex; flex-direction:column; flex:1; gap:10px; padding-top:16px; }
+.idcard-magstripe {
+  height: 42px; background: linear-gradient(180deg, #111 0%, #000 40%, #1a1a1a 100%);
+  margin: 10px -20px 0; position: relative; overflow: hidden;
+}
+.idcard-magstripe-gloss {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+}
+.idcard-back-body { display:flex; flex-direction:column; flex:1; gap:9px; padding-top:14px; position: relative; z-index: 1; }
 .idcard-sigpanel {
-  background:repeating-linear-gradient(45deg,#fff,#fff 4px,#f3f4f6 4px,#f3f4f6 8px);
-  height:34px; border-radius:4px; display:flex; align-items:center; justify-content:space-between;
-  padding:0 8px; color:#111827;
+  background:
+    linear-gradient(180deg, #fafafa, #ececec),
+    repeating-linear-gradient(90deg, transparent, transparent 7px, rgba(0,0,0,.04) 7px, rgba(0,0,0,.04) 8px);
+  min-height: 40px; border-radius: 8px; display:flex; align-items:stretch; justify-content:space-between;
+  padding: 6px 8px 6px 10px; color:#111827;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
 }
-.idcard-sigpanel-text { font-style:italic; font-weight:600; font-size:.85rem; }
-.idcard-cvv-box { display:flex; flex-direction:column; align-items:flex-end; }
-.cvv-label { font-size:.5rem; font-weight:700; letter-spacing:.1em; opacity:.7; }
-.cvv-value { font-family:'Courier New',monospace; font-weight:700; font-size:1rem; letter-spacing:.2em; }
-.idcard-back-vcode {
-  background:rgba(255,255,255,.06); border-radius:6px; padding:6px 10px;
-  display:flex; justify-content:space-between; align-items:center;
+.idcard-sig-left { display:flex; flex-direction:column; justify-content:center; min-width:0; flex:1; }
+.idcard-sig-label { font-size: .42rem; letter-spacing: .12em; color: #6b7280; font-weight: 700; }
+.idcard-sigpanel-text {
+  font-family: 'Segoe Script', 'Brush Script MT', cursive, Mukta, sans-serif;
+  font-weight:600; font-size:.92rem; line-height:1.1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.bv-label { font-size:.55rem; opacity:.75; letter-spacing:.1em; font-weight:700; }
-.bv-value { font-family:'Courier New',monospace; font-weight:700; letter-spacing:.16em; font-size:.85rem; }
-.idcard-back-note { font-size:.52rem; opacity:.78; line-height:1.5; }
-.idcard-back-foot { display:flex; justify-content:space-between; font-size:.55rem; opacity:.85; padding-top:4px; border-top:1px solid rgba(255,255,255,.12); margin-top:auto; }
+.idcard-cvv-box {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background: #111827; color: #fff; border-radius: 7px; padding: 4px 10px; min-width: 72px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.cvv-label { font-size:.48rem; font-weight:800; letter-spacing:.14em; opacity:.75; }
+.cvv-value { font-family:'Courier New',monospace; font-weight:800; font-size:.95rem; letter-spacing:.1em; color: #fde68a; }
+
+.idcard-back-meta { display:flex; gap:8px; }
+.idcard-back-vcode, .idcard-back-issued {
+  background:rgba(255,255,255,.07); border-radius:8px; padding:7px 10px;
+  display:flex; flex-direction:column; gap:2px;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.idcard-back-vcode { flex: 1; }
+.idcard-back-issued { flex: 0 0 auto; text-align: center; min-width: 64px; }
+.bv-label { font-size:.5rem; opacity:.72; letter-spacing:.1em; font-weight:700; }
+.bv-value { font-family:'Courier New',monospace; font-weight:700; letter-spacing:.1em; font-size:.88rem; }
+.bv-value-sm { font-size: .82rem; }
+
+.idcard-holo {
+  height: 10px; border-radius: 999px; overflow: hidden; display: flex;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+}
+.idcard-holo span { flex: 1; }
+.idcard-holo span:nth-child(1) { background: linear-gradient(90deg, #34d399, #60a5fa); }
+.idcard-holo span:nth-child(2) { background: linear-gradient(90deg, #60a5fa, #c084fc, #f472b6); }
+.idcard-holo span:nth-child(3) { background: linear-gradient(90deg, #f472b6, #fbbf24, #34d399); }
+
+.idcard-back-note { font-size:.55rem; opacity:.82; line-height:1.55; }
+.idcard-back-foot {
+  display:flex; justify-content:space-between; align-items:center; gap:8px;
+  font-size:.55rem; opacity:.9; padding-top:6px;
+  border-top:1px solid rgba(255,255,255,.12); margin-top:auto;
+}
 .idcard-back-foot i { margin-right:3px; }
+.idcard-back-logo {
+  width: 22px; height: 22px; border-radius: 5px; object-fit: contain;
+  background: #fff; padding: 2px; flex-shrink: 0;
+}
 
 /* ─── Details list ─── */
 .idcard-details {
@@ -579,12 +779,9 @@ if ($cardLogoRaw !== '') {
 }
 .idcard-detail .dv-expired { color:var(--secondary-dark,var(--secondary-color)); }
 .idcard-detail-full { grid-column:1/-1; }
-.idcard-detail-vcode { background:linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 12%, white), color-mix(in srgb, var(--primary-light) 18%, white)); border-color:var(--primary-color); }
-.idcard-detail-vcode-label { color:var(--primary-dark,var(--primary-color)); }
-.idcard-detail-vcode-value { color:var(--primary-dark,var(--primary-color)); font-size:16px; }
-.idcard-detail-cvv { background:color-mix(in srgb, var(--secondary-color) 16%, white); border-color:var(--secondary-color); }
+.idcard-detail-cvv { background:color-mix(in srgb, var(--secondary-color) 12%, white); border-color:color-mix(in srgb, var(--secondary-color) 35%, #e5e7eb); }
 .idcard-detail-cvv-label { color:var(--secondary-dark,var(--secondary-color)); }
-.idcard-detail-cvv-value { color:var(--secondary-dark,var(--secondary-color)); font-size:18px; letter-spacing:.3em; }
+.idcard-detail-cvv-value { color:var(--secondary-dark,var(--secondary-color)); font-size:1.05rem; letter-spacing:.12em; }
 .idcard-detail-cvv-help { font-size:11px; color:var(--secondary-dark,var(--secondary-color)); margin-top:6px; line-height:1.5; }
 .idcard-detail { background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; padding:10px 12px; }
 .idcard-detail .dl { font-size:.68rem; font-weight:700; color:#6b7280; letter-spacing:.04em; margin-bottom:4px; }
@@ -592,23 +789,33 @@ if ($cardLogoRaw !== '') {
 .idcard-detail .dv.code { font-family:'Courier New',monospace; letter-spacing:.05em; font-weight:700; }
 
 .idcard-verify-help {
-  margin-top:18px; background:#fef2f2; border:1px solid #fecaca;
+  margin-top:18px; background:color-mix(in srgb, var(--primary-color) 8%, white);
+  border:1px solid color-mix(in srgb, var(--primary-color) 25%, #e5e7eb);
   border-radius:10px; padding:14px; display:flex; gap:10px; align-items:flex-start;
 }
-.vh-icon { color:var(--secondary-color,#c0392b); font-size:1.4rem; flex-shrink:0; }
-.vh-title { font-weight:700; font-size:.88rem; color:var(--secondary-dark,#922b21); margin-bottom:4px; }
-.vh-text { font-size:.78rem; color:var(--secondary-dark,#922b21); line-height:1.55; }
+.vh-icon { color:var(--primary-dark, #0a4a25); font-size:1.4rem; flex-shrink:0; }
+.vh-title { font-weight:700; font-size:.88rem; color:var(--primary-dark,#0a4a25); margin-bottom:4px; }
+.vh-text { font-size:.78rem; color:#374151; line-height:1.55; }
 .vh-text b { font-family:'Courier New',monospace; background:white; padding:1px 6px; border-radius:4px; }
 
 @media (max-width:480px) {
   .idcard-flip { max-width:100%; }
-  .idcard { padding:16px 18px; }
-  .idcard-org { font-size:.85rem; }
-  .idcard-cardno { font-size:.95rem; letter-spacing:.13em; }
+  .idcard { padding:14px 16px; }
+  .idcard-org { font-size:.82rem; max-width: 160px; }
+  .idcard-cardno { font-size:1rem; letter-spacing:.1em; }
+  .idcard-photo { width:58px; height:72px; }
   .idcard-details { grid-template-columns:1fr; }
+  .cvv-value { font-size: .85rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .idcard-shine, .idcard-orb-a, .idcard-orb-b { animation: none; }
+  .idcard-flip-inner { transition: none; }
 }
 @media print {
-  .idcard-actions, .idcard-verify-help, .idcard-details { display:none !important; }
+  .idcard-actions, .idcard-verify-help, .idcard-details, .idcard-flip-hint, .idcard-note { display:none !important; }
+  .idcard-flip-inner { filter: none; transform: none !important; }
+  .idcard-front { position: relative; }
+  .idcard-back { display: none; }
   body { background:#fff !important; }
 }
 </style>
@@ -617,11 +824,17 @@ if ($cardLogoRaw !== '') {
   (function () {
     var btn  = document.getElementById('idcardFlipBtn');
     var flip = document.getElementById('idcardFlip');
-    if (btn && flip) btn.addEventListener('click', function () { flip.classList.toggle('is-flipped'); });
-    if (flip) flip.addEventListener('click', function (e) {
-      if (e.target.closest('a, button')) return;
-      flip.classList.toggle('is-flipped');
-    });
+    function toggle() { if (flip) flip.classList.toggle('is-flipped'); }
+    if (btn && flip) btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+    if (flip) {
+      flip.addEventListener('click', function (e) {
+        if (e.target.closest('a, button')) return;
+        toggle();
+      });
+      flip.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+      });
+    }
   })();
 </script>
 
