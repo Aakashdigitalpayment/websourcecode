@@ -931,23 +931,24 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
          'contact' => 'phone', 'member_col' => 'member_id',
          'fields' => 'id, applicant_name as full_name, phone, email, NULL as app_date, nominee_name as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
-         'contact' => 'phone', 'member_col' => null,
-         'fields' => 'id, full_name, phone, email, NULL as app_date, position_applied as detail, status, tracking_id, created_at, NULL as branch'],
+         'contact' => 'phone', 'member_col' => null, 'email' => 'email',
+         'fields' => "id, full_name, phone, email, NULL as app_date, COALESCE((SELECT COALESCE(NULLIF(c.title_np,''), c.title) FROM careers c WHERE c.id = job_applications.career_id LIMIT 1), education, '') as detail, status, tracking_id, created_at, NULL as branch"],
         ['table' => 'digital_service_requests', 'service' => 'डिजिटल सेवा', 'icon' => 'fa-mobile-alt', 'color' => '#0277bd',
-         'contact' => 'phone', 'member_col' => 'member_id',
-         'fields' => 'id, requester_name as full_name, phone, email, NULL as app_date, service_type as detail, status, tracking_id, created_at, NULL as branch, member_id'],
+         'contact' => 'phone', 'member_col' => 'member_id', 'email' => 'email',
+         'fields' => 'id, requester_name as full_name, phone, email, NULL as app_date, COALESCE(NULLIF(service_type_np,\'\'), service_type) as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'auction_bids', 'service' => 'लिलामी बोलपत्र', 'icon' => 'fa-gavel', 'color' => '#b71c1c',
-         'contact' => 'bidder_phone', 'member_col' => null,
+         'contact' => 'bidder_phone', 'member_col' => null, 'email' => 'bidder_email',
          'fields' => 'id, bidder_name as full_name, bidder_phone as phone, bidder_email as email, NULL as app_date, bid_amount as detail, status, tracking_id, created_at, NULL as branch'],
         ['table' => 'member_feedback', 'service' => 'सर्वेक्षण/प्रतिक्रिया', 'icon' => 'fa-comments', 'color' => '#6a1b9a',
-         'contact' => 'phone', 'member_col' => null,
-         'fields' => 'id, name as full_name, phone, email, NULL as app_date, COALESCE(subject, type, message) as detail, status, tracking_id, created_at, NULL as branch'],
+         'contact' => 'phone', 'member_col' => null, 'email' => 'email',
+         'fields' => "id, name as full_name, phone, email, NULL as app_date, COALESCE(NULLIF(subject,''), type, LEFT(message, 80)) as detail, status, tracking_id, created_at, NULL as branch"],
     ];
 
     foreach ($queries as $q) {
         try {
             $conds = []; $params = [];
-            if ($email !== '') { $conds[] = 'email=?'; $params[] = $email; }
+            $emailCol = (string)($q['email'] ?? 'email');
+            if ($email !== '') { $conds[] = $emailCol . '=?'; $params[] = $email; }
             if ($phone !== '') {
                 $conds[] = $q['contact'] . '=?';
                 $params[] = $phone;
@@ -963,7 +964,13 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
                                  FROM {$q['table']} WHERE ($where) ORDER BY created_at DESC LIMIT 30");
             $st->execute($params);
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($rows as $r) { $r['_table'] = $q['table']; $results[] = $r; }
+            foreach ($rows as $r) {
+                $r['_table'] = $q['table'];
+                if (($q['table'] ?? '') === 'auction_bids' && isset($r['detail']) && is_numeric($r['detail'])) {
+                    $r['detail'] = 'Rs. ' . number_format((float)$r['detail'], 0);
+                }
+                $results[] = $r;
+            }
         } catch (Exception $e) { continue; }
     }
 

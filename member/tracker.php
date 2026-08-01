@@ -351,7 +351,12 @@ require __DIR__ . '/includes/chrome.php';
                         'appointment' => ['href' => 'appointment.php', 'label' => $_t('भेटघाट', 'Appointment')],
                         'kyc' => ['href' => 'kyc.php', 'label' => 'KYC'],
                         'account' => ['href' => 'account-apply.php', 'label' => $_t('खाता खोल्ने', 'Open account')],
-                        'grievance' => ['href' => 'grievance.php', 'label' => $_t('गुनासो', 'Grievance')],
+                        'honor' => ['href' => 'honor-apply.php', 'label' => $_t('सम्मान आवेदन', 'Honor apply')],
+                        'digital' => ['href' => 'digital-service.php', 'label' => $_t('डिजिटल सेवा', 'Digital service')],
+                        'feedback' => ['href' => '../member-survey.php', 'label' => $_t('सर्वेक्षण', 'Survey')],
+                        'welfare' => ['href' => 'welfare.php', 'label' => $_t('कल्याण', 'Welfare')],
+                        'job' => ['href' => '../career.php', 'label' => $_t('जागिर', 'Jobs')],
+                        'auction' => ['href' => '../auction.php', 'label' => $_t('लिलामी', 'Auction')],
                     ];
                     $show = ($filter === 'all')
                         ? ['loan', 'appointment', 'kyc']

@@ -213,13 +213,13 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE ja.phone = ? ORDER BY ja.created_at DESC LIMIT 20");
+                                          WHERE " . trackerPhoneSqlExpr('ja.phone') . " = ? ORDER BY ja.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
                     $stmt = $db->prepare("SELECT ja.*, c.title as job_title, c.title_np as job_title_np, 'job' as app_type
                                           FROM job_applications ja
                                           LEFT JOIN careers c ON ja.career_id = c.id
-                                          WHERE ja.email = ? ORDER BY ja.created_at DESC LIMIT 20");
+                                          WHERE LOWER(TRIM(ja.email)) = ? ORDER BY ja.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $jobResults = $stmt->fetchAll();
@@ -232,10 +232,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'loan' as app_type FROM loan_applications WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $loanResults = $stmt->fetchAll();
@@ -248,10 +248,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE mobile = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'account' as app_type FROM account_applications WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $accResults = $stmt->fetchAll();
@@ -339,13 +339,13 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
                                           LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE ab.bidder_phone = ? ORDER BY ab.created_at DESC LIMIT 20");
+                                          WHERE " . trackerPhoneSqlExpr('ab.bidder_phone') . " = ? ORDER BY ab.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
                                           LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE ab.bidder_email = ? ORDER BY ab.created_at DESC LIMIT 20");
+                                          WHERE LOWER(TRIM(ab.bidder_email)) = ? ORDER BY ab.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $bidResults = $stmt->fetchAll();
@@ -378,11 +378,11 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                         }
                     }
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                     $apptResults = $stmt->fetchAll();
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                     $apptResults = $stmt->fetchAll();
                 }
@@ -397,10 +397,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'feedback' as app_type FROM member_feedback WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $fbResults = $stmt->fetchAll();
@@ -417,10 +417,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$wlfId]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'welfare_claim' as app_type FROM member_welfare_claims WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $wlfResults = $stmt->fetchAll();
@@ -432,10 +432,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'digital_service' as app_type FROM digital_service_requests WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $digitalResults = $stmt->fetchAll();
@@ -447,10 +447,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE UPPER(a.tracking_id) = UPPER(?)");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE a.phone = ? ORDER BY a.created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE " . trackerPhoneSqlExpr('a.phone') . " = ? ORDER BY a.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE a.email = ? ORDER BY a.created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT a.*, 'honor_application' as app_type FROM honor_applications a WHERE LOWER(TRIM(a.email)) = ? ORDER BY a.created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $honorResults = $stmt->fetchAll();
@@ -463,10 +463,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
                     $stmt->execute([$searchValue]);
                 } elseif ($searchType === 'phone') {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE phone = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 } else {
-                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE email = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt = $db->prepare("SELECT *, 'vendor' as app_type FROM vendors WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
                 }
                 $vendorResults = $stmt->fetchAll();
