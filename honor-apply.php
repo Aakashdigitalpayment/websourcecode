@@ -18,7 +18,9 @@ $db = getDB();
 ensureHonorTables($db);
 
 $openPrograms = honorFetchOpenPrograms($db);
+$upcomingPrograms = honorFetchUpcomingPrograms($db);
 $hasOpen = !empty($openPrograms);
+$hasUpcoming = !empty($upcomingPrograms);
 $success = false;
 $error = '';
 $trackingId = '';
@@ -170,6 +172,31 @@ foreach ($openPrograms as $op) {
         <?php elseif (!$hasOpen): ?>
         <div class="row justify-content-center">
             <div class="col-lg-8">
+                <?php if ($hasUpcoming): ?>
+                <div class="alert alert-warning text-center py-4 mb-4">
+                    <i class="fas fa-hourglass-half fa-2x mb-3 d-block"></i>
+                    <h4 class="mb-2"><?php echo isEnglish() ? 'Applications open soon' : 'दरखास्त चाँडै खुल्नेछ'; ?></h4>
+                    <p class="mb-3 text-muted"><?php echo isEnglish()
+                        ? 'The program is published. You can apply only after the open date/time.'
+                        : 'कार्यक्रम प्रकाशित छ। खुल्ने मिति/समयपछि मात्र दरखास्त दिन सकिन्छ।'; ?></p>
+                </div>
+                <div class="list-group shadow-sm">
+                    <?php foreach ($upcomingPrograms as $up): ?>
+                    <div class="list-group-item">
+                        <div class="fw-bold"><?php echo htmlspecialchars(honorProgramLabel($up, isEnglish())); ?></div>
+                        <?php if (!empty($up['event_label'])): ?>
+                        <div class="small text-muted"><?php echo htmlspecialchars((string)$up['event_label']); ?><?php echo !empty($up['fiscal_year']) ? ' · ' . htmlspecialchars((string)$up['fiscal_year']) : ''; ?></div>
+                        <?php endif; ?>
+                        <div class="small mt-2">
+                            <span class="badge bg-warning text-dark"><?php echo isEnglish() ? 'Upcoming' : 'चाँडै खुल्ने'; ?></span>
+                            <?php echo isEnglish() ? 'Opens' : 'खुल्ने'; ?>:
+                            <strong><?php echo htmlspecialchars(honorFormatDtBs((string)$up['opens_at'])); ?></strong>
+                            <span class="text-muted">→ <?php echo htmlspecialchars(honorFormatDtBs((string)$up['closes_at'])); ?></span>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php else: ?>
                 <div class="alert alert-info text-center py-5">
                     <i class="fas fa-calendar-times fa-3x mb-3 d-block opacity-50"></i>
                     <h4><?php echo isEnglish() ? 'Applications are closed' : 'दरखास्त हाल बन्द छ'; ?></h4>
@@ -177,6 +204,7 @@ foreach ($openPrograms as $op) {
                         ? 'Honor applications open only during AGM / annual celebration windows set by the cooperative.'
                         : 'सम्मान दरखास्त AGM / वार्षिक उत्सवका लागि प्रशासनले तोकेको अवधिमा मात्र खुल्छ।'; ?></p>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php else: ?>
@@ -192,7 +220,7 @@ foreach ($openPrograms as $op) {
             <?php endif; ?>
             <div class="small mt-1">
                 <?php echo isEnglish() ? 'Open until' : 'बन्द हुने'; ?>:
-                <?php echo htmlspecialchars((string)$activeProgram['closes_at']); ?>
+                <?php echo htmlspecialchars(honorFormatDtBs((string)$activeProgram['closes_at'])); ?>
             </div>
             <?php
             $inst = isEnglish()

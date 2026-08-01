@@ -1196,14 +1196,14 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 $__honorOpen = false;
                 $__honorNew = false;
                 try {
-                    if (!function_exists('honorHasOpenProgram')) {
+                    if (!function_exists('honorHasPublicProgram')) {
                         $hf = __DIR__ . '/honor-tables.php';
                         if (is_file($hf)) {
                             require_once $hf;
                         }
                     }
-                    if (function_exists('honorHasOpenProgram') && isset($db) && $db instanceof PDO) {
-                        $__honorOpen = honorHasOpenProgram($db);
+                    if (function_exists('honorHasPublicProgram') && isset($db) && $db instanceof PDO) {
+                        $__honorOpen = honorHasPublicProgram($db);
                         $__honorNew = $__honorOpen && function_exists('honorShowNewBadge') && honorShowNewBadge($db);
                     }
                 } catch (Throwable $e) {

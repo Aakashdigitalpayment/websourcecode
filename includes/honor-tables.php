@@ -182,6 +182,28 @@ if (!function_exists('honorFetchOpenPrograms')) {
     }
 }
 
+if (!function_exists('honorFetchUpcomingPrograms')) {
+    /**
+     * Active programs that have not opened yet (visible on public as “coming soon”).
+     * @return list<array<string,mixed>>
+     */
+    function honorFetchUpcomingPrograms(PDO $db): array
+    {
+        try {
+            ensureHonorTables($db);
+            $now = honorNowSql();
+            $stmt = $db->prepare('SELECT * FROM honor_programs
+                WHERE is_active = 1 AND opens_at > ?
+                ORDER BY opens_at ASC, id DESC
+                LIMIT 20');
+            $stmt->execute([$now]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+}
+
 if (!function_exists('honorHasOpenProgram')) {
     function honorHasOpenProgram(?PDO $db = null): bool
     {
@@ -196,6 +218,104 @@ if (!function_exists('honorHasOpenProgram')) {
             return false;
         }
         return count(honorFetchOpenPrograms($db)) > 0;
+    }
+}
+
+if (!function_exists('honorHasPublicProgram')) {
+    /** Nav / discoverability: currently open OR upcoming (active). */
+    function honorHasPublicProgram(?PDO $db = null): bool
+    {
+        if (!$db instanceof PDO && function_exists('getDB')) {
+            try {
+                $db = getDB();
+            } catch (Throwable $e) {
+                return false;
+            }
+        }
+        if (!$db instanceof PDO) {
+            return false;
+        }
+        if (honorHasOpenProgram($db)) {
+            return true;
+        }
+        return count(honorFetchUpcomingPrograms($db)) > 0;
+    }
+}
+
+if (!function_exists('honorFormatDtBs')) {
+    /** Display MySQL DATETIME as BS date + time (falls back to AD). */
+    function honorFormatDtBs(?string $mysqlDt): string
+    {
+        $mysqlDt = trim((string)$mysqlDt);
+        if ($mysqlDt === '') {
+            return '';
+        }
+        $ad = substr($mysqlDt, 0, 10);
+        $time = strlen($mysqlDt) >= 16 ? substr($mysqlDt, 11, 5) : '';
+        $bs = (function_exists('adToBs') && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad))
+            ? trim((string)adToBs($ad))
+            : $ad;
+        if ($bs === '') {
+            $bs = $ad;
+        }
+        return trim($bs . ($time !== '' ? ' ' . $time : ''));
+    }
+}
+
+if (!function_exists('honorCombineBsDateTime')) {
+    /** BS (or AD) date + H:i → AD MySQL DATETIME for storage. */
+    function honorCombineBsDateTime(string $dateIn, string $timeIn): string
+    {
+        $dateIn = trim($dateIn);
+        $timeIn = trim($timeIn);
+        if ($dateIn === '' || $timeIn === '') {
+            return '';
+        }
+        if (!preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $timeIn)) {
+            return '';
+        }
+        if (substr_count($timeIn, ':') === 1) {
+            $timeIn .= ':00';
+        }
+        $datePart = substr($dateIn, 0, 10);
+        if (!preg_match('/^(\d{4})-\d{2}-\d{2}$/', $datePart, $m)) {
+            return '';
+        }
+        $y = (int)$m[1];
+        if ($y >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($datePart));
+            $ad = preg_match('/^\d{4}-\d{2}-\d{2}/', $ad) ? substr($ad, 0, 10) : '';
+        } else {
+            $ad = $datePart;
+        }
+        if ($ad === '') {
+            return '';
+        }
+        $ts = strtotime($ad . ' ' . $timeIn);
+        return $ts ? date('Y-m-d H:i:s', $ts) : '';
+    }
+}
+
+if (!function_exists('honorProgramWindowState')) {
+    /** @return 'open'|'upcoming'|'closed'|'inactive' */
+    function honorProgramWindowState(?array $program): string
+    {
+        if (!$program || empty($program['is_active'])) {
+            return 'inactive';
+        }
+        $now = honorNowSql();
+        $opens = (string)($program['opens_at'] ?? '');
+        $closes = (string)($program['closes_at'] ?? '');
+        if ($opens === '' || $closes === '') {
+            return 'closed';
+        }
+        if ($now < $opens) {
+            return 'upcoming';
+        }
+        if ($now > $closes) {
+            return 'closed';
+        }
+        return 'open';
     }
 }
 
@@ -335,6 +455,11 @@ if (!function_exists('honorShowNewBadge')) {
             return false;
         }
         foreach (honorFetchOpenPrograms($db) as $p) {
+            if (!empty($p['show_new_badge'])) {
+                return true;
+            }
+        }
+        foreach (honorFetchUpcomingPrograms($db) as $p) {
             if (!empty($p['show_new_badge'])) {
                 return true;
             }

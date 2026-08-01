@@ -151,16 +151,28 @@ textarea.form-control {
 }
 
 /* ── PUBLIC: compact top utility bar (desktop) ─────────────────── */
+/* Keep row compact, but restore readable left quick-link labels
+   (11px was too small vs previous live header). */
 
 @media (min-width: 992px) {
   .pfl-top-bar .container {
-    min-height: 34px !important;
+    min-height: 38px !important;
     align-items: center !important;
   }
 
   .pfl-quick-links > li > a {
-    padding: 5px 11px !important;
-    font-size: 11px !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  .pfl-quick-links > li > a .lucide-icon,
+  .pfl-quick-links > li > a svg.lucide,
+  .pfl-quick-links > li > a i {
+    width: 15px !important;
+    height: 15px !important;
+    font-size: 14px !important;
   }
 
   .pfl-top-right {
@@ -175,15 +187,16 @@ textarea.form-control {
     min-height: 0 !important;
     padding: 3px 7px !important;
     border-radius: 5px !important;
-    font-size: 11.5px !important;
+    font-size: 12px !important;
   }
 
   .pfl-top-right .pfl-login-toggle {
-    min-height: 28px !important;
+    min-height: 30px !important;
     min-width: 0 !important;
-    padding: 3px 10px !important;
-    font-size: 11.5px !important;
-    border-radius: 5px !important;
+    padding: 4px 11px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
     gap: 5px !important;
   }
 
@@ -201,8 +214,8 @@ textarea.form-control {
   .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
     min-width: 0 !important;
     min-height: 0 !important;
-    padding: 2px 6px !important;
-    font-size: 10.5px !important;
+    padding: 2px 7px !important;
+    font-size: 11.5px !important;
     gap: 4px !important;
     border-radius: 5px !important;
   }

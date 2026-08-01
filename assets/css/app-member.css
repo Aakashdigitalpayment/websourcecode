@@ -3675,6 +3675,11 @@ body.auth-portal-page .card-portal-label {
   text-transform: none;
 }
 
+/* Green auth header: use light footer-style grey, not dark muted */
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-portal-label {
+  color: color-mix(in srgb, #ffffff 78%, #94a3b8) !important;
+}
+
 /* Circular brand icon — reference-style */
 body.auth-portal-page .card-logo-icon,
 body.auth-portal-page .vp-page-logo-icon {
