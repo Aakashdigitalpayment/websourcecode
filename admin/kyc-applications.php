@@ -366,10 +366,15 @@ if (isset($_POST['import_kyc_csv'])) {
             continue;
         }
 
-        /* Warn if Member ID not in members ledger (still allow KYM — link later after import) */
+        /* Skip if Member ID not in members ledger — no orphan KYM dossiers */
         $memberExists = function_exists('memberSsotFindBySadasyata')
             ? (bool)memberSsotFindBySadasyata($db, $memberId)
             : false;
+        if (!$memberExists) {
+            $skip++;
+            $skipReasons[] = "row {$rowNo}: Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
+            continue;
+        }
 
         $status = strtolower($val('status'));
         if (!in_array($status, $allowedStatuses, true)) {
@@ -405,9 +410,6 @@ if (isset($_POST['import_kyc_csv'])) {
                 if (memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId)) {
                     $linked++;
                 }
-            }
-            if (!$memberExists) {
-                $skipReasons[] = "row {$rowNo}: KYM थपियो तर Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
             }
             $ok++;
         } catch (Throwable $e) {

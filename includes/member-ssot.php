@@ -289,7 +289,16 @@ if (!function_exists('memberSsotBatchStatusForKycRows')) {
                 $out[$kid] = 'kym_only';
                 continue;
             }
-            $out[$kid] = empty($m['password_hash']) ? 'no_password' : 'linked';
+            $linkedId = (int)($m['kyc_application_id'] ?? 0);
+            $hasPass = !empty($m['password_hash']);
+            if ($linkedId === $kid) {
+                $out[$kid] = $hasPass ? 'linked' : 'no_password';
+            } elseif ($linkedId === 0) {
+                $out[$kid] = $hasPass ? 'member_only' : 'no_password';
+            } else {
+                /* Same Member ID, linked to another KYM row */
+                $out[$kid] = $hasPass ? 'linked' : 'no_password';
+            }
         }
         return $out;
     }
@@ -825,10 +834,12 @@ if (!function_exists('memberSsotDuplicateSadasyataReport')) {
     {
         try {
             $st = $db->query(
-                "SELECT sadasyata_number, COUNT(*) AS cnt, GROUP_CONCAT(id ORDER BY id) AS ids
+                "SELECT UPPER(TRIM(sadasyata_number)) AS sadasyata_number,
+                        COUNT(*) AS cnt,
+                        GROUP_CONCAT(id ORDER BY id) AS ids
                  FROM members
                  WHERE sadasyata_number IS NOT NULL AND TRIM(sadasyata_number) <> ''
-                 GROUP BY sadasyata_number
+                 GROUP BY UPPER(TRIM(sadasyata_number))
                  HAVING COUNT(*) > 1
                  ORDER BY cnt DESC
                  LIMIT 500"

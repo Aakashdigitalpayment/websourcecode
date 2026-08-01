@@ -114,7 +114,9 @@ if ($adminLastLoginRaw) {
     elseif ($diff < 172800)   $adminLastLoginLabel = 'Yesterday ' . date('H:i', $ts);
     else                      $adminLastLoginLabel = date('d M, H:i', $ts);
 }
-$currentPage  = getCurrentPage();
+$currentPage  = (isset($currentPage) && is_string($currentPage) && $currentPage !== '')
+    ? $currentPage
+    : getCurrentPage();
 $siteName     = function_exists('getSetting') ? getSetting('site_name', 'आकाश सहकारी') : 'आकाश सहकारी';
 $pwaAppName   = function_exists('getSetting') ? trim((string) getSetting('pwa_app_name', ''))  : '';
 if ($pwaAppName   === '') $pwaAppName   = $siteName;
