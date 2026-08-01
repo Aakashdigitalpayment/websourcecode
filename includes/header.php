@@ -1214,7 +1214,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 <li>
                     <a href="<?php echo SITE_URL; ?>honor-apply.php">
                         <i class="fas fa-award"></i>
-                        <?php echo isEnglish() ? 'Honor Apply' : 'दर्खास्त'; ?>
+                        <?php echo isEnglish() ? 'Honor Application' : 'सम्मान आवेदन'; ?>
                         <?php if ($__honorNew): ?>
                         <span class="nav-new-badge nav-new-badge--top"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
                         <?php endif; ?>

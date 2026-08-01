@@ -594,7 +594,7 @@ function getAppTypeLabel($type) {
         'feedback' => ['icon' => 'fa-comments', 'label' => 'सदस्य सर्वेक्षण/गुनासो', 'label_en' => 'Feedback/Survey', 'color' => 'purple'],
         'welfare_claim' => ['icon' => 'fa-hand-holding-heart', 'label' => 'कल्याण दाबी', 'label_en' => 'Welfare Claim', 'color' => 'pink'],
         'digital_service' => ['icon' => 'fa-mobile-alt', 'label' => 'डिजिटल सेवा अनुरोध', 'label_en' => 'Digital Service Request', 'color' => 'info'],
-        'honor_application' => ['icon' => 'fa-award', 'label' => 'सम्मान दरखास्त', 'label_en' => 'Honor Application', 'color' => 'success'],
+        'honor_application' => ['icon' => 'fa-award', 'label' => 'सम्मान आवेदन', 'label_en' => 'Honor Application', 'color' => 'success'],
         'vendor' => ['icon' => 'fa-store', 'label' => 'सप्लायर दर्ता', 'label_en' => 'Vendor Enlistment', 'color' => 'warning'],
     ];
     return $typeMap[$type] ?? ['icon' => 'fa-file-alt', 'label' => 'आवेदन', 'label_en' => 'Application', 'color' => 'dark'];
@@ -939,7 +939,7 @@ function getAppTypeLabel($type) {
                                             $dsLabels = ['statement_request'=>'खाता विवरण','bill_payment'=>'बिल भुक्तानी','mobile_recharge'=>'मोबाइल रिचार्ज','fund_transfer'=>'रकम स्थानान्तरण','loan_statement'=>'ऋण विवरण','cheque_book'=>'चेकबुक','atm_card'=>'ATM कार्ड','internet_banking'=>'इन्टरनेट बैंकिङ','mobile_banking'=>'मोबाइल बैंकिङ','other_service'=>'अन्य सेवा'];
                                             echo htmlspecialchars($dsLabels[$app['service_type'] ?? ''] ?? $app['service_type_np'] ?? $app['service_type'] ?? 'डिजिटल सेवा अनुरोध');
                                         } elseif ($app['app_type'] === 'honor_application') {
-                                            echo htmlspecialchars($app['nominee_name'] ?: $app['applicant_name'] ?: (isEnglish() ? 'Honor Application' : 'सम्मान दरखास्त'));
+                                            echo htmlspecialchars($app['nominee_name'] ?: $app['applicant_name'] ?: (isEnglish() ? 'Honor Application' : 'सम्मान आवेदन'));
                                         } else {
                                             echo isEnglish() ? $typeInfo['label_en'] : $typeInfo['label'];
                                         }

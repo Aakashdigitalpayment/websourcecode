@@ -1,6 +1,6 @@
 <?php
 /**
- * Shared honor (सम्मान दरखास्त) submit helper for public + member portal.
+ * Shared honor (सम्मान आवेदन) submit helper for public + member portal.
  */
 require_once __DIR__ . '/honor-tables.php';
 
@@ -37,7 +37,7 @@ if (!function_exists('submitHonorApplicationUnified')) {
         if (!$program || !honorIsProgramOpenRow($program)) {
             return [
                 'ok' => false,
-                'error' => 'हाल कुनै खुला सम्मान दरखास्त कार्यक्रम छैन।',
+                'error' => 'हाल कुनै खुला सम्मान आवेदन कार्यक्रम छैन।',
                 'error_en' => 'No honor application program is currently open.',
             ];
         }

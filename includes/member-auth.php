@@ -927,7 +927,7 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
         ['table' => 'member_welfare_claims',   'service' => 'कल्याण दाबी',  'icon' => 'fa-heart', 'color' => '#e65100',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, claim_type as detail, status, tracking_id, created_at, NULL as branch'],
-        ['table' => 'honor_applications', 'service' => 'सम्मान दरखास्त', 'icon' => 'fa-award', 'color' => '#1a5f2a',
+        ['table' => 'honor_applications', 'service' => 'सम्मान आवेदन', 'icon' => 'fa-award', 'color' => '#1a5f2a',
          'contact' => 'phone', 'member_col' => 'member_id',
          'fields' => 'id, applicant_name as full_name, phone, email, NULL as app_date, nominee_name as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
@@ -1074,7 +1074,7 @@ function createMemberStatusNotification($type, $email, $phone, $name, $status, $
         'appointment' => 'भेटघाट', 'kyc' => 'KYC दर्ता', 'loan' => 'ऋण आवेदन',
         'account' => 'खाता आवेदन', 'grievance' => 'गुनासो', 'welfare' => 'कल्याण दाबी',
         'job' => 'जागिर आवेदन', 'digital_service' => 'डिजिटल सेवा',
-        'honor_application' => 'सम्मान दरखास्त',
+        'honor_application' => 'सम्मान आवेदन',
     ];
     $statusInfo = [
         'pending'      => ['विचाराधीन',   'info',    '⏳'],

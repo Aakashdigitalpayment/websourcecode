@@ -159,7 +159,7 @@ try {
             'href' => $siteUrl.'member/honor-apply.php',
             'icon' => 'fa-award',
             'color' => 'var(--primary-color)',
-            'label' => $_t('सम्मान दरखास्त', 'Honor Apply'),
+            'label' => $_t('सम्मान आवेदन', 'Honor Application'),
         ]]);
     }
 } catch (Throwable $e) {

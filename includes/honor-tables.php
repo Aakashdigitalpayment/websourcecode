@@ -1,6 +1,6 @@
 <?php
 /**
- * सम्मान दरखास्त — schema + open-window helpers
+ * सम्मान आवेदन — schema + open-window helpers
  * honor_programs / honor_categories / honor_program_categories / honor_applications
  */
 if (!function_exists('ensureHonorTables')) {

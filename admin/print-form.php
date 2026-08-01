@@ -260,7 +260,7 @@ case 'honor':
     $st->execute([$id]);
     $data = $st->fetch();
     if (!$data) goto NOT_FOUND;
-    $formTitle   = 'सम्मान दरखास्त फारम — ' . ($data['category_name'] ?: 'Honor');
+    $formTitle   = 'सम्मान आवेदन फारम — ' . ($data['category_name'] ?: 'Honor');
     $formTitleEn = 'Honor Application Form';
     $trackId     = $data['tracking_id'] ?? 'HNR-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
     $slMap       = ['pending'=>'पेन्डिङ','under_review'=>'समीक्षामा','shortlisted'=>'छनोट सूची','selected'=>'चयनित','rejected'=>'अस्वीकृत','closed'=>'बन्द'];

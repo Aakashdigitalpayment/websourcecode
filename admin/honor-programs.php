@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin — सम्मान दरखास्त कार्यक्रम (Honor Programs)
+ * Admin — सम्मान आवेदन कार्यक्रम (Honor Programs)
  */
-$pageTitle = 'सम्मान दरखास्त कार्यक्रम';
+$pageTitle = 'सम्मान आवेदन कार्यक्रम';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/honor-tables.php';
@@ -176,8 +176,8 @@ function honorAdminTimePart(?string $mysqlDt, string $fallback = '00:00'): strin
 
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-        <h4 class="mb-1"><?php echo $__t('सम्मान दरखास्त कार्यक्रम', 'Honor Application Programs'); ?></h4>
-        <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्। सक्रिय भए पनि खुल्ने मिति अगाडि भए public मा “चाँडै खुल्ने” देखिन्छ; दरखास्त त्यसपछि मात्र।', 'Create programs with open/close dates. Even when Active, before opens_at the public shows “coming soon”; apply only after open.'); ?></p>
+        <h4 class="mb-1"><?php echo $__t('सम्मान आवेदन कार्यक्रम', 'Honor Application Programs'); ?></h4>
+        <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्। सक्रिय भए पनि खुल्ने मिति अगाडि भए public मा “चाँडै खुल्ने” देखिन्छ; आवेदन त्यसपछि मात्र।', 'Create programs with open/close dates. Even when Active, before opens_at the public shows “coming soon”; apply only after open.'); ?></p>
     </div>
     <div class="d-flex gap-2">
         <a href="honor-applications.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-inbox me-1"></i><?php echo $__t('आवेदनहरू', 'Applications'); ?></a>
@@ -283,7 +283,7 @@ $selectedCats = $editCatIds;
             </div>
             <div class="col-12">
                 <div class="form-text">
-                    <?php echo $__t('मिति नेपाली (वि.सं.) छान्नुहोस् — DB मा AD मा सुरक्षित हुन्छ। सक्रिय ≠ खुला: खुल्ने मिति आएपछि मात्र public मा दरखास्त खुल्छ; त्यसअघि “चाँडै खुल्ने” देखिन्छ।', 'Pick Nepali (BS) dates — stored as AD. Active ≠ Open: applications open only after opens_at; before that the public shows “coming soon”.'); ?>
+                    <?php echo $__t('मिति नेपाली (वि.सं.) छान्नुहोस् — DB मा AD मा सुरक्षित हुन्छ। सक्रिय ≠ खुला: खुल्ने मिति आएपछि मात्र public मा आवेदन खुल्छ; त्यसअघि “चाँडै खुल्ने” देखिन्छ।', 'Pick Nepali (BS) dates — stored as AD. Active ≠ Open: applications open only after opens_at; before that the public shows “coming soon”.'); ?>
                 </div>
             </div>
             <div class="col-12">
@@ -358,7 +358,7 @@ $selectedCats = $editCatIds;
                             <?php echo htmlspecialchars(honorFormatDtBs((string)$p['opens_at'])); ?><br>
                             <span class="text-muted">→ <?php echo htmlspecialchars(honorFormatDtBs((string)$p['closes_at'])); ?></span>
                             <?php if ($winState === 'open'): ?>
-                            <div><span class="badge bg-success"><?php echo $__t('खुला (दरखास्त)', 'Open (apply)'); ?></span></div>
+                            <div><span class="badge bg-success"><?php echo $__t('खुला (आवेदन)', 'Open (apply)'); ?></span></div>
                             <?php elseif ($winState === 'upcoming'): ?>
                             <div><span class="badge bg-warning text-dark"><?php echo $__t('चाँडै खुल्ने', 'Upcoming'); ?></span></div>
                             <?php elseif ($winState === 'closed' && !empty($p['is_active'])): ?>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Public — सम्मान दरखास्त (Honor Application)
+ * Public — सम्मान आवेदन (Honor Application)
  */
 require_once 'includes/config.php';
 require_once 'includes/honor-tables.php';
@@ -10,7 +10,7 @@ if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
 }
 
-$pageTitle = isEnglish() ? 'Honor Application' : 'सम्मान दरखास्त';
+$pageTitle = isEnglish() ? 'Honor Application' : 'सम्मान आवेदन';
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -40,7 +40,7 @@ $activeProgram = $programMeta[$selectedProgramId] ?? ($openPrograms[0] ?? null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$hasOpen) {
-        $error = isEnglish() ? 'Applications are currently closed.' : 'हाल दरखास्त बन्द छ।';
+        $error = isEnglish() ? 'Applications are currently closed.' : 'हाल आवेदन बन्द छ।';
     } elseif (!verifyCSRFToken()) {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('honor_application', 8, 3600)) {
@@ -155,7 +155,7 @@ foreach ($openPrograms as $op) {
             <div class="col-lg-8">
                 <div class="success-card form-success-card text-center">
                     <div class="success-icon form-success-icon"><i class="fas fa-check-circle"></i></div>
-                    <h3><?php echo isEnglish() ? 'Application submitted successfully!' : 'दरखास्त सफलतापूर्वक दर्ता भयो!'; ?></h3>
+                    <h3><?php echo isEnglish() ? 'Application submitted successfully!' : 'आवेदन सफलतापूर्वक दर्ता भयो!'; ?></h3>
                     <div class="form-tracking-box">
                         <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID' : 'तपाईंको Tracking ID'; ?></div>
                         <div class="form-tracking-id" id="hnrTrkId"><?php echo htmlspecialchars($trackingId); ?></div>
@@ -164,7 +164,7 @@ foreach ($openPrograms as $op) {
                         </div>
                     </div>
                     <div class="action-buttons mt-3">
-                        <a href="<?php echo SITE_URL; ?>honor-apply.php" class="btn btn-primary"><?php echo isEnglish() ? 'New application' : 'नयाँ दरखास्त'; ?></a>
+                        <a href="<?php echo SITE_URL; ?>honor-apply.php" class="btn btn-primary"><?php echo isEnglish() ? 'New application' : 'नयाँ आवेदन'; ?></a>
                     </div>
                 </div>
             </div>
@@ -175,10 +175,10 @@ foreach ($openPrograms as $op) {
                 <?php if ($hasUpcoming): ?>
                 <div class="alert alert-warning text-center py-4 mb-4">
                     <i class="fas fa-hourglass-half fa-2x mb-3 d-block"></i>
-                    <h4 class="mb-2"><?php echo isEnglish() ? 'Applications open soon' : 'दरखास्त चाँडै खुल्नेछ'; ?></h4>
+                    <h4 class="mb-2"><?php echo isEnglish() ? 'Applications open soon' : 'आवेदन चाँडै खुल्नेछ'; ?></h4>
                     <p class="mb-3 text-muted"><?php echo isEnglish()
                         ? 'The program is published. You can apply only after the open date/time.'
-                        : 'कार्यक्रम प्रकाशित छ। खुल्ने मिति/समयपछि मात्र दरखास्त दिन सकिन्छ।'; ?></p>
+                        : 'कार्यक्रम प्रकाशित छ। खुल्ने मिति/समयपछि मात्र आवेदन दिन सकिन्छ।'; ?></p>
                 </div>
                 <div class="list-group shadow-sm">
                     <?php foreach ($upcomingPrograms as $up): ?>
@@ -199,10 +199,10 @@ foreach ($openPrograms as $op) {
                 <?php else: ?>
                 <div class="alert alert-info text-center py-5">
                     <i class="fas fa-calendar-times fa-3x mb-3 d-block opacity-50"></i>
-                    <h4><?php echo isEnglish() ? 'Applications are closed' : 'दरखास्त हाल बन्द छ'; ?></h4>
+                    <h4><?php echo isEnglish() ? 'Applications are closed' : 'आवेदन हाल बन्द छ'; ?></h4>
                     <p class="mb-0 text-muted"><?php echo isEnglish()
                         ? 'Honor applications open only during AGM / annual celebration windows set by the cooperative.'
-                        : 'सम्मान दरखास्त AGM / वार्षिक उत्सवका लागि प्रशासनले तोकेको अवधिमा मात्र खुल्छ।'; ?></p>
+                        : 'सम्मान आवेदन AGM / वार्षिक उत्सवका लागि प्रशासनले तोकेको अवधिमा मात्र खुल्छ।'; ?></p>
                 </div>
                 <?php endif; ?>
             </div>
@@ -364,7 +364,7 @@ foreach ($openPrograms as $op) {
 
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-1"></i>
-                                <?php echo isEnglish() ? 'Submit application' : 'दरखास्त पठाउनुहोस्'; ?>
+                                <?php echo isEnglish() ? 'Submit application' : 'आवेदन पठाउनुहोस्'; ?>
                             </button>
                         </form>
                     </div>

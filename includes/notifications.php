@@ -179,7 +179,7 @@ function sendEmailNotification($eventType, $subject, $details, $trackingId = '')
         'loan_application'   => 'नयाँ ऋण आवेदन / New Loan Application',
         'grievance'          => 'नयाँ गुनासो / New Grievance',
         'digital_service'    => 'नयाँ डिजिटल सेवा / New Digital Service Request',
-        'honor_application'  => 'नयाँ सम्मान दरखास्त / New Honor Application',
+        'honor_application'  => 'नयाँ सम्मान आवेदन / New Honor Application',
         'kyc_application'    => 'नयाँ KYC आवेदन / New KYC Application',
         'appointment'        => 'नयाँ भेटघाट / New Appointment',
         'account_application'=> 'नयाँ खाता आवेदन / New Account Application',
@@ -504,7 +504,7 @@ function sendMemberStatusUpdate(
         'account'         => 'खाता आवेदन / Account Application',
         'appointment'     => 'भेटघाट / Appointment',
         'digital_service' => 'डिजिटल सेवा अनुरोध / Digital Service Request',
-        'honor_application' => 'सम्मान दरखास्त / Honor Application',
+        'honor_application' => 'सम्मान आवेदन / Honor Application',
     ];
     $eventLabel = $eventLabels[$eventType] ?? $eventType;
 
@@ -794,7 +794,7 @@ function _legacyNotificationConfig(): array {
         'loan_application'    => ['subject'=>'नयाँ ऋण आवेदन प्राप्त भयो',  'sms_tpl'=>'New Loan Application by {name}. Amount: {amount}. ID: {tracking}'],
         'grievance'           => ['subject'=>'नयाँ गुनासो दर्ता भयो',       'sms_tpl'=>'New Grievance. ID: {tracking}'],
         'digital_service'     => ['subject'=>'नयाँ डिजिटल सेवा अनुरोध',     'sms_tpl'=>'New Digital Service Request. ID: {tracking}'],
-        'honor_application'   => ['subject'=>'नयाँ सम्मान दरखास्त',         'sms_tpl'=>'New Honor Application. ID: {tracking}'],
+        'honor_application'   => ['subject'=>'नयाँ सम्मान आवेदन',         'sms_tpl'=>'New Honor Application. ID: {tracking}'],
         'kyc_application'     => ['subject'=>'नयाँ KYC आवेदन',              'sms_tpl'=>'New KYC by {name}. ID: {tracking}'],
         'appointment'         => ['subject'=>'नयाँ भेटघाट बुकिङ',           'sms_tpl'=>'New Appointment by {name} on {date}. ID: {tracking}'],
         'account_application' => ['subject'=>'नयाँ खाता खोल्ने आवेदन',      'sms_tpl'=>'New Account Application by {name}. ID: {tracking}'],

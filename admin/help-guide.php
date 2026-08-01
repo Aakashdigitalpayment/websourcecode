@@ -41,7 +41,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <a href="#sec-loan"><i class="fas fa-hand-holding-usd"></i>ऋण आवेदन</a>
     <a href="#sec-account"><i class="fas fa-piggy-bank"></i>खाता आवेदन</a>
     <a href="#sec-digital"><i class="fas fa-mobile-screen"></i>डिजिटल सेवा अनुरोध</a>
-    <a href="#sec-honor"><i class="fas fa-award"></i>सम्मान दरखास्त</a>
+    <a href="#sec-honor"><i class="fas fa-award"></i>सम्मान आवेदन</a>
     <a href="#sec-welfare"><i class="fas fa-heart"></i>कल्याण दाबी</a>
     <a href="#sec-grievance"><i class="fas fa-comment-dots"></i>गुनासो व्यवस्थापन</a>
     <a href="#sec-appointment"><i class="fas fa-calendar-check"></i>अपोइन्टमेन्ट</a>
@@ -227,12 +227,12 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 7b. HONOR APPLICATIONS ══ -->
     <section id="sec-honor" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-award"></i></span> सम्मान दरखास्त (Honor Applications)</h3>
-      <p>AGM / वार्षिक उत्सवमा SEE, +2, स्नातक, चिकित्सक, ज्येष्ठ सदस्य, असल कारोबारी आदि सम्मानका लागि अनलाइन दरखास्त संकलन।</p>
+      <h3><span class="hg-icon"><i class="fas fa-award"></i></span> सम्मान आवेदन (Honor Applications)</h3>
+      <p>AGM / वार्षिक उत्सवमा SEE, +2, स्नातक, चिकित्सक, ज्येष्ठ सदस्य, असल कारोबारी आदि सम्मानका लागि अनलाइन आवेदन संकलन।</p>
       <ol class="hg-steps-list">
-        <li>पहिले <a href="honor-programs.php"><b>दरखास्त कार्यक्रम</b></a> बनाउनुहोस् — खुल्ने/बन्द मिति + कोटि छान्नुहोस्।</li>
-        <li>खुला अवधिमा मात्र सार्वजनिक टप बारमा <b>दर्खास्त / नयाँ</b> देखिन्छ; सदस्य पोर्टलमा पनि tile आउँछ।</li>
-        <li>आवेदनहरू <a href="honor-applications.php"><b>सम्मान दरखास्त</b></a> मा program-wise filter, CSV export, print, status update।</li>
+        <li>पहिले <a href="honor-programs.php"><b>सम्मान कार्यक्रम</b></a> बनाउनुहोस् — खुल्ने/बन्द मिति + कोटि छान्नुहोस्।</li>
+        <li>खुला अवधिमा मात्र सार्वजनिक टप बारमा <b>सम्मान आवेदन / नयाँ</b> देखिन्छ; सदस्य पोर्टलमा पनि tile आउँछ।</li>
+        <li>आवेदनहरू <a href="honor-applications.php"><b>सम्मान आवेदन</b></a> मा program-wise filter, CSV export, print, status update।</li>
         <li>Tracking ID: <code>HNR-YYYYMMDD-XXXXXX</code> — application-tracker बाट पनि खोजिन्छ।</li>
       </ol>
       <div class="hg-info">💡 कार्यक्रम बन्द भएपछि सार्वजनिक icon स्वतः हराउँछ; पुराना आवेदन admin मा program अनुसार सुरक्षित रहन्छन्।</div>

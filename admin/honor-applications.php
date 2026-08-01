@@ -1,8 +1,8 @@
 <?php
 /**
- * Admin — सम्मान दरखास्त आवेदन व्यवस्थापन
+ * Admin — सम्मान आवेदन व्यवस्थापन
  */
-$pageTitle = 'सम्मान दरखास्त आवेदन';
+$pageTitle = 'सम्मान आवेदन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/honor-tables.php';
@@ -335,7 +335,7 @@ $exportQs = http_build_query(array_filter([
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
-        <h4 class="mb-1"><?php echo $__t('सम्मान दरखास्त आवेदन', 'Honor Applications'); ?></h4>
+        <h4 class="mb-1"><?php echo $__t('सम्मान आवेदन', 'Honor Applications'); ?></h4>
         <p class="text-muted mb-0 small"><?php echo $__t('कार्यक्रम अनुसार आवेदन संकलन र समीक्षा।', 'Collect and review applications by program.'); ?></p>
     </div>
     <div class="d-flex gap-2">
