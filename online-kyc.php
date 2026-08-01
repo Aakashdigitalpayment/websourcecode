@@ -229,8 +229,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $linkedKycPk = (int)$db->lastInsertId();
                         $success = true;
                     }
-                    if ($success && $linkedKycPk > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
-                        memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $linkedKycPk);
+                    if ($success && $linkedKycPk > 0) {
+                        if (function_exists('memberSsotAfterKycWrite')) {
+                            memberSsotAfterKycWrite($db, $linkedKycPk);
+                        } elseif (function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                            memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $linkedKycPk);
+                        }
                     }
                     if ($success) {
                         logSecurityEvent('kyc_quick_public', 'Public quick KYC (fill-empty): ' . $full_name . ' (' . $member_id . ')');
@@ -779,7 +783,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $photo, $citizenship_front, $citizenship_back, $national_id_card, $signature, $left_thumb, $right_thumb,
                             (int)$existingKyc['id']
                         ]);
-                        if (function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                        if (function_exists('memberSsotAfterKycWrite')) {
+                            memberSsotAfterKycWrite($db, (int)$existingKyc['id']);
+                        } elseif (function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
                             memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, (int)$existingKyc['id']);
                         } elseif (empty($loggedMember['kyc_application_id']) && !empty($loggedMember['id'])) {
                             try {
@@ -816,7 +822,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             } catch (Throwable $ignored) {}
                         }
                         $lastId = (int)$db->lastInsertId();
-                        if ($lastId > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                        if ($lastId > 0 && function_exists('memberSsotAfterKycWrite')) {
+                            memberSsotAfterKycWrite($db, $lastId);
+                        } elseif ($lastId > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
                             memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $lastId);
                         } elseif ($lastId > 0 && !empty($loggedMember['id'])) {
                             try {

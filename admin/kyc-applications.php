@@ -266,169 +266,6 @@ if ($db instanceof PDO) {
     ensureRequestStatusHistoryTable($db);
 }
 
-/* ── Bulk Import (Excel CSV) — KYM dossier seed only; does not create members ── */
-if (isset($_POST['import_kyc_csv'])) {
-    $file = $_FILES['kyc_csv_file'] ?? null;
-    if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        setFlash('error', 'CSV file छान्नुहोस्।');
-        redirect('kyc-applications.php');
-    }
-    $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
-    if (!in_array($ext, ['csv'], true)) {
-        setFlash('error', 'Excel file लाई CSV (UTF-8) मा Save गरेर मात्र upload गर्नुहोस्।');
-        redirect('kyc-applications.php');
-    }
-
-    $handle = fopen($file['tmp_name'], 'r');
-    if (!$handle) {
-        setFlash('error', 'CSV file पढ्न सकिएन।');
-        redirect('kyc-applications.php');
-    }
-
-    $header = fgetcsv($handle);
-    if (!$header) {
-        fclose($handle);
-        setFlash('error', 'CSV खाली छ।');
-        redirect('kyc-applications.php');
-    }
-    $header = array_map(fn($h) => strtolower(trim((string)$h)), $header);
-    $required = ['full_name', 'mobile', 'member_id'];
-    foreach ($required as $rk) {
-        if (!in_array($rk, $header, true)) {
-            fclose($handle);
-            setFlash('error', "CSV header मा '{$rk}' अनिवार्य छ। Sample file प्रयोग गर्नुहोस्। (Member ID बिना KYM orphan बन्छ।)");
-            redirect('kyc-applications.php');
-        }
-    }
-    $idx = array_flip($header);
-
-    $hasTrackingId = function_exists('dbColumnExists')
-        ? dbColumnExists('kyc_applications', 'tracking_id')
-        : false;
-    if (!$hasTrackingId && !function_exists('dbColumnExists')) {
-        try {
-            $colChk = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
-            $hasTrackingId = $colChk && $colChk->fetch() !== false;
-        } catch (Throwable $e) {}
-    }
-
-    $insertCols = [
-        'member_id','full_name','mobile','email','citizenship_no','national_id_number','dob_bs','gender',
-        'permanent_address','occupation','account_type','branch','status','remarks','want_id_card'
-    ];
-    if ($hasTrackingId) array_unshift($insertCols, 'tracking_id');
-    $placeholders = implode(',', array_fill(0, count($insertCols), '?'));
-    $sql = "INSERT INTO kyc_applications (" . implode(',', $insertCols) . ") VALUES ($placeholders)";
-    $ins = $db->prepare($sql);
-    $dupByMemberId = $db->prepare(
-        "SELECT id FROM kyc_applications
-         WHERE UPPER(TRIM(member_id))=? AND status IN ('pending','approved','incomplete','partial')
-         LIMIT 1"
-    );
-
-    $ok = 0;
-    $skip = 0;
-    $linked = 0;
-    $rowNo = 1;
-    $skipReasons = [];
-    $allowedStatuses = ['pending','approved','rejected','incomplete','partial'];
-    while (($row = fgetcsv($handle)) !== false) {
-        $rowNo++;
-        if (!is_array($row) || count(array_filter($row, fn($v) => trim((string)$v) !== '')) === 0) {
-            continue;
-        }
-        $val = fn($key) => isset($idx[$key], $row[$idx[$key]]) ? trim((string)$row[$idx[$key]]) : '';
-
-        $memberId = function_exists('memberSsotNormalizeId')
-            ? memberSsotNormalizeId(clean_text($val('member_id')))
-            : strtoupper(trim(clean_text($val('member_id'))));
-        $fullName = clean_text($val('full_name'));
-        $mobile = preg_replace('/[^0-9]/', '', $val('mobile')) ?? '';
-        if (strlen($mobile) > 10 && strpos($mobile, '977') === 0) {
-            $mobile = substr($mobile, -10);
-        }
-
-        if ($memberId === '') {
-            $skip++;
-            $skipReasons[] = "row {$rowNo}: Member ID खाली";
-            continue;
-        }
-        if ($fullName === '' || $mobile === '' || strlen($mobile) < 7) {
-            $skip++;
-            $skipReasons[] = "row {$rowNo}: नाम/मोबाइल अपूर्ण";
-            continue;
-        }
-
-        $dupByMemberId->execute([$memberId]);
-        if ($dupByMemberId->fetch()) {
-            $skip++;
-            $skipReasons[] = "row {$rowNo}: Member ID {$memberId} मा KYM पहिले नै छ";
-            continue;
-        }
-
-        /* Skip if Member ID not in members ledger — no orphan KYM dossiers */
-        $memberExists = function_exists('memberSsotFindBySadasyata')
-            ? (bool)memberSsotFindBySadasyata($db, $memberId)
-            : false;
-        if (!$memberExists) {
-            $skip++;
-            $skipReasons[] = "row {$rowNo}: Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
-            continue;
-        }
-
-        $status = strtolower($val('status'));
-        if (!in_array($status, $allowedStatuses, true)) {
-            $status = 'pending';
-        }
-        $wantId = in_array(strtolower($val('want_id_card')), ['1','yes','y','true'], true) ? 1 : 0;
-
-        $values = [
-            $memberId,
-            $fullName,
-            $mobile,
-            clean_text($val('email')),
-            clean_text($val('citizenship_no')),
-            clean_text($val('national_id_number')),
-            clean_text($val('dob_bs')),
-            clean_text($val('gender')),
-            clean_text($val('permanent_address')),
-            clean_text($val('occupation')),
-            clean_text($val('account_type')),
-            clean_text($val('branch')),
-            $status,
-            clean_text($val('remarks')),
-            $wantId
-        ];
-        if ($hasTrackingId) {
-            $trackingId = 'KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid((string)$rowNo, true)), 0, 6));
-            array_unshift($values, $trackingId);
-        }
-        try {
-            $ins->execute($values);
-            $newKycId = (int)$db->lastInsertId();
-            if ($newKycId > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
-                if (memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId)) {
-                    $linked++;
-                }
-            }
-            $ok++;
-        } catch (Throwable $e) {
-            $skip++;
-            $skipReasons[] = "row {$rowNo}: DB error";
-        }
-    }
-    fclose($handle);
-    $msg = "KYM bulk import: सफल {$ok}, Skip {$skip}, Members मा लिंक {$linked}।";
-    if ($skipReasons) {
-        $msg .= ' ' . implode('; ', array_slice($skipReasons, 0, 5));
-        if (count($skipReasons) > 5) {
-            $msg .= ' … (+' . (count($skipReasons) - 5) . ')';
-        }
-    }
-    setFlash($ok > 0 ? 'success' : 'error', $msg);
-    redirect('kyc-applications.php');
-}
-
 /* ── Helper: KYM approve भएमा ID card auto-generate — Member ID SSOT बाट मात्र ── */
 function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail = '', string $kycMobile = ''): void {
     try {
@@ -605,19 +442,21 @@ if (isset($_POST['update_status'])) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                     $notifyOutcome['sms']   = $r['sms']   ?? $notifyOutcome['sms'];
                 }
-                /* KYM approved → SSOT: upsert/link members by Member ID, then ID card if wanted */
-                if ($status === 'approved') {
-                    try {
+                /* Shared contact सधैं sync; approve मा stub/link समेत */
+                try {
+                    if (function_exists('memberSsotAfterKycWrite')) {
+                        memberSsotAfterKycWrite($db, $id);
+                    } elseif ($status === 'approved' && function_exists('memberSsotUpsertMemberFromKyc')) {
                         $fullKyc = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
                         $fullKyc->execute([$id]);
                         $kycRowFull = $fullKyc->fetch(PDO::FETCH_ASSOC) ?: ($nData ?: []);
                         $kycRowFull['id'] = $id;
-                        if (function_exists('memberSsotUpsertMemberFromKyc')) {
-                            memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
-                        }
-                    } catch (Throwable $e) {
-                        error_log('[kyc-approve ssot] ' . $e->getMessage());
+                        memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
                     }
+                } catch (Throwable $e) {
+                    error_log('[kyc-approve ssot] ' . $e->getMessage());
+                }
+                if ($status === 'approved') {
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
                         $nData['mobile'] ?? '');
@@ -1499,36 +1338,6 @@ if ($viewApp):
         <div class="sm-val"><?php echo $incompleteCount; ?></div>
         <div class="sm-lbl">अपूर्ण</div>
     </a>
-</div>
-
-<!-- ── Bulk Import (Excel CSV) ── -->
-<div class="card border-0 shadow-sm mb-3 no-print kyc-rounded-card">
-    <div class="card-body py-3">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-            <h6 class="mb-0"><i class="fas fa-file-import me-2 text-primary"></i>KYM Bulk Import (Excel/CSV) — फाइल seed</h6>
-            <a href="kyc-import-sample.php" class="btn btn-outline-success btn-sm">
-                <i class="fas fa-download me-1"></i>Sample Format डाउनलोड
-            </a>
-        </div>
-        <p class="small text-muted mb-2 mb-md-0">
-            <strong>Members बनाउँदैन</strong> — पहिले CBS बाट <a href="member-import.php">Members Import</a>।
-            यो Excel ले <code>kyc_applications</code> मा KYM फाइल (नाम/मोबाइल/ठेगान/status…) seed गर्छ; फोटो/स्क्यान पछि online वा admin बाट।
-            <code>member_id</code> <strong>अनिवार्य</strong> (खाली = skip)। Members मा भएको ID सँग लिंक हुन्छ।
-        </p>
-        <form method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
-            <?php echo csrfField(); ?>
-            <input type="hidden" name="import_kyc_csv" value="1">
-            <div class="col-md-9">
-                <label class="small text-muted mb-1">Excel मा sample भरेर <strong>CSV (UTF-8)</strong> मा Save गरी upload गर्नुहोस्।</label>
-                <input type="file" name="kyc_csv_file" class="form-control form-control-sm" accept=".csv" required>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary btn-sm w-100">
-                    <i class="fas fa-upload me-1"></i>Bulk Import
-                </button>
-            </div>
-        </form>
-    </div>
 </div>
 
 <!-- ── Filter Bar ── -->

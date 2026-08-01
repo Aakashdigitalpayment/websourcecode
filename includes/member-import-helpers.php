@@ -696,16 +696,19 @@ if (!function_exists('_memberImportImportChunk')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                         }
                         if ($cardOk) $cardsAdd++;
-                        $kymLinked = false;
-                        if (function_exists('memberSsotAttachKycToMemberBySadasyata')) {
-                            $kymLinked = memberSsotAttachKycToMemberBySadasyata($pdo, $memberPk, $sid);
+                        $kymMsg = '';
+                        if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                            $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk);
+                            if (!empty($kr['ok'])) {
+                                $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
+                            }
                         }
                         $mark->execute([
                             'ok',
                             'Updated existing member'
                                 . ($sidParams ? ' + Member ID filled' : '')
                                 . ($cardOk ? ' + card' : '')
-                                . ($kymLinked ? ' + KYM linked' : ''),
+                                . $kymMsg,
                             $memberPk,
                             $rowId,
                         ]);
@@ -774,16 +777,19 @@ if (!function_exists('_memberImportImportChunk')) {
                 }
                 if ($cardOk) $cardsAdd++;
 
-                $kymLinked = false;
-                if ($memberPk > 0 && function_exists('memberSsotAttachKycToMemberBySadasyata')) {
-                    $kymLinked = memberSsotAttachKycToMemberBySadasyata($pdo, $memberPk, $sid);
+                $kymMsg = '';
+                if ($memberPk > 0 && function_exists('memberSsotEnsureKycStubFromMember')) {
+                    $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk);
+                    if (!empty($kr['ok'])) {
+                        $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
+                    }
                 }
 
                 $mark->execute([
                     'ok',
                     'Imported'
                         . ($cardOk ? ' + card generated' : ' (card pending)')
-                        . ($kymLinked ? ' + KYM linked' : ''),
+                        . $kymMsg,
                     $memberPk > 0 ? $memberPk : null,
                     $rowId,
                 ]);

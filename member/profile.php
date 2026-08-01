@@ -146,15 +146,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
 
         if (!$name) $error = 'नाम राख्नुहोस्।';
         else {
-            // Single-source pattern: KYC छ भने editable status मा KYC लाई नै primary source मान्ने
+            // Single-source: KYC छ भने त्यही edit → members मा sync
             if ($kycRow && in_array((string)($kycRow['status'] ?? ''), ['pending','incomplete','partial'], true)) {
                 $db->prepare("UPDATE kyc_applications
                               SET full_name=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
                               WHERE id=?")
                    ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, (int)$kycRow['id']]);
-            }
-            // KYC single-source: KYC record भएको सदस्यका लागि KYM fields members table मा दोहोर्‍याएर नलेख्ने
-            if (!$kycRow) {
+                if (function_exists('memberSsotAfterKycWrite')) {
+                    memberSsotAfterKycWrite($db, (int)$kycRow['id']);
+                }
+                $_SESSION['member_name'] = $name;
+            } elseif (!$kycRow) {
                 $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
                    ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
                 $_SESSION['member_name'] = $name;
