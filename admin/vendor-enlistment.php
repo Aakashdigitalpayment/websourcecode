@@ -40,9 +40,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $status = clean_text($_POST['status'] ?? '');
             if (in_array($status, ['pending', 'approved', 'rejected'])) {
                 $db->prepare("UPDATE vendors SET status = ? WHERE id = ?")->execute([$status, $id]);
-                setFlash('success', 'भेन्डर स्थिति अपडेट भयो।');
+                $msg = 'भेन्डर स्थिति अपडेट भयो।';
+                if ($status === 'approved') {
+                    require_once __DIR__ . '/../includes/partner-facilities-tables.php';
+                    ensurePartnerFacilitiesTables($db);
+                    $promo = promoteVendorToPartner($db, $id);
+                    if (!empty($promo['ok']) && !empty($promo['created'])) {
+                        $msg .= ' साझेदार सुविधा सूचीमा पनि थपियो (ID #' . (int)$promo['partner_id'] . ') — छुट/विवरण admin बाट मिलाउनुहोस्।';
+                    } elseif (!empty($promo['ok'])) {
+                        $msg .= ' पहिल्यै साझेदार सुविधामा लिङ्क छ।';
+                    }
+                }
+                setFlash('success', $msg);
             }
             redirect('vendor-enlistment.php');
+        }
+
+        if ($action === 'promote_partner' && $id) {
+            require_once __DIR__ . '/../includes/partner-facilities-tables.php';
+            ensurePartnerFacilitiesTables($db);
+            $db->prepare("UPDATE vendors SET status='approved' WHERE id=? AND status<>'approved'")->execute([$id]);
+            $promo = promoteVendorToPartner($db, $id);
+            if (!empty($promo['ok'])) {
+                setFlash('success', !empty($promo['created'])
+                    ? ('साझेदार सुविधामा थपियो — <a href="partner-facilities.php">खोल्नुहोस्</a> (#' . (int)$promo['partner_id'] . ')')
+                    : 'पहिले नै साझेदारमा लिङ्क छ।');
+            } else {
+                $em = [
+                    'not_approved' => 'पहिले भेन्डर approve गर्नुहोस्।',
+                    'not_found' => 'भेन्डर भेटिएन।',
+                ];
+                setFlash('error', $em[$promo['error'] ?? ''] ?? 'Promote असफल।');
+            }
+            redirect('vendor-enlistment.php' . (!empty($_POST['return_view']) ? ('?view=' . (int)$_POST['return_view']) : ''));
         }
 
         if ($action === 'delete' && $id) {
@@ -165,9 +195,20 @@ $businessLabels = [
                         <input type="hidden" name="id" value="<?php echo $detail['id']; ?>">
                         <input type="hidden" name="status" value="approved">
                         <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check me-1"></i>स्वीकृत गर्नुहोस्
+                            <i class="fas fa-check me-1"></i>स्वीकृत गर्नुहोस् (+ Partner)
                         </button>
                     </form>
+                    <?php else: ?>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="action" value="promote_partner">
+                        <input type="hidden" name="id" value="<?php echo (int)$detail['id']; ?>">
+                        <input type="hidden" name="return_view" value="<?php echo (int)$detail['id']; ?>">
+                        <button type="submit" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-handshake me-1"></i>साझेदार सुविधामा थप्नुहोस्
+                        </button>
+                    </form>
+                    <a class="btn btn-outline-primary btn-sm" href="partner-facilities.php"><i class="fas fa-list me-1"></i>Partner list</a>
                     <?php endif; ?>
                     <?php if ($detail['status'] !== 'rejected'): ?>
                     <form method="POST">

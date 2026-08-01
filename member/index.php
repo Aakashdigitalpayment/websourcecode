@@ -93,10 +93,19 @@ try {
 /* ── Partner service history ── */
 $partnerHistory = [];
 try {
-    $ph = $db->prepare("SELECT partner_name, service_name, service_taken, service_note, created_at
-                        FROM member_partner_services
-                        WHERE member_id = ?
-                        ORDER BY created_at DESC
+    if (function_exists('ensureMemberPartnerServicesTable')) {
+        ensureMemberPartnerServicesTable($db);
+    }
+    if (is_file(__DIR__ . '/../includes/partner-facilities-tables.php')) {
+        require_once __DIR__ . '/../includes/partner-facilities-tables.php';
+        ensurePartnerFacilitiesTables($db);
+    }
+    $ph = $db->prepare("SELECT s.partner_name, s.service_name, s.service_taken, s.service_note, s.created_at,
+                               p.facility_type, p.logo_path
+                        FROM member_partner_services s
+                        LEFT JOIN partner_facilities p ON p.id = s.partner_id
+                        WHERE s.member_id = ?
+                        ORDER BY s.created_at DESC
                         LIMIT 50");
     $ph->execute([$memberId]);
     $partnerHistory = $ph->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -407,10 +416,13 @@ require __DIR__ . '/includes/chrome.php';
         <div class="mem-card-body">
             <?php if (empty($partnerHistory)): ?>
             <div class="mem-empty">
-                <span class="mem-empty-icon">🏥</span>
+                <span class="mem-empty-icon"><i class="fas fa-handshake"></i></span>
                 <div><?php echo $_t('अहिलेसम्म कुनै साझेदार संस्थामा सेवा लिइएको छैन।', 'No partner services taken yet.'); ?></div>
                 <div class="midx-empty-note">
                     <?php echo $_t('साझेदार संस्थामा Member Card देखाएपछि यहाँ history देखिन्छ।', 'History appears here after showing your Member Card at partner organizations.'); ?>
+                </div>
+                <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center">
+                    <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars($siteUrl); ?>partner-facilities.php"><i class="fas fa-list me-1"></i><?php echo $_t('साझेदार सूची', 'Browse partners'); ?></a>
                 </div>
             </div>
             <?php else:

@@ -622,18 +622,23 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 29. VENDOR ══ -->
     <section id="sec-vendor" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-store"></i></span> Vendor Enlistment</h3>
-      <p>Partner vendors / suppliers जो सदस्यलाई discount दिन्छन् — तिनीहरूको enlistment request यहाँ आउँछ।</p>
+      <h3><span class="hg-icon"><i class="fas fa-store"></i></span> Vendor Enlistment + साझेदार सुविधा</h3>
+      <p>दुई तह: (1) <b>Vendor enlistment</b> — आपूर्ति/सेवा आवेदन; (2) <b>Partner facilities</b> — सदस्यले पाउने छुट सूची + verify desk लग।</p>
 
+      <h5>साझेदार सुविधा (Member discounts):</h5>
       <ol class="hg-steps-list">
-        <li>बायाँ menu → <b>Vendor Enlistment</b> (<a href="vendor-enlistment.php">वा यहाँ</a>)।</li>
-        <li>Request हेर्नुहोस् — business details, discount offer।</li>
-        <li>Status: <span class="hg-badge hg-badge-green">Approved</span> भएपछि website को Partner Facilities section मा देखिन्छ।</li>
+        <li><a href="partner-facilities.php">Partner Facilities</a> → नयाँ थप्नुहोस्: नाम, प्रकार, छुट %, सम्पर्क, लोगो, Desk code/PIN।</li>
+        <li>Public: <a href="../partner-facilities.php" target="_blank">partner-facilities.php</a> — कार्ड/तालिका + खोज।</li>
+        <li>साझेदार डेस्क: <a href="../verify.php" target="_blank">verify.php</a> → सदस्य verify → <b>सेवा लग</b> (partner छानेर)। PIN सेट भए PIN चाहिन्छ।</li>
+        <li>सदस्य पोर्टल dashboard मा लग इतिहास देखिन्छ।</li>
       </ol>
 
-      <div class="hg-step">
-        Manual partner थप्न: <a href="partner-facilities.php">Partner Facilities</a> page → <span class="kbd">Add Partner</span>।
-      </div>
+      <h5>Vendor आवेदन:</h5>
+      <ol class="hg-steps-list">
+        <li>बायाँ menu → <b>Vendor Enlistment</b> (<a href="vendor-enlistment.php">वा यहाँ</a>)।</li>
+        <li>Request हेर्नुहोस् — <span class="kbd">स्वीकृत (+ Partner)</span> गर्दा स्वतः साझेदार सूचीमा पनि थपिन्छ (छुट पछि मिलाउनुहोस्)।</li>
+        <li>पहिले approve भइसकेको भए Detail बाट <span class="kbd">साझेदार सुविधामा थप्नुहोस्</span>।</li>
+      </ol>
     </section>
 
     <!-- ══ 30. ANALYTICS ══ -->

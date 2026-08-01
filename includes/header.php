@@ -1231,7 +1231,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <a href="<?php echo SITE_URL; ?>emi-calculator.php"><i class="fas fa-calculator me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'EMI Calculator' : 'ईएमआई क्याल्कुलेटर'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>exchange-rate.php"><i class="fas fa-exchange-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Exchange Rate' : 'विनिमय दर'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>date-converter.php"><i class="fas fa-calendar-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Date Converter' : 'मिति परिवर्तन'; ?></span></a>
-                        <a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></span></a>
+                        <a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt me-1"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span></a>
                         <a href="<?php echo SITE_URL; ?>reports.php"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-bar"></i><span class="pfl-drop-label"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span></a>
@@ -1648,7 +1648,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>faqs.php"><i class="fas fa-question-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                            <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
                         </ul>
@@ -1963,7 +1963,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo SITE_URL; ?>service-centers.php"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>faqs.php"><i class="fas fa-question-circle"></i> <?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>member-survey.php"><i class="fas fa-comment-dots"></i> <?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                                    <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'अन्य सुविधा'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
                                     <?php foreach ($navCmsPages['more'] as $mmp):
