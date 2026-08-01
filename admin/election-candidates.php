@@ -74,10 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'delete_position') {
             $pid = (int)($_POST['position_id'] ?? 0);
             if ($pid > 0) {
-                $db->prepare('DELETE FROM election_candidates WHERE position_id=? AND cycle_id=?')->execute([$pid, $cycleId]);
-                $db->prepare('DELETE FROM election_votes WHERE position_id=? AND cycle_id=?')->execute([$pid, $cycleId]);
-                $db->prepare('DELETE FROM election_positions WHERE id=? AND cycle_id=?')->execute([$pid, $cycleId]);
-                setFlash('success', 'पद मेटाइयो।');
+                $vc = $db->prepare('SELECT COUNT(*) FROM election_votes WHERE position_id=? AND cycle_id=?');
+                $vc->execute([$pid, $cycleId]);
+                $voteN = (int)$vc->fetchColumn();
+                if ($voteN > 0) {
+                    $db->prepare('UPDATE election_positions SET is_active=0 WHERE id=? AND cycle_id=?')->execute([$pid, $cycleId]);
+                    setFlash('success', 'मतहरू भएकाले पद मेटाउन सकिएन — निष्क्रिय गरियो।');
+                } else {
+                    $db->prepare('DELETE FROM election_candidates WHERE position_id=? AND cycle_id=?')->execute([$pid, $cycleId]);
+                    $db->prepare('DELETE FROM election_positions WHERE id=? AND cycle_id=?')->execute([$pid, $cycleId]);
+                    setFlash('success', 'पद मेटाइयो।');
+                }
             }
             redirect('election-candidates.php?cycle=' . $cycleId);
         } elseif ($action === 'save_candidate') {
@@ -115,9 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'delete_candidate') {
             $cid = (int)($_POST['candidate_id'] ?? 0);
             if ($cid > 0) {
-                $db->prepare('DELETE FROM election_votes WHERE candidate_id=? AND cycle_id=?')->execute([$cid, $cycleId]);
-                $db->prepare('DELETE FROM election_candidates WHERE id=? AND cycle_id=?')->execute([$cid, $cycleId]);
-                setFlash('success', 'उम्मेदवार मेटाइयो।');
+                $vc = $db->prepare('SELECT COUNT(*) FROM election_votes WHERE candidate_id=? AND cycle_id=?');
+                $vc->execute([$cid, $cycleId]);
+                $voteN = (int)$vc->fetchColumn();
+                if ($voteN > 0) {
+                    $db->prepare('UPDATE election_candidates SET is_active=0 WHERE id=? AND cycle_id=?')->execute([$cid, $cycleId]);
+                    setFlash('success', 'मतहरू भएकाले उम्मेदवार मेटाउन सकिएन — निष्क्रिय गरियो।');
+                } else {
+                    $db->prepare('DELETE FROM election_candidates WHERE id=? AND cycle_id=?')->execute([$cid, $cycleId]);
+                    setFlash('success', 'उम्मेदवार मेटाइयो।');
+                }
             }
             redirect('election-candidates.php?cycle=' . $cycleId);
         }

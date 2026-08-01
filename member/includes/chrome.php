@@ -163,8 +163,11 @@ try {
             if (function_exists('ensureElectionTables'))       ensureElectionTables($_dbE);
             if (function_exists('ensureElectionVotingTables')) ensureElectionVotingTables($_dbE);
         }
-        $_eCy = $_dbE->query("SELECT id, voting_enabled, vote_start_at, vote_end_at FROM election_cycles WHERE is_published=1 ORDER BY voting_enabled DESC, sort_order ASC, id DESC LIMIT 1")
-            ->fetch(PDO::FETCH_ASSOC) ?: null;
+        $_eRows = $_dbE->query("SELECT id, voting_enabled, vote_start_at, vote_end_at, is_published FROM election_cycles WHERE is_published=1 ORDER BY voting_enabled DESC, sort_order ASC, id DESC LIMIT 30")
+            ->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $_eCy = function_exists('electionPickDefaultPublicCycle')
+            ? electionPickDefaultPublicCycle($_eRows)
+            : ($_eRows[0] ?? null);
         if ($_eCy) {
             $_eCs = $_dbE->prepare("SELECT COUNT(*) FROM election_candidates WHERE cycle_id=? AND is_active=1");
             $_eCs->execute([(int)$_eCy['id']]);

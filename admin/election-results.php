@@ -32,11 +32,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     $action = $_POST['action'] ?? '';
     try {
+        if ($action === 'finalize_results') {
+            $db->prepare('UPDATE election_cycles SET results_finalized=1, voting_enabled=0 WHERE id=?')->execute([$cycleId]);
+            setFlash('success', 'नतिजा अन्तिम (publish) गरियो। मतदान बन्द भयो।');
+            redirect('election-results.php?cycle=' . $cycleId);
+        }
         if ($action === 'convert_winners') {
             $tenureName = clean_text($_POST['tenure_name'] ?? '', 100) ?: ('कार्यकाल ' . date('Y'));
             $tenureNameNp = clean_text($_POST['tenure_name_np'] ?? '', 100) ?: $tenureName;
-            $startDate = trim((string)($_POST['start_date'] ?? '')) ?: date('Y-m-d');
-            $endDate   = trim((string)($_POST['end_date'] ?? '')) ?: date('Y-m-d', strtotime('+4 years'));
+            $startRaw = trim((string)($_POST['start_date'] ?? ''));
+            $endRaw = trim((string)($_POST['end_date'] ?? ''));
+            /* committees.php जस्तै nepali-datepicker BS स्टोर; खाली भए आज / +4 वर्ष AD fallback */
+            $startDate = $startRaw !== '' ? substr($startRaw, 0, 10) : date('Y-m-d');
+            $endDate = $endRaw !== '' ? substr($endRaw, 0, 10) : date('Y-m-d', strtotime('+4 years'));
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $startDate) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $endDate)) {
+                throw new RuntimeException('सुरु/अन्त्य मिति सही ढाँचामा राख्नुहोस् (वि.सं. YYYY-MM-DD)।');
+            }
 
             /* प्रत्येक पदको winners (seats बराबर) committee_members मा थप */
             $positions = $db->prepare('SELECT * FROM election_positions WHERE cycle_id=? AND is_active=1 AND committee_type_id IS NOT NULL ORDER BY display_order, id LIMIT 200');
@@ -116,8 +127,16 @@ foreach ($rows as $r) {
     }
     if ($r['candidate_id']) $grouped[$pid]['candidates'][] = $r;
 }
-$totalVoters = (int)$db->query('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=' . $cycleId)->fetchColumn();
-$sourceCounts = ['member_portal' => 0, 'manual_staff' => 0];
+$totalVoters = 0;
+$totalAttendance = 0;
+try {
+    $totalVoters = (int)$db->query('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=' . (int)$cycleId . ' AND is_ballot=1')->fetchColumn();
+    $totalAttendance = (int)$db->query('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=' . (int)$cycleId)->fetchColumn();
+} catch (Throwable $e) {
+    $totalAttendance = (int)$db->query('SELECT COUNT(*) FROM election_vote_submissions WHERE cycle_id=' . (int)$cycleId)->fetchColumn();
+    $totalVoters = $totalAttendance;
+}
+$sourceCounts = ['member_portal' => 0, 'manual_staff' => 0, 'manual_attendance' => 0];
 try {
     $sc = $db->prepare('SELECT source, COUNT(*) AS c FROM election_vote_submissions WHERE cycle_id=? GROUP BY source');
     $sc->execute([$cycleId]);
@@ -126,13 +145,26 @@ try {
     }
 } catch (Throwable $e) {
 }
+
+$tenureStartBs = '';
+$tenureEndBs = '';
+if (function_exists('adToBs')) {
+    $tenureStartBs = (string)adToBs(date('Y-m-d'));
+    $tenureEndBs = (string)adToBs(date('Y-m-d', strtotime('+4 years')));
+}
+if ($tenureStartBs === '') $tenureStartBs = date('Y-m-d');
+if ($tenureEndBs === '') $tenureEndBs = date('Y-m-d', strtotime('+4 years'));
 ?>
 <div class="container-fluid py-3">
 <?php
 echo adminPageHeader(
     'निर्वाचन नतिजा',
     'fa-chart-bar',
-    htmlspecialchars($cycle['title_np']) . ' — कुल मतदाता: ' . $totalVoters . ' (Digital: ' . (int)$sourceCounts['member_portal'] . ', Manual: ' . (int)$sourceCounts['manual_staff'] . ')' . (empty($cycle['results_finalized']) ? '' : ' • अन्तिम भयो'),
+    htmlspecialchars($cycle['title_np']) . ' — Ballot: ' . $totalVoters . ' · Attendance: ' . $totalAttendance
+    . ' (Digital: ' . (int)$sourceCounts['member_portal']
+    . ', Manual ballot: ' . (int)$sourceCounts['manual_staff']
+    . ', Attendance only: ' . (int)$sourceCounts['manual_attendance'] . ')'
+    . (empty($cycle['results_finalized']) ? '' : ' • अन्तिम भयो'),
     '<a class="btn btn-outline-secondary btn-sm" href="election-candidates.php?cycle=' . $cycleId . '"><i class="fas fa-arrow-left me-1"></i>उम्मेदवार</a> '
     . '<a class="btn btn-outline-primary btn-sm" href="election-voting-attendance.php?cycle=' . $cycleId . '"><i class="fas fa-person-booth me-1"></i>Voting Attendance</a>'
 );
@@ -195,18 +227,29 @@ if (count($allCycles) > 1):
 
 <?php if (!empty($grouped) && empty($cycle['results_finalized'])): ?>
 <div class="card admin-table-card mt-4">
+    <div class="card-header"><h6 class="mb-0"><i class="fas fa-lock me-2"></i>नतिजा अन्तिम / Publish</h6></div>
+    <div class="card-body">
+        <p class="small text-muted mb-2">समिति रूपान्तरण बिना नै नतिजा lock गर्न सकिन्छ — मतदान बन्द हुन्छ, सदस्यले अन्तिम नतिजा देख्छन्।</p>
+        <form method="post" onsubmit="return confirm('नतिजा अन्तिम गर्ने र मतदान बन्द गर्ने?');" class="d-inline">
+            <?php echo csrfField(); ?>
+            <input type="hidden" name="action" value="finalize_results">
+            <button class="btn btn-outline-dark btn-sm"><i class="fas fa-check me-1"></i>नतिजा अन्तिम गर्नुहोस्</button>
+        </form>
+    </div>
+</div>
+<div class="card admin-table-card mt-3">
     <div class="card-header"><h6 class="mb-0"><i class="fas fa-arrow-right-arrow-left me-2"></i>विजेताहरूलाई समिति सदस्यमा रूपान्तरण</h6></div>
     <div class="card-body">
-        <p class="small text-muted">प्रत्येक पदको शीर्ष उम्मेदवारहरू (सिट संख्या बराबर) सम्बन्धित समितिमा नयाँ कार्यकालमा थपिनेछन्। यो action ले मतदान पनि बन्द गर्नेछ।</p>
+        <p class="small text-muted">प्रत्येक पदको शीर्ष उम्मेदवारहरू (सिट संख्या बराबर) सम्बन्धित समितिमा नयाँ कार्यकालमा थपिनेछन्। यो action ले नतिजा पनि अन्तिम गर्छ र मतदान बन्द गर्छ।</p>
         <form method="post" class="row g-2" onsubmit="return confirm('विजेताहरू समितिमा थप्ने र मतदान बन्द गर्ने?');">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="convert_winners">
             <div class="col-md-4"><label class="form-label small">कार्यकाल नाम</label>
                 <input class="form-control" name="tenure_name_np" value="कार्यकाल <?php echo date('Y'); ?>" required></div>
-            <div class="col-md-3"><label class="form-label small">सुरु मिति</label>
-                <input type="date" class="form-control" name="start_date" value="<?php echo date('Y-m-d'); ?>"></div>
-            <div class="col-md-3"><label class="form-label small">अन्त्य मिति</label>
-                <input type="date" class="form-control" name="end_date" value="<?php echo date('Y-m-d', strtotime('+4 years')); ?>"></div>
+            <div class="col-md-3"><label class="form-label small">सुरु मिति (वि.सं.)</label>
+                <input type="text" class="form-control nepali-datepicker" name="start_date" value="<?php echo htmlspecialchars($tenureStartBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
+            <div class="col-md-3"><label class="form-label small">अन्त्य मिति (वि.सं.)</label>
+                <input type="text" class="form-control nepali-datepicker" name="end_date" value="<?php echo htmlspecialchars($tenureEndBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
             <div class="col-md-2 d-flex align-items-end">
                 <button class="btn btn-success w-100"><i class="fas fa-check me-1"></i>रूपान्तरण</button>
             </div>

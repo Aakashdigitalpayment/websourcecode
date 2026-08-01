@@ -14,69 +14,6 @@ $_t = static function (string $np, string $en): string {
 requireMemberLogin();
 memberSecurityHeaders();
 
-/**
- * Analyze voting pattern for member behavior tracking
- */
-function analyzeVotingPattern($selectedCandidates, $positions, $cycle) {
-    global $candByPos;
-    $pattern = [
-        'type' => 'mixed',
-        'score' => 50,
-        'diversity_score' => 0
-    ];
-    
-    // Count candidates per position
-    $candidatesPerPosition = [];
-    foreach ($positions as $pos) {
-        $candidatesPerPosition[(int)$pos['id']] = 0;
-    }
-    
-    // Analyze selection pattern
-    $totalPositions = count($positions);
-    $filledPositions = 0;
-    
-    foreach ($selectedCandidates as $candId) {
-        // Find which position this candidate belongs to
-        foreach ($positions as $pos) {
-            if (isset($candByPos[(int)$pos['id']])) {
-                foreach ($candByPos[(int)$pos['id']] as $candidate) {
-                    if ((int)$candidate['id'] === (int)$candId) {
-                        $candidatesPerPosition[(int)$pos['id']]++;
-                        if ($candidatesPerPosition[(int)$pos['id']] > 0) {
-                            $filledPositions++;
-                        }
-                        break 2;
-                    }
-                }
-                break;
-            }
-        }
-    }
-    
-    // Calculate pattern score and diversity
-    if ($totalPositions > 0) {
-        $fillRate = $filledPositions / $totalPositions;
-        $candidateCount = count(array_unique($selectedCandidates));
-        
-        // Pattern types
-        if ($fillRate >= 0.8) {
-            $pattern['type'] = 'comprehensive';
-            $pattern['score'] = 85 + ($candidateCount * 3);
-        } elseif ($fillRate >= 0.5) {
-            $pattern['type'] = 'selective';
-            $pattern['score'] = 60 + ($candidateCount * 2);
-        } else {
-            $pattern['type'] = 'minimal';
-            $pattern['score'] = 30 + $candidateCount;
-        }
-        
-        // Diversity bonus
-        $pattern['diversity_score'] = min($candidateCount * 10, 50);
-    }
-    
-    return $pattern;
-}
-
 $db = getDB();
 ensureElectionTables($db);
 ensureElectionVotingTables($db);
@@ -85,14 +22,15 @@ $mem = currentMember();
 if (!$mem) { header('Location: login.php?msg=session_expired'); exit; }
 $memberId = (int)$mem['id'];
 
-/* चक्र चयन: ?cycle=ID, या hal active चक्र */
+/* चक्र चयन: ?cycle=ID, या खुला/उपयुक्त चक्र */
 $cycleId = (int)($_GET['cycle'] ?? 0);
 if ($cycleId > 0) {
     $cs = $db->prepare('SELECT * FROM election_cycles WHERE id=? AND is_published=1 LIMIT 1');
     $cs->execute([$cycleId]);
     $cycle = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
 } else {
-    $cycle = $db->query("SELECT * FROM election_cycles WHERE is_published=1 ORDER BY voting_enabled DESC, sort_order ASC, id DESC LIMIT 1")->fetch(PDO::FETCH_ASSOC) ?: null;
+    $pub = $db->query("SELECT * FROM election_cycles WHERE is_published=1 ORDER BY voting_enabled DESC, sort_order ASC, id DESC LIMIT 30")->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $cycle = electionPickDefaultPublicCycle($pub);
     if ($cycle) $cycleId = (int)$cycle['id'];
 }
 
@@ -102,14 +40,9 @@ $_active = 'election';
 $flash = '';
 $flashType = 'info';
 
-/* पहिल्यै vote गरेको छ ? */
-$alreadyVoted = false;
-if ($cycle) {
-    $vs = $db->prepare('SELECT id, submitted_at FROM election_vote_submissions WHERE cycle_id=? AND member_id=? LIMIT 1');
-    $vs->execute([$cycleId, $memberId]);
-    $sub = $vs->fetch(PDO::FETCH_ASSOC);
-    $alreadyVoted = (bool)$sub;
-}
+/* पहिल्यै ballot हालेको छ ? (attendance-only ले रोक्दैन) */
+$alreadyVoted = $cycle ? electionMemberHasBallot($db, $cycleId, $memberId) : false;
+$attendanceOnly = ($cycle && !$alreadyVoted) ? electionMemberAttendanceOnly($db, $cycleId, $memberId) : false;
 
 $votingOpen = $cycle ? isElectionVotingOpen($cycle) : false;
 $voteEnded = false;
@@ -153,8 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             foreach ($cs2->fetchAll(PDO::FETCH_ASSOC) ?: [] as $c) $validCandIds[(int)$c['id']] = (int)$c['position_id'];
 
             $db->beginTransaction();
-            $db->prepare('INSERT INTO election_vote_submissions (cycle_id, member_id, source, ip, user_agent) VALUES (?,?,?,?,?)')
-                ->execute([$cycleId, $memberId, 'member_portal', substr($_SERVER['REMOTE_ADDR'] ?? '', 0, 64), substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)]);
+            if ($attendanceOnly) {
+                $db->prepare('UPDATE election_vote_submissions SET source=?, is_ballot=1, ip=?, user_agent=? WHERE cycle_id=? AND member_id=? AND is_ballot=0')
+                    ->execute(['member_portal', substr($_SERVER['REMOTE_ADDR'] ?? '', 0, 64), substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255), $cycleId, $memberId]);
+            } else {
+                $db->prepare('INSERT INTO election_vote_submissions (cycle_id, member_id, source, is_ballot, ip, user_agent) VALUES (?,?,?,?,?,?)')
+                    ->execute([$cycleId, $memberId, 'member_portal', 1, substr($_SERVER['REMOTE_ADDR'] ?? '', 0, 64), substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255)]);
+            }
 
             $ins = $db->prepare('INSERT INTO election_votes (cycle_id, position_id, candidate_id, member_id) VALUES (?,?,?,?)');
             foreach ($picks as $pid => $candList) {
@@ -169,13 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             }
             $db->commit();
             $alreadyVoted = true;
+            $attendanceOnly = false;
             $flash = $_t('तपाईंको मत सफलतापूर्वक रेकर्ड भयो। धन्यवाद!', 'Your vote has been recorded successfully. Thank you!');
             $flashType = 'success';
         } catch (Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
             $sqlState = ($e instanceof PDOException) ? ($e->getCode() ?: '') : '';
             if ($sqlState === '23000' || str_contains($e->getMessage(), 'uniq_cycle_member') || str_contains($e->getMessage(), 'Duplicate')) {
-                $alreadyVoted = true;
+                $alreadyVoted = electionMemberHasBallot($db, $cycleId, $memberId);
                 $flash = $_t('तपाईंले पहिल्यै मतदान गरिसक्नु भएको छ।', 'You have already voted.'); $flashType = 'warning';
             } else {
                 $flash = $_t('त्रुटि', 'Error') . ': ' . $e->getMessage(); $flashType = 'danger';
@@ -276,6 +215,9 @@ require __DIR__ . '/includes/chrome.php';
                         <span class="badge bg-success"><i class="fas fa-check me-1"></i><?php echo $_t('मत दिइसकिएको छ', 'Vote already submitted'); ?></span>
                     <?php else: ?>
                         <?php echo electionVoteStateBadgeHtml($cycle); ?>
+                        <?php if (!empty($attendanceOnly)): ?>
+                            <span class="badge bg-info text-dark ms-1"><?php echo $_t('उपस्थिति दर्ता — मत बाँकी', 'Attendance recorded — vote pending'); ?></span>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
                 <?php if (!$alreadyVoted && !empty($cycle['vote_start_at']) && !empty($cycle['vote_end_at'])): ?>

@@ -564,9 +564,10 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <ol class="hg-steps-list">
         <li><a href="election-information.php">निर्वाचन जानकारी</a> → नयाँ चक्र: शीर्षक, प्रकाशित, मेनुमा देखाउने।</li>
         <li>मतदान सुरु/समाप्ति: <b>वि.सं. मिति</b> + समय (NPT)। <b>मतदान सक्रिय</b> चेक — तर खुला = समय भित्र मात्र।</li>
-        <li><a href="election-posts.php">पद Master</a> / <a href="election-candidates.php">उम्मेदवार/पद</a> — सिट, max votes, उम्मेदवार।</li>
-        <li>सदस्य: Member Portal → मतदान। Staff: <a href="election-voting-attendance.php">मतदान उपस्थिति</a> (कागज मत)।</li>
-        <li><a href="election-results.php">नतिजा</a> → finalize / विजेता समितिमा convert।</li>
+        <li><a href="election-posts.php">पद Master</a> / <a href="election-candidates.php">उम्मेदवार/पद</a> — सिट, max votes, उम्मेदवार। मत भएपछि delete = निष्क्रिय मात्र।</li>
+        <li>सदस्य: Member Portal → मतदान। Staff: <a href="election-voting-attendance.php">मतदान उपस्थिति</a> —
+          <b>Attendance only</b> (उम्मेदवार खाली) ले Portal मत रोक्दैन; <b>Manual ballot</b> ले रोक्छ।</li>
+        <li><a href="election-results.php">नतिजा</a> → <b>नतिजा अन्तिम</b> (publish मात्र) वा विजेता समितिमा convert (वि.सं. मिति)।</li>
       </ol>
       <p class="small text-muted mb-0"><b>Active ≠ Open:</b> मतदान सक्रिय + समय सेट भए पनि खुल्ने मिति अगाडि भए public/member मा “चाँडै खुल्ने” देखिन्छ।</p>
     </section>

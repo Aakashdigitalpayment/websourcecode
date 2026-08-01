@@ -163,6 +163,7 @@ if (!function_exists('ensureElectionVotingTables')) {
                 verified_by_admin_id INT NULL DEFAULT NULL,
                 verified_by_name VARCHAR(120) NOT NULL DEFAULT '',
                 note VARCHAR(500) NOT NULL DEFAULT '',
+                is_ballot TINYINT(1) NOT NULL DEFAULT 1,
                 ip VARCHAR(64) NULL DEFAULT NULL,
                 user_agent VARCHAR(255) NULL DEFAULT NULL,
                 UNIQUE KEY uniq_cycle_member (cycle_id, member_id),
@@ -207,10 +208,26 @@ if (!function_exists('ensureElectionVotingTables')) {
                 if (!isset($evsColSet['verified_by_admin_id'])) $evsAlters[] = "ADD COLUMN verified_by_admin_id INT NULL DEFAULT NULL AFTER proof_type";
                 if (!isset($evsColSet['verified_by_name'])) $evsAlters[] = "ADD COLUMN verified_by_name VARCHAR(120) NOT NULL DEFAULT '' AFTER verified_by_admin_id";
                 if (!isset($evsColSet['note'])) $evsAlters[] = "ADD COLUMN note VARCHAR(500) NOT NULL DEFAULT '' AFTER verified_by_name";
+                if (!isset($evsColSet['is_ballot'])) $evsAlters[] = "ADD COLUMN is_ballot TINYINT(1) NOT NULL DEFAULT 1 AFTER note";
                 if ($evsAlters) {
                     $db->exec("ALTER TABLE election_vote_submissions " . implode(', ', $evsAlters));
                 }
+                /* Attendance-only manual rows must not block digital ballot */
+                try {
+                    $db->exec(
+                        "UPDATE election_vote_submissions s
+                         SET s.is_ballot = 0,
+                             s.source = IF(s.source = 'manual_staff', 'manual_attendance', s.source)
+                         WHERE s.is_ballot = 1
+                           AND s.source IN ('manual_staff', 'manual_attendance')
+                           AND NOT EXISTS (
+                             SELECT 1 FROM election_votes v
+                             WHERE v.cycle_id = s.cycle_id AND v.member_id = s.member_id
+                           )"
+                    );
+                } catch (Throwable $e) { /* ignore */ }
                 $addIdx($db, 'election_vote_submissions', 'idx_evs_cycle_source', 'cycle_id, source');
+                $addIdx($db, 'election_vote_submissions', 'idx_evs_cycle_ballot', 'cycle_id, is_ballot');
             } catch (Throwable $e) { /* ignore */ }
 
             /* election_positions मा post_id (master link) — idempotent ALTER */
@@ -398,6 +415,56 @@ if (!function_exists('electionPickDefaultPublicCycle')) {
             }
         }
         return $open ?? $upcoming ?? $cycles[0];
+    }
+}
+
+/** True if member already cast a ballot (attendance-only does not count). */
+if (!function_exists('electionMemberHasBallot')) {
+    function electionMemberHasBallot(PDO $db, int $cycleId, int $memberId): bool
+    {
+        if ($cycleId < 1 || $memberId < 1) {
+            return false;
+        }
+        try {
+            $st = $db->prepare('SELECT id, is_ballot, source FROM election_vote_submissions WHERE cycle_id=? AND member_id=? LIMIT 1');
+            $st->execute([$cycleId, $memberId]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                return false;
+            }
+            if (array_key_exists('is_ballot', $row)) {
+                return (int)$row['is_ballot'] === 1;
+            }
+            $vc = $db->prepare('SELECT COUNT(*) FROM election_votes WHERE cycle_id=? AND member_id=?');
+            $vc->execute([$cycleId, $memberId]);
+            return (int)$vc->fetchColumn() > 0;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+/** Attendance row exists but no ballot yet (portal may still vote). */
+if (!function_exists('electionMemberAttendanceOnly')) {
+    function electionMemberAttendanceOnly(PDO $db, int $cycleId, int $memberId): bool
+    {
+        if ($cycleId < 1 || $memberId < 1) {
+            return false;
+        }
+        try {
+            $st = $db->prepare('SELECT id, is_ballot FROM election_vote_submissions WHERE cycle_id=? AND member_id=? LIMIT 1');
+            $st->execute([$cycleId, $memberId]);
+            $row = $st->fetch(PDO::FETCH_ASSOC);
+            if (!$row) {
+                return false;
+            }
+            if (array_key_exists('is_ballot', $row)) {
+                return (int)$row['is_ballot'] === 0;
+            }
+            return !electionMemberHasBallot($db, $cycleId, $memberId);
+        } catch (Throwable $e) {
+            return false;
+        }
     }
 }
 
