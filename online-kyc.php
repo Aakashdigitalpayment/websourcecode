@@ -24,22 +24,31 @@ require_once 'includes/header.php';
 $L = getLangStrings();
 
 $success = false;
+$membershipSuccess = false;
+$membershipTrackingId = '';
 $error = '';
 $kycTrackingId = '';
 $oldInput = [];
 $prefillInput = [];
 $kycWasUpdate = false;
 $isEmbed = !empty($_GET['embed']);
+$publicPath = strtolower(trim((string)($_GET['path'] ?? 'member')));
+if (!in_array($publicPath, ['member', 'new'], true)) {
+    $publicPath = 'member';
+}
+if (!empty($_POST['membership_join_submit'])) {
+    $publicPath = 'new';
+}
 $trackerUrl = ($isEmbed || $isMemberLoggedIn)
     ? (rtrim(SITE_URL, '/') . '/member/tracker.php')
     : 'application-tracker.php';
 $kycFollowUpUrl = ($isEmbed || $isMemberLoggedIn)
     ? (rtrim(SITE_URL, '/') . '/member/profile.php')
-    : 'online-kyc.php';
+    : 'online-kyc.php?path=member';
 $kycFollowUpLabel = ($isEmbed || $isMemberLoggedIn)
     ? (isEnglish() ? 'Back to Profile' : 'प्रोफाइलमा फर्कनुहोस्')
-    : (isEnglish() ? 'New KYC' : 'नयाँ KYC');
-$kycFollowUpIcon = ($isEmbed || $isMemberLoggedIn) ? 'fa-user' : 'fa-plus';
+    : (isEnglish() ? 'Online KYM' : 'Online केवाइएम');
+$kycFollowUpIcon = ($isEmbed || $isMemberLoggedIn) ? 'fa-user' : 'fa-id-card';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -57,8 +66,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $db = getDB();
 
+            /* ── नयाँ सदस्य बन्नुस् (Member ID बिना) ── */
+            if (!$isMemberLoggedIn && isset($_POST['membership_join_submit'])) {
+                if (!function_exists('membershipCreateRequest')) {
+                    $error = isEnglish() ? 'Membership request is unavailable.' : 'सदस्यता अनुरोध उपलब्ध छैन।';
+                } else {
+                    $r = membershipCreateRequest(
+                        $db,
+                        clean_text($_POST['full_name'] ?? '', 200),
+                        clean_text($_POST['mobile'] ?? '', 15),
+                        clean_text($_POST['email'] ?? '', 254),
+                        clean_text($_POST['address'] ?? '', 2000),
+                        clean_text($_POST['citizenship_no'] ?? '', 80),
+                        clean_text($_POST['remarks'] ?? '', 1000)
+                    );
+                    if (!empty($r['ok'])) {
+                        $membershipSuccess = true;
+                        $membershipTrackingId = (string)($r['tracking_id'] ?? '');
+                        $success = true;
+                        logSecurityEvent('membership_request', 'New membership request: ' . ($membershipTrackingId));
+                        if (function_exists('sendAdminNotification')) {
+                            try {
+                                require_once 'includes/notifications.php';
+                                sendAdminNotification('membership_application', [
+                                    'name' => clean_text($_POST['full_name'] ?? '', 200),
+                                    'mobile' => preg_replace('/[^0-9]/', '', (string)($_POST['mobile'] ?? '')),
+                                    'tracking_id' => $membershipTrackingId,
+                                ]);
+                            } catch (Throwable $ignored) {}
+                        }
+                    } else {
+                        $error = $r['error'] ?? (isEnglish() ? 'Could not submit request.' : 'अनुरोध पठाउन सकिएन।');
+                    }
+                }
+            }
             // Public quick KYC (minimal fields only)
-            if (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) {
+            elseif (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) {
                 $full_name = clean_text($_POST['full_name'] ?? '', 200);
                 $member_id = strtoupper(trim(clean_text($_POST['member_id'] ?? '', 80)));
                 $mobile = preg_replace('/[^0-9]/', '', clean_text($_POST['mobile'] ?? '', 15));
@@ -69,6 +112,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
                 } elseif ($member_id === '') {
                     $error = isEnglish() ? 'Member ID is required.' : 'सदस्यता नम्बर (Member ID) अनिवार्य छ।';
+                } elseif (function_exists('memberSsotRequireExistingMember')
+                    && ($gate = memberSsotRequireExistingMember($db, $member_id))
+                    && empty($gate['ok'])) {
+                    $error = isEnglish()
+                        ? ($gate['error_en'] ?? 'Member ID not found in members list.')
+                        : ($gate['error_np'] ?? 'सदस्यता नम्बर सदस्य सूचीमा छैन।');
                 } elseif (!preg_match('/^[0-9]{10}$/', $mobile)) {
                     $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
                 } elseif (!isValidEmail($email)) {
@@ -77,13 +126,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = isEnglish() ? 'National ID number is required.' : 'National ID नम्बर अनिवार्य छ।';
                 } else {
                     $existingKyc = null;
+                    /* Member ID SSOT: match by सदस्यता नं. only — mobile/email OR ले अर्को मान्छेको KYM overwrite नहोस् */
                     $q = $db->prepare("SELECT id, tracking_id FROM kyc_applications
-                                       WHERE member_id=? OR mobile=? OR LOWER(email)=?
+                                       WHERE member_id=?
                                        ORDER BY id DESC LIMIT 1");
-                    $q->execute([$member_id, $mobile, strtolower($email)]);
+                    $q->execute([$member_id]);
                     $existingKyc = $q->fetch(PDO::FETCH_ASSOC) ?: null;
 
                     $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
+                    $linkedKycPk = 0;
                     if ($existingKyc) {
                         $kycWasUpdate = true;
                         $u = $db->prepare("UPDATE kyc_applications SET
@@ -91,11 +142,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             status='partial', risk_category='medium', updated_at=NOW()
                             WHERE id=?");
                         $u->execute([$kycTrackingId, $member_id, $full_name, $mobile, $email, $national_id_number, (int)$existingKyc['id']]);
+                        $linkedKycPk = (int)$existingKyc['id'];
                     } else {
                         $i = $db->prepare("INSERT INTO kyc_applications
                             (tracking_id, member_id, full_name, mobile, email, national_id_number, risk_category, status, created_at)
                             VALUES (?, ?, ?, ?, ?, ?, 'medium', 'partial', NOW())");
                         $i->execute([$kycTrackingId, $member_id, $full_name, $mobile, $email, $national_id_number]);
+                        $linkedKycPk = (int)$db->lastInsertId();
+                    }
+                    if ($linkedKycPk > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                        memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $linkedKycPk);
                     }
                     $success = true;
                     logSecurityEvent('kyc_quick_public', 'Public quick KYC submitted: ' . $full_name . ' (' . $member_id . ')');
@@ -320,6 +376,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
             } elseif (empty($member_id)) {
                 $error = isEnglish() ? 'Member ID is required.' : 'सदस्यता नम्बर (Member ID) अनिवार्य छ।';
+            } elseif (function_exists('memberSsotRequireExistingMember')
+                && ($gate = memberSsotRequireExistingMember($db, $member_id))
+                && empty($gate['ok'])) {
+                $error = isEnglish()
+                    ? ($gate['error_en'] ?? 'Member ID not found in members list.')
+                    : ($gate['error_np'] ?? 'सदस्यता नम्बर सदस्य सूचीमा छैन।');
             } elseif (empty($mobile)) {
                 $error = isEnglish() ? 'Mobile number is required.' : 'मोबाइल नम्बर अनिवार्य छ।';
             } elseif (!preg_match('/^[0-9]{10}$/', $mobile)) {
@@ -394,20 +456,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                // एउटै member ID को active KYM: नयाँ insert होइन, existing record update गर्ने
+                // एउटै member ID को KYM: नयाँ insert होइन, existing record update गर्ने
+                // (rejected समेत — prefill ले देखाएको docs खाली INSERT नहोस्)
                 $existingKyc = null;
                 try {
                     $linkedKycId = (int)($loggedMember['kyc_application_id'] ?? 0);
                     if ($linkedKycId > 0) {
-                        $dup = $db->prepare("SELECT id FROM kyc_applications WHERE id=? LIMIT 1");
+                        $dup = $db->prepare("SELECT id, tracking_id, status FROM kyc_applications WHERE id=? LIMIT 1");
                         $dup->execute([$linkedKycId]);
                         $existingKyc = $dup->fetch(PDO::FETCH_ASSOC) ?: null;
                     }
-                    if (!$existingKyc) {
-                        $dup = $db->prepare("SELECT id FROM kyc_applications
-                                             WHERE member_id = ?
-                                               AND status IN ('pending','approved','incomplete','partial')
-                                             ORDER BY id DESC LIMIT 1");
+                    if (!$existingKyc && $member_id !== '') {
+                        $dup = $db->prepare("SELECT id, tracking_id, status FROM kyc_applications
+                                             WHERE UPPER(TRIM(member_id)) = ?
+                                             ORDER BY FIELD(status,'approved','pending','incomplete','partial','rejected') ASC, id DESC
+                                             LIMIT 1");
                         $dup->execute([$member_id]);
                         $existingKyc = $dup->fetch(PDO::FETCH_ASSOC) ?: null;
                     }
@@ -428,6 +491,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = isEnglish()
                         ? 'Photo quality is too low (score: ' . $photo_quality_score . '/100). Please retake with better lighting and a clear face.'
                         : 'फोटो गुणस्तर धेरै कम छ (Score: ' . $photo_quality_score . '/100)। राम्रो उज्यालोमा स्पष्ट अनुहार देखिने फोटो फेरि खिच्नुहोस्।';
+                }
+
+                /* New KYM row: docs अनिवार्य (update मा COALESCE ले पुरानो राख्छ) */
+                if (!$error && !$existingKyc) {
+                    if ($photo === '' || $citizenship_front === '' || $citizenship_back === '' || $signature === '') {
+                        $error = isEnglish()
+                            ? 'Please upload photo, citizenship (front/back), and signature.'
+                            : 'कृपया फोटो, नागरिकता (अगाडि/पछाडि) र हस्ताक्षर अपलोड गर्नुहोस्।';
+                    }
                 }
 
                 if (!$error) {
@@ -466,6 +538,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             permanent_province=?, permanent_district=?, permanent_municipality=?, permanent_ward=?, permanent_tole=?,
                             temporary_province=?, temporary_district=?, temporary_municipality=?, temporary_ward=?, temporary_tole=?,
                             aml_details_json=?, updated_at=NOW(),
+                            status = CASE WHEN status = 'rejected' THEN 'pending' ELSE status END,
                             photo = COALESCE(NULLIF(?, ''), photo),
                             citizenship_front = COALESCE(NULLIF(?, ''), citizenship_front),
                             citizenship_back = COALESCE(NULLIF(?, ''), citizenship_back),
@@ -491,7 +564,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $photo, $citizenship_front, $citizenship_back, $national_id_card, $signature, $left_thumb, $right_thumb,
                             (int)$existingKyc['id']
                         ]);
-                        if (empty($loggedMember['kyc_application_id']) && !empty($loggedMember['id'])) {
+                        if (function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                            memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, (int)$existingKyc['id']);
+                        } elseif (empty($loggedMember['kyc_application_id']) && !empty($loggedMember['id'])) {
                             try {
                                 $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
                                    ->execute([(int)$existingKyc['id'], (int)$loggedMember['id']]);
@@ -525,13 +600,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
                             } catch (Throwable $ignored) {}
                         }
-                        if (!empty($loggedMember['id'])) {
+                        $lastId = (int)$db->lastInsertId();
+                        if ($lastId > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                            memberSsotLinkMemberBySadasyataToKyc($db, (string)$member_id, $lastId);
+                        } elseif ($lastId > 0 && !empty($loggedMember['id'])) {
                             try {
-                                $lastId = (int)$db->lastInsertId();
-                                if ($lastId > 0) {
-                                    $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
-                                       ->execute([$lastId, (int)$loggedMember['id']]);
-                                }
+                                $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
+                                   ->execute([$lastId, (int)$loggedMember['id']]);
                             } catch (Throwable $ignored) {}
                         }
                     }
@@ -592,6 +667,7 @@ try {
 try {
     $db = $db ?? getDB();
     $row = null;
+    if ($isMemberLoggedIn) {
     $memberRefCandidates = array_filter(array_map('trim', [
         (string)($loggedMember['sadasyata_number'] ?? ''),
         (string)($loggedMember['member_card_no'] ?? ''),
@@ -748,11 +824,26 @@ try {
     } else {
         // At least basic member data prefill to avoid fully blank form
         $prefillInput['full_name'] = (string)($loggedMember['name'] ?? '');
-        $prefillInput['member_id'] = (string)($loggedMember['sadasyata_number'] ?? $loggedMember['member_card_no'] ?? $loggedMember['member_id'] ?? '');
+        $prefillInput['member_id'] = function_exists('memberSsotResolveSadasyata')
+            ? memberSsotResolveSadasyata($loggedMember)
+            : (string)($loggedMember['sadasyata_number'] ?? '');
         $prefillInput['mobile'] = (string)($loggedMember['phone'] ?? '');
         $prefillInput['email'] = (string)($loggedMember['email'] ?? '');
     }
+    /* Logged-in: always lock Member ID to SSOT sadasyata */
+    if (function_exists('memberSsotResolveSadasyata')) {
+        $sidLocked = memberSsotResolveSadasyata($loggedMember);
+        if ($sidLocked !== '') {
+            $prefillInput['member_id'] = $sidLocked;
+        }
+    }
+    } /* end $isMemberLoggedIn prefill */
 } catch (Throwable $ignored) {}
+
+$existingDocs = function_exists('memberSsotExistingDocFlags')
+    ? memberSsotExistingDocFlags($prefillInput)
+    : ['photo' => false, 'citizenship_front' => false, 'citizenship_back' => false, 'signature' => false, 'any' => false];
+$lockMemberId = $isMemberLoggedIn && !empty($prefillInput['member_id']);
 ?>
 
 <!-- Page Banner -->
@@ -771,7 +862,7 @@ try {
 <!-- v10.4: KYC capture assets (camera/crop/signature/fingerprint) -->
 <link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/kyc-capture.css?v=10.6">
 <?php printNepalAddressJs(); ?>
-<script defer src="<?php echo SITE_URL; ?>assets/js/kyc-capture.js?v=10.9"></script>
+<script defer src="<?php echo SITE_URL; ?>assets/js/kyc-capture.js?v=10.10"></script>
 
 <!-- KYM Form Section -->
 <section class="kyc-form-section section-padding">
@@ -780,20 +871,33 @@ try {
         <div class="row justify-content-center mb-4">
           <div class="col-lg-7">
             <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
-              <div class="form-success-icon"><i class="fas fa-id-card-alt"></i></div>
+              <div class="form-success-icon"><i class="fas fa-<?php echo $membershipSuccess ? 'user-plus' : 'id-card-alt'; ?>"></i></div>
               <h3 class="mt-3 fw-bold text-success"><?php
-                if (!empty($kycWasUpdate)) {
+                if ($membershipSuccess) {
+                    echo isEnglish() ? 'Membership Request Submitted!' : 'सदस्यता अनुरोध पेश भयो!';
+                } elseif (!empty($kycWasUpdate)) {
                     echo isEnglish() ? 'KYM Updated Successfully!' : 'KYC सफलतापूर्वक अपडेट भयो!';
                 } else {
                     echo isEnglish() ? 'KYM Application Submitted!' : 'केवाइएम आवेदन सफलतापूर्वक पेश भयो!';
                 }
               ?></h3>
-              <p class="text-muted mb-3"><?php echo isEnglish() ? 'Our team will verify your KYM and notify you soon.' : 'हाम्रो टोलीले तपाईंको केवाइएम प्रमाणित गरी सूचना दिनेछ।'; ?></p>
-              <?php if ($kycTrackingId): ?>
+              <p class="text-muted mb-3"><?php
+                if ($membershipSuccess) {
+                    echo isEnglish()
+                        ? 'Admin will review and assign your Member ID. After that, come back and fill Online KYM with that Member ID.'
+                        : 'Admin ले समीक्षा गरी Member ID दिनेछ। त्यसपछि त्यही Member ID ले Online केवाइएम भर्नुहोस्।';
+                } else {
+                    echo isEnglish() ? 'Our team will verify your KYM and notify you soon.' : 'हाम्रो टोलीले तपाईंको केवाइएम प्रमाणित गरी सूचना दिनेछ।';
+                }
+              ?></p>
+              <?php
+                $showTrack = $membershipSuccess ? $membershipTrackingId : $kycTrackingId;
+                if ($showTrack):
+              ?>
               <div class="form-tracking-box">
                 <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID — save this!' : 'तपाईंको Tracking ID — सुरक्षित राख्नुहोस्!'; ?></div>
                 <div class="d-flex align-items-center gap-2 mb-2">
-                  <div class="form-tracking-id" id="kycTrkId"><?php echo e($kycTrackingId); ?></div>
+                  <div class="form-tracking-id" id="kycTrkId"><?php echo e($showTrack); ?></div>
                   <button type="button" onclick="copyTrk('kycTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>
                 </div>
                 <div class="form-tracking-help"><a href="<?php echo e($trackerUrl); ?>" class="text-success text-decoration-none fw-semibold"><?php echo isEnglish() ? 'Open Tracker' : 'ट्र्याकर खोल्नुहोस्'; ?></a> — <?php echo isEnglish() ? 'check status anytime.' : 'स्थिति जुनसुकै बेला हेर्नुहोस्।'; ?></div>
@@ -801,7 +905,11 @@ try {
               <?php endif; ?>
               <div class="mt-3">
                 <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
+                <?php if ($membershipSuccess): ?>
+                <a href="online-kyc.php?path=member" class="btn btn-outline-secondary px-4"><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Online KYM (after Member ID)' : 'Online केवाइएम (Member ID पछि)'; ?></a>
+                <?php else: ?>
                 <a href="<?php echo e($kycFollowUpUrl); ?>" class="btn btn-outline-secondary px-4"><i class="fas <?php echo e($kycFollowUpIcon); ?> me-1"></i><?php echo e($kycFollowUpLabel); ?></a>
+                <?php endif; ?>
               </div>
             </div>
           </div>
@@ -819,15 +927,73 @@ try {
         <?php if (!$isMemberLoggedIn): ?>
         <div class="row justify-content-center mb-3">
             <div class="col-lg-10">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <a href="?path=member" class="btn <?php echo $publicPath === 'member' ? 'btn-success' : 'btn-outline-success'; ?>">
+                        <i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'I am a member (Online KYM)' : 'म सदस्य हुँ (Online केवाइएम)'; ?>
+                    </a>
+                    <a href="?path=new" class="btn <?php echo $publicPath === 'new' ? 'btn-primary' : 'btn-outline-primary'; ?>">
+                        <i class="fas fa-user-plus me-1"></i><?php echo isEnglish() ? 'Become a new member' : 'नयाँ सदस्य बन्नुस्'; ?>
+                    </a>
+                    <a href="<?php echo SITE_URL; ?>member/login.php" class="btn btn-outline-secondary ms-auto">
+                        <i class="fas fa-right-to-bracket me-1"></i><?php echo isEnglish() ? 'Portal Login' : 'पोर्टल लगइन'; ?>
+                    </a>
+                </div>
+
+                <?php if ($publicPath === 'new'): ?>
+                <div class="alert alert-primary small mb-3">
+                    <?php echo isEnglish()
+                        ? 'No Member ID yet? Submit this short request. Admin assigns your Member ID, then fill Online KYM with that ID.'
+                        : 'Member ID छैन? यो छोटो अनुरोध पठाउनुहोस्। Admin ले Member ID दिएपछि त्यही ID ले Online केवाइएम भर्नुहोस्।'; ?>
+                </div>
+                <div class="kyc-form-box mb-3">
+                    <form method="POST" class="kyc-form needs-validation" novalidate>
+                        <?php echo csrfField(); ?>
+                        <input type="hidden" name="membership_join_submit" value="1">
+                        <div class="form-section">
+                            <h5><i class="fas fa-user-plus me-1"></i><?php echo isEnglish() ? 'Become a Member' : 'सदस्य बन्नुस्'; ?></h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship No. (recommended)' : 'नागरिकता नं. (सिफारिस)'; ?></label>
+                                    <input type="text" name="citizenship_no" class="form-control" value="<?php echo htmlspecialchars($_POST['citizenship_no'] ?? ''); ?>">
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                    <textarea name="address" class="form-control" rows="2" required><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
+                                </div>
+                                <div class="col-12 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Remarks (optional)' : 'कैफियत (ऐच्छिक)'; ?></label>
+                                    <textarea name="remarks" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['remarks'] ?? ''); ?></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-1"></i><?php echo isEnglish() ? 'Submit membership request' : 'सदस्यता अनुरोध पठाउनुहोस्'; ?>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <?php else: ?>
                 <div class="alert alert-info d-flex flex-wrap align-items-center gap-2" style="font-size:.86rem;">
                     <i class="fas fa-circle-info"></i>
-                    <span><?php echo isEnglish() ? 'New applicant? Fill the full KYC form below. Already a member? Use Quick KYC and complete remaining details from Member Portal.' : 'नयाँ आवेदक हुनुहुन्छ? तलको पूर्ण केवाइएम भर्नुहोस्। पहिले नै सदस्य हुनुहुन्छ भने Quick KYC प्रयोग गर्नुहोस् र बाँकी Member Portal बाट पूरा गर्नुहोस्।'; ?></span>
+                    <span><?php echo isEnglish()
+                        ? 'Online KYM needs an existing Member ID. New person? Choose “Become a new member” above — admin assigns ID first.'
+                        : 'Online केवाइएम मा Member ID अनिवार्य। नयाँ व्यक्ति? माथि “नयाँ सदस्य बन्नुस्” छान्नुहोस् — admin ले पहिले ID दिन्छ।'; ?></span>
                     <button type="button" id="toggleQuickKycBtn" class="btn btn-sm btn-outline-primary ms-auto">
-                        <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'Quick KYC (पहिलेको सदस्य)'; ?>
+                        <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (same Member ID)' : 'Quick KYC (उही Member ID)'; ?>
                     </button>
-                    <a href="<?php echo SITE_URL; ?>member/login.php" class="btn btn-sm btn-outline-success">
-                        <i class="fas fa-right-to-bracket me-1"></i><?php echo isEnglish() ? 'Member Login' : 'Member Login'; ?>
-                    </a>
                 </div>
                 <div id="publicQuickKycPanel" class="kyc-form-box mb-3" style="display:<?php echo isset($_POST['public_quick_submit']) ? 'block' : 'none'; ?>;">
                     <form method="POST" class="kyc-form needs-validation" novalidate>
@@ -846,9 +1012,12 @@ try {
                         <div class="text-center"><button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save me-1"></i><?php echo isEnglish() ? 'Save Basic KYC' : 'Basic KYC सेभ गर्नुहोस्'; ?></button></div>
                     </form>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>
+
+        <?php if ($isMemberLoggedIn || $publicPath === 'member'): ?>
         <div class="row justify-content-center" id="fullKycRow" style="<?php echo (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) ? 'display:none;' : ''; ?>">
             <div class="col-lg-10">
                 <div class="kyc-form-box" data-aos="fade-up">
@@ -881,7 +1050,21 @@ try {
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Member ID / Membership Number' : 'सदस्यता नम्बर (Member ID)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="member_id" class="form-control" required placeholder="<?php echo isEnglish() ? 'Example: 1234' : 'उदाहरण: १२३४'; ?>">
+                                    <input type="text" name="member_id" class="form-control" required
+                                           placeholder="<?php echo isEnglish() ? 'Example: 1234' : 'उदाहरण: १२३४'; ?>"
+                                           <?php echo $lockMemberId ? 'readonly' : ''; ?>
+                                           value="<?php echo $lockMemberId ? htmlspecialchars((string)$prefillInput['member_id'], ENT_QUOTES, 'UTF-8') : ''; ?>">
+                                    <div class="form-text"><?php
+                                        if ($lockMemberId) {
+                                            echo isEnglish()
+                                                ? 'Locked to your Member ID (single source). KYM updates this same record.'
+                                                : 'तपाईंको Member ID मा लक (एकल स्रोत)। केवाइएम अपडेट उही रेकर्डमा हुन्छ।';
+                                        } else {
+                                            echo isEnglish()
+                                                ? 'Must already exist in the cooperative members list (ledger). Online KYM does not invent a new Member ID.'
+                                                : 'सहकारीको सदस्य सूचीमा पहिले नै भएको सदस्यता नम्बर मात्र। Online KYM ले नयाँ Member ID बनाउँदैन।';
+                                        }
+                                    ?></div>
                                 </div>
                                 <div class="col-md-3 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (वि.सं.)'; ?></label>
@@ -1383,6 +1566,14 @@ try {
                         <!-- v10.4: Document Capture (Camera + Crop + Signature + Fingerprint) -->
                         <div class="form-section">
                             <h5><i class="fas fa-camera"></i> <?php echo isEnglish() ? 'Documents & Biometrics' : 'कागजात र बायोमेट्रिक'; ?></h5>
+                            <?php if (!empty($existingDocs['any'])): ?>
+                            <div class="alert alert-success py-2" style="font-size:.85rem;">
+                                <i class="fas fa-check-circle me-1"></i>
+                                <?php echo isEnglish()
+                                    ? 'Existing documents are already on file for this Member ID. Re-capture only if you need to replace them.'
+                                    : 'यो Member ID का लागि कागजात पहिले नै छन्। फेर्नु परेमात्र नयाँ खिच्नुहोस् — फेरि सबै हाल्नु पर्दैन।'; ?>
+                            </div>
+                            <?php endif; ?>
                             <div class="alert alert-info py-2" style="font-size:.82rem;">
                                 <i class="fas fa-info-circle me-1"></i>
                                 मोबाइलमा क्यामेरा खुल्छ — फोटो खिचेर <strong>Zoom / Crop / Rotate</strong> गरेर मात्र अपलोड हुन्छ।
@@ -1395,10 +1586,13 @@ try {
                                 </div>
 
                                 <details class="kyc-doc-item" open>
-                                    <summary><i class="fas fa-image me-1"></i><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?> <span class="req">*</span></summary>
+                                    <summary><i class="fas fa-image me-1"></i><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?><?php echo empty($existingDocs['photo']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
-                                        <div class="kyc-cap-field" data-kyc-cap="passport" data-required>
-                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?> <span class="req">*</span></span>
+                                        <div class="kyc-cap-field" data-kyc-cap="passport"<?php echo empty($existingDocs['photo']) ? ' data-required' : ''; ?>>
+                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?><?php echo empty($existingDocs['photo']) ? ' <span class="req">*</span>' : ''; ?></span>
+                                            <?php if (!empty($existingDocs['photo'])): ?>
+                                            <div class="small text-success mb-2"><?php echo isEnglish() ? 'On file — leave blank to keep.' : 'फाइलमा छ — खाली छाड्दा उही रहन्छ।'; ?></div>
+                                            <?php endif; ?>
                                             <div class="small mb-2" style="color:#475569;">
                                                 <?php echo isEnglish()
                                                     ? 'Face straight, clear light, no sunglasses. Both eyes and both ears should be visible.'
@@ -1418,27 +1612,33 @@ try {
                                                     ? 'Photo quality score is advisory only. 70+ is recommended.'
                                                     : 'फोटो गुणस्तर स्कोर सल्लाहमूलक मात्र हो। ७०+ सिफारिस गरिन्छ।'; ?>
                                             </div>
-                                            <input type="hidden" name="photo">
+                                            <input type="hidden" name="photo" value="<?php echo !empty($existingDocs['photo']) ? htmlspecialchars((string)$prefillInput['photo'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                                         </div>
                                     </div>
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?> <span class="req">*</span></summary>
+                                    <summary><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?><?php echo empty($existingDocs['citizenship_front']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
-                                        <div class="kyc-cap-field" data-kyc-cap="citizen_front" data-required>
-                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?> <span class="req">*</span></span>
-                                            <input type="hidden" name="citizenship_front">
+                                        <div class="kyc-cap-field" data-kyc-cap="citizen_front"<?php echo empty($existingDocs['citizenship_front']) ? ' data-required' : ''; ?>>
+                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?><?php echo empty($existingDocs['citizenship_front']) ? ' <span class="req">*</span>' : ''; ?></span>
+                                            <?php if (!empty($existingDocs['citizenship_front'])): ?>
+                                            <div class="small text-success mb-2"><?php echo isEnglish() ? 'On file — leave blank to keep.' : 'फाइलमा छ — खाली छाड्दा उही रहन्छ।'; ?></div>
+                                            <?php endif; ?>
+                                            <input type="hidden" name="citizenship_front" value="<?php echo !empty($existingDocs['citizenship_front']) ? htmlspecialchars((string)$prefillInput['citizenship_front'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                                         </div>
                                     </div>
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-id-card-clip me-1"></i><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?> <span class="req">*</span></summary>
+                                    <summary><i class="fas fa-id-card-clip me-1"></i><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?><?php echo empty($existingDocs['citizenship_back']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
-                                        <div class="kyc-cap-field" data-kyc-cap="citizen_back" data-required>
-                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?> <span class="req">*</span></span>
-                                            <input type="hidden" name="citizenship_back">
+                                        <div class="kyc-cap-field" data-kyc-cap="citizen_back"<?php echo empty($existingDocs['citizenship_back']) ? ' data-required' : ''; ?>>
+                                            <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?><?php echo empty($existingDocs['citizenship_back']) ? ' <span class="req">*</span>' : ''; ?></span>
+                                            <?php if (!empty($existingDocs['citizenship_back'])): ?>
+                                            <div class="small text-success mb-2"><?php echo isEnglish() ? 'On file — leave blank to keep.' : 'फाइलमा छ — खाली छाड्दा उही रहन्छ।'; ?></div>
+                                            <?php endif; ?>
+                                            <input type="hidden" name="citizenship_back" value="<?php echo !empty($existingDocs['citizenship_back']) ? htmlspecialchars((string)$prefillInput['citizenship_back'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                                         </div>
                                     </div>
                                 </details>
@@ -1457,8 +1657,11 @@ try {
                                     <summary><i class="fas fa-signature me-1"></i><?php echo isEnglish() ? 'Signature' : 'हस्ताक्षर'; ?> <span class="req">*</span></summary>
                                     <div class="kyc-doc-body">
                                         <span class="kyc-cap-label"><?php echo isEnglish() ? 'Signature (draw below)' : 'हस्ताक्षर (तल गर्नुहोस्)'; ?> <span class="req">*</span></span>
-                                        <div class="kyc-sig-wrap" data-kyc-signature data-required>
-                                            <input type="hidden" name="signature">
+                                        <div class="kyc-sig-wrap" data-kyc-signature<?php echo empty($existingDocs['signature']) ? ' data-required' : ''; ?>>
+                                            <?php if (!empty($existingDocs['signature'])): ?>
+                                            <div class="small text-success mb-2"><?php echo isEnglish() ? 'Signature on file — re-sign only to replace.' : 'हस्ताक्षर फाइलमा छ — फेर्नु परेमात्र।'; ?></div>
+                                            <?php endif; ?>
+                                            <input type="hidden" name="signature" value="<?php echo !empty($existingDocs['signature']) ? htmlspecialchars((string)$prefillInput['signature'], ENT_QUOTES, 'UTF-8') : ''; ?>">
                                         </div>
                                     </div>
                                 </details>
@@ -1545,7 +1748,8 @@ try {
                 </div>
             </div>
         </div>
-        <?php endif; ?>
+        <?php endif; /* member path / logged-in full KYM */ ?>
+        <?php endif; /* !$success */ ?>
     </div>
 </section>
 

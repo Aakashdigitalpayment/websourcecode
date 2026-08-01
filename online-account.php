@@ -418,6 +418,7 @@ try {
                         
 
                         <!-- Citizenship Info -->
+                        <?php if (!$loggedMember): ?>
                         <div class="form-section js-acc-kyc-hide">
                             <h5><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i> <?php echo isEnglish() ? 'Citizenship Details' : 'नागरिकता विवरण'; ?></h5>
                             <div class="row">
@@ -447,6 +448,14 @@ try {
                                 </div>
                             </div>
                         </div>
+                        <?php else: ?>
+                        <input type="hidden" name="citizenship_no" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['citizenship_no'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="citizenship_issued_date" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['citizenship_issued_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="citizenship_issued_place" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['citizenship_issued_place'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="father_name" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['father_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="mother_name" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['mother_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="occupation" value="<?php echo htmlspecialchars((string)(($kycForDisplay ?? [])['occupation'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                        <?php endif; ?>
 
                         <!-- Nominee Info -->
                         <div class="form-section">

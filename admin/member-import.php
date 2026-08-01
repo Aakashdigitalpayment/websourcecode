@@ -138,6 +138,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
 
 <div class="row g-3">
     <div class="col-lg-7">
+        <?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('import'); } ?>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <h2 class="h6 fw-bold mb-3"><i class="fas fa-file-csv me-2 text-success"></i>CSV Upload</h2>
@@ -147,6 +148,9 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <code>sadasyata_number</code>, <code>full_name</code>, <code>mobile</code><br>
                     Optional: <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
                     <code>gender</code>, <code>branch</code>, <code>remarks</code>
+                    <div class="mt-1">मिल्दो KYM (`member_id` = सदस्यता नं.) भए स्वतः लिंक हुन्छ।
+                        <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
+                    </div>
                 </div>
 
                 <form id="miUploadForm" enctype="multipart/form-data" class="mb-3">

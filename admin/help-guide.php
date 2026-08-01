@@ -141,7 +141,16 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <!-- ══ 4. KYC ══ -->
     <section id="sec-kyc" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-id-card"></i></span> केवाइएम आवेदन व्यवस्थापन</h3>
-      <p>सदस्यले online-kyc.php बाट पेश गरेका केवाइएम आवेदन यहाँ आउँछन्।</p>
+      <p>सदस्यले online-kyc.php बाट पेश गरेका केवाइएम आवेदन यहाँ आउँछन्।
+        Member ID सदस्य सूचीमा पहिले हुनुपर्छ; approve गर्दा portal लगइन आफैं बन्दैन — members खाता लिंक/stub मात्र।</p>
+
+      <h5>🆕 नयाँ व्यक्ति (Member ID छैन):</h5>
+      <ol class="hg-steps-list">
+        <li>Public: <a href="../online-kyc.php?path=new">online-kyc.php?path=new</a> → <b>नयाँ सदस्य बन्नुस्</b> (Member ID बिना छोटो अनुरोध)।</li>
+        <li>Admin: <a href="membership-applications.php">सदस्यता अनुरोध</a> → Approve + <b>Member ID हाल्नुहोस्</b> → <code>members</code> stub बन्छ।</li>
+        <li>त्यसपछि व्यक्तिले <a href="../online-kyc.php?path=member">Online केवाइएम</a> उही Member ID ले भर्छ।</li>
+        <li>पोर्टल लगइन = पासवर्ड + <a href="member-online-portal.php">पोर्टल unlock</a> — उही Member ID।</li>
+      </ol>
 
       <h5>📋 KYC List हेर्ने र Review गर्ने:</h5>
       <ol class="hg-steps-list">
@@ -304,7 +313,10 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>। Bulk SMS पठाइँदैन।</li>
       </ol>
       <div class="hg-info">
-        ✨ Online KYM भरेर आउने नयाँ सदस्यको लागि अझै <a href="kyc-applications.php">KYM Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a> use गर्नुहोस्। Bulk Import पुराना सूचीका लागि हो।
+        ✨ <b>Member ID = एकल स्रोत (SSOT):</b> पहिले Members import / admin ले सदस्यता नं. बनाउने → अनि Online KYM त्यही नम्बरसँग।
+        KYM approve ले members stub लिंक गर्छ (लगइन बन्दैन); Portal = पासवर्ड + approve।
+        दोहोरो नम्बर: <a href="member-ssot-duplicates.php">Duplicate inventory</a>।
+        KYM कागजातका लागि <a href="kyc-applications.php">KYM Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a>।
       </div>
 
       <h5>➕ नयाँ Member थप्ने (Admin बाट):</h5>

@@ -256,30 +256,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
                 $phone = preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? $phone));
                 if ($name === '') $error = $_t('KYC record मा नाम खाली छ। कृपया KYC update गर्नुहोस्।', 'Name is empty in KYC record. Please update KYC.');
             }
-            if ($email) {
-                $chk = $db->prepare("SELECT id FROM members WHERE email=? LIMIT 1");
+            $stubMember = null;
+            if (!$error && function_exists('memberSsotFindBySadasyata')) {
+                $stubMember = memberSsotFindBySadasyata($db, $sadasyata);
+                if ($stubMember && !empty($stubMember['password_hash'])) {
+                    $error = $_t('यो सदस्यता नम्बर पहिले नै दर्ता भएको छ। लगिन गर्नुहोस्।', 'This member number is already registered. Please login.');
+                }
+            }
+            if (!$error && $email) {
+                $chk = $db->prepare('SELECT id FROM members WHERE email=? LIMIT 1');
                 $chk->execute([$email]);
-                if ($chk->fetch()) $error = $_t('यो इमेल पहिले नै दर्ता भएको छ।', 'This email is already registered.');
+                $emailRow = $chk->fetch(PDO::FETCH_ASSOC);
+                if ($emailRow && (!$stubMember || (int)$emailRow['id'] !== (int)$stubMember['id'])) {
+                    $error = $_t('यो इमेल पहिले नै दर्ता भएको छ।', 'This email is already registered.');
+                }
             }
             if (!$error && $phone) {
-                $chk2 = $db->prepare("SELECT id FROM members WHERE phone=? LIMIT 1");
+                $chk2 = $db->prepare('SELECT id FROM members WHERE phone=? LIMIT 1');
                 $chk2->execute([$phone]);
-                if ($chk2->fetch()) $error = $_t('यो मोबाइल नम्बर पहिले नै दर्ता भएको छ।', 'This mobile number is already registered.');
-            }
-            if (!$error) {
-                $chkS = $db->prepare("SELECT id FROM members WHERE sadasyata_number=? AND sadasyata_number!='' LIMIT 1");
-                $chkS->execute([$sadasyata]);
-                if ($chkS->fetch()) $error = $_t('यो सदस्यता नम्बर पहिले नै दर्ता भएको छ।', 'This member number is already registered.');
+                $phoneRow = $chk2->fetch(PDO::FETCH_ASSOC);
+                if ($phoneRow && (!$stubMember || (int)$phoneRow['id'] !== (int)$stubMember['id'])) {
+                    $error = $_t('यो मोबाइल नम्बर पहिले नै दर्ता भएको छ।', 'This mobile number is already registered.');
+                }
             }
         }
 
         if (!$error) {
-            $res = memberRegister($name, $email, $phone, $password, $sadasyata, null, null, '', (int)($kycRow['id'] ?? 0));
+            if (function_exists('memberSsotRegisterOrAttach')) {
+                $res = memberSsotRegisterOrAttach(
+                    $db,
+                    $name,
+                    $email,
+                    $phone,
+                    $password,
+                    $sadasyata,
+                    (int)($kycRow['id'] ?? 0)
+                );
+            } else {
+                $res = memberRegister($name, $email, $phone, $password, $sadasyata, null, null, '', (int)($kycRow['id'] ?? 0));
+            }
             if (isset($res['error'])) {
                 $error = htmlspecialchars($res['error']);
             } else {
                 $tab     = 'login';
-                $success = $_t('✅ दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Registration successful! Profile was auto-filled from KYM. You can login after admin approval.');
+                $attached = !empty($res['attached']);
+                $success = $attached
+                    ? $_t('✅ पासवर्ड सेट भयो! Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Password set! You can login after admin approval.')
+                    : $_t('✅ दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Registration successful! Profile was auto-filled from KYM. You can login after admin approval.');
             }
         }
     }

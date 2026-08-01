@@ -220,6 +220,16 @@ $adminAlertCounts['welfare']     = $__adminCount("SELECT COUNT(*) FROM member_we
 $adminAlertCounts['auction']     = $__adminCount("SELECT COUNT(*) FROM auction_bids WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header auction]');
 $adminAlertCounts['vendor']      = $__adminCount("SELECT COUNT(*) FROM vendors WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header vendor]');
 $adminAlertCounts['account']     = $__adminCount("SELECT COUNT(*) FROM account_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header account]');
+$adminAlertCounts['membership']  = 0;
+try {
+    if (function_exists('membershipEnsureTable') && $db instanceof PDO) {
+        membershipEnsureTable($db);
+        $adminAlertCounts['membership'] = $__adminCount(
+            "SELECT COUNT(*) FROM membership_applications WHERE status='pending'",
+            '[admin-header membership]'
+        );
+    }
+} catch (Throwable $e) { /* table may not exist yet */ }
 $adminAlertCounts['digital']     = $__adminCount("SELECT COUNT(*) FROM digital_service_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header digital]');
 $adminAlertCounts['honor']       = $__adminCount("SELECT COUNT(*) FROM honor_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header honor]');
 $adminAlertCounts['kyc_risk']    = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]');
@@ -265,7 +275,7 @@ $pageGroups = [
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
-    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
+    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','membership-apps','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
@@ -540,7 +550,7 @@ set_exception_handler(function (\Throwable $ex) {
 
                     <!-- ── आवेदनहरू ── -->
                     <li class="nav-group-wrap">
-                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
+                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + ($adminAlertCounts['membership'] ?? 0) + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('आवेदनहरू', 'Applications'); ?></span>
@@ -551,8 +561,15 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='kyc' ? 'active' : ''; ?>">
                                 <a href="kyc-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i></span>
-                                    <span><?php echo $adminT('केवाइएम आवेदन', 'KYM Applications'); ?></span>
+                                    <span><?php echo $adminT('केवाइएम (कागजात)', 'KYM (documents)'); ?></span>
                                     <?php if ($adminAlertCounts['kyc'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['kyc']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='membership-apps' ? 'active' : ''; ?>">
+                                <a href="membership-applications.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round-plus"></i></span>
+                                    <span><?php echo $adminT('सदस्यता अनुरोध', 'Membership Requests'); ?></span>
+                                    <?php if (($adminAlertCounts['membership'] ?? 0) > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['membership']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='kyc-risk-reviews' ? 'active' : ''; ?>">
@@ -750,7 +767,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='members' ? 'active' : ''; ?>">
                                 <a href="members.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
-                                    <span><?php echo $adminT('सदस्य पोर्टल', 'Member Portal'); ?></span>
+                                    <span><?php echo $adminT('सदस्य सूची (Member ID)', 'Members (Member ID)'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
@@ -768,12 +785,12 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
-                    <!-- ── Member Online Portal ── -->
+                    <!-- ── Portal login unlock (same Member ID) ── -->
                     <li class="nav-group-wrap">
                         <?php $memPortalBadgeTotal = $memPortalBadge ?? 0; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='memportal' ? 'open' : ''; ?>" data-group="memportal">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="globe"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('सदस्य अनलाइन पोर्टल', 'Member Online Portal'); ?></span>
+                            <span class="nav-group-label"><?php echo $adminT('पोर्टल लगइन unlock', 'Portal login unlock'); ?></span>
                             <?php if ($memPortalBadgeTotal > 0): ?><span class="group-badge"><?php echo $memPortalBadgeTotal; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
                         </div>
@@ -1010,6 +1027,7 @@ set_exception_handler(function (\Throwable $ex) {
                     $notifItems = [
                         ['label'=>$adminT('अपठित सन्देश', 'Unread Messages'),     'count'=>$unreadMessages,                        'href'=>'messages.php',                       'icon'=>'fa-envelope',            'tone'=>'red'],
                         ['label'=>$adminT('केवाइएम आवेदन', 'KYM Applications'),        'count'=>$adminAlertCounts['kyc'],               'href'=>'kyc-applications.php?status=pending', 'icon'=>'fa-id-card',             'tone'=>'orange'],
+                        ['label'=>$adminT('सदस्यता अनुरोध', 'Membership Requests'), 'count'=>$adminAlertCounts['membership'] ?? 0, 'href'=>'membership-applications.php?status=pending', 'icon'=>'fa-user-plus', 'tone'=>'teal'],
                         ['label'=>$adminT('KYC जोखिम समीक्षा', 'KYC Risk Review'), 'count'=>$adminAlertCounts['kyc_risk'],        'href'=>'kyc-risk-reviews.php',                'icon'=>'fa-shield-halved',       'tone'=>'amber'],
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],

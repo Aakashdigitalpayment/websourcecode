@@ -590,11 +590,27 @@ if (!function_exists('_memberImportImportChunk')) {
                 $existing = null;
                 $findBySid->execute([$sid]);
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
+
+                /* Phone/email collisions on a *different* Member ID must not hijack SSOT row */
                 if (!$existing) {
                     $findByPhone->execute([$mobile]);
                     $byPhone = $findByPhone->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($byPhone) {
-                        $existing = $byPhone;
+                        $otherSid = trim((string)($byPhone['sadasyata_number'] ?? ''));
+                        if ($otherSid !== '' && $otherSid !== $sid) {
+                            $mark->execute([
+                                'failed',
+                                'यो mobile अर्को सदस्यता नं. (' . $otherSid . ') सँग जोडिएको छ।',
+                                (int)$byPhone['id'],
+                                $rowId,
+                            ]);
+                            $failAdd++;
+                            continue;
+                        }
+                        /* Same empty/other edge: treat as existing only if sadasyata empty on that row */
+                        if ($otherSid === '' || $otherSid === $sid) {
+                            $existing = $byPhone;
+                        }
                     }
                 }
 
@@ -627,7 +643,18 @@ if (!function_exists('_memberImportImportChunk')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
                         }
                         if ($cardOk) $cardsAdd++;
-                        $mark->execute(['ok', 'Updated existing member' . ($cardOk ? ' + card' : ''), $memberPk, $rowId]);
+                        $kymLinked = false;
+                        if (function_exists('memberSsotAttachKycToMemberBySadasyata')) {
+                            $kymLinked = memberSsotAttachKycToMemberBySadasyata($pdo, $memberPk, $sid);
+                        }
+                        $mark->execute([
+                            'ok',
+                            'Updated existing member'
+                                . ($cardOk ? ' + card' : '')
+                                . ($kymLinked ? ' + KYM linked' : ''),
+                            $memberPk,
+                            $rowId,
+                        ]);
                         $okAdd++;
                     } else {
                         $mark->execute(['skipped', 'Duplicate (sadasyata/mobile already exists)', $memberPk, $rowId]);
@@ -693,9 +720,16 @@ if (!function_exists('_memberImportImportChunk')) {
                 }
                 if ($cardOk) $cardsAdd++;
 
+                $kymLinked = false;
+                if ($memberPk > 0 && function_exists('memberSsotAttachKycToMemberBySadasyata')) {
+                    $kymLinked = memberSsotAttachKycToMemberBySadasyata($pdo, $memberPk, $sid);
+                }
+
                 $mark->execute([
                     'ok',
-                    'Imported' . ($cardOk ? ' + card generated' : ' (card pending)'),
+                    'Imported'
+                        . ($cardOk ? ' + card generated' : ' (card pending)')
+                        . ($kymLinked ? ' + KYM linked' : ''),
                     $memberPk > 0 ? $memberPk : null,
                     $rowId,
                 ]);

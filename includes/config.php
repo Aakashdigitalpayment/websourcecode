@@ -29,6 +29,10 @@ if (!defined('ENVIRONMENT')) {
 require_once __DIR__ . '/compatibility.php';
 /* Cooperative UI terminology (KYM, सेवा कार्यालय) — labels only */
 require_once __DIR__ . '/coop-terms.php';
+/* Member ID SSOT helpers */
+require_once __DIR__ . '/member-ssot.php';
+/* Public “सदस्य बन्नुस्” → admin assigns Member ID */
+require_once __DIR__ . '/membership-applications.php';
 /* Safe SQL helpers (sqCount / core_safe_count) — admin pages that skip core/init still need these */
 require_once __DIR__ . '/safe-query.php';
 
@@ -914,8 +918,8 @@ function getLoggedInMemberProfile(): ?array {
     if (empty($_SESSION['member_id'])) return null;
     try {
         $db = getDB();
-        $st = $db->prepare("SELECT id, name, email, phone, sadasyata_number, member_card_no FROM members
-                            WHERE id = ? AND is_active = 1 LIMIT 1");
+        $st = $db->prepare("SELECT id, name, email, phone, sadasyata_number, member_card_no, kyc_application_id
+                            FROM members WHERE id = ? AND is_active = 1 LIMIT 1");
         $st->execute([(int)$_SESSION['member_id']]);
         $m = $st->fetch(PDO::FETCH_ASSOC);
         return $m ?: null;

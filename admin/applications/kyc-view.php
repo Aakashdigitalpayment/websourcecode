@@ -111,11 +111,14 @@ $lbl = ['pending'=>'पेन्डिङ','approved'=>'स्वीकृत','
           <i class="fas fa-times-circle"></i> अस्वीकृत गर्नुहोस्
         </button>
         <?php endif; ?>
-        <?php if ($s === 'approved' && empty($app['member_id_generated'])): ?>
-        <button type="button" onclick="generateMember(<?php echo $id; ?>, this)"
-                class="admin-btn" style="background:var(--brand-primary,#1a5f2a);color:#fff;">
-          <i class="fas fa-user-plus"></i> सदस्य ID Generate
-        </button>
+        <?php if ($s === 'approved'): ?>
+        <a href="/admin/kyc-applications.php?view=<?php echo (int)$id; ?>"
+           class="admin-btn" style="background:var(--brand-primary,#1a5f2a);color:#fff;text-align:center;">
+          <i class="fas fa-link"></i> सदस्य खाता लिंक (SSOT)
+        </a>
+        <p style="font-size:12px;color:#6b7280;margin:8px 0 0;">
+          पुरानो BBWW Generate हटाइएको छ। Approve गर्दा Member ID बाट सदस्य stub/लिंक बन्छ।
+        </p>
         <?php endif; ?>
       </div>
     </form>
@@ -123,9 +126,9 @@ $lbl = ['pending'=>'पेन्डिङ','approved'=>'स्वीकृत','
   <?php else: ?>
   <div class="admin-card">
     <div style="text-align:center;padding:24px 12px;">
-      <i class="fas fa-user-check" style="font-size:2.5rem;color:#16a34a;margin-bottom:12px;display:block;"></i>
-      <p style="font-weight:600;color:#15803d;margin:0;">सदस्य बनाइसकिएको छ</p>
-      <p style="color:#6b7280;font-size:13px;margin:8px 0 0;"><?php echo htmlspecialchars($app['member_id_generated']); ?></p>
+      <i class="fas fa-info-circle" style="font-size:2.5rem;color:#6b7280;margin-bottom:12px;display:block;"></i>
+      <p style="font-weight:600;margin:0;">Legacy Generate निष्क्रिय</p>
+      <p style="color:#6b7280;font-size:13px;margin:8px 0 0;">Member ID SSOT: <code><?php echo htmlspecialchars((string)($app['member_id'] ?? '')); ?></code></p>
     </div>
   </div>
   <?php endif; ?>
@@ -162,25 +165,5 @@ if ($docs):
   </div>
 </div>
 <?php endif; ?>
-
-<script>
-const CSRF = <?php echo json_encode($csrf); ?>;
-async function generateMember(kycId, btn) {
-  if (!confirm('यो KYM बाट सदस्य खाता बनाउने?')) return;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-  try {
-    const fd = new FormData(); fd.append('kyc_id', kycId); fd.append('_csrf', CSRF);
-    const res = await fetch('../applications/kyc-generate-member.php', { method:'POST', body:fd });
-    const data = await res.json();
-    if (data.ok) {
-      alert('✅ सफल!
-Member ID: ' + data.member_id + '
-Password: ' + data.password);
-      location.reload();
-    } else { alert('❌ ' + (data.message || 'Error')); btn.disabled = false; }
-  } catch(e) { alert('Network error'); btn.disabled = false; }
-}
-</script>
 
 <?php include __DIR__ . '/../_partials/footer.php'; ?>

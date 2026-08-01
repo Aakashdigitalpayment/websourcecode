@@ -81,6 +81,12 @@ if (!function_exists('verifyPublicFormKycTriple')) {
 if (!function_exists('loadKycRowForLoggedMemberPublic')) {
     function loadKycRowForLoggedMemberPublic($db, $loggedMember)
     {
+        if (!is_array($loggedMember)) {
+            return null;
+        }
+        if (function_exists('memberSsotLoadLinkedKyc') && $db instanceof PDO) {
+            return memberSsotLoadLinkedKyc($db, $loggedMember);
+        }
         $mid = (int)(isset($loggedMember['id']) ? $loggedMember['id'] : 0);
         if ($mid < 1) return null;
 

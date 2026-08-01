@@ -22,35 +22,15 @@ $memberPortalId = (int)$mem['id'];
 $memEmail = trim((string)($mem['email'] ?? ''));
 $memPhone = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
 $memName = trim((string)($mem['name'] ?? ''));
-$memSadasyata = trim((string)($mem['sadasyata_number'] ?? $mem['sadasyata_no'] ?? $mem['member_id'] ?? ''));
+require __DIR__ . '/../includes/member-portal-identity.php';
 
-$kycRow = null;
-try {
-    $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycLinkId > 0) {
-        $ks = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
-        $ks->execute([$kycLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-} catch (Throwable $e) {
+$rPhone = $memPhone ?: preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? ''));
+$rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
+if ($rPhone !== '') {
+    $memPhone = $rPhone;
 }
-if ($kycRow) {
-    $fn = trim((string)($kycRow['full_name'] ?? ''));
-    if ($fn !== '') {
-        $memName = $fn;
-    }
-    $mid = trim((string)($kycRow['member_id'] ?? ''));
-    if ($mid !== '') {
-        $memSadasyata = $mid;
-    }
-    $ph = preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? ''));
-    if ($ph !== '') {
-        $memPhone = $ph;
-    }
-    $em = strtolower(trim((string)($kycRow['email'] ?? '')));
-    if ($em !== '') {
-        $memEmail = $em;
-    }
+if ($rEmail !== '') {
+    $memEmail = $rEmail;
 }
 
 ensureHonorTables($db);

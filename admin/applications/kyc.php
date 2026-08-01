@@ -60,12 +60,14 @@ include __DIR__ . '/../_partials/header.php';
 <div class="admin-card" style="margin-bottom:12px;border-left:3px solid var(--primary,#1a5f2a);">
   <p style="margin:0 0 8px;font-size:.9rem;">
     <strong>पूर्ण केवाइएम व्यवस्थापन</strong> मुख्य Admin मा छ (फिल्टर, विवरण, approve/reject)।
-    यो पृष्ठ छोटो सूची + सदस्य बनाउने shortcut हो।
+    यो पृष्ठ छोटो सूची हो। Member ID SSOT: approve गर्दा सदस्य खाता लिंक/stub बन्छ — पुरानो BBWW Generate बाटो हटाइएको छ।
   </p>
   <a href="/admin/kyc-applications.php" class="admin-btn admin-btn-primary">
     <i class="fas fa-external-link-alt"></i> पूर्ण केवाइएम व्यवस्थापन खोल्नुहोस्
   </a>
 </div>
+
+<?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('kyc'); } ?>
 
 <?php
   $statCards = [
@@ -133,15 +135,10 @@ include __DIR__ . '/../_partials/header.php';
             <a href="kyc-view.php?id=<?= (int)$r['id'] ?>" class="admin-btn admin-btn-secondary admin-btn-sm">
               <i class="fas fa-eye"></i> हेर्नुहोस्
             </a>
-            <?php if ($r['status'] === 'approved' && empty($r['member_id_generated'])): ?>
-              <button onclick="generateMember(<?= (int)$r['id'] ?>, this)"
-                      class="admin-btn admin-btn-primary admin-btn-sm">
-                <i class="fas fa-user-plus"></i> सदस्य बनाउनुहोस्
-              </button>
-            <?php elseif (!empty($r['member_id_generated'])): ?>
-              <span class="admin-badge admin-badge-success">
-                <i class="fas fa-check-circle"></i> <?= htmlspecialchars($r['member_id_generated']) ?>
-              </span>
+            <?php if ($r['status'] === 'approved'): ?>
+              <a href="/admin/kyc-applications.php?view=<?= (int)$r['id'] ?>" class="admin-btn admin-btn-primary admin-btn-sm">
+                <i class="fas fa-link"></i> सदस्य लिंक / Approve
+              </a>
             <?php endif; ?>
           </td>
         </tr>
@@ -152,39 +149,6 @@ include __DIR__ . '/../_partials/header.php';
   <?php endif; ?>
 </div>
 
-<script>
-const CSRF = <?= json_encode($csrf) ?>;
-
-async function generateMember(kycId, btn) {
-  if (!confirm('यो KYM बाट सदस्य खाता auto-generate गर्नुहुन्छ?\n\n• Member ID, Password auto बन्छ\n• ID Card create हुन्छ\n• SMS र Email मा credentials पठाइन्छ')) return;
-
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-
-  try {
-    const fd = new FormData();
-    fd.append('kyc_id', kycId);
-    fd.append('_csrf', CSRF);
-    const res = await fetch('kyc-generate-member.php', { method: 'POST', body: fd });
-    const data = await res.json();
-
-    if (data.ok) {
-      alert('✅ सफल!\n\nMember ID: ' + data.member_id +
-            '\nPassword: ' + data.password +
-            '\nID Card: ' + (data.card_no || '-') +
-            '\n\n' + data.message +
-            '\n\n⚠ Password अहिले नै note गर्नुहोस् — फेरि देखिँदैन।');
-      location.reload();
-    } else {
-      alert('❌ ' + (data.message || 'Unknown error'));
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-user-plus"></i> सदस्य बनाउनुहोस्';
-    }
-  } catch (e) {
-    alert('Network error: ' + e.message);
-    btn.disabled = false;
-  }
-}
-</script>
+</div>
 
 <?php include __DIR__ . '/../_partials/footer.php'; ?>

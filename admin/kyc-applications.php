@@ -372,6 +372,10 @@ if (isset($_POST['import_kyc_csv'])) {
         }
         try {
             $ins->execute($values);
+            $newKycId = (int)$db->lastInsertId();
+            if ($newKycId > 0 && $memberId !== '' && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId);
+            }
             $ok++;
         } catch (Throwable $e) {
             $skip++;
@@ -382,32 +386,85 @@ if (isset($_POST['import_kyc_csv'])) {
     redirect('kyc-applications.php');
 }
 
-/* ── Helper: KYM approve भएमा ID card auto-generate गर्ने ── */
-function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail, string $kycMobile): void {
+/* ── Helper: KYM approve भएमा ID card auto-generate — Member ID SSOT बाट मात्र ── */
+function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail = '', string $kycMobile = ''): void {
     try {
-        /* member_auth.php include भएको अपेक्षा */
         if (!function_exists('adminGenerateMemberIdCard')) return;
-        /* want_id_card = 1 छ कि छैन */
-        $row = $db->prepare("SELECT want_id_card FROM kyc_applications WHERE id=?");
+        $row = $db->prepare('SELECT want_id_card, member_id FROM kyc_applications WHERE id=?');
         $row->execute([$kycId]);
         $kyc = $row->fetch(PDO::FETCH_ASSOC);
         if (!$kyc || empty($kyc['want_id_card'])) return;
-        /* Email वा Mobile बाट member खोज्ने */
+
         $mem = null;
-        if ($kycEmail) {
-            $ms = $db->prepare("SELECT id FROM members WHERE email=? AND is_active=1 LIMIT 1");
+        $sid = trim((string)($kyc['member_id'] ?? ''));
+        if ($sid !== '' && function_exists('memberSsotFindBySadasyata')) {
+            $found = memberSsotFindBySadasyata($db, $sid);
+            if ($found) {
+                $mem = $found;
+            }
+        }
+        if (!$mem && $sid !== '') {
+            $ms = $db->prepare('SELECT id FROM members WHERE sadasyata_number=? LIMIT 1');
+            $ms->execute([$sid]);
+            $mem = $ms->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+        /* Legacy fallback only if Member ID missing — still prefer exact contact on same empty sid */
+        if (!$mem && $kycEmail) {
+            $ms = $db->prepare('SELECT id FROM members WHERE email=? AND is_active=1 LIMIT 1');
             $ms->execute([strtolower(trim($kycEmail))]);
-            $mem = $ms->fetch(PDO::FETCH_ASSOC);
+            $mem = $ms->fetch(PDO::FETCH_ASSOC) ?: null;
         }
         if (!$mem && $kycMobile) {
-            $ms = $db->prepare("SELECT id FROM members WHERE phone=? AND is_active=1 LIMIT 1");
+            $ms = $db->prepare('SELECT id FROM members WHERE phone=? AND is_active=1 LIMIT 1');
             $ms->execute([preg_replace('/[^0-9]/', '', $kycMobile)]);
-            $mem = $ms->fetch(PDO::FETCH_ASSOC);
+            $mem = $ms->fetch(PDO::FETCH_ASSOC) ?: null;
         }
         if ($mem) {
             adminGenerateMemberIdCard((int)$mem['id']);
         }
     } catch (\Throwable $e) { /* Silent — ID card नबने पनि approval block नहोस् */ }
+}
+
+/* ─── Create / link member stub from KYM (SSOT) ─── */
+if (isset($_POST['ssot_create_member'])) {
+    checkCSRF();
+    require_role('admin');
+    $kycId = (int)($_POST['kyc_id'] ?? 0);
+    $backQs = http_build_query(array_filter([
+        'status' => (string)($_GET['status'] ?? $_POST['back_status'] ?? ''),
+        'link'   => (string)($_GET['link'] ?? $_POST['back_link'] ?? ''),
+        'search' => (string)($_GET['search'] ?? $_POST['back_search'] ?? ''),
+        'page'   => (string)($_GET['page'] ?? $_POST['back_page'] ?? ''),
+        'view'   => $kycId > 0 ? (string)$kycId : '',
+    ], static fn($v) => $v !== null && $v !== ''));
+    if ($kycId < 1) {
+        setFlash('error', 'अवैध KYM id।');
+        redirect('kyc-applications.php?' . $backQs);
+    }
+    try {
+        $st = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
+        $st->execute([$kycId]);
+        $kycRow = $st->fetch(PDO::FETCH_ASSOC);
+        if (!$kycRow) {
+            setFlash('error', 'केवाइएम आवेदन फेला परेन।');
+        } elseif (function_exists('memberSsotUpsertMemberFromKyc')) {
+            $r = memberSsotUpsertMemberFromKyc($db, $kycRow, (int)($_SESSION['admin_id'] ?? 0));
+            if (!empty($r['ok'])) {
+                $msg = !empty($r['created'])
+                    ? 'सदस्य stub बनाइयो (Member ID SSOT)। पोर्टल पासवर्ड सेट/approve गर्नुहोस्।'
+                    : 'अवस्थित सदस्य खातासँग KYM लिंक भयो।';
+                setFlash('success', $msg);
+            } else {
+                setFlash('error', $r['message'] ?? 'सदस्य बनाउन सकिएन।');
+            }
+        } else {
+            setFlash('error', 'SSOT helper उपलब्ध छैन।');
+        }
+    } catch (Throwable $e) {
+        error_log('[kyc ssot_create_member] ' . $e->getMessage());
+        setFlash('error', 'त्रुटि: सदस्य लिंक असफल।');
+    }
+    redirect('kyc-applications.php?' . $backQs);
 }
 
 /* ─── Status Update ─── */
@@ -505,8 +562,19 @@ if (isset($_POST['update_status'])) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                     $notifyOutcome['sms']   = $r['sms']   ?? $notifyOutcome['sms'];
                 }
-                /* KYM approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved → SSOT: upsert/link members by Member ID, then ID card if wanted */
                 if ($status === 'approved') {
+                    try {
+                        $fullKyc = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
+                        $fullKyc->execute([$id]);
+                        $kycRowFull = $fullKyc->fetch(PDO::FETCH_ASSOC) ?: ($nData ?: []);
+                        $kycRowFull['id'] = $id;
+                        if (function_exists('memberSsotUpsertMemberFromKyc')) {
+                            memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
+                        }
+                    } catch (Throwable $e) {
+                        error_log('[kyc-approve ssot] ' . $e->getMessage());
+                    }
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
                         $nData['mobile'] ?? '');
@@ -573,8 +641,19 @@ if (isset($_POST['quick_status'])) {
             if ($nd) {
                 sendMemberStatusUpdate('kyc', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??'');
                 $notifySent = true;
-                /* KYM approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved → SSOT link/create member stub, then ID card */
                 if ($qst === 'approved') {
+                    try {
+                        $fullKyc = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
+                        $fullKyc->execute([$qid]);
+                        $kycRowFull = $fullKyc->fetch(PDO::FETCH_ASSOC) ?: ($nd ?: []);
+                        $kycRowFull['id'] = $qid;
+                        if (function_exists('memberSsotUpsertMemberFromKyc')) {
+                            memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
+                        }
+                    } catch (Throwable $e) {
+                        error_log('[kyc-quick-approve ssot] ' . $e->getMessage());
+                    }
                     kycAutoGenerateIdCard($db, $qid, $nd['email'] ?? '', $nd['mobile'] ?? '');
                 }
             }
@@ -624,6 +703,15 @@ if ($dateFrom !== '' && $dateTo !== '' && $dateFrom > $dateTo) {
 
 $where   = "1=1"; $params2 = [];
 if ($status_filter) { $where .= " AND status = ?"; $params2[] = $status_filter; }
+$link_filter = trim((string)($_GET['link'] ?? ''));
+if (!in_array($link_filter, ['', 'linked', 'kym_only', 'no_password', 'unlinked_member'], true)) {
+    $link_filter = '';
+}
+if ($link_filter !== '' && function_exists('memberSsotKycLinkFilterSql')) {
+    [$linkSql, $linkParams] = memberSsotKycLinkFilterSql($link_filter);
+    $where .= $linkSql;
+    $params2 = array_merge($params2, $linkParams);
+}
 if ($search !== '') {
     $where .= " AND (member_id LIKE ? OR full_name LIKE ? OR full_name_en LIKE ? OR mobile LIKE ? OR citizenship_no LIKE ? OR national_id_number LIKE ? OR tracking_id LIKE ?)";
     $t = "%$search%"; $params2 = array_merge($params2, [$t,$t,$t,$t,$t,$t,$t]);
@@ -732,6 +820,10 @@ if ($viewApp) {
 }
 
 $flash = getFlash(); if ($flash) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']);
+
+if (function_exists('memberSsotAdminHelpHtml')) {
+    echo memberSsotAdminHelpHtml('kyc');
+}
 
 /* ═══════════════════════════════════
    SINGLE DETAIL VIEW
@@ -1189,6 +1281,38 @@ if ($viewApp):
 
             <!-- ── RIGHT: Status Update Form ── -->
             <div class="col-lg-5">
+                <?php
+                $viewSsot = function_exists('memberSsotStatusForKycRow') ? memberSsotStatusForKycRow($db, $viewApp) : 'unknown';
+                $viewMid = trim((string)($viewApp['member_id'] ?? ''));
+                ?>
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-white py-2 fw-bold small text-success">
+                        <i class="fas fa-link me-1"></i>Member ID SSOT
+                    </div>
+                    <div class="card-body py-3">
+                        <div class="mb-2"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($viewSsot) : '—'; ?></div>
+                        <div class="small text-muted mb-2">Approve KYM ≠ portal लगइन। Stub/पासवर्ड + Portal approve चाहिन्छ।</div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <?php if ($viewMid !== '' && $viewSsot === 'kym_only'): ?>
+                            <form method="POST" onsubmit="return confirm('सदस्य stub बनाउने / लिंक गर्ने?');">
+                                <?php echo csrfField(); ?>
+                                <input type="hidden" name="ssot_create_member" value="1">
+                                <input type="hidden" name="kyc_id" value="<?php echo (int)$viewApp['id']; ?>">
+                                <button type="submit" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-user-plus me-1"></i>Create / Link Member
+                                </button>
+                            </form>
+                            <?php elseif ($viewMid !== ''): ?>
+                            <a href="members.php?search=<?php echo urlencode($viewMid); ?>" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-user-tag me-1"></i>Open Member
+                            </a>
+                            <a href="member-online-portal.php?search=<?php echo urlencode($viewMid); ?>" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-globe me-1"></i>Portal
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
                 <div class="card border-0 shadow-sm">
                     <div class="card-header gradient-card-header py-2">
                         <i class="fas fa-edit me-2"></i>स्थिति अपडेट / KYC Document
@@ -1343,6 +1467,10 @@ if ($viewApp):
                 <i class="fas fa-download me-1"></i>Sample Format डाउनलोड
             </a>
         </div>
+        <p class="small text-muted mb-2 mb-md-0">
+            कागजात/KYM मात्र — Member ID ले पहिले नै <a href="members.php">Members</a> मा भएको भए स्वतः लिंक हुन्छ।
+            Ledger (सदस्यता सूची) का लागि <a href="member-import.php">Members Bulk Import</a> प्रयोग गर्नुहोस्।
+        </p>
         <form method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
             <?php echo csrfField(); ?>
             <input type="hidden" name="import_kyc_csv" value="1">
@@ -1363,6 +1491,7 @@ if ($viewApp):
 <?php
 $kycFilterQs = array_filter([
     'status'    => $status_filter,
+    'link'      => $link_filter,
     'search'    => $search,
     'date_from' => $dateFrom,
     'date_to'   => $dateTo,
@@ -1383,6 +1512,16 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </select>
         </div>
         <div class="col-md-2 col-6">
+            <label>लिंक स्थिति</label>
+            <select name="link" class="form-select form-select-sm">
+                <option value="">सबै लिंक</option>
+                <option value="linked" <?php echo $link_filter==='linked'?'selected':''; ?>>लिंक (KYM+सदस्य+पासवर्ड)</option>
+                <option value="no_password" <?php echo $link_filter==='no_password'?'selected':''; ?>>सदस्य stub (पासवर्ड छैन)</option>
+                <option value="kym_only" <?php echo $link_filter==='kym_only'?'selected':''; ?>>KYM मात्र</option>
+                <option value="unlinked_member" <?php echo $link_filter==='unlinked_member'?'selected':''; ?>>सदस्य छ, KYM अनलिंक</option>
+            </select>
+        </div>
+        <div class="col-md-2 col-6">
             <label>मिति देखि</label>
             <input type="date" name="date_from" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
@@ -1392,18 +1531,18 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             <input type="date" name="date_to" class="form-control form-control-sm"
                    value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
         </div>
-        <div class="col-md-4 col-12">
+        <div class="col-md-3 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="Member ID, नाम, मोबाइल, नागरिकता नं., Tracking ID...">
-                <?php if ($search || $dateFrom || $dateTo): ?>
+                <?php if ($search || $dateFrom || $dateTo || $link_filter): ?>
                 <a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm" title="Clear"><i class="fas fa-times"></i></a>
                 <?php endif; ?>
             </div>
         </div>
-        <div class="col-md-2 col-6">
+        <div class="col-md-1 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
         </div>
     </form>
@@ -1430,6 +1569,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                 <tr>
                     <th class="acc-col-applicant">आवेदक</th>
                     <th>Member ID</th>
+                    <th>लिंक स्थिति</th>
                     <th>सम्पर्क</th>
                     <th>नागरिकता</th>
                     <th>खाता / सेवा कार्यालय</th>
@@ -1441,10 +1581,16 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </thead>
             <tbody>
             <?php if (empty($applications)): ?>
-            <tr class="no-results-row"><td colspan="9"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
-            <?php else: foreach ($applications as $app):
+            <tr class="no-results-row"><td colspan="10"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
+            <?php else:
+                $ssotMap = function_exists('memberSsotBatchStatusForKycRows')
+                    ? memberSsotBatchStatusForKycRows($db, $applications)
+                    : [];
+                foreach ($applications as $app):
                 $trackId = $app['tracking_id'] ?: 'KYC-' . str_pad($app['id'], 6, '0', STR_PAD_LEFT);
                 $initLetter = mb_strtoupper(mb_substr($app['full_name'] ?? 'K', 0, 1));
+                $ssotCode = $ssotMap[(int)$app['id']]
+                    ?? (function_exists('memberSsotStatusForKycRow') ? memberSsotStatusForKycRow($db, $app) : 'unknown');
             ?>
             <tr data-status="<?php echo htmlspecialchars($app['status']); ?>">
                 <td data-label="आवेदक">
@@ -1461,6 +1607,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                     </div>
                 </td>
                 <td data-label="Member ID"><code class="cell-sub"><?php echo htmlspecialchars($app['member_id'] ?? '—'); ?></code></td>
+                <td data-label="लिंक"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                 <td data-label="सम्पर्क">
                     <div class="cell-main"><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($app['mobile']); ?></div>
                     <?php if ($app['email']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['email']); ?></div><?php endif; ?>
@@ -1476,6 +1623,29 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                 <td class="no-print" data-label="कार्यहरू">
                     <div class="adm-action-icons">
                         <a href="kyc-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <?php
+                        $midSsot = trim((string)($app['member_id'] ?? ''));
+                        if ($midSsot !== '' && $ssotCode === 'kym_only'):
+                        ?>
+                        <form method="POST" class="d-inline" onsubmit="return confirm('यो Member ID बाट सदस्य stub बनाउने / लिंक गर्ने?');">
+                            <?php echo csrfField(); ?>
+                            <input type="hidden" name="ssot_create_member" value="1">
+                            <input type="hidden" name="kyc_id" value="<?php echo (int)$app['id']; ?>">
+                            <input type="hidden" name="back_status" value="<?php echo htmlspecialchars($status_filter, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="back_link" value="<?php echo htmlspecialchars($link_filter, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="hidden" name="back_search" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>">
+                            <button type="submit" class="adm-icon-btn" title="Create Member (SSOT)" aria-label="Create Member" style="color:#b45309;border:0;background:transparent;cursor:pointer;">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </form>
+                        <?php elseif ($midSsot !== ''): ?>
+                        <a href="members.php?search=<?php echo urlencode($midSsot); ?>"
+                           class="adm-icon-btn" title="Open Member (SSOT)"
+                           aria-label="Open Member" style="color:#0f766e;"><i class="fas fa-user-tag"></i></a>
+                        <a href="member-online-portal.php?search=<?php echo urlencode($midSsot); ?>"
+                           class="adm-icon-btn" title="Portal unlock"
+                           aria-label="Portal" style="color:#1d4ed8;"><i class="fas fa-globe"></i></a>
+                        <?php endif; ?>
                         <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>"
                            class="adm-icon-btn" title="Excel डाउनलोड" aria-label="Excel"
                            style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
