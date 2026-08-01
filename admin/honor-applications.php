@@ -2,9 +2,13 @@
 /**
  * Admin — सम्मान आवेदन व्यवस्थापन
  */
+if (!ob_get_level()) {
+    ob_start();
+}
 $pageTitle = 'सम्मान आवेदन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/honor-tables.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 
@@ -106,54 +110,72 @@ if (!in_array($action, ['list', 'view'], true)) {
 }
 $id = (int)($_GET['id'] ?? 0);
 
-/* CSV export */
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $programId = (int)($_GET['program_id'] ?? 0);
-    $status = clean_text($_GET['status'] ?? '', 40);
+$filterProgram = (int)($_GET['program_id'] ?? 0);
+$filterCategory = (int)($_GET['category_id'] ?? 0);
+$filterStatus = clean_text($_GET['status'] ?? '', 40);
+$search = clean_text($_GET['search'] ?? '', 120);
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
     $where = ['1=1'];
     $params = [];
-    if ($programId > 0) {
-        $where[] = 'a.program_id = ?';
-        $params[] = $programId;
-    }
-    if ($status !== '' && in_array($status, $statusOptions, true)) {
-        $where[] = 'a.status = ?';
-        $params[] = $status;
+    if ($exportId > 0) {
+        $where[] = 'a.id = ?';
+        $params[] = $exportId;
+    } else {
+        if ($filterProgram > 0) {
+            $where[] = 'a.program_id = ?';
+            $params[] = $filterProgram;
+        }
+        if ($filterCategory > 0) {
+            $where[] = 'a.category_id = ?';
+            $params[] = $filterCategory;
+        }
+        if ($filterStatus !== '' && in_array($filterStatus, $statusOptions, true)) {
+            $where[] = 'a.status = ?';
+            $params[] = $filterStatus;
+        }
+        if ($search !== '') {
+            $where[] = '(a.tracking_id LIKE ? OR a.applicant_name LIKE ? OR a.phone LIKE ? OR a.member_id LIKE ? OR a.nominee_name LIKE ?)';
+            $like = '%' . $search . '%';
+            array_push($params, $like, $like, $like, $like, $like);
+        }
+        $honDateWhere = implode(' AND ', $where);
+        adminExcelAppendDateWhere($honDateWhere, $params, $dateFrom, $dateTo, 'a.created_at');
+        $where = [$honDateWhere];
     }
     $sql = 'SELECT a.*, p.title_np AS program_title, c.name_np AS category_name
             FROM honor_applications a
             LEFT JOIN honor_programs p ON p.id = a.program_id
             LEFT JOIN honor_categories c ON c.id = a.category_id
-            WHERE ' . implode(' AND ', $where) . '
-            ORDER BY a.created_at DESC';
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="honor-applications-' . date('Ymd-His') . '.csv"');
-    echo "\xEF\xBB\xBF";
-    $out = fopen('php://output', 'w');
-    fputcsv($out, ['tracking_id', 'program', 'category', 'applicant_name', 'phone', 'email', 'is_member', 'member_id', 'nominee_name', 'nominee_relation', 'exam_year', 'institution', 'business_note', 'status', 'created_at']);
-    foreach ($rows as $r) {
-        fputcsv($out, [
-            $r['tracking_id'], $r['program_title'], $r['category_name'], $r['applicant_name'],
-            $r['phone'], $r['email'], $r['is_member'] ? 'yes' : 'no', $r['member_id'],
-            $r['nominee_name'], $r['nominee_relation'], $r['exam_year'], $r['institution'],
-            $r['business_note'], $r['status'], $r['created_at'],
-        ]);
+            WHERE ' . ($exportId > 0 ? 'a.id = ?' : $where[0]) . '
+            ORDER BY a.created_at DESC' . ($exportId > 0 ? '' : ' LIMIT 10000');
+    try {
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        $exportRows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $fname = $exportId > 0
+            ? adminExcelFilename('honor-' . $exportId)
+            : adminExcelFilename('honor-applications', $dateFrom, $dateTo);
+    } catch (Throwable $e) {
+        error_log('[honor-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('honor-applications');
     }
-    fclose($out);
-    exit;
+    $cols = [
+        'Tracking ID' => 'tracking_id', 'Program' => 'program_title', 'Category' => 'category_name',
+        'Applicant Name' => 'applicant_name', 'Phone' => 'phone', 'Email' => 'email',
+        'Is Member' => static fn(array $r) => !empty($r['is_member']) ? 'yes' : 'no',
+        'Member ID' => 'member_id', 'Nominee Name' => 'nominee_name', 'Nominee Relation' => 'nominee_relation',
+        'Exam Year' => 'exam_year', 'Institution' => 'institution', 'Business Note' => 'business_note',
+        'Status' => 'status', 'Created At' => 'created_at',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
 
 $programs = $db->query('SELECT id, title_np, title_en FROM honor_programs ORDER BY id DESC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 $categories = $db->query('SELECT id, name_np, name_en FROM honor_categories WHERE is_active=1 ORDER BY display_order')->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-$filterProgram = (int)($_GET['program_id'] ?? 0);
-$filterCategory = (int)($_GET['category_id'] ?? 0);
-$filterStatus = clean_text($_GET['status'] ?? '', 40);
-$search = clean_text($_GET['search'] ?? '', 120);
 
 ?>
 
@@ -190,6 +212,7 @@ try {
         <h5 class="mb-0"><i class="fas fa-award me-2"></i><?php echo e($app['tracking_id']); ?></h5>
         <div class="d-flex gap-2">
             <a href="honor-applications.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
+            <?php echo adminExcelSingleLink('honor-applications.php', (int)$app['id']); ?>
             <a href="print-form.php?type=honor&id=<?php echo (int)$app['id']; ?>" target="_blank" class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print</a>
         </div>
     </div>
@@ -309,15 +332,25 @@ if ($search !== '') {
     $like = '%' . $search . '%';
     array_push($params, $like, $like, $like, $like, $like);
 }
+$honListWhere = implode(' AND ', $where);
+adminExcelAppendDateWhere($honListWhere, $params, $dateFrom, $dateTo, 'a.created_at');
 $sql = 'SELECT a.*, p.title_np AS program_title, c.name_np AS category_name
         FROM honor_applications a
         LEFT JOIN honor_programs p ON p.id = a.program_id
         LEFT JOIN honor_categories c ON c.id = a.category_id
-        WHERE ' . implode(' AND ', $where) . '
+        WHERE ' . $honListWhere . '
         ORDER BY a.created_at DESC LIMIT 500';
 $stmt = $db->prepare($sql);
 $stmt->execute($params);
 $apps = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+$honFilteredTotal = count($apps);
+try {
+    $cntSql = 'SELECT COUNT(*) FROM honor_applications a WHERE ' . $honListWhere;
+    $cntSt = $db->prepare($cntSql);
+    $cntSt->execute($params);
+    $honFilteredTotal = (int)$cntSt->fetchColumn();
+} catch (Throwable $e) {
+}
 
 $statCounts = ['pending' => 0, 'under_review' => 0, 'shortlisted' => 0, 'selected' => 0, 'rejected' => 0];
 try {
@@ -327,11 +360,13 @@ try {
     }
 } catch (Throwable $e) {
 }
-$exportQs = http_build_query(array_filter([
-    'export' => 'csv',
+$exportQs = array_filter([
     'program_id' => $filterProgram ?: null,
+    'category_id' => $filterCategory ?: null,
     'status' => $filterStatus !== '' ? $filterStatus : null,
-]));
+    'search' => $search !== '' ? $search : null,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div>
@@ -340,7 +375,6 @@ $exportQs = http_build_query(array_filter([
     </div>
     <div class="d-flex gap-2">
         <a href="honor-programs.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-calendar-alt me-1"></i><?php echo $__t('कार्यक्रमहरू', 'Programs'); ?></a>
-        <a href="honor-applications.php?<?php echo htmlspecialchars($exportQs); ?>" class="btn btn-outline-success btn-sm"><i class="fas fa-file-csv me-1"></i>CSV</a>
     </div>
 </div>
 
@@ -383,7 +417,8 @@ $exportQs = http_build_query(array_filter([
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-md-3">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
+        <div class="col-md-2">
             <label class="form-label small"><?php echo $__t('खोज', 'Search'); ?></label>
             <input type="text" name="search" class="form-control form-control-sm" value="<?php echo e($search); ?>" placeholder="HNR- / नाम / फोन">
         </div>
@@ -391,6 +426,7 @@ $exportQs = http_build_query(array_filter([
             <button class="btn btn-primary btn-sm w-100" type="submit"><i class="fas fa-search"></i></button>
         </div>
     </div>
+    <?php echo adminExcelExportButtonHtml($exportQs, $honFilteredTotal); ?>
 </form>
 
 <div class="card admin-table-card">
@@ -424,7 +460,10 @@ $exportQs = http_build_query(array_filter([
                     <td class="small"><?php echo e($a['nominee_name'] ?: '—'); ?></td>
                     <td><span class="badge bg-secondary"><?php echo e(honorStatusLabel((string)$a['status'], false)); ?></span></td>
                     <td class="small"><?php echo e($a['created_at']); ?></td>
-                    <td><a class="btn btn-sm btn-primary" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>"><i class="fas fa-eye"></i></a></td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>"><i class="fas fa-eye"></i></a>
+                        <a class="btn btn-sm btn-success" href="?export=csv&amp;id=<?php echo (int)$a['id']; ?>" title="Excel"><i class="fas fa-file-excel"></i></a>
+                    </td>
                 </tr>
             <?php endforeach; endif; ?>
             </tbody>

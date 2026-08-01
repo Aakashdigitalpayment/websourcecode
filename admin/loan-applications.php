@@ -4,7 +4,11 @@
  * =====================================================
  * feedbacks.php pattern: ?view=ID → full-page detail + edit form।
  * Modal पूर्ण रूपले हटाइयो।
+ * Excel: ?export=csv (+ filters) वा ?export=csv&id=N
  */
+if (!ob_get_level()) {
+    ob_start();
+}
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -14,6 +18,7 @@ $currentPage = 'loans';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 /* RBAC: staff hercha matra; mutate (approve/reject/delete) admin+ matra */
@@ -138,9 +143,11 @@ if (isset($_POST['quick_status'])) {
         $redLoanSt = '';
     }
     $qs = http_build_query([
-        'status' => $redLoanSt,
-        'search' => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
-        'page'   => max(1, (int)($_GET['page'] ?? 1)),
+        'status'    => $redLoanSt,
+        'search'    => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
+        'date_from' => trim((string)($_GET['date_from'] ?? '')),
+        'date_to'   => trim((string)($_GET['date_to'] ?? '')),
+        'page'      => max(1, (int)($_GET['page'] ?? 1)),
     ]);
     redirect('loan-applications.php?' . $qs);
 }
@@ -151,11 +158,48 @@ if ($status_filter !== '' && !in_array($status_filter, $loanListStatuses, true))
     $status_filter = '';
 }
 $search  = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
 $where   = "1=1"; $lparams = [];
 if ($status_filter) { $where .= " AND status = ?"; $lparams[] = $status_filter; }
 if ($search !== '') {
     $where .= " AND (full_name LIKE ? OR mobile LIKE ? OR email LIKE ? OR citizenship_no LIKE ? OR tracking_id LIKE ? OR loan_type LIKE ?)";
     $t = "%$search%"; $lparams = array_merge($lparams, [$t,$t,$t,$t,$t,$t]);
+}
+adminExcelAppendDateWhere($where, $lparams, $dateFrom, $dateTo);
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT * FROM loan_applications WHERE id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('loan-' . $exportId);
+        } else {
+            $st = $db->prepare("SELECT * FROM loan_applications WHERE $where ORDER BY created_at DESC LIMIT 10000");
+            $st->execute($lparams);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('loan-applications', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[loan-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('loan-applications');
+    }
+    $cols = [
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Full Name' => 'full_name', 'Member ID' => 'member_id',
+        'Mobile' => 'mobile', 'Email' => 'email', 'Citizenship No' => 'citizenship_no', 'Address' => 'address',
+        'Loan Type' => 'loan_type', 'Loan Amount' => 'loan_amount', 'Loan Tenure' => 'loan_tenure',
+        'Repayment Method' => 'repayment_method', 'Loan Purpose' => 'loan_purpose',
+        'Occupation' => 'occupation', 'Organization' => 'organization_name', 'Monthly Income' => 'monthly_income',
+        'Collateral Type' => 'collateral_type', 'Collateral Value' => 'collateral_value',
+        'Collateral Description' => 'collateral_description',
+        'Guarantor Name' => 'guarantor_name', 'Guarantor Relation' => 'guarantor_relation',
+        'Guarantor Phone' => 'guarantor_phone', 'Guarantor Address' => 'guarantor_address',
+        'Branch' => 'branch', 'Status' => 'status', 'Remarks' => 'remarks',
+        'Created At' => 'created_at', 'Updated At' => 'updated_at',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
 }
 
 $page   = max(1, (int)($_GET['page'] ?? 1));
@@ -234,6 +278,7 @@ if ($viewApp):
         </h5>
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
+            <?php echo adminExcelSingleLink('loan-applications.php', (int)$viewApp['id']); ?>
             <a href="print-form.php?type=loan&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
                class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
         </div>
@@ -492,9 +537,15 @@ if ($viewApp):
 </div>
 
 <!-- ── Filter Bar ── -->
+<?php
+$loanFilterQs = array_filter([
+    'status' => $status_filter, 'search' => $search,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
+?>
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
-        <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
             <label><?php echo $__t('स्थिति', 'Status'); ?></label>
             <select name="status" id="qf_status" class="form-select form-select-sm">
                 <option value=""><?php echo $__t('सबै स्थिति', 'All Status'); ?></option>
@@ -505,13 +556,14 @@ if ($viewApp):
                 <option value="disbursed"  <?php echo $status_filter==='disbursed'?'selected':''; ?>>💰 <?php echo $__t('वितरित', 'Disbursed'); ?></option>
             </select>
         </div>
-        <div class="col-md-6 col-12">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo); ?>
+        <div class="col-md-4 col-12">
             <label><?php echo $__t('खोज्नुहोस्', 'Search'); ?></label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="<?php echo $__t('नाम, मोबाइल, Tracking ID, नागरिकता नं., ऋण प्रकार...', 'name, mobile, Tracking ID, citizenship no., loan type...'); ?>">
-                <?php if ($search): ?>
+                <?php if ($search || $dateFrom || $dateTo): ?>
                 <a href="?status=<?php echo urlencode($status_filter); ?>" class="btn btn-outline-secondary btn-sm" title="<?php echo $__t('खोज हटाउनुहोस्', 'Clear search'); ?>"><i class="fas fa-times"></i></a>
                 <?php endif; ?>
             </div>
@@ -519,10 +571,8 @@ if ($viewApp):
         <div class="col-md-2 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i><?php echo $__t('खोज', 'Search'); ?></button>
         </div>
-        <div class="col-md-1 col-6 text-end">
-            <a href="?<?php echo http_build_query(['status'=>$status_filter,'search'=>$search,'export'=>'csv']); ?>" class="btn-csv no-print" title="CSV Export"><i class="fas fa-file-csv"></i> CSV</a>
-        </div>
     </form>
+    <?php echo adminExcelExportButtonHtml($loanFilterQs, (int)$total); ?>
     <script>document.getElementById('qf_status').addEventListener('change',function(){this.closest('form').submit();});</script>
 </div>
 
@@ -585,6 +635,9 @@ if ($viewApp):
                     <div class="adm-action-icons">
                         <a href="loan-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत हेर्नुहोस्', 'View details'); ?>" aria-label="View">
                             <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="loan-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel" style="color:#15803d;">
+                            <i class="fas fa-file-excel"></i>
                         </a>
                         <?php if ($app['status'] === 'pending' || $app['status'] === 'processing'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('यो आवेदन स्वीकृत गर्नुहुन्छ?', 'Approve this application?'); ?>')">

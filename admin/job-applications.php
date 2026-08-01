@@ -1,9 +1,13 @@
 <?php
+if (!ob_get_level()) {
+    ob_start();
+}
 $pageTitle = 'आवेदनहरू व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') require_role('admin');
 
@@ -142,6 +146,7 @@ if ($statusFilter !== '' && !in_array($statusFilter, $jobAppStatuses, true)) {
     $statusFilter = '';
 }
 $jobSearch = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
 
 /* ── Bucket: सक्रिय (कारबाही चाहिने) vs टुङ्गिएका vs सबै ── */
 $jobActiveStatuses = ['pending', 'shortlisted', 'interviewed'];
@@ -153,34 +158,65 @@ if (!in_array($bucket, ['active', 'done', 'all'], true)) {
 }
 
 // Build query
-$query = "SELECT ja.*, c.title as job_title, c.deadline
-          FROM job_applications ja
-          LEFT JOIN careers c ON ja.career_id = c.id
-          WHERE 1=1";
+$jobWhere = '1=1';
 $params = [];
 
 if ($careerId) {
-    $query .= " AND ja.career_id = ?";
+    $jobWhere .= ' AND ja.career_id = ?';
     $params[] = $careerId;
 }
 
 if ($statusFilter) {
-    $query .= " AND ja.status = ?";
+    $jobWhere .= ' AND ja.status = ?';
     $params[] = $statusFilter;
 } elseif ($bucket === 'active') {
     $ph = implode(',', array_fill(0, count($jobActiveStatuses), '?'));
-    $query .= " AND ja.status IN ($ph)";
+    $jobWhere .= " AND ja.status IN ($ph)";
     $params = array_merge($params, $jobActiveStatuses);
 } elseif ($bucket === 'done') {
     $ph = implode(',', array_fill(0, count($jobDoneStatuses), '?'));
-    $query .= " AND ja.status IN ($ph)";
+    $jobWhere .= " AND ja.status IN ($ph)";
     $params = array_merge($params, $jobDoneStatuses);
 }
 
 if ($jobSearch !== '') {
-    $query .= " AND (ja.full_name LIKE ? OR ja.email LIKE ? OR ja.phone LIKE ?)";
+    $jobWhere .= ' AND (ja.full_name LIKE ? OR ja.email LIKE ? OR ja.phone LIKE ?)';
     $jt = "%$jobSearch%"; $params = array_merge($params, [$jt,$jt,$jt]);
 }
+
+adminExcelAppendDateWhere($jobWhere, $params, $dateFrom, $dateTo, 'ja.created_at');
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT ja.*, c.title as job_title FROM job_applications ja LEFT JOIN careers c ON ja.career_id = c.id WHERE ja.id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('job-application-' . $exportId);
+        } else {
+            $exportSql = "SELECT ja.*, c.title as job_title FROM job_applications ja LEFT JOIN careers c ON ja.career_id = c.id WHERE $jobWhere ORDER BY ja.created_at DESC LIMIT 10000";
+            $st = $db->prepare($exportSql);
+            $st->execute($params);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('job-applications', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[job-applications-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('job-applications');
+    }
+    $cols = [
+        'ID' => 'id', 'Job Title' => 'job_title', 'Full Name' => 'full_name',
+        'Phone' => 'phone', 'Email' => 'email', 'Status' => 'status', 'Created At' => 'created_at',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
+}
+
+$query = "SELECT ja.*, c.title as job_title, c.deadline
+          FROM job_applications ja
+          LEFT JOIN careers c ON ja.career_id = c.id
+          WHERE $jobWhere";
 
 /* Smart sort: pending पहिले, अनि नयाँ-अनुसार */
 $query .= " ORDER BY FIELD(ja.status, 'pending', 'shortlisted', 'interviewed', 'selected', 'rejected'), ja.created_at DESC";
@@ -428,6 +464,8 @@ if ($viewApplication && !empty($viewApplication['id'])) {
     $jobBucketBaseQs = [];
     if ($careerId)              $jobBucketBaseQs['career_id'] = $careerId;
     if ($jobSearch !== '')      $jobBucketBaseQs['search']    = $jobSearch;
+    if ($dateFrom !== '')       $jobBucketBaseQs['date_from'] = $dateFrom;
+    if ($dateTo !== '')         $jobBucketBaseQs['date_to']   = $dateTo;
     /* explicit status filter clears when switching bucket — bucket sets its own scope */
     $jobBucketUrl = static function (string $b) use ($jobBucketBaseQs): string {
         $qs = $jobBucketBaseQs + ['bucket' => $b];
@@ -472,7 +510,8 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                     <option value="rejected" <?php echo $statusFilter==='rejected'?'selected':''; ?>>❌ अस्वीकृत</option>
                 </select>
             </div>
-            <div class="col-md-5 col-12">
+            <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
+            <div class="col-md-3 col-12">
                 <label>खोज्नुहोस्</label>
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
@@ -481,9 +520,17 @@ if ($viewApplication && !empty($viewApplication['id'])) {
             </div>
             <div class="col-md-2 col-6">
                 <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-                <?php if ($careerId||$statusFilter||$jobSearch !== ''): ?><a href="<?php echo htmlspecialchars($jobBucketUrl($bucket)); ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+                <?php if ($careerId||$statusFilter||$jobSearch !== ''||$dateFrom||$dateTo): ?><a href="<?php echo htmlspecialchars($jobBucketUrl($bucket)); ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
             </div>
         </form>
+        <?php
+        $jobFilterQs = array_filter([
+            'bucket' => $bucket, 'career_id' => $careerId ?: null, 'status' => $statusFilter ?: null,
+            'search' => $jobSearch !== '' ? $jobSearch : null,
+            'date_from' => $dateFrom, 'date_to' => $dateTo,
+        ], static fn($v) => $v !== null && $v !== '');
+        echo adminExcelExportButtonHtml($jobFilterQs, count($applications));
+        ?>
     </div>
     <!-- ── Applications List ── -->
     <?php
@@ -557,6 +604,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                                                class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस्" aria-label="View">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
                                             <form method="POST" class="adm-icon-form"
                                                   onsubmit="return confirm('के तपाईं पक्का हुनुहुन्छ? यो कार्य फिर्ता हुँदैन।')">
                                                 <?php echo csrfField(); ?>

@@ -3,10 +3,14 @@
  * Admin Panel - Member Welfare Claims Management
  * सदस्य कल्याण दाबी व्यवस्थापन
  */
+if (!ob_get_level()) {
+    ob_start();
+}
 $pageTitle = 'सदस्य कल्याण दाबीहरू';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/welfare-claims-tables.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 
@@ -127,6 +131,53 @@ if ($filterType !== '' && !isset($claimTypes[$filterType])) {
     $filterType = '';
 }
 $search = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
+
+$wlfWhere = '1=1';
+$wlfParams = [];
+if ($filterStatus) {
+    $wlfWhere .= ' AND status = ?';
+    $wlfParams[] = $filterStatus;
+}
+if ($filterType) {
+    $wlfWhere .= ' AND claim_type = ?';
+    $wlfParams[] = $filterType;
+}
+if ($search) {
+    $wlfWhere .= ' AND (tracking_id LIKE ? OR member_name LIKE ? OR phone LIKE ? OR member_id LIKE ? OR email LIKE ?)';
+    $searchTerm = "%$search%";
+    $wlfParams = array_merge($wlfParams, [$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm]);
+}
+adminExcelAppendDateWhere($wlfWhere, $wlfParams, $dateFrom, $dateTo);
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT * FROM member_welfare_claims WHERE id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('welfare-claim-' . $exportId);
+        } else {
+            $st = $db->prepare("SELECT * FROM member_welfare_claims WHERE $wlfWhere ORDER BY created_at DESC LIMIT 10000");
+            $st->execute($wlfParams);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('welfare-claims', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[welfare-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('welfare-claims');
+    }
+    $cols = [
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Member Name' => 'member_name',
+        'Member ID' => 'member_id', 'Phone' => 'phone', 'Email' => 'email',
+        'Claim Type' => 'claim_type', 'Claim Amount' => 'claim_amount',
+        'Approved Amount' => 'approved_amount', 'Status' => 'status',
+        'Description' => 'description', 'Created At' => 'created_at', 'Admin Remarks' => 'admin_remarks',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
+}
 ?>
 
 <?php if ($action === 'view' && $id > 0): ?>
@@ -155,6 +206,7 @@ if (!$claim) {
             <a href="welfare-claims.php" class="btn btn-light btn-sm">
                 <i class="fas fa-arrow-left"></i> फिर्ता
             </a>
+            <?php echo adminExcelSingleLink('welfare-claims.php', (int)$claim['id']); ?>
             <a href="print-form.php?type=welfare&id=<?php echo (int)$claim['id']; ?>" target="_blank"
                class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
         </div>
@@ -397,28 +449,17 @@ if (!$claim) {
 
 <?php else: ?>
 <?php
-// List all claims
-$whereClause = "1=1";
-$params = [];
-
-if ($filterStatus) {
-    $whereClause .= " AND status = ?";
-    $params[] = $filterStatus;
+$wlfFilteredTotal = 0;
+try {
+    $cntSt = $db->prepare("SELECT COUNT(*) FROM member_welfare_claims WHERE $wlfWhere");
+    $cntSt->execute($wlfParams);
+    $wlfFilteredTotal = (int)$cntSt->fetchColumn();
+} catch (Exception $e) {
+    $wlfFilteredTotal = 0;
 }
 
-if ($filterType) {
-    $whereClause .= " AND claim_type = ?";
-    $params[] = $filterType;
-}
-
-if ($search) {
-    $whereClause .= " AND (tracking_id LIKE ? OR member_name LIKE ? OR phone LIKE ? OR member_id LIKE ?)";
-    $searchTerm = "%$search%";
-    $params = array_merge($params, [$searchTerm, $searchTerm, $searchTerm, $searchTerm]);
-}
-
-$stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE $whereClause ORDER BY created_at DESC LIMIT 500");
-$stmt->execute($params);
+$stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE $wlfWhere ORDER BY created_at DESC LIMIT 500");
+$stmt->execute($wlfParams);
 $claims = $stmt->fetchAll();
 
 // Get counts by status
@@ -428,6 +469,10 @@ while ($row = $countStmt->fetch()) {
     $statusCounts[$row['status']] = $row['count'];
 }
 $totalClaims = array_sum($statusCounts);
+$wlfFilterQs = array_filter([
+    'status' => $filterStatus, 'type' => $filterType, 'search' => $search,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
 ?>
 
 <?php
@@ -444,7 +489,7 @@ if ($flash = getFlash()):
 
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
-    <a href="welfare-claims.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search?'active-filter':''; ?>">
+    <a href="welfare-claims.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search&&!$dateFrom&&!$dateTo?'active-filter':''; ?>">
         <div class="sm-icon ic-total"><i class="fas fa-hand-holding-heart"></i></div>
         <div class="sm-val"><?php echo $totalClaims; ?></div>
         <div class="sm-lbl">जम्मा</div>
@@ -497,7 +542,8 @@ if ($flash = getFlash()):
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-md-6 col-12">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
+        <div class="col-md-4 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
@@ -506,9 +552,10 @@ if ($flash = getFlash()):
         </div>
         <div class="col-md-2 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-            <?php if ($filterStatus||$filterType||$search): ?><a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
         </div>
     </form>
+    <?php echo adminExcelExportButtonHtml($wlfFilterQs, $wlfFilteredTotal); ?>
 </div>
 
 <!-- ── Claims Table ── -->
@@ -578,6 +625,7 @@ if ($flash = getFlash()):
                             <a href="welfare-claims.php?action=view&id=<?php echo $claim['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="हेर्नुहोस्" aria-label="View">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            <a href="?export=csv&amp;id=<?php echo (int)$claim['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
                             <form method="POST" class="adm-icon-form" onsubmit="return confirm('हटाउने?');">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="delete_claim" value="1">
