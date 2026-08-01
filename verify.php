@@ -383,6 +383,32 @@ if ($result && !empty($result['ok']) && $pdo) {
 .vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
 .vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
 
+/* Success: desktop 2-col — ID card | partner log (खाली किनारा कम, scroll कम) */
+.vp-success-alerts { margin-bottom: 12px; }
+.vp-success-layout { display: grid; gap: 14px; align-items: start; }
+.vp-success-layout .vp-id-card { margin-bottom: 0; }
+.vp-success-layout .vp-partner-log-card { margin-top: 0 !important; height: 100%; }
+.vp-success-layout .vp-visit-list { max-height: min(280px, 42vh); overflow-y: auto; }
+@media (min-width: 960px) {
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) {
+        max-width: min(1120px, 96vw);
+    }
+    body.auth-portal-page.verify-auth-page .vp-outer:has(.vp-success-layout.has-partner) .vp-site-name {
+        max-width: 40rem;
+    }
+    .vp-success-layout.has-partner {
+        grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+        gap: 18px;
+    }
+    .vp-success-layout.has-partner .vp-partner-log-card {
+        position: sticky;
+        top: 12px;
+    }
+}
+@media (max-width: 959px) {
+    .vp-success-layout.has-partner { grid-template-columns: 1fr; }
+}
+
 /* Employee-style member ID card after verify */
 .vp-id-card {
     background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 1.1rem;
@@ -584,7 +610,27 @@ $__idFields = [
     [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
     [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],
 ];
+$__hasPartnerCol = !empty($partners);
 ?>
+<?php if (!empty($logSaved) || !empty($logError)): ?>
+<div class="vp-success-alerts">
+<?php if (!empty($logSaved)): ?>
+<div class="vp-success-alert" style="margin-bottom:0;">
+    <i class="fas fa-check-circle" style="flex-shrink:0;margin-top:2px;"></i>
+    <span><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?></span>
+</div>
+<?php endif; ?>
+<?php if (!empty($logError)): ?>
+<div class="vp-alert-error" style="margin-bottom:0;<?= !empty($logSaved) ? 'margin-top:10px;' : '' ?>">
+    <i class="fas fa-exclamation-circle"></i>
+    <span><?= htmlspecialchars($logError) ?></span>
+</div>
+<?php endif; ?>
+</div>
+<?php endif; ?>
+
+<div class="vp-success-layout<?= $__hasPartnerCol ? ' has-partner' : '' ?>">
+<div class="vp-success-col vp-success-col-id">
 <div class="vp-id-card vp-result-card" role="region" aria-label="<?= htmlspecialchars($_t('सदस्य परिचय पत्र', 'Member ID Card'), ENT_QUOTES, 'UTF-8') ?>">
     <div class="vp-id-band">
         <span class="vp-id-band-title"><?= $_t('सदस्य परिचय पत्र', 'Member ID Card') ?></span>
@@ -629,22 +675,11 @@ $__idFields = [
         </div>
     </div>
 </div>
+</div><!-- /.vp-success-col-id -->
 
-<?php if (!empty($logSaved)): ?>
-<div class="vp-success-alert">
-    <i class="fas fa-check-circle" style="flex-shrink:0;margin-top:2px;"></i>
-    <span><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?></span>
-</div>
-<?php endif; ?>
-<?php if (!empty($logError)): ?>
-<div class="vp-alert-error" style="margin-top:12px;">
-    <i class="fas fa-exclamation-circle"></i>
-    <span><?= htmlspecialchars($logError) ?></span>
-</div>
-<?php endif; ?>
-
-<?php if (!empty($partners)): ?>
-<div class="vp-programs-card vp-partner-log-card" style="margin-top:14px;" id="vpPartnerLog">
+<?php if ($__hasPartnerCol): ?>
+<div class="vp-success-col vp-success-col-partner">
+<div class="vp-programs-card vp-partner-log-card" id="vpPartnerLog">
     <h3 class="vp-programs-title">
         <i class="fas fa-handshake"></i> <?= $_t('साझेदार सेवा लग','Log partner service') ?>
     </h3>
@@ -770,6 +805,8 @@ $__idFields = [
         </button>
     </form>
 </div>
+</div><!-- /.vp-success-col-partner -->
+</div><!-- /.vp-success-layout -->
 <script>
 (function(){
     var sel = document.getElementById('vpPartnerSelect');
@@ -835,11 +872,12 @@ $__idFields = [
     sync();
     <?php if (!empty($logSaved)): ?>
     var box = document.getElementById('vpPartnerLog');
-    if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (box) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     <?php endif; ?>
 })();
 </script>
-<?php elseif (empty($partners) && !empty($result['ok'])): ?>
+<?php else: ?>
+</div><!-- /.vp-success-layout (ID only) -->
 <div class="vp-programs-card" style="margin-top:14px;">
     <p style="font-size:.85rem;color:#6b7280;margin:0;">
         <?= $_t('अहिले सक्रिय साझेदार सुविधा सूचीमा छैन।','No active partner facilities are listed yet.') ?>
