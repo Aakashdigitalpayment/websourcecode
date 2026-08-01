@@ -12990,6 +12990,21 @@ body.dark-mode .dark-mode-toggle {
     vertical-align: middle;
 }
 
+/* Top utility bar — दर्खास्त "नयाँ" मात्र सानो */
+.pfl-top-bar .nav-new-badge,
+.pfl-top-bar .nav-new-badge--top {
+    font-size: 0.55rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 1px 4px;
+    margin-left: 4px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+    animation: none;
+    transform: none;
+    vertical-align: 0.1em;
+}
+
 @keyframes newBadgePulse {
     0%, 100% {
         transform: scale(1);

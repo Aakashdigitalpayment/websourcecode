@@ -175,6 +175,18 @@ textarea.form-control {
     font-size: 14px !important;
   }
 
+  /* दर्खास्त "नयाँ" badge — top bar मात्र सानो */
+  .pfl-top-bar .nav-new-badge,
+  .pfl-top-bar .nav-new-badge--top {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    padding: 1px 4px !important;
+    margin-left: 4px !important;
+    border-radius: 3px !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
   .pfl-top-right {
     gap: 1px !important;
     padding-left: 6px !important;
