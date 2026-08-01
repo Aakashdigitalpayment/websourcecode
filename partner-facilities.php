@@ -220,10 +220,10 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                     <h3 class="pf-card-title"><?php echo htmlspecialchars($name); ?></h3>
                     <div class="pf-location"><i class="fas fa-location-dot"></i><?php echo htmlspecialchars(($f['location'] ?? '') !== '' ? $f['location'] : '—'); ?></div>
                 </div>
-                <?php if ($disc !== ''): ?>
-                <div class="pf-card-discount"><?php echo htmlspecialchars($disc); ?></div>
-                <?php endif; ?>
             </div>
+            <?php if ($disc !== ''): ?>
+            <div class="pf-card-discount"><?php echo htmlspecialchars($disc); ?></div>
+            <?php endif; ?>
             <?php if (!empty($f['facility_type'])): ?>
                 <span class="pf-type-badge"><?php echo htmlspecialchars((string)$f['facility_type']); ?></span>
             <?php endif; ?>

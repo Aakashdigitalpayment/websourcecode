@@ -382,6 +382,60 @@ if ($result && !empty($result['ok']) && $pdo) {
 .vp-btn:hover { background: var(--primary-dark, #145021); transform: translateY(-1px); }
 .vp-alert-error { background: #fef2f2; border: 1px solid #fca5a5; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; color: #dc2626; display: flex; align-items: center; gap: 10px; font-size: .9rem; }
 .vp-secure { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--text-light, #9ca3af); }
+
+/* Employee-style member ID card after verify */
+.vp-id-card {
+    background: #fff; border-radius: 16px; overflow: hidden; margin-bottom: 1.1rem;
+    border: 1px solid rgba(var(--primary-rgb,26,95,42),.16);
+    box-shadow: 0 8px 28px rgba(var(--primary-rgb,26,95,42),.12);
+}
+.vp-id-band {
+    background: linear-gradient(135deg, var(--primary-color,#1a5f2a), color-mix(in srgb, var(--primary-color,#1a5f2a) 70%, #0e9b53));
+    color: #fff; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.vp-id-band-title { font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; opacity: .95; }
+.vp-id-band-badge {
+    font-size: .72rem; font-weight: 700; background: rgba(255,255,255,.2);
+    border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+}
+.vp-id-main {
+    display: grid; grid-template-columns: 118px minmax(0,1fr); gap: 14px;
+    padding: 16px; align-items: start;
+}
+.vp-id-photo-wrap {
+    width: 118px; aspect-ratio: 3 / 3.6; border-radius: 12px; overflow: hidden;
+    border: 2px solid rgba(var(--primary-rgb,26,95,42),.2); background: #f3f4f6;
+    display: grid; place-items: center; flex-shrink: 0;
+}
+.vp-id-photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vp-id-photo-fallback { color: #9ca3af; font-size: 2.2rem; }
+.vp-id-info { min-width: 0; }
+.vp-id-name { font-size: 1.15rem; font-weight: 800; color: var(--primary-color,#1a5f2a); line-height: 1.3; margin: 0 0 4px; }
+.vp-id-status { font-size: .82rem; color: #15803d; font-weight: 700; margin-bottom: 10px; display: inline-flex; align-items: center; gap: 6px; }
+.vp-id-grid { display: grid; gap: 0; }
+.vp-id-row {
+    display: grid; grid-template-columns: minmax(5.5rem, 38%) 1fr; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid #f3f4f6; font-size: .88rem;
+}
+.vp-id-row:last-child { border-bottom: none; }
+.vp-id-label { color: #6b7280; font-weight: 600; }
+.vp-id-value { font-weight: 700; color: #111827; word-break: break-word; }
+.vp-id-secret { margin-top: 8px; padding-top: 10px; border-top: 1px dashed rgba(var(--primary-rgb,26,95,42),.2); }
+.vp-id-secret .vp-secret-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em;
+    color: var(--primary-color,#1a5f2a); font-weight: 800;
+}
+.vp-success-alert {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px;
+    padding: 12px 14px; margin: 0 0 14px; color: #166534; font-size: .9rem; line-height: 1.45;
+}
+@media (max-width: 480px) {
+    .vp-id-main { grid-template-columns: 96px minmax(0,1fr); gap: 12px; padding: 14px; }
+    .vp-id-photo-wrap { width: 96px; }
+    .vp-id-name { font-size: 1.02rem; }
+    .vp-id-row { grid-template-columns: 1fr; gap: 2px; }
+}
 </style>
 </head>
 <body class="auth-portal-page verify-auth-page">
@@ -499,55 +553,87 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 <?php endif; ?>
 
 <?php if (!empty($result['ok'])): ?>
-<!-- ── Verification Success ── -->
-<?php $__m = $result['member'] ?? []; $__c = $result['card'] ?? []; ?>
-<div class="vp-result-card">
-    <div class="vp-result-head">
-        <?php if (!empty($__m['photo_path'])): ?>
-        <img src="<?= htmlspecialchars(rtrim(SITE_URL,'/') . '/' . ltrim($__m['photo_path'],'/')) ?>"
-             alt="" class="vp-result-photo">
-        <?php else: ?>
-        <span class="vp-result-icon">
-            <i class="fas fa-check-circle"></i>
-        </span>
-        <?php endif; ?>
-        <div>
-            <div class="vp-result-name"><?= htmlspecialchars($__m['full_name'] ?? '') ?></div>
-            <div class="vp-result-sub"><?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
-        </div>
+<!-- ── Verification Success — employee-style member card ── -->
+<?php
+$__m = $result['member'] ?? [];
+$__c = $result['card'] ?? [];
+$__photoRaw = trim((string)($__m['photo_path'] ?? ''));
+$__photoSrc = '';
+if ($__photoRaw !== '') {
+    if (preg_match('#^https?://#i', $__photoRaw)) {
+        $__photoSrc = $__photoRaw;
+    } else {
+        $__photoSrc = rtrim(SITE_URL, '/') . '/' . ltrim($__photoRaw, '/');
+    }
+}
+$__dob = trim((string)($__m['dob_bs'] ?? ''));
+if ($__dob === '') {
+    $__dob = trim((string)($__m['dob_ad'] ?? ''));
+} elseif (!empty($__m['dob_ad'])) {
+    $__dob .= ' / ' . trim((string)$__m['dob_ad']);
+}
+$__father = trim((string)($__m['father_name'] ?? ''));
+$__secretCvv = (string)($__c['secret_cvv'] ?? '');
+$__idFields = [
+    [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
+    [$_t('कार्ड नं.','Card No.'),      $__c['card_no']     ?? ''],
+    [$_t('बुबाको नाम',"Father's Name"), $__father],
+    [$_t('जन्म मिति','Date of Birth'), $__dob],
+    [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
+    [$_t('सदस्यता मिति','Member Since'),$__m['member_since']?? ''],
+    [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
+    [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],
+];
+?>
+<div class="vp-id-card vp-result-card" role="region" aria-label="<?= htmlspecialchars($_t('सदस्य परिचय पत्र', 'Member ID Card'), ENT_QUOTES, 'UTF-8') ?>">
+    <div class="vp-id-band">
+        <span class="vp-id-band-title"><?= $_t('सदस्य परिचय पत्र', 'Member ID Card') ?></span>
+        <span class="vp-id-band-badge"><i class="fas fa-shield-halved me-1"></i><?= $_t('प्रमाणित', 'Verified') ?></span>
     </div>
-    <div class="vp-result-body">
-        <?php
-        $__secretCvv = (string)($__c['secret_cvv'] ?? '');
-        $__fields = [
-            [$_t('सदस्यता नं.','Member ID'),  $__m['member_id']   ?? ''],
-            [$_t('कार्ड नं.','Card No.'),      $__c['card_no']     ?? ''],
-            [$_t('मोबाइल','Mobile'),            $__m['mobile']      ?? ''],
-            [$_t('सदस्यता मिति','Member Since'),$__m['member_since']?? ''],
-            [$_t('जारी मिति','Issued'),          $__c['issued_date'] ?? ''],
-            [$_t('म्याद समाप्ति','Valid Until'), $__c['expires_at']  ?? ''],
-        ];
-        foreach ($__fields as [$lbl, $val]):
-            if (trim((string)$val) === '') continue;
-        ?>
-        <div class="vp-result-row">
-            <span class="vp-result-label"><?= htmlspecialchars($lbl) ?></span>
-            <span class="vp-result-value"><?= htmlspecialchars((string)$val) ?></span>
+    <div class="vp-id-main">
+        <div class="vp-id-photo-wrap">
+            <?php if ($__photoSrc !== ''): ?>
+            <img src="<?= htmlspecialchars($__photoSrc, ENT_QUOTES, 'UTF-8') ?>"
+                 alt="<?= htmlspecialchars((string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                 class="vp-result-photo"
+                 loading="lazy"
+                 onerror="this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span class=\'vp-id-photo-fallback\'><i class=\'fas fa-user\'></i></span>');">
+            <?php else: ?>
+            <span class="vp-id-photo-fallback" aria-hidden="true"><i class="fas fa-user"></i></span>
+            <?php endif; ?>
         </div>
-        <?php endforeach; ?>
-        <?php if ($__secretCvv !== ''): ?>
-        <div class="vp-result-row vp-secret-row">
-            <span class="vp-result-label"><?= $_t('गोप्य CVV / Secret Code','Secret CVV Code') ?></span>
-            <span class="vp-result-value vp-secret-code"><?= htmlspecialchars($__secretCvv) ?></span>
+        <div class="vp-id-info">
+            <h2 class="vp-id-name"><?= htmlspecialchars((string)($__m['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></h2>
+            <div class="vp-id-status"><i class="fas fa-check-circle"></i> <?= $_t('कार्ड सक्रिय र वैध छ।', 'Card is active and valid.') ?></div>
+            <div class="vp-id-grid">
+                <?php foreach ($__idFields as [$lbl, $val]):
+                    if (trim((string)$val) === '') continue;
+                ?>
+                <div class="vp-id-row">
+                    <span class="vp-id-label"><?= htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8') ?></span>
+                    <span class="vp-id-value"><?= htmlspecialchars((string)$val, ENT_QUOTES, 'UTF-8') ?></span>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php if ($__secretCvv !== ''): ?>
+            <div class="vp-id-secret">
+                <div class="vp-id-row">
+                    <span class="vp-id-label"><?= $_t('गोप्य CVV','Secret CVV') ?></span>
+                    <span class="vp-id-value vp-secret-code"><?= htmlspecialchars($__secretCvv, ENT_QUOTES, 'UTF-8') ?></span>
+                </div>
+                <p class="vp-secret-hint" style="margin:6px 0 0;font-size:.75rem;color:#6b7280;line-height:1.4;">
+                    <?= $_t('यो कोड नामको पहिलो ३ अक्षर + सदस्यता नं. को पछिल्लो ४ अङ्कबाट बनेको हो।', 'Built from first 3 letters of first name + last 4 digits of member ID.') ?>
+                </p>
+            </div>
+            <?php endif; ?>
         </div>
-        <p class="vp-secret-hint"><?= $_t('यो कोड नामको पहिलो ३ अक्षर + सदस्यता नं. को पछिल्लो ४ अङ्कबाट बनेको हो (tracker जस्तै)।', 'Built from first 3 letters of first name + last 4 digits of member ID (like a tracker secret).') ?></p>
-        <?php endif; ?>
     </div>
 </div>
 
 <?php if (!empty($logSaved)): ?>
 <div class="vp-success-alert">
-    <i class="fas fa-check me-2"></i><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?>
+    <i class="fas fa-check-circle" style="flex-shrink:0;margin-top:2px;"></i>
+    <span><?= $_t('सेवा सफलतापूर्वक रेकर्ड भयो। अर्को सेवा पनि लग गर्न मिल्छ।', 'Service log recorded. You can log another service below.') ?></span>
 </div>
 <?php endif; ?>
 <?php if (!empty($logError)): ?>

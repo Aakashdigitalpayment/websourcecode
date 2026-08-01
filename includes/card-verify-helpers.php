@@ -436,7 +436,8 @@ if (!function_exists('verifyCardCredentials')) {
                            m.approval_status, m.created_at AS member_since,
                            m.card_expires_at,
                            k.full_name AS kyc_full_name, k.photo AS kyc_photo,
-                           k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name
+                           k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name,
+                           k.dob_bs AS kyc_dob_bs, k.dob_ad AS kyc_dob_ad
                     FROM member_id_cards c
                     INNER JOIN members m
                        ON ({$memberJoinSql})
@@ -501,6 +502,8 @@ if (!function_exists('verifyCardCredentials')) {
                     'mobile'       => (string)($row['kyc_mobile'] ?? ''),
                     'email'        => (string)($row['kyc_email'] ?? ''),
                     'father_name'  => (string)($row['kyc_father_name'] ?? ''),
+                    'dob_bs'       => (string)($row['kyc_dob_bs'] ?? ''),
+                    'dob_ad'       => (string)($row['kyc_dob_ad'] ?? ''),
                     'member_since' => $row['member_since'] ?? '',
                 ],
                 'card' => [
@@ -658,7 +661,8 @@ if (!function_exists('verifyCardCredentials')) {
                             m.approval_status, m.created_at AS member_since,
                             m.card_expires_at,
                             k.full_name AS kyc_full_name, k.photo AS kyc_photo,
-                            k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name
+                            k.mobile AS kyc_mobile, k.email AS kyc_email, k.father_name AS kyc_father_name,
+                            k.dob_bs AS kyc_dob_bs, k.dob_ad AS kyc_dob_ad
                      FROM members m
                      LEFT JOIN kyc_applications k ON k.id = m.kyc_application_id
                      WHERE m.sadasyata_number = :mid1
