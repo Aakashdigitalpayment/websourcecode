@@ -275,13 +275,14 @@ $pageGroups = [
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
-    'aavedan'=> ['kyc-applications','kyc-risk-reviews','loan-applications','account-applications','membership-apps','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
+    /* सदस्य / Member ID यात्रा — सूची→import→नयाँ अनुरोध→KYM→portal (आवेदनबाट छुट्टै) */
+    'sadasya'=> ['members','member-import','membership-apps','kyc','kyc-risk-reviews','member-ssot-duplicates','member-activities','member-online-portal'],
+    /* अन्य सेवा आवेदन (सदस्यता/KYM यसमा होइन) */
+    'aavedan'=> ['loans','account-apps','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center'],
-    /* एक ठाउँ: Member ID ledger + import + portal unlock (confusion कम) */
-    'sadasya'=> ['members','member-import','member-activities','member-online-portal','member-ssot-duplicates'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
     /* admin management pages — site-setup kept for direct URL; not in daily nav */
@@ -549,16 +550,49 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
-                    <!-- ── आवेदनहरू ── -->
+                    <!-- ── सदस्य (Member ID) — एकै ठाउँ serial यात्रा ── -->
                     <li class="nav-group-wrap">
-                        <?php $aavedan_total = $adminAlertCounts['kyc'] + $adminAlertCounts['kyc_risk'] + $adminAlertCounts['loan'] + $adminAlertCounts['account'] + ($adminAlertCounts['membership'] ?? 0) + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
-                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('आवेदनहरू', 'Applications'); ?></span>
-                            <?php if ($aavedan_total > 0): ?><span class="group-badge"><?php echo $aavedan_total; ?></span><?php endif; ?>
+                        <?php
+                        $sadasyaBadge = (int)($adminAlertCounts['mem_pending'] ?? 0)
+                            + (int)($adminAlertCounts['mem_resets'] ?? 0)
+                            + (int)($adminAlertCounts['membership'] ?? 0)
+                            + (int)($adminAlertCounts['kyc'] ?? 0)
+                            + (int)($adminAlertCounts['kyc_risk'] ?? 0);
+                        ?>
+                        <div class="nav-group-header <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" data-group="sadasya">
+                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
+                            <span class="nav-group-label"><?php echo $adminT('सदस्य (Member ID)', 'Members (Member ID)'); ?></span>
+                            <?php if ($sadasyaBadge > 0): ?><span class="group-badge"><?php echo $sadasyaBadge; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
                         </div>
-                        <ul class="nav-submenu <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" id="group-aavedan">
+                        <ul class="nav-submenu <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" id="group-sadasya">
+                            <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('१. Ledger', '1. Ledger'); ?></li>
+                            <li class="<?php echo $currentPage=='members' ? 'active' : ''; ?>">
+                                <a href="members.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
+                                    <span><?php echo $adminT('सदस्य सूची', 'Members list'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
+                                <a href="member-import.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-emerald" aria-hidden="true" data-lucide="upload"></i></span>
+                                    <span><?php echo $adminT('Bulk Import (CBS)', 'Bulk Import (CBS)'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-ssot-duplicates' ? 'active' : ''; ?>">
+                                <a href="member-ssot-duplicates.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></span>
+                                    <span><?php echo $adminT('दोहोरो Member ID', 'Duplicate Member IDs'); ?></span>
+                                </a>
+                            </li>
+                            <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('२. नयाँ / कागजात', '2. New / Documents'); ?></li>
+                            <li class="<?php echo $currentPage=='membership-apps' ? 'active' : ''; ?>">
+                                <a href="membership-applications.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round-plus"></i></span>
+                                    <span><?php echo $adminT('सदस्यता अनुरोध (नयाँ)', 'Membership requests (new)'); ?></span>
+                                    <?php if (($adminAlertCounts['membership'] ?? 0) > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['membership']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
                             <li class="<?php echo $currentPage=='kyc' ? 'active' : ''; ?>">
                                 <a href="kyc-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i></span>
@@ -566,20 +600,47 @@ set_exception_handler(function (\Throwable $ex) {
                                     <?php if ($adminAlertCounts['kyc'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['kyc']; ?></span><?php endif; ?>
                                 </a>
                             </li>
-                            <li class="<?php echo $currentPage=='membership-apps' ? 'active' : ''; ?>">
-                                <a href="membership-applications.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round-plus"></i></span>
-                                    <span><?php echo $adminT('सदस्यता अनुरोध', 'Membership Requests'); ?></span>
-                                    <?php if (($adminAlertCounts['membership'] ?? 0) > 0): ?><span class="badge"><?php echo (int)$adminAlertCounts['membership']; ?></span><?php endif; ?>
-                                </a>
-                            </li>
                             <li class="<?php echo $currentPage=='kyc-risk-reviews' ? 'active' : ''; ?>">
                                 <a href="kyc-risk-reviews.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-half"></i></span>
-                                    <span><?php echo $adminT('KYC जोखिम समीक्षा', 'KYC Risk Review'); ?></span>
+                                    <span><?php echo $adminT('KYM जोखिम समीक्षा', 'KYM Risk Review'); ?></span>
                                     <?php if ($adminAlertCounts['kyc_risk'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['kyc_risk']; ?></span><?php endif; ?>
                                 </a>
                             </li>
+                            <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('३. पोर्टल लगइन', '3. Portal login'); ?></li>
+                            <li class="<?php echo $currentPage=='member-online-portal' ? 'active' : ''; ?>">
+                                <a href="member-online-portal.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="shield-check"></i></span>
+                                    <span><?php echo $adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'); ?></span>
+                                    <?php if (!empty($adminAlertCounts['mem_pending'])): ?><span class="badge"><?php echo $adminAlertCounts['mem_pending']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo ($currentPage=='member-online-portal' && ($_GET['tab'] ?? '')=='resets') ? 'active' : ''; ?>">
+                                <a href="member-online-portal.php?tab=resets">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="key"></i></span>
+                                    <span><?php echo $adminT('पासवर्ड Reset', 'Password Reset'); ?></span>
+                                    <?php if (!empty($adminAlertCounts['mem_resets'])): ?><span class="badge"><?php echo $adminAlertCounts['mem_resets']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-activities' ? 'active' : ''; ?>">
+                                <a href="member-activities.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="bar-chart-2"></i></span>
+                                    <span><?php echo $adminT('गतिविधि खोज', 'Activities search'); ?></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- ── आवेदनहरू (ऋण/खाता/अन्य — सदस्यता/KYM होइन) ── -->
+                    <li class="nav-group-wrap">
+                        <?php $aavedan_total = $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
+                        <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
+                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
+                            <span class="nav-group-label"><?php echo $adminT('अन्य आवेदन', 'Other applications'); ?></span>
+                            <?php if ($aavedan_total > 0): ?><span class="group-badge"><?php echo $aavedan_total; ?></span><?php endif; ?>
+                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
+                        </div>
+                        <ul class="nav-submenu <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" id="group-aavedan">
                             <li class="<?php echo $currentPage=='loans' ? 'active' : ''; ?>">
                                 <a href="loan-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-coins"></i></span>
@@ -764,57 +825,6 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='help-center' ? 'active' : ''; ?>">
                                 <a href="help-center.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="headset"></i></span><span><?php echo $adminT('सहायता केन्द्र', 'Help Center'); ?></span></a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- ── सदस्य (Member ID) — सूची / import / portal unlock एकै समूह ── -->
-                    <li class="nav-group-wrap">
-                        <?php $sadasyaBadge = (int)($adminAlertCounts['mem_pending'] ?? 0) + (int)($adminAlertCounts['mem_resets'] ?? 0); ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" data-group="sadasya">
-                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('सदस्य (Member ID)', 'Members (Member ID)'); ?></span>
-                            <?php if ($sadasyaBadge > 0): ?><span class="group-badge"><?php echo $sadasyaBadge; ?></span><?php endif; ?>
-                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
-                        <ul class="nav-submenu <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" id="group-sadasya">
-                            <li class="<?php echo $currentPage=='members' ? 'active' : ''; ?>">
-                                <a href="members.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
-                                    <span><?php echo $adminT('सदस्य सूची', 'Members list'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
-                                <a href="member-import.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-emerald" aria-hidden="true" data-lucide="upload"></i></span>
-                                    <span><?php echo $adminT('Bulk Import (ledger)', 'Bulk Import (ledger)'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='member-ssot-duplicates' ? 'active' : ''; ?>">
-                                <a href="member-ssot-duplicates.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></span>
-                                    <span><?php echo $adminT('दोहोरो Member ID', 'Duplicate Member IDs'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='member-activities' ? 'active' : ''; ?>">
-                                <a href="member-activities.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="bar-chart-2"></i></span>
-                                    <span><?php echo $adminT('गतिविधि खोज', 'Activities search'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='member-online-portal' ? 'active' : ''; ?>">
-                                <a href="member-online-portal.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="shield-check"></i></span>
-                                    <span><?php echo $adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'); ?></span>
-                                    <?php if (!empty($adminAlertCounts['mem_pending'])): ?><span class="badge"><?php echo $adminAlertCounts['mem_pending']; ?></span><?php endif; ?>
-                                </a>
-                            </li>
-                            <li class="<?php echo ($currentPage=='member-online-portal' && ($_GET['tab'] ?? '')=='resets') ? 'active' : ''; ?>">
-                                <a href="member-online-portal.php?tab=resets">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="key"></i></span>
-                                    <span><?php echo $adminT('पासवर्ड Reset', 'Password Reset'); ?></span>
-                                    <?php if (!empty($adminAlertCounts['mem_resets'])): ?><span class="badge"><?php echo $adminAlertCounts['mem_resets']; ?></span><?php endif; ?>
-                                </a>
                             </li>
                         </ul>
                     </li>
