@@ -312,6 +312,7 @@ if ($viewApt):
         </h5>
         <div class="d-flex align-items-center gap-2">
             <?php echo adminExcelSingleLink('appointments.php', (int)$viewApt['id']); ?>
+            <?php echo adminPrintFormLink('appointment', (int)$viewApt['id']); ?>
             <a href="appointments.php" class="btn btn-outline-light btn-sm">
                 <i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>फिर्ता
             </a>
@@ -659,6 +660,7 @@ $aptFilterQs = array_filter([
                     <div class="adm-action-icons">
                         <a href="appointments.php?view=<?php echo $apt['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
                         <a href="?export=csv&amp;id=<?php echo (int)$apt['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <?php echo adminPrintFormIcon('appointment', (int)$apt['id']); ?>
                         <?php if ($apt['status'] === 'pending'): ?>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>

@@ -348,6 +348,7 @@ if ($viewGrv):
         <div class="d-flex align-items-center gap-2">
             <?php echo grvBadge($viewGrv['status'], $sl, $sc); ?>
             <?php echo adminExcelSingleLink('grievances.php', (int)$viewGrv['id']); ?>
+            <?php echo adminPrintFormLink('grievance', (int)$viewGrv['id']); ?>
         </div>
     </div>
 
@@ -683,6 +684,7 @@ $grvFilterQs = array_filter([
                     <div class="adm-action-icons">
                         <a href="grievances.php?view=<?php echo $grv['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत / अपडेट', 'Details / Update'); ?>" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
                         <a href="?export=csv&amp;id=<?php echo (int)$grv['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <?php echo adminPrintFormIcon('grievance', (int)$grv['id']); ?>
                         <?php if ($grv['status'] === 'pending' || $grv['status'] === 'in_progress'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('यो गुनासो समाधान भएको मान्नुहुन्छ?', 'Mark this grievance as resolved?'); ?>')">
                             <?php echo csrfField(); ?>

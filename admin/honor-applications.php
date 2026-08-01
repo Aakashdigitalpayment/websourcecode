@@ -213,7 +213,7 @@ try {
         <div class="d-flex gap-2">
             <a href="honor-applications.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
             <?php echo adminExcelSingleLink('honor-applications.php', (int)$app['id']); ?>
-            <a href="print-form.php?type=honor&id=<?php echo (int)$app['id']; ?>" target="_blank" class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print</a>
+            <?php echo adminPrintFormLink('honor', (int)$app['id']); ?>
         </div>
     </div>
     <div class="card-body">
@@ -463,6 +463,7 @@ $exportQs = array_filter([
                     <td>
                         <a class="btn btn-sm btn-primary" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>"><i class="fas fa-eye"></i></a>
                         <a class="btn btn-sm btn-success" href="?export=csv&amp;id=<?php echo (int)$a['id']; ?>" title="Excel"><i class="fas fa-file-excel"></i></a>
+                        <?php echo adminPrintFormIcon('honor', (int)$a['id']); ?>
                     </td>
                 </tr>
             <?php endforeach; endif; ?>

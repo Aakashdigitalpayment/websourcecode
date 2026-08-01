@@ -205,8 +205,7 @@ try {
         <div class="d-flex align-items-center gap-2">
             <a href="digital-service-requests.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
             <?php echo adminExcelSingleLink('digital-service-requests.php', (int)$request['id']); ?>
-            <a href="print-form.php?type=digital&id=<?php echo (int)$request['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminPrintFormLink('digital', (int)$request['id']); ?>
         </div>
     </div>
     <div class="card-body">
@@ -470,6 +469,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                             <div class="adm-action-icons">
                                 <a href="?action=view&id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विवरण', 'Details'); ?>" aria-label="View"><i class="fas fa-eye"></i></a>
                                 <a href="?export=csv&amp;id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                                <?php echo adminPrintFormIcon('digital', (int)$request['id']); ?>
                             </div>
                         </td>
                     </tr>

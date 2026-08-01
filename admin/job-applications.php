@@ -442,6 +442,15 @@ if ($viewApplication && !empty($viewApplication['id'])) {
         'rejected'    => ['danger',  'अस्वीकृत'],
     ];
 
+    if (function_exists('adminPrintFormLink')) {
+        echo '<div class="d-flex flex-wrap gap-2 mb-3 no-print">';
+        if (function_exists('adminExcelSingleLink')) {
+            echo adminExcelSingleLink('job-applications.php', (int)$viewApplication['id']);
+        }
+        echo adminPrintFormLink('job', (int)$viewApplication['id']);
+        echo '</div>';
+    }
+
     echo renderAdminRequestView([
         'title'      => $viewApplication['full_name'] ?? '—',
         'subtitle'   => 'पद: <b>' . htmlspecialchars((string)($viewApplication['job_title'] ?? 'N/A')) . '</b>'
@@ -605,6 +614,7 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                                            <?php echo adminPrintFormIcon('job', (int)$app['id']); ?>
                                             <form method="POST" class="adm-icon-form"
                                                   onsubmit="return confirm('के तपाईं पक्का हुनुहुन्छ? यो कार्य फिर्ता हुँदैन।')">
                                                 <?php echo csrfField(); ?>

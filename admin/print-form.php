@@ -3,6 +3,7 @@
  * ═══════════════════════════════════════════════════════════
  *  UNIVERSAL PRINT FORM — Bank-style printable/PDF form
  *  Supports: kyc | loan | welfare | digital | account | honor
+ *            | appointment | grievance | job
  *  URL: admin/print-form.php?type=kyc&id=5
  * ═══════════════════════════════════════════════════════════
  */
@@ -21,10 +22,10 @@ $db   = getDB();
 $type = trim($_GET['type'] ?? '');
 $id   = (int)($_GET['id'] ?? 0);
 
-$allowedTypes = ['kyc', 'loan', 'welfare', 'digital', 'account', 'honor'];
+$allowedTypes = ['kyc', 'loan', 'welfare', 'digital', 'account', 'honor', 'appointment', 'grievance', 'job'];
 if (!in_array($type, $allowedTypes, true) || $id <= 0) {
     http_response_code(400);
-    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Invalid request. Use ?type=kyc|loan|welfare|digital|account|honor&amp;id=N</p>';
+    echo '<p style="font-family:sans-serif;padding:2rem;color:red;">Invalid request. Use ?type=kyc|loan|welfare|digital|account|honor|appointment|grievance|job&amp;id=N</p>';
     exit;
 }
 
@@ -304,19 +305,24 @@ case 'loan':
             ['पेशा',               'Occupation',            pf_e($data['occupation'])],
             ['संस्था/व्यवसाय',    'Organization/Business', pf_e($data['organization_name'])],
             ['मासिक आय',          'Monthly Income',        pf_cur($data['monthly_income'])],
+            ['अन्य आय',            'Other Income',          pf_e($data['other_income'] ?? '')],
+            ['शाखा',               'Branch',                pf_e($data['branch'] ?? '')],
         ]],
         ['title'=>'धितो जानकारी / Collateral Details', 'rows'=>[
             ['धितो प्रकार',        'Collateral Type',       pf_e($data['collateral_type'])],
             ['धितो मूल्य',         'Collateral Value',      pf_cur($data['collateral_value'])],
             ['धितो विवरण',         'Description',           pf_e($data['collateral_description'])],
         ]],
+        ['title'=>'जमानी विवरण / Guarantor Details', 'rows'=>[
+            ['जमानीको नाम',        'Guarantor Name',        pf_e($data['guarantor_name'] ?? '')],
+            ['सम्बन्ध',            'Relation',              pf_e($data['guarantor_relation'] ?? '')],
+            ['फोन',               'Phone',                 pf_e($data['guarantor_phone'] ?? '')],
+            ['ठेगाना',            'Address',               pf_e($data['guarantor_address'] ?? '')],
+        ]],
     ];
-    if (!empty($data['guarantor_name'])) {
-        $sections[] = ['title'=>'जमानी विवरण / Guarantor Details', 'rows'=>[
-            ['जमानीको नाम',        'Guarantor Name',        pf_e($data['guarantor_name'])],
-            ['सम्बन्ध',            'Relation',              pf_e($data['guarantor_relation'])],
-            ['फोन',               'Phone',                 pf_e($data['guarantor_phone'])],
-            ['ठेगाना',            'Address',               pf_e($data['guarantor_address'])],
+    if (!empty($data['remarks'])) {
+        $sections[] = ['title'=>'टिप्पणी / Remarks', 'rows'=>[
+            ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['remarks'])],
         ]];
     }
     break;
@@ -382,40 +388,61 @@ case 'welfare':
 /* ════════════════════════════ DIGITAL ════════════════════════════ */
 case 'digital':
     $st = $db->prepare("SELECT * FROM digital_service_requests WHERE id=?");
-    $st->execute([$id]);  $data = $st->fetch();
+    $st->execute([$id]);  $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
-    $svcMap      = ['statement'=>'बैंक स्टेटमेन्ट','atm_card'=>'ATM कार्ड','cheque_book'=>'चेकबुक','mobile_banking'=>'मोबाइल बैंकिङ','internet_banking'=>'इन्टरनेट बैंकिङ','fund_transfer'=>'फण्ड ट्रान्सफर','bill_payment'=>'बिल भुक्तानी','recharge'=>'रिचार्ज','other'=>'अन्य सेवा'];
-    $svcLabel    = $data['service_type_np'] ?? ($svcMap[$data['service_type']] ?? $data['service_type']);
+    $svcMap = [
+        'missed_call_banking'=>'मिस्ड कल बैंकिङ','statement_request'=>'स्टेटमेन्ट अनुरोध',
+        'bill_payment'=>'बिल भुक्तानी','mobile_recharge'=>'मोबाइल रिचार्ज',
+        'internet_banking'=>'इन्टरनेट/मोबाइल बैंकिङ','sms_alert'=>'SMS अलर्ट',
+        'card_service'=>'कार्ड सेवा','qr_payment'=>'QR/डिजिटल भुक्तानी',
+        'share_refund'=>'शेयर फिर्ता','share_increase'=>'शेयर वृद्धि',
+        'statement'=>'बैंक स्टेटमेन्ट','atm_card'=>'ATM कार्ड','cheque_book'=>'चेकबुक',
+        'mobile_banking'=>'मोबाइल बैंकिङ','fund_transfer'=>'फण्ड ट्रान्सफर',
+        'recharge'=>'रिचार्ज','other'=>'अन्य सेवा',
+    ];
+    $svcLabel    = $data['service_type_np'] ?? ($svcMap[$data['service_type'] ?? ''] ?? ($data['service_type'] ?? ''));
     $formTitle   = 'डिजिटल सेवा अनुरोध फारम — ' . $svcLabel;
     $formTitleEn = 'Digital Service Request Form — ' . ($data['service_type'] ?? '');
-    $trackId     = $data['tracking_id'] ?? 'DSR-' . str_pad($id, 6, '0', STR_PAD_LEFT);
-    $slMap       = ['pending'=>'पेन्डिङ','processing'=>'प्रक्रियामा','completed'=>'सम्पन्न','rejected'=>'अस्वीकृत'];
-    $statusLabel = $slMap[$data['status']] ?? $data['status'];
-    $svcRows = [
-        ['सेवाको प्रकार',     'Service Type',      pf_e($svcLabel)],
-        ['खाता नं.',          'Account No.',       pf_e($data['account_number'])],
-        ['सम्पर्क माध्यम',   'Preferred Contact', pf_e($data['preferred_contact'])],
-    ];
-    if ($data['statement_from'] || $data['statement_to'])
-        $svcRows[] = ['स्टेटमेन्ट अवधि','Statement Period', pf_e($data['statement_from']).' देखि / to '.pf_e($data['statement_to'])];
-    if ($data['biller_name'] || $data['bill_reference'])
-        $svcRows[] = ['बिल / बिलर','Biller', pf_e($data['biller_name']).' — '.pf_e($data['bill_reference'])];
-    if ($data['recharge_number'] || $data['recharge_amount'])
-        $svcRows[] = ['रिचार्ज नं. / रकम','Recharge No./Amount', pf_e($data['recharge_number']).' — '.pf_cur($data['recharge_amount'])];
-    if (!empty($data['service_amount']))
-        $svcRows[] = ['सेवा रकम','Service Amount', pf_cur($data['service_amount'])];
-    if (!empty($data['request_details']))
-        $svcRows[] = ['थप विवरण','Additional Details', pf_e($data['request_details'])];
+    $trackId     = $data['tracking_id'] ?? 'DSR-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
+    $slMap       = ['pending'=>'पेन्डिङ','processing'=>'प्रक्रियामा','approved'=>'स्वीकृत','completed'=>'सम्पन्न','rejected'=>'अस्वीकृत'];
+    $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
+    $reqRows = [];
+    pf_add_row($reqRows, 'नाम', 'Requester Name', $data['requester_name'] ?? '');
+    pf_add_row($reqRows, 'सदस्य नं.', 'Member ID', $data['member_id'] ?? '');
+    pf_add_row($reqRows, 'फोन', 'Phone', $data['phone'] ?? '');
+    pf_add_row($reqRows, 'इमेल', 'Email', $data['email'] ?? '');
+    pf_add_row($reqRows, 'आवेदन मिति', 'Application Date', pf_d($data['created_at'] ?? ''));
+    $svcRows = [];
+    pf_add_row($svcRows, 'सेवाको प्रकार', 'Service Type', $svcLabel);
+    pf_add_row($svcRows, 'खाता नं.', 'Account No.', $data['account_number'] ?? '');
+    pf_add_row($svcRows, 'सम्पर्क माध्यम', 'Preferred Contact', $data['preferred_contact'] ?? '', true);
+    if (!empty($data['statement_from']) || !empty($data['statement_to'])) {
+        pf_add_row($svcRows, 'स्टेटमेन्ट अवधि', 'Statement Period',
+            trim(($data['statement_from'] ?? '') . ' देखि / to ' . ($data['statement_to'] ?? '')));
+    }
+    if (!empty($data['biller_name']) || !empty($data['bill_reference'])) {
+        pf_add_row($svcRows, 'बिल / बिलर', 'Biller',
+            trim(($data['biller_name'] ?? '') . ' — ' . ($data['bill_reference'] ?? '')));
+    }
+    if (!empty($data['recharge_number']) || !empty($data['recharge_amount'])) {
+        pf_add_row($svcRows, 'रिचार्ज नं. / रकम', 'Recharge',
+            trim(($data['recharge_number'] ?? '') . ' — ' . (isset($data['recharge_amount']) ? pf_cur($data['recharge_amount']) : '')));
+    }
+    if (!empty($data['service_amount'])) {
+        pf_add_row($svcRows, 'सेवा रकम', 'Service Amount', pf_cur($data['service_amount']));
+    }
+    pf_add_row($svcRows, 'थप विवरण', 'Additional Details', $data['request_details'] ?? '', true);
+    pf_add_row($svcRows, 'Admin टिप्पणी', 'Admin Remarks', $data['admin_remarks'] ?? '', true);
     $sections = [
-        ['title'=>'अनुरोधकर्ताको जानकारी / Requester Information', 'rows'=>[
-            ['नाम',               'Requester Name',    pf_e($data['requester_name'])],
-            ['सदस्य नं.',          'Member ID',         pf_e($data['member_id'])],
-            ['फोन',               'Phone',             pf_e($data['phone'])],
-            ['इमेल',              'Email',             pf_e($data['email'])],
-            ['आवेदन मिति',        'Application Date',  pf_d($data['created_at'])],
-        ]],
+        ['title'=>'अनुरोधकर्ताको जानकारी / Requester Information', 'rows'=>$reqRows],
         ['title'=>'सेवा विवरण / Service Details', 'rows'=>$svcRows],
     ];
+    if (!empty($data['admin_attachment'])) {
+        $sections[] = ['title'=>'संलग्न / Attachment', 'kind'=>'docs', 'docs'=>[[
+            'label_np'=>'Admin संलग्न','label_en'=>'Admin Attachment',
+            'url'=>pf_url($data['admin_attachment']),'is_file'=>true,
+        ]]];
+    }
     break;
 
 /* ════════════════════════════ HONOR ════════════════════════════ */
@@ -500,11 +527,167 @@ case 'account':
         ]],
     ];
     if (!empty($data['nominee_name'])) {
-        $sections[] = ['title'=>'धन जमानी विवरण / Guarantor Details', 'rows'=>[
-            ['धन जमानीको नाम',    'Guarantor Name',        pf_e($data['nominee_name'])],
+        $sections[] = ['title'=>'नामांकित व्यक्ति / Nominee Details', 'rows'=>[
+            ['नामांकितको नाम',    'Nominee Name',        pf_e($data['nominee_name'])],
             ['सम्बन्ध',            'Relation',              pf_e($data['nominee_relation'])],
             ['फोन',               'Phone',                 pf_e($data['nominee_phone'])],
         ]];
+    }
+    if (!empty($data['remarks'])) {
+        $sections[] = ['title'=>'टिप्पणी / Remarks', 'rows'=>[
+            ['Admin टिप्पणी', 'Admin Remarks', pf_e($data['remarks'])],
+        ]];
+    }
+    break;
+
+/* ════════════════════════════ APPOINTMENT ════════════════════════════ */
+case 'appointment':
+    $st = $db->prepare('SELECT * FROM appointments WHERE id=?');
+    $st->execute([$id]);
+    $data = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$data) goto NOT_FOUND;
+    $purposeMap = [
+        'account_inquiry' => 'खाता जानकारी', 'loan_inquiry' => 'ऋण जानकारी',
+        'kyc_update' => 'केवाइसी अपडेट', 'loan_repayment' => 'ऋण भुक्तानी',
+        'account_opening' => 'खाता खोल्ने', 'other' => 'अन्य',
+    ];
+    $purposeTxt = $purposeMap[$data['purpose'] ?? ''] ?? ($data['purpose'] ?? '');
+    $isCoop = (($data['visit_kind'] ?? 'member') === 'cooperative');
+    $formTitle   = $isCoop ? 'सहकारी भ्रमण फारम' : 'भेटघाट आवेदन फारम';
+    $formTitleEn = $isCoop ? 'Cooperative Visit Form' : 'Appointment Request Form';
+    $trackId     = $data['tracking_id'] ?? ('APT-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT));
+    $slMap       = ['pending'=>'पेन्डिङ','confirmed'=>'पुष्टि भएको','completed'=>'सम्पन्न','cancelled'=>'रद्द'];
+    $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
+    $pers = [];
+    pf_add_row($pers, 'नाम', 'Name', $data['name'] ?? '');
+    pf_add_row($pers, 'सम्पर्क व्यक्ति', 'Contact Person', $data['contact_person'] ?? '', true);
+    pf_add_row($pers, 'सदस्य नं.', 'Member ID', $data['member_id'] ?? '');
+    pf_add_row($pers, 'फोन', 'Phone', $data['phone'] ?? '');
+    pf_add_row($pers, 'इमेल', 'Email', $data['email'] ?? '');
+    pf_add_row($pers, 'संस्था ठेगाना', 'Org Address', $data['organization_address'] ?? '', true);
+    pf_add_row($pers, 'वेबसाइट', 'Website', $data['organization_website'] ?? '', true);
+    pf_add_row($pers, 'भ्रमण प्रकार', 'Visit Kind', $isCoop ? 'सहकारी भ्रमण' : 'सदस्य भेटघाट');
+    $apt = [];
+    pf_add_row($apt, 'उद्देश्य', 'Purpose', $purposeTxt);
+    pf_add_row($apt, 'विवरण / सन्देश', 'Details', $data['purpose_detail'] ?? $data['message'] ?? '');
+    pf_add_row($apt, 'मनपर्ने मिति', 'Preferred Date', !empty($data['preferred_date']) ? pf_d($data['preferred_date']) : '');
+    pf_add_row($apt, 'समय', 'Preferred Time', $data['preferred_time'] ?? '');
+    pf_add_row($apt, 'शाखा', 'Branch', $data['branch'] ?? '');
+    pf_add_row($apt, 'Tracking ID', 'Tracking ID', $trackId);
+    pf_add_row($apt, 'दर्ता मिति', 'Created At', pf_d($data['created_at'] ?? ''));
+    pf_add_row($apt, 'Admin टिप्पणी', 'Admin Remarks', $data['remarks'] ?? '', true);
+    $sections = [
+        ['title' => 'आवेदक / संस्था जानकारी / Applicant', 'rows' => $pers],
+        ['title' => 'भेटघाट विवरण / Appointment Details', 'rows' => $apt],
+    ];
+    break;
+
+/* ════════════════════════════ GRIEVANCE ════════════════════════════ */
+case 'grievance':
+    $st = $db->prepare('SELECT * FROM grievances WHERE id=?');
+    $st->execute([$id]);
+    $data = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$data) goto NOT_FOUND;
+    $catMap = ['service'=>'सेवा','staff'=>'कर्मचारी','loan'=>'ऋण','account'=>'खाता','branch'=>'शाखा','other'=>'अन्य'];
+    $formTitle   = 'गुनासो फारम';
+    $formTitleEn = 'Grievance / Complaint Form';
+    $trackId     = $data['tracking_id'] ?? ('GRV-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT));
+    $slMap       = ['pending'=>'पेन्डिङ','in_progress'=>'प्रक्रियामा','resolved'=>'समाधान','closed'=>'बन्द'];
+    $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
+    $anon = !empty($data['is_anonymous']);
+    $gPers = [];
+    if ($anon) {
+        pf_add_row($gPers, 'गुमनाम', 'Anonymous', 'हो / Yes');
+    } else {
+        pf_add_row($gPers, 'नाम', 'Name', $data['name'] ?? '');
+        pf_add_row($gPers, 'फोन', 'Phone', $data['phone'] ?? '');
+        pf_add_row($gPers, 'इमेल', 'Email', $data['email'] ?? '');
+        pf_add_row($gPers, 'सदस्य नं.', 'Member ID', $data['member_id'] ?? '');
+    }
+    $gBody = [];
+    pf_add_row($gBody, 'श्रेणी', 'Category', $catMap[$data['category'] ?? ''] ?? ($data['category'] ?? ''));
+    pf_add_row($gBody, 'विषय', 'Subject', $data['subject'] ?? '');
+    pf_add_row($gBody, 'विवरण', 'Description', $data['description'] ?? '');
+    pf_add_row($gBody, 'Tracking ID', 'Tracking ID', $trackId);
+    pf_add_row($gBody, 'दर्ता मिति', 'Created At', pf_d($data['created_at'] ?? ''));
+    pf_add_row($gBody, 'समाधान मिति', 'Resolved At', !empty($data['resolved_at']) ? pf_d($data['resolved_at']) : '', true);
+    pf_add_row($gBody, 'Admin प्रतिक्रिया', 'Admin Response', $data['admin_response'] ?? '', true);
+    pf_add_row($gBody, 'Admin नोट', 'Admin Note', $data['admin_note'] ?? '', true);
+    $sections = [
+        ['title' => 'निवेदक जानकारी / Complainant', 'rows' => $gPers],
+        ['title' => 'गुनासो विवरण / Grievance Details', 'rows' => $gBody],
+    ];
+    if (!empty($data['attachment']) || !empty($data['admin_attachment'])) {
+        $docs = [];
+        if (!empty($data['attachment'])) {
+            $docs[] = ['label_np' => 'संलग्न', 'label_en' => 'Attachment', 'url' => pf_url($data['attachment']), 'is_file' => true];
+        }
+        if (!empty($data['admin_attachment'])) {
+            $docs[] = ['label_np' => 'Admin संलग्न', 'label_en' => 'Admin Attachment', 'url' => pf_url($data['admin_attachment']), 'is_file' => true];
+        }
+        $sections[] = ['title' => 'कागजात / Documents', 'kind' => 'docs', 'docs' => $docs];
+    }
+    break;
+
+/* ════════════════════════════ JOB ════════════════════════════ */
+case 'job':
+    $st = $db->prepare('SELECT ja.*, c.title AS job_title, c.department AS department
+        FROM job_applications ja
+        LEFT JOIN careers c ON c.id = ja.career_id
+        WHERE ja.id=?');
+    $st->execute([$id]);
+    $data = $st->fetch(PDO::FETCH_ASSOC);
+    if (!$data) goto NOT_FOUND;
+    $formTitle   = 'जागिर आवेदन फारम — ' . ($data['job_title'] ?: 'Job');
+    $formTitleEn = 'Job Application Form';
+    $trackId     = $data['tracking_id'] ?? ('JOB-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT));
+    $slMap       = ['pending'=>'पेन्डिङ','shortlisted'=>'छनोट','interviewed'=>'अन्तर्वार्ता','selected'=>'चयन','rejected'=>'अस्वीकृत'];
+    $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
+    if (!empty($data['photo_path'])) {
+        $photoPath = pf_url($data['photo_path']);
+    }
+    $jPers = [];
+    pf_add_row($jPers, 'पूरा नाम', 'Full Name', $data['full_name'] ?? '');
+    pf_add_row($jPers, 'इमेल', 'Email', $data['email'] ?? '');
+    pf_add_row($jPers, 'फोन', 'Phone', $data['phone'] ?? '');
+    pf_add_row($jPers, 'ठेगाना', 'Address', $data['address'] ?? '');
+    pf_add_row($jPers, 'जन्म मिति', 'Date of Birth', $data['date_of_birth'] ?? '');
+    pf_add_row($jPers, 'लिङ्ग', 'Gender', $data['gender'] ?? '');
+    pf_add_row($jPers, 'Tracking ID', 'Tracking ID', $trackId);
+    pf_add_row($jPers, 'आवेदन मिति', 'Applied At', pf_d($data['created_at'] ?? ''));
+    $jJob = [];
+    pf_add_row($jJob, 'पद', 'Job Title', $data['job_title'] ?? '');
+    pf_add_row($jJob, 'विभाग', 'Department', $data['department'] ?? '', true);
+    pf_add_row($jJob, 'शिक्षा', 'Education', $data['education'] ?? '');
+    pf_add_row($jJob, 'अनुभव', 'Experience', $data['experience'] ?? '');
+    pf_add_row($jJob, 'हालको रोजगारदाता', 'Current Employer', $data['current_employer'] ?? '');
+    pf_add_row($jJob, 'अपेक्षित तलब', 'Expected Salary', $data['expected_salary'] ?? '');
+    pf_add_row($jJob, 'कभर लेटर', 'Cover Letter', $data['cover_letter'] ?? '', true);
+    pf_add_row($jJob, 'Admin नोट', 'Admin Notes', $data['admin_notes'] ?? '', true);
+    $sections = [
+        ['title' => 'आवेदक जानकारी / Applicant', 'rows' => $jPers],
+        ['title' => 'पद / योग्यता / Position & Qualifications', 'rows' => $jJob],
+    ];
+    $jobDocs = [];
+    foreach ([
+        ['Resume / CV', 'Resume', $data['resume_path'] ?? ''],
+        ['फोटो', 'Photo', $data['photo_path'] ?? ''],
+        ['नागरिकता', 'Citizenship', $data['citizenship_path'] ?? ''],
+        ['प्रमाणपत्र', 'Certificates', $data['certificates_path'] ?? ''],
+    ] as [$lnp, $len, $p]) {
+        $u = pf_url($p);
+        if ($u !== '') {
+            $ext = strtolower(pathinfo(parse_url($u, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION));
+            $jobDocs[] = [
+                'label_np' => $lnp,
+                'label_en' => $len,
+                'url' => $u,
+                'is_file' => !in_array($ext, ['jpg','jpeg','png','gif','webp'], true),
+            ];
+        }
+    }
+    if (!empty($jobDocs)) {
+        $sections[] = ['title' => 'संलग्न कागजात / Attached Documents', 'kind' => 'docs', 'docs' => $jobDocs];
     }
     break;
 }
@@ -536,6 +719,9 @@ $checklists = [
     'digital' => ['नागरिकताको फोटोकपी','खाता नम्बर प्रमाण'],
     'honor'   => ['प्रमाण पत्र / मार्कसीट','नागरिकताको फोटोकपी (आवश्यक परे)','सदस्यता कार्ड प्रतिलिपि'],
     'account' => ['नागरिकताको फोटोकपी','फोटो (पासपोर्ट साइज ×२)','ठेगाना प्रमाण'],
+    'appointment' => ['सदस्यता कार्ड (आवश्यक परे)','परिचय पत्र'],
+    'grievance'   => ['सम्बन्धित प्रमाण कागजात','संलग्न फाइल'],
+    'job'         => ['Resume / CV','नागरिकता','फोटो','शैक्षिक प्रमाणपत्र'],
 ];
 $checklist = $checklists[$type] ?? [];
 ?>

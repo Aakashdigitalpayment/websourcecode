@@ -189,6 +189,43 @@ if (!function_exists('adminExcelSingleLink')) {
     }
 }
 
+if (!function_exists('adminPrintFormLink')) {
+    /**
+     * Uniform bank-style print page link: admin/print-form.php?type=…&id=…
+     * @param 'kyc'|'loan'|'account'|'digital'|'welfare'|'honor'|'appointment'|'grievance'|'job' $type
+     */
+    function adminPrintFormLink(string $type, int $id, string $class = 'btn btn-light btn-sm', string $label = 'Print Form'): string
+    {
+        if ($id < 1) {
+            return '';
+        }
+        $type = preg_replace('/[^a-z_]/', '', strtolower($type)) ?: '';
+        $allowed = ['kyc','loan','account','digital','welfare','honor','appointment','grievance','job'];
+        if (!in_array($type, $allowed, true)) {
+            return '';
+        }
+        $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
+        $cls  = htmlspecialchars($class, ENT_QUOTES, 'UTF-8');
+        $lab  = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
+        return '<a href="' . $href . '" target="_blank" rel="noopener" class="' . $cls . '">'
+            . '<i class="fas fa-print me-1"></i>' . $lab . '</a>';
+    }
+}
+
+if (!function_exists('adminPrintFormIcon')) {
+    /** Compact list-row print icon */
+    function adminPrintFormIcon(string $type, int $id): string
+    {
+        if ($id < 1) {
+            return '';
+        }
+        $type = preg_replace('/[^a-z_]/', '', strtolower($type)) ?: '';
+        $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
+        return '<a href="' . $href . '" target="_blank" rel="noopener" class="adm-icon-btn" title="Print" aria-label="Print">'
+            . '<i class="fas fa-print"></i></a>';
+    }
+}
+
 if (!function_exists('adminExcelFilename')) {
     function adminExcelFilename(string $prefix, string $dateFrom = '', string $dateTo = ''): string
     {

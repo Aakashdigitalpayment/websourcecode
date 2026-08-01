@@ -18,6 +18,7 @@ require_once __DIR__ . '/includes/admin-request-view.php';
 require_once '../includes/member-auth.php'; /* adminGenerateMemberIdCard() को लागि */
 require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
 
@@ -736,8 +737,7 @@ if ($viewApp):
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
             <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$viewApp['id']; ?>"
                class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Excel</a>
-            <a href="print-form.php?type=kyc&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminPrintFormLink('kyc', (int)$viewApp['id']); ?>
         </div>
     </div>
 
@@ -1396,8 +1396,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                         <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>"
                            class="adm-icon-btn" title="Excel डाउनलोड" aria-label="Excel"
                            style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
-                        <a href="print-form.php?type=kyc&amp;id=<?php echo (int)$app['id']; ?>" target="_blank"
-                           class="adm-icon-btn" title="Print" aria-label="Print"><i class="fas fa-print"></i></a>
+                        <?php echo adminPrintFormIcon('kyc', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('KYC स्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>

@@ -207,8 +207,7 @@ if (!$claim) {
                 <i class="fas fa-arrow-left"></i> फिर्ता
             </a>
             <?php echo adminExcelSingleLink('welfare-claims.php', (int)$claim['id']); ?>
-            <a href="print-form.php?type=welfare&id=<?php echo (int)$claim['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminPrintFormLink('welfare', (int)$claim['id']); ?>
         </div>
     </div>
     <div class="card-body">
@@ -626,6 +625,7 @@ if ($flash = getFlash()):
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="?export=csv&amp;id=<?php echo (int)$claim['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                            <?php echo adminPrintFormIcon('welfare', (int)$claim['id']); ?>
                             <form method="POST" class="adm-icon-form" onsubmit="return confirm('हटाउने?');">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="delete_claim" value="1">

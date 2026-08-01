@@ -273,8 +273,7 @@ if ($viewApp):
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
             <?php echo adminExcelSingleLink('account-applications.php', (int)$viewApp['id']); ?>
-            <a href="print-form.php?type=account&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminPrintFormLink('account', (int)$viewApp['id']); ?>
         </div>
     </div>
 
@@ -628,6 +627,7 @@ $accFilterQs = array_filter([
                     <div class="adm-action-icons">
                         <a href="account-applications.php?view=<?php echo $app['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विवरण', 'Details'); ?>" aria-label="View"><i class="fas fa-eye"></i></a>
                         <a href="?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <?php echo adminPrintFormIcon('account', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('खाता आवेदन स्वीकृत गर्नुहुन्छ?', 'Approve this account application?'); ?>')">
                             <?php echo csrfField(); ?>

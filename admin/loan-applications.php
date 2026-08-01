@@ -279,8 +279,7 @@ if ($viewApp):
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
             <?php echo adminExcelSingleLink('loan-applications.php', (int)$viewApp['id']); ?>
-            <a href="print-form.php?type=loan&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminPrintFormLink('loan', (int)$viewApp['id']); ?>
         </div>
     </div>
     <div class="card-body">
@@ -639,6 +638,7 @@ $loanFilterQs = array_filter([
                         <a href="loan-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel" style="color:#15803d;">
                             <i class="fas fa-file-excel"></i>
                         </a>
+                        <?php echo adminPrintFormIcon('loan', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending' || $app['status'] === 'processing'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('यो आवेदन स्वीकृत गर्नुहुन्छ?', 'Approve this application?'); ?>')">
                             <?php echo csrfField(); ?>
