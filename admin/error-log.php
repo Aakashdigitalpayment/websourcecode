@@ -100,8 +100,9 @@ if (file_exists($logFile)) {
                     <div class="col-md-4">
                         <div class="p-3 border rounded h-100">
                             <strong class="text-info"><i class="fas fa-table me-1"></i>Table Missing Error</strong>
-                            <p class="small mt-1 mb-0">Admin → DB Setup वा Run Migration मा जानुस्।
-                            install.sql phpMyAdmin मा re-import गर्नुस्।</p>
+                            <p class="small mt-1 mb-0">नयाँ column/table प्रायः page load मा auto बन्छ (<code>ensure*Tables</code>)।
+                            Emergency मा Superadmin ले <code>admin/db-setup.php</code> वा <code>admin/run-migration.php</code> (direct URL) प्रयोग गर्न सक्छ।
+                            phpMyAdmin मा <code>database/install.sql</code> पनि OK।</p>
                         </div>
                     </div>
                 </div>

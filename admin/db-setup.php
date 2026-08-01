@@ -126,8 +126,11 @@ if ($bootstrapMode) {
     }
 }
 
-$lockFile    = dirname(__DIR__) . '/.setup.lock';
-$setupLocked = file_exists($lockFile);
+require_once dirname(__DIR__) . '/includes/installer-lock.php';
+coop_installer_auto_lock();
+$installer   = coop_installer_status();
+$setupLocked = $installer['public_safe'];
+$lockFile    = dirname(__DIR__) . '/.setup.lock'; /* legacy path kept for older POST handlers */
 $sqlFile     = dirname(__DIR__) . '/database/install.sql';
 $sqlExists   = file_exists($sqlFile);
 
@@ -323,13 +326,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && ($_POST['action'] ?? '') === 'toggle_lock'
     && verifyCSRFToken()) {
-    if ($setupLocked) {
-        @unlink($lockFile);
-        setFlash('info', 'setup.php unlock भयो।');
-    } else {
-        file_put_contents($lockFile, date('Y-m-d H:i:s') . ' — Locked by Superadmin from admin panel');
-        setFlash('success', 'setup.php lock भयो।');
-    }
+    $wantLock = !$setupLocked;
+    coop_installer_toggle_lock($wantLock);
+    setFlash(
+        $wantLock ? 'success' : 'info',
+        $wantLock
+            ? 'Public install wizard lock भयो।'
+            : 'Install lock हटाइयो (local DB फाइल भए .htaccess ले install.php अझै रोक्न सक्छ)।'
+    );
     redirect('db-setup.php');
     exit();
 }
@@ -846,7 +850,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                 <div class="dbs-stat-icon <?php echo $setupLocked ? 'is-ok' : 'is-bad'; ?>">
                     <i class="fas fa-<?php echo $setupLocked?'lock':'lock-open'; ?>"></i>
                 </div>
-                <div class="fw-bold mt-1"><?php echo $setupLocked?'setup.php Locked':'setup.php Unlocked'; ?></div>
+                <div class="fw-bold mt-1"><?php echo $setupLocked?'Install Locked':'Install Unlocked'; ?></div>
                 <div class="text-muted small">Public URL <?php echo $setupLocked?'बन्द':'खुल्ला'; ?> छ</div>
             </div>
         </div>
@@ -1121,13 +1125,13 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
         <!-- ════ RIGHT ════ -->
         <div class="col-lg-4">
 
-            <!-- setup.php Lock Control -->
+            <!-- Public install wizard Lock Control -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header py-2"
                      >
                     <h6 class="mb-0">
                         <i class="fas fa-<?php echo $setupLocked?'lock':'lock-open'; ?> me-2"></i>
-                        setup.php Access Control
+                        install.php Access Control
                     </h6>
                 </div>
                 <div class="card-body text-center">
@@ -1135,19 +1139,15 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <i class="fas fa-<?php echo $setupLocked?'shield-check':'shield-exclamation'; ?>"></i>
                     </div>
                     <p class="small text-muted mb-3">
-                        <?php if ($setupLocked): ?>
-                            setup.php public URL बाट access बन्द छ। (lock file छ)
-                        <?php else: ?>
-                            setup.php अझै public URL बाट खुल्छ!
-                        <?php endif; ?>
+                        <?php echo htmlspecialchars($installer['detail'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
                     </p>
-                    <form method="POST" onsubmit="return confirm('<?php echo $setupLocked ? 'setup.php unlock गर्ने?' : 'setup.php lock गर्ने? Public URL बाट access बन्द हुनेछ।'; ?>')">
+                    <form method="POST" onsubmit="return confirm('<?php echo $setupLocked ? 'Install lock हटाउने?' : 'install.php lock गर्ने?'; ?>')">
                         <input type="hidden" name="action" value="toggle_lock">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <button type="submit"
                                 class="btn btn-sm <?php echo $setupLocked?'btn-outline-danger':'btn-danger'; ?> w-100">
                             <i class="fas fa-<?php echo $setupLocked?'lock-open':'lock'; ?> me-1"></i>
-                            <?php echo $setupLocked ? 'Unlock गर्नुहोस्' : 'Lock गर्नुहोस् (सिफारिस)'; ?>
+                            <?php echo $setupLocked ? 'Unlock locks' : 'Lock गर्नुहोस् (सिफारिस)'; ?>
                         </button>
                     </form>
                 </div>
@@ -1160,11 +1160,8 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
-                        <a href="site-setup.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-sliders me-2 text-primary"></i>Site Setup Manager
-                        </a>
-                        <a href="run-migration.php" class="list-group-item list-group-item-action small py-2">
-                            <i class="fas fa-code-branch me-2 text-warning"></i>Migration Runner
+                        <a href="settings.php" class="list-group-item list-group-item-action small py-2">
+                            <i class="fas fa-sliders me-2 text-primary"></i>Site Settings
                         </a>
                         <a href="manage-admins.php" class="list-group-item list-group-item-action small py-2">
                             <i class="fas fa-users-gear me-2 text-success"></i>Admin User व्यवस्थापन
@@ -1174,6 +1171,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         </a>
                         <a href="system-info.php" class="list-group-item list-group-item-action small py-2">
                             <i class="fas fa-server me-2 text-secondary"></i>System Info
+                        </a>
+                        <a href="site-health.php" class="list-group-item list-group-item-action small py-2">
+                            <i class="fas fa-heart-pulse me-2 text-danger"></i>Site Health
                         </a>
                     </div>
                 </div>

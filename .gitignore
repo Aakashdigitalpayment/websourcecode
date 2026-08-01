@@ -9,6 +9,8 @@
 includes/.auth-secret
 includes/.cred-master.key
 install.lock
+.setup.lock
+.schema.lock
 includes/database.local.php
 includes/database.php
 *.local.php
