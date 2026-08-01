@@ -1647,3 +1647,20 @@ if (!function_exists('lucide_asset')) {
         return $base . 'assets/vendor/lucide.min.js?v=' . $mtime;
     }
 }
+
+/**
+ * Safe COUNT(*) for dashboards — available even when core/init.php was not used.
+ */
+if (!function_exists('core_safe_count')) {
+    function core_safe_count(PDO $db, string $sql, string $logPrefix = '[core-safe-count]'): int {
+        if (function_exists('sqCount')) {
+            return sqCount($db, $sql, $logPrefix);
+        }
+        try {
+            return (int)($db->query($sql)->fetchColumn() ?: 0);
+        } catch (Throwable $e) {
+            error_log($logPrefix . ' ' . $e->getMessage());
+            return 0;
+        }
+    }
+}
