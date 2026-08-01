@@ -14949,7 +14949,7 @@ body.dark-mode .scroll-btn.down {
     background: var(--header-color, var(--topbar-bg, var(--secondary-color)));
     color: #fff;
     font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
-    font-size: 12.5px;
+    font-size: 12px;
     line-height: 1;
     border-bottom: 1px solid rgba(0,0,0,0.12);
     position: relative;
@@ -14983,8 +14983,8 @@ body.dark-mode .scroll-btn.down {
     gap: 5px;
     color: var(--text-on-header, rgba(255,255,255,0.92));
     text-decoration: none;
-    padding: 8px 13px;
-    font-size: 13px;
+    padding: 7px 11px;
+    font-size: 12px;
     font-weight: 600;
     font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
     transition: background .18s, color .18s;
@@ -15485,8 +15485,8 @@ body.header-v2 .pfl-nav-area .nav-menu > li > a {
     font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
     color: #0b3b1a;
     font-weight: 700;
-    font-size: 13px;
-    padding: 8px 11px;
+    font-size: 12.5px;
+    padding: 7px 10px;
     border-radius: 7px;
     position: relative;
     transition: background .22s, color .22s, box-shadow .2s;

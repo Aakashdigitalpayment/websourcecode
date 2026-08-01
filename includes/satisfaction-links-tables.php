@@ -36,3 +36,80 @@ if (!function_exists('ensureSatisfactionLinksTables')) {
         }
     }
 }
+
+if (!function_exists('satisfactionWidgetEnabled')) {
+    function satisfactionWidgetEnabled(): bool
+    {
+        return function_exists('getSetting') && getSetting('satisfaction_widget_enabled', '0') === '1';
+    }
+}
+
+if (!function_exists('satisfactionFetchActiveLinks')) {
+    /**
+     * Active feedback / satisfaction links for public header + mobile widget.
+     * @return list<array<string,mixed>>
+     */
+    function satisfactionFetchActiveLinks(?PDO $db = null, int $limit = 5): array
+    {
+        $limit = max(1, min(10, $limit));
+        try {
+            $db = $db ?: (function_exists('getDB') ? getDB() : null);
+            if (!$db instanceof PDO) {
+                return [];
+            }
+            ensureSatisfactionLinksTables($db);
+            if (!satisfactionWidgetEnabled()) {
+                return [];
+            }
+            $tableOk = function_exists('dbTableExists')
+                ? dbTableExists('satisfaction_links')
+                : true;
+            if (!$tableOk) {
+                return [];
+            }
+            $st = $db->prepare(
+                "SELECT id, title, title_en, url, icon, created_at, updated_at
+                 FROM satisfaction_links
+                 WHERE is_active = 1
+                 ORDER BY display_order ASC, id ASC
+                 LIMIT {$limit}"
+            );
+            $st->execute();
+            return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+}
+
+if (!function_exists('satisfactionHasNewBadge')) {
+    /** Show नयाँ if any active link was created/updated in the last N days. */
+    function satisfactionHasNewBadge(array $links, int $withinDays = 21): bool
+    {
+        if ($links === []) {
+            return false;
+        }
+        $cut = time() - (max(1, $withinDays) * 86400);
+        foreach ($links as $row) {
+            foreach (['updated_at', 'created_at'] as $k) {
+                $ts = strtotime((string)($row[$k] ?? ''));
+                if ($ts && $ts >= $cut) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+}
+
+if (!function_exists('satisfactionLinkTitle')) {
+    function satisfactionLinkTitle(array $row): string
+    {
+        $en = trim((string)($row['title_en'] ?? ''));
+        $np = trim((string)($row['title'] ?? ''));
+        if (function_exists('isEnglish') && isEnglish() && $en !== '') {
+            return $en;
+        }
+        return $np !== '' ? $np : $en;
+    }
+}

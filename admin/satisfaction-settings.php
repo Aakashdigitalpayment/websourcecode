@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            यही table बाट public page मा widget enable/disable हुन्छ */
         updateSetting('satisfaction_widget_enabled', $enabled);
         setFlash('success', $enabled === '1'
-            ? 'Widget Enable भयो — public page मा देखिनेछ।'
-            : 'Widget Disable भयो — public page मा देखिनेछैन।');
+            ? 'Enable भयो — top header मा «सदस्य सन्तुष्टि» देखिनेछ।'
+            : 'Disable भयो — header / feedback लिंक देखिने छैन।');
         redirect('satisfaction-settings.php');
     }
 
@@ -132,7 +132,7 @@ if (!in_array($panel, ['list', 'form'], true)) {
     $panel = 'list';
 }
 
-$pageTitle = 'सन्तुष्टि Widget सेटिङ्स';
+$pageTitle = 'सन्तुष्टि / प्रतिक्रिया सेटिङ्स';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 ?>
@@ -141,7 +141,7 @@ require_once 'includes/admin-ui.php';
 
     <!-- Page Header -->
     <?php
-    echo adminPageHeader('सन्तुष्टि Widget','fa-smile','सदस्य सन्तुष्टि survey widget सेटिङ्स।');
+    echo adminPageHeader('सन्तुष्टि / प्रतिक्रिया','fa-smile','Top header मा «सदस्य सन्तुष्टि» (honor जस्तै)। १ link = direct, धेरै = dropdown। Mobile मा मात्र सानो floating fallback।');
     if ($flash = getFlash()):
     ?>
     <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -171,17 +171,17 @@ require_once 'includes/admin-ui.php';
                         </div>
                         <div>
                             <h6 class="mb-0 fw-bold">
-                                Widget Status:
+                                Status:
                                 <?php if ($widgetEnabled): ?>
-                                    <span class="badge bg-success ms-1"><i class="fas fa-check-circle me-1"></i>Active — Frontend मा देखिँदैछ</span>
+                                    <span class="badge bg-success ms-1"><i class="fas fa-check-circle me-1"></i>Active — Header मा देखिँदैछ</span>
                                 <?php else: ?>
-                                    <span class="badge bg-secondary ms-1"><i class="fas fa-times-circle me-1"></i>Inactive — Frontend मा देखिँदैन</span>
+                                    <span class="badge bg-secondary ms-1"><i class="fas fa-times-circle me-1"></i>Inactive</span>
                                 <?php endif; ?>
                             </h6>
                             <small class="text-muted">
                                 <?php echo $widgetEnabled
-                                    ? 'Widget enable छ — website को दाया side मा floating icon देखिन्छ।'
-                                    : 'Widget disable छ — Enable गर्नुहोस् भने floating icon देखिनेछ।'; ?>
+                                    ? 'Enable छ — desktop top header मा «सदस्य सन्तुष्टि» (१ link = direct, धेरै = dropdown)। Mobile मा सानो floating fallback।'
+                                    : 'Disable छ — Enable गर्नुहोस् भने header मा feedback लिंक देखिन्छ।'; ?>
                             </small>
                         </div>
                     </div>
@@ -280,8 +280,9 @@ require_once 'includes/admin-ui.php';
 
             <div class="alert alert-info mt-3">
                 <i class="fas fa-info-circle me-2"></i>
-                <strong>Preview:</strong> Widget frontend मा page को दाया side मा middle मा floating icon को रूपमा देखिन्छ।
-                Hover गर्दा links देखिन्छन्। Widget enable र कम्तिमा एउटा active link भएमा मात्र देखिन्छ।
+                <strong>Preview:</strong> Desktop मा सम्मान आवेदन जस्तै top utility bar मा देखिन्छ।
+                एउटा link भए direct लिंक; दुई वा बढी भए dropdown। नयाँ/अपडेट भएको link मा «नयाँ» badge।
+                Mobile मा (quick-links लुकेको) दायाँतिर सानो floating fallback रहन्छ।
             </div>
         </div>
 
