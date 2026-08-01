@@ -35,14 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $property_type   = clean_text($_POST['property_type'] ?? '');
             $location        = clean_text($_POST['location'] ?? '');
             $google_map_link = clean_text($_POST['google_map_link'] ?? '');
-            $google_map_embed = $_POST['google_map_embed'] ?? '';
+            $google_map_embed = auctionSanitizeMapEmbed((string)($_POST['google_map_embed'] ?? ''));
             $area_bigha      = floatval($_POST['area_bigha'] ?? 0);
             $area_ropani     = floatval($_POST['area_ropani'] ?? 0);
             $area_aana       = floatval($_POST['area_aana'] ?? 0);
             $area_paisa      = floatval($_POST['area_paisa'] ?? 0);
             $area            = clean_text($_POST['area'] ?? '');
             $minimum_price   = floatval($_POST['minimum_price'] ?? 0);
-            $auction_date    = clean_text($_POST['auction_date'] ?? '');
+            $auction_date    = auctionNormalizeDate(clean_text($_POST['auction_date'] ?? '', 40));
             $auction_time    = clean_text($_POST['auction_time'] ?? '');
             $contact_person  = clean_text($_POST['contact_person'] ?? '');
             $contact_phone   = preg_replace('/[^0-9]/', '', clean_text($_POST['contact_phone'] ?? '', 20));
@@ -120,8 +120,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* ── Delete ── */
         if (isset($_POST['delete_auction'])) {
             $id = (int)($_POST['auction_id'] ?? 0);
-            $db->prepare("DELETE FROM auction_notices WHERE id = ?")->execute([$id]);
-            setFlash('success', 'लिलामी मेटाइयो।');
+            if ($id > 0) {
+                $bc = $db->prepare('SELECT COUNT(*) FROM auction_bids WHERE auction_id=?');
+                $bc->execute([$id]);
+                $bidN = (int)$bc->fetchColumn();
+                if ($bidN > 0) {
+                    $db->prepare('UPDATE auction_notices SET is_active=0, status=?, updated_at=NOW() WHERE id=?')
+                        ->execute(['cancelled', $id]);
+                    setFlash('success', 'बोलपत्र भएकाले मेटाउन सकिएन — निष्क्रिय/रद्द गरियो।');
+                } else {
+                    $db->prepare('DELETE FROM auction_notices WHERE id = ?')->execute([$id]);
+                    setFlash('success', 'लिलामी मेटाइयो।');
+                }
+            }
             redirect('auctions.php');
         }
 

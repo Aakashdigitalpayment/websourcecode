@@ -237,17 +237,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // लिलामी बोलपत्र खोज्ने
             try {
                 if ($searchType === 'tracking_id') {
+                    $rawBid = trim($searchValue);
                     $bidId = 0;
-                    if (preg_match('/BID-?(\d+)/i', $searchValue, $matches)) {
-                        $bidId = (int) $matches[1];
-                    } elseif (ctype_digit(trim($searchValue))) {
-                        $bidId = (int) trim($searchValue);
+                    if (preg_match('/^BID-\d{8}-[A-Z0-9]+$/i', $rawBid)) {
+                        $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
+                                              FROM auction_bids ab
+                                              LEFT JOIN auction_notices an ON ab.auction_id = an.id
+                                              WHERE UPPER(ab.tracking_id) = UPPER(?)");
+                        $stmt->execute([$rawBid]);
+                    } else {
+                        if (preg_match('/BID-?(\d+)/i', $rawBid, $matches)) {
+                            $bidId = (int) $matches[1];
+                        } elseif (ctype_digit($rawBid)) {
+                            $bidId = (int) $rawBid;
+                        }
+                        $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
+                                              FROM auction_bids ab
+                                              LEFT JOIN auction_notices an ON ab.auction_id = an.id
+                                              WHERE ab.id = ? OR UPPER(COALESCE(ab.tracking_id,'')) = UPPER(?)");
+                        $stmt->execute([$bidId > 0 ? $bidId : 0, $rawBid]);
                     }
-                    $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
-                                          FROM auction_bids ab
-                                          LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                          WHERE ab.id = ?");
-                    $stmt->execute([$bidId > 0 ? $bidId : 0]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
@@ -928,7 +937,7 @@ function getAppTypeLabel($type) {
                                         <?php elseif ($app['app_type'] === 'kyc'): ?>
                                         <span class="rcp-chip"><i class="fas fa-hashtag"></i>KYC-<?php echo $app['id']; ?></span>
                                         <?php elseif ($app['app_type'] === 'auction_bid'): ?>
-                                        <span class="rcp-chip"><i class="fas fa-hashtag"></i>BID-<?php echo $app['id']; ?></span>
+                                        <span class="rcp-chip"><i class="fas fa-hashtag"></i><?php echo htmlspecialchars((string)($app['tracking_id'] ?? ('BID-' . $app['id']))); ?></span>
                                         <?php elseif ($app['app_type'] === 'appointment'): ?>
                                         <span class="rcp-chip"><i class="fas fa-hashtag"></i><?php echo htmlspecialchars($app['tracking_id'] ?? ('APT-' . str_pad((string) ($app['id'] ?? 0), 6, '0', STR_PAD_LEFT))); ?></span>
                                         <?php elseif ($app['app_type'] === 'feedback'): ?>

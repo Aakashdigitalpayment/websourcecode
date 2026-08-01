@@ -1,58 +1,103 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
+require_once 'includes/auction-tables.php';
 $pageTitle = isEnglish() ? 'Auction Notices' : 'लिलामी सूचना';
 require_once 'includes/header.php';
 $L = getLangStrings();
 
-// Get auctions
+$bidSuccess = false;
+$bidError = '';
+$bidTrackingId = '';
+
 try {
     $db = getDB();
-    $auctions = $db->query("SELECT * FROM auction_notices WHERE is_active = 1 ORDER BY auction_date DESC LIMIT 10")->fetchAll();
+    ensureAuctionTables($db);
+    $auctions = $db->query(
+        "SELECT * FROM auction_notices WHERE is_active = 1
+         ORDER BY FIELD(status,'ongoing','upcoming','completed','cancelled'), auction_date DESC
+         LIMIT 50"
+    )->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Exception $e) {
+    $db = null;
     $auctions = [];
 }
 
-// Compute status counts for hero stats and filter bar
 $statusCounts = ['all' => 0, 'ongoing' => 0, 'upcoming' => 0, 'completed' => 0, 'cancelled' => 0];
 foreach ($auctions as $_a) {
     $statusCounts['all']++;
     $_s = $_a['status'] ?? 'upcoming';
-    if (isset($statusCounts[$_s])) $statusCounts[$_s]++;
+    if (isset($statusCounts[$_s])) {
+        $statusCounts[$_s]++;
+    }
 }
 unset($_a, $_s);
 
-// Handle bid submission
-$bidSuccess = false;
-$bidError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
     if (!verifyCSRFToken()) {
         $bidError = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
-    } elseif (!checkRateLimit('auction_bid', 5, 60)) {
-        $bidError = isEnglish() ? 'Too many requests.' : 'धेरै अनुरोधहरू।';
+    } elseif (!checkRateLimit('auction_bid', 8, 3600)) {
+        $bidError = isEnglish() ? 'Too many bids. Please try again later.' : 'धेरै बोलपत्र। पछि प्रयास गर्नुहोस्।';
     } elseif (!empty($_POST['bid_form_token']) && isset($_SESSION['last_bid_form_token']) && $_SESSION['last_bid_form_token'] === $_POST['bid_form_token']) {
         $bidError = isEnglish() ? 'This bid was already submitted. Please refresh before submitting again.' : 'यो बोलपत्र पहिले नै पेश भइसकेको छ। फेरि पेश गर्न पेज refresh गर्नुहोस्।';
     } else {
-        $auction_id = intval($_POST['auction_id'] ?? 0);
+        $auction_id = (int)($_POST['auction_id'] ?? 0);
         $bidder_name = clean_text($_POST['bidder_name'] ?? '', 200);
         $bidder_phone = preg_replace('/[^0-9]/', '', clean_text($_POST['bidder_phone'] ?? '', 20));
         $bidder_email = strtolower(clean_text($_POST['bidder_email'] ?? '', 254));
         $bidder_address = clean_text($_POST['bidder_address'] ?? '', 500);
-        $bid_amount = floatval($_POST['bid_amount'] ?? 0);
+        $bid_amount = (float)($_POST['bid_amount'] ?? 0);
         $message = clean_text($_POST['message'] ?? '', 2000);
 
-        if (empty($bidder_name) || empty($bidder_phone) || $bid_amount <= 0) {
-            $bidError = isEnglish() ? 'Please fill all required fields.' : 'कृपया सबै आवश्यक फिल्डहरू भर्नुहोस्।';
-        } else {
-            try {
+        try {
+            if (!$db) {
                 $db = getDB();
-                $stmt = $db->prepare("INSERT INTO auction_bids (auction_id, bidder_name, bidder_phone, bidder_email, bidder_address, bid_amount, message) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$auction_id, $bidder_name, $bidder_phone, $bidder_email, $bidder_address, $bid_amount, $message]);
-                $_SESSION['last_bid_form_token'] = $_POST['bid_form_token'] ?? '';
-                $bidSuccess = true;
-            } catch (Exception $e) {
-                $bidError = isEnglish() ? 'Failed to submit bid.' : 'बोलपत्र पेश गर्न सकिएन।';
+                ensureAuctionTables($db);
             }
+            $ast = $db->prepare('SELECT * FROM auction_notices WHERE id=? LIMIT 1');
+            $ast->execute([$auction_id]);
+            $auctionRow = $ast->fetch(PDO::FETCH_ASSOC) ?: null;
+
+            if (!$auctionRow || !auctionIsOpenForBids($auctionRow)) {
+                $bidError = isEnglish() ? 'This auction is not open for bids.' : 'यो लिलामीमा अहिले बोलपत्र खुला छैन।';
+            } elseif ($bidder_name === '' || !preg_match('/^9\d{9}$/', $bidder_phone)) {
+                $bidError = isEnglish() ? 'Valid name and 10-digit mobile (9XXXXXXXXX) required.' : 'नाम र सही १० अङ्कको मोबाइल (९XXXXXXXXX) आवश्यक।';
+            } elseif ($bid_amount <= 0) {
+                $bidError = isEnglish() ? 'Enter a valid bid amount.' : 'सही बोल रकम राख्नुहोस्।';
+            } elseif ((float)($auctionRow['minimum_price'] ?? 0) > 0 && $bid_amount < (float)$auctionRow['minimum_price']) {
+                $bidError = isEnglish()
+                    ? ('Bid must be at least Rs. ' . number_format((float)$auctionRow['minimum_price'], 2))
+                    : ('बोल रकम कम्तीमा रु. ' . number_format((float)$auctionRow['minimum_price'], 2) . ' हुनुपर्छ।');
+            } else {
+                $dup = $db->prepare("SELECT id FROM auction_bids WHERE auction_id=? AND bidder_phone=? AND status='pending' AND created_at >= ? LIMIT 1");
+                $dup->execute([$auction_id, $bidder_phone, date('Y-m-d H:i:s', time() - 86400)]);
+                if ($dup->fetch()) {
+                    $bidError = isEnglish() ? 'You already have a pending bid for this auction today.' : 'आज यस लिलामीमा तपाईंको पेन्डिङ बोलपत्र पहिल्यै छ।';
+                } else {
+                    $bidTrackingId = auctionGenerateBidTrackingId($db);
+                    $stmt = $db->prepare(
+                        'INSERT INTO auction_bids (auction_id, tracking_id, bidder_name, bidder_phone, bidder_email, bidder_address, bid_amount, message)
+                         VALUES (?,?,?,?,?,?,?,?)'
+                    );
+                    $stmt->execute([$auction_id, $bidTrackingId, $bidder_name, $bidder_phone, $bidder_email, $bidder_address, $bid_amount, $message]);
+                    $_SESSION['last_bid_form_token'] = $_POST['bid_form_token'] ?? '';
+                    $bidSuccess = true;
+                    if (function_exists('sendAdminNotification')) {
+                        try {
+                            require_once __DIR__ . '/includes/notifications.php';
+                            sendAdminNotification('auction_bid', [
+                                'लिलामी' => auctionTitle($auctionRow),
+                                'बोलकर्ता' => $bidder_name,
+                                'फोन' => $bidder_phone,
+                                'रकम' => number_format($bid_amount, 2),
+                                'Tracking' => $bidTrackingId,
+                            ], $bidTrackingId);
+                        } catch (Throwable $e) { /* ignore */ }
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            $bidError = isEnglish() ? 'Failed to submit bid.' : 'बोलपत्र पेश गर्न सकिएन।';
         }
     }
 }
@@ -77,7 +122,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
         <div class="auc2-hero-txt" style="text-align:center;color:#fff;">
             <h1 class="auc2-h" style="color:#fff;font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:.6rem;"><?php echo $pageTitle; ?></h1>
             <p class="auc2-sub" style="color:rgba(255,255,255,.9);font-size:1.05rem;margin-bottom:1.4rem;"><?php echo isEnglish() ? 'Browse active property auctions &mdash; view details, photos, and submit your bid.' : 'सक्रिय लिलामी सम्पत्तिहरू हेर्नुहोस् &mdash; विवरण, तस्बिर हेर्नुहोस् र बोलपत्र पेश गर्नुहोस्।'; ?></p>
-        </div>
             <?php if (!empty($auctions)): ?>
             <div class="auc2-hero-stats">
                 <div class="auc2-hstat">
@@ -160,13 +204,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
     <div class="alert alert-success alert-dismissible fade show">
         <i class="fas fa-check-circle me-2"></i>
         <?php echo isEnglish() ? 'Your bid has been submitted successfully!' : 'तपाईंको बोलपत्र सफलतापूर्वक पेश भयो!'; ?>
+        <?php if ($bidTrackingId !== ''): ?>
+        <div class="mt-2">
+            <strong><?php echo isEnglish() ? 'Tracking ID:' : 'Tracking ID:'; ?></strong>
+            <code id="aucBidTrk"><?php echo htmlspecialchars($bidTrackingId); ?></code>
+            <a class="ms-2" href="<?php echo SITE_URL; ?>application-tracker.php"><?php echo isEnglish() ? 'Track status' : 'स्थिति हेर्नुहोस्'; ?></a>
+        </div>
+        <?php endif; ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <?php endif; ?>
 
     <?php if ($bidError): ?>
     <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle me-2"></i><?php echo $bidError; ?>
+        <i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($bidError); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <?php endif; ?>
@@ -175,7 +226,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
     <div class="text-center py-5">
         <i class="fas fa-gavel fa-4x text-muted mb-3 d-block"></i>
         <h4 class="text-muted"><?php echo isEnglish() ? 'No Auction Notices Available' : 'कुनै लिलामी सूचना उपलब्ध छैन'; ?></h4>
-        <p class="text-muted"><?php echo isEnglish() ? 'Please check back later.' : 'कृपया पछि पुनः हेर्नुहोस्।'; ?></p>
+        <p class="text-muted mb-3"><?php echo isEnglish() ? 'Please check back later, or contact the office.' : 'कृपया पछि हेर्नुहोस्, वा कार्यालयमा सम्पर्क गर्नुहोस्।'; ?></p>
+        <a class="btn btn-outline-success btn-sm" href="<?php echo SITE_URL; ?>contact.php"><i class="fas fa-envelope me-1"></i><?php echo isEnglish() ? 'Contact' : 'सम्पर्क'; ?></a>
+        <a class="btn btn-outline-secondary btn-sm" href="<?php echo SITE_URL; ?>application-tracker.php"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track bid' : 'बोलपत्र ट्र्याक'; ?></a>
     </div>
     <?php else: ?>
 
@@ -205,15 +258,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
 
         $aId    = $auction['id'];
         $status = $auction['status'] ?? 'upcoming';
-        $hasBid = ($status === 'upcoming' || $status === 'ongoing');
+        $hasBid = auctionIsOpenForBids($auction);
         $hasDoc = !empty($auction['document']);
         $hasMap = !empty($auction['google_map_embed']) || !empty($auction['google_map_link']);
         $hasPhotos = count($auctionImages) > 1;
+        $aTitle = auctionTitle($auction);
 
-        /* Auction date countdown */
-        $auctionTs   = strtotime($auction['auction_date']);
+        /* Auction date countdown (AD storage) */
+        $auctionTs   = !empty($auction['auction_date']) ? strtotime($auction['auction_date'] . ' 23:59:59') : false;
         $nowTs       = time();
-        $diffSec     = $auctionTs - $nowTs;
+        $diffSec     = $auctionTs ? ($auctionTs - $nowTs) : 0;
         $showCountdown = ($status === 'upcoming' && $diffSec > 0 && $diffSec < 30*24*3600);
     ?>
 
@@ -241,7 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
                     src="<?php echo SITE_URL . $auctionImages[0]; ?>"
                     class="auc2-main-img"
                     id="auc2-main-<?php echo $aId; ?>"
-                    alt="<?php echo htmlspecialchars(getLangField($auction,'title')); ?>"
+                    alt="<?php echo htmlspecialchars($aTitle); ?>"
                     loading="lazy"
                     onclick="auc2Lightbox(this.src)">
 
@@ -273,11 +327,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
                         <?php echo $statusLabels[$status] ?? $status; ?>
                     </span>
                     <span class="auc2-serial text-muted">
-                        <i class="fas fa-hashtag fa-xs"></i> <?php echo isEnglish()?'Auction No.':'लिलामी नं.'; ?> <?php echo str_pad($aIdx+1, 3, '0', STR_PAD_LEFT); ?>
+                        <i class="fas fa-hashtag fa-xs"></i>
+                        <?php
+                        $trk = trim((string)($auction['tracking_number'] ?? ''));
+                        echo htmlspecialchars($trk !== '' ? $trk : ((isEnglish() ? 'No. ' : 'नं. ') . str_pad((string)($aIdx + 1), 3, '0', STR_PAD_LEFT)));
+                        ?>
                     </span>
                 </div>
 
-                <h2 class="auc2-title"><?php echo htmlspecialchars(getLangField($auction,'title')); ?></h2>
+                <h2 class="auc2-title"><?php echo htmlspecialchars($aTitle); ?></h2>
 
                 <!-- Info grid -->
                 <div class="auc2-info-grid">
@@ -291,7 +349,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
                     <?php if (!empty($auction['auction_date'])): ?>
                     <div class="auc2-info-item highlight">
                         <div class="auc2-info-label"><i class="fas fa-calendar-alt"></i> <?php echo isEnglish()?'Auction Date':'लिलामी मिति'; ?></div>
-                        <div class="auc2-info-value"><?php echo date('Y-m-d', strtotime($auction['auction_date'])); ?></div>
+                        <div class="auc2-info-value"><?php echo htmlspecialchars(auctionFormatDateDisplay((string)$auction['auction_date'])); ?></div>
                     </div>
                     <?php endif; ?>
 
@@ -403,7 +461,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
 
             <!-- Overview tab -->
             <div class="auc2-tab-pane active" id="overview-<?php echo $aId; ?>">
-                <?php $desc = getLangField($auction,'description'); ?>
+                <?php $desc = auctionDescription($auction); ?>
                 <?php if (!empty($desc)): ?>
                 <div class="auc2-desc-block">
                     <?php echo nl2br(htmlspecialchars($desc)); ?>
@@ -444,7 +502,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
                     <?php foreach ($auctionImages as $pImg): ?>
                     <img src="<?php echo SITE_URL.$pImg; ?>"
                          loading="lazy"
-                         alt="<?php echo htmlspecialchars(getLangField($auction,'title')); ?>"
+                         alt="<?php echo htmlspecialchars($aTitle); ?>"
                          onclick="auc2Lightbox(this.src)">
                     <?php endforeach; ?>
                 </div>
@@ -479,7 +537,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
             <div class="auc2-tab-pane" id="map-<?php echo $aId; ?>">
                 <?php if (!empty($auction['google_map_embed'])): ?>
                 <div class="auc2-map-container">
-                    <?php echo $auction['google_map_embed']; ?>
+                    <?php echo auctionSanitizeMapEmbed((string)$auction['google_map_embed']); ?>
                 </div>
                 <?php endif; ?>
                 <?php if (!empty($auction['google_map_link'])): ?>

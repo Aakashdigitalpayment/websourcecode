@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
+require_once 'includes/careers-tables.php';
 ensurePublicTables();
 $pageTitle = isEnglish() ? 'Career Opportunities' : 'रोजगारीका अवसरहरू';
 $pageDescription = isEnglish()
@@ -9,9 +10,17 @@ $pageDescription = isEnglish()
 require_once 'includes/header.php';
 $L = getLangStrings();
 
+$siteName = function_exists('getSetting')
+    ? trim((string)(getSetting('site_name') ?: getSetting('cooperative_name') ?: ''))
+    : '';
+if ($siteName === '') {
+    $siteName = isEnglish() ? 'Our Cooperative' : 'हाम्रो सहकारी';
+}
+
 try {
     $db   = getDB();
-    $jobs = $db->query("SELECT * FROM careers WHERE is_active = 1 ORDER BY created_at DESC LIMIT 20")->fetchAll();
+    ensureCareersTables($db);
+    $jobs = $db->query("SELECT * FROM careers WHERE is_active = 1 ORDER BY created_at DESC LIMIT 50")->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Exception $e) {
     $jobs = [];
 }
@@ -20,9 +29,14 @@ $openCount   = 0;
 $closedCount = 0;
 $deptSet     = [];
 foreach ($jobs as $j) {
-    $passed = !empty($j['deadline']) && strtotime($j['deadline']) < strtotime('today');
-    if ($passed) $closedCount++; else $openCount++;
-    if (!empty($j['department'])) $deptSet[$j['department']] = true;
+    if (careerDeadlinePassed($j)) {
+        $closedCount++;
+    } else {
+        $openCount++;
+    }
+    if (!empty($j['department'])) {
+        $deptSet[$j['department']] = true;
+    }
 }
 $totalDepts = count($deptSet);
 ?>
@@ -48,8 +62,8 @@ $totalDepts = count($deptSet);
             <div class="cr-hero-text">
                 <h2><?php echo isEnglish() ? 'Join Our Team' : 'हाम्रो टोलीमा सामेल हुनुहोस्'; ?></h2>
                 <p><?php echo isEnglish()
-                    ? 'Build your career with आकाश सहकारी — a trusted cooperative family.'
-                    : 'आकाश सहकारीसँग आफ्नो क्यारियर निर्माण गर्नुहोस् — एक विश्वसनीय सहकारी परिवार।'; ?>
+                    ? ('Build your career with ' . htmlspecialchars($siteName) . ' — a trusted cooperative family.')
+                    : (htmlspecialchars($siteName) . 'सँग आफ्नो क्यारियर निर्माण गर्नुहोस् — एक विश्वसनीय सहकारी परिवार।'); ?>
                 </p>
             </div>
             <div class="cr-stats">
@@ -95,12 +109,12 @@ $totalDepts = count($deptSet);
             </div>
         </div>
         <div class="cr-filter-chips">
-            <div class="cr-chip active" data-filter="all" onclick="crChip(this)">
+            <div class="cr-chip" data-filter="all" onclick="crChip(this)">
                 <i class="fas fa-th-large"></i>
                 <?php echo isEnglish() ? 'All' : 'सबै'; ?>
                 <span class="cr-chip-count"><?php echo count($jobs); ?></span>
             </div>
-            <div class="cr-chip" data-filter="open" onclick="crChip(this)">
+            <div class="cr-chip active green" data-filter="open" onclick="crChip(this)">
                 <i class="fas fa-door-open"></i>
                 <?php echo isEnglish() ? 'Open' : 'खुला'; ?>
                 <span class="cr-chip-count"><?php echo $openCount; ?></span>
@@ -143,20 +157,33 @@ $totalDepts = count($deptSet);
         'HR' => 'fa-users', 'Operations' => 'fa-cogs', 'Marketing' => 'fa-bullhorn',
         'Finance' => 'fa-coins', 'Admin' => 'fa-building', 'Loan' => 'fa-hand-holding-usd',
         'Credit' => 'fa-credit-card', 'Audit' => 'fa-clipboard-check',
+        'सञ्चालन' => 'fa-cogs', 'ऋण' => 'fa-hand-holding-usd',
     ];
+    usort($jobs, static function ($a, $b) {
+        return (int)careerDeadlinePassed($a) <=> (int)careerDeadlinePassed($b);
+    });
 
     foreach ($jobs as $idx => $job):
-        $deadlinePassed = !empty($job['deadline']) && strtotime($job['deadline']) < strtotime('today');
+        $deadlinePassed = careerDeadlinePassed($job);
         $daysLeft = 0;
         $totalDays = 0;
-        if (!empty($job['deadline'])) {
-            $daysLeft = (int)ceil((strtotime($job['deadline']) - time()) / 86400);
+        $deadlineTs = !empty($job['deadline']) ? strtotime((string)$job['deadline'] . ' 23:59:59') : false;
+        if ($deadlineTs && !$deadlinePassed) {
+            $daysLeft = max(0, (int)ceil(($deadlineTs - time()) / 86400));
             if (!empty($job['created_at'])) {
-                $totalDays = (int)ceil((strtotime($job['deadline']) - strtotime($job['created_at'])) / 86400);
+                $createdTs = strtotime((string)$job['created_at']);
+                if ($createdTs) {
+                    $totalDays = max(1, (int)ceil(($deadlineTs - $createdTs) / 86400));
+                }
             }
         }
         $isUrgent = (!$deadlinePassed && $daysLeft > 0 && $daysLeft <= 7);
+        $isNew = !$deadlinePassed && careerIsNew($job);
         $dept = $job['department'] ?? '';
+        $vacancyCount = (int)($job['vacancies'] ?? $job['vacancy_count'] ?? 1);
+        if ($vacancyCount < 1) {
+            $vacancyCount = 1;
+        }
         $deptIcon = 'fa-briefcase';
         foreach ($deptIcons as $k => $v) {
             if (stripos($dept, $k) !== false) { $deptIcon = $v; break; }
@@ -169,6 +196,7 @@ $totalDepts = count($deptSet);
             $progressPct = min(100, max(3, ($daysLeft / $totalDays) * 100));
         }
         $progressClass = $deadlinePassed ? 'gone' : (($daysLeft <= 7) ? 'near' : 'ok');
+        $deadlineLabel = careerFormatDeadlineDisplay($job['deadline'] ?? null);
     ?>
     <div class="cr-job-card <?php echo $cardClass; ?>"
          data-status="<?php echo $deadlinePassed ? 'closed' : 'open'; ?>"
@@ -180,6 +208,11 @@ $totalDepts = count($deptSet);
         <div class="cr-urgent-tag">
             <i class="fas fa-fire"></i>
             <?php echo isEnglish() ? 'Closes in '.$daysLeft.'d' : $daysLeft.' दिनमा बन्द'; ?>
+        </div>
+        <?php elseif ($isNew): ?>
+        <div class="cr-urgent-tag" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">
+            <i class="fas fa-sparkles"></i>
+            <?php echo isEnglish() ? 'New' : 'नयाँ'; ?>
         </div>
         <?php endif; ?>
 
@@ -193,7 +226,7 @@ $totalDepts = count($deptSet);
                     <div class="cr-job-title"><?php echo htmlspecialchars(getLangField($job, 'title')); ?></div>
                     <div class="cr-badge-row">
                         <?php if (!empty($job['job_type'])): ?>
-                        <span class="cr-tag type"><?php echo htmlspecialchars($job['job_type']); ?></span>
+                        <span class="cr-tag type"><?php echo htmlspecialchars(str_replace('_', ' ', (string)$job['job_type'])); ?></span>
                         <?php endif; ?>
                         <?php if (!empty($dept)): ?>
                         <span class="cr-tag dept"><?php echo htmlspecialchars($dept); ?></span>
@@ -202,6 +235,8 @@ $totalDepts = count($deptSet);
                         <span class="cr-tag closed-tag"><i class="fas fa-lock me-1"></i><?php echo isEnglish() ? 'Closed' : 'बन्द'; ?></span>
                         <?php elseif ($isUrgent): ?>
                         <span class="cr-tag urgent-tag"><i class="fas fa-fire me-1"></i><?php echo isEnglish() ? 'Urgent' : 'अर्जेन्ट'; ?></span>
+                        <?php elseif ($isNew): ?>
+                        <span class="cr-tag open"><i class="fas fa-sparkles me-1"></i><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                         <?php else: ?>
                         <span class="cr-tag open"><i class="fas fa-circle me-1 cr-inline-dot"></i><?php echo isEnglish() ? 'Open' : 'खुला'; ?></span>
                         <?php endif; ?>
@@ -217,12 +252,10 @@ $totalDepts = count($deptSet);
                     <?php echo htmlspecialchars($job['location']); ?>
                 </span>
                 <?php endif; ?>
-                <?php if (!empty($job['vacancy_count'])): ?>
                 <span class="cr-meta-item">
                     <i class="fas fa-users"></i>
-                    <?php echo isEnglish() ? 'Vacancy: '.$job['vacancy_count'] : 'रिक्त: '.$job['vacancy_count']; ?>
+                    <?php echo isEnglish() ? 'Vacancy: '.$vacancyCount : 'रिक्त: '.$vacancyCount; ?>
                 </span>
-                <?php endif; ?>
                 <?php if (!empty($job['salary_range'])): ?>
                 <span class="cr-meta-item">
                     <i class="fas fa-coins"></i>
@@ -233,7 +266,7 @@ $totalDepts = count($deptSet);
                 <span class="cr-meta-item <?php echo $deadlinePassed ? 'deadline-gone' : ($daysLeft <= 7 ? 'deadline-near' : ''); ?>">
                     <i class="fas fa-calendar-alt"></i>
                     <?php echo isEnglish() ? 'Deadline:' : 'म्याद:'; ?>
-                    <?php echo date('Y M d', strtotime($job['deadline'])); ?>
+                    <?php echo htmlspecialchars($deadlineLabel); ?>
                     <?php if (!$deadlinePassed && $daysLeft > 0): ?>
                     <strong class="cr-meta-deadline-strong">(<?php echo isEnglish() ? $daysLeft.'d left' : $daysLeft.' दिन'; ?>)</strong>
                     <?php elseif ($deadlinePassed): ?>
@@ -387,7 +420,11 @@ $totalDepts = count($deptSet);
 
 <script>
 /* ─── Career v2 Filter Logic ─── */
-var crActiveFilter = 'all';
+var crActiveFilter = 'open';
+var crActiveDept = '';
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof crFilter === 'function') crFilter();
+});
 
 function crFilter() {
     var q   = (document.getElementById('crSearch').value || '').toLowerCase().trim();
@@ -431,11 +468,11 @@ function crChip(el) {
 
 function crReset() {
     document.getElementById('crSearch').value = '';
-    crActiveFilter = 'all';
+    crActiveFilter = 'open';
     crActiveDept   = '';
-    document.querySelectorAll('.cr-chip').forEach(function(c, i) {
+    document.querySelectorAll('.cr-chip').forEach(function(c) {
         c.classList.remove('active','green','grey');
-        if (i === 0) c.classList.add('active');
+        if (c.getAttribute('data-filter') === 'open') c.classList.add('active','green');
     });
     document.querySelectorAll('.cr-dept-chip').forEach(function(c) {
         c.classList.remove('active');
@@ -444,7 +481,6 @@ function crReset() {
 }
 
 /* Department chip filter */
-var crActiveDept = '';
 function crDeptChip(el) {
     var d = el.getAttribute('data-dept-filter') || '';
     if (crActiveDept === d) {
