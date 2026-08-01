@@ -1081,7 +1081,7 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
         if ($context === 'kyc') {
             $body = '<strong>दिशा:</strong> पहिले Member (CBS/अनुरोध) → अनि KYM भर्ने। '
                 . 'Members मा भएको नाम/मोबाइल stub मा जान्छ; KYM भरेपछि खाली members field मा फर्कन्छ — <em>दुवैतिर छुट्टै import होइन</em>। '
-                . 'यो पेज = समीक्षा/approve। Excel bulk वैकल्पिक।';
+                . 'यो पेज = समीक्षा/approve मात्र। KYM Excel import छैन — stub Members बाट, बाँकी online/portal।';
         } elseif ($context === 'portal') {
             $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {

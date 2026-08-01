@@ -125,7 +125,7 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
         <p class="text-muted small mb-0">
             पुराना सदस्यको <strong>CBS Excel → Members Import एक पटक</strong>।
             स्वतः <strong>KYM stub</strong> बन्छ (नाम/मोबाइल…) — बाँकी फारम/कागजात member ले <strong>online वा portal</strong> बाट भर्छ।
-            छुट्टै KYM Excel सामान्यतया <strong>नचाहिने</strong>। CSV → <strong>UTF-8</strong>।
+            CSV → <strong>UTF-8</strong>।
         </p>
     </div>
     <div class="d-flex gap-2 flex-wrap">

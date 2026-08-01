@@ -169,9 +169,10 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
       <h5>📥 Bulk Import:</h5>
       <div class="hg-step">
-        <b>KYC documents/applications:</b> <a href="kyc-import-sample.php">KYC Import Sample</a> → CSV fill → KYC page बाट import।
+        <b>पुराना सदस्य (CBS ledger):</b> <a href="member-import.php">Member Bulk Import</a> / <a href="member-import-sample.php">Member Sample CSV</a> — Excel → Save As CSV UTF-8।
+        स्वतः KYM stub बन्छ; कागजात/बाँकी फारम सदस्यले <b>Online KYM</b> वा <b>portal</b> बाट भर्छ।
         <br>
-        <b>पुराना सदस्य (portal + ID card):</b> <a href="member-import.php">Member Bulk Import</a> / <a href="member-import-sample.php">Member Sample CSV</a> — Excel → Save As CSV UTF-8।
+        <b>KYM मा छुट्टै Excel import छैन</b> (confusion / mismatch हटाउन)।
       </div>
 
       <div class="hg-warn">
@@ -316,7 +317,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         ✨ <b>Member ID = एकल स्रोत (SSOT):</b> पहिले Members import / admin ले सदस्यता नं. बनाउने → अनि Online KYM त्यही नम्बरसँग।
         KYM approve ले members stub लिंक गर्छ (लगइन बन्दैन); Portal = पासवर्ड + approve।
         दोहोरो नम्बर: <a href="member-ssot-duplicates.php">Duplicate inventory</a>।
-        KYM कागजातका लागि <a href="kyc-applications.php">KYM Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a>।
+        KYM कागजातका लागि <a href="kyc-applications.php">KYM Applications</a> (समीक्षा) — Excel import होइन; online/portal बाट भर्ने।
       </div>
 
       <h5>➕ नयाँ Member थप्ने (Admin बाट):</h5>

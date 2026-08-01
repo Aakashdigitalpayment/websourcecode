@@ -1,8 +1,7 @@
 <?php
 /**
- * KYC Import Sample (CSV)
- * --------------------------------------------
- * Clean CSV response for Excel import template.
+ * Legacy URL — KYM Excel import हटाइयो (confusion / mismatch)।
+ * CBS → Members Import मात्र; KYM stub auto; बाँकी online/portal।
  */
 require_once __DIR__ . '/../includes/config.php';
 
@@ -11,16 +10,8 @@ if (!isAdminLoggedIn()) {
     exit;
 }
 
-$filename = 'kyc-import-sample.csv';
-header('Content-Type: text/csv; charset=UTF-8');
-header('Content-Disposition: attachment; filename="' . $filename . '"');
-header('Pragma: no-cache');
-header('Expires: 0');
-
-echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel Nepali text support
-$out = fopen('php://output', 'w');
-fputcsv($out, ['member_id','full_name','mobile','email','citizenship_no','national_id_number','dob_bs','gender','permanent_address','occupation','account_type','branch','status','remarks','want_id_card']);
-fputcsv($out, ['1234','राम प्रसाद शर्मा','9812345678','ram@example.com','12-01-77-12345','1234-5678-9012-34','2080-01-15','male','पोखरा-८, कास्की','शिक्षक','saving','head_office','pending','Members मा पहिले 1234 हुनुपर्छ','0']);
-fputcsv($out, ['5678','सीता अधिकारी','9800001122','sita@example.com','45-02-77-98765','5678-1234-9090-88','2078-11-05','female','लेखनाथ-१२, कास्की','व्यवसाय','current','lakeside','incomplete','member_id अनिवार्य (SSOT)','1']);
-fclose($out);
+if (function_exists('setFlash')) {
+    setFlash('info', 'KYM Excel import हटाइएको छ। CBS डेटा Members Import मा हाल्नुहोस्; बाँकी online/portal बाट भर्नुहोस्।');
+}
+header('Location: member-import.php');
 exit;
