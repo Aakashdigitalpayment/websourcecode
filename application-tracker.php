@@ -473,6 +473,25 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($vendorResults) $allResults = array_merge($allResults, $vendorResults);
             } catch (Exception $e) {}
 
+            /* नयाँ सदस्यता अनुरोध (MEM-…) */
+            try {
+                if (function_exists('membershipEnsureTable')) {
+                    membershipEnsureTable($db);
+                }
+                if ($searchType === 'tracking_id') {
+                    $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE UPPER(TRIM(tracking_id)) = UPPER(TRIM(?))");
+                    $stmt->execute([$searchValue]);
+                } elseif ($searchType === 'phone') {
+                    $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt->execute([$searchValue]);
+                } else {
+                    $stmt = $db->prepare("SELECT *, 'membership' as app_type FROM membership_applications WHERE LOWER(TRIM(email)) = ? ORDER BY created_at DESC LIMIT 20");
+                    $stmt->execute([$searchValue]);
+                }
+                $memJoinResults = $stmt->fetchAll();
+                if ($memJoinResults) $allResults = array_merge($allResults, $memJoinResults);
+            } catch (Exception $e) {}
+
             /* Phone/email खोज: दुवै contact मिलेका row मात्र (faux-code बाट leak रोक्न) */
             if (in_array($searchType, ['phone', 'email'], true)) {
                 $phoneDigits = trackerNormalizePhone((string)$secPhone);
@@ -487,8 +506,8 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 /* खोजिएको आवेदन नभेटिएमा — helpful message */
                 if ($searchType === 'tracking_id') {
                     $error = isEnglish()
-                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, BID-… / HNR-…</small>'
-                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-20240101-XXXX, APT-20260505-XXXXXX, DSR-XXXX-XXXXXX, HNR-XXXX-XXXXXX, BID-… / HNR-…</small>';
+                        ? 'No application found with this Tracking ID. Please check the ID and try again.<br><small class="text-muted">Examples: JOB-…, APT-…, MEM-…, DSR-…, HNR-…, BID-…, KYC-…</small>'
+                        : 'यो Tracking ID मा कुनै आवेदन भेटिएन। कृपया ID सही छ भनी जाँच गर्नुहोस्।<br><small class="text-muted">उदाहरण: JOB-…, APT-…, MEM-…, DSR-…, HNR-…, BID-…, KYC-…</small>';
                 } elseif ($searchType === 'phone') {
                     $error = isEnglish()
                         ? 'No application found with this phone number. Please check the number.'
@@ -639,6 +658,11 @@ function getStatusText($status, $type = 'job') {
             'rejected' => 'अस्वीकृत / Rejected',
             'closed' => 'बन्द / Closed',
         ],
+        'membership' => [
+            'pending' => 'पेन्डिङ / Pending',
+            'approved' => 'स्वीकृत / Approved',
+            'rejected' => 'अस्वीकृत / Rejected',
+        ],
         '__default' => [
             'pending' => 'पेन्डिङ / Pending',
             'shortlisted' => 'छनोट भयो / Shortlisted',
@@ -665,6 +689,7 @@ function getAppTypeLabel($type) {
         'digital_service' => ['icon' => 'fa-mobile-alt', 'label' => 'डिजिटल सेवा अनुरोध', 'label_en' => 'Digital Service Request', 'color' => 'info'],
         'honor_application' => ['icon' => 'fa-award', 'label' => 'सम्मान आवेदन', 'label_en' => 'Honor Application', 'color' => 'success'],
         'vendor' => ['icon' => 'fa-store', 'label' => 'सप्लायर दर्ता', 'label_en' => 'Vendor Enlistment', 'color' => 'warning'],
+        'membership' => ['icon' => 'fa-user-plus', 'label' => 'सदस्यता अनुरोध', 'label_en' => 'Membership Request', 'color' => 'success'],
     ];
     return $typeMap[$type] ?? ['icon' => 'fa-file-alt', 'label' => 'आवेदन', 'label_en' => 'Application', 'color' => 'dark'];
 }
@@ -1017,6 +1042,11 @@ function getAppTypeLabel($type) {
                                             echo htmlspecialchars($dsLabels[$app['service_type'] ?? ''] ?? $app['service_type_np'] ?? $app['service_type'] ?? 'डिजिटल सेवा अनुरोध');
                                         } elseif ($app['app_type'] === 'honor_application') {
                                             echo htmlspecialchars($app['nominee_name'] ?: $app['applicant_name'] ?: (isEnglish() ? 'Honor Application' : 'सम्मान आवेदन'));
+                                        } elseif ($app['app_type'] === 'membership') {
+                                            echo isEnglish() ? 'New Membership Request' : 'नयाँ सदस्यता अनुरोध';
+                                            if (!empty($app['assigned_sadasyata'])) {
+                                                echo ' — ' . htmlspecialchars((string)$app['assigned_sadasyata']);
+                                            }
                                         } else {
                                             echo isEnglish() ? $typeInfo['label_en'] : $typeInfo['label'];
                                         }
@@ -1101,6 +1131,12 @@ function getAppTypeLabel($type) {
                                         <?php elseif ($app['app_type'] === 'kyc'): ?>
                                         <?php if (!empty($app['citizenship_no'])): ?><div class="di-item"><span class="di-label"><i class="fas fa-id-card"></i> <?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नं.'; ?></span><span class="di-value"><?php echo e($app['citizenship_no']); ?></span></div><?php endif; ?>
                                         <?php if ($diAddr): ?><div class="di-item di-item-wide"><span class="di-label"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></span><span class="di-value"><?php echo e(mb_substr($diAddr,0,80)); ?></span></div><?php endif; ?>
+
+                                        <?php elseif ($app['app_type'] === 'membership'): ?>
+                                        <?php if (!empty($app['citizenship_no'])): ?><div class="di-item"><span class="di-label"><i class="fas fa-id-card"></i> <?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नं.'; ?></span><span class="di-value"><?php echo e($app['citizenship_no']); ?></span></div><?php endif; ?>
+                                        <?php if (!empty($app['assigned_sadasyata'])): ?><div class="di-item"><span class="di-label"><i class="fas fa-id-badge"></i> <?php echo isEnglish() ? 'Assigned Member ID' : 'दिइएको Member ID'; ?></span><span class="di-value fw-bold"><?php echo e($app['assigned_sadasyata']); ?></span></div><?php endif; ?>
+                                        <?php if ($diAddr): ?><div class="di-item di-item-wide"><span class="di-label"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></span><span class="di-value"><?php echo e(mb_substr($diAddr,0,80)); ?></span></div><?php endif; ?>
+                                        <?php if (!empty($app['admin_remarks'])): ?><div class="di-item di-item-full"><span class="di-label"><i class="fas fa-comment"></i> <?php echo isEnglish() ? 'Admin note' : 'Admin कैफियत'; ?></span><span class="di-value"><?php echo nl2br(e(mb_substr((string)$app['admin_remarks'],0,200))); ?></span></div><?php endif; ?>
 
                                         <?php elseif ($app['app_type'] === 'appointment'): ?>
                                         <?php $aptPurposeLabels=['account_inquiry'=>'खाता जानकारी','loan_inquiry'=>'ऋण जानकारी','kyc_update'=>'KYC अपडेट','loan_repayment'=>'ऋण भुक्तानी','account_opening'=>'खाता खोल्ने','other'=>'अन्य']; ?>

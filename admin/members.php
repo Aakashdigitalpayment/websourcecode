@@ -1,9 +1,9 @@
 <?php
 /**
- * Admin: Member Portal Management
+ * Admin: Members list (Member ID SSOT ledger)
  * - Member list, details, direct notification send
  */
-$pageTitle   = 'Member Portal व्यवस्थापन';
+$pageTitle   = 'सबै सदस्य (Member ID)';
 $currentPage = 'members';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -113,7 +113,7 @@ if ($viewId) {
 /* ── Member list ── */
 $search = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
 $kycFilter = trim((string)($_GET['kyc'] ?? 'all'));
-if (!in_array($kycFilter, ['all', 'linked', 'unlinked'], true)) {
+if (!in_array($kycFilter, ['all', 'linked', 'unlinked', 'no_password'], true)) {
     $kycFilter = 'all';
 }
 $page   = max(1, (int)($_GET['page'] ?? 1));
@@ -127,13 +127,15 @@ if (!in_array($memSub, ['live', 'arch'], true)) {
 
 $where = '1=1'; $params = [];
 if ($search) {
-    $where .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ? OR member_card_no LIKE ?)";
-    $t = "%$search%"; $params = [$t,$t,$t,$t];
+    $where .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ? OR member_card_no LIKE ? OR sadasyata_number LIKE ?)";
+    $t = "%$search%"; $params = [$t,$t,$t,$t,$t];
 }
 if ($kycFilter === 'linked') {
-    $where .= " AND kyc_application_id IS NOT NULL";
+    $where .= " AND kyc_application_id IS NOT NULL AND kyc_application_id <> 0 AND password_hash IS NOT NULL AND password_hash <> ''";
 } elseif ($kycFilter === 'unlinked') {
     $where .= " AND (kyc_application_id IS NULL OR kyc_application_id = 0)";
+} elseif ($kycFilter === 'no_password') {
+    $where .= " AND (password_hash IS NULL OR password_hash = '')";
 }
 
 $whereBase = $where;
@@ -229,6 +231,17 @@ try {
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">सदस्यता नं</span>
+                    <code class="small"><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">लिंक स्थिति</span>
+                    <span class="small"><?php
+                        $vs = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($viewMember) : 'unknown';
+                        echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($vs) : '—';
+                    ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">इमेल</span>
                     <span class="small"><?php echo htmlspecialchars($viewMember['email'] ?? '—'); ?></span>
                 </li>
@@ -290,6 +303,26 @@ try {
                 </div>
             </div>
             <?php endif; ?>
+            <div class="card-body border-top">
+                <div class="fw-bold small mb-2 text-success"><i class="fas fa-link me-1"></i>SSOT shortcuts</div>
+                <div class="d-grid gap-2">
+                    <?php if (!empty($viewMember['kyc_application_id'])): ?>
+                    <a href="kyc-applications.php?view=<?php echo (int)$viewMember['kyc_application_id']; ?>" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-id-card me-1"></i>केवाइएम खोल्नुहोस्
+                    </a>
+                    <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
+                    <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-search me-1"></i>केवाइएम खोज (Member ID)
+                    </a>
+                    <?php endif; ?>
+                    <a href="member-online-portal.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-globe me-1"></i>Portal unlock / approve
+                    </a>
+                    <?php if (empty($viewMember['password_hash'])): ?>
+                    <div class="small text-muted">पासवर्ड छैन — सदस्यले register गरेर सेट गर्नुपर्छ, वा import temp password प्रयोग।</div>
+                    <?php endif; ?>
+                </div>
+            </div>
             <div class="card-body">
                 <form method="POST">
                     <?php echo csrfField(); ?>
@@ -414,6 +447,8 @@ try {
 
 <?php else: /* ── Member List ── */ ?>
 
+<?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('members'); } ?>
+
 <!-- Pending approval banner -->
 <?php if (!empty($stats['pending']) && $stats['pending'] > 0): ?>
 <div class="alert alert-warning border-start border-warning border-4 d-flex align-items-center justify-content-between mb-3" role="alert">
@@ -462,13 +497,14 @@ try {
             <input type="hidden" name="mem_sub" value="<?php echo htmlspecialchars($memSub, ENT_QUOTES, 'UTF-8'); ?>">
             <div class="input-group input-group-sm mem-search-group" style="max-width:min(100%, 320px)">
                 <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
-                <input type="text" name="search" class="form-control border-start-0 mem-filter-search" placeholder="नाम / इमेल / फोन खोज्नुहोस्…"
+                <input type="text" name="search" class="form-control border-start-0 mem-filter-search" placeholder="नाम / सदस्यता नं / इमेल / फोन…"
                        value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
             </div>
-            <select name="kyc" class="form-select form-select-sm mem-filter-kyc" title="KYC फिल्टर">
-                <option value="all" <?php echo $kycFilter==='all' ? 'selected' : ''; ?>>KYC: सबै</option>
-                <option value="linked" <?php echo $kycFilter==='linked' ? 'selected' : ''; ?>>KYC Linked</option>
-                <option value="unlinked" <?php echo $kycFilter==='unlinked' ? 'selected' : ''; ?>>KYC Unlinked</option>
+            <select name="kyc" class="form-select form-select-sm mem-filter-kyc" title="लिंक फिल्टर">
+                <option value="all" <?php echo $kycFilter==='all' ? 'selected' : ''; ?>>लिंक: सबै</option>
+                <option value="linked" <?php echo $kycFilter==='linked' ? 'selected' : ''; ?>>Linked (KYM+पासवर्ड)</option>
+                <option value="unlinked" <?php echo $kycFilter==='unlinked' ? 'selected' : ''; ?>>Member only (KYM छैन)</option>
+                <option value="no_password" <?php echo $kycFilter==='no_password' ? 'selected' : ''; ?>>Stub (पासवर्ड छैन)</option>
             </select>
             <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i>खोज</button>
             <?php if ($search !== '' || $kycFilter !== 'all'): ?>
@@ -479,6 +515,9 @@ try {
             </button>
             <a href="member-import.php" class="btn btn-sm btn-success" title="पुराना सदस्य CSV बाट import">
                 <i class="fas fa-file-csv me-1"></i>Bulk Import
+            </a>
+            <a href="member-ssot-duplicates.php" class="btn btn-sm btn-outline-warning" title="दोहोरो Member ID जाँच">
+                <i class="fas fa-clone me-1"></i>Duplicate IDs
             </a>
         </form>
         <small class="text-muted">
@@ -494,17 +533,24 @@ try {
         <div class="text-center text-muted py-5 px-3">
             <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
             <div><?php echo $search !== '' ? "'" . htmlspecialchars($search, ENT_QUOTES, 'UTF-8') . "' फेला परेन।" : ($memSub === 'arch' ? 'अभिलेखमा कुनै सदस्य छैन।' : 'अहिलेसम्म कुनै सक्रिय Member छैन।'); ?></div>
-            <small class="text-muted mt-1 d-block">Member Portal मा Register गरेपछि यहाँ देखिन्छ। अर्को उप-ट्याब वा फिल्टर हेर्नुहोस्।</small>
+            <small class="text-muted mt-1 d-block">
+                थप्न: <a href="member-import.php">Bulk Import</a>
+                · नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a>
+                · कागजात: <a href="kyc-applications.php">KYM</a>
+                · लगइन: <a href="member-online-portal.php">Portal unlock</a>
+            </small>
         </div>
         <?php else: ?>
         <div class="table-responsive admin-table-card">
             <table class="table table-hover align-middle mb-0 table-responsive-stack">
                 <thead class="table-light"><tr>
-                    <th>#</th><th>Member</th><th>सदस्यता नं</th><th>Contact</th><th>Card No.</th>
+                    <th>#</th><th>Member</th><th>सदस्यता नं</th><th>लिंक स्थिति</th><th>Contact</th><th>Card No.</th>
                     <th>Login विधि</th><th>दर्ता</th><th>अवस्था</th><th>Action</th>
                 </tr></thead>
                 <tbody>
-                <?php foreach ($members as $i => $m): ?>
+                <?php foreach ($members as $i => $m):
+                    $ssotCode = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($m) : 'unknown';
+                ?>
                 <tr>
                     <td class="text-muted small"><?php echo $offset + $i + 1; ?></td>
                     <td>
@@ -519,17 +565,11 @@ try {
                             <div>
                                 <div class="fw-bold small"><?php echo htmlspecialchars($m['name']); ?></div>
                                 <div class="text-muted mem-email-xs"><?php echo htmlspecialchars($m['email'] ?? '—'); ?></div>
-                                <div class="mem-kyc-wrap">
-                                    <?php if (!empty($m['kyc_application_id'])): ?>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle mem-kyc-pill">KYC Linked</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-light text-muted border mem-kyc-pill">KYC Unlinked</span>
-                                    <?php endif; ?>
-                                </div>
                             </div>
                         </div>
                     </td>
                     <td class="small"><code><?php echo htmlspecialchars($m['sadasyata_number'] ?? '—'); ?></code></td>
+                    <td class="small"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                     <td class="small"><?php echo htmlspecialchars($m['phone'] ?? '—'); ?></td>
                     <td><code class="small"><?php echo htmlspecialchars($m['member_card_no'] ?? ''); ?></code></td>
                     <td>
@@ -552,14 +592,28 @@ try {
                         ?>
                     </td>
                     <td>
-                        <a href="member-online-portal.php?view=<?php echo $m['id']; ?>" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्">
-                            <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
-                        </a>
-                        <?php if ($as === 'pending' || $as === 'renewal_pending'): ?>
-                        <a href="member-online-portal.php?status=<?php echo $as === 'renewal_pending' ? 'renewal_pending' : 'pending'; ?>" class="btn btn-sm btn-warning" title="अनुमोदन">
-                            <i class="fas fa-check"></i>
-                        </a>
-                        <?php endif; ?>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="members.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-secondary" title="Member विवरण">
+                                <i class="fas fa-user"></i>
+                            </a>
+                            <a href="member-online-portal.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-success" title="Portal">
+                                <i class="fas fa-globe"></i>
+                            </a>
+                            <?php if (!empty($m['kyc_application_id'])): ?>
+                            <a href="kyc-applications.php?view=<?php echo (int)$m['kyc_application_id']; ?>" class="btn btn-outline-primary" title="केवाइएम">
+                                <i class="fas fa-id-card"></i>
+                            </a>
+                            <?php elseif (!empty($m['sadasyata_number'])): ?>
+                            <a href="kyc-applications.php?search=<?php echo urlencode((string)$m['sadasyata_number']); ?>" class="btn btn-outline-secondary" title="केवाइएम खोज">
+                                <i class="fas fa-search"></i>
+                            </a>
+                            <?php endif; ?>
+                            <?php if ($as === 'pending' || $as === 'renewal_pending'): ?>
+                            <a href="member-online-portal.php?status=<?php echo $as === 'renewal_pending' ? 'renewal_pending' : 'pending'; ?>" class="btn btn-warning" title="अनुमोदन">
+                                <i class="fas fa-check"></i>
+                            </a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>

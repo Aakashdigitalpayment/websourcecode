@@ -17,28 +17,9 @@ $memberId     = (int)$mem['id'];
 $memEmail     = trim((string)($mem['email'] ?? ''));
 $memPhone     = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
 $memName      = trim((string)($mem['name'] ?? ''));
-$memSadasyata = trim((string)($mem['sadasyata_no'] ?? $mem['member_id'] ?? ''));
+require __DIR__ . '/../includes/member-portal-identity.php';
 
-/* KYC priority */
-$kycRow = null;
-try {
-    $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycLinkId > 0) {
-        $ks = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $ks2 = $db->prepare("SELECT * FROM kyc_applications WHERE member_id=? ORDER BY id DESC LIMIT 1");
-        $ks2->execute([$memberId]);
-        $kycRow = $ks2->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-} catch (Throwable $e) {}
-if ($kycRow) {
-    $fn = trim((string)($kycRow['full_name'] ?? ''));
-    if ($fn !== '') $memName = $fn;
-}
-$rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? ''));
+$rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
 
 /* Service types */

@@ -6,7 +6,7 @@ $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
 };
-$pageTitle   = $__t('सदस्य अनलाइन पोर्टल', 'Member Online Portal');
+$pageTitle   = $__t('पोर्टल लगइन unlock (उही Member ID)', 'Portal login unlock (same Member ID)');
 $currentPage = 'member-online-portal';
 require_once 'includes/admin-header.php';
 require_once '../includes/member-auth.php';
@@ -372,6 +372,8 @@ function memberProgramStars(int $attended, int $eligible): string {
     </span>
     <?php endif; ?>
 </div>
+
+<?php if (function_exists('memberSsotAdminHelpHtml')) { echo memberSsotAdminHelpHtml('portal'); } ?>
 
 <!-- Stats Row -->
 <?php
@@ -866,6 +868,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                         <th>#</th>
                         <th>Member</th>
                         <th>सदस्यता नं</th>
+                        <th>लिंक स्थिति</th>
                         <th>Contact</th>
                         <th>स्वीकृत मिति</th>
                         <th>Expired मिति</th>
@@ -883,6 +886,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     $mDisplayPhone = $m['display_phone'] ?? $m['phone'];
                     $mDisplayEmail = $m['display_email'] ?? $m['email'];
                     $mDisplayAvatar = $m['display_avatar'] ?? $m['avatar_url'];
+                    $ssotCode = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($m) : 'unknown';
                 ?>
                 <tr class="<?php echo ($m['approval_status'] ?? '') === 'pending' ? 'table-warning' : ''; ?>">
                     <td class="text-muted small"><?php echo $offset + $i + 1; ?></td>
@@ -900,6 +904,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                         </div>
                     </td>
                     <td class="small"><code><?php echo htmlspecialchars($m['sadasyata_number'] ?? '—'); ?></code></td>
+                    <td class="small"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                     <td class="small">
                         <div><?php echo htmlspecialchars($mDisplayPhone ?? '—'); ?></div>
                         <div class="text-muted portal-email-xs"><?php echo htmlspecialchars($mDisplayEmail ?? ''); ?></div>

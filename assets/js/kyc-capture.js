@@ -952,10 +952,12 @@ window._kycCaptureInited = true;
 
         let missing = [];
         form.querySelectorAll('.kyc-cap-field[data-required] input[type=hidden]').forEach((h) => {
-          if (!h.value) missing.push(h.closest('.kyc-cap-field').querySelector('.kyc-cap-label').textContent.trim());
+          const v = String(h.value || '').trim();
+          /* Existing stored path OR fresh data:image both count as filled (SSOT reuse) */
+          if (!v) missing.push(h.closest('.kyc-cap-field').querySelector('.kyc-cap-label').textContent.trim());
         });
         form.querySelectorAll('[data-kyc-signature][data-required] input[type=hidden]').forEach((h) => {
-          if (!h.value) missing.push('हस्ताक्षर');
+          if (!String(h.value || '').trim()) missing.push('हस्ताक्षर');
         });
         if (missing.length) {
           e.preventDefault();
