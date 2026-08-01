@@ -1501,19 +1501,19 @@ if ($viewApp):
     </a>
 </div>
 
-<!-- ── Bulk Import (Excel CSV) ── -->
+<!-- ── Bulk Import (Excel CSV) — वैकल्पिक ── -->
 <div class="card border-0 shadow-sm mb-3 no-print kyc-rounded-card">
     <div class="card-body py-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
-            <h6 class="mb-0"><i class="fas fa-file-import me-2 text-primary"></i>KYM Bulk Import (Excel/CSV) — फाइल seed</h6>
-            <a href="kyc-import-sample.php" class="btn btn-outline-success btn-sm">
-                <i class="fas fa-download me-1"></i>Sample Format डाउनलोड
+            <h6 class="mb-0"><i class="fas fa-file-import me-2 text-muted"></i>KYM Excel bulk <span class="badge bg-secondary">वैकल्पिक</span></h6>
+            <a href="kyc-import-sample.php" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-download me-1"></i>Sample Format
             </a>
         </div>
         <p class="small text-muted mb-2 mb-md-0">
-            <strong>Members बनाउँदैन</strong> — पहिले CBS बाट <a href="member-import.php">Members Import</a>।
-            यो Excel ले <code>kyc_applications</code> मा KYM फाइल (नाम/मोबाइल/ठेगान/status…) seed गर्छ; फोटो/स्क्यान पछि online वा admin बाट।
-            <code>member_id</code> <strong>अनिवार्य</strong> (खाली = skip)। Members मा भएको ID सँग लिंक हुन्छ।
+            <strong>सामान्यतया नचाहिने।</strong> CBS बाट <a href="member-import.php">Members Import</a> गर्दा नै KYM stub बन्छ;
+            बाँकी सदस्यले online/portal भर्छ। यो Excel दोहोरो हाल्दा mismatch हुन सक्छ — पुरानो seed का लागि मात्र।
+            <code>member_id</code> अनिवार्य; Members मा नभए skip।
         </p>
         <form method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
             <?php echo csrfField(); ?>

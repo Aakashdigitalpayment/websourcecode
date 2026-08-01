@@ -123,8 +123,9 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     <div>
         <h1 class="h4 mb-1"><?php echo htmlspecialchars($pageTitle); ?></h1>
         <p class="text-muted small mb-0">
-            पुराना सदस्यको <strong>Member ID ledger</strong> CSV बाट upload — कार्ड auto-generate, मिल्दो KYM लिंक।
-            कागजात छुट्टै <a href="kyc-applications.php">KYM Import</a> मा (एउटै Member ID)। Excel → <strong>CSV UTF-8</strong>।
+            पुराना सदस्यको <strong>CBS Excel → Members Import एक पटक</strong>।
+            स्वतः <strong>KYM stub</strong> बन्छ (नाम/मोबाइल…) — बाँकी फारम/कागजात member ले <strong>online वा portal</strong> बाट भर्छ।
+            छुट्टै KYM Excel सामान्यतया <strong>नचाहिने</strong>। CSV → <strong>UTF-8</strong>।
         </p>
     </div>
     <div class="d-flex gap-2 flex-wrap">
@@ -149,7 +150,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <code>sadasyata_number</code>, <code>full_name</code>, <code>mobile</code><br>
                     Optional: <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
                     <code>gender</code>, <code>branch</code>, <code>remarks</code>
-                    <div class="mt-1">मिल्दो KYM (`member_id` = सदस्यता नं.) भए स्वतः लिंक हुन्छ।
+                    <div class="mt-1">Import पछि KYM stub स्वतः बन्छ / खाली field soft-fill — पहिले भरिएको KYM overwrite हुँदैन।
+                        बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
                     </div>
                 </div>

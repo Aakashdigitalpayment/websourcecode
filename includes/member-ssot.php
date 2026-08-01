@@ -209,11 +209,129 @@ if (!function_exists('memberSsotAttachKycToMemberBySadasyata')) {
     /** After members import: attach matching KYM if present. */
     function memberSsotAttachKycToMemberBySadasyata(PDO $db, int $memberPk, string $sadasyata): bool
     {
-        $kyc = memberSsotFindKycByMemberId($db, $sadasyata);
-        if (!$kyc || empty($kyc['id'])) {
-            return false;
+        $r = memberSsotEnsureKycStubFromMember($db, $memberPk);
+        return !empty($r['ok']);
+    }
+}
+
+if (!function_exists('memberSsotEnsureKycStubFromMember')) {
+    /**
+     * CBS/Members import पछि: एउटै Member ID का लागि KYM stub बनाउने वा खाली field soft-fill।
+     * पहिले भरिएको KYM overwrite हुँदैन — बाँकी online/portal बाट।
+     *
+     * @param array<string,mixed>|null $memberRow optional preloaded members row
+     * @return array{ok:bool,created?:bool,linked?:bool,kyc_id?:int,message?:string}
+     */
+    function memberSsotEnsureKycStubFromMember(PDO $db, int $memberPk, ?array $memberRow = null): array
+    {
+        if ($memberPk < 1) {
+            return ['ok' => false, 'message' => 'Invalid member pk'];
         }
-        return memberSsotLinkMemberToKyc($db, $memberPk, (int)$kyc['id']);
+        try {
+            if ($memberRow === null) {
+                $st = $db->prepare('SELECT * FROM members WHERE id = ? LIMIT 1');
+                $st->execute([$memberPk]);
+                $memberRow = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+            }
+            if (!$memberRow) {
+                return ['ok' => false, 'message' => 'Member not found'];
+            }
+            $sid = memberSsotNormalizeId((string)($memberRow['sadasyata_number'] ?? ''));
+            if ($sid === '') {
+                return ['ok' => false, 'message' => 'Empty Member ID'];
+            }
+
+            $name = trim((string)($memberRow['name'] ?? ''));
+            $phone = preg_replace('/[^0-9]/', '', (string)($memberRow['phone'] ?? '')) ?: '';
+            if (strlen($phone) > 10 && str_starts_with($phone, '977')) {
+                $phone = substr($phone, -10);
+            }
+            $email = trim((string)($memberRow['email'] ?? ''));
+            $email = ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : '';
+            $address = trim((string)($memberRow['address'] ?? ''));
+            $gender = trim((string)($memberRow['gender'] ?? ''));
+            $dobAd = trim((string)($memberRow['dob'] ?? ''));
+            if ($dobAd !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dobAd)) {
+                $dobAd = '';
+            }
+
+            $kyc = memberSsotFindKycByMemberId($db, $sid);
+            if ($kyc && !empty($kyc['id'])) {
+                $kycId = (int)$kyc['id'];
+                /* Soft-fill empty KYM contact/profile only — no overwrite */
+                $db->prepare(
+                    "UPDATE kyc_applications SET
+                        full_name = CASE WHEN full_name IS NULL OR TRIM(full_name) = '' THEN ? ELSE full_name END,
+                        mobile = CASE WHEN mobile IS NULL OR TRIM(mobile) = '' THEN ? ELSE mobile END,
+                        email = CASE WHEN (email IS NULL OR TRIM(email) = '') AND ? <> '' THEN ? ELSE email END,
+                        permanent_address = CASE WHEN (permanent_address IS NULL OR TRIM(permanent_address) = '') AND ? <> '' THEN ? ELSE permanent_address END,
+                        gender = CASE WHEN (gender IS NULL OR TRIM(gender) = '') AND ? <> '' THEN ? ELSE gender END,
+                        dob_ad = CASE WHEN (dob_ad IS NULL OR TRIM(dob_ad) = '') AND ? <> '' THEN ? ELSE dob_ad END,
+                        updated_at = NOW()
+                     WHERE id = ?"
+                )->execute([
+                    $name !== '' ? $name : 'Member ' . $sid,
+                    $phone,
+                    $email, $email,
+                    $address, $address,
+                    $gender, $gender,
+                    $dobAd, $dobAd,
+                    $kycId,
+                ]);
+                memberSsotLinkMemberToKyc($db, $memberPk, $kycId);
+                return ['ok' => true, 'created' => false, 'linked' => true, 'kyc_id' => $kycId];
+            }
+
+            $trackingId = 'KYC-' . date('Ymd') . '-' . strtoupper(substr(md5('m' . $memberPk . $sid . microtime(true)), 0, 6));
+            $hasTracking = true;
+            try {
+                $c = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
+                $hasTracking = $c && $c->fetch() !== false;
+            } catch (Throwable $e) {
+                $hasTracking = false;
+            }
+
+            if ($hasTracking) {
+                $ins = $db->prepare(
+                    "INSERT INTO kyc_applications
+                        (tracking_id, member_id, full_name, mobile, email, permanent_address, gender, dob_ad, status, remarks, created_at, updated_at)
+                     VALUES (?,?,?,?,?,?,?,?, 'incomplete', 'CBS/Members import stub — बाँकी online/portal', NOW(), NOW())"
+                );
+                $ins->execute([
+                    $trackingId,
+                    $sid,
+                    $name !== '' ? $name : 'Member ' . $sid,
+                    $phone !== '' ? $phone : null,
+                    $email !== '' ? $email : null,
+                    $address !== '' ? $address : null,
+                    $gender !== '' ? $gender : null,
+                    $dobAd !== '' ? $dobAd : null,
+                ]);
+            } else {
+                $ins = $db->prepare(
+                    "INSERT INTO kyc_applications
+                        (member_id, full_name, mobile, email, permanent_address, gender, status, remarks, created_at, updated_at)
+                     VALUES (?,?,?,?,?,?, 'incomplete', 'CBS/Members import stub — बाँकी online/portal', NOW(), NOW())"
+                );
+                $ins->execute([
+                    $sid,
+                    $name !== '' ? $name : 'Member ' . $sid,
+                    $phone !== '' ? $phone : null,
+                    $email !== '' ? $email : null,
+                    $address !== '' ? $address : null,
+                    $gender !== '' ? $gender : null,
+                ]);
+            }
+            $kycId = (int)$db->lastInsertId();
+            if ($kycId < 1) {
+                return ['ok' => false, 'message' => 'KYM stub insert failed'];
+            }
+            memberSsotLinkMemberToKyc($db, $memberPk, $kycId);
+            return ['ok' => true, 'created' => true, 'linked' => true, 'kyc_id' => $kycId];
+        } catch (Throwable $e) {
+            error_log('[member-ssot] ensureKycStub: ' . $e->getMessage());
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
     }
 }
 
@@ -905,26 +1023,23 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
         $title = 'एक Member ID = एक मान्छे (SSOT)';
-        $flow = '<strong>Members</strong> = पातलो ledger (ID, नाम, मोबाइल, पोर्टल पासवर्ड) · '
-            . '<strong>KYM</strong> = बाक्लो फाइल (पूरा फारम + कागजात + AML + approve/reject) · '
-            . '<strong>Portal</strong> = लगइन मात्र · '
-            . 'नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID।';
+        $flow = '<strong>Members Import (CBS एक पटक)</strong> → KYM stub · बाँकी online/portal · '
+            . '<strong>Portal</strong> = लगइन · नयाँ व्यक्ति = सदस्यता अनुरोध → Member ID।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = 'यो पेज = <strong>KYM फाइल समीक्षा</strong> (फारम + फोटो/नागरिकता + AML) — Members ledger होइन। '
-                . 'Online भरिएको डेटा पहिले यहाँ बस्छ; <strong>approve</strong> गर्दा members मा खाली name/phone/email मात्र soft-fill। '
-                . 'Excel bulk = पहिले Members मा भएको ID का लागि KYM seed (नयाँ सदस्य बनाउँदैन)। '
-                . 'Verify: <strong>Member ID + मोबाइल</strong> · खाली field मात्र भर्ने। '
-                . 'पहिले <a href="member-import.php">Members Import</a>।';
+            $body = 'यो पेज = <strong>KYM फाइल समीक्षा</strong>। सामान्य flow: <a href="member-import.php">Members Import (CBS)</a> → KYM stub → सदस्यले online/portal भर्ने → यहाँ approve। '
+                . 'तलको Excel bulk <strong>वैकल्पिक</strong> मात्र — दोहोरो Excel हाल्दा mismatch हुन सक्छ, सामान्यतया नचलाउनुहोस्। '
+                . 'Public: <strong>Member ID + मोबाइल</strong> · खाली field मात्र।';
         } elseif ($context === 'portal') {
             $body = 'पोर्टल अनुरोध: <strong>Member ID + मोबाइल</strong> members सूचीसँग मिल्नुपर्छ। यो पेजले लगइन unlock मात्र गर्छ। '
                 . 'KYM approved देखिन्छ; update गरेपछि admin ले फेरि approve गर्छ।';
         } elseif ($context === 'members') {
             $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID SSOT)। विस्तृत पहिचान/कागजात यहाँ होइन — <a href="kyc-applications.php">KYM</a> मा। '
-                . 'CBS Excel → <a href="member-import.php">Members Import</a> · नयाँ: <a href="membership-applications.php">सदस्यता अनुरोध</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
+                . 'CBS Excel → <a href="member-import.php">Members Import</a> (KYM stub समेत) · नयाँ: <a href="membership-applications.php">सदस्यता अनुरोध</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
         } elseif ($context === 'import') {
-            $body = 'Members CSV = <strong>सदस्यता ledger</strong> मात्र (CBS)। KYM Excel अर्कै हो — <a href="kyc-applications.php">KYM पेज</a> मा bulk; त्यसले members बनाउँदैन। '
-                . 'पोर्टल verify का लागि मोबाइल सही राख्नुहोस्।';
+            $body = 'CBS Excel = <strong>Members Import एक पटक</strong>। त्यसैले KYM stub बन्छ वा खाली field soft-fill — '
+                . '<strong>पहिले भरिएको KYM overwrite हुँदैन</strong>। बाँकी कागजात/फारम online वा portal। '
+                . 'छुट्टै KYM Excel सामान्यतया नचाहिने।';
         } elseif ($context === 'membership') {
             $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा Member ID दिनुहोस् → members stub। '
                 . 'त्यसपछि Online KYM (ID+mobile) / Portal register (उही)।';
