@@ -432,10 +432,17 @@ $nakshatraAll=[
 
 /* Guna Milan (POST) — require real selects (empty "" would cast to 0 = अश्विनी) */
 $gunaResult=null;
+$gunaError='';
 $gunaPosted = $_SERVER['REQUEST_METHOD']==='POST'
     && isset($_POST['n1'],$_POST['n2'],$_POST['r1'],$_POST['r2'])
     && $_POST['n1'] !== '' && $_POST['n2'] !== ''
     && $_POST['r1'] !== '' && $_POST['r2'] !== '';
+if($gunaPosted){
+    if (function_exists('verifyCSRFToken') && !verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $gunaError = isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल भयो। फेरि प्रयास गर्नुहोस्।';
+        $gunaPosted = false;
+    }
+}
 if($gunaPosted){
     $n1=max(0,min(26,(int)$_POST['n1'])); $n2=max(0,min(26,(int)$_POST['n2']));
     $r1=max(0,min(11,(int)$_POST['r1'])); $r2=max(0,min(11,(int)$_POST['r2']));
@@ -688,9 +695,38 @@ require_once 'includes/header.php';
 .sp-nk-meta strong{color:var(--sp-text);font-weight:700;}
 .sp-subsection-title{font-weight:700;color:var(--sp-primary-dark);margin-bottom:12px;font-size:15px;display:flex;align-items:center;gap:7px;}
 
-/* Date bar — date chips only (page banner already brands the page) */
-.sp-datebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 1px 6px rgba(26,95,42,.06);border:1px solid rgba(26,95,42,.08);}
+/* Date bar — today chips + cooperative context */
+.sp-datebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;background:linear-gradient(135deg,#fff 0%,#f5faf6 100%);border-radius:14px;padding:14px 16px;box-shadow:0 1px 6px rgba(26,95,42,.06);border:1px solid rgba(26,95,42,.1);}
 .sp-datebar-meta{font-size:14px;color:var(--sp-text-muted);font-weight:500;}
+.sp-datebar-lead{font-size:13px;color:var(--sp-text-muted);line-height:1.45;max-width:420px;margin:0;}
+.sp-datebar-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.sp-chip-link{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;border:1px solid rgba(26,95,42,.18);background:#fff;color:var(--sp-primary);font-size:12.5px;font-weight:700;text-decoration:none;transition:background .12s,border-color .12s;}
+.sp-chip-link:hover{background:var(--sp-muted);border-color:var(--sp-primary);color:var(--sp-primary-dark);}
+
+/* Month jump */
+.sp-month-jump{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--sp-border);background:#fafdfb;}
+.sp-month-jump label{font-size:12px;font-weight:700;color:var(--sp-text-muted);margin:0;}
+.sp-month-jump select{border:1px solid #d1d5db;border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:var(--sp-text);max-width:140px;}
+.sp-month-jump button{border:none;background:var(--sp-primary);color:#fff;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+.sp-month-jump button:hover{background:var(--sp-primary-dark);}
+
+/* Selected-day hero polish */
+.sp-selday-today-badge{display:inline-flex;align-items:center;gap:4px;margin-top:8px;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:700;letter-spacing:.02em;}
+.sp-selday-note{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;font-size:12px;color:#92400e;line-height:1.4;}
+
+/* Soft empty cells — less logo noise */
+.sp-cal-empty{background:linear-gradient(145deg,#f9fcfa,#f1f7f2);}
+.sp-cal-logo-wrap{opacity:.22;}
+
+/* Panchanga section when browsing non-today */
+.sp-pancha-sub{font-size:12.5px;font-weight:600;color:var(--sp-text-muted);margin-left:auto;}
+.sp-section-title{justify-content:flex-start;flex-wrap:wrap;gap:8px;}
+
+/* Disclaimer */
+.sp-disclaimer{margin-top:18px;padding:12px 14px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;font-size:12.5px;color:#64748b;line-height:1.5;}
+
+/* Tab scroll hint on mobile */
+.sp-tabs{scrollbar-width:thin;-webkit-overflow-scrolling:touch;}
 
 @media(max-width:576px){
   .sp-pancha-grid{grid-template-columns:repeat(2,1fr);}
@@ -703,10 +739,11 @@ require_once 'includes/header.php';
   .sp-cal-title{order:-1;width:100%;}
   .sp-rashi-grid{grid-template-columns:1fr;}
   .sp-tabs .nav-link{padding:10px 12px;font-size:13px;}
-  .sp-cal-logo-wrap img{max-height:28px;}
+  .sp-cal-logo-wrap img{max-height:22px;}
   .sp-work-grid{grid-template-columns:repeat(2,1fr);}
   .sp-time-box{text-align:left;}
   .sp-time-box-label{justify-content:flex-start;}
+  .sp-datebar-lead{max-width:100%;}
 }
 </style>
 
@@ -714,19 +751,36 @@ require_once 'includes/header.php';
 <section class="section-padding sp-page">
 <div class="container">
 
-<!-- Date bar — today chips only (site branding stays in header + page banner) -->
+<!-- Date bar — today chips + cooperative context -->
 <div class="sp-datebar">
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span class="sp-badge" style="background:var(--sp-primary);color:#fff;">
-            <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="calendar-days"></i>
-            <?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np']; ?>
-        </span>
-        <span class="sp-datebar-meta"><?php echo $pg['ad_date'].' · '.$pg['vaar_np']; ?></span>
-        <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo htmlspecialchars($pg['tithi']); ?></span>
-        <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
-            <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="refresh-cw"></i>
-            <?php echo isEnglish() ? 'Live auto-sync' : 'स्वचालित ताजा'; ?>
-        </span>
+    <div style="display:flex;flex-direction:column;gap:8px;min-width:0;flex:1;">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <span class="sp-badge" style="background:var(--sp-primary);color:#fff;">
+                <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="calendar-days"></i>
+                <?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np']; ?>
+            </span>
+            <span class="sp-datebar-meta"><?php echo $pg['ad_date'].' · '.$pg['vaar_np']; ?></span>
+            <span class="sp-badge" style="background:var(--sp-muted);color:var(--sp-primary);"><?php echo htmlspecialchars($pg['tithi']); ?></span>
+            <span class="sp-badge" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">
+                <i class="lucide-icon" style="width:11px;height:11px;" data-lucide="refresh-cw"></i>
+                <?php echo isEnglish() ? 'Live Kathmandu day' : 'काठमाडौं दिन — स्वचालित'; ?>
+            </span>
+        </div>
+        <p class="sp-datebar-lead">
+            <?php echo isEnglish()
+                ? 'Nepali panchanga calendar with festivals, plus cooperative programs from the admin calendar — pick a day to see tithi, muhurta and events.'
+                : 'नेपाली पञ्चाङ्ग पात्रो — पर्व/तिथि संगै सहकारी कार्यक्रम (admin पात्रो) यहाँ देखिन्छ। दिन छानेर तिथि, मुहुर्त र कार्यक्रम हेर्नुहोस्।'; ?>
+        </p>
+    </div>
+    <div class="sp-datebar-actions">
+        <a class="sp-chip-link" href="?tab=muhurta&amp;cal_year=<?php echo (int)$calY; ?>&amp;cal_month=<?php echo (int)$calM; ?>&amp;sel_day=<?php echo (int)$selD; ?>">
+            <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="clock-4"></i>
+            <?php echo isEnglish() ? 'Today\'s muhurta' : 'आजको मुहुर्त'; ?>
+        </a>
+        <a class="sp-chip-link" href="?tab=rashifal&amp;rf=daily&amp;cal_year=<?php echo (int)$calY; ?>&amp;cal_month=<?php echo (int)$calM; ?>&amp;sel_day=<?php echo (int)$selD; ?>">
+            <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="star"></i>
+            <?php echo isEnglish() ? 'Rashifal' : 'राशिफल'; ?>
+        </a>
     </div>
 </div>
 
@@ -786,6 +840,28 @@ if($activeTab==='patro'): ?>
           <?php endif; ?>
         </div>
       </div>
+
+      <!-- Jump to BS year / month -->
+      <form class="sp-month-jump" method="get" action="">
+        <input type="hidden" name="tab" value="patro">
+        <input type="hidden" name="rf" value="<?php echo htmlspecialchars($rfPeriod); ?>">
+        <input type="hidden" name="sel_day" value="1">
+        <label for="spJumpYear"><?php echo isEnglish() ? 'Jump' : 'महिना जानुहोस्'; ?></label>
+        <select name="cal_year" id="spJumpYear" aria-label="<?php echo isEnglish() ? 'BS year' : 'बि.सं. वर्ष'; ?>">
+          <?php
+          $jumpYFrom = max($SP_BS_YEAR_MIN, $calY - 20);
+          $jumpYTo = min($SP_BS_YEAR_MAX, $calY + 20);
+          for ($jy = $jumpYFrom; $jy <= $jumpYTo; $jy++): ?>
+          <option value="<?php echo $jy; ?>"<?php echo $jy === $calY ? ' selected' : ''; ?>><?php echo isEnglish() ? (string)$jy : sp_np($jy); ?></option>
+          <?php endfor; ?>
+        </select>
+        <select name="cal_month" id="spJumpMonth" aria-label="<?php echo isEnglish() ? 'BS month' : 'महिना'; ?>">
+          <?php for ($jm = 1; $jm <= 12; $jm++): ?>
+          <option value="<?php echo $jm; ?>"<?php echo $jm === $calM ? ' selected' : ''; ?>><?php echo isEnglish() ? $SP_BS_MONTHS_EN[$jm-1] : $SP_BS_MONTHS_NP[$jm-1]; ?></option>
+          <?php endfor; ?>
+        </select>
+        <button type="submit"><?php echo isEnglish() ? 'Go' : 'हेर्नुहोस्'; ?></button>
+      </form>
 
       <!-- Calendar grid -->
       <div class="sp-cal-body">
@@ -847,21 +923,44 @@ if($activeTab==='patro'): ?>
       </div>
     </div><!-- /sp-cal-card -->
 
-    <!-- ── Today full panchanga ── -->
-    <div class="sp-card" style="margin-top:16px;">
+    <!-- ── Selected day full panchanga (synced with calendar selection) ── -->
+    <?php
+    $selIsToday = ($calY === $pg['bs_year'] && $calM === $pg['bs_month'] && $selD === $pg['bs_day']);
+    $panchaSrc = $selPg;
+    $panchaTitle = $selIsToday
+        ? (isEnglish()
+            ? ('Today\'s panchanga — ' . $pg['bs_day_np'] . ' ' . $pg['bs_month_name'] . ' ' . $pg['bs_year_np'])
+            : ('आजको पूर्ण पञ्चाङ्ग — ' . $pg['bs_day_np'] . ' ' . $pg['bs_month_name'] . ' ' . $pg['bs_year_np']))
+        : (isEnglish()
+            ? ('Panchanga — ' . sp_np($selD) . ' ' . $SP_BS_MONTHS_EN[$calM - 1] . ' ' . sp_np($calY))
+            : ('चयनित दिनको पञ्चाङ्ग — ' . sp_np($selD) . ' ' . $SP_BS_MONTHS_NP[$calM - 1] . ' ' . sp_np($calY)));
+    ?>
+    <div class="sp-card" style="margin-top:16px;" id="spPanchaDetail">
       <div class="sp-section-title">
         <i class="lucide-icon" style="width:15px;height:15px;" data-lucide="sparkles"></i>
-        आजको पूर्ण पञ्चाङ्ग — <?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np']; ?>
+        <?php echo $panchaTitle; ?>
+        <?php if (!$selIsToday): ?>
+        <span class="sp-pancha-sub">
+          <a href="?tab=patro&amp;cal_year=<?php echo (int)$pg['bs_year']; ?>&amp;cal_month=<?php echo (int)$pg['bs_month']; ?>&amp;sel_day=<?php echo (int)$pg['bs_day']; ?>&amp;rf=<?php echo htmlspecialchars($rfPeriod); ?>" style="color:var(--sp-primary);text-decoration:none;font-weight:700;">
+            <?php echo isEnglish() ? '← Back to today' : '← आजमा फर्कनुहोस्'; ?>
+          </a>
+        </span>
+        <?php endif; ?>
       </div>
       <div class="sp-pancha-grid">
         <?php foreach([
-          ['calendar-days','तिथि',$pg['tithi'].' ('.$pg['paksha'].')'],
-          ['star','नक्षत्र',$pg['nakshatra']],['sparkles','योग',$pg['yoga']],
-          ['rotate-cw','करण',$pg['karana']],['calendar-days','वार',$pg['vaar_np']],
-          ['moon','पक्ष',$pg['paksha']],['leaf','ऋतु',$pg['ritu']],
-          ['scroll-text','संवत्सर',$pg['samvatsar']],
-          ['sun','सूर्योदय',$pg['sunrise']],['sunset','सूर्यास्त',$pg['sunset']],
-          ['alarm-clock','राहुकाल',$pg['rahu_kaal']],['zap','अभिजित',$pg['abhijit']],
+          ['calendar-days', isEnglish()?'Tithi':'तिथि', $panchaSrc['tithi'].' ('.$panchaSrc['paksha'].')'],
+          ['star', isEnglish()?'Nakshatra':'नक्षत्र', $panchaSrc['nakshatra']],
+          ['sparkles', isEnglish()?'Yoga':'योग', $panchaSrc['yoga']],
+          ['rotate-cw', isEnglish()?'Karana':'करण', $panchaSrc['karana']],
+          ['calendar-days', isEnglish()?'Weekday':'वार', $panchaSrc['vaar_np']],
+          ['moon', isEnglish()?'Paksha':'पक्ष', $panchaSrc['paksha']],
+          ['leaf', isEnglish()?'Ritu':'ऋतु', $panchaSrc['ritu']],
+          ['scroll-text', isEnglish()?'Samvatsar':'संवत्सर', $panchaSrc['samvatsar']],
+          ['sun', isEnglish()?'Sunrise':'सूर्योदय', $panchaSrc['sunrise']],
+          ['sunset', isEnglish()?'Sunset':'सूर्यास्त', $panchaSrc['sunset']],
+          ['alarm-clock', isEnglish()?'Rahu Kaal':'राहुकाल', $panchaSrc['rahu_kaal']],
+          ['zap', isEnglish()?'Abhijit':'अभिजित', $panchaSrc['abhijit']],
         ] as [$ico,$l,$v]): ?>
         <div class="sp-pancha-item">
           <div class="sp-pi-label"><i class="lucide-icon" style="width:13px;height:13px;color:var(--sp-primary);" data-lucide="<?php echo $ico; ?>"></i><?php echo $l; ?></div>
@@ -875,8 +974,8 @@ if($activeTab==='patro'): ?>
     <div class="sp-minical-card" style="margin-top:16px;">
       <div class="sp-minical-hdr">
         <span><i class="lucide-icon" style="width:13px;height:13px;" data-lucide="calendar"></i>
-        आगामी महिना — <?php echo $SP_BS_MONTHS_NP[$nextM-1].' '.sp_np($nextY); ?></span>
-        <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1" style="font-size:13px;font-weight:600;color:var(--sp-primary);text-decoration:none;">पूरा हेर्नुहोस् →</a>
+        आगामी महिना — <?php echo (isEnglish() ? $SP_BS_MONTHS_EN[$nextM-1] : $SP_BS_MONTHS_NP[$nextM-1]).' '.sp_np($nextY); ?></span>
+        <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=1&rf=<?php echo $rfPeriod; ?>" style="font-size:13px;font-weight:600;color:var(--sp-primary);text-decoration:none;"><?php echo isEnglish()?'View full →':'पूरा हेर्नुहोस् →'; ?></a>
       </div>
       <div class="sp-minical-body">
         <div class="sp-minical-grid">
@@ -916,18 +1015,33 @@ if($activeTab==='patro'): ?>
   <div class="sp-col-side">
 
     <!-- Selected day card -->
-    <div class="sp-selday-card">
+    <div class="sp-selday-card" id="spSelDay">
       <div class="sp-selday-hero">
         <div class="sp-selday-daynum"><?php echo sp_np($selD); ?></div>
-        <div class="sp-selday-month"><?php echo $SP_BS_MONTHS_NP[$calM-1].', '.sp_np($calY); ?></div>
+        <div class="sp-selday-month"><?php echo (isEnglish() ? $SP_BS_MONTHS_EN[$calM-1] : $SP_BS_MONTHS_NP[$calM-1]).', '.sp_np($calY); ?></div>
         <div class="sp-selday-ad"><?php echo $selPg['vaar_np'].' — '.$selPg['ad_date']; ?></div>
+        <?php if ($calY === $pg['bs_year'] && $calM === $pg['bs_month'] && $selD === $pg['bs_day']): ?>
+        <div class="sp-selday-today-badge"><i class="lucide-icon" style="width:11px;height:11px;" data-lucide="sun"></i><?php echo isEnglish() ? 'Today' : 'आज'; ?></div>
+        <?php endif; ?>
       </div>
       <div class="sp-selday-body">
-        <?php foreach([['तिथि',$selPg['tithi'].' ('.$selPg['paksha'].')'],['नक्षत्र',$selPg['nakshatra']],['योग',$selPg['yoga']],['करण',$selPg['karana']],['ऋतु',$selPg['ritu']],['अयन',$selPg['ayana']]] as [$l,$v]): ?>
+        <?php foreach([
+          [isEnglish()?'Tithi':'तिथि',$selPg['tithi'].' ('.$selPg['paksha'].')'],
+          [isEnglish()?'Nakshatra':'नक्षत्र',$selPg['nakshatra']],
+          [isEnglish()?'Yoga':'योग',$selPg['yoga']],
+          [isEnglish()?'Karana':'करण',$selPg['karana']],
+          [isEnglish()?'Ritu':'ऋतु',$selPg['ritu']],
+          [isEnglish()?'Ayana':'अयन',$selPg['ayana']],
+        ] as [$l,$v]): ?>
         <div class="sp-selday-row"><span class="sp-selday-label"><?php echo $l; ?></span><span class="sp-selday-val"><?php echo htmlspecialchars($v); ?></span></div>
         <?php endforeach; ?>
         <div class="sp-timegrid">
-          <?php foreach([['sun','सूर्योदय',$selPg['sunrise'],'#f59e0b'],['sunset','सूर्यास्त',$selPg['sunset'],'#c0392b'],['alarm-clock','राहुकाल',$selPg['rahu_kaal'],'#374151'],['zap','अभिजित',$selPg['abhijit'],'var(--sp-primary)']] as [$ico,$l,$v,$c]): ?>
+          <?php foreach([
+            ['sun', isEnglish()?'Sunrise':'सूर्योदय',$selPg['sunrise'],'#f59e0b'],
+            ['sunset', isEnglish()?'Sunset':'सूर्यास्त',$selPg['sunset'],'#c0392b'],
+            ['alarm-clock', isEnglish()?'Rahu':'राहुकाल',$selPg['rahu_kaal'],'#374151'],
+            ['zap', isEnglish()?'Abhijit':'अभिजित',$selPg['abhijit'],'var(--sp-primary)'],
+          ] as [$ico,$l,$v,$c]): ?>
           <div class="sp-time-box">
             <div class="sp-time-box-label"><i class="lucide-icon" style="width:11px;height:11px;color:<?php echo $c; ?>;" data-lucide="<?php echo $ico; ?>"></i><span style="font-size:9.5px;color:var(--sp-text-muted);"><?php echo $l; ?></span></div>
             <div class="sp-time-box-val" style="color:<?php echo $c; ?>;"><?php echo $v; ?></div>
@@ -938,12 +1052,22 @@ if($activeTab==='patro'): ?>
         <div style="margin-top:10px;">
           <?php foreach($selEvs as $ev): $ec=sp_ev_color($ev['type']); $eb=sp_ev_bg($ev['type']); ?>
           <div class="sp-ev-chip" style="background:<?php echo $eb; ?>;color:<?php echo $ec; ?>;">
-            <i class="lucide-icon" style="width:10px;height:10px;" data-lucide="bell"></i>
+            <i class="lucide-icon" style="width:10px;height:10px;" data-lucide="<?php echo (($ev['type'] ?? '') === 'sahakari') ? 'calendar-check' : 'bell'; ?>"></i>
             <?php echo htmlspecialchars($ev['name']); ?>
           </div>
           <?php endforeach; ?>
         </div>
+        <?php else: ?>
+        <div class="sp-selday-note" style="background:var(--sp-soft);border-color:rgba(26,95,42,.12);color:var(--sp-text-muted);">
+          <?php echo isEnglish() ? 'No festival or cooperative event on this day.' : 'यो दिन कुनै विशेष पर्व वा सहकारी कार्यक्रम छैन।'; ?>
+        </div>
         <?php endif; ?>
+        <div style="margin-top:12px;">
+          <a href="#spPanchaDetail" class="sp-chip-link" style="width:100%;justify-content:center;">
+            <i class="lucide-icon" style="width:12px;height:12px;" data-lucide="sparkles"></i>
+            <?php echo isEnglish() ? 'Full panchanga below' : 'पूर्ण पञ्चाङ्ग तल हेर्नुहोस्'; ?>
+          </a>
+        </div>
       </div>
     </div><!-- /selday -->
 
@@ -951,7 +1075,9 @@ if($activeTab==='patro'): ?>
     <div class="sp-evlist-card">
       <div class="sp-evlist-hdr">
         <i class="lucide-icon" style="width:13px;height:13px;" data-lucide="bell"></i>
-        <?php echo $SP_BS_MONTHS_NP[$calM-1].' '.sp_np($calY); ?> का पर्वहरू
+        <?php echo isEnglish()
+          ? (($SP_BS_MONTHS_EN[$calM-1]).' festivals')
+          : ($SP_BS_MONTHS_NP[$calM-1].' '.sp_np($calY).' का पर्वहरू'); ?>
       </div>
       <div class="sp-evlist-body">
         <?php $hasSomeEv=false;
@@ -972,7 +1098,7 @@ if($activeTab==='patro'): ?>
         </a>
         <?php endforeach;
         if(!$hasSomeEv): ?>
-        <div style="padding:16px;text-align:center;color:var(--sp-text-muted);font-size:12px;">यस महिना कुनै विशेष पर्व छैन</div>
+        <div style="padding:16px;text-align:center;color:var(--sp-text-muted);font-size:12px;"><?php echo isEnglish() ? 'No major festivals listed this month' : 'यस महिना कुनै विशेष पर्व छैन'; ?></div>
         <?php endif; ?>
       </div>
     </div><!-- /evlist -->
@@ -1015,6 +1141,13 @@ if($activeTab==='patro'): ?>
 
   </div><!-- /col-side -->
 </div><!-- /row -->
+
+<div class="sp-disclaimer">
+  <i class="lucide-icon" style="width:13px;height:13px;vertical-align:-2px;" data-lucide="info"></i>
+  <?php echo isEnglish()
+    ? 'Panchanga times are approximate for the Kathmandu day (astronomy + BS map). Festival dates are curated; cooperative programs come from the admin calendar. For personal kundali decisions, consult a qualified astrologer.'
+    : 'पञ्चाङ्ग समय काठमाडौं दिनका लागि अनुमानित (खगोलीय गणना + बि.सं. नक्सा)। पर्व सूची curated हो; सहकारी कार्यक्रम admin पात्रोबाट आउँछ। व्यक्तिगत कुण्डली निर्णयका लागि अनुभवी ज्योतिषीसँग परामर्श लिनुहोस्।'; ?>
+</div>
 
 <?php /* ════════════ TAB: राशिफल ══════════════════════════════════════════ */
 elseif($activeTab==='rashifal'): ?>
@@ -1143,6 +1276,12 @@ elseif($activeTab==='gunmilan'): ?>
   </div>
   <div style="padding:18px 20px 22px;">
     <form method="post" action="?tab=gunmilan&amp;cal_year=<?php echo (int)$calY; ?>&amp;cal_month=<?php echo (int)$calM; ?>&amp;sel_day=<?php echo (int)$selD; ?>">
+      <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
+      <?php if (!empty($gunaError)): ?>
+      <div style="margin-bottom:14px;padding:10px 12px;border-radius:10px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-size:13.5px;font-weight:600;">
+        <?php echo htmlspecialchars($gunaError); ?>
+      </div>
+      <?php endif; ?>
       <div class="row g-4 mb-4">
         <?php foreach([[0,'वर / व्यक्ति १','#1a5f2a'],[1,'वधू / व्यक्ति २','#c0392b']] as [$pi,$plabel,$pc]):
           $nKey = $pi === 0 ? 'n1' : 'n2';
@@ -1234,7 +1373,7 @@ elseif($activeTab==='muhurta'): ?>
         <div class="sp-muhurta-card <?php echo $good?'':'bad'; ?>">
           <i class="lucide-icon" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" data-lucide="<?php echo $ico; ?>"></i>
           <div>
-            <div class="sp-muhurta-card-title"><?php echo $good?'✅ ':'❌ '; ?><?php echo $name; ?></div>
+            <div class="sp-muhurta-card-title"><?php echo $name; ?><?php echo $good ? '' : ' <span style="font-size:11px;font-weight:700;opacity:.75;">('.(isEnglish()?'avoid':'बच्नुहोस्').')</span>'; ?></div>
             <div class="sp-muhurta-card-desc"><?php echo $desc; ?></div>
             <div class="sp-muhurta-card-time"><i class="lucide-icon" style="width:10px;height:10px;" data-lucide="clock"></i><?php echo $time; ?></div>
           </div>
@@ -1325,4 +1464,17 @@ elseif($activeTab==='jyotish'): ?>
 </section>
 
 <?php require_once 'includes/footer.php'; ?>
-<script>if(typeof lucide!=='undefined')lucide.createIcons();</script>
+<script>
+if (typeof lucide !== 'undefined') lucide.createIcons();
+(function () {
+  try {
+    var params = new URLSearchParams(window.location.search || '');
+    if (params.get('tab') === 'patro' && params.get('sel_day') && document.getElementById('spSelDay')) {
+      /* Keep focus near the selected-day panel after calendar navigation */
+      if (window.matchMedia('(max-width: 900px)').matches) {
+        document.getElementById('spSelDay').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
