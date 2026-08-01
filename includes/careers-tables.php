@@ -1,9 +1,127 @@
 <?php
 /**
- * careers — admin र public दुवैले प्रयोग गर्ने canonical DDL
- * (पहिले ensure-tables मा «सरल» र ensure-admin मा «विस्तृत» फरक थियो —
- *  ensurePublic पहिले चलेमा admin CREATE IF NOT EXISTS skip भई कलम हराउन सक्थ्यो।)
+ * careers — admin र public दुवैले प्रयोग गर्ने canonical DDL + helpers
  */
+if (!function_exists('careerNormalizeDate')) {
+    /** nepali-datepicker BS → AD Y-m-d */
+    function careerNormalizeDate(string $dateIn): string
+    {
+        $dateIn = trim($dateIn);
+        if ($dateIn === '' || !preg_match('/^(\d{4})-\d{2}-\d{2}/', $dateIn, $m)) {
+            return '';
+        }
+        $datePart = substr($dateIn, 0, 10);
+        $y = (int)$m[1];
+        if ($y >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($datePart));
+            return preg_match('/^\d{4}-\d{2}-\d{2}/', $ad) ? substr($ad, 0, 10) : '';
+        }
+        return $datePart;
+    }
+}
+
+if (!function_exists('careerDeadlineAd')) {
+    /** Normalize stored deadline to AD Y-m-d (legacy BS rows year ≥ 2070). */
+    function careerDeadlineAd(?string $deadline): string
+    {
+        $d = substr(trim((string)$deadline), 0, 10);
+        if ($d === '' || !preg_match('/^(\d{4})-\d{2}-\d{2}$/', $d, $m)) {
+            return '';
+        }
+        if ((int)$m[1] >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($d));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}/', $ad)) {
+                return substr($ad, 0, 10);
+            }
+        }
+        return $d;
+    }
+}
+
+if (!function_exists('careerDeadlinePassed')) {
+    function careerDeadlinePassed(?array $job): bool
+    {
+        if (!$job || empty($job['deadline'])) {
+            return false;
+        }
+        $d = careerDeadlineAd((string)$job['deadline']);
+        if ($d === '') {
+            return false;
+        }
+        try {
+            $tz = new DateTimeZone('Asia/Kathmandu');
+            $today = (new DateTime('today', $tz))->format('Y-m-d');
+            return $d < $today;
+        } catch (Throwable $e) {
+            return strtotime($d) < strtotime('today');
+        }
+    }
+}
+
+if (!function_exists('careerDaysLeft')) {
+    function careerDaysLeft(?array $job): int
+    {
+        if (!$job || empty($job['deadline']) || careerDeadlinePassed($job)) {
+            return 0;
+        }
+        $d = careerDeadlineAd((string)$job['deadline']);
+        if ($d === '') {
+            return 0;
+        }
+        try {
+            $tz = new DateTimeZone('Asia/Kathmandu');
+            $end = new DateTime($d . ' 23:59:59', $tz);
+            $now = new DateTime('now', $tz);
+            return max(0, (int)ceil(($end->getTimestamp() - $now->getTimestamp()) / 86400));
+        } catch (Throwable $e) {
+            $ts = strtotime($d . ' 23:59:59');
+            return $ts ? max(0, (int)ceil(($ts - time()) / 86400)) : 0;
+        }
+    }
+}
+
+if (!function_exists('careerIsOpen')) {
+    function careerIsOpen(?array $job): bool
+    {
+        if (!$job || empty($job['is_active'])) {
+            return false;
+        }
+        return !careerDeadlinePassed($job);
+    }
+}
+
+if (!function_exists('careerIsNew')) {
+    function careerIsNew(?array $job, int $withinDays = 14): bool
+    {
+        if (!$job || empty($job['created_at'])) {
+            return false;
+        }
+        $ts = strtotime((string)$job['created_at']);
+        return $ts && $ts >= (time() - max(1, $withinDays) * 86400);
+    }
+}
+
+if (!function_exists('careerFormatDeadlineDisplay')) {
+    /** Store AD DATE (or legacy BS) → public/admin BS (or AD fallback) label */
+    function careerFormatDeadlineDisplay(?string $adDate): string
+    {
+        $ad = careerDeadlineAd($adDate);
+        if ($ad === '') {
+            return '—';
+        }
+        if (function_exists('formatNepaliDate')) {
+            return (string)formatNepaliDate($ad);
+        }
+        if (function_exists('adToBs')) {
+            $bs = trim((string)adToBs($ad));
+            if ($bs !== '') {
+                return $bs;
+            }
+        }
+        return $ad;
+    }
+}
+
 if (!function_exists('ensureCareersTables')) {
     function ensureCareersTables(?PDO $db = null): void
     {
@@ -47,7 +165,6 @@ if (!function_exists('ensureCareersTables')) {
             INDEX idx_careers_deadline (deadline)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            /* पुरानो «status» स्किमा — safeAddColumn भन्दा अगाडि */
             try {
                 $hasActive = function_exists('safeColumnExists') && safeColumnExists('careers', 'is_active');
                 $hasStatus = function_exists('safeColumnExists') && safeColumnExists('careers', 'status');
@@ -62,12 +179,15 @@ if (!function_exists('ensureCareersTables')) {
             if (function_exists('safeAddColumn')) {
                 safeAddColumn($db, 'careers', 'title_np', 'VARCHAR(255) DEFAULT NULL');
                 safeAddColumn($db, 'careers', 'department', 'VARCHAR(150) DEFAULT NULL');
+                safeAddColumn($db, 'careers', 'location', 'VARCHAR(150) DEFAULT NULL');
                 safeAddColumn($db, 'careers', 'job_type', "VARCHAR(50) DEFAULT 'full_time'");
                 safeAddColumn($db, 'careers', 'description_np', 'TEXT');
+                safeAddColumn($db, 'careers', 'requirements', 'TEXT');
                 safeAddColumn($db, 'careers', 'attachment', 'VARCHAR(255) DEFAULT NULL');
                 safeAddColumn($db, 'careers', 'vacancies', 'INT DEFAULT 1');
                 safeAddColumn($db, 'careers', 'min_qualification', 'VARCHAR(255) DEFAULT NULL');
                 safeAddColumn($db, 'careers', 'experience_required', 'VARCHAR(150) DEFAULT NULL');
+                safeAddColumn($db, 'careers', 'salary_range', 'VARCHAR(150) DEFAULT NULL');
                 safeAddColumn($db, 'careers', 'allow_online_apply', 'TINYINT(1) DEFAULT 1');
                 safeAddColumn($db, 'careers', 'is_active', 'TINYINT(1) DEFAULT 1');
                 safeAddColumn($db, 'careers', 'updated_at', 'TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP');

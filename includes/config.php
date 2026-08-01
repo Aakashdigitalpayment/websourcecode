@@ -2139,17 +2139,24 @@ if (!function_exists('appGetText')) {
     }
 }
 
-// Get field value based on language (for database fields like title/title_np)
+// Get field value based on language (for database fields like title/title_np or title/title_en)
 function getLangField($row, $fieldName) {
     $lang = getCurrentLang();
     if ($lang === 'en') {
-        // For English, use the base field (e.g., 'title', 'description')
-        return !empty($row[$fieldName]) ? $row[$fieldName] : ($row[$fieldName . '_np'] ?? '');
-    } else {
-        // For Nepali, use the _np field first, fallback to base field
-        $npField = $fieldName . '_np';
-        return !empty($row[$npField]) ? $row[$npField] : ($row[$fieldName] ?? '');
+        $enField = $fieldName . '_en';
+        if (!empty($row[$enField])) {
+            return $row[$enField];
+        }
+        if (!empty($row[$fieldName])) {
+            return $row[$fieldName];
+        }
+        return $row[$fieldName . '_np'] ?? '';
     }
+    $npField = $fieldName . '_np';
+    if (!empty($row[$npField])) {
+        return $row[$npField];
+    }
+    return $row[$fieldName] ?? '';
 }
 
 // Language strings for common UI elements

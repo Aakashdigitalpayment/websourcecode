@@ -11,8 +11,10 @@ $pageTitle = $__t('रोजगारी व्यवस्थापन', 'Caree
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
+require_once __DIR__ . '/../includes/careers-tables.php';
 
 $db = getDB();
+ensureCareersTables($db);
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
@@ -37,11 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title_np    = clean_text($_POST['title_np']       ?? '');
             $dept        = clean_text($_POST['department']     ?? '');
             $loc         = clean_text($_POST['location']       ?? '');
-            $jtype       = clean_text($_POST['job_type']       ?? 'full-time');
+            $jtype       = clean_text($_POST['job_type']       ?? 'full_time');
+            $jtype       = str_replace('-', '_', $jtype);
+            if (!in_array($jtype, ['full_time', 'part_time', 'contract', 'internship', 'temporary'], true)) {
+                $jtype = 'full_time';
+            }
             $desc        = $_POST['description']             ?? '';
             $desc_np     = $_POST['description_np']         ?? '';
             $req         = $_POST['requirements']            ?? '';
-            $deadline    = $_POST['deadline']                ?? null;
+            $deadlineRaw = trim((string)($_POST['deadline'] ?? ''));
+            $deadline    = $deadlineRaw !== '' ? careerNormalizeDate($deadlineRaw) : null;
+            if ($deadline === '') {
+                $deadline = null;
+            }
             $vacancies   = max(1,(int)($_POST['vacancies']   ?? 1));
             $min_qual    = clean_text($_POST['min_qualification']   ?? '');
             $exp_req     = clean_text($_POST['experience_required'] ?? '');
@@ -95,21 +105,10 @@ try {
     }
 } catch (Exception $e) { $careers = []; }
 
-/** सूची उप-ट्याब: सक्रिय = is_active र म्याद नसकेको (उही strtotime तर्क जस्तो पङ्क्तिमा) */
+/** सूची उप-ट्याब: सक्रिय = is_active र म्याद नसकेको */
 function career_admin_is_live(array $c): bool
 {
-    if (empty($c['is_active'])) {
-        return false;
-    }
-    $d = trim((string)($c['deadline'] ?? ''));
-    if ($d === '') {
-        return true;
-    }
-    $ts = strtotime($d);
-    if ($ts === false) {
-        return true;
-    }
-    return $ts >= time();
+    return careerIsOpen($c);
 }
 
 $careersLive = [];
@@ -143,9 +142,9 @@ function careers_admin_render_rows(array $list): void
                                 <td class="text-center"><small><?php echo htmlspecialchars($c['department'] ?? '—'); ?></small></td>
                                 <td class="text-center"><span class="badge bg-info text-white"><?php echo (int)($c['vacancies'] ?? 1); ?> <?php echo $__t('जना', 'posts'); ?></span></td>
                                 <td class="text-center">
-                                    <small class="<?php echo ($c['deadline'] && strtotime($c['deadline']) < time()) ? 'text-danger fw-semibold' : ''; ?>">
-                                        <?php echo htmlspecialchars($c['deadline'] ?? '—'); ?>
-                                        <?php if ($c['deadline'] && strtotime($c['deadline']) < time()): ?><br><span class="badge bg-danger"><?php echo $__t('समाप्त', 'Expired'); ?></span><?php endif; ?>
+                                    <small class="<?php echo careerDeadlinePassed($c) ? 'text-danger fw-semibold' : ''; ?>">
+                                        <?php echo htmlspecialchars(careerFormatDeadlineDisplay($c['deadline'] ?? null)); ?>
+                                        <?php if (careerDeadlinePassed($c)): ?><br><span class="badge bg-danger"><?php echo $__t('समाप्त', 'Expired'); ?></span><?php endif; ?>
                                     </small>
                                 </td>
                                 <td class="text-center">
@@ -166,7 +165,17 @@ function careers_admin_render_rows(array $list): void
                                             data-desc="<?php echo htmlspecialchars($c['description'] ?? '', ENT_QUOTES); ?>"
                                             data-desc-np="<?php echo htmlspecialchars($c['description_np'] ?? '', ENT_QUOTES); ?>"
                                             data-req="<?php echo htmlspecialchars($c['requirements'] ?? '', ENT_QUOTES); ?>"
-                                            data-deadline="<?php echo htmlspecialchars($c['deadline'] ?? '', ENT_QUOTES); ?>"
+                                            data-deadline="<?php
+                                                $dlAd = substr((string)($c['deadline'] ?? ''), 0, 10);
+                                                $dlShow = $dlAd;
+                                                if ($dlAd !== '' && function_exists('adToBs')) {
+                                                    $bs = trim((string)adToBs($dlAd));
+                                                    if ($bs !== '') {
+                                                        $dlShow = $bs;
+                                                    }
+                                                }
+                                                echo htmlspecialchars($dlShow, ENT_QUOTES);
+                                            ?>"
                                             data-vacancies="<?php echo (int)($c['vacancies'] ?? 1); ?>"
                                             data-qual="<?php echo htmlspecialchars($c['min_qualification'] ?? '', ENT_QUOTES); ?>"
                                             data-exp="<?php echo htmlspecialchars($c['experience_required'] ?? '', ENT_QUOTES); ?>"
@@ -344,9 +353,11 @@ $flash = getFlash();
                         <div class="col-md-4">
                             <label class="form-label fw-semibold text-success"><?php echo $__t('कामको प्रकार', 'Job Type'); ?></label>
                             <select name="job_type" id="crf_jtype" class="form-select admin-fancy-input">
-                                <option value="full-time">Full Time</option>
-                                <option value="part-time">Part Time</option>
+                                <option value="full_time">Full Time</option>
+                                <option value="part_time">Part Time</option>
                                 <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                                <option value="temporary">Temporary</option>
                             </select>
                         </div>
                         <div class="col-md-3">

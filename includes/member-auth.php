@@ -927,18 +927,28 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
         ['table' => 'member_welfare_claims',   'service' => 'कल्याण दाबी',  'icon' => 'fa-heart', 'color' => '#e65100',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, claim_type as detail, status, tracking_id, created_at, NULL as branch'],
-        ['table' => 'honor_applications', 'service' => 'सम्मान दरखास्त', 'icon' => 'fa-award', 'color' => '#1a5f2a',
+        ['table' => 'honor_applications', 'service' => 'सम्मान आवेदन', 'icon' => 'fa-award', 'color' => '#1a5f2a',
          'contact' => 'phone', 'member_col' => 'member_id',
          'fields' => 'id, applicant_name as full_name, phone, email, NULL as app_date, nominee_name as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
-         'contact' => 'phone', 'member_col' => null,
-         'fields' => 'id, full_name, phone, email, NULL as app_date, position_applied as detail, status, tracking_id, created_at, NULL as branch'],
+         'contact' => 'phone', 'member_col' => null, 'email' => 'email',
+         'fields' => "id, full_name, phone, email, NULL as app_date, COALESCE((SELECT COALESCE(NULLIF(c.title_np,''), c.title) FROM careers c WHERE c.id = job_applications.career_id LIMIT 1), education, '') as detail, status, tracking_id, created_at, NULL as branch"],
+        ['table' => 'digital_service_requests', 'service' => 'डिजिटल सेवा', 'icon' => 'fa-mobile-alt', 'color' => '#0277bd',
+         'contact' => 'phone', 'member_col' => 'member_id', 'email' => 'email',
+         'fields' => 'id, requester_name as full_name, phone, email, NULL as app_date, COALESCE(NULLIF(service_type_np,\'\'), service_type) as detail, status, tracking_id, created_at, NULL as branch, member_id'],
+        ['table' => 'auction_bids', 'service' => 'लिलामी बोलपत्र', 'icon' => 'fa-gavel', 'color' => '#b71c1c',
+         'contact' => 'bidder_phone', 'member_col' => null, 'email' => 'bidder_email',
+         'fields' => 'id, bidder_name as full_name, bidder_phone as phone, bidder_email as email, NULL as app_date, bid_amount as detail, status, tracking_id, created_at, NULL as branch'],
+        ['table' => 'member_feedback', 'service' => 'सर्वेक्षण/प्रतिक्रिया', 'icon' => 'fa-comments', 'color' => '#6a1b9a',
+         'contact' => 'phone', 'member_col' => null, 'email' => 'email',
+         'fields' => "id, name as full_name, phone, email, NULL as app_date, COALESCE(NULLIF(subject,''), type, LEFT(message, 80)) as detail, status, tracking_id, created_at, NULL as branch"],
     ];
 
     foreach ($queries as $q) {
         try {
             $conds = []; $params = [];
-            if ($email !== '') { $conds[] = 'email=?'; $params[] = $email; }
+            $emailCol = (string)($q['email'] ?? 'email');
+            if ($email !== '') { $conds[] = $emailCol . '=?'; $params[] = $email; }
             if ($phone !== '') {
                 $conds[] = $q['contact'] . '=?';
                 $params[] = $phone;
@@ -954,7 +964,13 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
                                  FROM {$q['table']} WHERE ($where) ORDER BY created_at DESC LIMIT 30");
             $st->execute($params);
             $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($rows as $r) { $r['_table'] = $q['table']; $results[] = $r; }
+            foreach ($rows as $r) {
+                $r['_table'] = $q['table'];
+                if (($q['table'] ?? '') === 'auction_bids' && isset($r['detail']) && is_numeric($r['detail'])) {
+                    $r['detail'] = 'Rs. ' . number_format((float)$r['detail'], 0);
+                }
+                $results[] = $r;
+            }
         } catch (Exception $e) { continue; }
     }
 
@@ -964,19 +980,23 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
 
 /* ─── Status helpers ─── */
 function memberStatusBadge($status) {
+    $en = function_exists('isEnglish') && isEnglish();
     $map = [
-        'pending'      => ['bg' => '#fff8e1', 'color' => '#f59e0b', 'text' => 'विचाराधीन',   'dot' => '#f59e0b'],
-        'under_review' => ['bg' => '#fef2f2', 'color' => 'var(--secondary-color,#c0392b)', 'text' => 'समीक्षामा',    'dot' => 'var(--secondary-color,#c0392b)'],
-        'shortlisted'  => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => 'छनोट सूची',   'dot' => '#4338ca'],
-        'selected'     => ['bg' => '#ecfdf5', 'color' => '#047857', 'text' => 'चयनित',      'dot' => '#047857'],
-        'approved'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => 'स्वीकृत',      'dot' => '#2e7d32'],
-        'rejected'     => ['bg' => '#ffebee', 'color' => '#c62828', 'text' => 'अस्वीकृत',    'dot' => '#c62828'],
-        'completed'    => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'सम्पन्न',      'dot' => 'var(--primary-color)'],
-        'resolved'     => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'समाधान भयो',  'dot' => 'var(--primary-color)'],
-        'closed'       => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'बन्द',         'dot' => '#6b7280'],
-        'cancelled'    => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'रद्द',         'dot' => '#6b7280'],
+        'pending'      => ['bg' => '#fff8e1', 'color' => '#f59e0b', 'text' => $en ? 'Pending' : 'विचाराधीन',   'dot' => '#f59e0b'],
+        'under_review' => ['bg' => '#fef2f2', 'color' => 'var(--secondary-color,#c0392b)', 'text' => $en ? 'Under review' : 'समीक्षामा',    'dot' => 'var(--secondary-color,#c0392b)'],
+        'processing'   => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Processing' : 'प्रक्रियामा', 'dot' => '#4338ca'],
+        'shortlisted'  => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Shortlisted' : 'छनोट सूची',   'dot' => '#4338ca'],
+        'selected'     => ['bg' => '#ecfdf5', 'color' => '#047857', 'text' => $en ? 'Selected' : 'चयनित',      'dot' => '#047857'],
+        'accepted'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => $en ? 'Accepted' : 'स्वीकृत',      'dot' => '#2e7d32'],
+        'approved'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => $en ? 'Approved' : 'स्वीकृत',      'dot' => '#2e7d32'],
+        'rejected'     => ['bg' => '#ffebee', 'color' => '#c62828', 'text' => $en ? 'Rejected' : 'अस्वीकृत',    'dot' => '#c62828'],
+        'completed'    => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => $en ? 'Completed' : 'सम्पन्न',      'dot' => 'var(--primary-color)'],
+        'resolved'     => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => $en ? 'Resolved' : 'समाधान भयो',  'dot' => 'var(--primary-color)'],
+        'reviewed'     => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => $en ? 'Reviewed' : 'समीक्षा भयो', 'dot' => '#4338ca'],
+        'closed'       => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => $en ? 'Closed' : 'बन्द',         'dot' => '#6b7280'],
+        'cancelled'    => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => $en ? 'Cancelled' : 'रद्द',         'dot' => '#6b7280'],
     ];
-    $s = $map[$status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280','text'=>ucfirst($status),'dot'=>'#9ca3af'];
+    $s = $map[$status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280','text'=>ucfirst((string)$status),'dot'=>'#9ca3af'];
     return "<span class='mem-badge' style='background:{$s['bg']};color:{$s['color']};'>
         <span style='background:{$s['dot']};width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;'></span>
         {$s['text']}</span>";
@@ -1074,7 +1094,7 @@ function createMemberStatusNotification($type, $email, $phone, $name, $status, $
         'appointment' => 'भेटघाट', 'kyc' => 'KYC दर्ता', 'loan' => 'ऋण आवेदन',
         'account' => 'खाता आवेदन', 'grievance' => 'गुनासो', 'welfare' => 'कल्याण दाबी',
         'job' => 'जागिर आवेदन', 'digital_service' => 'डिजिटल सेवा',
-        'honor_application' => 'सम्मान दरखास्त',
+        'honor_application' => 'सम्मान आवेदन',
     ];
     $statusInfo = [
         'pending'      => ['विचाराधीन',   'info',    '⏳'],

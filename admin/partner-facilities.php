@@ -150,6 +150,21 @@ if ($typeFilter !== '' && !in_array($typeFilter, $types, true)) {
     $typeFilter = '';
 }
 
+$viewLogsId = (int)($_GET['logs'] ?? 0);
+$viewLogsPartner = null;
+$viewLogsRows = [];
+$viewLogsMissing = false;
+$viewLogsTotal = 0;
+if ($viewLogsId > 0) {
+    $viewLogsPartner = partnerFindById($db, $viewLogsId);
+    if ($viewLogsPartner && function_exists('fetchPartnerFacilityServiceLogs')) {
+        $viewLogsRows = fetchPartnerFacilityServiceLogs($db, $viewLogsId, 80, false);
+        $viewLogsTotal = (int)($usageMap[$viewLogsId] ?? count($viewLogsRows));
+    } else {
+        $viewLogsMissing = true;
+    }
+}
+
 $pfPart = adminPartitionRowsByIsActive($facilities);
 $facilitiesLive = $pfPart['live'];
 $facilitiesArch = $pfPart['archived'];
@@ -181,7 +196,9 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
             <?php $d = partnerDiscountDisplay($f); echo $d !== '' ? '<span class="badge bg-warning text-dark fw-bold">' . htmlspecialchars($d) . '</span>' : '<span class="text-muted">—</span>'; ?>
         </td>
         <td><span class="text-muted"><?php echo htmlspecialchars(mb_substr((string)($f['description'] ?? ''), 0, 50)); ?><?php echo mb_strlen((string)($f['description'] ?? '')) > 50 ? '…' : ''; ?></span></td>
-        <td class="text-center"><span class="badge bg-info text-dark"><?php echo $usage; ?></span></td>
+        <td class="text-center">
+            <a class="badge bg-info text-dark text-decoration-none" href="?logs=<?php echo $uid; ?>#pf-usage-logs" title="सेवा लग हेर्नुहोस्"><?php echo $usage; ?></a>
+        </td>
         <td class="text-center">
             <span class="badge bg-<?php echo !empty($f['is_active']) ? 'success' : 'secondary'; ?>">
                 <?php echo !empty($f['is_active']) ? 'सक्रिय' : 'निष्क्रिय'; ?>
@@ -241,6 +258,66 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 ); ?>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
+
+<?php if ($viewLogsMissing): ?>
+<div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" id="pf-usage-logs">
+    <span><i class="fas fa-triangle-exclamation me-2"></i>साझेदार भेटिएन वा लग लोड गर्न सकिएन (ID: <?php echo (int)$viewLogsId; ?>).</span>
+    <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary">सूचीमा फर्कनुहोस्</a>
+</div>
+<?php endif; ?>
+
+<?php if ($viewLogsPartner): ?>
+<div class="card admin-table-card mb-3" id="pf-usage-logs">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white">
+        <div>
+            <strong><i class="fas fa-clock-rotate-left me-2 text-success"></i>सेवा लग — <?php echo htmlspecialchars((string)$viewLogsPartner['partner_name']); ?></strong>
+            <?php if (!empty($viewLogsPartner['partner_code'])): ?>
+                <code class="ms-2 small"><?php echo htmlspecialchars((string)$viewLogsPartner['partner_code']); ?></code>
+            <?php endif; ?>
+            <span class="badge bg-info text-dark ms-2"><?php echo (int)$viewLogsTotal; ?> जम्मा</span>
+            <?php if ($viewLogsTotal > count($viewLogsRows)): ?>
+            <span class="badge bg-light text-muted border ms-1">पछिल्ला <?php echo count($viewLogsRows); ?> देखाइएको</span>
+            <?php endif; ?>
+        </div>
+        <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-xmark me-1"></i>बन्द</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height:420px;overflow:auto;">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th class="ps-3">मिति</th>
+                        <th>सदस्य</th>
+                        <th>कार्ड / सदस्यता</th>
+                        <th>सेवा</th>
+                        <th>नोट</th>
+                        <th class="text-center">स्थिति</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php if (empty($viewLogsRows)): ?>
+                    <tr><td colspan="6" class="text-center text-muted py-4">यो साझेदारमा अहिलेसम्म कुनै सेवा लग छैन।</td></tr>
+                <?php else: foreach ($viewLogsRows as $lr):
+                    $taken = !empty($lr['service_taken']);
+                    $when = function_exists('formatNepaliDate') ? formatNepaliDate($lr['created_at'] ?? '', true) : (string)($lr['created_at'] ?? '');
+                ?>
+                    <tr>
+                        <td class="ps-3 small text-muted text-nowrap"><?php echo htmlspecialchars($when); ?></td>
+                        <td class="fw-semibold"><?php echo htmlspecialchars((string)($lr['member_name'] ?: '—')); ?></td>
+                        <td><code class="small"><?php echo htmlspecialchars((string)($lr['member_card_no'] ?: $lr['member_id'] ?: '—')); ?></code></td>
+                        <td><?php echo htmlspecialchars((string)(($lr['service_name'] ?? '') !== '' ? $lr['service_name'] : '—')); ?></td>
+                        <td class="small text-muted"><?php echo htmlspecialchars((string)($lr['service_note'] ?: '—')); ?></td>
+                        <td class="text-center">
+                            <span class="badge bg-<?php echo $taken ? 'success' : 'secondary'; ?>"><?php echo $taken ? 'सेवा लिइयो' : 'verify मात्र'; ?></span>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="pfTabs">
     <li class="nav-item">

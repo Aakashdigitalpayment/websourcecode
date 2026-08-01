@@ -1214,13 +1214,80 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 <li>
                     <a href="<?php echo SITE_URL; ?>honor-apply.php">
                         <i class="fas fa-award"></i>
-                        <?php echo isEnglish() ? 'Honor Apply' : 'दर्खास्त'; ?>
+                        <?php echo isEnglish() ? 'Honor Application' : 'सम्मान आवेदन'; ?>
                         <?php if ($__honorNew): ?>
                         <span class="nav-new-badge nav-new-badge--top"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
                         <?php endif; ?>
                     </a>
                 </li>
                 <?php endif; ?>
+                <?php
+                /* सदस्य सन्तुष्टि — top bar (honor जस्तै); 1 link = direct, धेरै = dropdown */
+                $__satLinks = [];
+                $__satNew = false;
+                try {
+                    $satFile = __DIR__ . '/satisfaction-links-tables.php';
+                    if (is_file($satFile)) {
+                        require_once $satFile;
+                    }
+                    if (function_exists('satisfactionFetchActiveLinks')) {
+                        $__satLinks = satisfactionFetchActiveLinks(isset($db) && $db instanceof PDO ? $db : null, 5);
+                        $__satNew = function_exists('satisfactionHasNewBadge') && satisfactionHasNewBadge($__satLinks);
+                    }
+                } catch (Throwable $e) {
+                    $__satLinks = [];
+                }
+                if (!empty($__satLinks)):
+                    $__satCount = count($__satLinks);
+                    if ($__satCount === 1):
+                        $__satOne = $__satLinks[0];
+                        $__satOneTitle = function_exists('satisfactionLinkTitle')
+                            ? satisfactionLinkTitle($__satOne)
+                            : (string)($__satOne['title'] ?? '');
+                ?>
+                <li>
+                    <a href="<?php echo htmlspecialchars((string)$__satOne['url'], ENT_QUOTES, 'UTF-8'); ?>"
+                       target="_blank" rel="noopener noreferrer"
+                       title="<?php echo htmlspecialchars($__satOneTitle, ENT_QUOTES, 'UTF-8'); ?>">
+                        <i class="fas fa-smile"></i>
+                        <?php echo isEnglish() ? 'Member Feedback' : 'सदस्य सन्तुष्टि'; ?>
+                        <?php if ($__satNew): ?>
+                        <span class="nav-new-badge nav-new-badge--top"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <?php else: ?>
+                <li class="has-drop">
+                    <a href="javascript:void(0);">
+                        <i class="fas fa-smile"></i>
+                        <?php echo isEnglish() ? 'Member Feedback' : 'सदस्य सन्तुष्टि'; ?>
+                        <?php if ($__satNew): ?>
+                        <span class="nav-new-badge nav-new-badge--top"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
+                        <?php endif; ?>
+                        <i class="fas fa-caret-down ms-1" style="font-size:10px;"></i>
+                    </a>
+                    <div class="pfl-drop">
+                        <?php foreach ($__satLinks as $__satRow):
+                            $__satT = function_exists('satisfactionLinkTitle')
+                                ? satisfactionLinkTitle($__satRow)
+                                : (string)($__satRow['title'] ?? '');
+                            $__satIcon = trim((string)($__satRow['icon'] ?? 'fas fa-link'));
+                            if ($__satIcon === '') {
+                                $__satIcon = 'fas fa-link';
+                            }
+                        ?>
+                        <a href="<?php echo htmlspecialchars((string)$__satRow['url'], ENT_QUOTES, 'UTF-8'); ?>"
+                           target="_blank" rel="noopener noreferrer">
+                            <i class="<?php echo htmlspecialchars($__satIcon, ENT_QUOTES, 'UTF-8'); ?> me-1"></i>
+                            <span class="pfl-drop-label"><?php echo htmlspecialchars($__satT); ?></span>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                </li>
+                <?php
+                    endif;
+                endif;
+                ?>
                 <li class="has-drop">
                     <a href="javascript:void(0);">
                         <i class="fas fa-th"></i>

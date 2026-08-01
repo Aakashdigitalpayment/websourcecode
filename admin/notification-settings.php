@@ -130,7 +130,7 @@ $events = [
     'loan_application'   => ['label' => 'ऋण आवेदन',         'icon' => 'fa-hand-holding-dollar'],
     'grievance'          => ['label' => 'गुनासो',             'icon' => 'fa-triangle-exclamation'],
     'digital_service'    => ['label' => 'डिजिटल सेवा',       'icon' => 'fa-laptop-code'],
-    'honor_application'  => ['label' => 'सम्मान दरखास्त',     'icon' => 'fa-award'],
+    'honor_application'  => ['label' => 'सम्मान आवेदन',     'icon' => 'fa-award'],
     'kyc_application'    => ['label' => 'KYC आवेदन',         'icon' => 'fa-id-card-clip'],
     'appointment'        => ['label' => 'भेटघाट',             'icon' => 'fa-calendar-check'],
     'account_application'=> ['label' => 'खाता आवेदन',         'icon' => 'fa-user-plus'],

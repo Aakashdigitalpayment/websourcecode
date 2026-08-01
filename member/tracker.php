@@ -55,16 +55,30 @@ $unread   = getMemberUnreadCount($memberId);
 $apps     = getMemberApplications($memEmail, $memPhone, 100, $memberId);
 
 /* Filter */
-$allowedTrackerFilters = ['all', 'appointment', 'kyc', 'loan', 'account', 'grievance', 'welfare', 'job'];
+$allowedTrackerFilters = ['all', 'appointment', 'kyc', 'loan', 'account', 'grievance', 'welfare', 'job', 'honor', 'digital', 'auction', 'feedback'];
 $filter   = $_GET['filter'] ?? 'all';
 if (!in_array($filter, $allowedTrackerFilters, true)) {
     $filter = 'all';
 }
 $q        = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 200, 'UTF-8');
 if ($filter !== 'all') {
-    $filterMap = ['appointment'=>'appointments','kyc'=>'kyc_applications','loan'=>'loan_applications','account'=>'account_applications','grievance'=>'grievances','welfare'=>'welfare_claims','job'=>'job_applications'];
-    $tbl = $filterMap[$filter] ?? null;
-    if ($tbl) $apps = array_filter($apps, fn($a) => $a['_table'] === $tbl);
+    $filterMap = [
+        'appointment' => ['appointments'],
+        'kyc' => ['kyc_applications'],
+        'loan' => ['loan_applications'],
+        'account' => ['account_applications'],
+        'grievance' => ['grievances'],
+        'welfare' => ['welfare_claims', 'member_welfare_claims'],
+        'job' => ['job_applications'],
+        'honor' => ['honor_applications'],
+        'digital' => ['digital_service_requests'],
+        'auction' => ['auction_bids'],
+        'feedback' => ['member_feedback'],
+    ];
+    $tbls = $filterMap[$filter] ?? [];
+    if ($tbls) {
+        $apps = array_filter($apps, fn($a) => in_array($a['_table'] ?? '', $tbls, true));
+    }
 }
 if ($q !== '') {
     $qLower = mb_strtolower($q);
@@ -85,15 +99,19 @@ $viewTbl = isset($_GET['tbl']) ? (string) $_GET['tbl'] : '';
 $viewApp = null;
 
 if ($viewId > 0 && $viewTbl !== '') {
-    $safeTables = ['appointments','kyc_applications','loan_applications','account_applications','grievances','welfare_claims','job_applications'];
+    $safeTables = [
+        'appointments', 'kyc_applications', 'loan_applications', 'account_applications',
+        'grievances', 'welfare_claims', 'member_welfare_claims', 'job_applications',
+        'honor_applications', 'digital_service_requests', 'auction_bids', 'member_feedback',
+    ];
     if (in_array($viewTbl, $safeTables, true)) {
         try {
-            $st = $db->prepare("SELECT * FROM $viewTbl WHERE id=?");
+            $st = $db->prepare("SELECT * FROM `$viewTbl` WHERE id=?");
             $st->execute([$viewId]);
             $viewApp = $st->fetch(PDO::FETCH_ASSOC);
-            /* Security: only show if email/phone matches */
-            $appEmail = strtolower(trim((string)($viewApp['email'] ?? '')));
-            $appPhone = preg_replace('/[^0-9]/', '', (string)($viewApp['phone'] ?? $viewApp['mobile'] ?? ''));
+            /* Security: only show if email/phone/member_id matches */
+            $appEmail = strtolower(trim((string)($viewApp['email'] ?? $viewApp['bidder_email'] ?? '')));
+            $appPhone = preg_replace('/[^0-9]/', '', (string)($viewApp['phone'] ?? $viewApp['mobile'] ?? $viewApp['bidder_phone'] ?? ''));
             $myEmail  = strtolower(trim((string)$memEmail));
             $myPhone  = preg_replace('/[^0-9]/', '', (string)$memPhone);
             if ($viewApp && $appEmail !== $myEmail && $appPhone !== $myPhone) {
@@ -102,6 +120,9 @@ if ($viewId > 0 && $viewTbl !== '') {
                 if ($appMemberId === '' || $appMemberId !== $myId) {
                     $viewApp = null;
                 }
+            }
+            if ($viewApp) {
+                $viewApp['_table'] = $viewTbl;
             }
         } catch (Exception $e) { $viewApp = null; }
     }
@@ -114,8 +135,12 @@ function memberTrackerModuleKey(string $table): ?string {
         'loan_applications' => 'loan',
         'account_applications' => 'account',
         'grievances' => 'grievance',
-        'welfare_claims' => 'welfare',
+        'welfare_claims', 'member_welfare_claims' => 'welfare',
         'job_applications' => 'job_application',
+        'honor_applications' => 'honor_application',
+        'digital_service_requests' => 'digital_service',
+        'auction_bids' => 'auction_bid',
+        'member_feedback' => 'feedback',
         default => null,
     };
 }
@@ -212,7 +237,7 @@ require __DIR__ . '/includes/chrome.php';
                loop ले admin_response लाई धेरै rows बीच लुकाउँथ्यो। अब reply
                भएमा सबै भन्दा माथि highlighted card मा देखाउँछ ताकि member ले
                तुरुन्तै देख्न सकोस्। */
-            $hasReply = !empty($viewApp['admin_response']);
+            $hasReply = !empty($viewApp['admin_response']) || !empty($viewApp['admin_reply']) || !empty($viewApp['remarks']);
             $hasAttach = !empty($viewApp['admin_attachment']);
             if ($hasReply || $hasAttach):
             ?>
@@ -227,7 +252,7 @@ require __DIR__ . '/includes/chrome.php';
                 </div>
                 <?php if ($hasReply): ?>
                 <div style="white-space:pre-wrap;font-size:.88rem;color:var(--primary-dark,#144a21);line-height:1.6;">
-                    <?php echo nl2br(htmlspecialchars($viewApp['admin_response'])); ?>
+                    <?php echo nl2br(htmlspecialchars((string)($viewApp['admin_reply'] ?? $viewApp['admin_response'] ?? $viewApp['remarks'] ?? ''))); ?>
                 </div>
                 <?php endif; ?>
                 <?php if ($hasAttach): ?>
@@ -244,7 +269,7 @@ require __DIR__ . '/includes/chrome.php';
             <table class="table" style="margin-top:16px;font-size:0.85rem;">
                 <?php
                 /* admin_response अब माथि highlight panel मा देखिएकोले list बाट skip गर्छौं — duplicate नहोस् */
-                $skipKeys = ['id','password','admin_attachment','admin_note','google_id','facebook_id','admin_response'];
+                $skipKeys = ['id','password','admin_attachment','admin_note','google_id','facebook_id','admin_response','admin_reply'];
                 $labelMap = [
                     'full_name'=>'नाम','name'=>'नाम','email'=>'इमेल','phone'=>'फोन','mobile'=>'मोबाइल',
                     'status'=>'अवस्था','created_at'=>'दर्ता मिति','tracking_id'=>'Tracking ID',
@@ -285,7 +310,20 @@ require __DIR__ . '/includes/chrome.php';
         <div class="mem-card-body" style="padding-bottom:8px;">
             <!-- Filter chips -->
             <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;">
-                <?php $filters = ['all'=>$_t('सबै','All'),'appointment'=>$_t('भेटघाट','Appointment'),'kyc'=>'KYC','loan'=>$_t('ऋण','Loan'),'account'=>$_t('खाता','Account'),'grievance'=>$_t('गुनासो','Grievance'),'welfare'=>$_t('कल्याण','Welfare'),'job'=>$_t('जागिर','Job')]; ?>
+                <?php $filters = [
+                    'all'=>$_t('सबै','All'),
+                    'appointment'=>$_t('भेटघाट','Appointment'),
+                    'kyc'=>'KYC',
+                    'loan'=>$_t('ऋण','Loan'),
+                    'account'=>$_t('खाता','Account'),
+                    'grievance'=>$_t('गुनासो','Grievance'),
+                    'welfare'=>$_t('कल्याण','Welfare'),
+                    'job'=>$_t('जागिर','Job'),
+                    'honor'=>$_t('सम्मान','Honor'),
+                    'digital'=>$_t('डिजिटल','Digital'),
+                    'auction'=>$_t('लिलामी','Auction'),
+                    'feedback'=>$_t('सर्वेक्षण','Feedback'),
+                ]; ?>
                 <?php foreach ($filters as $fk => $fl): ?>
                 <a href="?filter=<?php echo $fk; ?>&q=<?php echo urlencode($q); ?>" style="padding:5px 13px;border-radius:20px;font-size:0.75rem;font-weight:700;text-decoration:none;border:1.5px solid <?php echo $filter===$fk ? 'var(--mem-primary)' : 'var(--border-soft)'; ?>;background:<?php echo $filter===$fk ? 'var(--mem-primary)' : 'var(--bg-card)'; ?>;color:<?php echo $filter===$fk ? 'var(--text-on-primary, #fff)' : 'var(--text-muted)'; ?>;">
                     <?php echo $fl; ?>
@@ -313,7 +351,12 @@ require __DIR__ . '/includes/chrome.php';
                         'appointment' => ['href' => 'appointment.php', 'label' => $_t('भेटघाट', 'Appointment')],
                         'kyc' => ['href' => 'kyc.php', 'label' => 'KYC'],
                         'account' => ['href' => 'account-apply.php', 'label' => $_t('खाता खोल्ने', 'Open account')],
-                        'grievance' => ['href' => 'grievance.php', 'label' => $_t('गुनासो', 'Grievance')],
+                        'honor' => ['href' => 'honor-apply.php', 'label' => $_t('सम्मान आवेदन', 'Honor apply')],
+                        'digital' => ['href' => 'digital-service.php', 'label' => $_t('डिजिटल सेवा', 'Digital service')],
+                        'feedback' => ['href' => '../member-survey.php', 'label' => $_t('सर्वेक्षण', 'Survey')],
+                        'welfare' => ['href' => 'welfare.php', 'label' => $_t('कल्याण', 'Welfare')],
+                        'job' => ['href' => '../career.php', 'label' => $_t('जागिर', 'Jobs')],
+                        'auction' => ['href' => '../auction.php', 'label' => $_t('लिलामी', 'Auction')],
                     ];
                     $show = ($filter === 'all')
                         ? ['loan', 'appointment', 'kyc']

@@ -145,7 +145,7 @@ $adminAlertCounts = [
     'appointment' => 0,   /* नयाँ: pending भेटघाट */
     'attend'      => 0,   /* कार्यक्रम उपस्थिति अनुरोध */
     'survey'      => 0,   /* नयाँ: unread survey */
-    'honor'       => 0,   /* सम्मान दरखास्त */
+    'honor'       => 0,   /* सम्मान आवेदन */
 ];
 try {
     /* पुरानो DB मा job_applications.is_read नहुन सक्छ — fallback */
@@ -541,14 +541,14 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='honor-applications' ? 'active' : ''; ?>">
                                 <a href="honor-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i></span>
-                                    <span><?php echo $adminT('सम्मान दरखास्त', 'Honor Applications'); ?></span>
+                                    <span><?php echo $adminT('सम्मान आवेदन', 'Honor Applications'); ?></span>
                                     <?php if ($adminAlertCounts['honor'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['honor']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='honor-programs' ? 'active' : ''; ?>">
                                 <a href="honor-programs.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-range"></i></span>
-                                    <span><?php echo $adminT('दरखास्त कार्यक्रम', 'Honor Programs'); ?></span>
+                                    <span><?php echo $adminT('सम्मान कार्यक्रम', 'Honor Programs'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='appointments' ? 'active' : ''; ?>">
@@ -993,7 +993,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],
                         ['label'=>$adminT('डिजिटल सेवा', 'Digital Services'),      'count'=>$adminAlertCounts['digital'],           'href'=>'digital-service-requests.php?status=pending','icon'=>'fa-mobile-alt', 'tone'=>'cyan'],
-                        ['label'=>$adminT('सम्मान दरखास्त', 'Honor Applications'), 'count'=>$adminAlertCounts['honor'],             'href'=>'honor-applications.php?status=pending',     'icon'=>'fa-award',       'tone'=>'green'],
+                        ['label'=>$adminT('सम्मान आवेदन', 'Honor Applications'), 'count'=>$adminAlertCounts['honor'],             'href'=>'honor-applications.php?status=pending',     'icon'=>'fa-award',       'tone'=>'green'],
                         ['label'=>$adminT('भेटघाट / सहकारी भ्रमण', 'Appointments / Coop Visit'), 'count'=>$adminAlertCounts['appointment'], 'href'=>'appointments.php?status=pending', 'icon'=>'fa-calendar-check', 'tone'=>'red'],
                         ['label'=>$adminT('जागिर आवेदन', 'Job Applications'),      'count'=>$adminAlertCounts['job'],               'href'=>'job-applications.php?status=pending', 'icon'=>'fa-briefcase',           'tone'=>'green'],
                         ['label'=>$adminT('गुनासो', 'Grievances'),            'count'=>$adminAlertCounts['grievance'],         'href'=>'grievances.php?status=pending',       'icon'=>'fa-comment-dots',        'tone'=>'red'],

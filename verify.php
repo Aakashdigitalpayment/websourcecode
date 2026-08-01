@@ -99,27 +99,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cvv  = trim((string)($_POST['cvv'] ?? ''));
         $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
 
-        if ($mid < 1 || $partnerId < 1) {
+        if (!$pdo) {
+            $logError = $_t('DB जडान भएन। कृपया पछि प्रयास गर्नुहोस्।', 'Database unavailable. Please try again later.');
+            $result = ['ok' => false, 'error' => $logError];
+        } elseif ($mid < 1 || $partnerId < 1) {
             $logError = $_t('साझेदार संस्था छान्नुहोस्।', 'Please select a partner organization.');
-        } elseif (function_exists('checkRateLimit') && !checkRateLimit('partner_service_log', 40, 3600)) {
-            $logError = $_t('धेरै पटक लग भयो। केही समयपछि प्रयास गर्नुहोस्।', 'Too many service logs. Please try again later.');
+            $result = ['ok' => false, 'error' => $logError];
         } else {
-            $lr = logMemberPartnerService($pdo, $mid, $cardNo, $partnerId, $serviceNm, $taken, $note, $pin, $ip);
-            if (!empty($lr['ok'])) {
-                $logSaved = true;
-            } else {
-                $errMap = [
-                    'pin' => $_t('साझेदार Desk PIN गलत भयो।', 'Partner desk PIN is incorrect.'),
-                    'partner' => $_t('साझेदार सक्रिय छैन वा भेटिएन।', 'Partner not found or inactive.'),
-                    'duplicate' => $_t('यो साझेदारमा भर्खरै लग भइसकेको छ (९० सेकेन्ड)।', 'Already logged for this partner just now (90s).'),
-                    'db' => $_t('लग सेभ गर्न सकिएन।', 'Could not save service log.'),
-                ];
-                $logError = $errMap[$lr['error'] ?? ''] ?? $_t('सेवा लग असफल।', 'Service log failed.');
+            /* Desk must have verified this member recently (or re-submit credentials). */
+            $sessMid = (int)($_SESSION['vp_ok_mid'] ?? 0);
+            $sessAt  = (int)($_SESSION['vp_ok_at'] ?? 0);
+            $sessOk  = ($sessMid === $mid && $sessMid > 0 && (time() - $sessAt) <= 1800);
+
+            if (!$sessOk) {
+                $vr = $runPrimaryVerify();
+                if (!empty($vr['ok']) && (int)($vr['member']['id'] ?? 0) === $mid) {
+                    $sessOk = true;
+                    $_SESSION['vp_ok_mid'] = $mid;
+                    $_SESSION['vp_ok_at'] = time();
+                    $result = $vr;
+                } else {
+                    $logError = $_t('पहिले सदस्य verify गर्नुहोस्, अनि मात्र सेवा लग गर्नुहोस्।', 'Please verify the member first, then log the service.');
+                    $result = is_array($vr) ? $vr : ['ok' => false, 'error' => $logError];
+                    if (empty($result['ok'])) {
+                        $result['error'] = $result['error'] ?? $logError;
+                    }
+                }
+            }
+
+            if ($sessOk) {
+                if (function_exists('checkRateLimit') && !checkRateLimit('partner_service_log', 40, 3600)) {
+                    $logError = $_t('धेरै पटक लग भयो। केही समयपछि प्रयास गर्नुहोस्।', 'Too many service logs. Please try again later.');
+                } else {
+                    $lr = logMemberPartnerService($pdo, $mid, $cardNo, $partnerId, $serviceNm, $taken, $note, $pin, $ip);
+                    if (!empty($lr['ok'])) {
+                        $logSaved = true;
+                        $_SESSION['vp_ok_mid'] = $mid;
+                        $_SESSION['vp_ok_at'] = time();
+                    } else {
+                        $errMap = [
+                            'pin' => $_t('साझेदार Desk PIN गलत भयो।', 'Partner desk PIN is incorrect.'),
+                            'partner' => $_t('साझेदार सक्रिय छैन वा भेटिएन।', 'Partner not found or inactive.'),
+                            'duplicate' => $_t('यो साझेदारमा भर्खरै लग भइसकेको छ (९० सेकेन्ड)।', 'Already logged for this partner just now (90s).'),
+                            'db' => $_t('लग सेभ गर्न सकिएन।', 'Could not save service log.'),
+                        ];
+                        $logError = $errMap[$lr['error'] ?? ''] ?? $_t('सेवा लग असफल।', 'Service log failed.');
+                    }
+                }
+                /* Prefer display rebuild — avoids rate-limit wipe after a valid desk session */
+                $disp = partnerBuildVerifyDisplayResult($pdo, $mid, $cardNo);
+                if (!empty($disp['ok'])) {
+                    $result = $disp;
+                } elseif (empty($result['ok'])) {
+                    $result = $runPrimaryVerify();
+                }
             }
         }
-        /* Prefer display rebuild — full re-verify can wipe UI via rate-limit */
-        $disp = partnerBuildVerifyDisplayResult($pdo, $mid, $cardNo);
-        $result = !empty($disp['ok']) ? $disp : $runPrimaryVerify();
     } elseif (($_POST['action'] ?? '') === 'program_preregister') {
         $programId = (int)($_POST['program_id'] ?? 0);
         $memberIdInput = trim((string)($_POST['member_id_input'] ?? ''));
@@ -199,6 +234,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+/* Remember successful desk verify for partner service-log (30 min) */
+if (!empty($result['ok']) && !empty($result['member']['id'])) {
+    $_SESSION['vp_ok_mid'] = (int)$result['member']['id'];
+    $_SESSION['vp_ok_at'] = time();
+}
+
 /* ── Rate-limit info for countdown timer ── */
 $__rateLimited = !empty($result['rate_limited']);
 $__retryAfter  = $__rateLimited ? (int)($result['retry_after'] ?? (time() + 3600)) : 0;
@@ -243,6 +284,7 @@ try {
 
 /* Active partner list — only if verify successful, to keep guest queries low */
 $partners = [];
+$memberPartnerLogs = [];
 $preselectPartnerId = (int)($_POST['partner_id'] ?? $_GET['partner_id'] ?? 0);
 $preselectPartnerCode = strtoupper(trim((string)($_GET['partner'] ?? $_POST['partner_code_hint'] ?? '')));
 if ($result && !empty($result['ok']) && $pdo) {
@@ -261,8 +303,13 @@ if ($result && !empty($result['ok']) && $pdo) {
                 }
             }
         }
+        $midForLogs = (int)($result['member']['id'] ?? 0);
+        if ($midForLogs > 0 && function_exists('fetchMemberPartnerServiceLogs')) {
+            $memberPartnerLogs = fetchMemberPartnerServiceLogs($pdo, $midForLogs, 0, 40);
+        }
     } catch (\Throwable $e) {
         $partners = [];
+        $memberPartnerLogs = [];
     }
 }
 ?>
@@ -518,6 +565,65 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
     <p class="vp-partner-log-hint">
         <?= $_t('यो सदस्यले तपाईंको संस्थामा सेवा/छुट लिए भने तलबाट लग गर्नुहोस् — सदस्य पोर्टलमा इतिहास देखिन्छ।', 'If this member used your discount/service, log it below — it appears in their member portal history.') ?>
     </p>
+
+    <!-- Member visit history at partners (filters when partner is chosen) -->
+    <div class="vp-visit-panel" id="vpVisitPanel">
+        <div class="vp-visit-head">
+            <div class="vp-visit-title">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span id="vpVisitTitleText"><?= $_t('यस सदस्यको सेवा इतिहास', 'This member\'s service history') ?></span>
+            </div>
+            <span class="vp-visit-count" id="vpVisitCount"><?= (int)count($memberPartnerLogs) ?></span>
+        </div>
+        <div class="vp-visit-list" id="vpVisitList">
+            <?php if (empty($memberPartnerLogs)): ?>
+            <div class="vp-visit-empty" data-empty-all="1">
+                <i class="fas fa-inbox"></i>
+                <span><?= $_t('अहिलेसम्म कुनै साझेदार सेवा लग छैन। पहिलो लग तलबाट सेभ गर्नुहोस्।', 'No partner service logs yet. Save the first log below.') ?></span>
+            </div>
+            <?php else:
+                foreach ($memberPartnerLogs as $vl):
+                    $taken = !empty($vl['service_taken']);
+                    $pid = (int)($vl['partner_id'] ?? 0);
+                    $when = function_exists('formatNepaliDate')
+                        ? formatNepaliDate($vl['created_at'] ?? '', true)
+                        : (string)($vl['created_at'] ?? '');
+            ?>
+            <div class="vp-visit-row" data-partner-id="<?= $pid ?>">
+                <div class="vp-visit-dot <?= $taken ? 'is-taken' : 'is-skip' ?>"></div>
+                <div class="vp-visit-body">
+                    <div class="vp-visit-org"><?php
+                        $vOrg = (string)($vl['partner_name'] ?? '—');
+                        if (function_exists('partnerFacilityDisplayName')) {
+                            $vOrg = partnerFacilityDisplayName([
+                                'partner_name' => (string)($vl['partner_name'] ?? ''),
+                                'partner_name_en' => (string)($vl['partner_name_en'] ?? ''),
+                            ]) ?: $vOrg;
+                        }
+                        echo htmlspecialchars($vOrg);
+                    ?></div>
+                    <div class="vp-visit-svc">
+                        <?= htmlspecialchars((string)(($vl['service_name'] ?? '') !== '' ? $vl['service_name'] : $_t('सेवा उल्लेख छैन', 'Service not specified'))) ?>
+                        <?php if (!empty($vl['service_note'])): ?>
+                            <span class="vp-visit-note">· <?= htmlspecialchars((string)$vl['service_note']) ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="vp-visit-meta">
+                        <time><?= htmlspecialchars($when) ?></time>
+                        <span class="vp-visit-badge <?= $taken ? 'yes' : 'no' ?>">
+                            <?= $taken ? $_t('सेवा लिइयो', 'Taken') : $_t('verify मात्र', 'Verify only') ?>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; endif; ?>
+            <div class="vp-visit-empty vp-visit-empty-filter" id="vpVisitEmptyFilter" hidden>
+                <i class="fas fa-building"></i>
+                <span id="vpVisitEmptyFilterText"><?= $_t('यस संस्थामा यस सदस्यको लग अहिलेसम्म छैन।', 'No visits by this member at this partner yet.') ?></span>
+            </div>
+        </div>
+    </div>
+
     <form method="POST" action="" class="vp-partner-log-form">
         <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
         <input type="hidden" name="action" value="log_service">
@@ -547,7 +653,8 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
                 ?>
                 <option value="<?= (int)$p['id'] ?>"
                         data-code="<?= htmlspecialchars(strtoupper($codeL), ENT_QUOTES, 'UTF-8') ?>"
-                        data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"<?= $sel ?>>
+                        data-needs-pin="<?= !empty($p['needs_pin']) ? '1' : '0' ?>"
+                        data-name="<?= htmlspecialchars($label, ENT_QUOTES, 'UTF-8') ?>"<?= $sel ?>>
                     <?= htmlspecialchars($opt) ?>
                 </option>
                 <?php endforeach; ?>
@@ -583,7 +690,35 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
     var wrap = document.getElementById('vpPartnerPinWrap');
     var pin = document.getElementById('vpPartnerPin');
     var quick = document.getElementById('vpPartnerCodeQuick');
+    var list = document.getElementById('vpVisitList');
+    var countEl = document.getElementById('vpVisitCount');
+    var titleEl = document.getElementById('vpVisitTitleText');
+    var emptyFilter = document.getElementById('vpVisitEmptyFilter');
+    var titleAll = <?= json_encode($_t('यस सदस्यको सेवा इतिहास', "This member's service history"), JSON_UNESCAPED_UNICODE) ?>;
+    var titleAt = <?= json_encode($_t('यस संस्थामा भेट / सेवा लग', 'Visits / service logs at this partner'), JSON_UNESCAPED_UNICODE) ?>;
     if (!sel || !wrap) return;
+
+    function filterVisits() {
+        if (!list) return;
+        var pid = sel.value || '';
+        var rows = list.querySelectorAll('.vp-visit-row');
+        var emptyAll = list.querySelector('[data-empty-all="1"]');
+        var visible = 0;
+        rows.forEach(function (row) {
+            var match = !pid || String(row.getAttribute('data-partner-id') || '') === String(pid);
+            row.hidden = !match;
+            if (match) visible++;
+        });
+        if (emptyAll) emptyAll.hidden = !!pid || rows.length > 0;
+        if (emptyFilter) emptyFilter.hidden = !(pid && visible === 0);
+        if (countEl) countEl.textContent = String(pid ? visible : rows.length);
+        if (titleEl) {
+            var opt = sel.options[sel.selectedIndex];
+            var nm = opt && opt.value ? (opt.getAttribute('data-name') || '') : '';
+            titleEl.textContent = pid ? (titleAt + (nm ? ' — ' + nm : '')) : titleAll;
+        }
+    }
+
     function sync() {
         var opt = sel.options[sel.selectedIndex];
         var need = opt && opt.getAttribute('data-needs-pin') === '1';
@@ -594,6 +729,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
             var c = opt.getAttribute('data-code') || '';
             if (c && document.activeElement !== quick) quick.value = c;
         }
+        filterVisits();
     }
     sel.addEventListener('change', sync);
     if (quick) {

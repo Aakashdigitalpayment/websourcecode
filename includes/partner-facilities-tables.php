@@ -343,6 +343,9 @@ if (!function_exists('partnerBuildVerifyDisplayResult')) {
             if (!$m) {
                 return ['ok' => false, 'error' => 'not_found'];
             }
+            if ((string)($m['approval_status'] ?? '') !== 'approved' || (int)($m['is_active'] ?? 0) !== 1) {
+                return ['ok' => false, 'error' => 'inactive'];
+            }
             $dispId = $cardNo !== ''
                 ? $cardNo
                 : (string)($m['sadasyata_number'] ?: ($m['member_card_no'] ?: $m['id']));
@@ -391,6 +394,89 @@ if (!function_exists('partnerRecentDuplicateLog')) {
             return (int)$st->fetchColumn() > 0;
         } catch (Throwable $e) {
             return false;
+        }
+    }
+}
+
+if (!function_exists('fetchMemberPartnerServiceLogs')) {
+    /**
+     * Member's partner visit / service-use history (newest first).
+     * @return list<array<string,mixed>>
+     */
+    function fetchMemberPartnerServiceLogs(PDO $db, int $memberId, int $partnerId = 0, int $limit = 40): array
+    {
+        if ($memberId < 1) {
+            return [];
+        }
+        $limit = max(1, min(100, $limit));
+        try {
+            if (function_exists('ensureMemberPartnerServicesTable')) {
+                ensureMemberPartnerServicesTable($db);
+            }
+            if ($partnerId > 0) {
+                $st = $db->prepare(
+                    "SELECT s.id, s.member_id, s.member_card_no, s.partner_id, s.partner_name,
+                            s.service_name, s.service_taken, s.service_note, s.created_at,
+                            p.facility_type, p.logo_path, p.partner_code, p.partner_name_en
+                     FROM member_partner_services s
+                     LEFT JOIN partner_facilities p ON p.id = s.partner_id
+                     WHERE s.member_id = ? AND s.partner_id = ?
+                     ORDER BY s.created_at DESC
+                     LIMIT {$limit}"
+                );
+                $st->execute([$memberId, $partnerId]);
+            } else {
+                $st = $db->prepare(
+                    "SELECT s.id, s.member_id, s.member_card_no, s.partner_id, s.partner_name,
+                            s.service_name, s.service_taken, s.service_note, s.created_at,
+                            p.facility_type, p.logo_path, p.partner_code, p.partner_name_en
+                     FROM member_partner_services s
+                     LEFT JOIN partner_facilities p ON p.id = s.partner_id
+                     WHERE s.member_id = ?
+                     ORDER BY s.created_at DESC
+                     LIMIT {$limit}"
+                );
+                $st->execute([$memberId]);
+            }
+            return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            return [];
+        }
+    }
+}
+
+if (!function_exists('fetchPartnerFacilityServiceLogs')) {
+    /**
+     * Desk / admin: recent service logs for one partner facility.
+     * @return list<array<string,mixed>>
+     */
+    function fetchPartnerFacilityServiceLogs(PDO $db, int $partnerId, int $limit = 50, bool $todayOnly = false): array
+    {
+        if ($partnerId < 1) {
+            return [];
+        }
+        $limit = max(1, min(200, $limit));
+        try {
+            if (function_exists('ensureMemberPartnerServicesTable')) {
+                ensureMemberPartnerServicesTable($db);
+            }
+            $sql = "SELECT s.id, s.member_id, s.member_card_no, s.partner_id, s.partner_name,
+                           s.service_name, s.service_taken, s.service_note, s.created_at,
+                           m.name AS member_name
+                    FROM member_partner_services s
+                    LEFT JOIN members m ON m.id = s.member_id
+                    WHERE s.partner_id = ?";
+            $params = [$partnerId];
+            if ($todayOnly) {
+                $sql .= ' AND s.created_at >= ?';
+                $params[] = date('Y-m-d 00:00:00');
+            }
+            $sql .= " ORDER BY s.created_at DESC LIMIT {$limit}";
+            $st = $db->prepare($sql);
+            $st->execute($params);
+            return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            return [];
         }
     }
 }

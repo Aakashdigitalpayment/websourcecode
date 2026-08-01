@@ -1,6 +1,6 @@
 <?php
 /**
- * Member Portal — सम्मान दरखास्त
+ * Member Portal — सम्मान आवेदन
  */
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/honor-tables.php';
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } elseif (!$hasOpen) {
-        $errorMsg = $_t('हाल दरखास्त बन्द छ।', 'Applications are closed.');
+        $errorMsg = $_t('हाल आवेदन बन्द छ।', 'Applications are closed.');
     } elseif ($memSadasyata === '') {
         $errorMsg = $_t('सदस्य नम्बर फेला परेन। कृपया KYC / प्रोफाइल अपडेट गर्नुहोस्।', 'Member number missing. Please update KYC / profile.');
     } elseif (!checkRateLimit('honor_portal_' . $memberPortalId, 5, 3600)) {
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             'description' => clean_text($_POST['description'] ?? '', 4000),
         ], $_FILES);
         if (!empty($result['ok'])) {
-            $successMsg = $_t('दरखास्त दर्ता भयो।', 'Application submitted.');
+            $successMsg = $_t('आवेदन दर्ता भयो।', 'Application submitted.');
             $trackingId = (string)$result['tracking_id'];
         } else {
             $errorMsg = isEnglish()
@@ -128,7 +128,7 @@ try {
     $myApps = [];
 }
 
-$pageTitle = $_t('सम्मान दरखास्त', 'Honor Application');
+$pageTitle = $_t('सम्मान आवेदन', 'Honor Application');
 require __DIR__ . '/includes/chrome.php';
 ?>
 <div class="container py-3">
@@ -149,7 +149,7 @@ require __DIR__ . '/includes/chrome.php';
     <?php if (!$hasOpen): ?>
     <?php if ($hasUpcoming): ?>
     <div class="alert alert-warning">
-        <strong><?php echo $_t('दरखास्त चाँडै खुल्नेछ', 'Applications open soon'); ?></strong>
+        <strong><?php echo $_t('आवेदन चाँडै खुल्नेछ', 'Applications open soon'); ?></strong>
         <p class="mb-2 small"><?php echo $_t('खुल्ने मितिपछि मात्र फारम भर्न सकिन्छ।', 'You can submit only after the open date.'); ?></p>
         <ul class="mb-0 small">
             <?php foreach ($upcomingPrograms as $up): ?>
@@ -162,10 +162,10 @@ require __DIR__ . '/includes/chrome.php';
         </ul>
     </div>
     <?php else: ?>
-    <div class="alert alert-info"><?php echo $_t('हाल कुनै खुला सम्मान दरखास्त कार्यक्रम छैन।', 'No honor application program is open right now.'); ?></div>
+    <div class="alert alert-info"><?php echo $_t('हाल कुनै खुला सम्मान आवेदन कार्यक्रम छैन।', 'No honor application program is open right now.'); ?></div>
     <?php endif; ?>
     <?php elseif ($memSadasyata === ''): ?>
-    <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। दरखास्त दिन पहिले KYC / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
+    <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। आवेदन दिन पहिले KYC / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
     <?php else: ?>
     <div class="card mb-4">
         <div class="card-body">
@@ -291,7 +291,7 @@ require __DIR__ . '/includes/chrome.php';
     <?php endif; ?>
 
     <?php if (!empty($myApps)): ?>
-    <h5 class="mb-2"><?php echo $_t('मेरा दरखास्त', 'My applications'); ?></h5>
+    <h5 class="mb-2"><?php echo $_t('मेरा आवेदन', 'My applications'); ?></h5>
     <div class="table-responsive">
         <table class="table table-sm align-middle">
             <thead><tr>
