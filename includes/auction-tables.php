@@ -41,6 +41,30 @@ if (!function_exists('auctionFormatDateDisplay')) {
     }
 }
 
+if (!function_exists('auctionEndTimestamp')) {
+    /** Unix ts for auction close (date + time, Asia/Kathmandu). */
+    function auctionEndTimestamp(array $auction): ?int
+    {
+        $date = substr(trim((string)($auction['auction_date'] ?? '')), 0, 10);
+        if ($date === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+            return null;
+        }
+        $time = trim((string)($auction['auction_time'] ?? ''));
+        if (!preg_match('/^(\d{1,2}):(\d{2})(?::(\d{2}))?/', $time, $m)) {
+            $time = '23:59:59';
+        } else {
+            $time = sprintf('%02d:%02d:%02d', (int)$m[1], (int)$m[2], isset($m[3]) ? (int)$m[3] : 0);
+        }
+        try {
+            $tz = new DateTimeZone('Asia/Kathmandu');
+            return (new DateTime($date . ' ' . $time, $tz))->getTimestamp();
+        } catch (Throwable $e) {
+            $ts = strtotime($date . ' ' . $time);
+            return $ts ?: null;
+        }
+    }
+}
+
 if (!function_exists('auctionIsOpenForBids')) {
     function auctionIsOpenForBids(array $auction): bool
     {
@@ -48,12 +72,19 @@ if (!function_exists('auctionIsOpenForBids')) {
             return false;
         }
         $st = (string)($auction['status'] ?? '');
-        return in_array($st, ['upcoming', 'ongoing'], true);
+        if (!in_array($st, ['upcoming', 'ongoing'], true)) {
+            return false;
+        }
+        $endTs = auctionEndTimestamp($auction);
+        if ($endTs !== null && time() > $endTs) {
+            return false;
+        }
+        return true;
     }
 }
 
 if (!function_exists('auctionSanitizeMapEmbed')) {
-    /** Allow only iframe embeds (strip scripts). */
+    /** Allow only Google Maps iframes (strip scripts/handlers). */
     function auctionSanitizeMapEmbed(string $raw): string
     {
         $raw = trim($raw);
@@ -62,14 +93,25 @@ if (!function_exists('auctionSanitizeMapEmbed')) {
         }
         if (preg_match('/<iframe\b[^>]*>.*?<\/iframe>/is', $raw, $m)) {
             $iframe = $m[0];
-            if (!preg_match('/\ssrc\s*=\s*["\']https?:\/\//i', $iframe)) {
+            if (!preg_match('/\ssrc\s*=\s*["\'](https?:\/\/[^"\']+)["\']/i', $iframe, $sm)) {
                 return '';
             }
-            /* Drop on* handlers */
-            $iframe = preg_replace('/\s+on\w+\s*=\s*("|\')[^\1]*\1/i', '', $iframe);
+            $src = $sm[1];
+            $host = strtolower((string)(parse_url($src, PHP_URL_HOST) ?: ''));
+            $okHosts = ['google.com', 'www.google.com', 'maps.google.com', 'www.maps.google.com', 'maps.google.com.np'];
+            $allowed = false;
+            foreach ($okHosts as $h) {
+                if ($host === $h || str_ends_with($host, '.google.com') || str_ends_with($host, '.google.com.np')) {
+                    $allowed = true;
+                    break;
+                }
+            }
+            if (!$allowed) {
+                return '';
+            }
+            $iframe = preg_replace('/\s+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $iframe);
             return $iframe;
         }
-        /* Plain Google Maps URL → leave empty (use map_link field) */
         return '';
     }
 }

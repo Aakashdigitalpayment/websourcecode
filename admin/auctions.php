@@ -179,6 +179,16 @@ if ($action === 'edit' || $action === 'add') {
     }
     $formTitle = $auction ? 'लिलामी सम्पादन' : 'नयाँ लिलामी थप्नुहोस्';
     $isEdit    = (bool)$auction;
+    $auctionDateBs = '';
+    if (!empty($auction['auction_date'])) {
+        $ad = substr((string)$auction['auction_date'], 0, 10);
+        if (function_exists('adToBs')) {
+            $bs = trim((string)adToBs($ad));
+            $auctionDateBs = $bs !== '' ? $bs : $ad;
+        } else {
+            $auctionDateBs = $ad;
+        }
+    }
 ?>
 
 
@@ -312,7 +322,7 @@ if ($action === 'edit' || $action === 'add') {
                         <div class="input-group">
                             <input type="text" name="auction_date" class="form-control nepali-datepicker"
                                    placeholder="YYYY-MM-DD"
-                                   value="<?php echo htmlspecialchars($auction['auction_date'] ?? ''); ?>">
+                                   value="<?php echo htmlspecialchars($auctionDateBs); ?>">
                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                     </div>
@@ -634,7 +644,7 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                         </td>
                         <td class="text-nowrap"><?php echo $areaDisplay; ?></td>
                         <td class="fw-semibold text-success text-nowrap">रु. <?php echo number_format((float)$auc['minimum_price']); ?></td>
-                        <td><?php echo htmlspecialchars($auc['auction_date'] ?? '—'); ?></td>
+                        <td><?php echo htmlspecialchars(auctionFormatDateDisplay($auc['auction_date'] ?? null)); ?></td>
                         <td>
                             <span class="badge bg-<?php echo $statusLabels[$auc['status']]['class'] ?? 'secondary'; ?>">
                                 <?php echo $statusLabels[$auc['status']]['np'] ?? htmlspecialchars($auc['status']); ?>

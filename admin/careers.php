@@ -353,9 +353,11 @@ $flash = getFlash();
                         <div class="col-md-4">
                             <label class="form-label fw-semibold text-success"><?php echo $__t('कामको प्रकार', 'Job Type'); ?></label>
                             <select name="job_type" id="crf_jtype" class="form-select admin-fancy-input">
-                                <option value="full-time">Full Time</option>
-                                <option value="part-time">Part Time</option>
+                                <option value="full_time">Full Time</option>
+                                <option value="part_time">Part Time</option>
                                 <option value="contract">Contract</option>
+                                <option value="internship">Internship</option>
+                                <option value="temporary">Temporary</option>
                             </select>
                         </div>
                         <div class="col-md-3">

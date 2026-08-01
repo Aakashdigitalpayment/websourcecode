@@ -47,17 +47,27 @@ $vacancyCount = max(1, (int)($job['vacancies'] ?? $job['vacancy_count'] ?? 1));
 $jobTypeLabel = ucwords(str_replace(['_', '-'], ' ', (string)($job['job_type'] ?? 'full_time')));
 $showApplyForm = $allowOnlineApply && (
     (isset($_GET['apply']) && $_GET['apply'] !== '0')
-    || (!empty($_SERVER['REQUEST_URI']) && str_contains((string)$_SERVER['REQUEST_URI'], '#apply-form'))
 );
 
 $success = false;
 $error = '';
 $successTrackingId = '';
 
+/* PRG success / flash errors */
+if (isset($_GET['applied']) && $_GET['applied'] === '1' && !empty($_GET['tid'])) {
+    $success = true;
+    $successTrackingId = clean_text((string)$_GET['tid'], 60);
+}
+$flash = function_exists('getFlash') ? getFlash() : null;
+if ($flash && ($flash['type'] ?? '') === 'error' && empty($error)) {
+    $error = (string)($flash['message'] ?? '');
+    $showApplyForm = $allowOnlineApply;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
     if (!verifyCSRFToken()) {
         setFlash('error', isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।');
-        redirect('career-detail.php?id=' . $jobId . '#apply-form');
+        redirect('career-detail.php?id=' . $jobId . '&apply=1#apply-form');
     }
     if (!checkRateLimit('job_apply', 5, 3600)) {
         $error = isEnglish() ? 'Too many applications. Please try again later.' : 'धेरै आवेदन। पछि प्रयास गर्नुहोस्।';
@@ -178,16 +188,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
             if (function_exists('auditLog')) {
                 auditLog('job_apply', 'job_applications', null, null, ['tracking' => $trackingId, 'name' => $fullName]);
             }
+            redirect('career-detail.php?id=' . $jobId . '&applied=1&tid=' . urlencode($trackingId));
         } catch (Exception $e) {
             $error = $e->getMessage();
             $showApplyForm = true;
         }
     }
-}
-
-/* Deep-link: listing "Apply Now" uses #apply-form */
-if ($allowOnlineApply && !$success && !$showApplyForm) {
-    $showApplyForm = false; /* JS opens on hash */
 }
 
 require_once 'includes/header.php';
@@ -325,6 +331,10 @@ $L = getLangStrings();
                         </button>
                         <?php elseif ($deadlinePassed): ?>
                         <span class="text-muted"><i class="fas fa-lock me-1"></i><?php echo isEnglish() ? 'Applications closed' : 'आवेदन बन्द'; ?></span>
+                        <?php elseif (!$success): ?>
+                        <a href="mailto:<?php echo e(getSetting('email', 'info@sahakari.org.np')); ?>?subject=<?php echo rawurlencode('Job Application: ' . getLangField($job, 'title')); ?>" class="btn btn-outline-primary">
+                            <i class="fas fa-envelope"></i> <?php echo isEnglish() ? 'Email HR to apply' : 'आवेदनका लागि HR मा इमेल'; ?>
+                        </a>
                         <?php endif; ?>
                     </div>
                 </div>

@@ -165,16 +165,14 @@ $totalDepts = count($deptSet);
 
     foreach ($jobs as $idx => $job):
         $deadlinePassed = careerDeadlinePassed($job);
-        $daysLeft = 0;
+        $daysLeft = careerDaysLeft($job);
         $totalDays = 0;
-        $deadlineTs = !empty($job['deadline']) ? strtotime((string)$job['deadline'] . ' 23:59:59') : false;
-        if ($deadlineTs && !$deadlinePassed) {
-            $daysLeft = max(0, (int)ceil(($deadlineTs - time()) / 86400));
-            if (!empty($job['created_at'])) {
-                $createdTs = strtotime((string)$job['created_at']);
-                if ($createdTs) {
-                    $totalDays = max(1, (int)ceil(($deadlineTs - $createdTs) / 86400));
-                }
+        $deadlineAd = careerDeadlineAd($job['deadline'] ?? null);
+        if ($deadlineAd !== '' && !$deadlinePassed && !empty($job['created_at'])) {
+            $createdTs = strtotime((string)$job['created_at']);
+            $deadlineTs = strtotime($deadlineAd . ' 23:59:59');
+            if ($createdTs && $deadlineTs) {
+                $totalDays = max(1, (int)ceil(($deadlineTs - $createdTs) / 86400));
             }
         }
         $isUrgent = (!$deadlinePassed && $daysLeft > 0 && $daysLeft <= 7);
@@ -211,7 +209,7 @@ $totalDepts = count($deptSet);
         </div>
         <?php elseif ($isNew): ?>
         <div class="cr-urgent-tag" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">
-            <i class="fas fa-sparkles"></i>
+            <i class="fas fa-star"></i>
             <?php echo isEnglish() ? 'New' : 'नयाँ'; ?>
         </div>
         <?php endif; ?>
@@ -226,7 +224,7 @@ $totalDepts = count($deptSet);
                     <div class="cr-job-title"><?php echo htmlspecialchars(getLangField($job, 'title')); ?></div>
                     <div class="cr-badge-row">
                         <?php if (!empty($job['job_type'])): ?>
-                        <span class="cr-tag type"><?php echo htmlspecialchars(str_replace('_', ' ', (string)$job['job_type'])); ?></span>
+                        <span class="cr-tag type"><?php echo htmlspecialchars(ucwords(str_replace(['_', '-'], ' ', (string)$job['job_type']))); ?></span>
                         <?php endif; ?>
                         <?php if (!empty($dept)): ?>
                         <span class="cr-tag dept"><?php echo htmlspecialchars($dept); ?></span>
@@ -236,7 +234,7 @@ $totalDepts = count($deptSet);
                         <?php elseif ($isUrgent): ?>
                         <span class="cr-tag urgent-tag"><i class="fas fa-fire me-1"></i><?php echo isEnglish() ? 'Urgent' : 'अर्जेन्ट'; ?></span>
                         <?php elseif ($isNew): ?>
-                        <span class="cr-tag open"><i class="fas fa-sparkles me-1"></i><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
+                        <span class="cr-tag open"><i class="fas fa-star me-1"></i><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                         <?php else: ?>
                         <span class="cr-tag open"><i class="fas fa-circle me-1 cr-inline-dot"></i><?php echo isEnglish() ? 'Open' : 'खुला'; ?></span>
                         <?php endif; ?>
@@ -295,10 +293,12 @@ $totalDepts = count($deptSet);
                     <?php echo isEnglish() ? 'Details' : 'विवरण'; ?>
                 </a>
                 <?php if (!$deadlinePassed && ($job['allow_online_apply'] ?? 1)): ?>
-                <a href="career-detail.php?id=<?php echo $job['id']; ?>#apply-form" class="cr-btn-apply">
+                <a href="career-detail.php?id=<?php echo (int)$job['id']; ?>&amp;apply=1#apply-form" class="cr-btn-apply">
                     <i class="fas fa-paper-plane"></i>
                     <span><?php echo isEnglish() ? 'Apply Now' : 'अहिले आवेदन'; ?></span>
                 </a>
+                <?php elseif (!$deadlinePassed): ?>
+                <span class="cr-meta-item text-muted"><i class="fas fa-envelope me-1"></i><?php echo isEnglish() ? 'Offline / email apply' : 'अफलाइन / इमेल आवेदन'; ?></span>
                 <?php endif; ?>
                 <?php if (!empty($job['attachment'])): ?>
                 <a href="<?php echo htmlspecialchars($job['attachment']); ?>" class="cr-btn-dl" download
@@ -318,7 +318,9 @@ $totalDepts = count($deptSet);
         <div class="cr-empty">
             <div class="cr-empty-icon"><i class="fas fa-search"></i></div>
             <h5><?php echo isEnglish() ? 'No Matching Positions Found' : 'कुनै पद फेला परेन'; ?></h5>
-            <p class="cr-muted small"><?php echo isEnglish() ? 'Try different keywords.' : 'अर्को शब्दले खोज्नुहोस्।'; ?></p>
+            <p class="cr-muted small" id="crNoResultsHint"><?php echo isEnglish()
+                ? 'No open positions match. Try All or Closed, or clear search.'
+                : 'खुला पद भेटिएन। सबै वा बन्द फिल्टर हेर्नुहोस्, वा खोज हटाउनुहोस्।'; ?></p>
             <button class="btn btn-outline-secondary btn-sm mt-2" onclick="crReset()">
                 <i class="fas fa-redo me-1"></i><?php echo isEnglish() ? 'Reset' : 'रिसेट'; ?>
             </button>
@@ -335,7 +337,7 @@ $totalDepts = count($deptSet);
                 ? 'No job openings at the moment. Please check back later or send your CV to our email.'
                 : 'हाल कुनै पद रिक्त छैन। कृपया पछि फेरि जाँच गर्नुहोस् वा हाम्रो इमेलमा CV पठाउनुहोस्।'; ?>
         </p>
-        <a href="mailto:<?php echo getSetting('email','info@sahakari.org.np'); ?>?subject=CV Submission"
+        <a href="mailto:<?php echo e(getSetting('email','info@sahakari.org.np')); ?>?subject=CV Submission"
            class="btn cr-btn-primary">
             <i class="fas fa-envelope me-2"></i><?php echo isEnglish() ? 'Send Your CV' : 'CV इमेल गर्नुहोस्'; ?>
         </a>
@@ -381,7 +383,7 @@ $totalDepts = count($deptSet);
                 ? 'Interested in joining us? Send your CV to our HR department even if no vacancy is posted.'
                 : 'हामीसँग सामेल हुन इच्छुक? रिक्त पद नभए पनि HR विभागमा CV पठाउन सक्नुहुन्छ।'; ?>
             </p>
-            <a href="mailto:<?php echo getSetting('email','info@sahakari.org.np'); ?>?subject=CV Submission - Job Application" class="cr-btn-cv">
+            <a href="mailto:<?php echo e(getSetting('email','info@sahakari.org.np')); ?>?subject=CV Submission - Job Application" class="cr-btn-cv">
                 <i class="fas fa-paper-plane"></i>
                 <?php echo isEnglish() ? 'Send CV' : 'CV पठाउनुहोस्'; ?>
             </a>

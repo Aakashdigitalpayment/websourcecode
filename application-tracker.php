@@ -54,6 +54,12 @@ $trackerAttemptWindowSec = 15 * 60; // 15 minutes
 $trackerMaxAttempts = 7;
 $trackerGuardKey = 'tracker_guard_' . hash('sha256', strtolower((string)($_SERVER['REMOTE_ADDR'] ?? 'unknown')));
 
+/* Deep-link from success pages: ?id=JOB-… / ?tracking_id=BID-… */
+$prefillTrackingId = trim((string)($_GET['id'] ?? $_GET['tracking_id'] ?? ''));
+if ($prefillTrackingId !== '' && mb_strlen($prefillTrackingId) > 96) {
+    $prefillTrackingId = mb_substr($prefillTrackingId, 0, 96);
+}
+
 if (!isset($_SESSION['tracker_guard']) || !is_array($_SESSION['tracker_guard'])) {
     $_SESSION['tracker_guard'] = [];
 }
@@ -61,7 +67,19 @@ if (!isset($_SESSION['tracker_guard'][$trackerGuardKey]) || !is_array($_SESSION[
     $_SESSION['tracker_guard'][$trackerGuardKey] = ['fails' => 0, 'blocked_until' => 0];
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$trackerIsPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
+$trackerGetDeepLink = (!$trackerIsPost && $prefillTrackingId !== '' && preg_match('/^[A-Za-z0-9][A-Za-z0-9\-_.]{3,95}$/', $prefillTrackingId));
+
+if ($trackerIsPost || $trackerGetDeepLink) {
+    if ($trackerGetDeepLink) {
+        /* Tracking ID itself is the credential — allow GET deep-link without CSRF */
+        $searchType = 'tracking_id';
+        $searchValue = $prefillTrackingId;
+        $secPhone = '';
+        $secEmail = '';
+        $verificationOk = true;
+        $needsVerify = false;
+    } else {
     $searchType = $_POST['search_type'] ?? 'tracking_id';
     if (!in_array($searchType, ['tracking_id', 'phone', 'email'], true)) {
         $searchType = 'tracking_id';
@@ -134,6 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         /* Tracking ID खोज्दा verification आवश्यक छैन (खाली = माथि नै error) */
         $verificationOk = true;
     }
+    } /* end POST-only validation */
 
     /* Verification pass भयो — database खोज्छु */
     if ($verificationOk) {
@@ -421,7 +440,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (in_array($searchType, ['phone', 'email'], true)) {
+    if ($trackerIsPost && in_array($searchType, ['phone', 'email'], true)) {
         $hasResults = !empty($allResults);
         if ($verificationOk && $hasResults) {
             $_SESSION['tracker_guard'][$trackerGuardKey] = ['fails' => 0, 'blocked_until' => 0];
@@ -704,7 +723,7 @@ function getAppTypeLabel($type) {
                                     <label class="form-label" id="searchLabel"><i class="fas fa-hashtag"></i> <?php echo isEnglish() ? 'Enter Tracking ID' : 'ट्र्याकिङ ID प्रविष्ट गर्नुहोस्'; ?></label>
                                     <input type="text" name="search_value" id="searchValue" class="form-control"
                                            placeholder="<?php echo isEnglish() ? 'e.g. JOB-20240101-XXXX / APT-…' : 'जस्तै: JOB-20240101-XXXX / APT-…'; ?>"
-                                           value="<?php echo htmlspecialchars($_POST['search_value'] ?? ''); ?>">
+                                           value="<?php echo htmlspecialchars($_POST['search_value'] ?? ($prefillTrackingId ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                     <small class="text-muted tracker-hint d-none d-md-inline" id="hintTrackingIdWrap">
                                         <span id="hintTrackingId"><?php echo isEnglish() ? 'Examples: JOB-, APT-, FBK-, WLF-, HNR-…' : 'उदाहरण: JOB-, APT-, FBK-, WLF-, HNR-…'; ?></span>
                                     </small>

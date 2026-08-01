@@ -20,14 +20,32 @@ if (!function_exists('careerNormalizeDate')) {
     }
 }
 
+if (!function_exists('careerDeadlineAd')) {
+    /** Normalize stored deadline to AD Y-m-d (legacy BS rows year ≥ 2070). */
+    function careerDeadlineAd(?string $deadline): string
+    {
+        $d = substr(trim((string)$deadline), 0, 10);
+        if ($d === '' || !preg_match('/^(\d{4})-\d{2}-\d{2}$/', $d, $m)) {
+            return '';
+        }
+        if ((int)$m[1] >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($d));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}/', $ad)) {
+                return substr($ad, 0, 10);
+            }
+        }
+        return $d;
+    }
+}
+
 if (!function_exists('careerDeadlinePassed')) {
     function careerDeadlinePassed(?array $job): bool
     {
         if (!$job || empty($job['deadline'])) {
             return false;
         }
-        $d = substr((string)$job['deadline'], 0, 10);
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $d)) {
+        $d = careerDeadlineAd((string)$job['deadline']);
+        if ($d === '') {
             return false;
         }
         try {
@@ -36,6 +54,28 @@ if (!function_exists('careerDeadlinePassed')) {
             return $d < $today;
         } catch (Throwable $e) {
             return strtotime($d) < strtotime('today');
+        }
+    }
+}
+
+if (!function_exists('careerDaysLeft')) {
+    function careerDaysLeft(?array $job): int
+    {
+        if (!$job || empty($job['deadline']) || careerDeadlinePassed($job)) {
+            return 0;
+        }
+        $d = careerDeadlineAd((string)$job['deadline']);
+        if ($d === '') {
+            return 0;
+        }
+        try {
+            $tz = new DateTimeZone('Asia/Kathmandu');
+            $end = new DateTime($d . ' 23:59:59', $tz);
+            $now = new DateTime('now', $tz);
+            return max(0, (int)ceil(($end->getTimestamp() - $now->getTimestamp()) / 86400));
+        } catch (Throwable $e) {
+            $ts = strtotime($d . ' 23:59:59');
+            return $ts ? max(0, (int)ceil(($ts - time()) / 86400)) : 0;
         }
     }
 }
@@ -62,14 +102,13 @@ if (!function_exists('careerIsNew')) {
 }
 
 if (!function_exists('careerFormatDeadlineDisplay')) {
-    /** Store AD DATE → public/admin BS (or AD fallback) label */
+    /** Store AD DATE (or legacy BS) → public/admin BS (or AD fallback) label */
     function careerFormatDeadlineDisplay(?string $adDate): string
     {
-        $adDate = trim((string)$adDate);
-        if ($adDate === '' || !preg_match('/^\d{4}-\d{2}-\d{2}/', $adDate)) {
+        $ad = careerDeadlineAd($adDate);
+        if ($ad === '') {
             return '—';
         }
-        $ad = substr($adDate, 0, 10);
         if (function_exists('formatNepaliDate')) {
             return (string)formatNepaliDate($ad);
         }

@@ -24,22 +24,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $status = clean_text($_POST['status'] ?? 'pending');
             if (!in_array($status, ['pending','accepted','rejected'], true)) $status = 'pending';
             if ($status === 'accepted') {
-                /* Exclusive winner: reject other bids for same auction */
+                /* Exclusive winner: reject other bids for same auction (transactional) */
                 $stA = $db->prepare('SELECT auction_id FROM auction_bids WHERE id=?');
                 $stA->execute([$id]);
                 $aid = (int)($stA->fetchColumn() ?: 0);
                 if ($aid > 0) {
-                    $db->prepare("UPDATE auction_bids SET status='rejected' WHERE auction_id=? AND id<>? AND status<>'rejected'")
-                        ->execute([$aid, $id]);
-                    $db->prepare("UPDATE auction_bids SET status='accepted' WHERE id=?")->execute([$id]);
-                    $db->prepare("UPDATE auction_notices SET status='completed', updated_at=NOW() WHERE id=?")->execute([$aid]);
-                    setFlash('success', 'बोलपत्र स्वीकृत — अन्य बोलपत्र अस्वीकृत, लिलामी सम्पन्न।');
+                    $db->beginTransaction();
+                    try {
+                        $db->prepare("UPDATE auction_bids SET status='rejected' WHERE auction_id=? AND id<>? AND status<>'rejected'")
+                            ->execute([$aid, $id]);
+                        $db->prepare("UPDATE auction_bids SET status='accepted' WHERE id=?")->execute([$id]);
+                        $db->prepare("UPDATE auction_notices SET status='completed', updated_at=NOW() WHERE id=?")->execute([$aid]);
+                        $db->commit();
+                        setFlash('success', 'बोलपत्र स्वीकृत — अन्य बोलपत्र अस्वीकृत, लिलामी सम्पन्न।');
+                    } catch (Throwable $e) {
+                        if ($db->inTransaction()) {
+                            $db->rollBack();
+                        }
+                        throw $e;
+                    }
                 } else {
                     $db->prepare('UPDATE auction_bids SET status=? WHERE id=?')->execute([$status, $id]);
                     setFlash('success', 'बोलपत्र स्थिति अपडेट भयो।');
                 }
             } else {
+                /* If rejecting a previously accepted winner, reopen auction when no accepted left */
+                $stA = $db->prepare('SELECT auction_id, status FROM auction_bids WHERE id=?');
+                $stA->execute([$id]);
+                $rowB = $stA->fetch(PDO::FETCH_ASSOC) ?: null;
                 $db->prepare('UPDATE auction_bids SET status=? WHERE id=?')->execute([$status, $id]);
+                if ($rowB && ($rowB['status'] ?? '') === 'accepted' && $status === 'rejected') {
+                    $aid = (int)$rowB['auction_id'];
+                    $left = $db->prepare("SELECT COUNT(*) FROM auction_bids WHERE auction_id=? AND status='accepted'");
+                    $left->execute([$aid]);
+                    if ((int)$left->fetchColumn() === 0) {
+                        $db->prepare("UPDATE auction_notices SET status='ongoing', updated_at=NOW() WHERE id=? AND status='completed'")
+                            ->execute([$aid]);
+                    }
+                }
                 setFlash('success', 'बोलपत्र स्थिति अपडेट भयो।');
             }
             redirect('auction-bids.php?auction_id=' . $auction_id);
@@ -112,7 +134,7 @@ try {
         <div class="row align-items-center">
             <div class="col-md-4"><strong>लिलामी:</strong> <?php echo htmlspecialchars($auction['title']); ?></div>
             <div class="col-md-3"><strong>न्यूनतम मूल्य:</strong> रु. <?php echo number_format((float)($auction['minimum_price'] ?? 0)); ?></div>
-            <div class="col-md-3"><strong>मिति:</strong> <?php echo htmlspecialchars($auction['auction_date'] ?? 'N/A'); ?></div>
+            <div class="col-md-3"><strong>मिति:</strong> <?php echo htmlspecialchars(auctionFormatDateDisplay($auction['auction_date'] ?? null)); ?></div>
             <div class="col-md-2"><strong>स्थान:</strong> <?php echo htmlspecialchars($auction['location'] ?? 'N/A'); ?></div>
         </div>
     </div>
@@ -180,6 +202,7 @@ try {
         <table class="table-hover table app-table align-middle mb-0">
                 <thead>
                     <tr>
+                        <th>Tracking</th>
                         <th>बोलपत्रदाता</th>
                         <th>सम्पर्क</th>
                         <th>बोलपत्र रकम</th>
@@ -192,6 +215,7 @@ try {
                 <tbody>
                     <?php foreach ($bids as $bid): ?>
                     <tr>
+                        <td><code class="small"><?php echo htmlspecialchars((string)($bid['tracking_id'] ?? ('BID-' . $bid['id']))); ?></code></td>
                         <td>
                             <strong><?php echo htmlspecialchars($bid['bidder_name']); ?></strong>
                             <?php if (!$auction_id && !empty($bid['auction_title'])): ?>
