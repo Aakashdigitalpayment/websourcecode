@@ -920,6 +920,9 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
         ['table' => 'member_welfare_claims',   'service' => 'कल्याण दाबी',  'icon' => 'fa-heart', 'color' => '#e65100',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, claim_type as detail, status, tracking_id, created_at, NULL as branch'],
+        ['table' => 'honor_applications', 'service' => 'सम्मान दरखास्त', 'icon' => 'fa-award', 'color' => '#1a5f2a',
+         'contact' => 'phone', 'member_col' => 'member_id',
+         'fields' => 'id, applicant_name as full_name, phone, email, NULL as app_date, nominee_name as detail, status, tracking_id, created_at, NULL as branch, member_id'],
         ['table' => 'job_applications',    'service' => 'जागिर आवेदन',   'icon' => 'fa-briefcase',          'color' => '#37474f',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, full_name, phone, email, NULL as app_date, position_applied as detail, status, tracking_id, created_at, NULL as branch'],
@@ -957,10 +960,13 @@ function memberStatusBadge($status) {
     $map = [
         'pending'      => ['bg' => '#fff8e1', 'color' => '#f59e0b', 'text' => 'विचाराधीन',   'dot' => '#f59e0b'],
         'under_review' => ['bg' => '#fef2f2', 'color' => 'var(--secondary-color,#c0392b)', 'text' => 'समीक्षामा',    'dot' => 'var(--secondary-color,#c0392b)'],
+        'shortlisted'  => ['bg' => '#eef2ff', 'color' => '#4338ca', 'text' => 'छनोट सूची',   'dot' => '#4338ca'],
+        'selected'     => ['bg' => '#ecfdf5', 'color' => '#047857', 'text' => 'चयनित',      'dot' => '#047857'],
         'approved'     => ['bg' => '#e8f5e9', 'color' => '#2e7d32', 'text' => 'स्वीकृत',      'dot' => '#2e7d32'],
         'rejected'     => ['bg' => '#ffebee', 'color' => '#c62828', 'text' => 'अस्वीकृत',    'dot' => '#c62828'],
         'completed'    => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'सम्पन्न',      'dot' => 'var(--primary-color)'],
         'resolved'     => ['bg' => '#e8f5e9', 'color' => 'var(--primary-color)', 'text' => 'समाधान भयो',  'dot' => 'var(--primary-color)'],
+        'closed'       => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'बन्द',         'dot' => '#6b7280'],
         'cancelled'    => ['bg' => '#f3f4f6', 'color' => '#6b7280', 'text' => 'रद्द',         'dot' => '#6b7280'],
     ];
     $s = $map[$status] ?? ['bg'=>'#f3f4f6','color'=>'#6b7280','text'=>ucfirst($status),'dot'=>'#9ca3af'];
@@ -1061,6 +1067,7 @@ function createMemberStatusNotification($type, $email, $phone, $name, $status, $
         'appointment' => 'भेटघाट', 'kyc' => 'KYC दर्ता', 'loan' => 'ऋण आवेदन',
         'account' => 'खाता आवेदन', 'grievance' => 'गुनासो', 'welfare' => 'कल्याण दाबी',
         'job' => 'जागिर आवेदन', 'digital_service' => 'डिजिटल सेवा',
+        'honor_application' => 'सम्मान दरखास्त',
     ];
     $statusInfo = [
         'pending'      => ['विचाराधीन',   'info',    '⏳'],

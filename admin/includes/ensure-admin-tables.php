@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../includes/ensure-tables.php';
 require_once __DIR__ . '/../../includes/satisfaction-links-tables.php';
 require_once __DIR__ . '/../../includes/member-of-year-tables.php';
 require_once __DIR__ . '/../../includes/notification-templates-tables.php';
+require_once __DIR__ . '/../../includes/honor-tables.php';
 /**
  * =====================================================
  * ENSURE ADMIN TABLES
@@ -588,7 +589,7 @@ function ensureAdminTables(): void {
 
 /* Admin header include हुँदा एकपटक मात्र call हुन्छ — `.admin-schema.lock` बाट guard
  * v4: version-based lock — नयाँ columns (nav_group आदि) थपिए भने re-migrate हुन्छ। */
-$_adminSchemaVersion = 'v8-team-chart-2026';
+$_adminSchemaVersion = 'v9-honor-darkhasta-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {

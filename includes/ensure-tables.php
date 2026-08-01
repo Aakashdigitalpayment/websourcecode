@@ -20,6 +20,7 @@ foreach ([
     __DIR__ . '/program-tables.php',
     __DIR__ . '/welfare-claims-tables.php',
     __DIR__ . '/digital-service-requests-tables.php',
+    __DIR__ . '/honor-tables.php',
     __DIR__ . '/partner-facilities-tables.php',
     __DIR__ . '/auction-tables.php',
     __DIR__ . '/vendors-tables.php',
@@ -41,7 +42,7 @@ function ensurePublicTables(): void {
 
     /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
        Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
-    $schemaVersion = 'v8-query-perf-2026';
+    $schemaVersion = 'v9-honor-darkhasta-2026';
     $lockFile = dirname(__DIR__) . '/.schema.lock';
     $lockContent = @file_get_contents($lockFile);
     if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
@@ -328,6 +329,7 @@ function ensurePublicTables(): void {
         ────────────────────────────────────────────────── */
         if (function_exists('ensureWelfareClaimsTables')) { ensureWelfareClaimsTables($db); }
         if (function_exists('ensureDigitalServiceRequestsTables')) { ensureDigitalServiceRequestsTables($db); }
+        if (function_exists('ensureHonorTables')) { ensureHonorTables($db); }
 
         /* ──────────────────────────────────────────────────
            10b. UPCOMING PROGRAMS + MEMBER ATTENDANCE — includes/program-tables.php
@@ -644,7 +646,7 @@ function ensurePublicTables(): void {
  * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
  * Lock file is written inside ensurePublicTables() — no second write here.
  */
-$_publicSchemaVersion = 'v7-enterprise-safe-2026';
+$_publicSchemaVersion = 'v9-honor-darkhasta-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {

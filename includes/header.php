@@ -1192,6 +1192,35 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <?php echo isEnglish() ? 'Digital Services' : 'डिजिटल सेवा'; ?>
                     </a>
                 </li>
+                <?php
+                $__honorOpen = false;
+                $__honorNew = false;
+                try {
+                    if (!function_exists('honorHasOpenProgram')) {
+                        $hf = __DIR__ . '/honor-tables.php';
+                        if (is_file($hf)) {
+                            require_once $hf;
+                        }
+                    }
+                    if (function_exists('honorHasOpenProgram') && isset($db) && $db instanceof PDO) {
+                        $__honorOpen = honorHasOpenProgram($db);
+                        $__honorNew = $__honorOpen && function_exists('honorShowNewBadge') && honorShowNewBadge($db);
+                    }
+                } catch (Throwable $e) {
+                    $__honorOpen = false;
+                }
+                if ($__honorOpen):
+                ?>
+                <li>
+                    <a href="<?php echo SITE_URL; ?>honor-apply.php">
+                        <i class="fas fa-award"></i>
+                        <?php echo isEnglish() ? 'Honor Apply' : 'दर्खास्त'; ?>
+                        <?php if ($__honorNew): ?>
+                        <span class="nav-new-badge"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+                <?php endif; ?>
                 <li class="has-drop">
                     <a href="javascript:void(0);">
                         <i class="fas fa-th"></i>

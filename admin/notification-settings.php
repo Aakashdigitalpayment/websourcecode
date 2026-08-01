@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         updateSetting('notify_member_sms',     isset($_POST['notify_member_sms'])     ? '1' : '0');
 
         /* Per-event toggles — email */
-        $events = ['loan_application','grievance','digital_service','kyc_application',
+        $events = ['loan_application','grievance','digital_service','honor_application','kyc_application',
                    'appointment','account_application','job_application','contact_message'];
         foreach ($events as $ev) {
             updateSetting('notify_email_' . $ev, isset($_POST['notify_email_' . $ev]) ? '1' : '0');
@@ -130,6 +130,7 @@ $events = [
     'loan_application'   => ['label' => 'ऋण आवेदन',         'icon' => 'fa-hand-holding-dollar'],
     'grievance'          => ['label' => 'गुनासो',             'icon' => 'fa-triangle-exclamation'],
     'digital_service'    => ['label' => 'डिजिटल सेवा',       'icon' => 'fa-laptop-code'],
+    'honor_application'  => ['label' => 'सम्मान दरखास्त',     'icon' => 'fa-award'],
     'kyc_application'    => ['label' => 'KYC आवेदन',         'icon' => 'fa-id-card-clip'],
     'appointment'        => ['label' => 'भेटघाट',             'icon' => 'fa-calendar-check'],
     'account_application'=> ['label' => 'खाता आवेदन',         'icon' => 'fa-user-plus'],
