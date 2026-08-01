@@ -894,24 +894,26 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
         $title = 'एक Member ID = एक मान्छे (SSOT)';
-        $flow = '१) Members सूची/Import = सदस्यता ledger · '
-            . '२) KYM = कागजात · '
-            . '३) Portal unlock = लगइन मात्र · '
-            . '४) नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID दिन्छ।';
+        $flow = '<strong>Members</strong> = पातलो ledger (ID, नाम, मोबाइल, पोर्टल पासवर्ड) · '
+            . '<strong>KYM</strong> = बाक्लो फाइल (पूरा फारम + कागजात + AML + approve/reject) · '
+            . '<strong>Portal</strong> = लगइन मात्र · '
+            . 'नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = 'यो पेज = कागजात/AML। Public Online KYM: <strong>Member ID + मोबाइल</strong> मिल्नुपर्छ; खाली field मात्र भर्ने — पहिले भरिएको overwrite हुँदैन। '
-                . 'पूर्ण परिवर्तन: पोर्टल लगइन → update → admin approve। '
+            $body = 'यो पेज = <strong>KYM फाइल समीक्षा</strong> (फारम + फोटो/नागरिकता + AML) — Members ledger होइन। '
+                . 'Online भरिएको डेटा पहिले यहाँ बस्छ; <strong>approve</strong> गर्दा members मा खाली name/phone/email मात्र soft-fill। '
+                . 'Excel bulk = पहिले Members मा भएको ID का लागि KYM seed (नयाँ सदस्य बनाउँदैन)। '
+                . 'Verify: <strong>Member ID + मोबाइल</strong> · खाली field मात्र भर्ने। '
                 . 'पहिले <a href="member-import.php">Members Import</a>।';
         } elseif ($context === 'portal') {
             $body = 'पोर्टल अनुरोध: <strong>Member ID + मोबाइल</strong> members सूचीसँग मिल्नुपर्छ। यो पेजले लगइन unlock मात्र गर्छ। '
                 . 'KYM approved देखिन्छ; update गरेपछि admin ले फेरि approve गर्छ।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID)। CBS Excel → <a href="member-import.php">Bulk Import</a>। '
-                . 'नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a> · कागजात: <a href="kyc-applications.php">KYM</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
+            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID SSOT)। विस्तृत पहिचान/कागजात यहाँ होइन — <a href="kyc-applications.php">KYM</a> मा। '
+                . 'CBS Excel → <a href="member-import.php">Members Import</a> · नयाँ: <a href="membership-applications.php">सदस्यता अनुरोध</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
         } elseif ($context === 'import') {
-            $body = 'Members CSV = <strong>सदस्यता ledger</strong> (CBS बाट)। पछि KYM अपूर्ण भए public/portal बाट खाली field भर्ने; '
-                . 'पोर्टलका लागि मोबाइल सही राख्नुहोस् (Member ID + mobile verify)।';
+            $body = 'Members CSV = <strong>सदस्यता ledger</strong> मात्र (CBS)। KYM Excel अर्कै हो — <a href="kyc-applications.php">KYM पेज</a> मा bulk; त्यसले members बनाउँदैन। '
+                . 'पोर्टल verify का लागि मोबाइल सही राख्नुहोस्।';
         } elseif ($context === 'membership') {
             $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा Member ID दिनुहोस् → members stub। '
                 . 'त्यसपछि Online KYM (ID+mobile) / Portal register (उही)।';

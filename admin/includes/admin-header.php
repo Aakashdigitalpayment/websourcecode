@@ -585,7 +585,7 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('दोहोरो Member ID', 'Duplicate Member IDs'); ?></span>
                                 </a>
                             </li>
-                            <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('२. नयाँ / कागजात', '2. New / Documents'); ?></li>
+                            <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('२. नयाँ / KYM फाइल', '2. New / KYM dossier'); ?></li>
                             <li class="<?php echo $currentPage=='membership-apps' ? 'active' : ''; ?>">
                                 <a href="membership-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round-plus"></i></span>
@@ -596,7 +596,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='kyc' ? 'active' : ''; ?>">
                                 <a href="kyc-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i></span>
-                                    <span><?php echo $adminT('केवाइएम (कागजात)', 'KYM (documents)'); ?></span>
+                                    <span><?php echo $adminT('KYM फाइल (समीक्षा)', 'KYM dossier (review)'); ?></span>
                                     <?php if ($adminAlertCounts['kyc'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['kyc']; ?></span><?php endif; ?>
                                 </a>
                             </li>
