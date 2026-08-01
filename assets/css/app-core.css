@@ -2862,7 +2862,14 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle { right: auto; le
     .whatsapp-float        { bottom: 20px  !important; right: 10px !important; z-index: 9990; }
     .chatbot-widget        { bottom: 84px  !important; right: 10px !important; z-index: 9989; }
     .useful-links-widget   { bottom: 20px  !important; left:  10px !important; z-index: 9988; }
-    .satisfaction-widget   { bottom: 148px !important; right: 10px !important; z-index: 9986; }
+    /* Satisfaction stays mid-right side tab (header on desktop; float only ≤991) */
+    .satisfaction-widget   {
+        top: 42% !important;
+        bottom: auto !important;
+        right: 0 !important;
+        transform: translateY(-50%) !important;
+        z-index: 9986;
+    }
 }
 
 

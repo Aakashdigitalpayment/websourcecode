@@ -955,6 +955,10 @@ body.verify-auth-page .vp-secure {
   color: #64748b;
   line-height: 1.45;
 }
+.vp-visit-empty[hidden],
+.vp-visit-empty-filter[hidden] {
+  display: none !important;
+}
 .vp-visit-empty i,
 .vp-visit-empty-filter i {
   color: #94a3b8;

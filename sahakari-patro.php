@@ -1366,17 +1366,25 @@ elseif($activeTab==='muhurta'): ?>
 <div class="sp-card">
   <div class="sp-tool-center">
     <div class="sp-tool-icon"><i class="lucide-icon" style="width:24px;height:24px;" data-lucide="clock-4"></i></div>
-    <h3 style="margin:0 0 5px;font-size:17px;font-weight:700;">आजका शुभ मुहुर्त</h3>
-    <p style="margin:0;color:var(--sp-text-muted);font-size:12px;"><?php echo $pg['bs_day_np'].' '.$pg['bs_month_name'].' '.$pg['bs_year_np'].' | '.$pg['vaar_np']; ?></p>
+    <h3 style="margin:0 0 5px;font-size:17px;font-weight:700;"><?php
+      $muhurtaIsToday = ($calY === $pg['bs_year'] && $calM === $pg['bs_month'] && $selD === $pg['bs_day']);
+      echo $muhurtaIsToday
+        ? (isEnglish() ? "Today's auspicious times" : 'आजका शुभ मुहुर्त')
+        : (isEnglish() ? 'Auspicious times (selected day)' : 'चयनित दिनका शुभ मुहुर्त');
+    ?></h3>
+    <p style="margin:0;color:var(--sp-text-muted);font-size:12px;"><?php
+      $muMonth = isEnglish() ? $SP_BS_MONTHS_EN[$calM - 1] : $SP_BS_MONTHS_NP[$calM - 1];
+      echo sp_np($selD).' '.$muMonth.' '.sp_np($calY).' | '.$selPg['vaar_np'];
+    ?></p>
   </div>
   <div style="padding:16px 18px 20px;">
     <div class="row g-3 mb-4">
       <?php foreach([
         [true,'sun','ब्रह्म मुहुर्त','बिहान ३:४५ – ५:१५','ध्यान, पूजा र अध्ययनका लागि सर्वोत्तम'],
-        [true,'star','रुद्राभिषेक / पूजा',$pg['sunrise'].' – ७:३०','धार्मिक कार्यका लागि उत्तम'],
-        [false,'alarm-clock','राहुकाल',$pg['rahu_kaal'],'यो समयमा शुभ काम सुरु नगर्नुहोस्'],
-        [true,'zap','अभिजित मुहुर्त',$pg['abhijit'],'सर्वोत्तम — जुनसुकै शुभ काम सुरु गर्नुहोस्'],
-        [false,'alert-circle','गुलिक काल',$pg['gulik'],'महत्वपूर्ण निर्णय नलिनुहोस्'],
+        [true,'star','रुद्राभिषेक / पूजा',$selPg['sunrise'].' – ७:३०','धार्मिक कार्यका लागि उत्तम'],
+        [false,'alarm-clock','राहुकाल',$selPg['rahu_kaal'],'यो समयमा शुभ काम सुरु नगर्नुहोस्'],
+        [true,'zap','अभिजित मुहुर्त',$selPg['abhijit'],'सर्वोत्तम — जुनसुकै शुभ काम सुरु गर्नुहोस्'],
+        [false,'alert-circle','गुलिक काल',$selPg['gulik'],'महत्वपूर्ण निर्णय नलिनुहोस्'],
         [true,'moon','प्रदोष काल','साँझ ७:०० – ७:३०','शिव पूजाका लागि उत्तम'],
         [true,'moon-star','निशीथ काल','रात १२:०० – १:३०','तान्त्रिक साधनाका लागि'],
         [false,'alert-triangle','यमघण्ट काल','दिउँसो ३:०० – ४:३०','नयाँ काम सुरु नगर्नुहोस्'],

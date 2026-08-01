@@ -99,27 +99,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cvv  = trim((string)($_POST['cvv'] ?? ''));
         $verifyMode = (($_POST['verify_mode'] ?? '') === 'legacy') ? 'legacy' : 'name';
 
-        if ($mid < 1 || $partnerId < 1) {
+        if (!$pdo) {
+            $logError = $_t('DB जडान भएन। कृपया पछि प्रयास गर्नुहोस्।', 'Database unavailable. Please try again later.');
+            $result = ['ok' => false, 'error' => $logError];
+        } elseif ($mid < 1 || $partnerId < 1) {
             $logError = $_t('साझेदार संस्था छान्नुहोस्।', 'Please select a partner organization.');
-        } elseif (function_exists('checkRateLimit') && !checkRateLimit('partner_service_log', 40, 3600)) {
-            $logError = $_t('धेरै पटक लग भयो। केही समयपछि प्रयास गर्नुहोस्।', 'Too many service logs. Please try again later.');
+            $result = ['ok' => false, 'error' => $logError];
         } else {
-            $lr = logMemberPartnerService($pdo, $mid, $cardNo, $partnerId, $serviceNm, $taken, $note, $pin, $ip);
-            if (!empty($lr['ok'])) {
-                $logSaved = true;
-            } else {
-                $errMap = [
-                    'pin' => $_t('साझेदार Desk PIN गलत भयो।', 'Partner desk PIN is incorrect.'),
-                    'partner' => $_t('साझेदार सक्रिय छैन वा भेटिएन।', 'Partner not found or inactive.'),
-                    'duplicate' => $_t('यो साझेदारमा भर्खरै लग भइसकेको छ (९० सेकेन्ड)।', 'Already logged for this partner just now (90s).'),
-                    'db' => $_t('लग सेभ गर्न सकिएन।', 'Could not save service log.'),
-                ];
-                $logError = $errMap[$lr['error'] ?? ''] ?? $_t('सेवा लग असफल।', 'Service log failed.');
+            /* Desk must have verified this member recently (or re-submit credentials). */
+            $sessMid = (int)($_SESSION['vp_ok_mid'] ?? 0);
+            $sessAt  = (int)($_SESSION['vp_ok_at'] ?? 0);
+            $sessOk  = ($sessMid === $mid && $sessMid > 0 && (time() - $sessAt) <= 1800);
+
+            if (!$sessOk) {
+                $vr = $runPrimaryVerify();
+                if (!empty($vr['ok']) && (int)($vr['member']['id'] ?? 0) === $mid) {
+                    $sessOk = true;
+                    $_SESSION['vp_ok_mid'] = $mid;
+                    $_SESSION['vp_ok_at'] = time();
+                    $result = $vr;
+                } else {
+                    $logError = $_t('पहिले सदस्य verify गर्नुहोस्, अनि मात्र सेवा लग गर्नुहोस्।', 'Please verify the member first, then log the service.');
+                    $result = is_array($vr) ? $vr : ['ok' => false, 'error' => $logError];
+                    if (empty($result['ok'])) {
+                        $result['error'] = $result['error'] ?? $logError;
+                    }
+                }
+            }
+
+            if ($sessOk) {
+                if (function_exists('checkRateLimit') && !checkRateLimit('partner_service_log', 40, 3600)) {
+                    $logError = $_t('धेरै पटक लग भयो। केही समयपछि प्रयास गर्नुहोस्।', 'Too many service logs. Please try again later.');
+                } else {
+                    $lr = logMemberPartnerService($pdo, $mid, $cardNo, $partnerId, $serviceNm, $taken, $note, $pin, $ip);
+                    if (!empty($lr['ok'])) {
+                        $logSaved = true;
+                        $_SESSION['vp_ok_mid'] = $mid;
+                        $_SESSION['vp_ok_at'] = time();
+                    } else {
+                        $errMap = [
+                            'pin' => $_t('साझेदार Desk PIN गलत भयो।', 'Partner desk PIN is incorrect.'),
+                            'partner' => $_t('साझेदार सक्रिय छैन वा भेटिएन।', 'Partner not found or inactive.'),
+                            'duplicate' => $_t('यो साझेदारमा भर्खरै लग भइसकेको छ (९० सेकेन्ड)।', 'Already logged for this partner just now (90s).'),
+                            'db' => $_t('लग सेभ गर्न सकिएन।', 'Could not save service log.'),
+                        ];
+                        $logError = $errMap[$lr['error'] ?? ''] ?? $_t('सेवा लग असफल।', 'Service log failed.');
+                    }
+                }
+                /* Prefer display rebuild — avoids rate-limit wipe after a valid desk session */
+                $disp = partnerBuildVerifyDisplayResult($pdo, $mid, $cardNo);
+                if (!empty($disp['ok'])) {
+                    $result = $disp;
+                } elseif (empty($result['ok'])) {
+                    $result = $runPrimaryVerify();
+                }
             }
         }
-        /* Prefer display rebuild — full re-verify can wipe UI via rate-limit */
-        $disp = partnerBuildVerifyDisplayResult($pdo, $mid, $cardNo);
-        $result = !empty($disp['ok']) ? $disp : $runPrimaryVerify();
     } elseif (($_POST['action'] ?? '') === 'program_preregister') {
         $programId = (int)($_POST['program_id'] ?? 0);
         $memberIdInput = trim((string)($_POST['member_id_input'] ?? ''));
@@ -197,6 +232,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $result = $runPrimaryVerify();
     }
+}
+
+/* Remember successful desk verify for partner service-log (30 min) */
+if (!empty($result['ok']) && !empty($result['member']['id'])) {
+    $_SESSION['vp_ok_mid'] = (int)$result['member']['id'];
+    $_SESSION['vp_ok_at'] = time();
 }
 
 /* ── Rate-limit info for countdown timer ── */

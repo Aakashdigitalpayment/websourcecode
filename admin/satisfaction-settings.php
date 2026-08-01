@@ -378,7 +378,6 @@ require_once 'includes/admin-ui.php';
                 </div>
             </div>
         </div>
-        </div>
     </div>
 
 </div>

@@ -343,6 +343,9 @@ if (!function_exists('partnerBuildVerifyDisplayResult')) {
             if (!$m) {
                 return ['ok' => false, 'error' => 'not_found'];
             }
+            if ((string)($m['approval_status'] ?? '') !== 'approved' || (int)($m['is_active'] ?? 0) !== 1) {
+                return ['ok' => false, 'error' => 'inactive'];
+            }
             $dispId = $cardNo !== ''
                 ? $cardNo
                 : (string)($m['sadasyata_number'] ?: ($m['member_card_no'] ?: $m['id']));
