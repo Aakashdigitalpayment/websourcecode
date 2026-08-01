@@ -1,5 +1,24 @@
 <?php
 require_once __DIR__ . '/../../includes/config.php';
+/* Safe COUNT helper — available even if older deploys skip core/init or safe-query.
+   Data-safe: PHP function only, no schema / migration / DELETE. */
+if (!function_exists('core_safe_count')) {
+    function core_safe_count(PDO $db, string $sql, string $logPrefix = '[core-safe-count]'): int
+    {
+        try {
+            return (int)($db->query($sql)->fetchColumn() ?: 0);
+        } catch (Throwable $e) {
+            error_log($logPrefix . ' ' . $e->getMessage());
+            return 0;
+        }
+    }
+}
+if (!function_exists('sqCount')) {
+    function sqCount(PDO $db, string $sql, string $logPrefix = '[sqCount]'): int
+    {
+        return core_safe_count($db, $sql, $logPrefix);
+    }
+}
 /* Notification system — email/SMS पठाउन — सबै admin pages मा available */
 require_once __DIR__ . '/../../includes/notifications.php';
 /* Admin tables auto-create — DB मा tables नभएमा automatically बनाउँछ */

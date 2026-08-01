@@ -4,8 +4,10 @@
 |--------------------------------------------------------------------------
 | DATABASE + INSTALL (tracked — git pull safe)
 |--------------------------------------------------------------------------
-| Secrets: includes/database.local.php (gitignored) — example: database.local.php.example
-| Legacy: यदि includes/database.php अझै छ (पुरानो cPanel) त्यो पनि load हुन्छ।
+| Live / multi-site: secrets ONLY in includes/database.local.php (gitignored).
+| Example: includes/database.local.php.example → copy + fill DB_HOST/NAME/USER/PASS.
+| Legacy cPanel: includes/database.php (if still present) also loads.
+| Pull/merge ले credentials overwrite गर्दैन — data/config सुरक्षित रहन्छ।
 |--------------------------------------------------------------------------
 */
 
