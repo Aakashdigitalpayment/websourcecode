@@ -1,6 +1,6 @@
 <?php
 /**
- * KYC Application List + Generate Member action
+ * KYM Application List + Generate Member action
  * v10.0 — Refactored with new design system
  */
 require_once __DIR__ . '/../_bootstrap.php';
@@ -48,22 +48,22 @@ $counts = $pdo->query("SELECT
     SUM(member_id_generated IS NOT NULL) generated
   FROM kyc_applications")->fetch(PDO::FETCH_ASSOC);
 
-$page_title = 'KYC आवेदन व्यवस्थापन';
+$page_title = 'केवाइएम आवेदन व्यवस्थापन';
 include __DIR__ . '/../_partials/header.php';
 ?>
 
 <div class="admin-page-header">
-  <h1 class="admin-page-title"><i class="fas fa-id-card-clip"></i> KYC आवेदन</h1>
+  <h1 class="admin-page-title"><i class="fas fa-id-card-clip"></i> केवाइएम आवेदन</h1>
   <a href="/admin/" class="admin-btn admin-btn-ghost"><i class="fas fa-arrow-left"></i> ड्यासबोर्डमा फर्क</a>
 </div>
 
 <div class="admin-card" style="margin-bottom:12px;border-left:3px solid var(--primary,#1a5f2a);">
   <p style="margin:0 0 8px;font-size:.9rem;">
-    <strong>पूर्ण KYC व्यवस्थापन</strong> मुख्य Admin मा छ (फिल्टर, विवरण, approve/reject)।
+    <strong>पूर्ण केवाइएम व्यवस्थापन</strong> मुख्य Admin मा छ (फिल्टर, विवरण, approve/reject)।
     यो पृष्ठ छोटो सूची + सदस्य बनाउने shortcut हो।
   </p>
   <a href="/admin/kyc-applications.php" class="admin-btn admin-btn-primary">
-    <i class="fas fa-external-link-alt"></i> पूर्ण KYC व्यवस्थापन खोल्नुहोस्
+    <i class="fas fa-external-link-alt"></i> पूर्ण केवाइएम व्यवस्थापन खोल्नुहोस्
   </a>
 </div>
 
@@ -99,7 +99,7 @@ include __DIR__ . '/../_partials/header.php';
   <?php if (!$rows): ?>
     <div class="admin-empty">
       <div class="empty-icon"><i class="fas fa-inbox"></i></div>
-      <div class="empty-title">कुनै KYC आवेदन फेला परेन</div>
+      <div class="empty-title">कुनै केवाइएम आवेदन फेला परेन</div>
       <div class="empty-text">हाल कुनै आवेदन छैन।</div>
     </div>
   <?php else: ?>
@@ -156,7 +156,7 @@ include __DIR__ . '/../_partials/header.php';
 const CSRF = <?= json_encode($csrf) ?>;
 
 async function generateMember(kycId, btn) {
-  if (!confirm('यो KYC बाट सदस्य खाता auto-generate गर्नुहुन्छ?\n\n• Member ID, Password auto बन्छ\n• ID Card create हुन्छ\n• SMS र Email मा credentials पठाइन्छ')) return;
+  if (!confirm('यो KYM बाट सदस्य खाता auto-generate गर्नुहुन्छ?\n\n• Member ID, Password auto बन्छ\n• ID Card create हुन्छ\n• SMS र Email मा credentials पठाइन्छ')) return;
 
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';

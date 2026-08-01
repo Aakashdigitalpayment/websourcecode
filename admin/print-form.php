@@ -122,8 +122,8 @@ case 'kyc':
     $st = $db->prepare("SELECT * FROM kyc_applications WHERE id=?");
     $st->execute([$id]);  $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
-    $formTitle   = 'व्यक्तिगत सदस्य पहिचान फारम (KYC/KYM)';
-    $formTitleEn = 'Know Your Customer / Member (KYC/KYM) Application Form';
+    $formTitle   = 'व्यक्तिगत सदस्य पहिचान फारम (केवाइएम / KYM)';
+    $formTitleEn = 'Know Your Member (KYM) Application Form';
     $trackId     = $data['tracking_id'] ?? 'KYC-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT);
     $slMap       = ['pending'=>'पेन्डिङ','approved'=>'स्वीकृत','rejected'=>'अस्वीकृत','incomplete'=>'अपूर्ण','partial'=>'आंशिक'];
     $statusLabel = $slMap[$data['status'] ?? ''] ?? (string)($data['status'] ?? '');
@@ -229,7 +229,7 @@ case 'kyc':
 
     $coopRows = [];
     pf_add_row($coopRows, 'खाता प्रकार', 'Account Type', $data['account_type'] ?? '');
-    pf_add_row($coopRows, 'शाखा', 'Branch', isset($data['branch']) ? str_replace('_', ' ', (string)$data['branch']) : '');
+    pf_add_row($coopRows, 'सेवा कार्यालय', 'Service Office', isset($data['branch']) ? str_replace('_', ' ', (string)$data['branch']) : '');
     pf_add_row($coopRows, 'सदस्यता उद्देश्य', 'Membership Purpose', $aml['member_purpose'] ?? '', true);
     pf_add_row($coopRows, 'आफू अन्य सहकारी सदस्य', 'Other Coop Member', $aml['self_other_coop_member'] ?? '', true);
     pf_add_row($coopRows, 'अन्य सहकारी विवरण', 'Other Coop Details', $aml['self_other_coop_details'] ?? '', true);
@@ -361,7 +361,7 @@ case 'loan':
             ['संस्था/व्यवसाय',    'Organization/Business', pf_e($data['organization_name'])],
             ['मासिक आय',          'Monthly Income',        pf_cur($data['monthly_income'])],
             ['अन्य आय',            'Other Income',          pf_e($data['other_income'] ?? '')],
-            ['शाखा',               'Branch',                pf_e($data['branch'] ?? '')],
+            ['सेवा कार्यालय',       'Service Office',                pf_e($data['branch'] ?? '')],
         ]],
         ['title'=>'धितो जानकारी / Collateral Details', 'rows'=>[
             ['धितो प्रकार',        'Collateral Type',       pf_e($data['collateral_type'])],
@@ -604,7 +604,7 @@ case 'account':
             ['इमेल',              'Email',                 pf_e($data['email'])],
             ['स्थायी ठेगाना',     'Permanent Address',     pf_e($data['permanent_address'])],
             ['अस्थायी ठेगाना',    'Temporary Address',     pf_e($data['temporary_address'])],
-            ['शाखा',              'Branch',                pf_e($data['branch'])],
+            ['सेवा कार्यालय',      'Service Office',                pf_e($data['branch'])],
         ]],
         ['title'=>'नागरिकता विवरण / Citizenship Details', 'rows'=>[
             ['नागरिकता नं.',       'Citizenship No.',       pf_e($data['citizenship_no'])],
@@ -656,7 +656,7 @@ case 'appointment':
     if (!$data) goto NOT_FOUND;
     $purposeMap = [
         'account_inquiry' => 'खाता जानकारी', 'loan_inquiry' => 'ऋण जानकारी',
-        'kyc_update' => 'केवाइसी अपडेट', 'loan_repayment' => 'ऋण भुक्तानी',
+        'kyc_update' => 'केवाइएम अपडेट', 'loan_repayment' => 'ऋण भुक्तानी',
         'account_opening' => 'खाता खोल्ने', 'other' => 'अन्य',
     ];
     $purposeTxt = $purposeMap[$data['purpose'] ?? ''] ?? ($data['purpose'] ?? '');
@@ -680,7 +680,7 @@ case 'appointment':
     pf_add_row($apt, 'विवरण / सन्देश', 'Details', $data['purpose_detail'] ?? $data['message'] ?? '');
     pf_add_row($apt, 'मनपर्ने मिति', 'Preferred Date', !empty($data['preferred_date']) ? pf_d($data['preferred_date']) : '');
     pf_add_row($apt, 'समय', 'Preferred Time', $data['preferred_time'] ?? '');
-    pf_add_row($apt, 'शाखा', 'Branch', $data['branch'] ?? '');
+    pf_add_row($apt, 'सेवा कार्यालय', 'Service Office', $data['branch'] ?? '');
     pf_add_row($apt, 'Tracking ID', 'Tracking ID', $trackId);
     pf_add_row($apt, 'दर्ता मिति', 'Created At', pf_d($data['created_at'] ?? ''));
     pf_add_row($apt, 'Admin टिप्पणी', 'Admin Remarks', $data['remarks'] ?? '', true);
@@ -696,7 +696,7 @@ case 'grievance':
     $st->execute([$id]);
     $data = $st->fetch(PDO::FETCH_ASSOC);
     if (!$data) goto NOT_FOUND;
-    $catMap = ['service'=>'सेवा','staff'=>'कर्मचारी','loan'=>'ऋण','account'=>'खाता','branch'=>'शाखा','other'=>'अन्य'];
+    $catMap = ['service'=>'सेवा','staff'=>'कर्मचारी','loan'=>'ऋण','account'=>'खाता','branch'=>'सेवा कार्यालय','other'=>'अन्य'];
     $formTitle   = 'गुनासो फारम';
     $formTitleEn = 'Grievance / Complaint Form';
     $trackId     = $data['tracking_id'] ?? ('GRV-' . str_pad((string)$id, 6, '0', STR_PAD_LEFT));

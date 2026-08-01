@@ -188,7 +188,7 @@ require __DIR__ . '/includes/chrome.php';
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="ds-pane-new">
     <div class="mem-autofill-banner">
       <i class="fas fa-wand-magic-sparkles"></i>
-      <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYC/profile</strong>.'); ?></div>
+      <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
     <form method="POST" enctype="multipart/form-data">
@@ -196,7 +196,7 @@ require __DIR__ . '/includes/chrome.php';
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYC बाट)', 'Your Info (from KYC)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -286,7 +286,7 @@ require __DIR__ . '/includes/chrome.php';
         <select name="preferred_contact" class="mem-form-control">
           <option value="phone" <?= ($_POST['preferred_contact'] ?? 'phone') === 'phone' ? 'selected' : '' ?>><?php echo $_t('फोन', 'Phone'); ?></option>
           <option value="email" <?= ($_POST['preferred_contact'] ?? '') === 'email' ? 'selected' : '' ?>>Email</option>
-          <option value="branch" <?= ($_POST['preferred_contact'] ?? '') === 'branch' ? 'selected' : '' ?>><?php echo $_t('शाखा भ्रमण', 'Branch Visit'); ?></option>
+          <option value="branch" <?= ($_POST['preferred_contact'] ?? '') === 'branch' ? 'selected' : '' ?>><?php echo $_t('सेवा कार्यालय भ्रमण', 'Service Office Visit'); ?></option>
         </select>
       </div>
 

@@ -271,7 +271,7 @@ $statusLabel = ['pending'=>'पेन्डिङ','confirmed'=>'पुष्ट
 $purposes = [
     'account_inquiry' => 'खाता जानकारी',
     'loan_inquiry'    => 'ऋण जानकारी',
-    'kyc_update'      => 'केवाइसी अपडेट',
+    'kyc_update'      => 'केवाइएम अपडेट',
     'loan_repayment'  => 'ऋण भुक्तानी',
     'account_opening' => 'खाता खोल्ने',
     'other'           => 'अन्य'

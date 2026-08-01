@@ -215,7 +215,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="w-100">
           <small class="text-warning">
             <i class="fas fa-info-circle me-1"></i>
-            शाखा सूची खाली छ —
+            सेवा कार्यालय सूची खाली छ —
             <a href="service-centers.php" class="fw-semibold">सेवा केन्द्र / शाखा</a>
             बाट शाखा थप्नुहोस्।
           </small>
@@ -227,7 +227,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table class="table table-hover mb-0 stf-table table-responsive-stack">
             <thead class="stf-soft-head">
                 <tr>
-                    <th>कोड</th><th>नाम</th><th>पद</th><th>विभाग</th><th>शाखा</th><th>नियुक्ति</th><th>प्रकार</th><th>अवस्था</th><th class="stf-align-right">कार्य</th>
+                    <th>कोड</th><th>नाम</th><th>पद</th><th>विभाग</th><th>सेवा कार्यालय</th><th>नियुक्ति</th><th>प्रकार</th><th>अवस्था</th><th class="stf-align-right">कार्य</th>
                 </tr>
             </thead>
             <tbody>
@@ -251,7 +251,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </td>
                     <td data-label="पद"><small><?= e($r['designation']) ?></small></td>
                     <td data-label="विभाग"><small><?= e($r['dept_name']) ?></small></td>
-                    <td data-label="शाखा"><small><?= e($r['branch_name'] ?: 'केन्द्रीय कार्यालय') ?></small></td>
+                    <td data-label="सेवा कार्यालय"><small><?= e($r['branch_name'] ?: 'केन्द्रीय कार्यालय') ?></small></td>
                     <td data-label="नियुक्ति"><small><?= e($r['join_date_ad'] ?: $r['join_date_bs']) ?></small></td>
                     <td data-label="प्रकार"><small><?= e(hrmEmploymentTypeLabel((string)($r['employment_type'] ?? ''))) ?></small></td>
                     <td data-label="अवस्था"><?= hrmStatusBadge($r['status']) ?></td>
@@ -382,7 +382,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
           </select>
         </div>
-        <div class="col-md-4"><label class="small" for="f_branch">शाखा</label>
+        <div class="col-md-4"><label class="small" for="f_branch">सेवा कार्यालय</label>
           <select class="field-coop" name="branch_id" id="f_branch">
             <option value="0">— केन्द्रीय कार्यालय —</option>
             <?php foreach ($branches as $b): ?>
@@ -392,7 +392,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <small class="text-muted">
             सूची <a href="service-centers.php" target="_blank">सेवा केन्द्र / शाखा</a> बाट आउँछ।
             <?php if (empty($branches)): ?>
-            <span class="text-warning">अहिले कुनै सक्रिय शाखा छैन — पहिले त्यहाँ थप्नुहोस्।</span>
+            <span class="text-warning">अहिले कुनै सक्रिय सेवा कार्यालय छैन — पहिले त्यहाँ थप्नुहोस्।</span>
             <?php endif; ?>
           </small>
         </div>

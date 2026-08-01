@@ -1309,7 +1309,7 @@ if ($__uiTestMode):
       <?php
       $aiChips = isEnglish()
           ? [['Interest rates', 'Interest rates'], ['Services', 'What services are available?'], ['Nearby branch', 'Nearest branch'], ['Total members', 'How many total members are there?'], ['How to join', 'How to become a member?']]
-          : [['ब्याजदर कति छ?', 'ब्याजदर कति छ?'], ['के के सेवा छन्?', 'के के सेवा छन्?'], ['नजिकको शाखा?', 'नजिकको शाखा?'], ['कुल सदस्य कति?', 'कुल सदस्य कति छ?'], ['सदस्य कसरी बन्ने?', 'सदस्य कसरी बन्ने?']];
+          : [['ब्याजदर कति छ?', 'ब्याजदर कति छ?'], ['के के सेवा छन्?', 'के के सेवा छन्?'], ['नजिकको सेवा कार्यालय?', 'नजिकको सेवा कार्यालय?'], ['कुल सदस्य कति?', 'कुल सदस्य कति छ?'], ['सदस्य कसरी बन्ने?', 'सदस्य कसरी बन्ने?']];
       foreach ($aiChips as [$lab, $ask]): ?>
       <button type="button" class="acp-chip" data-ask="<?php echo htmlspecialchars($ask, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($lab, ENT_QUOTES, 'UTF-8'); ?></button>
       <?php endforeach; ?>

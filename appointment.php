@@ -248,7 +248,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($loggedMember) {
                 $kycMerge = loadKycRowForLoggedMemberPublic($db, $loggedMember);
                 if (!$kycMerge || strtolower(trim((string)($kycMerge['status'] ?? ''))) !== 'approved') {
-                    $error = isEnglish() ? 'KYC verification is required to book appointment.' : 'भेटघाट बुक गर्न KYC verified (approved) हुनुपर्छ।';
+                    $error = isEnglish() ? 'KYM verification is required to book appointment.' : 'भेटघाट बुक गर्न KYC verified (approved) हुनुपर्छ।';
                 }
                 $fnK = (is_array($kycMerge) && !empty($kycMerge['full_name'])) ? trim((string)$kycMerge['full_name']) : '';
                 $name = $fnK !== '' ? $fnK : trim((string)($loggedMember['name'] ?? $name));
@@ -499,7 +499,7 @@ $L = getLangStrings();
                                 <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
                                 <div class="d-flex flex-wrap gap-3">
                                     <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-appt-coop" <?php echo (($postIsMember ? ($_POST['is_coop_member'] ?? 'no') : 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
-                                    <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-appt-coop" <?php echo ($postIsMember && (($_POST['is_coop_member'] ?? '') === 'yes')) ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYC)' : 'हो (Member ID आधारित KYC)'; ?></label>
+                                    <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-appt-coop" <?php echo ($postIsMember && (($_POST['is_coop_member'] ?? '') === 'yes')) ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYM)' : 'हो (Member ID आधारित KYM)'; ?></label>
                                 </div>
                             </div>
                             <?php endif; ?>
@@ -578,7 +578,7 @@ $L = getLangStrings();
                                         $purposes = [
                                             'account_inquiry'  => isEnglish() ? 'Account Inquiry'  : 'खाता जानकारी',
                                             'loan_inquiry'     => isEnglish() ? 'Loan Inquiry'      : 'ऋण जानकारी',
-                                            'kyc_update'       => isEnglish() ? 'KYC Update'        : 'केवाइसी अपडेट',
+                                            'kyc_update'       => isEnglish() ? 'KYM Update'        : 'केवाइएम अपडेट',
                                             'loan_repayment'   => isEnglish() ? 'Loan Repayment'    : 'ऋण भुक्तानी',
                                             'account_opening'  => isEnglish() ? 'Account Opening'   : 'खाता खोल्ने',
                                             'other'            => isEnglish() ? 'Other'             : 'अन्य',

@@ -1,7 +1,7 @@
 <?php
 /**
  * सार्वजनिक फारमहरूमा KYC लाई मुख्य आधार बनाउने helper
- * member=yes भए Member ID बाट KYC खोज्छ, personal details KYC बाट लिन्छ।
+ * member=yes भए Member ID बाट KYC खोज्छ, personal details KYM बाट लिन्छ।
  */
 
 if (!function_exists('kycApplicationsMemberIdColumnPublic')) {
@@ -31,7 +31,7 @@ if (!function_exists('verifyPublicFormKycByMemberId')) {
 
         $col = kycApplicationsMemberIdColumnPublic($db);
         if ($col === '') {
-            return $fail('KYC तालिका तयार छैन। Admin लाई सम्पर्क गर्नुहोस्।', 'KYC is not configured. Please contact the office.');
+            return $fail('केवाइएम तालिका तयार छैन। Admin लाई सम्पर्क गर्नुहोस्।', 'KYC is not configured. Please contact the office.');
         }
 
         try {
@@ -45,10 +45,10 @@ if (!function_exists('verifyPublicFormKycByMemberId')) {
             $row = $st->fetch(PDO::FETCH_ASSOC);
             if ($row) return ['ok' => true, 'row' => $row, 'msg_np' => '', 'msg_en' => ''];
 
-            return $fail('यो सदस्यता नम्बरको KYC रेकर्ड भेटिएन।', 'No KYC record found for this Member ID.');
+            return $fail('यो सदस्यता नम्बरको केवाइएम रेकर्ड भेटिएन।', 'No KYC record found for this Member ID.');
         } catch (Exception $e) {
             error_log('verifyPublicFormKycByMemberId: ' . $e->getMessage());
-            return $fail('KYC जाँच गर्दा त्रुटि भयो।', 'Could not verify against KYC.');
+            return $fail('केवाइएम जाँच गर्दा त्रुटि भयो।', 'Could not verify against KYC.');
         }
     }
 }
@@ -63,7 +63,7 @@ if (!function_exists('verifyPublicFormKycApprovedByMemberId')) {
             return [
                 'ok' => false,
                 'row' => $r['row'],
-                'msg_np' => 'यो सेवा प्रयोग गर्न KYC verify (approved) हुनुपर्छ। कृपया पहिले KYC स्वीकृत गराउनुहोस्।',
+                'msg_np' => 'यो सेवा प्रयोग गर्न KYM verify (approved) हुनुपर्छ। कृपया पहिले केवाइएम स्वीकृत गराउनुहोस्।',
                 'msg_en' => 'KYC must be verified (approved) before using this service.',
             ];
         }

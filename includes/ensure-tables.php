@@ -205,7 +205,7 @@ function ensurePublicTables(): void {
         }
 
         /* ──────────────────────────────────────────────────
-           6. KYC APPLICATIONS (केवाइसी)
+           6. KYC APPLICATIONS (केवाइएम)
         ────────────────────────────────────────────────── */
         $db->exec("CREATE TABLE IF NOT EXISTS kyc_applications (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -586,7 +586,7 @@ function ensurePublicTables(): void {
 
         $addIndex('kyc_applications', 'idx_kyc_tracking', 'tracking_id');
 
-        /* Risk based KYC review auto-flag (verified date बाट) */
+        /* Risk based KYM review auto-flag (verified date बाट) */
         try {
             $db->exec("UPDATE kyc_applications
                        SET risk_review_due_at = CASE

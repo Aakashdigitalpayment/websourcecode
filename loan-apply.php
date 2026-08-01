@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($isCoopMember === 'yes') {
                 if (!function_exists('verifyPublicFormKycByMemberId')) {
                     $error = isEnglish()
-                        ? 'KYC verification service is temporarily unavailable. Please try again.'
+                        ? 'KYM verification service is temporarily unavailable. Please try again.'
                         : 'KYC प्रमाणीकरण सेवा हाल उपलब्ध छैन। कृपया पुनः प्रयास गर्नुहोस्।';
                 } else {
                     $v = verifyPublicFormKycByMemberId($db, $_POST['member_id'] ?? '');
@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'ऋण रकम'    => 'Rs. ' . number_format((float)$loan_amount),
                     'ऋण प्रकार'  => $loan_type,
                     'Tracking ID'=> $loanTrackingId,
-                    'शाखा'       => $branch ?: 'N/A',
+                    'सेवा कार्यालय' => $branch ?: 'N/A',
                     'मिति'       => date('Y-m-d H:i'),
                 ], $loanTrackingId);
             }
@@ -357,7 +357,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span><?php echo isEnglish() ? 'Yes — verify with Member ID + email + mobile' : 'हो — सदस्यता नम्बर + इमेल + मोबाइल मिलाउनुहोस्'; ?></span>
             </label>
         </div>
-        <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i><?php echo isEnglish() ? 'If Yes, personal details will be loaded from KYC after matching ID, email and phone.' : '"हो" भए KYC मा भएको तीन विवरण मिलाएपछि नाम/ठेगाना KYC बाटै लिइन्छ।'; ?></p>
+        <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i><?php echo isEnglish() ? 'If Yes, personal details will be loaded from KYM after matching ID, email and phone.' : '"हो" भए KYC मा भएको तीन विवरण मिलाएपछि नाम/ठेगाना KYM बाटै लिइन्छ।'; ?></p>
     </div>
     <?php endif; ?>
 
@@ -635,10 +635,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr mb-3">
             <span class="form-section-icon bg-primary-soft"><i class="fas fa-building"></i></span>
-            <span class="fw-bold"><?php echo isEnglish() ? 'Preferred Branch / Service Center' : 'मनपर्ने शाखा / सेवा केन्द्र'; ?></span>
+            <span class="fw-bold"><?php echo isEnglish() ? 'Preferred Service Office' : 'मनपर्ने सेवा कार्यालय'; ?></span>
         </div>
         <select name="branch" class="form-select">
-            <option value=""><?php echo isEnglish() ? 'Select Branch' : 'शाखा छान्नुहोस्'; ?></option>
+            <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
             <?php if (!empty($branches)): ?>
                 <?php foreach ($branches as $brn): ?>
                 <option value="<?php echo htmlspecialchars($brn['name_np'] ?: $brn['name']); ?>" <?php echo ($_POST['branch'] ?? '') === ($brn['name_np'] ?: $brn['name']) ? 'selected' : ''; ?>>

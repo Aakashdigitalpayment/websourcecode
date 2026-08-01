@@ -419,7 +419,7 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <div class="tools-links-grid">
                         <a href="online-kyc.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="40">
                             <i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i>
-                            <span><?php echo isEnglish() ? 'Online KYC' : 'अनलाइन केवाइसी'; ?></span>
+                            <span><?php echo isEnglish() ? 'Online KYM' : 'अनलाइन केवाइएम'; ?></span>
                             <small class="tools-mini-more"><?php echo isEnglish() ? 'More details' : 'थप विवरण'; ?></small>
                         </a>
                         <a href="loan-apply.php" class="tools-mini-link" data-aos="fade-up" data-aos-delay="90">
@@ -895,7 +895,7 @@ if (empty($appFeatures)) {
         ['icon' => 'fas fa-wallet', 'title_np' => 'वालेट लोड', 'title' => 'Wallet Load', 'is_new' => 1],
         ['icon' => 'fas fa-chart-line', 'title_np' => 'स्टेटमेन्ट हेर्नुहोस्', 'title' => 'View Statement', 'is_new' => 0],
         ['icon' => 'fas fa-credit-card', 'title_np' => 'कार्ड व्यवस्थापन', 'title' => 'Card Management', 'is_new' => 1],
-        ['icon' => 'fas fa-university', 'title_np' => 'शाखा पत्ता लगाउनुहोस्', 'title' => 'Locate Branch', 'is_new' => 0]
+        ['icon' => 'fas fa-university', 'title_np' => 'सेवा कार्यालय पत्ता लगाउनुहोस्', 'title' => 'Locate Service Office', 'is_new' => 0]
     ];
 }
 ?>
@@ -1224,7 +1224,7 @@ $hasPhoto = !empty($memberSpotlight['photo']) && file_exists(ROOT_PATH . $member
                 <div class="col-lg-5 text-lg-end mt-3 mt-lg-0">
                     <div class="cta-buttons">
                         <a href="online-kyc.php" class="btn btn-light btn-lg me-2 mb-2">
-                            <i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i> <?php echo isEnglish() ? 'Fill KYC Form' : 'केवाइसी फारम भर्नुहोस्'; ?>
+                            <i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i> <?php echo isEnglish() ? 'Fill KYM Form' : 'केवाइएम फारम भर्नुहोस्'; ?>
                         </a>
                         <a href="contact.php" class="btn btn-outline-light btn-lg mb-2">
                             <i class="fas fa-phone-alt"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>

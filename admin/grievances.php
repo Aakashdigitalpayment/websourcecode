@@ -298,7 +298,7 @@ $statusLabel = [
     'closed'      => $__t('बन्द', 'Closed')
 ];
 $statusClass = ['pending' => 'warning', 'in_progress' => 'info', 'resolved' => 'success', 'closed' => 'secondary'];
-$catLabels   = ['service' => 'सेवा', 'staff' => 'कर्मचारी', 'loan' => 'ऋण', 'account' => 'खाता', 'branch' => 'शाखा', 'other' => 'अन्य'];
+$catLabels   = ['service' => 'सेवा', 'staff' => 'कर्मचारी', 'loan' => 'ऋण', 'account' => 'खाता', 'branch' => 'सेवा कार्यालय', 'other' => 'अन्य'];
 
 function grvBadge($status, $label, $class) {
     return '<span class="badge bg-' . $class . '">' . htmlspecialchars($label) . '</span>';

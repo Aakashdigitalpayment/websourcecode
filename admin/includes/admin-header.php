@@ -551,7 +551,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='kyc' ? 'active' : ''; ?>">
                                 <a href="kyc-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i></span>
-                                    <span><?php echo $adminT('KYC आवेदन', 'KYC Applications'); ?></span>
+                                    <span><?php echo $adminT('केवाइएम आवेदन', 'KYM Applications'); ?></span>
                                     <?php if ($adminAlertCounts['kyc'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['kyc']; ?></span><?php endif; ?>
                                 </a>
                             </li>
@@ -804,7 +804,7 @@ set_exception_handler(function (\Throwable $ex) {
                         </div>
                         <ul class="nav-submenu <?php echo $activeGroup=='sanstha' ? 'open' : ''; ?>" id="group-sanstha">
                             <li class="<?php echo $currentPage=='service-centers' ? 'active' : ''; ?>">
-                                <a href="service-centers.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span><span><?php echo $adminT('शाखाहरू', 'Branches'); ?></span></a>
+                                <a href="service-centers.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span><span><?php echo $adminT('सेवा कार्यालयहरू', 'Service Offices'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='institutional-profile' ? 'active' : ''; ?>">
                                 <a href="institutional-profile.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('संस्थागत प्रोफाइल', 'Institutional Profile'); ?></span></a>
@@ -1009,7 +1009,7 @@ set_exception_handler(function (\Throwable $ex) {
                     /* Dropdown मा देखाउने items — label, count, link, icon, tone */
                     $notifItems = [
                         ['label'=>$adminT('अपठित सन्देश', 'Unread Messages'),     'count'=>$unreadMessages,                        'href'=>'messages.php',                       'icon'=>'fa-envelope',            'tone'=>'red'],
-                        ['label'=>$adminT('KYC आवेदन', 'KYC Applications'),        'count'=>$adminAlertCounts['kyc'],               'href'=>'kyc-applications.php?status=pending', 'icon'=>'fa-id-card',             'tone'=>'orange'],
+                        ['label'=>$adminT('केवाइएम आवेदन', 'KYM Applications'),        'count'=>$adminAlertCounts['kyc'],               'href'=>'kyc-applications.php?status=pending', 'icon'=>'fa-id-card',             'tone'=>'orange'],
                         ['label'=>$adminT('KYC जोखिम समीक्षा', 'KYC Risk Review'), 'count'=>$adminAlertCounts['kyc_risk'],        'href'=>'kyc-risk-reviews.php',                'icon'=>'fa-shield-halved',       'tone'=>'amber'],
                         ['label'=>$adminT('ऋण आवेदन', 'Loan Applications'),         'count'=>$adminAlertCounts['loan'],              'href'=>'loan-applications.php?status=pending','icon'=>'fa-hand-holding-usd',   'tone'=>'amber'],
                         ['label'=>$adminT('खाता आवेदन', 'Account Applications'),       'count'=>$adminAlertCounts['account'],           'href'=>'account-applications.php?status=pending','icon'=>'fa-university',       'tone'=>'purple'],

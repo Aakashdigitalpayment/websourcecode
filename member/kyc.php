@@ -1,6 +1,6 @@
 <?php
 /**
- * KYC दर्ता / अपडेट — सदस्य पोर्टल URL
+ * केवाइएम दर्ता / अपडेट — सदस्य पोर्टल URL
  * ब्राउजर ठेगाना: /member/kyc.php?kyc_id=... (online-kyc.php होइन)
  * भित्रको फारम उही online-kyc.php (iframe, same session)।
  */

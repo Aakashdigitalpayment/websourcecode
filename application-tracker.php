@@ -285,7 +285,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($grvResults) $allResults = array_merge($allResults, $grvResults);
             } catch (Exception $e) {}
 
-            // KYC आवेदन खोज्ने — tracking_id वा legacy id दुवै support
+            // केवाइएम आवेदन खोज्ने — tracking_id वा legacy id दुवै support
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
@@ -657,7 +657,7 @@ function getAppTypeLabel($type) {
         'loan' => ['icon' => 'fa-hand-holding-usd', 'label' => 'ऋण आवेदन', 'label_en' => 'Loan Application', 'color' => 'success'],
         'account' => ['icon' => 'fa-user-plus', 'label' => 'खाता खोल्ने आवेदन', 'label_en' => 'Account Application', 'color' => 'info'],
         'grievance' => ['icon' => 'fa-exclamation-circle', 'label' => 'गुनासो', 'label_en' => 'Grievance', 'color' => 'warning'],
-        'kyc' => ['icon' => 'fa-id-card', 'label' => 'KYC अद्यावधिक', 'label_en' => 'KYC Update', 'color' => 'secondary'],
+        'kyc' => ['icon' => 'fa-id-card', 'label' => 'KYC अद्यावधिक', 'label_en' => 'KYM Update', 'color' => 'secondary'],
         'auction_bid' => ['icon' => 'fa-gavel', 'label' => 'लिलामी बोलपत्र', 'label_en' => 'Auction Bid', 'color' => 'danger'],
         'appointment' => ['icon' => 'fa-calendar-check', 'label' => 'भेटघाट बुक', 'label_en' => 'Appointment', 'color' => 'teal'],
         'feedback' => ['icon' => 'fa-comments', 'label' => 'सदस्य सर्वेक्षण/गुनासो', 'label_en' => 'Feedback/Survey', 'color' => 'purple'],
@@ -994,7 +994,7 @@ function getAppTypeLabel($type) {
                                             $purposeLabels = [
                                                 'account_inquiry' => isEnglish() ? 'Account Inquiry' : 'खाता जानकारी',
                                                 'loan_inquiry' => isEnglish() ? 'Loan Inquiry' : 'ऋण जानकारी',
-                                                'kyc_update' => isEnglish() ? 'KYC Update' : 'केवाइसी अपडेट',
+                                                'kyc_update' => isEnglish() ? 'KYM Update' : 'केवाइएम अपडेट',
                                                 'loan_repayment' => isEnglish() ? 'Loan Repayment' : 'ऋण भुक्तानी',
                                                 'account_opening' => isEnglish() ? 'Account Opening' : 'खाता खोल्ने',
                                                 'other' => isEnglish() ? 'Other' : 'अन्य'
@@ -1072,7 +1072,7 @@ function getAppTypeLabel($type) {
                                         <?php if ($diEmail): ?><div class="di-item"><span class="di-label"><i class="fas fa-envelope"></i> <?php echo isEnglish() ? 'Email' : 'इमेल'; ?></span><span class="di-value" style="word-break:break-all"><?php echo e(mb_substr($diEmail,0,30)); ?></span></div><?php endif; ?>
                                         <?php if ($diMemId): ?><div class="di-item"><span class="di-label"><i class="fas fa-id-badge"></i> <?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?></span><span class="di-value"><?php echo e($diMemId); ?></span></div><?php endif; ?>
                                         <?php if ($diDate): ?><div class="di-item"><span class="di-label"><i class="fas fa-calendar-alt"></i> <?php echo isEnglish() ? 'Submitted' : 'दर्ता मिति'; ?></span><span class="di-value"><?php echo $diDate; ?></span></div><?php endif; ?>
-                                        <?php if ($diBranch): ?><div class="di-item"><span class="di-label"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Branch' : 'शाखा'; ?></span><span class="di-value"><?php echo e($diBranch); ?></span></div><?php endif; ?>
+                                        <?php if ($diBranch): ?><div class="di-item"><span class="di-label"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></span><span class="di-value"><?php echo e($diBranch); ?></span></div><?php endif; ?>
 
                                         <?php if ($app['app_type'] === 'loan'): ?>
                                         <?php if (!empty($app['loan_type'])): ?><div class="di-item"><span class="di-label"><i class="fas fa-tag"></i> <?php echo isEnglish() ? 'Loan Type' : 'ऋण प्रकार'; ?></span><span class="di-value"><?php echo e($app['loan_type']); ?></span></div><?php endif; ?>
@@ -1499,7 +1499,7 @@ function getAppTypeLabel($type) {
                                     </div>
                                     <?php endif; ?>
                                     <?php elseif ($app['app_type'] === 'kyc'): ?>
-                                    <!-- KYC Application Timeline -->
+                                    <!-- KYM Application Timeline -->
                                     <div class="status-timeline">
                                         <div class="d-flex justify-content-between position-relative">
                                             <div class="timeline-line"></div>

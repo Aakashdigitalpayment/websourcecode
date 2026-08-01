@@ -1,9 +1,9 @@
 <?php
 /**
- * शाखा व्यवस्थापन — Service Centers / Branch Management
+ * सेवा कार्यालय व्यवस्थापन — Service Centers / Branch Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
-$pageTitle = 'शाखा व्यवस्थापन';
+$pageTitle = 'सेवा कार्यालय व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 
@@ -33,16 +33,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($action === 'add') {
                 $db->prepare("INSERT INTO service_centers (name, name_np, address, phone, email, province, opening_hours, map_url, is_main_branch, is_active, display_order) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
                    ->execute($data);
-                setFlash('success', 'शाखा थपियो।');
+                setFlash('success', 'सेवा कार्यालय थपियो।');
             } else {
                 $data[] = $id;
                 $db->prepare("UPDATE service_centers SET name=?, name_np=?, address=?, phone=?, email=?, province=?, opening_hours=?, map_url=?, is_main_branch=?, is_active=?, display_order=? WHERE id=?")
                    ->execute($data);
-                setFlash('success', 'शाखा अपडेट भयो।');
+                setFlash('success', 'सेवा कार्यालय अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
             $db->prepare("DELETE FROM service_centers WHERE id=?")->execute([$_POST['id']]);
-            setFlash('success', 'शाखा मेटाइयो।');
+            setFlash('success', 'सेवा कार्यालय मेटाइयो।');
         }
     } catch (Exception $e) {
         setFlash('error', 'त्रुटि भयो।');
@@ -61,9 +61,9 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 ?>
 
 <?php echo adminPageHeader(
-    'शाखा व्यवस्थापन',
+    'सेवा कार्यालय व्यवस्थापन',
     'fa-map-marker-alt',
-    'संस्थाका कार्यालय तथा शाखाहरू।',
+    'संस्थाका कार्यालय तथा सेवा कार्यालयहरू।',
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($centers) . '</span>'
     . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($centersLive) . '</span>'
     . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($centersArch) . '</span>'
@@ -80,7 +80,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sc-list" id="sc-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>शाखा सूची
+            <i class="fas fa-list me-2"></i>सेवा कार्यालय सूची
             <span class="badge bg-success ms-1"><?php echo count($centers); ?></span>
         </button>
     </li>
@@ -114,7 +114,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <thead>
                             <tr>
                                 <th width="70" class="text-center">क्रम</th>
-                                <th class="ps-3">शाखाको नाम</th>
+                                <th class="ps-3">सेवा कार्यालयको नाम</th>
                                 <th>ठेगाना</th>
                                 <th width="130">फोन</th>
                                 <th width="110" class="text-center">प्रदेश</th>
@@ -126,12 +126,12 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                             <?php if (empty($centers)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
                                 <i class="fas fa-map-marker-alt fa-3x mb-2 d-block opacity-25"></i>
-                                कुनै शाखा छैन। माथिको "नयाँ थप्नुहोस्" बटन थिच्नुहोस्।
+                                कुनै सेवा कार्यालय छैन। माथिको "नयाँ थप्नुहोस्" बटन थिच्नुहोस्।
                             </td></tr>
                             <?php elseif (empty($centersLive)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
                                 <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
-                                सक्रिय शाखा छैन। अभिलेख हेर्नुहोस्।
+                                सक्रिय सेवा कार्यालय छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
                             <?php foreach ($centersLive as $c): ?>
@@ -167,7 +167,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                             title="सम्पादन">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो शाखा मेटाउन निश्चित हुनुहुन्छ?')">
+                                    <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो सेवा कार्यालय मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
@@ -186,7 +186,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <thead>
                             <tr>
                                 <th width="70" class="text-center">क्रम</th>
-                                <th class="ps-3">शाखाको नाम</th>
+                                <th class="ps-3">सेवा कार्यालयको नाम</th>
                                 <th>ठेगाना</th>
                                 <th width="130">फोन</th>
                                 <th width="110" class="text-center">प्रदेश</th>
@@ -198,7 +198,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                             <?php if (empty($centersArch)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
                                 <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
-                                अभिलेखमा कुनै शाखा छैन।
+                                अभिलेखमा कुनै सेवा कार्यालय छैन।
                             </td></tr>
                             <?php endif; ?>
                             <?php foreach ($centersArch as $c): ?>
@@ -234,7 +234,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                             title="सम्पादन">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो शाखा मेटाउन निश्चित हुनुहुन्छ?')">
+                                    <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो सेवा कार्यालय मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
@@ -257,7 +257,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
         <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
                 <h5 class="mb-0 fw-bold" id="scFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ शाखा थप्नुहोस्
+                    <i class="fas fa-plus-circle me-2"></i>नयाँ सेवा कार्यालय थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelSc">
                     <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
@@ -271,8 +271,8 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">शाखाको नाम (नेपाली) <span class="text-danger">*</span></label>
-                            <input type="text" name="name_np" id="scf_name_np" class="form-control admin-fancy-input" required placeholder="शाखाको नाम नेपालीमा">
+                            <label class="form-label fw-semibold text-success">सेवा कार्यालयको नाम (नेपाली) <span class="text-danger">*</span></label>
+                            <input type="text" name="name_np" id="scf_name_np" class="form-control admin-fancy-input" required placeholder="सेवा कार्यालयको नाम नेपालीमा">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-success">Branch Name (English)</label>
@@ -306,7 +306,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <div class="col-md-4">
                             <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="scf_order" class="form-control admin-fancy-input" value="0" min="0" step="1">
-                            <small class="text-muted">सानो नम्बर पहिले देखिन्छ (०, १, २…). मुख्य शाखा स्वतः अगाडि।</small>
+                            <small class="text-muted">सानो नम्बर पहिले देखिन्छ (०, १, २…). मुख्य सेवा कार्यालय स्वतः अगाडि।</small>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold text-success">Google Map URL</label>
@@ -315,7 +315,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <div class="col-md-6">
                             <div class="form-check form-switch fs-5">
                                 <input class="form-check-input" type="checkbox" name="is_main_branch" id="scf_main">
-                                <label class="form-check-label fw-semibold" for="scf_main">मुख्य शाखा</label>
+                                <label class="form-check-label fw-semibold" for="scf_main">मुख्य सेवा कार्यालय</label>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('scf_active').checked = true;
         document.getElementById('scf_province').selectedIndex = 0;
         document.getElementById('scf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ शाखा थप्नुहोस्';
+        document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ सेवा कार्यालय थप्नुहोस्';
         document.getElementById('scFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (sel.options[i].value === d.province) { sel.selectedIndex = i; break; }
             }
             document.getElementById('scf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>शाखा सम्पादन';
+            document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>सेवा कार्यालय सम्पादन';
             document.getElementById('scFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

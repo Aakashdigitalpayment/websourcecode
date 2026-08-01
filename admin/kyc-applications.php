@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin: KYC आवेदन व्यवस्थापन — kyc-applications.php
+ * Admin: केवाइएम आवेदन व्यवस्थापन — kyc-applications.php
  * =====================================================
  * feedbacks.php pattern: ?view=ID → full-page detail + edit form।
  * Modal पूर्ण रूपले हटाइयो।
@@ -10,7 +10,7 @@
 if (!ob_get_level()) {
     ob_start();
 }
-$pageTitle   = 'केवाइसी आवेदन व्यवस्थापन';
+$pageTitle   = 'केवाइएम आवेदन व्यवस्थापन';
 $currentPage = 'kyc';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -382,7 +382,7 @@ if (isset($_POST['import_kyc_csv'])) {
     redirect('kyc-applications.php');
 }
 
-/* ── Helper: KYC approve भएमा ID card auto-generate गर्ने ── */
+/* ── Helper: KYM approve भएमा ID card auto-generate गर्ने ── */
 function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail, string $kycMobile): void {
     try {
         /* member_auth.php include भएको अपेक्षा */
@@ -449,7 +449,7 @@ if (isset($_POST['update_status'])) {
         redirect('kyc-applications.php?view=' . $id);
     }
 
-    // एउटै member_id को active KYC duplicate रोक्ने
+    // एउटै member_id को active KYM duplicate रोक्ने
     try {
         $dup = $db->prepare("SELECT id FROM kyc_applications
                              WHERE member_id=? AND id<>?
@@ -457,7 +457,7 @@ if (isset($_POST['update_status'])) {
                              LIMIT 1");
         $dup->execute([$editMemberId, $id]);
         if ($dup->fetch(PDO::FETCH_ASSOC)) {
-            setFlash('error', 'यो Member ID अर्को active KYC मा प्रयोग भएको छ।');
+            setFlash('error', 'यो Member ID अर्को active KYM मा प्रयोग भएको छ।');
             redirect('kyc-applications.php?view=' . $id);
         }
     } catch (Throwable $e) {}
@@ -505,7 +505,7 @@ if (isset($_POST['update_status'])) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                     $notifyOutcome['sms']   = $r['sms']   ?? $notifyOutcome['sms'];
                 }
-                /* KYC approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved + want_id_card = 1 → ID card auto-generate */
                 if ($status === 'approved') {
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
@@ -573,7 +573,7 @@ if (isset($_POST['quick_status'])) {
             if ($nd) {
                 sendMemberStatusUpdate('kyc', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??'');
                 $notifySent = true;
-                /* KYC approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved + want_id_card = 1 → ID card auto-generate */
                 if ($qst === 'approved') {
                     kycAutoGenerateIdCard($db, $qid, $nd['email'] ?? '', $nd['mobile'] ?? '');
                 }
@@ -721,11 +721,11 @@ $statusLabel = ['pending'=>'पेन्डिङ','approved'=>'स्वीक�
 /* ─── Page Header ─── */
 if ($viewApp) {
     $trackId = $viewApp['tracking_id'] ?? 'KYC-' . str_pad($viewApp['id'], 6, '0', STR_PAD_LEFT);
-    echo adminPageHeader('KYC आवेदन विवरण', 'fa-user-check',
+    echo adminPageHeader('केवाइएम आवेदन विवरण', 'fa-user-check',
         'Tracking: ' . $trackId,
         adminBackBtn('kyc-applications.php', 'KYC सूचीमा फर्किनुहोस्'));
 } else {
-    echo adminPageHeader('केवाइसी आवेदन व्यवस्थापन', 'fa-user-check',
+    echo adminPageHeader('केवाइएम आवेदन व्यवस्थापन', 'fa-user-check',
         'सदस्यहरूको KYC अद्यावधिक आवेदनहरू — समीक्षा र स्थिति अपडेट',
         adminStatLink('?status=pending', 'danger', 'पेन्डिङ', $pendingCount)
         . ' ' . adminStatLink('kyc-applications.php', 'secondary', 'जम्मा', $total));
@@ -744,7 +744,7 @@ if ($viewApp):
 <div class="card shadow-sm mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-user-check me-2"></i>KYC आवेदन विवरण
+            <i class="fas fa-user-check me-2"></i>केवाइएम आवेदन विवरण
             <code class="apt-track-chip">
                 <?php echo htmlspecialchars($trackId); ?>
             </code>
@@ -881,7 +881,7 @@ if ($viewApp):
                             <td><?php echo htmlspecialchars($viewApp['monthly_income'] ?? '—'); ?></td></tr>
                         <tr><th>खाता प्रकार</th>
                             <td><?php echo htmlspecialchars($viewApp['account_type'] ?: '—'); ?></td></tr>
-                        <tr><th>शाखा</th>
+                        <tr><th>सेवा कार्यालय</th>
                             <td><?php echo htmlspecialchars(str_replace('_',' ',ucwords($viewApp['branch'] ?? '—'))); ?></td></tr>
                         <tr><th>Tracking ID</th>
                             <td><code class="text-success fw-bold"><?php echo htmlspecialchars($viewApp['tracking_id'] ?? '—'); ?></code></td></tr>
@@ -1287,12 +1287,12 @@ if ($viewApp):
 
                         <hr class="my-3">
                         <form method="POST"
-                              onsubmit="return confirm('के तपाईं यो KYC आवेदन स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
+                              onsubmit="return confirm('के तपाईं यो केवाइएम आवेदन स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete" value="1">
                             <input type="hidden" name="delete_id" value="<?php echo $viewApp['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो KYC आवेदन मेटाउनुहोस्
+                                <i class="fas fa-trash me-1"></i>यो केवाइएम आवेदन मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -1421,7 +1421,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
 <!-- ── KYC Table ── -->
 <div class="card border-0 shadow-sm app-rounded-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-user-check me-2 text-primary"></i>KYC आवेदन सूची</h6>
+        <h6><i class="fas fa-user-check me-2 text-primary"></i>केवाइएम आवेदन सूची</h6>
         <span class="result-count-badge"><?php echo $total; ?> आवेदन</span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -1432,7 +1432,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                     <th>Member ID</th>
                     <th>सम्पर्क</th>
                     <th>नागरिकता</th>
-                    <th>खाता / शाखा</th>
+                    <th>खाता / सेवा कार्यालय</th>
                     <th>Tracking ID</th>
                     <th>दर्ता मिति</th>
                     <th>स्थिति</th>
@@ -1441,7 +1441,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </thead>
             <tbody>
             <?php if (empty($applications)): ?>
-            <tr class="no-results-row"><td colspan="9"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै KYC आवेदन फेला परेन।</td></tr>
+            <tr class="no-results-row"><td colspan="9"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
             <?php else: foreach ($applications as $app):
                 $trackId = $app['tracking_id'] ?: 'KYC-' . str_pad($app['id'], 6, '0', STR_PAD_LEFT);
                 $initLetter = mb_strtoupper(mb_substr($app['full_name'] ?? 'K', 0, 1));
@@ -1466,7 +1466,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                     <?php if ($app['email']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['email']); ?></div><?php endif; ?>
                 </td>
                 <td data-label="नागरिकता"><div class="cell-sub"><?php echo htmlspecialchars($app['citizenship_no'] ?: '—'); ?></div></td>
-                <td data-label="खाता / शाखा">
+                <td data-label="खाता / सेवा कार्यालय">
                     <div class="cell-main"><?php echo htmlspecialchars($app['account_type'] ?: '—'); ?></div>
                     <?php if ($app['branch']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['branch']); ?></div><?php endif; ?>
                 </td>
@@ -1481,7 +1481,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                            style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
                         <?php echo adminPrintFormIcon('kyc', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending'): ?>
-                        <form method="POST" class="qaction-form" onsubmit="return confirm('KYC स्वीकृत गर्नुहुन्छ?')">
+                        <form method="POST" class="qaction-form" onsubmit="return confirm('केवाइएम स्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
                             <input type="hidden" name="quick_id" value="<?php echo $app['id']; ?>">

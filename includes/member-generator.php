@@ -38,7 +38,7 @@ function _sendCredentialsEmail(string $email, string $name, string $memberId, st
         $loginUrl = function_exists('getSetting') ? rtrim(getSetting('site_url', defined('SITE_URL') ? SITE_URL : ''), '/') . '/member/' : '/member/';
         $subject  = htmlspecialchars($siteName) . ' — सदस्य पोर्टल credentials';
         $body = "<p>नमस्ते <b>" . htmlspecialchars($name) . "</b>,</p>
-            <p>तपाईंको KYC स्वीकृत भयो र सदस्य पोर्टल खाता सक्रिय गरिएको छ।</p>
+            <p>तपाईंको केवाइएम स्वीकृत भयो र सदस्य पोर्टल खाता सक्रिय गरिएको छ।</p>
             <table cellpadding='8' style='border-collapse:collapse;border:1px solid #ccc;'>
               <tr><td><b>Member ID</b></td><td>" . htmlspecialchars($memberId) . "</td></tr>
               <tr><td><b>Password</b></td><td>" . htmlspecialchars($password) . "</td></tr>
@@ -59,18 +59,18 @@ function generateMemberFromKyc(PDO $pdo, int $kycId, int $adminId): array {
         $kyc = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$kyc) {
             $pdo->rollBack();
-            return ['ok' => false, 'message' => 'KYC आवेदन फेला परेन।'];
+            return ['ok' => false, 'message' => 'केवाइएम आवेदन फेला परेन।'];
         }
         if ($kyc['status'] !== 'approved') {
             $pdo->rollBack();
-            return ['ok' => false, 'message' => 'पहिले KYC approve गर्नुहोस्, अनि मात्र member create गर्न मिल्छ।'];
+            return ['ok' => false, 'message' => 'पहिले KYM approve गर्नुहोस्, अनि मात्र member create गर्न मिल्छ।'];
         }
         if (!empty($kyc['member_id_generated'])) {
             $pdo->commit();
             return ['ok' => true,
                     'member_id' => $kyc['member_id_generated'],
                     'password'  => '••••••• (पहिले नै create भइसकेको)',
-                    'message'   => 'यो KYC बाट पहिले नै सदस्य create भइसकेको छ।'];
+                    'message'   => 'यो KYM बाट पहिले नै सदस्य create भइसकेको छ।'];
         }
 
         $branchCode = str_pad((string) ($kyc['branch_code'] ?? '00'), 2, '0', STR_PAD_LEFT);

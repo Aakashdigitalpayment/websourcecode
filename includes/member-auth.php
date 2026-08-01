@@ -399,7 +399,7 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
     /* KYC phone validation — disabled by default (enable in admin if needed) */
     // if ($phone && !$googleId && !$facebookId) {
     //     if (!validatePhoneAgainstKYC($phone)) {
-    //         return ['error' => 'यो मोबाइल नम्बर KYC रेकर्डमा फेला परेन।'];
+    //         return ['error' => 'यो मोबाइल नम्बर केवाइएम रेकर्डमा फेला परेन।'];
     //     }
     // }
 
@@ -549,7 +549,7 @@ function memberOAuthLogin($provider, $providerId, $name, $email, $avatarUrl = ''
         $st->execute([$email]);
         $m = $st->fetch(PDO::FETCH_ASSOC);
         if ($m) {
-            // Existing account लाई OAuth सँग link गर्दा KYC बाट missing identity sync गर्ने
+            // Existing account लाई OAuth सँग link गर्दा KYM बाट missing identity sync गर्ने
             $syncSid = trim((string)($m['sadasyata_number'] ?? ''));
             $syncPhone = preg_replace('/[^0-9]/', '', (string)($m['phone'] ?? ''));
             $syncName = trim((string)($m['name'] ?? ''));
@@ -908,7 +908,7 @@ function getMemberApplications($email, $phone, $limit = 50, $memberId = null) {
         ['table' => 'appointments',        'service' => 'भेटघाट',         'icon' => 'fa-calendar-check',    'color' => 'var(--primary-color)',
          'contact' => 'phone', 'member_col' => null,
          'fields' => 'id, name as full_name, phone, email, preferred_date as app_date, purpose as detail, status, tracking_id, created_at, branch'],
-        ['table' => 'kyc_applications',    'service' => 'KYC दर्ता',      'icon' => 'fa-id-card',            'color' => 'var(--secondary-color,#c0392b)',
+        ['table' => 'kyc_applications',    'service' => 'केवाइएम दर्ता',      'icon' => 'fa-id-card',            'color' => 'var(--secondary-color,#c0392b)',
          'contact' => 'mobile', 'member_col' => 'member_id',
          'fields' => 'id, full_name, mobile as phone, email, NULL as app_date, account_type as detail, status, tracking_id, created_at, branch, member_id'],
         ['table' => 'loan_applications',   'service' => 'ऋण आवेदन',      'icon' => 'fa-hand-holding-usd',   'color' => '#6a1b9a',
@@ -1091,7 +1091,7 @@ function createMemberStatusNotification($type, $email, $phone, $name, $status, $
 
     $memberId = $member['id'];
     $serviceLabels = [
-        'appointment' => 'भेटघाट', 'kyc' => 'KYC दर्ता', 'loan' => 'ऋण आवेदन',
+        'appointment' => 'भेटघाट', 'kyc' => 'केवाइएम दर्ता', 'loan' => 'ऋण आवेदन',
         'account' => 'खाता आवेदन', 'grievance' => 'गुनासो', 'welfare' => 'कल्याण दाबी',
         'job' => 'जागिर आवेदन', 'digital_service' => 'डिजिटल सेवा',
         'honor_application' => 'सम्मान आवेदन',

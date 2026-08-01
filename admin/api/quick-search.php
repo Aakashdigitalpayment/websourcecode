@@ -55,7 +55,7 @@ try {
     }
 } catch (Throwable $e) { /* table may not exist yet */ }
 
-/* ── 2. KYC Applications ─────────────────────────────────────────── */
+/* ── 2. KYM Applications ─────────────────────────────────────────── */
 try {
     $stmt = $db->prepare(
         'SELECT id, full_name, full_name_en, mobile, status

@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$is_anonymous && $loggedMember) {
             $v = loadKycRowForLoggedMemberPublic($db, $loggedMember);
             if (!$v || strtolower(trim((string)($v['status'] ?? ''))) !== 'approved') {
-                $error = isEnglish() ? 'KYC verification is required to file grievance as member.' : 'सदस्यका रूपमा गुनासो दर्ता गर्न KYC verified (approved) हुनुपर्छ।';
+                $error = isEnglish() ? 'KYM verification is required to file grievance as member.' : 'सदस्यका रूपमा गुनासो दर्ता गर्न KYC verified (approved) हुनुपर्छ।';
             }
             if ($v) {
                 $name = trim((string)($v['full_name'] ?? $loggedMember['name'] ?? $name));
@@ -326,7 +326,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
                             <div class="d-flex flex-wrap gap-3">
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-grv-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
-                                <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-grv-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYC)' : 'हो (Member ID आधारित KYC)'; ?></label>
+                                <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-grv-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYM)' : 'हो (Member ID आधारित KYM)'; ?></label>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -373,7 +373,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <option value="staff"><?php echo isEnglish() ? 'Staff Behavior' : 'कर्मचारी व्यवहार'; ?></option>
                                         <option value="loan"><?php echo isEnglish() ? 'Loan Related' : 'ऋण सम्बन्धी'; ?></option>
                                         <option value="account"><?php echo isEnglish() ? 'Account Related' : 'खाता सम्बन्धी'; ?></option>
-                                        <option value="branch"><?php echo isEnglish() ? 'Branch Related' : 'शाखा सम्बन्धी'; ?></option>
+                                        <option value="branch"><?php echo isEnglish() ? 'Service Office Related' : 'सेवा कार्यालय सम्बन्धी'; ?></option>
                                         <option value="other"><?php echo isEnglish() ? 'Other' : 'अन्य'; ?></option>
                                     </select>
                                 </div>
@@ -428,7 +428,7 @@ function applyGrievancePersonalFieldsState() {
 
     if (personalSection) personalSection.style.opacity = '1';
 
-    /* सदस्य हो + गुप्त होइन: इमेल KYC बाट — लुकाउने */
+    /* सदस्य हो + गुप्त होइन: इमेल KYM बाट — लुकाउने */
     hiddenCoop.forEach(function (el) {
         el.style.display = coopYes && !isAnonymous ? 'none' : '';
     });

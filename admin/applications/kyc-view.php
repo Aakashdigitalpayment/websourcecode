@@ -1,6 +1,6 @@
 <?php
 /**
- * KYC Application Detail View
+ * KYM Application Detail View
  */
 require_once __DIR__ . '/../_bootstrap.php';
 requireAdminLogin();
@@ -100,7 +100,7 @@ $lbl = ['pending'=>'पेन्डिङ','approved'=>'स्वीकृत','
         <?php if ($s !== 'approved'): ?>
         <button type="submit" name="action" value="approved"
                 class="admin-btn admin-btn-primary"
-                onclick="return confirm('KYC स्वीकृत गर्नुहुन्छ?')">
+                onclick="return confirm('केवाइएम स्वीकृत गर्नुहुन्छ?')">
           <i class="fas fa-check-circle"></i> स्वीकृत गर्नुहोस्
         </button>
         <?php endif; ?>
@@ -166,7 +166,7 @@ if ($docs):
 <script>
 const CSRF = <?php echo json_encode($csrf); ?>;
 async function generateMember(kycId, btn) {
-  if (!confirm('यो KYC बाट सदस्य खाता बनाउने?')) return;
+  if (!confirm('यो KYM बाट सदस्य खाता बनाउने?')) return;
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
   try {

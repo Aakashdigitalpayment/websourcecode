@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($isCoopMember === 'yes') {
             if (!function_exists('verifyPublicFormKycApprovedByMemberId')) {
                 $error = isEnglish()
-                    ? 'KYC verification service is temporarily unavailable. Please try again.'
+                    ? 'KYM verification service is temporarily unavailable. Please try again.'
                     : 'KYC प्रमाणीकरण सेवा हाल उपलब्ध छैन। कृपया पुनः प्रयास गर्नुहोस्।';
             } else {
                 $v = verifyPublicFormKycApprovedByMemberId($db, $_POST['member_id'] ?? '');
@@ -369,7 +369,7 @@ $claimTypes = [
                         <?php echo csrfField(); ?>
                         <?php if ($loggedMember): ?>
                         <div class="alert alert-success py-2 small mb-3">
-                            <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — member details from profile / KYC.' : 'लगइन — सदस्य विवरण प्रोफाइल / KYC बाट।'; ?>
+                            <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — member details from profile / KYC.' : 'लगइन — सदस्य विवरण प्रोफाइल / KYM बाट।'; ?>
                         </div>
                         <?php else: ?>
                         <div class="border rounded-3 p-3 mb-3 bg-light">

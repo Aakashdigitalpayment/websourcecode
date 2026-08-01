@@ -89,7 +89,7 @@ $L = getLangStrings();
                             <div class="accordion-body">
                                 <?php echo isEnglish()
                                     ? 'To become a member, you need to visit our nearest branch with valid citizenship documents, 2 passport-size photos, and fill out the membership form. A minimum share capital is required which varies by membership type.'
-                                    : 'सदस्य बन्नको लागि, तपाईंले हाम्रो नजिकको शाखामा वैध नागरिकताको कागजात, २ पासपोर्ट साइजको फोटो लिएर आउनु पर्छ र सदस्यता फारम भर्नुपर्छ।'; ?>
+                                    : 'सदस्य बन्नको लागि, तपाईंले हाम्रो नजिकको सेवा कार्यालयमा वैध नागरिकताको कागजात, २ पासपोर्ट साइजको फोटो लिएर आउनु पर्छ र सदस्यता फारम भर्नुपर्छ।'; ?>
                             </div>
                         </div>
                     </div>
@@ -137,7 +137,7 @@ $L = getLangStrings();
                             <div class="accordion-body">
                                 <?php echo isEnglish()
                                     ? 'Our branches are open Sunday to Friday, 10:00 AM to 5:00 PM. Some branches may have extended hours.'
-                                    : 'हाम्रा शाखाहरू आइतबारदेखि शुक्रबारसम्म, बिहान १०:०० बजेदेखि साँझ ५:०० बजेसम्म खुल्छन्।'; ?>
+                                    : 'हाम्रा सेवा कार्यालयहरू आइतबारदेखि शुक्रबारसम्म, बिहान १०:०० बजेदेखि साँझ ५:०० बजेसम्म खुल्छन्।'; ?>
                             </div>
                         </div>
                     </div>

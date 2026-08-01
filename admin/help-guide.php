@@ -37,7 +37,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <a href="#sec-dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
 
     <div class="grp">आवेदन व्यवस्थापन</div>
-    <a href="#sec-kyc"><i class="fas fa-id-card"></i>KYC आवेदन</a>
+    <a href="#sec-kyc"><i class="fas fa-id-card"></i>केवाइएम आवेदन</a>
     <a href="#sec-loan"><i class="fas fa-hand-holding-usd"></i>ऋण आवेदन</a>
     <a href="#sec-account"><i class="fas fa-piggy-bank"></i>खाता आवेदन</a>
     <a href="#sec-digital"><i class="fas fa-mobile-screen"></i>डिजिटल सेवा अनुरोध</a>
@@ -140,12 +140,12 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 4. KYC ══ -->
     <section id="sec-kyc" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-id-card"></i></span> KYC आवेदन व्यवस्थापन</h3>
-      <p>सदस्यले online-kyc.php बाट पेश गरेका KYC आवेदन यहाँ आउँछन्।</p>
+      <h3><span class="hg-icon"><i class="fas fa-id-card"></i></span> केवाइएम आवेदन व्यवस्थापन</h3>
+      <p>सदस्यले online-kyc.php बाट पेश गरेका केवाइएम आवेदन यहाँ आउँछन्।</p>
 
       <h5>📋 KYC List हेर्ने र Review गर्ने:</h5>
       <ol class="hg-steps-list">
-        <li>बायाँ menu → <b>KYC आवेदन</b> click गर्नुहोस् (वा <a href="kyc-applications.php">यहाँ click गर्नुहोस्</a>)।</li>
+        <li>बायाँ menu → <b>केवाइएम आवेदन</b> click गर्नुहोस् (वा <a href="kyc-applications.php">यहाँ click गर्नुहोस्</a>)।</li>
         <li>Filter गर्न सक्नुहुन्छ: <code>Pending</code>, <code>Under Review</code>, <code>Approved</code>, <code>Rejected</code>।</li>
         <li>कुनै आवेदनको <span class="kbd">View</span> button click गर्नुहोस् — पूरो details खुल्छ।</li>
         <li>सबै documents (citizenship, photo, signature) हेर्नुहोस्।</li>
@@ -195,7 +195,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <div class="hg-info">
         ✨ <b>EMI Calculator:</b> <a href="../emi-calculator.php" target="_blank">Public EMI Calculator</a> बाट ऋण सम्बन्धी हिसाब गर्न सकिन्छ।
       </div>
-      <div class="hg-warn">⚠️ ऋण approve गर्नु अगाडि KYC approved छ कि check गर्नुहोस्।</div>
+      <div class="hg-warn">⚠️ ऋण approve गर्नु अगाडि KYM approved छ कि check गर्नुहोस्।</div>
     </section>
 
     <!-- ══ 6. ACCOUNT ══ -->
@@ -304,7 +304,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>Portal temp password: <em>मोबाइलको पछिल्लो ४ अङ्क + सदस्यता नं. का पछिल्लो ४ अङ्क</em>। Bulk SMS पठाइँदैन।</li>
       </ol>
       <div class="hg-info">
-        ✨ Online KYC भरेर आउने नयाँ सदस्यको लागि अझै <a href="kyc-applications.php">KYC Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a> use गर्नुहोस्। Bulk Import पुराना सूचीका लागि हो।
+        ✨ Online KYM भरेर आउने नयाँ सदस्यको लागि अझै <a href="kyc-applications.php">KYM Applications</a> / <a href="kyc-import-sample.php">KYC CSV</a> use गर्नुहोस्। Bulk Import पुराना सूचीका लागि हो।
       </div>
 
       <h5>➕ नयाँ Member थप्ने (Admin बाट):</h5>
@@ -725,9 +725,9 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <a href="info-officer.php">Info Officer</a> page मा सूचना अधिकारीको नाम र सम्पर्क set गर्नुहोस् — Right to Information (RTI) का लागि।
       </div>
 
-      <h5>🏢 Service Centers / Branches:</h5>
+      <h5>🏢 Service Offices / सेवा कार्यालय:</h5>
       <div class="hg-step">
-        <a href="service-centers.php">Service Centers</a> page मा सबै शाखाहरूको नाम, ठेगाना, फोन, नक्शा link थप्नुहोस्।
+        <a href="service-centers.php">Service Centers</a> page मा सबै सेवा कार्यालयहरूको नाम, ठेगाना, फोन, नक्शा link थप्नुहोस्।
       </div>
     </section>
 

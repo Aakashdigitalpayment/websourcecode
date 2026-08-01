@@ -367,7 +367,7 @@ HTML;
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="pane-new">
     <div class="mem-autofill-banner">
       <i class="fas fa-wand-magic-sparkles"></i>
-      <div><?php echo $_t('तपाईंको नाम, फोन र ठेगाना <strong>KYC बाट auto-fill</strong> भएको छ — तल देखिन्छ। केवल दाबीको विवरण भर्नुहोस्।', 'Your name, phone and address are <strong>auto-filled from KYC</strong> — shown below. Fill only claim details.'); ?></div>
+      <div><?php echo $_t('तपाईंको नाम, फोन र ठेगाना <strong>KYM बाट auto-fill</strong> भएको छ — तल देखिन्छ। केवल दाबीको विवरण भर्नुहोस्।', 'Your name, phone and address are <strong>auto-filled from KYM</strong> — shown below. Fill only claim details.'); ?></div>
     </div>
 
     <form method="POST" enctype="multipart/form-data">
@@ -376,7 +376,7 @@ HTML;
 
       <!-- Pre-filled member info — display only, no input fields -->
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('सदस्य जानकारी (KYC बाट)', 'Member Info (from KYC)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('सदस्य जानकारी (KYM बाट)', 'Member Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item">
             <span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span>

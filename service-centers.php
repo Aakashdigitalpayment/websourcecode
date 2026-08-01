@@ -3,7 +3,7 @@ require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Service Center Network' : 'सेवा केन्द्र नेटवर्क';
 $pageDescription = isEnglish()
     ? 'Find our service centers and branch network across Nepal.'
-    : 'नेपालभर रहेका हाम्रा सेवा केन्द्र तथा शाखा नेटवर्क खोज्नुहोस्।';
+    : 'नेपालभर रहेका हाम्रा सेवा कार्यालय नेटवर्क खोज्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -214,7 +214,7 @@ $scMapLabel = isEnglish() ? 'View on Map' : 'नक्सामा हेर्�
         <!-- Contact CTA -->
         <div class="text-center mt-5">
             <p class="mb-3">
-                <?php echo isEnglish() ? 'Can\'t find a branch near you? Contact us for assistance.' : 'तपाईंको नजिक शाखा फेला पार्न सक्नुहुन्न? सहयोगको लागि हामीलाई सम्पर्क गर्नुहोस्।'; ?>
+                <?php echo isEnglish() ? 'Can\'t find a branch near you? Contact us for assistance.' : 'तपाईंको नजिक सेवा कार्यालय फेला पार्न सक्नुहुन्न? सहयोगको लागि हामीलाई सम्पर्क गर्नुहोस्।'; ?>
             </p>
             <a href="contact.php" class="btn btn-primary">
                 <i class="fas fa-phone"></i> <?php echo $L['contact_us']; ?>

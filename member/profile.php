@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_kyc_docs'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = 'Security error.';
     } elseif (!$kycRow || empty($kycRow['id'])) {
-        $error = 'KYC रेकर्ड भेटिएन।';
+        $error = 'केवाइएम रेकर्ड भेटिएन।';
     } else {
         $candidates = [];
         foreach (['photo', 'citizenship_front', 'citizenship_back', 'signature', 'left_thumb', 'right_thumb'] as $f) {
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = 'Security error.';
     } elseif ($kycLocked) {
-        $error = 'तपाईंको KYC स्वीकृत भइसकेको छ। Profile जानकारी edit गर्न Admin लाई सम्पर्क गर्नुहोस्।';
+        $error = 'तपाईंको केवाइएम स्वीकृत भइसकेको छ। Profile जानकारी edit गर्न Admin लाई सम्पर्क गर्नुहोस्।';
     } else {
         $name    = trim($_POST['name']    ?? '');
         $phone   = trim($_POST['phone']   ?? '');
@@ -426,7 +426,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                 </div>
                 <div class="mem-card-body">
                     <?php if (!$kycRow): ?>
-                        <div class="text-muted small">KYC रेकर्ड भेटिएन। <a href="<?php echo SITE_URL; ?>member/kyc.php">KYC अपडेट गर्नुहोस्</a></div>
+                        <div class="text-muted small">केवाइएम रेकर्ड भेटिएन। <a href="<?php echo SITE_URL; ?>member/kyc.php">KYC अपडेट गर्नुहोस्</a></div>
                     <?php else: ?>
                         <div class="mb-2">
                             <span class="badge <?php echo ($kycRow['status']==='approved' ? 'bg-success' : (($kycRow['status']==='pending') ? 'bg-warning text-dark' : 'bg-secondary')); ?>">

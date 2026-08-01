@@ -19,7 +19,7 @@ ksort($nepalDistricts, SORT_NATURAL | SORT_FLAG_CASE);
 $loggedMember = currentMember() ?: [];
 $isMemberLoggedIn = !empty($loggedMember);
 
-$pageTitle = isEnglish() ? 'Online KYC Form' : 'अनलाइन केवाइसी फारम';
+$pageTitle = coop_term_kym_online();
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -394,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                // एउटै member ID को active KYC: नयाँ insert होइन, existing record update गर्ने
+                // एउटै member ID को active KYM: नयाँ insert होइन, existing record update गर्ने
                 $existingKyc = null;
                 try {
                     $linkedKycId = (int)($loggedMember['kyc_application_id'] ?? 0);
@@ -547,7 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $smsToken = getSetting('notify_sms_token', '');
                             $smsSender = getSetting('notify_sms_sender_id', 'COOP');
                             if (getSetting('notify_sms_enabled', '0') === '1' && $smsToken) {
-                                $smsTxt = 'आकाश सहकारी: तपाईंको KYC आवेदन दर्ता भयो। Tracking ID: ' . $kycTrackingId . '. application-tracker.php मा track गर्नुहोस्।';
+                                $smsTxt = 'आकाश सहकारी: तपाईंको केवाइएम आवेदन दर्ता भयो। Tracking ID: ' . $kycTrackingId . '. application-tracker.php मा track गर्नुहोस्।';
                                 $ph = preg_replace('/[^0-9]/', '', $mobile);
                                 if (strlen($ph) >= 10) {
                                     $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
@@ -566,7 +566,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'इमेल'        => $email ?: 'N/A',
                         'खाता प्रकार' => $account_type ?: 'N/A',
                         'Tracking ID' => $kycTrackingId,
-                        'शाखा'        => $branch ?: 'N/A',
+                        'सेवा कार्यालय' => $branch ?: 'N/A',
                         'मिति'        => date('Y-m-d H:i'),
                     ], $kycTrackingId);
                 }
@@ -758,11 +758,11 @@ try {
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><?php echo isEnglish() ? 'Online KYC Form' : 'अनलाइन केवाइसी फारम'; ?></h1>
+        <h1><?php echo isEnglish() ? 'Online KYM Form' : 'अनलाइन केवाइएम फारम'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
-                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Online KYC' : 'अनलाइन केवाइसी'; ?></li>
+                <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Online KYM' : 'अनलाइन केवाइएम'; ?></li>
             </ol>
         </nav>
     </div>
@@ -773,7 +773,7 @@ try {
 <?php printNepalAddressJs(); ?>
 <script defer src="<?php echo SITE_URL; ?>assets/js/kyc-capture.js?v=10.9"></script>
 
-<!-- KYC Form Section -->
+<!-- KYM Form Section -->
 <section class="kyc-form-section section-padding">
     <div class="container">
         <?php if ($success): ?>
@@ -783,12 +783,12 @@ try {
               <div class="form-success-icon"><i class="fas fa-id-card-alt"></i></div>
               <h3 class="mt-3 fw-bold text-success"><?php
                 if (!empty($kycWasUpdate)) {
-                    echo isEnglish() ? 'KYC Updated Successfully!' : 'KYC सफलतापूर्वक अपडेट भयो!';
+                    echo isEnglish() ? 'KYM Updated Successfully!' : 'KYC सफलतापूर्वक अपडेट भयो!';
                 } else {
-                    echo isEnglish() ? 'KYC Application Submitted!' : 'KYC आवेदन सफलतापूर्वक पेश भयो!';
+                    echo isEnglish() ? 'KYM Application Submitted!' : 'केवाइएम आवेदन सफलतापूर्वक पेश भयो!';
                 }
               ?></h3>
-              <p class="text-muted mb-3"><?php echo isEnglish() ? 'Our team will verify your KYC and notify you soon.' : 'हाम्रो टोलीले तपाईंको KYC प्रमाणित गरी सूचना दिनेछ।'; ?></p>
+              <p class="text-muted mb-3"><?php echo isEnglish() ? 'Our team will verify your KYM and notify you soon.' : 'हाम्रो टोलीले तपाईंको केवाइएम प्रमाणित गरी सूचना दिनेछ।'; ?></p>
               <?php if ($kycTrackingId): ?>
               <div class="form-tracking-box">
                 <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID — save this!' : 'तपाईंको Tracking ID — सुरक्षित राख्नुहोस्!'; ?></div>
@@ -821,7 +821,7 @@ try {
             <div class="col-lg-10">
                 <div class="alert alert-info d-flex flex-wrap align-items-center gap-2" style="font-size:.86rem;">
                     <i class="fas fa-circle-info"></i>
-                    <span><?php echo isEnglish() ? 'New applicant? Fill the full KYC form below. Already a member? Use Quick KYC and complete remaining details from Member Portal.' : 'नयाँ आवेदक हुनुहुन्छ? तलको पूर्ण KYC भर्नुहोस्। पहिले नै सदस्य हुनुहुन्छ भने Quick KYC प्रयोग गर्नुहोस् र बाँकी Member Portal बाट पूरा गर्नुहोस्।'; ?></span>
+                    <span><?php echo isEnglish() ? 'New applicant? Fill the full KYC form below. Already a member? Use Quick KYC and complete remaining details from Member Portal.' : 'नयाँ आवेदक हुनुहुन्छ? तलको पूर्ण केवाइएम भर्नुहोस्। पहिले नै सदस्य हुनुहुन्छ भने Quick KYC प्रयोग गर्नुहोस् र बाँकी Member Portal बाट पूरा गर्नुहोस्।'; ?></span>
                     <button type="button" id="toggleQuickKycBtn" class="btn btn-sm btn-outline-primary ms-auto">
                         <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'Quick KYC (पहिलेको सदस्य)'; ?>
                     </button>
@@ -854,8 +854,8 @@ try {
                 <div class="kyc-form-box" data-aos="fade-up">
                     <div class="form-header text-center mb-4">
                         <div class="form-icon"><i class="fas fa-user-check"></i></div>
-                        <h3><?php echo isEnglish() ? 'Know Your Customer (KYC) Form' : 'ग्राहक पहिचान (केवाइसी) फारम'; ?></h3>
-                        <p><?php echo isEnglish() ? 'Fill out the form below to complete your KYC verification' : 'केवाइसी प्रमाणीकरण पूरा गर्न तलको फारम भर्नुहोस्'; ?></p>
+                        <h3><?php echo isEnglish() ? 'Know Your Member (KYM) Form' : 'सदस्य पहिचान (केवाइएम) फारम'; ?></h3>
+                        <p><?php echo isEnglish() ? 'Fill out the form below to complete your KYM verification' : 'केवाइएम प्रमाणीकरण पूरा गर्न तलको फारम भर्नुहोस्'; ?></p>
                     </div>
 
                     <form method="POST" enctype="multipart/form-data" class="kyc-form needs-validation" id="fullKymForm" novalidate>
@@ -1368,7 +1368,7 @@ try {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Branch' : 'मनपर्ने शाखा'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'मनपर्ने सेवा कार्यालय'; ?></label>
                                     <select name="branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
@@ -1498,8 +1498,8 @@ try {
                                     </div>
                                     <div style="font-size:.83rem;color:#4b7a53;margin-bottom:10px;">
                                         <?php echo isEnglish()
-                                            ? 'After your KYC is approved, the cooperative will generate a digital ID card for you.'
-                                            : 'तपाईंको KYC स्वीकृत भएपछि, सहकारीले तपाईंको लागि डिजिटल परिचय पत्र तयार पार्नेछ।'; ?>
+                                            ? 'After your KYM is approved, the cooperative will generate a digital ID card for you.'
+                                            : 'तपाईंको केवाइएम स्वीकृत भएपछि, सहकारीले तपाईंको लागि डिजिटल परिचय पत्र तयार पार्नेछ।'; ?>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="want_id_card"
@@ -1508,7 +1508,7 @@ try {
                                                style="color:var(--primary-color);cursor:pointer;">
                                             <?php echo isEnglish()
                                                 ? 'Yes, I want a Digital ID Card (auto-generated after KYC approval)'
-                                                : 'हो, मलाई डिजिटल ID कार्ड चाहिन्छ (KYC स्वीकृत भएपछि स्वतः तयार हुनेछ)'; ?>
+                                                : 'हो, मलाई डिजिटल ID कार्ड चाहिन्छ (केवाइएम स्वीकृत भएपछि स्वतः तयार हुनेछ)'; ?>
                                         </label>
                                     </div>
                                 </div>
@@ -1538,7 +1538,7 @@ try {
                         <div class="text-center" id="kymSubmitWrap">
                             <button type="submit" class="btn btn-primary btn-lg" id="kymSubmitBtn">
                     <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                                <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit KYC Application' : 'केवाइसी आवेदन पेश गर्नुहोस्'; ?>
+                                <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit KYM Application' : 'केवाइएम आवेदन पेश गर्नुहोस्'; ?>
                             </button>
                         </div>
                     </form>
@@ -1560,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', function () {
         p.style.display = showQuick ? 'block' : 'none';
         full.style.display = showQuick ? 'none' : '';
         t.innerHTML = showQuick
-            ? '<i class="fas fa-layer-group me-1"></i><?php echo isEnglish() ? 'Show Full KYC Form' : 'पूर्ण KYC फारम देखाउनुहोस्'; ?>'
+            ? '<i class="fas fa-layer-group me-1"></i><?php echo isEnglish() ? 'Show Full KYM Form' : 'पूर्ण केवाइएम फारम देखाउनुहोस्'; ?>'
             : '<i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'Quick KYC (पहिलेको सदस्य)'; ?>';
     }
 

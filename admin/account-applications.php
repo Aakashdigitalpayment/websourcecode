@@ -321,7 +321,7 @@ if ($viewApp):
                             <td><?php echo htmlspecialchars($viewApp['permanent_address'] ?: '—'); ?></td></tr>
                         <tr><th><?php echo $__t('अस्थायी ठेगाना', 'Temporary Address'); ?></th>
                             <td><?php echo htmlspecialchars($viewApp['temporary_address'] ?: '—'); ?></td></tr>
-                        <tr><th><?php echo $__t('शाखा', 'Branch'); ?></th>
+                        <tr><th><?php echo $__t('सेवा कार्यालय', 'Service Office'); ?></th>
                             <td><?php echo htmlspecialchars(str_replace('_',' ',ucwords($viewApp['branch'] ?? '—'))); ?></td></tr>
                         <tr><th><?php echo $__t('खाता प्रकार', 'Account Type'); ?></th>
                             <td><strong><?php echo htmlspecialchars($accType); ?></strong></td></tr>

@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     } elseif (!$hasOpen) {
         $errorMsg = $_t('हाल आवेदन बन्द छ।', 'Applications are closed.');
     } elseif ($memSadasyata === '') {
-        $errorMsg = $_t('सदस्य नम्बर फेला परेन। कृपया KYC / प्रोफाइल अपडेट गर्नुहोस्।', 'Member number missing. Please update KYC / profile.');
+        $errorMsg = $_t('सदस्य नम्बर फेला परेन। कृपया KYM / प्रोफाइल अपडेट गर्नुहोस्।', 'Member number missing. Please update KYC / profile.');
     } elseif (!checkRateLimit('honor_portal_' . $memberPortalId, 5, 3600)) {
         $errorMsg = $_t('धेरै अनुरोधहरू भए।', 'Too many requests.');
     } else {
@@ -165,7 +165,7 @@ require __DIR__ . '/includes/chrome.php';
     <div class="alert alert-info"><?php echo $_t('हाल कुनै खुला सम्मान आवेदन कार्यक्रम छैन।', 'No honor application program is open right now.'); ?></div>
     <?php endif; ?>
     <?php elseif ($memSadasyata === ''): ?>
-    <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। आवेदन दिन पहिले KYC / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
+    <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। आवेदन दिन पहिले KYM / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
     <?php else: ?>
     <div class="card mb-4">
         <div class="card-body">

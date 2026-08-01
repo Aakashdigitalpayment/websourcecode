@@ -567,8 +567,8 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     <a href="designations.php"><?php echo $__t('पद मास्टर', 'Post Master'); ?></a> ·
     <?php echo $__t('HR रेकर्ड =', 'HR records ='); ?>
     <a href="hrm-employees.php"><?php echo $__t('HRM कर्मचारी', 'HRM Employees'); ?></a> ·
-    <?php echo $__t('शाखा =', 'Branches ='); ?>
-    <a href="service-centers.php"><?php echo $__t('शाखाहरू', 'Branches'); ?></a>
+    <?php echo $__t('सेवा कार्यालय =', 'Service Offices ='); ?>
+    <a href="service-centers.php"><?php echo $__t('सेवा कार्यालयहरू', 'Service Offices'); ?></a>
   <?php else: ?>
     <strong><?php echo $__t('कहाँ के?', 'Where is what?'); ?></strong>
     <?php echo $__t('यहाँ = सञ्चालक/समिति सदस्य। कार्यकाल इतिहास =', 'Here = board/committee members. Tenure history ='); ?>

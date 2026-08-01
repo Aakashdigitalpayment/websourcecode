@@ -159,7 +159,7 @@ foreach ($downloads as $download) {
                             <i class="fas fa-file-pdf"></i>
                         </div>
                         <div class="download-info">
-                            <h5><?php echo isEnglish() ? 'KYC Form' : 'KYC फारम'; ?></h5>
+                            <h5><?php echo isEnglish() ? 'KYM Form' : 'केवाइएम फारम'; ?></h5>
                             <span class="file-type">PDF</span>
                         </div>
                         <button type="button" class="btn btn-secondary btn-sm" disabled title="Admin panel मा file upload गर्नुहोस्">

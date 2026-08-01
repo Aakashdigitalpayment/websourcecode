@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'इमेल'            => $email ?: 'N/A',
                     'प्रारम्भिक जम्मा' => 'Rs. ' . number_format((float)($initial_deposit ?: 0)),
                     'Tracking ID'     => $accTrackingId,
-                    'शाखा'            => $branch ?: 'N/A',
+                    'सेवा कार्यालय'     => $branch ?: 'N/A',
                     'मिति'            => date('Y-m-d H:i'),
                 ], $accTrackingId);
             } catch (Throwable $e) {
@@ -280,10 +280,10 @@ try {
                         ?>
                         <?php else: ?>
                         <div class="border rounded-3 p-3 mb-3 bg-light">
-                            <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you already a KYC-registered member?' : 'पहिले नै KYC दर्ता भएको सदस्य?'; ?></label>
+                            <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you already a KYC-registered member?' : 'पहिले नै केवाइएम दर्ता भएको सदस्य?'; ?></label>
                             <div class="d-flex flex-wrap gap-3">
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-acc-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No (new applicant)' : 'होइन'; ?></label>
-                                <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-acc-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes — Member ID + email + mobile (same as KYC)' : 'हो — सदस्यता + इमेल + मोबाइल (KYC जस्तै)'; ?></label>
+                                <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-acc-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes — Member ID + email + mobile (same as KYM)' : 'हो — सदस्यता + इमेल + मोबाइल (KYM जस्तै)'; ?></label>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -322,7 +322,7 @@ try {
                             <h5><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-acc-mid-wrap" style="display:none;">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID (KYC)' : 'सदस्यता नम्बर (KYC)'; ?> <span class="text-danger">*</span></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID (KYM)' : 'सदस्यता नम्बर (KYC)'; ?> <span class="text-danger">*</span></label>
                                     <input type="text" name="account_member_id" class="form-control js-acc-mid" autocomplete="off"
                                            value="<?php echo htmlspecialchars($_POST['account_member_id'] ?? '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Same as KYC' : 'KYC जस्तै'; ?>">
@@ -469,12 +469,12 @@ try {
 
                         <!-- Branch Selection -->
                         <div class="form-section">
-                            <h5><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Branch' : 'शाखा'; ?></h5>
+                            <h5><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Branch' : 'रुचाइएको शाखा'; ?></label>
+                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
                                     <select name="branch" class="form-select">
-                                        <option value=""><?php echo isEnglish() ? 'Select Branch' : 'शाखा छान्नुहोस्'; ?></option>
+                                        <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
                                         <option value="<?php echo $branch['name']; ?>"><?php echo $branch['name']; ?></option>
                                         <?php endforeach; ?>
@@ -489,8 +489,8 @@ try {
                             <h5><i class="fas fa-file-upload"></i> <?php echo isEnglish() ? 'Upload Documents' : 'कागजातहरू अपलोड गर्नुहोस्'; ?></h5>
                             <div class="small text-muted mb-2">
                                 <?php echo isEnglish()
-                                    ? 'Already KYC member? Documents are reused from KYC; re-upload is not required.'
-                                    : 'पहिले नै KYC सदस्य भएमा कागजात KYC बाट नै प्रयोग हुन्छ, फेरि अपलोड गर्नुपर्दैन।'; ?>
+                                    ? 'Already KYC member? Documents are reused from KYM; re-upload is not required.'
+                                    : 'पहिले नै KYC सदस्य भएमा कागजात KYM बाट नै प्रयोग हुन्छ, फेरि अपलोड गर्नुपर्दैन।'; ?>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
