@@ -16,7 +16,7 @@ header('Content-Disposition: attachment; filename="' . $filename . '"');
 header('Pragma: no-cache');
 header('Expires: 0');
 
-echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel Nepali support
+echo "\xEF\xBB\xBF"; // UTF-8 BOM for Excel
 $out = fopen('php://output', 'w');
 fputcsv($out, [
     'sadasyata_number',
@@ -29,23 +29,24 @@ fputcsv($out, [
     'branch',
     'remarks',
 ]);
+/* full_name = English (Latin) — CVV = first 3 of name + last 4 of Member ID */
 fputcsv($out, [
     '2081-00123',
-    'राम प्रसाद शर्मा',
+    'Ram Prasad Sharma',
     '9812345678',
     'ram@example.com',
-    'पोखरा-८, कास्की',
+    'Pokhara-8, Kaski',
     '1990-05-12',
     'male',
     'head_office',
-    'पुरानो सदस्य — bulk import sample',
+    'Existing member — bulk import sample (use English name for CVV)',
 ]);
 fputcsv($out, [
     '2081-00124',
-    'सीता अधिकारी',
+    'Sita Adhikari',
     '9800001122',
     '',
-    'लेखनाथ-१२, कास्की',
+    'Lekhnath-12, Kaski',
     '1992-01-01',
     'female',
     'lakeside',

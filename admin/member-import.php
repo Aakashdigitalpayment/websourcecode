@@ -150,6 +150,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                     <code>sadasyata_number</code>, <code>full_name</code>, <code>mobile</code><br>
                     Optional: <code>email</code>, <code>address</code>, <code>dob</code> (AD <code>YYYY-MM-DD</code> वा <code>DD/MM/YYYY</code>),
                     <code>gender</code>, <code>branch</code>, <code>remarks</code>
+                    <div class="mt-1"><strong>full_name = English नाम</strong> (जस्तै <code>Ram Prasad Sharma</code>) —
+                        CVV नामको पहिलो ३ अक्षरबाट बन्छ; नेपाली नामले CVV बिग्रन्छ / टाइप गर्न गाह्रो हुन्छ।</div>
                     <div class="mt-1">Import पछि KYM stub स्वतः बन्छ / खाली field soft-fill — पहिले भरिएको KYM overwrite हुँदैन।
                         बाँकी <a href="../online-kyc.php?path=member">Online KYM</a> वा portal।
                         <a href="member-ssot-duplicates.php">दोहोरो Member ID जाँच →</a>
