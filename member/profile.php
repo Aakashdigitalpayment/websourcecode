@@ -35,17 +35,9 @@ try {
         $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
     }
     if (!$kycRow) {
-        $kw = [];
-        $kp = [];
-        if (!empty($mem['email'])) { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower(trim((string)$mem['email'])); }
-        if (!empty($mem['phone'])) { $kw[] = 'mobile=?'; $kp[] = preg_replace('/[^0-9]/', '', (string)$mem['phone']); }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT *
-                                FROM kyc_applications
-                                WHERE (" . implode(' OR ', $kw) . ")
-                                ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
-            $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
+        $sid = trim((string)($mem['sadasyata_number'] ?? ''));
+        if ($sid !== '' && function_exists('memberSsotFindKycByMemberId')) {
+            $kycRow = memberSsotFindKycByMemberId($db, $sid, true);
             if ($kycRow && empty($mem['kyc_application_id'])) {
                 $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")->execute([(int)$kycRow['id'], $memberId]);
                 $mem['kyc_application_id'] = (int)$kycRow['id'];
@@ -146,7 +138,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
 
         if (!$name) $error = 'नाम राख्नुहोस्।';
         else {
-            // Single-source: KYC छ भने त्यही edit → members मा sync
             if ($kycRow && in_array((string)($kycRow['status'] ?? ''), ['pending','incomplete','partial'], true)) {
                 $db->prepare("UPDATE kyc_applications
                               SET full_name=?, mobile=?, permanent_address=?, gender=?, dob_ad=?, updated_at=NOW()
@@ -156,17 +147,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
                     memberSsotAfterKycWrite($db, (int)$kycRow['id']);
                 }
                 $_SESSION['member_name'] = $name;
+                $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
+                $mem = currentMember();
             } elseif (!$kycRow) {
                 $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
                    ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
                 $_SESSION['member_name'] = $name;
+                $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
+                $mem = currentMember();
             } else {
-                $viewName = $name;
-                $viewPhone = $phone;
-                $viewAddress = $address;
+                $st = (string)($kycRow['status'] ?? '');
+                if ($st === 'approved') {
+                    $error = 'तपाईंको केवाइएम स्वीकृत भइसकेको छ। Profile जानकारी edit गर्न Admin लाई सम्पर्क गर्नुहोस्।';
+                } elseif ($st === 'rejected') {
+                    $error = 'केवाइएम अस्वीकृत छ। Online केवाइएम बाट फेरि भरेर पठाउनुहोस्।';
+                } else {
+                    $error = 'यो अवस्थामा प्रोफाइल edit गर्न मिल्दैन।';
+                }
             }
-            $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
-            $mem = currentMember();
         }
     }
 }

@@ -523,19 +523,21 @@ if (isset($_POST['quick_status'])) {
             if ($nd) {
                 sendMemberStatusUpdate('kyc', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??'');
                 $notifySent = true;
-                /* KYM approved → SSOT link/create member stub, then ID card */
-                if ($qst === 'approved') {
-                    try {
+                /* Shared contact sync; approve मा ID card */
+                try {
+                    if (function_exists('memberSsotAfterKycWrite')) {
+                        memberSsotAfterKycWrite($db, $qid);
+                    } elseif ($qst === 'approved' && function_exists('memberSsotUpsertMemberFromKyc')) {
                         $fullKyc = $db->prepare('SELECT * FROM kyc_applications WHERE id=? LIMIT 1');
                         $fullKyc->execute([$qid]);
                         $kycRowFull = $fullKyc->fetch(PDO::FETCH_ASSOC) ?: ($nd ?: []);
                         $kycRowFull['id'] = $qid;
-                        if (function_exists('memberSsotUpsertMemberFromKyc')) {
-                            memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
-                        }
-                    } catch (Throwable $e) {
-                        error_log('[kyc-quick-approve ssot] ' . $e->getMessage());
+                        memberSsotUpsertMemberFromKyc($db, $kycRowFull, (int)($_SESSION['admin_id'] ?? 0));
                     }
+                } catch (Throwable $e) {
+                    error_log('[kyc-quick-approve ssot] ' . $e->getMessage());
+                }
+                if ($qst === 'approved') {
                     kycAutoGenerateIdCard($db, $qid, $nd['email'] ?? '', $nd['mobile'] ?? '');
                 }
             }
