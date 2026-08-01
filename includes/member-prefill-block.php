@@ -16,7 +16,7 @@
 if (empty($loggedMember)) return;
 
 $_pEn   = function_exists('isEnglish') ? isEnglish() : false;
-$_pt    = $prefillTitle ?? ($_pEn ? 'Your Info (from KYC / Profile)' : 'तपाईंको जानकारी (KYC / प्रोफाइलबाट)');
+$_pt    = $prefillTitle ?? ($_pEn ? 'Your Info (from KYM / Profile)' : 'तपाईंको जानकारी (KYM / प्रोफाइलबाट)');
 $_krow  = $kycForDisplay ?? null;
 
 /* Resolve display values */
@@ -32,8 +32,8 @@ $_pfAddr    = trim((string)(is_array($_krow) && !empty($_krow['permanent_address
 <div class="coop-prefill-banner">
     <i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i>
     <div><?php echo $_pEn
-        ? 'Your name, member no., phone and email are <strong>auto-filled from KYC / Profile</strong>. Fill only the request details below.'
-        : 'तपाईंको नाम, सदस्य नं., फोन र इमेल <strong>KYC / प्रोफाइलबाट auto-fill</strong> भएको छ। तल केवल अनुरोधको विवरण भर्नुहोस्।'; ?></div>
+        ? 'Your name, member no., phone and email are <strong>auto-filled from KYM / Profile</strong>. Fill only the request details below.'
+        : 'तपाईंको नाम, सदस्य नं., फोन र इमेल <strong>KYM / प्रोफाइलबाट auto-fill</strong> भएको छ। तल केवल अनुरोधको विवरण भर्नुहोस्।'; ?></div>
 </div>
 
 <div class="coop-prefill-block">

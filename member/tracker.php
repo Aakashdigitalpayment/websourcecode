@@ -273,7 +273,7 @@ require __DIR__ . '/includes/chrome.php';
                 $labelMap = [
                     'full_name'=>'नाम','name'=>'नाम','email'=>'इमेल','phone'=>'फोन','mobile'=>'मोबाइल',
                     'status'=>'अवस्था','created_at'=>'दर्ता मिति','tracking_id'=>'Tracking ID',
-                    'branch'=>'शाखा','purpose'=>'उद्देश्य','loan_type'=>'ऋण प्रकार','loan_amount'=>'ऋण रकम',
+                    'branch'=>'सेवा कार्यालय','purpose'=>'उद्देश्य','loan_type'=>'ऋण प्रकार','loan_amount'=>'ऋण रकम',
                     'account_type'=>'खाता प्रकार','subject'=>'विषय','claim_type'=>'दाबी प्रकार',
                     'preferred_date'=>'मिति','preferred_time'=>'समय','description'=>'विवरण',
                     'admin_response'=>'Admin प्रतिक्रिया','remarks'=>'Admin टिप्पणी',

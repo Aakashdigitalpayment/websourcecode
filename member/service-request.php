@@ -48,7 +48,7 @@ $rBranch    = trim((string)($kycRow['branch'] ?? ''));
 
 /* Service type options with target table/purpose */
 $serviceTypes = [
-    'appointment'       => ['label' => $_t('📅 भेटघाट — शाखा भ्रमण / भेट माग्ने','📅 Appointment — Branch visit request'),      'table' => 'appointments', 'purpose' => 'other'],
+    'appointment'       => ['label' => $_t('📅 भेटघाट — सेवा कार्यालय भ्रमण / भेट माग्ने','📅 Appointment — Service office visit request'),      'table' => 'appointments', 'purpose' => 'other'],
     'loan_inquiry'      => ['label' => $_t('💰 ऋण जानकारी — कर्जा सम्बन्धी सोधपुछ','💰 Loan Inquiry — Ask about loans'), 'table' => 'appointments', 'purpose' => 'loan_inquiry'],
     'account_info'      => ['label' => $_t('🏦 खाता जानकारी — बचत खाता सम्बन्धी','🏦 Account Info — Savings account related'),   'table' => 'appointments', 'purpose' => 'account_inquiry'],
     'welfare_inquiry'   => ['label' => $_t('❤️ कल्याण सोधपुछ — सुविधा जानकारी','❤️ Welfare Inquiry — Benefit information'),    'table' => 'appointments', 'purpose' => 'other'],
@@ -193,7 +193,7 @@ HTML;
   <div class="wf-pane <?= $srActiveTab==='new'?'active':'' ?>" id="sr-pane-new">
     <div class="mem-autofill-banner">
       <i class="fas fa-wand-magic-sparkles"></i>
-      <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार र सन्देश मात्र भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYC/profile</strong>. Only select service type and message.'); ?></div>
+      <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार र सन्देश मात्र भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>. Only select service type and message.'); ?></div>
     </div>
 
     <form method="POST">
@@ -201,7 +201,7 @@ HTML;
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYC बाट)', 'Your Info (from KYC)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -245,7 +245,7 @@ HTML;
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-building ico-primary"></i><?php echo $_t('शाखा', 'Branch'); ?></label>
+        <label class="mem-form-label"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
         <input type="text" name="branch" class="mem-form-control" value="<?= htmlspecialchars($rBranch) ?>" placeholder="<?php echo $_t('जस्तै: प्रधान कार्यालय', 'e.g., Head Office'); ?>">
       </div>
 

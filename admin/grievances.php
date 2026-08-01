@@ -4,7 +4,11 @@
  * ================================================
  * feedbacks.php जस्तै full-page detail/edit view।
  * Modal हटाइयो — ?view=ID बाट detail page खुल्छ।
+ * Excel: ?export=csv (+ filters) वा ?export=csv&id=N
  */
+if (!ob_get_level()) {
+    ob_start();
+}
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -40,6 +44,7 @@ require_once __DIR__ . '/../includes/auth-roles.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') require_role('admin');
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 
 /* ─── POST handlers ─── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -190,6 +195,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $qs = http_build_query([
             'status' => $redSt,
             'search' => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
+            'date_from' => trim((string)($_GET['date_from'] ?? '')),
+            'date_to'   => trim((string)($_GET['date_to'] ?? '')),
         ]);
         redirect('grievances.php?' . $qs);
     }
@@ -202,6 +209,7 @@ if ($statusFilter !== '' && !in_array($statusFilter, $grievanceListStatuses, tru
     $statusFilter = '';
 }
 $search       = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
 $page         = max(1, (int)($_GET['page'] ?? 1));
 $limit        = 25;
 $offset       = ($page - 1) * $limit;
@@ -213,13 +221,46 @@ if ($search !== '') {
     $t = "%$search%";
     $params = array_merge($params, [$t,$t,$t,$t,$t]);
 }
+adminExcelAppendDateWhere($where, $params, $dateFrom, $dateTo);
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT * FROM grievances WHERE id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('grievance-' . $exportId);
+        } else {
+            $st = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT 10000");
+            $st->execute($params);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('grievances', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[grievances-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('grievances');
+    }
+    $cols = [
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Name' => 'name', 'Phone' => 'phone',
+        'Email' => 'email', 'Member ID' => 'member_id', 'Category' => 'category',
+        'Subject' => 'subject', 'Description' => 'description',
+        'Anonymous' => static fn(array $r) => !empty($r['is_anonymous']) ? 'yes' : 'no',
+        'Status' => 'status', 'Admin Response' => 'admin_response', 'Admin Note' => 'admin_note',
+        'Created At' => 'created_at',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
+}
+
 $filteredTotal = 0;
 try {
     $cnt = $db->prepare("SELECT COUNT(*) FROM grievances WHERE $where");
     $cnt->execute($params);
     $filteredTotal = (int)$cnt->fetchColumn();
-    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $stmt->execute(array_merge($params, [$limit, $offset]));
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt = $db->prepare("SELECT * FROM grievances WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt->execute($params);
     $grievances = $stmt->fetchAll();
 } catch (Exception $e) { $grievances = []; $filteredTotal = 0; }
 $totalPages = max(1, (int)ceil($filteredTotal / $limit));
@@ -257,7 +298,7 @@ $statusLabel = [
     'closed'      => $__t('बन्द', 'Closed')
 ];
 $statusClass = ['pending' => 'warning', 'in_progress' => 'info', 'resolved' => 'success', 'closed' => 'secondary'];
-$catLabels   = ['service' => 'सेवा', 'staff' => 'कर्मचारी', 'loan' => 'ऋण', 'account' => 'खाता', 'branch' => 'शाखा', 'other' => 'अन्य'];
+$catLabels   = ['service' => 'सेवा', 'staff' => 'कर्मचारी', 'loan' => 'ऋण', 'account' => 'खाता', 'branch' => 'सेवा कार्यालय', 'other' => 'अन्य'];
 
 function grvBadge($status, $label, $class) {
     return '<span class="badge bg-' . $class . '">' . htmlspecialchars($label) . '</span>';
@@ -309,7 +350,11 @@ if ($viewGrv):
                 <?php echo htmlspecialchars($trackId); ?>
             </code>
         </h5>
-        <?php echo grvBadge($viewGrv['status'], $sl, $sc); ?>
+        <div class="d-flex align-items-center gap-2">
+            <?php echo grvBadge($viewGrv['status'], $sl, $sc); ?>
+            <?php echo adminExcelSingleLink('grievances.php', (int)$viewGrv['id']); ?>
+            <?php echo adminPrintFormLink('grievance', (int)$viewGrv['id']); ?>
+        </div>
     </div>
 
     <div class="card-body">
@@ -554,9 +599,15 @@ if ($viewGrv):
 </div>
 
 <!-- ── Filter Bar ── -->
+<?php
+$grvFilterQs = array_filter([
+    'status' => $statusFilter, 'search' => $search,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
+?>
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
-        <div class="col-md-3 col-6">
+        <div class="col-md-2 col-6">
             <label><?php echo $__t('स्थिति', 'Status'); ?></label>
             <select name="status" id="qf_grv_status" class="form-select form-select-sm">
                 <option value=""><?php echo $__t('सबै स्थिति', 'All Status'); ?></option>
@@ -566,19 +617,21 @@ if ($viewGrv):
                 <option value="closed"      <?php echo $statusFilter==='closed'?'selected':''; ?>>🔒 <?php echo $__t('बन्द', 'Closed'); ?></option>
             </select>
         </div>
-        <div class="col-md-7 col-12">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo); ?>
+        <div class="col-md-5 col-12">
             <label><?php echo $__t('खोज्नुहोस्', 'Search'); ?></label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="<?php echo $__t('नाम, फोन, इमेल, Tracking ID, विषय...', 'name, phone, email, Tracking ID, subject...'); ?>">
-                <?php if ($search): ?><a href="?status=<?php echo urlencode($statusFilter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($statusFilter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
             </div>
         </div>
-        <div class="col-md-2 col-6">
+        <div class="col-md-1 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i><?php echo $__t('खोज', 'Search'); ?></button>
         </div>
     </form>
+    <?php echo adminExcelExportButtonHtml($grvFilterQs, (int)$filteredTotal); ?>
     <script>document.getElementById('qf_grv_status').addEventListener('change',function(){this.closest('form').submit();});</script>
 </div>
 
@@ -635,6 +688,8 @@ if ($viewGrv):
                 <td class="no-print">
                     <div class="adm-action-icons">
                         <a href="grievances.php?view=<?php echo $grv['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विस्तृत / अपडेट', 'Details / Update'); ?>" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
+                        <a href="?export=csv&amp;id=<?php echo (int)$grv['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <?php echo adminPrintFormIcon('grievance', (int)$grv['id']); ?>
                         <?php if ($grv['status'] === 'pending' || $grv['status'] === 'in_progress'): ?>
                         <form method="POST" class="qaction-form" onsubmit="return confirm('<?php echo $__t('यो गुनासो समाधान भएको मान्नुहुन्छ?', 'Mark this grievance as resolved?'); ?>')">
                             <?php echo csrfField(); ?>
@@ -663,6 +718,8 @@ if ($viewGrv):
                 $qBase = array_filter([
                     'status' => $statusFilter !== '' ? $statusFilter : null,
                     'search' => $search !== '' ? $search : null,
+                    'date_from' => $dateFrom !== '' ? $dateFrom : null,
+                    'date_to' => $dateTo !== '' ? $dateTo : null,
                 ], static fn($v) => $v !== null && $v !== '');
                 for ($p = 1; $p <= $totalPages; $p++):
                     if ($totalPages > 9 && abs($p - $page) > 2 && $p !== 1 && $p !== $totalPages) {

@@ -484,7 +484,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
         <form method="post" class="row g-2">
           <?= csrfField() ?><input type="hidden" name="action" value="save_bank">
           <div class="col-md-4"><label class="small">बैंक</label><input class="field-coop" name="bank_name" value="<?= e($bank['bank_name'] ?? '') ?>"></div>
-          <div class="col-md-3"><label class="small">शाखा</label><input class="field-coop" name="branch" value="<?= e($bank['branch'] ?? '') ?>"></div>
+          <div class="col-md-3"><label class="small">सेवा कार्यालय</label><input class="field-coop" name="branch" value="<?= e($bank['branch'] ?? '') ?>"></div>
           <div class="col-md-3"><label class="small">खाता नं.</label><input class="field-coop" name="account_no" value="<?= e($bank['account_no'] ?? '') ?>"></div>
           <div class="col-md-2"><label class="small">खाता नाम</label><input class="field-coop" name="account_name" value="<?= e($bank['account_name'] ?? '') ?>"></div>
           <div class="col-md-3"><label class="small">PF नं.</label><input class="field-coop" name="pf_no" value="<?= e($bank['pf_no'] ?? '') ?>"></div>

@@ -4,12 +4,17 @@
  * =============================================
  * feedbacks.php pattern: ?view=ID → full-page detail + edit form।
  * Modal पूर्ण रूपले हटाइयो।
+ * Excel: ?export=csv (+ filters) वा ?export=csv&id=N
  */
+if (!ob_get_level()) {
+    ob_start();
+}
 $pageTitle   = 'भेटघाट व्यवस्थापन';
 $currentPage = 'appointments';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 
 /* ── Auto-ALTER: admin_attachment column थप्ने — MySQL 5.7+ compatible ── */
@@ -143,6 +148,8 @@ if (isset($_POST['quick_status'])) {
     $qs = http_build_query([
         'status' => $redAptSt,
         'search' => mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8'),
+        'date_from' => trim((string)($_GET['date_from'] ?? '')),
+        'date_to'   => trim((string)($_GET['date_to'] ?? '')),
         'page'   => max(1, (int)($_GET['page'] ?? 1)),
     ]);
     redirect('appointments.php?' . $qs);
@@ -158,6 +165,7 @@ if ($kind_filter !== '' && !in_array($kind_filter, ['member', 'cooperative'], tr
     $kind_filter = '';
 }
 $search  = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
 $where   = "1=1"; $aptParams = [];
 if ($status_filter) { $where .= " AND status = ?"; $aptParams[] = $status_filter; }
 if ($kind_filter !== '') {
@@ -168,14 +176,47 @@ if ($search !== '') {
     $where .= " AND (name LIKE ? OR phone LIKE ? OR email LIKE ? OR tracking_id LIKE ? OR branch LIKE ? OR purpose LIKE ? OR IFNULL(contact_person,'') LIKE ? OR IFNULL(organization_address,'') LIKE ?)";
     $t = "%$search%"; $aptParams = array_merge($aptParams, [$t,$t,$t,$t,$t,$t,$t,$t]);
 }
+adminExcelAppendDateWhere($where, $aptParams, $dateFrom, $dateTo);
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT * FROM appointments WHERE id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('appointment-' . $exportId);
+        } else {
+            $st = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY created_at DESC LIMIT 10000");
+            $st->execute($aptParams);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('appointments', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[appointments-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('appointments');
+    }
+    $cols = [
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Name' => 'name', 'Phone' => 'phone',
+        'Email' => 'email', 'Member ID' => 'member_id', 'Purpose' => 'purpose',
+        'Purpose Detail' => 'purpose_detail', 'Preferred Date' => 'preferred_date',
+        'Preferred Time' => 'preferred_time', 'Branch' => 'branch', 'Visit Kind' => 'visit_kind',
+        'Contact Person' => 'contact_person', 'Org Address' => 'organization_address',
+        'Status' => 'status', 'Remarks' => 'remarks', 'Created At' => 'created_at',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
+}
+
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 15;
 $offset = ($page - 1) * $limit;
 try {
     $cnt = $db->prepare("SELECT COUNT(*) FROM appointments WHERE $where"); $cnt->execute($aptParams); $total = $cnt->fetchColumn();
     $totalPages = ceil($total / $limit);
-    $stmt = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
-    $stmt->execute(array_merge($aptParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt = $db->prepare("SELECT * FROM appointments WHERE $where ORDER BY preferred_date DESC, created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt->execute($aptParams); $appointments = $stmt->fetchAll();
 } catch (Exception $e) {
     error_log('[admin/appointments list] ' . $e->getMessage());
     /* Fallback without coop columns if older DB somehow skipped safeAddColumn */
@@ -188,8 +229,9 @@ try {
         }
         $cnt = $db->prepare("SELECT COUNT(*) FROM appointments WHERE $whereFb"); $cnt->execute($fbParams); $total = $cnt->fetchColumn();
         $totalPages = ceil($total / $limit);
-        $stmt = $db->prepare("SELECT * FROM appointments WHERE $whereFb ORDER BY preferred_date DESC, created_at DESC LIMIT ? OFFSET ?");
-        $stmt->execute(array_merge($fbParams, [$limit, $offset])); $appointments = $stmt->fetchAll();
+        $lim = (int)$limit; $off = (int)$offset;
+        $stmt = $db->prepare("SELECT * FROM appointments WHERE $whereFb ORDER BY preferred_date DESC, created_at DESC LIMIT {$lim} OFFSET {$off}");
+        $stmt->execute($fbParams); $appointments = $stmt->fetchAll();
     } catch (Exception $e2) {
         error_log('[admin/appointments list fallback] ' . $e2->getMessage());
         $appointments = []; $total = 0; $totalPages = 0;
@@ -229,7 +271,7 @@ $statusLabel = ['pending'=>'पेन्डिङ','confirmed'=>'पुष्ट
 $purposes = [
     'account_inquiry' => 'खाता जानकारी',
     'loan_inquiry'    => 'ऋण जानकारी',
-    'kyc_update'      => 'केवाइसी अपडेट',
+    'kyc_update'      => 'केवाइएम अपडेट',
     'loan_repayment'  => 'ऋण भुक्तानी',
     'account_opening' => 'खाता खोल्ने',
     'other'           => 'अन्य'
@@ -263,7 +305,7 @@ if ($viewApt):
         <h5 class="mb-0">
             <i class="lucide-icon me-2" aria-hidden="true" data-lucide="calendar-check"></i>भेटघाट विवरण
             <code class="apt-track-chip">
-                APT-<?php echo str_pad($viewApt['id'], 6, '0', STR_PAD_LEFT); ?>
+                <?php echo htmlspecialchars($viewApt['tracking_id'] ?: ('APT-' . str_pad((string)$viewApt['id'], 6, '0', STR_PAD_LEFT))); ?>
             </code>
             <?php if ($isCoopVisit): ?>
             <span class="badge bg-primary ms-1">सहकारी भ्रमण</span>
@@ -272,9 +314,13 @@ if ($viewApt):
             <?php endif; ?>
             <span class="badge bg-<?php echo $sc; ?> ms-1"><?php echo $sl; ?></span>
         </h5>
-        <a href="appointments.php" class="btn btn-outline-light btn-sm">
-            <i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>फिर्ता
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <?php echo adminExcelSingleLink('appointments.php', (int)$viewApt['id']); ?>
+            <?php echo adminPrintFormLink('appointment', (int)$viewApt['id']); ?>
+            <a href="appointments.php" class="btn btn-outline-light btn-sm">
+                <i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>फिर्ता
+            </a>
+        </div>
     </div>
 
     <div class="card-body">
@@ -517,6 +563,12 @@ if ($viewApt):
 </div>
 
 <!-- ── Filter Bar ── -->
+<?php
+$aptFilterQs = array_filter([
+    'status' => $status_filter, 'kind' => $kind_filter, 'search' => $search,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
+?>
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-2 col-6">
@@ -537,19 +589,21 @@ if ($viewApt):
                 <option value="cancelled" <?php echo $status_filter==='cancelled'?'selected':''; ?>>❌ रद्द</option>
             </select>
         </div>
-        <div class="col-md-6 col-12">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
+        <div class="col-md-4 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="lucide-icon text-muted" aria-hidden="true" data-lucide="search"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="नाम, फोन, Tracking ID, सहकारी, सम्पर्क व्यक्ति...">
-                <?php if ($search): ?><a href="?status=<?php echo urlencode($status_filter); ?>&amp;kind=<?php echo urlencode($kind_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
+                <?php if ($search || $dateFrom || $dateTo): ?><a href="?status=<?php echo urlencode($status_filter); ?>&amp;kind=<?php echo urlencode($kind_filter); ?>" class="btn btn-outline-secondary btn-sm"><i class="fas fa-times"></i></a><?php endif; ?>
             </div>
         </div>
         <div class="col-md-2 col-6">
             <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i>खोज</button>
         </div>
     </form>
+    <?php echo adminExcelExportButtonHtml($aptFilterQs, (int)$total); ?>
     <script>
     document.getElementById('apt_qf_status').addEventListener('change',function(){this.closest('form').submit();});
     document.getElementById('apt_qf_kind').addEventListener('change',function(){this.closest('form').submit();});
@@ -609,6 +663,8 @@ if ($viewApt):
                 <td class="no-print">
                     <div class="adm-action-icons">
                         <a href="appointments.php?view=<?php echo $apt['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="View"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></a>
+                        <a href="?export=csv&amp;id=<?php echo (int)$apt['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                        <?php echo adminPrintFormIcon('appointment', (int)$apt['id']); ?>
                         <?php if ($apt['status'] === 'pending'): ?>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
@@ -640,7 +696,7 @@ if ($viewApt):
     <ul class="pagination pagination-sm justify-content-center">
         <?php for ($p = 1; $p <= $totalPages; $p++): ?>
         <li class="page-item <?php echo $p===$page?'active':''; ?>">
-            <a class="page-link" href="?<?php echo http_build_query(['status'=>$status_filter,'search'=>$search,'page'=>$p]); ?>"><?php echo $p; ?></a>
+            <a class="page-link" href="?<?php echo http_build_query(['status'=>$status_filter,'kind'=>$kind_filter,'search'=>$search,'date_from'=>$dateFrom,'date_to'=>$dateTo,'page'=>$p]); ?>"><?php echo $p; ?></a>
         </li>
         <?php endfor; ?>
     </ul>

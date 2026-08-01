@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin: KYC आवेदन व्यवस्थापन — kyc-applications.php
+ * Admin: केवाइएम आवेदन व्यवस्थापन — kyc-applications.php
  * =====================================================
  * feedbacks.php pattern: ?view=ID → full-page detail + edit form।
  * Modal पूर्ण रूपले हटाइयो।
@@ -10,7 +10,7 @@
 if (!ob_get_level()) {
     ob_start();
 }
-$pageTitle   = 'केवाइसी आवेदन व्यवस्थापन';
+$pageTitle   = 'केवाइएम आवेदन व्यवस्थापन';
 $currentPage = 'kyc';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -18,6 +18,7 @@ require_once __DIR__ . '/includes/admin-request-view.php';
 require_once '../includes/member-auth.php'; /* adminGenerateMemberIdCard() को लागि */
 require_once __DIR__ . '/../includes/request-status-history.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') { require_role('admin'); checkCSRF(); }
 
@@ -90,6 +91,8 @@ if (!function_exists('kycExportAmlLabelMap')) {
             'ID', 'Tracking ID', 'Member ID', 'Full Name', 'Full Name EN',
             'DOB BS', 'DOB AD', 'Gender', 'Marital Status', 'Nationality',
             'Mobile', 'Email', 'Permanent Address', 'Temporary Address',
+            'Perm Province', 'Perm District', 'Perm Municipality', 'Perm Ward', 'Perm Tole',
+            'Temp Province', 'Temp District', 'Temp Municipality', 'Temp Ward', 'Temp Tole',
             'Citizenship No', 'Citizenship Issued Date', 'Citizenship Issued Place',
             'National ID', 'Father Name', 'Mother Name', 'Grandfather Name', 'Spouse Name',
             'Occupation', 'Organization', 'Monthly Income', 'Account Type', 'Branch',
@@ -160,6 +163,16 @@ if (!function_exists('kycExportAmlLabelMap')) {
             (string)($row['email'] ?? ''),
             (string)($row['permanent_address'] ?? ''),
             (string)($row['temporary_address'] ?? ''),
+            (string)($row['permanent_province'] ?? ''),
+            (string)($row['permanent_district'] ?? ''),
+            (string)($row['permanent_municipality'] ?? ''),
+            (string)($row['permanent_ward'] ?? ''),
+            (string)($row['permanent_tole'] ?? ''),
+            (string)($row['temporary_province'] ?? ''),
+            (string)($row['temporary_district'] ?? ''),
+            (string)($row['temporary_municipality'] ?? ''),
+            (string)($row['temporary_ward'] ?? ''),
+            (string)($row['temporary_tole'] ?? ''),
             (string)($row['citizenship_no'] ?? ''),
             (string)($row['citizenship_issued_date'] ?? ''),
             (string)($row['citizenship_issued_place'] ?? ''),
@@ -369,7 +382,7 @@ if (isset($_POST['import_kyc_csv'])) {
     redirect('kyc-applications.php');
 }
 
-/* ── Helper: KYC approve भएमा ID card auto-generate गर्ने ── */
+/* ── Helper: KYM approve भएमा ID card auto-generate गर्ने ── */
 function kycAutoGenerateIdCard(PDO $db, int $kycId, string $kycEmail, string $kycMobile): void {
     try {
         /* member_auth.php include भएको अपेक्षा */
@@ -436,7 +449,7 @@ if (isset($_POST['update_status'])) {
         redirect('kyc-applications.php?view=' . $id);
     }
 
-    // एउटै member_id को active KYC duplicate रोक्ने
+    // एउटै member_id को active KYM duplicate रोक्ने
     try {
         $dup = $db->prepare("SELECT id FROM kyc_applications
                              WHERE member_id=? AND id<>?
@@ -444,7 +457,7 @@ if (isset($_POST['update_status'])) {
                              LIMIT 1");
         $dup->execute([$editMemberId, $id]);
         if ($dup->fetch(PDO::FETCH_ASSOC)) {
-            setFlash('error', 'यो Member ID अर्को active KYC मा प्रयोग भएको छ।');
+            setFlash('error', 'यो Member ID अर्को active KYM मा प्रयोग भएको छ।');
             redirect('kyc-applications.php?view=' . $id);
         }
     } catch (Throwable $e) {}
@@ -481,22 +494,22 @@ if (isset($_POST['update_status'])) {
         }
         /* Member लाई status notification — email/SMS */
         try {
-            $nRow = $db->prepare("SELECT full_name, email, phone, mobile, tracking_id FROM kyc_applications WHERE id=?");
+            $nRow = $db->prepare("SELECT full_name, email, mobile, tracking_id FROM kyc_applications WHERE id=?");
             $nRow->execute([$id]);
             $nData = $nRow->fetch();
             if ($nData) {
                 $r = sendMemberStatusUpdate('kyc',
-                    $nData['email'] ?? '', $nData['phone'] ?? $nData['mobile'] ?? '', $nData['full_name'] ?? '',
+                    $nData['email'] ?? '', $nData['mobile'] ?? '', $nData['full_name'] ?? '',
                     $status, $remarks, $nData['tracking_id'] ?? '', !$notifyOptIn);
                 if (is_array($r)) {
                     $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                     $notifyOutcome['sms']   = $r['sms']   ?? $notifyOutcome['sms'];
                 }
-                /* KYC approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved + want_id_card = 1 → ID card auto-generate */
                 if ($status === 'approved') {
                     kycAutoGenerateIdCard($db, $id,
                         $nData['email'] ?? '',
-                        $nData['mobile'] ?? $nData['phone'] ?? '');
+                        $nData['mobile'] ?? '');
                 }
             }
         } catch (Exception $e) {}
@@ -560,7 +573,7 @@ if (isset($_POST['quick_status'])) {
             if ($nd) {
                 sendMemberStatusUpdate('kyc', $nd['email']??'', $nd['mobile']??'', $nd['full_name']??'', $qst, '', $nd['tracking_id']??'');
                 $notifySent = true;
-                /* KYC approved + want_id_card = 1 → ID card auto-generate */
+                /* KYM approved + want_id_card = 1 → ID card auto-generate */
                 if ($qst === 'approved') {
                     kycAutoGenerateIdCard($db, $qid, $nd['email'] ?? '', $nd['mobile'] ?? '');
                 }
@@ -668,9 +681,13 @@ $offset = ($page - 1) * $limit;
 try {
     $cntStmt2 = $db->prepare("SELECT COUNT(*) FROM kyc_applications WHERE $where"); $cntStmt2->execute($params2); $total = $cntStmt2->fetchColumn();
     $totalPages    = ceil($total / $limit);
-    $stmt2 = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-    $stmt2->execute(array_merge($params2, [$limit, $offset])); $applications = $stmt2->fetchAll();
-} catch (Throwable $e) { $applications = []; $total = 0; $totalPages = 0; }
+    $lim = (int)$limit; $off = (int)$offset;
+    $stmt2 = $db->prepare("SELECT * FROM kyc_applications WHERE $where ORDER BY created_at DESC LIMIT {$lim} OFFSET {$off}");
+    $stmt2->execute($params2); $applications = $stmt2->fetchAll();
+} catch (Throwable $e) {
+    error_log('[kyc-applications list] ' . $e->getMessage());
+    $applications = []; $total = 0; $totalPages = 0;
+}
 
 $pendingCount = $approvedCount = $rejectedCount = $incompleteCount = $partialCount = 0;
 if ($db instanceof PDO) {
@@ -704,11 +721,11 @@ $statusLabel = ['pending'=>'पेन्डिङ','approved'=>'स्वीक�
 /* ─── Page Header ─── */
 if ($viewApp) {
     $trackId = $viewApp['tracking_id'] ?? 'KYC-' . str_pad($viewApp['id'], 6, '0', STR_PAD_LEFT);
-    echo adminPageHeader('KYC आवेदन विवरण', 'fa-user-check',
+    echo adminPageHeader('केवाइएम आवेदन विवरण', 'fa-user-check',
         'Tracking: ' . $trackId,
         adminBackBtn('kyc-applications.php', 'KYC सूचीमा फर्किनुहोस्'));
 } else {
-    echo adminPageHeader('केवाइसी आवेदन व्यवस्थापन', 'fa-user-check',
+    echo adminPageHeader('केवाइएम आवेदन व्यवस्थापन', 'fa-user-check',
         'सदस्यहरूको KYC अद्यावधिक आवेदनहरू — समीक्षा र स्थिति अपडेट',
         adminStatLink('?status=pending', 'danger', 'पेन्डिङ', $pendingCount)
         . ' ' . adminStatLink('kyc-applications.php', 'secondary', 'जम्मा', $total));
@@ -727,17 +744,15 @@ if ($viewApp):
 <div class="card shadow-sm mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-user-check me-2"></i>KYC आवेदन विवरण
+            <i class="fas fa-user-check me-2"></i>केवाइएम आवेदन विवरण
             <code class="apt-track-chip">
                 <?php echo htmlspecialchars($trackId); ?>
             </code>
         </h5>
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-<?php echo $sc; ?> fs-6"><?php echo $sl; ?></span>
-            <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$viewApp['id']; ?>"
-               class="btn btn-success btn-sm"><i class="fas fa-file-excel me-1"></i>Excel</a>
-            <a href="print-form.php?type=kyc&id=<?php echo (int)$viewApp['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminExcelSingleLink('kyc-applications.php', (int)$viewApp['id']); ?>
+            <?php echo adminPrintFormLink('kyc', (int)$viewApp['id']); ?>
         </div>
     </div>
 
@@ -766,10 +781,16 @@ if ($viewApp):
                             <td><code class="text-primary fw-bold"><?php echo htmlspecialchars($viewApp['member_id'] ?? '—'); ?></code></td></tr>
                         <tr><th>Full Name (EN)</th>
                             <td><?php echo htmlspecialchars($viewApp['full_name_en'] ?: '—'); ?></td></tr>
-                        <tr><th>जन्म मिति</th>
+                        <tr><th>जन्म मिति (BS)</th>
                             <td><?php echo htmlspecialchars($viewApp['dob_bs'] ?: '—'); ?></td></tr>
+                        <tr><th>जन्म मिति (AD)</th>
+                            <td><?php echo htmlspecialchars($viewApp['dob_ad'] ?? '—'); ?></td></tr>
                         <tr><th>लिङ्ग</th>
                             <td><?php echo htmlspecialchars($viewApp['gender'] ?: '—'); ?></td></tr>
+                        <tr><th>वैवाहिक अवस्था</th>
+                            <td><?php echo htmlspecialchars($viewApp['marital_status'] ?? '—'); ?></td></tr>
+                        <tr><th>राष्ट्रियता</th>
+                            <td><?php echo htmlspecialchars($viewApp['nationality'] ?? '—'); ?></td></tr>
                         <tr><th>मोबाइल</th>
                             <td><a href="tel:<?php echo htmlspecialchars($viewApp['mobile'] ?? ''); ?>" class="text-decoration-none fw-semibold"><?php echo htmlspecialchars($viewApp['mobile'] ?? '—'); ?></a></td></tr>
                         <tr><th>इमेल</th>
@@ -817,18 +838,50 @@ if ($viewApp):
                             </td>
                         </tr>
                         <tr><th>स्थायी ठेगाना</th>
-                            <td><?php echo htmlspecialchars($viewApp['permanent_address'] ?: '—'); ?></td></tr>
+                            <td><?php
+                                $permBits = array_filter([
+                                    $viewApp['permanent_address'] ?? '',
+                                    trim(implode(', ', array_filter([
+                                        !empty($viewApp['permanent_tole']) ? $viewApp['permanent_tole'] : '',
+                                        !empty($viewApp['permanent_ward']) ? ('वडा ' . $viewApp['permanent_ward']) : '',
+                                        $viewApp['permanent_municipality'] ?? '',
+                                        $viewApp['permanent_district'] ?? '',
+                                        $viewApp['permanent_province'] ?? '',
+                                    ]))),
+                                ]);
+                                echo htmlspecialchars($permBits ? implode(' · ', array_unique($permBits)) : '—');
+                            ?></td></tr>
                         <tr><th>अस्थायी ठेगाना</th>
-                            <td><?php echo htmlspecialchars($viewApp['temporary_address'] ?: '—'); ?></td></tr>
+                            <td><?php
+                                $tempBits = array_filter([
+                                    $viewApp['temporary_address'] ?? '',
+                                    trim(implode(', ', array_filter([
+                                        !empty($viewApp['temporary_tole']) ? $viewApp['temporary_tole'] : '',
+                                        !empty($viewApp['temporary_ward']) ? ('वडा ' . $viewApp['temporary_ward']) : '',
+                                        $viewApp['temporary_municipality'] ?? '',
+                                        $viewApp['temporary_district'] ?? '',
+                                        $viewApp['temporary_province'] ?? '',
+                                    ]))),
+                                ]);
+                                echo htmlspecialchars($tempBits ? implode(' · ', array_unique($tempBits)) : '—');
+                            ?></td></tr>
                         <tr><th>बुबाको नाम</th>
                             <td><?php echo htmlspecialchars($viewApp['father_name'] ?: '—'); ?></td></tr>
                         <tr><th>आमाको नाम</th>
                             <td><?php echo htmlspecialchars($viewApp['mother_name'] ?: '—'); ?></td></tr>
+                        <tr><th>हजुरबुबाको नाम</th>
+                            <td><?php echo htmlspecialchars($viewApp['grandfather_name'] ?? '—'); ?></td></tr>
+                        <tr><th>पति/पत्नीको नाम</th>
+                            <td><?php echo htmlspecialchars($viewApp['spouse_name'] ?? '—'); ?></td></tr>
                         <tr><th>पेशा</th>
                             <td><?php echo htmlspecialchars($viewApp['occupation'] ?: '—'); ?></td></tr>
+                        <tr><th>संस्था / संगठन</th>
+                            <td><?php echo htmlspecialchars($viewApp['organization_name'] ?? ($viewApp['organization'] ?? '—')); ?></td></tr>
+                        <tr><th>मासिक आय</th>
+                            <td><?php echo htmlspecialchars($viewApp['monthly_income'] ?? '—'); ?></td></tr>
                         <tr><th>खाता प्रकार</th>
                             <td><?php echo htmlspecialchars($viewApp['account_type'] ?: '—'); ?></td></tr>
-                        <tr><th>शाखा</th>
+                        <tr><th>सेवा कार्यालय</th>
                             <td><?php echo htmlspecialchars(str_replace('_',' ',ucwords($viewApp['branch'] ?? '—'))); ?></td></tr>
                         <tr><th>Tracking ID</th>
                             <td><code class="text-success fw-bold"><?php echo htmlspecialchars($viewApp['tracking_id'] ?? '—'); ?></code></td></tr>
@@ -846,9 +899,9 @@ if ($viewApp):
                     </table>
                 </div>
 
-                <?php if (!empty($viewApp['citizenship_front']) || !empty($viewApp['citizenship_back']) || !empty($viewApp['national_id_card'])): ?>
+                <?php if (!empty($viewApp['citizenship_front']) || !empty($viewApp['citizenship_back']) || !empty($viewApp['national_id_card']) || !empty($viewApp['signature']) || !empty($viewApp['left_thumb']) || !empty($viewApp['right_thumb'])): ?>
                 <div class="adm-info-group">
-                    <div class="adm-info-group-header"><i class="fas fa-id-card"></i>नागरिकता / National ID प्रतिलिपिहरू</div>
+                    <div class="adm-info-group-header"><i class="fas fa-id-card"></i>नागरिकता / National ID / औंठाछाप</div>
                     <div class="p-3">
                     <div class="row g-3">
                         <?php if (!empty($viewApp['citizenship_front'])): ?>
@@ -875,6 +928,33 @@ if ($viewApp):
                                 <img src="../<?php echo htmlspecialchars($viewApp['national_id_card']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="National ID Card">
                                 <div class="small text-muted fw-semibold">National ID</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['signature'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['signature']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['signature']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Signature">
+                                <div class="small text-muted fw-semibold">दस्तखत</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['left_thumb'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Left Thumb">
+                                <div class="small text-muted fw-semibold">बायाँ औंठाछाप</div>
+                            </a>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($viewApp['right_thumb'])): ?>
+                        <div class="col-6 text-center">
+                            <a href="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>" target="_blank">
+                                <img src="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>"
+                                     class="img-thumbnail mb-1 kyc-doc-thumb" alt="Right Thumb">
+                                <div class="small text-muted fw-semibold">दायाँ औंठाछाप</div>
                             </a>
                         </div>
                         <?php endif; ?>
@@ -954,6 +1034,7 @@ if ($viewApp):
                             'past_crime_declared' => 'अपराध घोषणा',
                             'landlord_name' => 'घरधनीको नाम',
                             'landlord_contact' => 'घरधनी सम्पर्क',
+                            'is_rented' => 'भाडामा बस्ने',
                             'voter_id_card_no' => 'मतदाता परिचयपत्र नं.',
                             'polling_station' => 'मतदान स्थल',
                             'member_purpose' => 'सदस्यता उद्देश्य',
@@ -961,6 +1042,8 @@ if ($viewApp):
                             'self_other_coop_details' => 'अन्य सहकारी विवरण',
                             'family_same_coop_member' => 'परिवार यसै सहकारीमा',
                             'family_same_coop_details' => 'परिवार सदस्य विवरण',
+                            'family_same_member_name' => 'परिवार सदस्य नाम',
+                            'family_same_member_id' => 'परिवार सदस्य ID',
                             'annual_family_income' => 'वार्षिक पारिवारिक आम्दानी',
                             'net_worth_details' => 'सम्पत्ति/Net Worth',
                             'annual_debit_credit_estimate' => 'वार्षिक डेबिट/क्रेडिट',
@@ -1204,12 +1287,12 @@ if ($viewApp):
 
                         <hr class="my-3">
                         <form method="POST"
-                              onsubmit="return confirm('के तपाईं यो KYC आवेदन स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
+                              onsubmit="return confirm('के तपाईं यो केवाइएम आवेदन स्थायी रूपले मेटाउन निश्चित हुनुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete" value="1">
                             <input type="hidden" name="delete_id" value="<?php echo $viewApp['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो KYC आवेदन मेटाउनुहोस्
+                                <i class="fas fa-trash me-1"></i>यो केवाइएम आवेदन मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -1338,7 +1421,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
 <!-- ── KYC Table ── -->
 <div class="card border-0 shadow-sm app-rounded-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-user-check me-2 text-primary"></i>KYC आवेदन सूची</h6>
+        <h6><i class="fas fa-user-check me-2 text-primary"></i>केवाइएम आवेदन सूची</h6>
         <span class="result-count-badge"><?php echo $total; ?> आवेदन</span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -1349,7 +1432,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                     <th>Member ID</th>
                     <th>सम्पर्क</th>
                     <th>नागरिकता</th>
-                    <th>खाता / शाखा</th>
+                    <th>खाता / सेवा कार्यालय</th>
                     <th>Tracking ID</th>
                     <th>दर्ता मिति</th>
                     <th>स्थिति</th>
@@ -1358,7 +1441,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
             </thead>
             <tbody>
             <?php if (empty($applications)): ?>
-            <tr class="no-results-row"><td colspan="9"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै KYC आवेदन फेला परेन।</td></tr>
+            <tr class="no-results-row"><td colspan="9"><i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै केवाइएम आवेदन फेला परेन।</td></tr>
             <?php else: foreach ($applications as $app):
                 $trackId = $app['tracking_id'] ?: 'KYC-' . str_pad($app['id'], 6, '0', STR_PAD_LEFT);
                 $initLetter = mb_strtoupper(mb_substr($app['full_name'] ?? 'K', 0, 1));
@@ -1383,7 +1466,7 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                     <?php if ($app['email']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['email']); ?></div><?php endif; ?>
                 </td>
                 <td data-label="नागरिकता"><div class="cell-sub"><?php echo htmlspecialchars($app['citizenship_no'] ?: '—'); ?></div></td>
-                <td data-label="खाता / शाखा">
+                <td data-label="खाता / सेवा कार्यालय">
                     <div class="cell-main"><?php echo htmlspecialchars($app['account_type'] ?: '—'); ?></div>
                     <?php if ($app['branch']): ?><div class="cell-sub"><?php echo htmlspecialchars($app['branch']); ?></div><?php endif; ?>
                 </td>
@@ -1396,10 +1479,9 @@ $kycExportQs = array_merge($kycFilterQs, ['export' => 'csv']);
                         <a href="kyc-applications.php?export=csv&amp;id=<?php echo (int)$app['id']; ?>"
                            class="adm-icon-btn" title="Excel डाउनलोड" aria-label="Excel"
                            style="color:#15803d;"><i class="fas fa-file-excel"></i></a>
-                        <a href="print-form.php?type=kyc&amp;id=<?php echo (int)$app['id']; ?>" target="_blank"
-                           class="adm-icon-btn" title="Print" aria-label="Print"><i class="fas fa-print"></i></a>
+                        <?php echo adminPrintFormIcon('kyc', (int)$app['id']); ?>
                         <?php if ($app['status'] === 'pending'): ?>
-                        <form method="POST" class="qaction-form" onsubmit="return confirm('KYC स्वीकृत गर्नुहुन्छ?')">
+                        <form method="POST" class="qaction-form" onsubmit="return confirm('केवाइएम स्वीकृत गर्नुहुन्छ?')">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="quick_status" value="1">
                             <input type="hidden" name="quick_id" value="<?php echo $app['id']; ?>">

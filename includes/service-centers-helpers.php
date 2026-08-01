@@ -1,6 +1,6 @@
 <?php
 /**
- * Single source for active service centers / branches (शाखाहरू).
+ * Single source for active service centers / branches (सेवा कार्यालयहरू).
  * Prefer this helper instead of ad-hoc SELECT FROM service_centers in forms.
  */
 if (!function_exists('fetchActiveServiceCenters')) {

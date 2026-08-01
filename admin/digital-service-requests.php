@@ -1,4 +1,7 @@
 <?php
+if (!ob_get_level()) {
+    ob_start();
+}
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -7,6 +10,7 @@ $pageTitle = $__t('डिजिटल सेवा अनुरोधहरू',
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
+require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/digital-service-requests-tables.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
@@ -120,6 +124,63 @@ if (!in_array($action, ['list', 'view'], true)) {
     $action = 'list';
 }
 $id = (int)($_GET['id'] ?? 0);
+
+/* ── List/export filters (shared) ── */
+$filterStatus = $_GET['status'] ?? '';
+if ($filterStatus !== '' && !isset($statusLabels[$filterStatus])) {
+    $filterStatus = '';
+}
+$filterType = $_GET['type'] ?? '';
+if ($filterType !== '' && !isset($serviceLabels[$filterType])) {
+    $filterType = '';
+}
+$search = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+[$dateFrom, $dateTo] = adminExcelDateRangeFromGet();
+$whereClause = '1=1';
+$dsrParams = [];
+if ($filterStatus && isset($statusLabels[$filterStatus])) {
+    $whereClause .= ' AND status = ?';
+    $dsrParams[] = $filterStatus;
+}
+if ($filterType && isset($serviceLabels[$filterType])) {
+    $whereClause .= ' AND service_type = ?';
+    $dsrParams[] = $filterType;
+}
+if ($search) {
+    $whereClause .= ' AND (tracking_id LIKE ? OR requester_name LIKE ? OR phone LIKE ? OR member_id LIKE ? OR email LIKE ?)';
+    $term = "%$search%";
+    $dsrParams = array_merge($dsrParams, [$term, $term, $term, $term, $term]);
+}
+adminExcelAppendDateWhere($whereClause, $dsrParams, $dateFrom, $dateTo);
+
+if (adminExcelIsExportRequest() && $db instanceof PDO) {
+    $exportId = (int)($_GET['id'] ?? 0);
+    try {
+        if ($exportId > 0) {
+            $st = $db->prepare('SELECT * FROM digital_service_requests WHERE id=? LIMIT 1');
+            $st->execute([$exportId]);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('digital-service-' . $exportId);
+        } else {
+            $st = $db->prepare("SELECT * FROM digital_service_requests WHERE $whereClause ORDER BY created_at DESC LIMIT 10000");
+            $st->execute($dsrParams);
+            $exportRows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $fname = adminExcelFilename('digital-service-requests', $dateFrom, $dateTo);
+        }
+    } catch (Throwable $e) {
+        error_log('[digital-service-export] ' . $e->getMessage());
+        $exportRows = [];
+        $fname = adminExcelFilename('digital-service-requests');
+    }
+    $cols = [
+        'ID' => 'id', 'Tracking ID' => 'tracking_id', 'Requester Name' => 'requester_name',
+        'Member ID' => 'member_id', 'Phone' => 'phone', 'Email' => 'email',
+        'Service Type' => 'service_type', 'Account Number' => 'account_number',
+        'Status' => 'status', 'Request Details' => 'request_details',
+        'Service Amount' => 'service_amount', 'Created At' => 'created_at', 'Admin Remarks' => 'admin_remarks',
+    ];
+    adminExcelStreamCsv($fname, array_keys($cols), adminExcelMapRows($exportRows, $cols));
+}
 ?>
 
 <?php if ($action === 'view' && $id > 0): ?>
@@ -143,8 +204,8 @@ try {
         <h5 class="mb-0"><i class="fas fa-mobile-alt"></i> <?php echo $__t('अनुरोध विवरण', 'Request Details'); ?> - <?php echo e($request['tracking_id']); ?></h5>
         <div class="d-flex align-items-center gap-2">
             <a href="digital-service-requests.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
-            <a href="print-form.php?type=digital&id=<?php echo (int)$request['id']; ?>" target="_blank"
-               class="btn btn-light btn-sm"><i class="fas fa-print me-1"></i>Print Form</a>
+            <?php echo adminExcelSingleLink('digital-service-requests.php', (int)$request['id']); ?>
+            <?php echo adminPrintFormLink('digital', (int)$request['id']); ?>
         </div>
     </div>
     <div class="card-body">
@@ -188,7 +249,7 @@ try {
                     <div class="dsr-soft-bg p-3 rounded"><?php echo nl2br(e($request['request_details'])); ?></div>
                     <?php endif; ?>
                     <?php if ($request['attachment']): ?>
-                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo SITE_URL . e($request['attachment']); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn"><i class="fas fa-file"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
+                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo htmlspecialchars(adminPublicFileUrl($request['attachment']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn"><i class="fas fa-file"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
                     <?php endif; ?>
                 </div>
                 <?php if ($request['admin_remarks']): ?>
@@ -274,36 +335,16 @@ try {
 
 <?php else: ?>
 <?php
-$filterStatus = $_GET['status'] ?? '';
-if ($filterStatus !== '' && !isset($statusLabels[$filterStatus])) {
-    $filterStatus = '';
-}
-$filterType = $_GET['type'] ?? '';
-if ($filterType !== '' && !isset($serviceLabels[$filterType])) {
-    $filterType = '';
-}
-$search = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
-$whereClause = '1=1';
-$params = [];
-if ($filterStatus && isset($statusLabels[$filterStatus])) {
-    $whereClause .= ' AND status = ?';
-    $params[] = $filterStatus;
-}
-if ($filterType && isset($serviceLabels[$filterType])) {
-    $whereClause .= ' AND service_type = ?';
-    $params[] = $filterType;
-}
-if ($search) {
-    $whereClause .= ' AND (tracking_id LIKE ? OR requester_name LIKE ? OR phone LIKE ? OR member_id LIKE ? OR email LIKE ?)';
-    $term = "%$search%";
-    $params = array_merge($params, [$term, $term, $term, $term, $term]);
-}
 $requests = [];
 $statusCounts = [];
 $totalRequests = 0;
+$dsrFilteredTotal = 0;
 try {
+    $cntSt = $db->prepare("SELECT COUNT(*) FROM digital_service_requests WHERE $whereClause");
+    $cntSt->execute($dsrParams);
+    $dsrFilteredTotal = (int)$cntSt->fetchColumn();
     $stmt = $db->prepare("SELECT * FROM digital_service_requests WHERE $whereClause ORDER BY created_at DESC LIMIT 500");
-    $stmt->execute($params);
+    $stmt->execute($dsrParams);
     $requests = $stmt->fetchAll();
     $countStmt = $db->query("SELECT status, COUNT(*) as count FROM digital_service_requests GROUP BY status");
     if ($countStmt) {
@@ -317,6 +358,10 @@ try {
     $statusCounts = [];
     $totalRequests = 0;
 }
+$dsrFilterQs = array_filter([
+    'status' => $filterStatus, 'type' => $filterType, 'search' => $search,
+    'date_from' => $dateFrom, 'date_to' => $dateTo,
+], static fn($v) => $v !== null && $v !== '');
 echo adminPageHeader(
     $__t('डिजिटल सेवा अनुरोधहरू', 'Digital Service Requests'), 'fa-mobile-alt',
     $__t('अनलाइन डिजिटल सेवा अनुरोधहरूको स्थिति र व्यवस्थापन', 'Manage status of online digital service requests'),
@@ -328,7 +373,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 ?>
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
-    <a href="digital-service-requests.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search?'active-filter':''; ?>">
+    <a href="digital-service-requests.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search&&!$dateFrom&&!$dateTo?'active-filter':''; ?>">
         <div class="sm-icon ic-total"><i class="fas fa-mobile-alt"></i></div>
         <div class="sm-val"><?php echo $totalRequests; ?></div>
         <div class="sm-lbl"><?php echo $__t('जम्मा', 'Total'); ?></div>
@@ -376,7 +421,8 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                 <?php endforeach; ?>
             </select>
         </div>
-        <div class="col-md-6 col-12">
+        <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
+        <div class="col-md-4 col-12">
             <label><?php echo $__t('खोज्नुहोस्', 'Search'); ?></label>
             <div class="input-group input-group-sm">
                 <span class="input-group-text bg-white"><i class="fas fa-search dsr-search-icon"></i></span>
@@ -385,9 +431,10 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
         </div>
         <div class="col-md-2 col-6">
             <button type="submit" class="btn dsr-search-btn btn-sm w-100"><i class="fas fa-search me-1"></i><?php echo $__t('खोज', 'Search'); ?></button>
-            <?php if ($filterStatus||$filterType||$search): ?><a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i><?php echo $__t('रिसेट', 'Reset'); ?></a><?php endif; ?>
+            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i><?php echo $__t('रिसेट', 'Reset'); ?></a><?php endif; ?>
         </div>
     </form>
+    <?php echo adminExcelExportButtonHtml($dsrFilterQs, $dsrFilteredTotal); ?>
 </div>
 
 <div class="card border-0 shadow-sm app-rounded-card">
@@ -421,6 +468,8 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <td>
                             <div class="adm-action-icons">
                                 <a href="?action=view&id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विवरण', 'Details'); ?>" aria-label="View"><i class="fas fa-eye"></i></a>
+                                <a href="?export=csv&amp;id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                                <?php echo adminPrintFormIcon('digital', (int)$request['id']); ?>
                             </div>
                         </td>
                     </tr>

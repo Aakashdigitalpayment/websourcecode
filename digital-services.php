@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $kycMerge = loadKycRowForLoggedMemberPublic($db, $loggedMember);
             }
             if (!$kycMerge || strtolower(trim((string)($kycMerge['status'] ?? ''))) !== 'approved') {
-                $error = isEnglish() ? 'KYC verification is required for digital services.' : 'डिजिटल सेवा प्रयोग गर्न KYC verified (approved) हुनुपर्छ।';
+                $error = isEnglish() ? 'KYM verification is required for digital services.' : 'डिजिटल सेवा प्रयोग गर्न KYC verified (approved) हुनुपर्छ।';
             }
             $fnK = (is_array($kycMerge) && !empty($kycMerge['full_name'])) ? trim((string)$kycMerge['full_name']) : '';
             $requesterName = $fnK !== '' ? $fnK : trim((string)($loggedMember['name'] ?? $requesterName));
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($isCoopMember === 'yes') {
             if (!function_exists('verifyPublicFormKycApprovedByMemberId')) {
                 $error = isEnglish()
-                    ? 'KYC verification service is temporarily unavailable. Please try again.'
+                    ? 'KYM verification service is temporarily unavailable. Please try again.'
                     : 'KYC प्रमाणीकरण सेवा हाल उपलब्ध छैन। कृपया पुनः प्रयास गर्नुहोस्।';
             } else {
                 $v = verifyPublicFormKycApprovedByMemberId($db, $_POST['member_id'] ?? '');
@@ -592,7 +592,7 @@ $L = getLangStrings();
                             <select name="preferred_contact" class="form-select">
                                 <option value="phone"  <?php echo (($_POST['preferred_contact'] ?? 'phone') === 'phone') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Phone Call' : 'फोन'; ?></option>
                                 <option value="email"  <?php echo (($_POST['preferred_contact'] ?? '') === 'email') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></option>
-                                <option value="branch" <?php echo (($_POST['preferred_contact'] ?? '') === 'branch') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Visit Branch' : 'शाखा भ्रमण'; ?></option>
+                                <option value="branch" <?php echo (($_POST['preferred_contact'] ?? '') === 'branch') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Visit Service Office' : 'सेवा कार्यालय भ्रमण'; ?></option>
                             </select>
                         </div>
                     </div>

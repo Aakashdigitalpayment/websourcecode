@@ -52,7 +52,7 @@
         { title: 'प्रश्नोत्तर / FAQs',               url: 'faqs.php',               keywords: ['faq','question','prasna'] },
         { title: 'गुनासो / Grievance',               url: 'grievance.php',          keywords: ['grievance','gunaso','complaint'] },
         { title: 'सम्पर्क / Contact',                url: 'contact.php',            keywords: ['contact','sampark','phone'] },
-        { title: 'अनलाइन KYC',                       url: 'online-kyc.php',         keywords: ['kyc','online'] },
+        { title: 'अनलाइन केवाइएम',                       url: 'online-kyc.php',         keywords: ['kyc','online'] },
         { title: 'ऋण आवेदन / Loan Apply',            url: 'loan-apply.php',         keywords: ['loan','rin','apply'] },
         { title: 'EMI Calculator',                   url: 'emi-calculator.php',     keywords: ['emi','calculator','kisti'] },
         { title: 'विनिमय दर / Exchange Rate',        url: 'exchange-rate.php',      keywords: ['exchange','rate','dollar'] },
@@ -62,7 +62,7 @@
         { title: 'लिलामी / Auction',                 url: 'auction.php',            keywords: ['auction','lilami'] },
         { title: 'डिजिटल सेवा / Digital Services',   url: 'digital-services.php',   keywords: ['digital','service'] },
         { title: 'आवेदन ट्र्याक / Track Application',url: 'application-tracker.php',keywords: ['track','tracker','application','awadan'] },
-        { title: 'शाखाहरू / Branches',               url: 'service-centers.php',    keywords: ['branch','shakha','location'] },
+        { title: 'सेवा कार्यालयहरू / Service Offices',               url: 'service-centers.php',    keywords: ['branch','shakha','sewa','karyalaya','location'] },
         { title: 'सदस्य कल्याण / Member Welfare',    url: 'member-welfare.php',     keywords: ['welfare','kalyan','member'] },
         { title: 'समिति / Committee',                url: 'committees.php',         keywords: ['committee','samiti'] },
     ];

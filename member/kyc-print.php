@@ -103,10 +103,10 @@ if (!$kycRow) {
     </div>
     <div class="page">
         <?php if (!$kycRow): ?>
-            <div class="empty"><?php echo $_t('KYC रेकर्ड भेटिएन।', 'KYC record not found.'); ?></div>
+            <div class="empty"><?php echo $_t('केवाइएम रेकर्ड भेटिएन।', 'KYC record not found.'); ?></div>
         <?php else: ?>
         <div class="hdr">
-            <h2>व्यक्तिगत सदस्य पहिचान फारम (KYC/KYM)</h2>
+            <h2>व्यक्तिगत सदस्य पहिचान फारम (केवाइएम / KYM)</h2>
             <div class="sub">मुद्रण ढाँचा — सदस्य पोर्टल</div>
         </div>
         <div class="meta">

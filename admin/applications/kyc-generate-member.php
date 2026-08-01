@@ -4,7 +4,7 @@
  * POST /admin/applications/kyc-generate-member.php
  * Body: kyc_id=123 (form-encoded)  + CSRF token
  *
- * v10.0 — Two-step flow: admin clicks button after KYC approve
+ * v10.0 — Two-step flow: admin clicks button after KYM approve
  */
 declare(strict_types=1);
 

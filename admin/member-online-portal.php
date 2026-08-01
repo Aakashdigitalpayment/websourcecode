@@ -731,7 +731,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-bold"><?php echo $__t('अस्वीकृतिको कारण','Rejection Reason'); ?></label>
-                        <textarea name="rejection_reason" class="form-control" rows="3" placeholder="<?php echo $__t('उदा: KYC रेकर्ड मेल खाएन, सदस्यता नम्बर गलत छ...', 'e.g., KYC record mismatch, incorrect membership number...'); ?>"></textarea>
+                        <textarea name="rejection_reason" class="form-control" rows="3" placeholder="<?php echo $__t('उदा: केवाइएम रेकर्ड मेल खाएन, सदस्यता नम्बर गलत छ...', 'e.g., KYC record mismatch, incorrect membership number...'); ?>"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

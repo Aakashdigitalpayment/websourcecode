@@ -206,7 +206,7 @@ try {
   <?php
   $statCards = [
     ['label' => $__t('सक्रिय सदस्य', 'Active Members'),        'value' => $stats['members'],       'icon' => 'fa-users',          'color' => 'primary',   'link' => 'members.php'],
-    ['label' => $__t('पेन्डिङ/अपूर्ण KYC', 'Pending KYC'),    'value' => $stats['pending'],       'icon' => 'fa-id-card-clip',   'color' => 'warning',   'link' => 'kyc-applications.php?status=pending'],
+    ['label' => $__t('पेन्डिङ/अपूर्ण केवाइएम', 'Pending KYC'),    'value' => $stats['pending'],       'icon' => 'fa-id-card-clip',   'color' => 'warning',   'link' => 'kyc-applications.php?status=pending'],
     ['label' => 'KYC Due for Review',                           'value' => $stats['kycDue'],        'icon' => 'fa-shield-halved',  'color' => 'danger',    'link' => 'kyc-risk-reviews.php?filter=due'],
     ['label' => $__t('पेन्डिङ ऋण', 'Pending Loans'),           'value' => $stats['loans'],         'icon' => 'fa-coins',          'color' => 'info',      'link' => 'loan-applications.php'],
     ['label' => $__t('प्रकाशित सूचना', 'Published Notices'),   'value' => $stats['notices'],       'icon' => 'fa-bullhorn',       'color' => 'secondary', 'link' => 'notices.php'],
@@ -219,7 +219,7 @@ try {
   <div class="ds-section">
     <h2><i class="fas fa-bolt"></i> <?php echo $__t('छिटो कार्यहरू', 'Quick Actions'); ?></h2>
     <div class="d-flex flex-wrap gap-2">
-      <a href="kyc-applications.php" class="btn dash-btn-primary btn-sm"><i class="fas fa-id-card-clip"></i> <?php echo $__t('KYC आवेदन', 'KYC Applications'); ?></a>
+      <a href="kyc-applications.php" class="btn dash-btn-primary btn-sm"><i class="fas fa-id-card-clip"></i> <?php echo $__t('केवाइएम आवेदन', 'KYM Applications'); ?></a>
       <a href="members.php" class="btn dash-btn-outline-primary btn-sm"><i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i> <?php echo $__t('सदस्य', 'Members'); ?></a>
       <a href="notices.php" class="btn dash-btn-outline-primary btn-sm"><i class="fas fa-bullhorn"></i> <?php echo $__t('सूचना', 'Notices'); ?></a>
       <a href="loan-applications.php" class="btn dash-btn-outline-primary btn-sm"><i class="fas fa-coins"></i> <?php echo $__t('ऋण', 'Loans'); ?></a>

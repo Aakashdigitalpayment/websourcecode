@@ -155,7 +155,7 @@ $greeting = $hour < 12 ? $_t('शुभ बिहान', 'Good Morning') : ($ho
 /* सबै Quick Apply → /member/ भित्र (कल्याण = native welfare.php, बाँकी = apply-frame) */
 $quickActions = [
     ['href' => $siteUrl.'member/appointment.php',               'icon' => 'fa-calendar-check',     'color' => 'var(--primary-color)', 'label' => $_t('भेटघाट', 'Appointment')],
-    ['href' => $siteUrl.'member/kyc.php',                        'icon' => 'fa-id-card',             'color' => 'var(--secondary-color)', 'label' => $_t('KYC दर्ता', 'KYC Registration')],
+    ['href' => $siteUrl.'member/kyc.php',                        'icon' => 'fa-id-card',             'color' => 'var(--secondary-color)', 'label' => $_t('केवाइएम दर्ता', 'KYC Registration')],
     ['href' => $siteUrl.'member/loan-apply.php',               'icon' => 'fa-hand-holding-usd',    'color' => 'var(--secondary-dark)', 'label' => $_t('ऋण आवेदन', 'Loan Apply')],
     ['href' => $siteUrl.'member/account-apply.php',            'icon' => 'fa-university',          'color' => 'var(--primary-color)', 'label' => $_t('खाता खोल्ने', 'Open Account')],
     ['href' => $siteUrl.'member/digital-service.php',          'icon' => 'fa-laptop',              'color' => 'var(--secondary-color)', 'label' => $_t('डिजिटल सेवा', 'Digital Service')],

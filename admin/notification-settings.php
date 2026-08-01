@@ -131,7 +131,7 @@ $events = [
     'grievance'          => ['label' => 'गुनासो',             'icon' => 'fa-triangle-exclamation'],
     'digital_service'    => ['label' => 'डिजिटल सेवा',       'icon' => 'fa-laptop-code'],
     'honor_application'  => ['label' => 'सम्मान आवेदन',     'icon' => 'fa-award'],
-    'kyc_application'    => ['label' => 'KYC आवेदन',         'icon' => 'fa-id-card-clip'],
+    'kyc_application'    => ['label' => 'केवाइएम आवेदन',         'icon' => 'fa-id-card-clip'],
     'appointment'        => ['label' => 'भेटघाट',             'icon' => 'fa-calendar-check'],
     'account_application'=> ['label' => 'खाता आवेदन',         'icon' => 'fa-user-plus'],
     'job_application'    => ['label' => 'जागिर आवेदन',        'icon' => 'fa-briefcase'],

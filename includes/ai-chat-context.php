@@ -50,7 +50,7 @@ if (!function_exists('ai_chat_expand_tokens')) {
             'contact' => ['contact', 'सम्पर्क', 'phone', 'फोन', 'email', 'इमेल', 'officer', 'अधिकारी'],
             'rate' => ['rate', 'ब्याज', 'ब्याजदर', 'interest', 'ऋण', 'बचत', 'loan', 'saving'],
             'service' => ['service', 'सेवा', 'products', 'उत्पादन'],
-            'branch' => ['branch', 'शाखा', 'office', 'केन्द्र', 'सेवा केन्द्र'],
+            'branch' => ['branch', 'शाखा', 'सेवा कार्यालय', 'office', 'केन्द्र', 'सेवा केन्द्र'],
             'members' => ['member', 'members', 'सदस्य', 'total', 'कुल', 'संख्या', 'count', 'kati', 'कति'],
         ];
 

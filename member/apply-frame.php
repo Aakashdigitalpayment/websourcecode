@@ -13,8 +13,8 @@ $_t = static function (string $np, string $en): string {
 $frames = [
     'kyc' => [
         'path' => 'online-kyc.php',
-        'title' => $_t('KYC दर्ता / अपडेट', 'KYC Register / Update'),
-        'hint' => $_t('अनलाइन KYC फारम — लगिन सत्र प्रयोग भइरहेको छ।', 'Online KYC form using your current login session.'),
+        'title' => $_t('केवाइएम दर्ता / अपडेट', 'KYC Register / Update'),
+        'hint' => $_t('अनलाइन केवाइएम फारम — लगिन सत्र प्रयोग भइरहेको छ।', 'Online KYM form using your current login session.'),
     ],
     'digital' => [
         'path' => 'digital-services.php',

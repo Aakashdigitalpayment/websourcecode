@@ -245,12 +245,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
                 $kycMatched = false;
             }
             if (!$kycMatched) {
-                $error = $_t('KYC रेकर्ड फेला परेन। सदस्यता नम्बर + इमेल + मोबाइल KYC विवरणसँग मिलेको छैन।', 'KYC record not found. Member number + email + mobile do not match KYC details.');
+                $error = $_t('केवाइएम रेकर्ड फेला परेन। सदस्यता नम्बर + इमेल + मोबाइल KYC विवरणसँग मिलेको छैन।', 'KYC record not found. Member number + email + mobile do not match KYC details.');
             } elseif (($kycRow['status'] ?? '') === 'rejected') {
-                $error = $_t('तपाईंको KYC अस्वीकृत छ। कृपया सहकारीमा सम्पर्क गरी KYC अपडेट गर्नुहोस्।', 'Your KYC is rejected. Please contact cooperative and update KYC.');
+                $error = $_t('तपाईंको केवाइएम अस्वीकृत छ। कृपया सहकारीमा सम्पर्क गरी KYC अपडेट गर्नुहोस्।', 'Your KYC is rejected. Please contact cooperative and update KYC.');
             }
             if (!$error && $kycRow) {
-                // Signup data KYC बाट नै लिने — duplicate typing हटाउने
+                // Signup data KYM बाट नै लिने — duplicate typing हटाउने
                 $name  = trim($kycRow['full_name'] ?? '');
                 $email = strtolower(trim($kycRow['email'] ?? $email));
                 $phone = preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? $phone));
@@ -279,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
                 $error = htmlspecialchars($res['error']);
             } else {
                 $tab     = 'login';
-                $success = $_t('✅ दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Registration successful! Profile was auto-filled from KYC. You can login after admin approval.');
+                $success = $_t('✅ दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Registration successful! Profile was auto-filled from KYM. You can login after admin approval.');
             }
         }
     }
@@ -591,7 +591,7 @@ body {
             </div>
             <div class="alert alert-info kyc-note">
                 <i class="fas fa-circle-info"></i>
-                नाम KYC बाट स्वतः लिइन्छ। सदस्यता नम्बर + इमेल + मोबाइल KYC सँग मिल्नुपर्छ।
+                नाम KYM बाट स्वतः लिइन्छ। सदस्यता नम्बर + इमेल + मोबाइल KYC सँग मिल्नुपर्छ।
             </div>
             <div class="field">
                 <label><?php echo $_t('पासवर्ड', 'Password'); ?> <span class="req-star">*</span></label>

@@ -56,7 +56,7 @@ try {
                         $kycOk = (bool)$kst->fetchColumn();
                     }
                     if (!$kycOk) {
-                        $preregError = $_t('स्वीकृत KYC छैन। कृपया KYC approve भएपछि pre-register गर्नुहोस्।', 'Approved KYC required. Please pre-register after KYC is approved.');
+                        $preregError = $_t('स्वीकृत KYC छैन। कृपया KYM approve भएपछि pre-register गर्नुहोस्।', 'Approved KYC required. Please pre-register after KYC is approved.');
                     } else {
                         $chk = $db->prepare("SELECT id FROM member_program_preregistrations WHERE member_id=? AND program_id=? LIMIT 1");
                         $chk->execute([(int)$member['id'], $preregProgramId]);

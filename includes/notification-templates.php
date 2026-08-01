@@ -86,7 +86,7 @@ function getNotificationEventsList(): array {
             'loan_application'    => 'नयाँ ऋण आवेदन',
             'grievance'           => 'नयाँ गुनासो',
             'digital_service'     => 'नयाँ डिजिटल सेवा अनुरोध',
-            'kyc_application'     => 'नयाँ KYC आवेदन',
+            'kyc_application'     => 'नयाँ केवाइएम आवेदन',
             'appointment'         => 'नयाँ भेटघाट',
             'account_application' => 'नयाँ खाता आवेदन',
             'job_application'     => 'नयाँ जागिर आवेदन',

@@ -165,7 +165,7 @@ HTML;
   <?php if (!$fullName || !$sadasyata): ?>
   <div class="cert-noprint cert-alert warn">
     <i class="fas fa-triangle-exclamation"></i>
-    <div><?php echo $_t('तपाईंको KYC अनुमोदन भएको छैन। KYC approve भएपछि मात्र पूर्ण प्रमाणपत्र उपलब्ध हुनेछ।', 'Your KYC is not approved yet. Full certificate will be available only after KYC approval.'); ?></div>
+    <div><?php echo $_t('तपाईंको केवाइएम अनुमोदन भएको छैन। KYM approve भएपछि मात्र पूर्ण प्रमाणपत्र उपलब्ध हुनेछ।', 'Your KYC is not approved yet. Full certificate will be available only after KYC approval.'); ?></div>
   </div>
   <?php endif; ?>
 

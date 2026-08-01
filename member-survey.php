@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($loggedMember) {
             $kycMerge = loadKycRowForLoggedMemberPublic($db, $loggedMember);
             if (!$kycMerge || strtolower(trim((string)($kycMerge['status'] ?? ''))) !== 'approved') {
-                $error = isEnglish() ? 'KYC verification is required for suggestions/feedback.' : 'सुझाव/प्रतिक्रिया पठाउन KYC verified (approved) हुनुपर्छ।';
+                $error = isEnglish() ? 'KYM verification is required for suggestions/feedback.' : 'सुझाव/प्रतिक्रिया पठाउन KYC verified (approved) हुनुपर्छ।';
             }
             $fnK = (is_array($kycMerge) && !empty($kycMerge['full_name'])) ? trim((string)$kycMerge['full_name']) : '';
             $name = $fnK !== '' ? $fnK : trim((string)($loggedMember['name'] ?? $name));
@@ -254,14 +254,14 @@ require_once 'includes/header.php';
                     <?php echo csrfField(); ?>
                     <?php if ($loggedMember): ?>
                     <div class="alert alert-success py-2 small mb-3">
-                        <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — identity from profile / KYC.' : 'लगइन — पहिचान प्रोफाइल / KYC बाट।'; ?>
+                        <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — identity from profile / KYC.' : 'लगइन — पहिचान प्रोफाइल / KYM बाट।'; ?>
                     </div>
                     <?php else: ?>
                     <div class="border rounded-3 p-3 mb-3 bg-light">
                         <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
                         <div class="d-flex flex-wrap gap-3">
                             <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-svy-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
-                            <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-svy-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYC)' : 'हो (Member ID आधारित KYC)'; ?></label>
+                            <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-svy-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYM)' : 'हो (Member ID आधारित KYM)'; ?></label>
                         </div>
                     </div>
                     <?php endif; ?>
