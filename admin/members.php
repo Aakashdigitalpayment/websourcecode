@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin: Member Portal Management
+ * Admin: Members list (Member ID SSOT ledger)
  * - Member list, details, direct notification send
  */
 $pageTitle   = 'सबै सदस्य (Member ID)';
@@ -533,7 +533,12 @@ try {
         <div class="text-center text-muted py-5 px-3">
             <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
             <div><?php echo $search !== '' ? "'" . htmlspecialchars($search, ENT_QUOTES, 'UTF-8') . "' फेला परेन।" : ($memSub === 'arch' ? 'अभिलेखमा कुनै सदस्य छैन।' : 'अहिलेसम्म कुनै सक्रिय Member छैन।'); ?></div>
-            <small class="text-muted mt-1 d-block">Member Portal मा Register गरेपछि यहाँ देखिन्छ। अर्को उप-ट्याब वा फिल्टर हेर्नुहोस्।</small>
+            <small class="text-muted mt-1 d-block">
+                थप्न: <a href="member-import.php">Bulk Import</a>
+                · नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a>
+                · कागजात: <a href="kyc-applications.php">KYM</a>
+                · लगइन: <a href="member-online-portal.php">Portal unlock</a>
+            </small>
         </div>
         <?php else: ?>
         <div class="table-responsive admin-table-card">

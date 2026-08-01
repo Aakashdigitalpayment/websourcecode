@@ -123,7 +123,8 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
     <div>
         <h1 class="h4 mb-1"><?php echo htmlspecialchars($pageTitle); ?></h1>
         <p class="text-muted small mb-0">
-            पुराना सदस्य CSV बाट upload गर्नुहोस् — कार्ड auto-generate हुन्छ। Excel मा भरेर <strong>Save As → CSV UTF-8</strong> गर्नुहोस्।
+            पुराना सदस्यको <strong>Member ID ledger</strong> CSV बाट upload — कार्ड auto-generate, मिल्दो KYM लिंक।
+            कागजात छुट्टै <a href="kyc-applications.php">KYM Import</a> मा (एउटै Member ID)। Excel → <strong>CSV UTF-8</strong>।
         </p>
     </div>
     <div class="d-flex gap-2 flex-wrap">

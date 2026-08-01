@@ -268,7 +268,7 @@ if (!function_exists('memberSsotBatchStatusForKycRows')) {
                 $ph = implode(',', array_fill(0, count($keys), '?'));
                 $st = $db->prepare(
                     "SELECT id, sadasyata_number, kyc_application_id, password_hash
-                     FROM members WHERE sadasyata_number IN ($ph)"
+                     FROM members WHERE UPPER(TRIM(sadasyata_number)) IN ($ph)"
                 );
                 $st->execute($keys);
                 while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
@@ -679,27 +679,34 @@ if (!function_exists('memberSsotTryAddUniqueIndex')) {
 if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
-        $en = function_exists('isEnglish') && isEnglish();
-        /* Admin panel often Nepali-only */
-        $title = 'Member ID = एकल स्रोत (SSOT)';
-        $body = 'केवाइएम = पहिचान/कागजात · Members = सदस्य खाता (सदस्यता नं.) · Portal = लगइन unlock। '
-            . 'KYM approve गर्दा मात्र लगइन बन्दैन — सदस्यता नं. एउटै रहनुपर्छ, दोहोरो हुँदैन।';
+        $title = 'एक Member ID = एक मान्छे (SSOT)';
+        $flow = '१) Members सूची/Import = सदस्यता ledger · '
+            . '२) KYM = कागजात · '
+            . '३) Portal unlock = लगइन मात्र · '
+            . '४) नयाँ व्यक्ति = सदस्यता अनुरोध → Admin ले Member ID दिन्छ।';
+        $body = $flow;
         if ($context === 'kyc') {
-            $body = 'एउटै Member ID = एउटै मान्छे। यो पेज = कागजात/AML मात्र। '
-                . 'नयाँ व्यक्ति पहिले «सदस्यता अनुरोध» बाट आउँछ; admin ले Member ID दिएपछि मात्र Online KYM। '
-                . 'Approve KYM = लिंक/stub; पोर्टल लगइन छुट्टै unlock।';
+            $body = 'यो पेज = कागजात/AML मात्र। Bulk import मा <strong>member_id अनिवार्य</strong>। '
+                . 'पहिले <a href="member-import.php">Members Import</a> वा सूचीमा Member ID राख्नुहोस्, अनि KYM। '
+                . 'Approve = लिंक/stub; लगइन छुट्टै Portal unlock।';
         } elseif ($context === 'portal') {
-            $body = 'यो पेजले त्यही members row को लगइन unlock गर्छ (approve/password)। नयाँ Member ID बन्दैन।';
+            $body = 'यो पेजले <strong>त्यही Member ID</strong> को लगइन unlock गर्छ (approve/password)। नयाँ सदस्यता नं. बन्दैन। '
+                . 'सूची: <a href="members.php">Members</a> · कागजात: <a href="kyc-applications.php">KYM</a>।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID SSOT)। KYM र Portal दुवै यही नम्बरबाट जोडिन्छ।';
+            $body = 'यो सूची = सहकारी सदस्यता खाता (Member ID)। '
+                . 'थप्न: <a href="member-import.php">Bulk Import</a> · नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a> · '
+                . 'कागजात: <a href="kyc-applications.php">KYM</a> · लगइन: <a href="member-online-portal.php">Portal unlock</a>।';
         } elseif ($context === 'import') {
-            $body = 'Members import = ledger (सदस्यता नं.)। KYM import = कागजात। एउटै नम्बर — दुई मान्छे होइन।';
+            $body = 'Members CSV = <strong>सदस्यता ledger</strong> (sadasyata_number = Member ID)। ID invent हुँदैन। '
+                . 'मिल्दो KYM भए स्वतः लिंक। कागजात छुट्टै: <a href="kyc-applications.php">KYM Bulk Import</a> '
+                . '(त्यहाँ पनि एउटै Member ID)।';
         } elseif ($context === 'membership') {
-            $body = 'नयाँ व्यक्ति = सदस्यता अनुरोध (Member ID बिना)। Admin ले Member ID दिएपछि members SSOT बन्छ; अनि मात्र Online KYM।';
+            $body = 'नयाँ व्यक्ति (Member ID बिना) → यहाँ approve गर्दा तपाईंले Member ID दिनुहोस् → members stub। '
+                . 'त्यसपछि Online KYM / Members सूची / Portal unlock — सबै त्यही नम्बर।';
         }
         return '<div class="alert alert-info border-0 shadow-sm py-2 px-3 mb-3 member-ssot-help" role="note">'
             . '<div class="fw-semibold small mb-1"><i class="fas fa-link me-1"></i>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>'
-            . '<div class="small mb-0 text-secondary">' . htmlspecialchars($body, ENT_QUOTES, 'UTF-8') . '</div>'
+            . '<div class="small mb-0 text-secondary">' . $body . '</div>'
             . '</div>';
     }
 }

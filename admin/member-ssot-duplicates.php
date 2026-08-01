@@ -4,7 +4,7 @@
  * Live-safe: report first; add UNIQUE only when clean.
  */
 $pageTitle   = 'Member ID Duplicate Inventory';
-$currentPage = 'members';
+$currentPage = 'member-ssot-duplicates';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/auth-roles.php';

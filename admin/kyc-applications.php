@@ -266,7 +266,7 @@ if ($db instanceof PDO) {
     ensureRequestStatusHistoryTable($db);
 }
 
-/* ── Bulk Import (Excel CSV) ── */
+/* ── Bulk Import (Excel CSV) — KYM docs only; Member ID SSOT link ── */
 if (isset($_POST['import_kyc_csv'])) {
     $file = $_FILES['kyc_csv_file'] ?? null;
     if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
@@ -292,11 +292,11 @@ if (isset($_POST['import_kyc_csv'])) {
         redirect('kyc-applications.php');
     }
     $header = array_map(fn($h) => strtolower(trim((string)$h)), $header);
-    $required = ['full_name','mobile'];
+    $required = ['full_name', 'mobile', 'member_id'];
     foreach ($required as $rk) {
         if (!in_array($rk, $header, true)) {
             fclose($handle);
-            setFlash('error', "CSV header मा '{$rk}' अनिवार्य छ। Sample file प्रयोग गर्नुहोस्।");
+            setFlash('error', "CSV header मा '{$rk}' अनिवार्य छ। Sample file प्रयोग गर्नुहोस्। (Member ID बिना KYM orphan बन्छ।)");
             redirect('kyc-applications.php');
         }
     }
@@ -320,33 +320,61 @@ if (isset($_POST['import_kyc_csv'])) {
     $placeholders = implode(',', array_fill(0, count($insertCols), '?'));
     $sql = "INSERT INTO kyc_applications (" . implode(',', $insertCols) . ") VALUES ($placeholders)";
     $ins = $db->prepare($sql);
-    $dupByMemberId = $db->prepare("SELECT id FROM kyc_applications
-                                   WHERE member_id=? AND status IN ('pending','approved','incomplete','partial')
-                                   LIMIT 1");
-    $dupByNameMobile = $db->prepare("SELECT id FROM kyc_applications WHERE full_name=? AND mobile=? LIMIT 1");
+    $dupByMemberId = $db->prepare(
+        "SELECT id FROM kyc_applications
+         WHERE UPPER(TRIM(member_id))=? AND status IN ('pending','approved','incomplete','partial')
+         LIMIT 1"
+    );
 
-    $ok = 0; $skip = 0; $rowNo = 1;
+    $ok = 0;
+    $skip = 0;
+    $linked = 0;
+    $rowNo = 1;
+    $skipReasons = [];
     $allowedStatuses = ['pending','approved','rejected','incomplete','partial'];
     while (($row = fgetcsv($handle)) !== false) {
         $rowNo++;
-        if (!is_array($row) || count(array_filter($row, fn($v) => trim((string)$v) !== '')) === 0) continue;
+        if (!is_array($row) || count(array_filter($row, fn($v) => trim((string)$v) !== '')) === 0) {
+            continue;
+        }
         $val = fn($key) => isset($idx[$key], $row[$idx[$key]]) ? trim((string)$row[$idx[$key]]) : '';
 
-        $memberId = strtoupper(trim(clean_text($val('member_id'))));
+        $memberId = function_exists('memberSsotNormalizeId')
+            ? memberSsotNormalizeId(clean_text($val('member_id')))
+            : strtoupper(trim(clean_text($val('member_id'))));
         $fullName = clean_text($val('full_name'));
-        $mobile   = preg_replace('/[^0-9]/', '', $val('mobile'));
-        if ($fullName === '' || $mobile === '' || strlen($mobile) < 7) { $skip++; continue; }
-
-        if ($memberId !== '') {
-            $dupByMemberId->execute([$memberId]);
-            if ($dupByMemberId->fetch()) { $skip++; continue; }
-        } else {
-            $dupByNameMobile->execute([$fullName, $mobile]);
-            if ($dupByNameMobile->fetch()) { $skip++; continue; }
+        $mobile = preg_replace('/[^0-9]/', '', $val('mobile')) ?? '';
+        if (strlen($mobile) > 10 && strpos($mobile, '977') === 0) {
+            $mobile = substr($mobile, -10);
         }
 
+        if ($memberId === '') {
+            $skip++;
+            $skipReasons[] = "row {$rowNo}: Member ID खाली";
+            continue;
+        }
+        if ($fullName === '' || $mobile === '' || strlen($mobile) < 7) {
+            $skip++;
+            $skipReasons[] = "row {$rowNo}: नाम/मोबाइल अपूर्ण";
+            continue;
+        }
+
+        $dupByMemberId->execute([$memberId]);
+        if ($dupByMemberId->fetch()) {
+            $skip++;
+            $skipReasons[] = "row {$rowNo}: Member ID {$memberId} मा KYM पहिले नै छ";
+            continue;
+        }
+
+        /* Warn if Member ID not in members ledger (still allow KYM — link later after import) */
+        $memberExists = function_exists('memberSsotFindBySadasyata')
+            ? (bool)memberSsotFindBySadasyata($db, $memberId)
+            : false;
+
         $status = strtolower($val('status'));
-        if (!in_array($status, $allowedStatuses, true)) $status = 'pending';
+        if (!in_array($status, $allowedStatuses, true)) {
+            $status = 'pending';
+        }
         $wantId = in_array(strtolower($val('want_id_card')), ['1','yes','y','true'], true) ? 1 : 0;
 
         $values = [
@@ -373,16 +401,29 @@ if (isset($_POST['import_kyc_csv'])) {
         try {
             $ins->execute($values);
             $newKycId = (int)$db->lastInsertId();
-            if ($newKycId > 0 && $memberId !== '' && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
-                memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId);
+            if ($newKycId > 0 && function_exists('memberSsotLinkMemberBySadasyataToKyc')) {
+                if (memberSsotLinkMemberBySadasyataToKyc($db, $memberId, $newKycId)) {
+                    $linked++;
+                }
+            }
+            if (!$memberExists) {
+                $skipReasons[] = "row {$rowNo}: KYM थपियो तर Members मा {$memberId} छैन — पहिले Members import गर्नुहोस्";
             }
             $ok++;
         } catch (Throwable $e) {
             $skip++;
+            $skipReasons[] = "row {$rowNo}: DB error";
         }
     }
     fclose($handle);
-    setFlash('success', "KYC bulk import सम्पन्न भयो। सफल: {$ok}, Skip: {$skip}");
+    $msg = "KYM bulk import: सफल {$ok}, Skip {$skip}, Members मा लिंक {$linked}।";
+    if ($skipReasons) {
+        $msg .= ' ' . implode('; ', array_slice($skipReasons, 0, 5));
+        if (count($skipReasons) > 5) {
+            $msg .= ' … (+' . (count($skipReasons) - 5) . ')';
+        }
+    }
+    setFlash($ok > 0 ? 'success' : 'error', $msg);
     redirect('kyc-applications.php');
 }
 
@@ -1468,8 +1509,8 @@ if ($viewApp):
             </a>
         </div>
         <p class="small text-muted mb-2 mb-md-0">
-            कागजात/KYM मात्र — Member ID ले पहिले नै <a href="members.php">Members</a> मा भएको भए स्वतः लिंक हुन्छ।
-            Ledger (सदस्यता सूची) का लागि <a href="member-import.php">Members Bulk Import</a> प्रयोग गर्नुहोस्।
+            <strong>कागजात/KYM मात्र</strong> — <code>member_id</code> (Member ID) <strong>अनिवार्य</strong>। खाली ID = skip (orphan बन्दैन)।
+            पहिले <a href="member-import.php">Members Bulk Import</a> ले ledger हाल्नुहोस्; अनि यही नम्बरले KYM लिंक हुन्छ।
         </p>
         <form method="POST" enctype="multipart/form-data" class="row g-2 align-items-end">
             <?php echo csrfField(); ?>

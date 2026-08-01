@@ -6,7 +6,7 @@ $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
 };
-$pageTitle   = $__t('सदस्य अनलाइन पोर्टल', 'Member Online Portal');
+$pageTitle   = $__t('पोर्टल लगइन unlock (उही Member ID)', 'Portal login unlock (same Member ID)');
 $currentPage = 'member-online-portal';
 require_once 'includes/admin-header.php';
 require_once '../includes/member-auth.php';

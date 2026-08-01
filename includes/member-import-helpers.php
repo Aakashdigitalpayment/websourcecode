@@ -437,6 +437,7 @@ if (!function_exists('_memberImportParseChunk')) {
             };
 
             $sid = function_exists('clean_text') ? clean_text($val('sadasyata_number')) : $val('sadasyata_number');
+            $sid = function_exists('memberSsotNormalizeId') ? memberSsotNormalizeId($sid) : strtoupper(trim((string)$sid));
             $name = function_exists('clean_text') ? clean_text($val('full_name')) : $val('full_name');
             $mobile = preg_replace('/[^0-9]/', '', $val('mobile')) ?? '';
             // Nepal mobiles often stored with 977 prefix — normalize to last 10 digits when longer
@@ -565,8 +566,14 @@ if (!function_exists('_memberImportImportChunk')) {
             }
         } catch (Throwable $e) {}
 
-        $findBySid = $pdo->prepare("SELECT id, name, phone, email, address FROM members WHERE sadasyata_number=? LIMIT 1");
-        $findByPhone = $pdo->prepare("SELECT id, name, phone, email, address, sadasyata_number FROM members WHERE phone=? LIMIT 1");
+        $findBySid = $pdo->prepare(
+            "SELECT id, name, phone, email, address, sadasyata_number
+             FROM members WHERE UPPER(TRIM(sadasyata_number)) = ? LIMIT 1"
+        );
+        $findByPhone = $pdo->prepare(
+            "SELECT id, name, phone, email, address, sadasyata_number
+             FROM members WHERE phone=? ORDER BY id ASC LIMIT 1"
+        );
         $findByEmail = $pdo->prepare("SELECT id FROM members WHERE email=? AND email<>'' LIMIT 1");
 
         $okAdd = 0;
@@ -578,25 +585,38 @@ if (!function_exists('_memberImportImportChunk')) {
 
         foreach ($rows as $r) {
             $rowId = (int)$r['id'];
-            $sid = trim((string)$r['sadasyata_number']);
+            $sid = function_exists('memberSsotNormalizeId')
+                ? memberSsotNormalizeId((string)$r['sadasyata_number'])
+                : strtoupper(trim((string)$r['sadasyata_number']));
             $name = trim((string)$r['full_name']);
             $mobile = trim((string)$r['mobile']);
+            if (strlen($mobile) > 10 && strpos($mobile, '977') === 0) {
+                $mobile = substr($mobile, -10);
+            }
             $email = trim((string)$r['email']);
             $address = trim((string)($r['address'] ?? ''));
             $dob = trim((string)$r['dob']);
             $gender = trim((string)$r['gender']);
 
             try {
+                if ($sid === '') {
+                    $mark->execute(['failed', 'सदस्यता नं. (Member ID) खाली छ — SSOT मा अनिवार्य।', null, $rowId]);
+                    $failAdd++;
+                    continue;
+                }
+
                 $existing = null;
                 $findBySid->execute([$sid]);
                 $existing = $findBySid->fetch(PDO::FETCH_ASSOC) ?: null;
 
-                /* Phone/email collisions on a *different* Member ID must not hijack SSOT row */
+                /* Phone collisions on a *different* Member ID must not hijack SSOT row */
                 if (!$existing) {
                     $findByPhone->execute([$mobile]);
                     $byPhone = $findByPhone->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($byPhone) {
-                        $otherSid = trim((string)($byPhone['sadasyata_number'] ?? ''));
+                        $otherSid = function_exists('memberSsotNormalizeId')
+                            ? memberSsotNormalizeId((string)($byPhone['sadasyata_number'] ?? ''))
+                            : strtoupper(trim((string)($byPhone['sadasyata_number'] ?? '')));
                         if ($otherSid !== '' && $otherSid !== $sid) {
                             $mark->execute([
                                 'failed',
@@ -607,9 +627,22 @@ if (!function_exists('_memberImportImportChunk')) {
                             $failAdd++;
                             continue;
                         }
-                        /* Same empty/other edge: treat as existing only if sadasyata empty on that row */
-                        if ($otherSid === '' || $otherSid === $sid) {
+                        if ($otherSid === $sid) {
                             $existing = $byPhone;
+                        } elseif ($otherSid === '') {
+                            /* Empty Member ID on phone-matched row: fill in update mode only */
+                            if ($mode === 'update') {
+                                $existing = $byPhone;
+                            } else {
+                                $mark->execute([
+                                    'failed',
+                                    'यो mobile मा Member ID खाली भएको पुरानो row छ। Update mode प्रयोग गरी Member ID भर्नुहोस्।',
+                                    (int)$byPhone['id'],
+                                    $rowId,
+                                ]);
+                                $failAdd++;
+                                continue;
+                            }
                         }
                     }
                 }
@@ -617,8 +650,28 @@ if (!function_exists('_memberImportImportChunk')) {
                 if ($existing) {
                     $memberPk = (int)$existing['id'];
                     if ($mode === 'update') {
+                        $existingSid = function_exists('memberSsotNormalizeId')
+                            ? memberSsotNormalizeId((string)($existing['sadasyata_number'] ?? ''))
+                            : strtoupper(trim((string)($existing['sadasyata_number'] ?? '')));
+                        /* Fill empty sadasyata from CSV; never overwrite a different ID */
+                        $sidSql = '';
+                        $sidParams = [];
+                        if ($existingSid === '' && $sid !== '') {
+                            $sidSql = 'sadasyata_number=?,';
+                            $sidParams[] = $sid;
+                        } elseif ($existingSid !== '' && $existingSid !== $sid) {
+                            $mark->execute([
+                                'failed',
+                                'Row को Member ID (' . $existingSid . ') CSV (' . $sid . ') सँग मिल्दैन।',
+                                $memberPk,
+                                $rowId,
+                            ]);
+                            $failAdd++;
+                            continue;
+                        }
                         $up = $pdo->prepare(
                             "UPDATE members SET
+                                {$sidSql}
                                 name=?,
                                 phone=?,
                                 email=COALESCE(NULLIF(?, ''), email),
@@ -629,7 +682,7 @@ if (!function_exists('_memberImportImportChunk')) {
                                 is_active=1
                              WHERE id=?"
                         );
-                        $up->execute([
+                        $up->execute(array_merge($sidParams, [
                             $name,
                             $mobile,
                             $email,
@@ -637,7 +690,7 @@ if (!function_exists('_memberImportImportChunk')) {
                             $dob !== '' ? $dob : null,
                             $gender,
                             $memberPk,
-                        ]);
+                        ]));
                         $cardOk = false;
                         if (function_exists('adminGenerateMemberIdCard')) {
                             $cardOk = (bool)adminGenerateMemberIdCard($memberPk, $adminId, true);
@@ -650,6 +703,7 @@ if (!function_exists('_memberImportImportChunk')) {
                         $mark->execute([
                             'ok',
                             'Updated existing member'
+                                . ($sidParams ? ' + Member ID filled' : '')
                                 . ($cardOk ? ' + card' : '')
                                 . ($kymLinked ? ' + KYM linked' : ''),
                             $memberPk,
@@ -657,7 +711,7 @@ if (!function_exists('_memberImportImportChunk')) {
                         ]);
                         $okAdd++;
                     } else {
-                        $mark->execute(['skipped', 'Duplicate (sadasyata/mobile already exists)', $memberPk, $rowId]);
+                        $mark->execute(['skipped', 'Duplicate (Member ID/mobile पहिले नै छ) — Update mode प्रयोग गर्नुहोस्।', $memberPk, $rowId]);
                         $skipAdd++;
                     }
                     continue;

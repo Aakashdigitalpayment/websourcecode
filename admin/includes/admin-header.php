@@ -279,8 +279,9 @@ $pageGroups = [
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
-    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-import','member-activities'],
-    'memportal'=> ['member-online-portal'],
+    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center'],
+    /* एक ठाउँ: Member ID ledger + import + portal unlock (confusion कम) */
+    'sadasya'=> ['members','member-import','member-activities','member-online-portal','member-ssot-duplicates'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
     /* admin management pages — site-setup kept for direct URL; not in daily nav */
@@ -764,41 +765,47 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='help-center' ? 'active' : ''; ?>">
                                 <a href="help-center.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="headset"></i></span><span><?php echo $adminT('सहायता केन्द्र', 'Help Center'); ?></span></a>
                             </li>
+                        </ul>
+                    </li>
+
+                    <!-- ── सदस्य (Member ID) — सूची / import / portal unlock एकै समूह ── -->
+                    <li class="nav-group-wrap">
+                        <?php $sadasyaBadge = (int)($adminAlertCounts['mem_pending'] ?? 0) + (int)($adminAlertCounts['mem_resets'] ?? 0); ?>
+                        <div class="nav-group-header <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" data-group="sadasya">
+                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
+                            <span class="nav-group-label"><?php echo $adminT('सदस्य (Member ID)', 'Members (Member ID)'); ?></span>
+                            <?php if ($sadasyaBadge > 0): ?><span class="group-badge"><?php echo $sadasyaBadge; ?></span><?php endif; ?>
+                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
+                        </div>
+                        <ul class="nav-submenu <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" id="group-sadasya">
                             <li class="<?php echo $currentPage=='members' ? 'active' : ''; ?>">
                                 <a href="members.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
-                                    <span><?php echo $adminT('सदस्य सूची (Member ID)', 'Members (Member ID)'); ?></span>
+                                    <span><?php echo $adminT('सदस्य सूची', 'Members list'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
                                 <a href="member-import.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-emerald" aria-hidden="true" data-lucide="upload"></i></span>
-                                    <span><?php echo $adminT('सदस्य Bulk Import', 'Member Bulk Import'); ?></span>
+                                    <span><?php echo $adminT('Bulk Import (ledger)', 'Bulk Import (ledger)'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-ssot-duplicates' ? 'active' : ''; ?>">
+                                <a href="member-ssot-duplicates.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></span>
+                                    <span><?php echo $adminT('दोहोरो Member ID', 'Duplicate Member IDs'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='member-activities' ? 'active' : ''; ?>">
                                 <a href="member-activities.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="bar-chart-2"></i></span>
-                                    <span><?php echo $adminT('सदस्य गतिविधि खोज', 'Member Activities Search'); ?></span>
+                                    <span><?php echo $adminT('गतिविधि खोज', 'Activities search'); ?></span>
                                 </a>
                             </li>
-                        </ul>
-                    </li>
-
-                    <!-- ── Portal login unlock (same Member ID) ── -->
-                    <li class="nav-group-wrap">
-                        <?php $memPortalBadgeTotal = $memPortalBadge ?? 0; ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='memportal' ? 'open' : ''; ?>" data-group="memportal">
-                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="globe"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('पोर्टल लगइन unlock', 'Portal login unlock'); ?></span>
-                            <?php if ($memPortalBadgeTotal > 0): ?><span class="group-badge"><?php echo $memPortalBadgeTotal; ?></span><?php endif; ?>
-                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
-                        <ul class="nav-submenu <?php echo $activeGroup=='memportal' ? 'open' : ''; ?>" id="group-memportal">
                             <li class="<?php echo $currentPage=='member-online-portal' ? 'active' : ''; ?>">
                                 <a href="member-online-portal.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="users"></i></span>
-                                    <span><?php echo $adminT('दर्ता अनुमोदन', 'Registration Approval'); ?></span>
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="shield-check"></i></span>
+                                    <span><?php echo $adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'); ?></span>
                                     <?php if (!empty($adminAlertCounts['mem_pending'])): ?><span class="badge"><?php echo $adminAlertCounts['mem_pending']; ?></span><?php endif; ?>
                                 </a>
                             </li>
@@ -1040,7 +1047,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('कल्याण दाबी', 'Welfare Claims'),      'count'=>$adminAlertCounts['welfare'],           'href'=>'welfare-claims.php?status=pending',   'icon'=>'fa-hand-holding-heart',  'tone'=>'teal'],
                         ['label'=>$adminT('लिलामी बिड', 'Auction Bids'),       'count'=>$adminAlertCounts['auction'],           'href'=>'auction-bids.php',                    'icon'=>'fa-gavel',               'tone'=>'slate'],
                         ['label'=>$adminT('भेन्डर आवेदन', 'Vendor Requests'),      'count'=>$adminAlertCounts['vendor'],            'href'=>'vendor-enlistment.php?status=pending','icon'=>'fa-store',               'tone'=>'blue'],
-                        ['label'=>$adminT('सदस्य दर्ता', 'Member Registrations'),  'count'=>$adminAlertCounts['mem_pending'],       'href'=>'member-online-portal.php?status=pending','icon'=>'fa-user-plus',        'tone'=>'orange'],
+                        ['label'=>$adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'),  'count'=>$adminAlertCounts['mem_pending'],       'href'=>'member-online-portal.php?status=pending','icon'=>'fa-user-plus',        'tone'=>'orange'],
                         ['label'=>$adminT('Password Reset', 'Password Reset'),    'count'=>$adminAlertCounts['mem_resets'],        'href'=>'member-online-portal.php?tab=resets', 'icon'=>'fa-key',                 'tone'=>'red'],
                         ['label'=>$adminT('उपस्थिति अनुरोध', 'Attendance Requests'), 'count'=>$adminAlertCounts['attend'] ?? 0,   'href'=>'program-attendance.php',              'icon'=>'fa-clipboard-check',     'tone'=>'cyan'],
                     ];
