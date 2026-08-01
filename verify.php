@@ -683,7 +683,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
         </div>
     </div>
     <div class="vp-rate-body" style="text-align:center;">
-        <p style="color:#92400e;font-size:.92rem;margin:0 0 18px;"><?= $_t('५ पटक गलत Verification Code वा CVV प्रविष्ट गरिएकाले यो IP ठेगाना अस्थायी रूपमा ब्लक गरिएको छ।','This IP was temporarily blocked after 5 failed verification attempts.') ?></p>
+        <p style="color:#92400e;font-size:.92rem;margin:0 0 18px;"><?= $_t('५ पटक गलत नाम / सदस्यता नं. / मोबाइल वा CVV प्रविष्ट गरिएकाले यो IP ठेगाना अस्थायी रूपमा ब्लक गरिएको छ।','This IP was temporarily blocked after 5 failed name / member ID / mobile or CVV attempts.') ?></p>
 
         <!-- Countdown display -->
         <div id="vp-countdown-wrap" style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:18px 32px;">

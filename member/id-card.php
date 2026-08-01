@@ -201,6 +201,10 @@ if ($me) {
         } catch (Throwable $e) { error_log('[id-card-autocreate] ' . $e->getMessage()); }
     }
 
+    if (!$card) {
+        $card = [];
+    }
+
     $me['card_no']           = $card['card_no']           ?? null;
     $me['verification_code'] = $card['verification_code'] ?? null;
     $me['cvv']               = $card['cvv']               ?? null;
@@ -313,7 +317,12 @@ if ($cardWebsite === '' && defined('SITE_URL')) $cardWebsite = SITE_URL;
 $cardWebsite = preg_replace('#^https?://#i', '', rtrim($cardWebsite, '/'));
 $cardLogoUrl = '';
 if ($cardLogoRaw !== '') {
-    $cardLogoUrl = preg_match('#^https?://#i', $cardLogoRaw) ? $cardLogoRaw : (SITE_URL . ltrim($cardLogoRaw, '/'));
+    if (preg_match('#^https?://#i', $cardLogoRaw)) {
+        $cardLogoUrl = $cardLogoRaw;
+    } else {
+        $base = defined('SITE_URL') ? rtrim((string)SITE_URL, '/') . '/' : '/';
+        $cardLogoUrl = $base . ltrim($cardLogoRaw, '/');
+    }
 }
 ?>
 
@@ -364,7 +373,7 @@ if ($cardLogoRaw !== '') {
   </div>
   <?php endif; ?>
 
-  <!-- ═══════ PREMIUM FLIP MEMBER CARD ═══════ -->
+  <!-- ═══════ MEMBER DIGITAL ID ═══════ -->
   <div class="idcard-flip" id="idcardFlip" role="button" tabindex="0" aria-label="<?php echo $_t('कार्ड उल्ट्याउन क्लिक गर्नुहोस्', 'Click to flip card'); ?>">
     <div class="idcard-flip-inner">
 
@@ -391,31 +400,23 @@ if ($cardLogoRaw !== '') {
             </div>
           </div>
           <div class="idcard-tag-stack">
-            <span class="idcard-tag">MEMBER</span>
-            <span class="idcard-tag-sub">DIGITAL ID</span>
+            <span class="idcard-tag"><?php echo $_t('सदस्य', 'MEMBER'); ?></span>
+            <span class="idcard-tag-sub"><?php echo $_t('परिचयपत्र', 'ID CARD'); ?></span>
           </div>
         </div>
 
-        <div class="idcard-mid">
+        <div class="idcard-identity">
           <div class="idcard-photo">
             <img src="<?= htmlspecialchars($photo) ?>" alt="Member photo">
             <span class="idcard-photo-ring" aria-hidden="true"></span>
           </div>
-        </div>
-
-        <div class="idcard-number-block">
-          <div class="idcard-label"><?php echo $_t('सदस्यता नं. / MEMBER ID', 'MEMBER ID'); ?></div>
-          <div class="idcard-cardno"><?= htmlspecialchars($cnSpaced) ?></div>
-        </div>
-
-        <div class="idcard-bottom">
-          <div class="idcard-name-block">
-            <div class="idcard-label"><?php echo $_t('सदस्यको नाम', 'CARD HOLDER'); ?></div>
+          <div class="idcard-identity-text">
+            <div class="idcard-label"><?php echo $_t('सदस्यको नाम', 'NAME'); ?></div>
             <div class="idcard-name"><?= htmlspecialchars($memberDisplayName) ?></div>
-          </div>
-          <div class="idcard-valid">
-            <div class="idcard-label"><?php echo $_t('मोबाइल', 'MOBILE'); ?></div>
-            <div class="idcard-valid-val idcard-mobile-val"><?= htmlspecialchars($memberMobile !== '' ? $memberMobile : '—') ?></div>
+            <div class="idcard-label idcard-label-gap"><?php echo $_t('सदस्यता नं. (Member ID)', 'MEMBER ID'); ?></div>
+            <div class="idcard-cardno" title="<?php echo htmlspecialchars($_t('पुरानो कार्ड नं. / verify code अहिले यही Member ID हो', 'Former card no. / verify code is now this Member ID')); ?>"><?= htmlspecialchars($cnSpaced) ?></div>
+            <div class="idcard-label idcard-label-gap"><?php echo $_t('मोबाइल', 'MOBILE'); ?></div>
+            <div class="idcard-mobile-val"><?= htmlspecialchars($memberMobile !== '' ? $memberMobile : '—') ?></div>
           </div>
         </div>
 
@@ -442,8 +443,9 @@ if ($cardLogoRaw !== '') {
         <div class="idcard-back-body">
           <div class="idcard-sigpanel">
             <div class="idcard-sig-left">
-              <span class="idcard-sig-label"><?php echo $_t('सदस्य', 'MEMBER'); ?></span>
-              <span class="idcard-sigpanel-text"><?= htmlspecialchars($memberNameEn ?: $memberDisplayName) ?></span>
+              <span class="idcard-sig-label"><?php echo $_t('सदस्यता नं. / MEMBER ID', 'MEMBER ID'); ?></span>
+              <span class="idcard-sigpanel-text idcard-sigpanel-mid"><?= htmlspecialchars($cn) ?></span>
+              <span class="idcard-sig-sub"><?= htmlspecialchars($memberNameEn ?: $memberDisplayName) ?></span>
             </div>
             <span class="idcard-cvv-box" title="CVV">
               <span class="cvv-label">CVV</span>
@@ -453,21 +455,19 @@ if ($cardLogoRaw !== '') {
 
           <div class="idcard-back-meta">
             <div class="idcard-back-vcode">
-              <span class="bv-label"><?php echo $_t('सदस्यता नं.', 'MEMBER ID'); ?></span>
-              <span class="bv-value"><?= htmlspecialchars($cn) ?></span>
-            </div>
-            <div class="idcard-back-issued">
               <span class="bv-label"><?php echo $_t('मोबाइल', 'MOBILE'); ?></span>
               <span class="bv-value bv-value-sm"><?= htmlspecialchars($memberMobile !== '' ? $memberMobile : '—') ?></span>
+            </div>
+            <div class="idcard-back-issued">
+              <span class="bv-label"><?php echo $_t('म्याद', 'VALID'); ?></span>
+              <span class="bv-value bv-value-sm"><?= $expMo ?>/<?= $expYr ?></span>
             </div>
           </div>
 
           <div class="idcard-back-note">
-            <?php echo $_t('यो कार्ड सहकारीको सम्पत्ति हो। हराएमा तुरुन्तै कार्यालयलाई सूचित गर्नुहोस्।', 'This card is property of the cooperative. Report loss immediately.'); ?>
-            <br>
             <b><?php echo $_t('प्रमाणीकरण:', 'Verify:'); ?></b>
             <?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?>
-            — <?php echo $_t('नाम + सदस्यता नं. + मोबाइल (CVV ऐच्छिक)।', 'name + member ID + mobile (CVV optional).'); ?>
+            — <?php echo $_t('नाम + सदस्यता नं. + मोबाइल।', 'name + member ID + mobile.'); ?>
           </div>
           <div class="idcard-coop-block">
             <?php if ($cardAddress !== ''): ?>
@@ -483,9 +483,14 @@ if ($cardLogoRaw !== '') {
   </div>
   <p class="idcard-flip-hint"><i class="fas fa-hand-pointer"></i> <?php echo $_t('कार्डमा टच/क्लिक गरेर उल्ट्याउनुहोस्', 'Tap or click the card to flip'); ?></p>
 
+  <div class="idcard-ssot-note">
+    <i class="fas fa-fingerprint"></i>
+    <?php echo $_t('सदस्यता नं. (Member ID) नै पहिचान हो — पुरानो कार्ड नम्बर / verification code छुट्टै चाहिँदैन।', 'Member ID is the identity — a separate old card number / verification code is not needed.'); ?>
+  </div>
+
   <!-- Details list below card -->
   <div class="idcard-details">
-    <div class="idcard-detail"><div class="dl"><?php echo $_t('सदस्यता नं.', 'MEMBER ID'); ?></div><div class="dv code"><?= htmlspecialchars($cn) ?></div></div>
+    <div class="idcard-detail"><div class="dl"><?php echo $_t('सदस्यता नं. / Member ID', 'MEMBER ID'); ?></div><div class="dv code"><?= htmlspecialchars($cn) ?></div></div>
     <div class="idcard-detail idcard-detail-cvv">
       <div class="dl idcard-detail-cvv-label"><i class="fas fa-shield-halved"></i> CVV</div>
       <div class="dv code idcard-detail-cvv-value"><?= htmlspecialchars($cvv !== '' ? $cvv : '—') ?></div>
@@ -510,7 +515,7 @@ if ($cardLogoRaw !== '') {
     <div>
       <div class="vh-title"><?php echo $_t('हस्पिटल/पसलमा discount लिँदा सत्यता कसरी देखाउने?', 'How to show verification at hospital/shop discount?'); ?></div>
       <div class="vh-text">
-        <?php echo $_t('उनीहरूलाई', 'Ask them to open'); ?> <b><?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?></b> <?php echo $_t('मा गएर तपाईंको नाम, सदस्यता नं. र मोबाइल राख्न भन्नुहोस् — CVV कार्डमा पनि छ, ऐच्छिक रूपमा राख्न सकिन्छ।', 'and enter your name + member ID + mobile. CVV is also printed on the card and can be entered optionally.'); ?>
+        <?php echo $_t('उनीहरूलाई', 'Ask them to open'); ?> <b><?= htmlspecialchars(($cardWebsite ?: 'website') . '/verify.php') ?></b> <?php echo $_t('मा गएर तपाईंको नाम, सदस्यता नं. र मोबाइल राख्न भन्नुहोस् — CVV ऐच्छिक।', 'and enter your name + member ID + mobile — CVV optional.'); ?>
       </div>
     </div>
   </div>
@@ -552,9 +557,17 @@ if ($cardLogoRaw !== '') {
 }
 .idcard-flip.is-flipped .idcard-flip-inner { transform: rotateY(180deg); }
 .idcard-flip-hint {
-  text-align: center; font-size: .75rem; color: #6b7280; margin: 0 auto 20px; max-width: 460px;
+  text-align: center; font-size: .75rem; color: #6b7280; margin: 0 auto 10px; max-width: 460px;
 }
 .idcard-flip-hint i { margin-right: 4px; opacity: .7; }
+.idcard-ssot-note {
+  max-width: 460px; margin: 0 auto 18px; padding: 10px 12px;
+  border-radius: 10px; font-size: .78rem; line-height: 1.45;
+  background: color-mix(in srgb, var(--primary-color) 9%, white);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 22%, #e5e7eb);
+  color: var(--primary-dark, #0a4a25); text-align: center;
+}
+.idcard-ssot-note i { margin-right: 5px; opacity: .85; }
 
 .idcard {
   position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
@@ -637,10 +650,13 @@ if ($cardLogoRaw !== '') {
   display:block; font-size:.48rem; letter-spacing:.16em; opacity:.75; margin-top:4px; font-weight:600;
 }
 
-.idcard-mid { display:flex; align-items:center; justify-content:flex-end; gap:14px; margin-top:12px; position:relative; z-index:1; }
+.idcard-identity {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-top: 14px; position: relative; z-index: 1; flex: 1;
+}
 .idcard-photo {
-  width:68px; height:84px; border-radius:10px; overflow:hidden;
-  background: linear-gradient(145deg, #fff, #e8e8e8); padding:3px;
+  width: 72px; height: 88px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
+  background: linear-gradient(145deg, #fff, #e8e8e8); padding: 3px;
   box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.6);
   position: relative;
 }
@@ -649,21 +665,26 @@ if ($cardLogoRaw !== '') {
   position: absolute; inset: 0; border-radius: 10px; pointer-events: none;
   box-shadow: inset 0 0 0 1px rgba(255,215,128,.35);
 }
-
-.idcard-number-block { margin-top: 12px; position: relative; z-index: 1; }
-.idcard-cardno {
-  margin-top: 3px;
-  font-family: 'Courier New', ui-monospace, monospace;
-  font-size: 1.18rem; letter-spacing: .14em; font-weight: 700;
-  color: #fff;
-  text-shadow: 0 2px 6px rgba(0,0,0,.35);
-}
-.idcard-bottom { display:flex; justify-content:space-between; align-items:flex-end; margin-top:10px; gap:10px; position: relative; z-index: 1; }
+.idcard-identity-text { min-width: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; }
 .idcard-label { font-size:.5rem; opacity:.72; letter-spacing:.12em; font-weight:700; text-transform: uppercase; }
-.idcard-name { font-size:.9rem; font-weight:700; line-height:1.2; margin-top:2px; text-shadow: 0 1px 4px rgba(0,0,0,.25); }
-.idcard-valid { text-align:right; flex-shrink: 0; max-width: 46%; }
-.idcard-valid-val { font-family:'Courier New',monospace; font-weight:700; font-size:.9rem; letter-spacing:.08em; margin-top:2px; }
-.idcard-mobile-val { font-size:.78rem; letter-spacing:.04em; word-break: break-all; }
+.idcard-label-gap { margin-top: 7px; }
+.idcard-name {
+  font-size: .95rem; font-weight: 700; line-height: 1.2; margin-top: 2px;
+  text-shadow: 0 1px 4px rgba(0,0,0,.25);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.idcard-cardno {
+  margin-top: 2px;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: 1.15rem; letter-spacing: .12em; font-weight: 800;
+  color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.35);
+  word-break: break-all;
+}
+.idcard-mobile-val {
+  margin-top: 2px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700; font-size: .88rem; letter-spacing: .04em;
+}
 .idcard-id-row {
   display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px;
   font-size:.62rem; opacity:.95; position: relative; z-index: 1;
@@ -706,8 +727,13 @@ if ($cardLogoRaw !== '') {
 .idcard-sig-left { display:flex; flex-direction:column; justify-content:center; min-width:0; flex:1; }
 .idcard-sig-label { font-size: .42rem; letter-spacing: .12em; color: #6b7280; font-weight: 700; }
 .idcard-sigpanel-text {
-  font-family: 'Segoe Script', 'Brush Script MT', cursive, Mukta, sans-serif;
-  font-weight:600; font-size:.92rem; line-height:1.1;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight:800; font-size:1rem; line-height:1.15; letter-spacing:.08em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.idcard-sigpanel-mid { color: #065f46; }
+.idcard-sig-sub {
+  font-size: .68rem; color: #4b5563; margin-top: 2px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .idcard-cvv-box {
@@ -770,8 +796,8 @@ if ($cardLogoRaw !== '') {
   .idcard-flip { max-width:100%; }
   .idcard { padding:14px 16px; }
   .idcard-org { font-size:.82rem; max-width: 160px; }
-  .idcard-cardno { font-size:1rem; letter-spacing:.1em; }
-  .idcard-photo { width:58px; height:72px; }
+  .idcard-cardno { font-size:.98rem; letter-spacing:.08em; }
+  .idcard-photo { width:62px; height:78px; }
   .idcard-details { grid-template-columns:1fr; }
   .cvv-value { font-size: .85rem; }
 }
@@ -780,7 +806,7 @@ if ($cardLogoRaw !== '') {
   .idcard-flip-inner { transition: none; }
 }
 @media print {
-  .idcard-actions, .idcard-verify-help, .idcard-details, .idcard-flip-hint, .idcard-note { display:none !important; }
+  .idcard-actions, .idcard-verify-help, .idcard-details, .idcard-flip-hint, .idcard-note, .idcard-ssot-note { display:none !important; }
   .idcard-flip-inner { filter: none; transform: none !important; }
   .idcard-front { position: relative; }
   .idcard-back { display: none; }

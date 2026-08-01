@@ -222,7 +222,7 @@ try {
                 </div>
                 <?php endif; ?>
                 <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($viewMember['name']); ?></h5>
-                <div class="text-muted small"><?php echo htmlspecialchars($viewMember['member_card_no'] ?? ''); ?></div>
+                <div class="text-muted small"><code><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code></div>
                 <div class="mt-2">
                     <?php if ($viewMember['google_id']): ?><span class="badge mem-badge-google"><i class="fa-brands fa-google me-1"></i>Google</span><?php endif; ?>
                     <?php if ($viewMember['facebook_id']): ?><span class="badge mem-badge-facebook"><i class="fa-brands fa-facebook-f me-1"></i>Facebook</span><?php endif; ?>
@@ -231,7 +231,7 @@ try {
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span class="text-muted small fw-bold">सदस्यता नं</span>
+                    <span class="text-muted small fw-bold">सदस्यता नं. / Member ID</span>
                     <code class="small"><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -280,26 +280,34 @@ try {
                 <?php endif; ?>
             </ul>
 
-            <?php /* ── Issue #3: CVV / Verification Code admin panel ── */ ?>
-            <?php if ($viewCard && (!empty($viewCard['cvv']) || !empty($viewCard['verification_code']))): ?>
+            <?php /* Member ID + CVV — पुरानो Card No / Verification Code = Member ID नै */ ?>
+            <?php
+            $adminFaceId = trim((string)($viewMember['sadasyata_number'] ?? ''));
+            if ($adminFaceId === '') {
+                $rawMc = trim((string)($viewCard['card_no'] ?? $viewMember['member_card_no'] ?? ''));
+                if ($rawMc !== '' && !preg_match('/^[A-Z]{2,4}-\d{4}-\d+$/i', $rawMc)) {
+                    $adminFaceId = $rawMc;
+                }
+            }
+            if ($adminFaceId === '') {
+                $adminFaceId = 'M-' . str_pad((string)($viewMember['id'] ?? 0), 5, '0', STR_PAD_LEFT);
+            }
+            ?>
+            <?php if ($viewCard && (!empty($viewCard['cvv']) || $adminFaceId !== '')): ?>
             <div class="card-body border-top mem-card-secret">
                 <div class="fw-bold small text-warning-emphasis mb-2">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> ID Card गोप्य विवरण
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> ID Card विवरण
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small">Card No.</span>
-                    <code class="small"><?php echo htmlspecialchars($viewCard['card_no'] ?? '—'); ?></code>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small">Verification Code</span>
-                    <code class="small text-success fw-bold"><?php echo htmlspecialchars($viewCard['verification_code'] ?? '—'); ?></code>
+                    <span class="text-muted small">सदस्यता नं. / Member ID</span>
+                    <code class="small text-success fw-bold"><?php echo htmlspecialchars($adminFaceId); ?></code>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <span class="text-muted small">CVV</span>
                     <code class="small text-danger fw-bold mem-cvv-code"><?php echo htmlspecialchars($viewCard['cvv'] ?? '—'); ?></code>
                 </div>
                 <div class="small text-muted mt-2 mem-help-xs">
-                    ⚠ यो जानकारी members लाई मात्र देखिनुपर्छ — admin reference मात्र हो।
+                    Member ID नै पहिचान हो (पुरानो card/verify code छुट्टै होइन)। Verify: नाम + Member ID + मोबाइल।
                 </div>
             </div>
             <?php endif; ?>
@@ -544,7 +552,7 @@ try {
         <div class="table-responsive admin-table-card">
             <table class="table table-hover align-middle mb-0 table-responsive-stack">
                 <thead class="table-light"><tr>
-                    <th>#</th><th>Member</th><th>सदस्यता नं</th><th>लिंक स्थिति</th><th>Contact</th><th>Card No.</th>
+                    <th>#</th><th>Member</th><th>सदस्यता नं. / Member ID</th><th>लिंक स्थिति</th><th>मोबाइल</th>
                     <th>Login विधि</th><th>दर्ता</th><th>अवस्था</th><th>Action</th>
                 </tr></thead>
                 <tbody>
@@ -571,7 +579,6 @@ try {
                     <td class="small"><code><?php echo htmlspecialchars($m['sadasyata_number'] ?? '—'); ?></code></td>
                     <td class="small"><?php echo function_exists('memberSsotStatusBadgeHtml') ? memberSsotStatusBadgeHtml($ssotCode) : '—'; ?></td>
                     <td class="small"><?php echo htmlspecialchars($m['phone'] ?? '—'); ?></td>
-                    <td><code class="small"><?php echo htmlspecialchars($m['member_card_no'] ?? ''); ?></code></td>
                     <td>
                         <?php if ($m['google_id']): ?><span class="badge mem-badge-google mem-login-pill"><i class="fa-brands fa-google me-1"></i>G</span><?php endif; ?>
                         <?php if ($m['facebook_id']): ?><span class="badge mem-badge-facebook mem-login-pill"><i class="fa-brands fa-facebook-f me-1"></i>FB</span><?php endif; ?>
