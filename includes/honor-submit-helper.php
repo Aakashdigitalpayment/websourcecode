@@ -160,10 +160,12 @@ if (!function_exists('submitHonorApplicationUnified')) {
             if (function_exists('sendAdminNotification')) {
                 try {
                     sendAdminNotification('honor_application', [
+                        'नाम' => $applicantName,
                         'name' => $applicantName,
-                        'phone' => $phone,
-                        'category' => honorCategoryLabel($category, false),
-                        'program' => honorProgramLabel($program, false),
+                        'फोन' => $phone,
+                        'कोटि' => honorCategoryLabel($category, false),
+                        'कार्यक्रम' => honorProgramLabel($program, false),
+                        'Tracking ID' => $trackingId,
                     ], $trackingId);
                 } catch (Throwable $e) {
                     /* non-fatal */

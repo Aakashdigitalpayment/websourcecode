@@ -58,12 +58,8 @@ $openPrograms = honorFetchOpenPrograms($db);
 $hasOpen = !empty($openPrograms);
 
 $selectedProgramId = (int)($_POST['program_id'] ?? $_GET['program_id'] ?? 0);
-if ($selectedProgramId < 1 && count($openPrograms) === 1) {
-    $selectedProgramId = (int)$openPrograms[0]['id'];
-}
-/* Ensure selected program is still open */
 $openIds = array_map(static fn($p) => (int)$p['id'], $openPrograms);
-if ($selectedProgramId > 0 && !in_array($selectedProgramId, $openIds, true)) {
+if ($selectedProgramId < 1 || !in_array($selectedProgramId, $openIds, true)) {
     $selectedProgramId = $openIds[0] ?? 0;
 }
 $programCats = $selectedProgramId > 0 ? honorFetchProgramCategories($db, $selectedProgramId) : [];
@@ -77,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } elseif (!$hasOpen) {
         $errorMsg = $_t('हाल दरखास्त बन्द छ।', 'Applications are closed.');
+    } elseif ($memSadasyata === '') {
+        $errorMsg = $_t('सदस्य नम्बर फेला परेन। कृपया KYC / प्रोफाइल अपडेट गर्नुहोस्।', 'Member number missing. Please update KYC / profile.');
     } elseif (!checkRateLimit('honor_portal_' . $memberPortalId, 5, 3600)) {
         $errorMsg = $_t('धेरै अनुरोधहरू भए।', 'Too many requests.');
     } else {
@@ -109,8 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 }
 
 $selectedProgramId = (int)($_POST['program_id'] ?? $selectedProgramId);
-if ($selectedProgramId < 1 && count($openPrograms) === 1) {
-    $selectedProgramId = (int)$openPrograms[0]['id'];
+if ($selectedProgramId < 1 || !in_array($selectedProgramId, $openIds, true)) {
+    $selectedProgramId = $openIds[0] ?? 0;
 }
 $programCats = $selectedProgramId > 0 ? honorFetchProgramCategories($db, $selectedProgramId) : [];
 
@@ -148,6 +146,8 @@ require __DIR__ . '/includes/chrome.php';
 
     <?php if (!$hasOpen): ?>
     <div class="alert alert-info"><?php echo $_t('हाल कुनै खुला सम्मान दरखास्त कार्यक्रम छैन।', 'No honor application program is open right now.'); ?></div>
+    <?php elseif ($memSadasyata === ''): ?>
+    <div class="alert alert-warning"><?php echo $_t('सदस्य नम्बर फेला परेन। दरखास्त दिन पहिले KYC / प्रोफाइलमा सदस्य नम्बर अपडेट गर्नुहोस्।', 'Member number missing. Update KYC/profile before applying.'); ?></div>
     <?php else: ?>
     <div class="card mb-4">
         <div class="card-body">
@@ -173,10 +173,15 @@ require __DIR__ . '/includes/chrome.php';
 
                 <div class="mb-3">
                     <label class="form-label"><?php echo $_t('कोटि', 'Category'); ?> *</label>
-                    <select name="category_id" class="form-select" required>
+                    <select name="category_id" id="memberHonorCategory" class="form-select" required>
                         <option value=""><?php echo $_t('छान्नुहोस्…', 'Select…'); ?></option>
                         <?php foreach ($programCats as $c): ?>
-                        <option value="<?php echo (int)$c['id']; ?>"><?php echo htmlspecialchars(honorCategoryLabel($c, isEnglish())); ?></option>
+                        <option value="<?php echo (int)$c['id']; ?>"
+                                data-nominee="<?php echo !empty($c['requires_nominee']) ? '1' : '0'; ?>"
+                                data-doc="<?php echo !empty($c['requires_document']) ? '1' : '0'; ?>"
+                                data-slug="<?php echo htmlspecialchars((string)$c['slug']); ?>">
+                            <?php echo htmlspecialchars(honorCategoryLabel($c, isEnglish())); ?>
+                        </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -202,28 +207,29 @@ require __DIR__ . '/includes/chrome.php';
                         <label class="form-label"><?php echo $_t('ठेगाना', 'Address'); ?></label>
                         <input type="text" name="address" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string)($_POST['address'] ?? '')); ?>">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 member-honor-nominee">
                         <label class="form-label"><?php echo $_t('नामांकित नाम', 'Nominee name'); ?></label>
                         <input type="text" name="nominee_name" class="form-control" maxlength="160">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 member-honor-nominee">
                         <label class="form-label"><?php echo $_t('नाता', 'Relation'); ?></label>
                         <select name="nominee_relation" class="form-select">
+                            <option value=""><?php echo $_t('छान्नुहोस्…', 'Select…'); ?></option>
                             <option value="छोरा"><?php echo $_t('छोरा', 'Son'); ?></option>
                             <option value="छोरी"><?php echo $_t('छोरी', 'Daughter'); ?></option>
                             <option value="आफैं"><?php echo $_t('आफैं', 'Self'); ?></option>
                             <option value="अन्य"><?php echo $_t('अन्य', 'Other'); ?></option>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 member-honor-edu">
                         <label class="form-label"><?php echo $_t('परीक्षा वर्ष', 'Exam year'); ?></label>
                         <input type="text" name="exam_year" class="form-control" maxlength="40">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 member-honor-edu">
                         <label class="form-label"><?php echo $_t('संस्था', 'Institution'); ?></label>
                         <input type="text" name="institution" class="form-control" maxlength="200">
                     </div>
-                    <div class="col-12">
+                    <div class="col-12 member-honor-biz" style="display:none">
                         <label class="form-label"><?php echo $_t('कारोबार नोट', 'Business note'); ?></label>
                         <input type="text" name="business_note" class="form-control" maxlength="255">
                     </div>
@@ -232,7 +238,7 @@ require __DIR__ . '/includes/chrome.php';
                         <textarea name="description" class="form-control" rows="3" maxlength="4000"></textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $_t('प्रमाण कागजात', 'Document'); ?></label>
+                        <label class="form-label"><?php echo $_t('प्रमाण कागजात', 'Document'); ?> <span id="memberHonorDocReq" class="text-danger" style="display:none">*</span></label>
                         <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp">
                     </div>
                 </div>
@@ -240,6 +246,30 @@ require __DIR__ . '/includes/chrome.php';
             </form>
         </div>
     </div>
+    <script>
+    (function () {
+        var cat = document.getElementById('memberHonorCategory');
+        var docReq = document.getElementById('memberHonorDocReq');
+        function toggle() {
+            if (!cat) return;
+            var opt = cat.options[cat.selectedIndex];
+            var needsNominee = opt && opt.getAttribute('data-nominee') === '1';
+            var needsDoc = opt && opt.getAttribute('data-doc') === '1';
+            var slug = opt ? (opt.getAttribute('data-slug') || '') : '';
+            document.querySelectorAll('.member-honor-nominee, .member-honor-edu').forEach(function (el) {
+                el.style.display = needsNominee ? '' : 'none';
+            });
+            document.querySelectorAll('.member-honor-biz').forEach(function (el) {
+                el.style.display = (slug.indexOf('best_') === 0) ? '' : 'none';
+            });
+            if (docReq) docReq.style.display = needsDoc ? '' : 'none';
+        }
+        if (cat) {
+            cat.addEventListener('change', toggle);
+            toggle();
+        }
+    })();
+    </script>
     <?php endif; ?>
 
     <?php if (!empty($myApps)): ?>

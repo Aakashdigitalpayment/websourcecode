@@ -25,8 +25,9 @@ $trackingId = '';
 $loggedMember = function_exists('getLoggedInMemberProfile') ? getLoggedInMemberProfile() : null;
 
 $selectedProgramId = (int)($_POST['program_id'] ?? $_GET['program_id'] ?? 0);
-if ($selectedProgramId < 1 && count($openPrograms) === 1) {
-    $selectedProgramId = (int)$openPrograms[0]['id'];
+$openIds = array_map(static fn($p) => (int)$p['id'], $openPrograms);
+if ($selectedProgramId < 1 || !in_array($selectedProgramId, $openIds, true)) {
+    $selectedProgramId = $openIds[0] ?? 0;
 }
 $programCats = $selectedProgramId > 0 ? honorFetchProgramCategories($db, $selectedProgramId) : [];
 $programMeta = [];
@@ -379,7 +380,10 @@ foreach ($openPrograms as $op) {
         var needsNominee = opt && opt.getAttribute('data-nominee') === '1';
         var needsDoc = opt && opt.getAttribute('data-doc') === '1';
         var slug = opt ? (opt.getAttribute('data-slug') || '') : '';
-        if (nomineeBlock) nomineeBlock.style.display = needsNominee ? '' : '';
+        if (nomineeBlock) nomineeBlock.style.display = needsNominee ? '' : 'none';
+        document.querySelectorAll('.honor-edu-fields').forEach(function (el) {
+            el.style.display = needsNominee ? '' : 'none';
+        });
         if (docReq) docReq.style.display = needsDoc ? '' : 'none';
         if (biz) {
             biz.style.display = (slug.indexOf('best_') === 0) ? '' : 'none';
@@ -388,6 +392,10 @@ foreach ($openPrograms as $op) {
 
     if (prog && prog.tagName === 'SELECT') {
         prog.addEventListener('change', function () { fillCategories(prog.value); });
+        /* Ensure categories match selected program on first paint */
+        fillCategories(prog.value, cat ? cat.value : '');
+    } else if (prog) {
+        fillCategories(prog.value, cat ? cat.value : '');
     }
     if (cat) cat.addEventListener('change', toggleFields);
 

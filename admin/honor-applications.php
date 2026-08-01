@@ -44,11 +44,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'sms' => ['status' => 'not_attempted', 'reason' => '', 'to' => ''],
             ];
             try {
-                $nr = $db->prepare('SELECT applicant_name, email, phone FROM honor_applications WHERE id=?');
+                $nr = $db->prepare('SELECT applicant_name, email, phone, tracking_id FROM honor_applications WHERE id=?');
                 $nr->execute([$appId]);
                 $nd = $nr->fetch(PDO::FETCH_ASSOC);
                 if ($nd && function_exists('sendMemberStatusUpdate')) {
-                    $r = sendMemberStatusUpdate('honor_application', $nd['email'] ?? '', $nd['phone'] ?? '', $nd['applicant_name'] ?? '', $status, $adminRemarks, '', !$notifyOptIn);
+                    $r = sendMemberStatusUpdate(
+                        'honor_application',
+                        $nd['email'] ?? '',
+                        $nd['phone'] ?? '',
+                        $nd['applicant_name'] ?? '',
+                        $status,
+                        $adminRemarks,
+                        (string)($nd['tracking_id'] ?? ''),
+                        !$notifyOptIn
+                    );
                     if (is_array($r)) {
                         $notifyOutcome['email'] = $r['email'] ?? $notifyOutcome['email'];
                         $notifyOutcome['sms'] = $r['sms'] ?? $notifyOutcome['sms'];
@@ -247,14 +256,25 @@ try {
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('प्रशासक टिप्पणी', 'Admin remarks'); ?></label>
-                                <textarea name="admin_remarks" class="form-control" rows="4"><?php echo e($app['admin_remarks'] ?? ''); ?></textarea>
+                                <label class="form-label"><?php echo $__t('प्रशासक टिप्पणी / जवाफ', 'Admin remarks / reply'); ?></label>
+                                <textarea name="admin_remarks" class="form-control" rows="4" placeholder="<?php echo $__t('छनोट/अस्वीकृतको कारण वा सन्देश…', 'Selection/rejection reason or message…'); ?>"><?php echo e($app['admin_remarks'] ?? ''); ?></textarea>
+                                <div class="form-text"><?php echo $__t('यो टिप्पणी आवेदकलाई email/SMS मा जान सक्छ।', 'This remark can be sent to the applicant by email/SMS.'); ?></div>
                             </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="notify_member" value="1" id="notifyMember">
-                                <label class="form-check-label" for="notifyMember"><?php echo $__t('सदस्यलाई सूचना पठाउनुहोस्', 'Notify applicant'); ?></label>
+                            <?php $hasEmail = !empty($app['email']); $hasPhone = !empty($app['phone']); ?>
+                            <div class="arv-notify-row mb-3">
+                                <label class="arv-notify-toggle">
+                                    <input type="checkbox" name="notify_member" value="1" id="notifyMember" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
+                                    <span><i class="fas fa-paper-plane"></i> <?php echo $__t('आवेदकलाई Email/SMS पठाउनुहोस्', 'Send Email/SMS to applicant'); ?></span>
+                                </label>
+                                <div class="arv-notify-channels small mt-1">
+                                    <span class="<?php echo $hasEmail ? 'text-success' : 'text-muted'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="ms-2 <?php echo $hasPhone ? 'text-success' : 'text-muted'; ?>"><i class="fas fa-mobile-alt"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                </div>
+                                <?php if (!$hasEmail && !$hasPhone): ?>
+                                <div class="text-danger small mt-1"><?php echo $__t('Email/फोन छैन — सूचना जान सक्दैन।', 'No email/phone — cannot notify.'); ?></div>
+                                <?php endif; ?>
                             </div>
-                            <button type="submit" name="update_status" value="1" class="btn btn-primary w-100"><?php echo $__t('अपडेट', 'Update'); ?></button>
+                            <button type="submit" name="update_status" value="1" class="btn btn-primary w-100"><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?></button>
                         </form>
                         <form method="post" class="mt-3" onsubmit="return confirm('<?php echo $__t('मेटाउने निश्चित?', 'Delete?'); ?>');">
                             <?php echo csrfField(); ?>

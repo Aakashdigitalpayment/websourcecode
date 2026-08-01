@@ -480,8 +480,11 @@ function sendMemberStatusUpdate(
     /* Status को Nepali/English label */
     $statusLabels = [
         'pending'     => 'समीक्षाधीन / Pending',
+        'under_review'=> 'समीक्षामा / Under Review',
         'in_progress' => 'कार्यान्वयनमा / In Progress',
         'processing'  => 'प्रक्रियामा / Processing',
+        'shortlisted' => 'छनोट सूची / Shortlisted',
+        'selected'    => 'चयनित / Selected',
         'approved'    => 'स्वीकृत / Approved',
         'rejected'    => 'अस्वीकृत / Rejected',
         'resolved'    => 'समाधान भयो / Resolved',
@@ -738,7 +741,7 @@ function sendAdminNotification($eventType, $details = [], $trackingId = '') {
     $emailTpl = function_exists('getNotificationTemplate') ? getNotificationTemplate($eventType, 'admin', 'email') : null;
     $smsTpl   = function_exists('getNotificationTemplate') ? getNotificationTemplate($eventType, 'admin', 'sms')   : null;
 
-    $name = $details['नाम'] ?? $details['Name'] ?? $details['Full Name'] ?? $details['आवेदकको नाम'] ?? 'N/A';
+    $name = $details['नाम'] ?? $details['Name'] ?? $details['Full Name'] ?? $details['आवेदकको नाम'] ?? $details['name'] ?? 'N/A';
     $amount = $details['ऋण रकम'] ?? $details['Amount'] ?? 'N/A';
     $date = $details['मिति'] ?? $details['Date'] ?? 'N/A';
 
