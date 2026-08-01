@@ -695,7 +695,12 @@ function adminRejectMember($memberId, $reason = '', $adminId = null) {
 }
 
 /* ─── Admin: Generate ID Card ─── */
-function adminGenerateMemberIdCard($memberId, $adminId = null) {
+/**
+ * @param int|string $memberId members.id
+ * @param int|null $adminId
+ * @param bool $silent When true, skip in-app notification / activity log (bulk import)
+ */
+function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = false) {
     global $db;
     if (!$db) {
         try { $db = getDB(); } catch (\Throwable $e) { return false; }
@@ -791,7 +796,7 @@ function adminGenerateMemberIdCard($memberId, $adminId = null) {
         $updated = $verify->fetch(PDO::FETCH_ASSOC);
         if (!$updated || (int)($updated['id_card_generated'] ?? 0) !== 1) return false;
 
-        if (!$wasGenerated) {
+        if (!$wasGenerated && !$silent) {
             createMemberNotification($memberId, '🪪 डिजिटल परिचयपत्र तयार भयो!',
                 'तपाईंको डिजिटल Member ID Card Admin द्वारा तयार गरिएको छ। Member Portal मा हेर्नुहोस्।',
                 'success', SITE_URL . 'member/id-card.php');

@@ -12,5 +12,7 @@ install.lock
 includes/database.local.php
 includes/database.php
 *.local.php
-.env
-.env.*
+# Member bulk-import CSV uploads (keep deny rules)
+assets/uploads/member-imports/*
+!assets/uploads/member-imports/.htaccess
+!assets/uploads/member-imports/.gitkeep

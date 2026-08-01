@@ -474,9 +474,12 @@ try {
             <?php if ($search !== '' || $kycFilter !== 'all'): ?>
                 <a href="members.php<?php echo $memSub === 'arch' ? '?mem_sub=arch' : ''; ?>" class="btn btn-sm btn-outline-secondary">Clear</a>
             <?php endif; ?>
-            <button type="button" class="btn btn-sm btn-outline-success ms-auto" data-bs-toggle="modal" data-bs-target="#bulkNotifModal" title="सबै सदस्यलाई एकैचोटि सूचना पठाउनुहोस्">
+            <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#bulkNotifModal" title="सबै सदस्यलाई एकैचोटि सूचना पठाउनुहोस्">
                 <i class="fas fa-bullhorn me-1"></i>Bulk Notification
             </button>
+            <a href="member-import.php" class="btn btn-sm btn-success" title="पुराना सदस्य CSV बाट import">
+                <i class="fas fa-file-csv me-1"></i>Bulk Import
+            </a>
         </form>
         <small class="text-muted">
             <?php echo $memSub === 'live' ? 'सक्रिय सदस्य' : 'अभिलेख (निष्क्रिय)'; ?>

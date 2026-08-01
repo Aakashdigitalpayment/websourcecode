@@ -224,7 +224,7 @@ $pageGroups = [
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
-    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-activities'],
+    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center','members','member-import','member-activities'],
     'memportal'=> ['member-online-portal'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','run-migration','backup-restore','update-checklist','site-health','db-setup','site-license'],
@@ -703,6 +703,12 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="members.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary" aria-hidden="true" data-lucide="user-check"></i></span>
                                     <span><?php echo $adminT('सदस्य पोर्टल', 'Member Portal'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-import' ? 'active' : ''; ?>">
+                                <a href="member-import.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-emerald" aria-hidden="true" data-lucide="upload"></i></span>
+                                    <span><?php echo $adminT('सदस्य Bulk Import', 'Member Bulk Import'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='member-activities' ? 'active' : ''; ?>">
