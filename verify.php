@@ -930,9 +930,9 @@ $__hasPartnerCol = !empty($partners);
     <div class="vp-card-body">
         <form method="POST" action="" id="vpVerifyForm">
             <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
-            <input type="hidden" name="verify_mode" id="vpVerifyMode" value="<?= htmlspecialchars($verifyMode === 'legacy' ? 'legacy' : 'name') ?>">
+            <input type="hidden" name="verify_mode" value="name">
 
-            <div id="vpModeName" style="<?= $verifyMode === 'legacy' ? 'display:none;' : '' ?>">
+            <div id="vpModeName">
                 <div class="vp-field">
                     <label class="vp-label">
                         <i class="fas fa-user" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
@@ -941,7 +941,7 @@ $__hasPartnerCol = !empty($partners);
                     <input type="text" name="member_name" class="vp-input" id="vpMemberName"
                            value="<?= htmlspecialchars($verifyName ?? '') ?>"
                            placeholder="<?= $_t('कार्डमा लेखिएको पूरा नाम', 'Full name as on card') ?>"
-                           autocomplete="name" <?= $verifyMode === 'legacy' ? '' : 'required' ?>>
+                           autocomplete="name" required>
                 </div>
                 <div class="vp-field">
                     <label class="vp-label">
@@ -951,7 +951,7 @@ $__hasPartnerCol = !empty($partners);
                     <input type="text" name="member_id_no" class="vp-input" id="vpMemberId"
                            value="<?= htmlspecialchars($verifyMemberId ?? '') ?>"
                            placeholder="<?= $_t('कार्डमा देखिने सदस्यता नं.', 'Member ID shown on card') ?>"
-                           autocomplete="off" spellcheck="false" <?= $verifyMode === 'legacy' ? '' : 'required' ?>>
+                           autocomplete="off" spellcheck="false" required>
                 </div>
                 <div class="vp-field" style="margin-bottom:22px;">
                     <label class="vp-label">
@@ -968,37 +968,8 @@ $__hasPartnerCol = !empty($partners);
                 </div>
             </div>
 
-            <div id="vpModeLegacy" style="<?= $verifyMode === 'legacy' ? '' : 'display:none;' ?>">
-                <div class="vp-field">
-                    <label class="vp-label">
-                        <i class="fas fa-key" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
-                        <?= $_t('पुरानो Verification Code', 'Legacy Verification Code') ?> <span class="req">*</span>
-                    </label>
-                    <input type="text" name="code" class="vp-input" id="vpCode"
-                           value="<?= htmlspecialchars($code ?? '') ?>"
-                           placeholder="<?= $_t('जस्तै: AKS-XXXX-XXXX', 'e.g. AKS-XXXX-XXXX') ?>"
-                           autocomplete="off" spellcheck="false" style="letter-spacing:.5px;" <?= $verifyMode === 'legacy' ? 'required' : '' ?>>
-                </div>
-                <div class="vp-field" style="margin-bottom:22px;">
-                    <label class="vp-label">
-                        <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
-                        <?= $_t('CVV', 'CVV') ?> <span class="req">*</span>
-                    </label>
-                    <input type="password" name="cvv_legacy" maxlength="20" class="vp-input" id="vpCvvLegacy"
-                           placeholder="****" autocomplete="off" style="letter-spacing:4px;" <?= $verifyMode === 'legacy' ? 'required' : '' ?>>
-                    <div style="font-size:.78rem;color:#6b7280;margin-top:6px;">
-                        <?= $_t('पुराना कार्डका लागि मात्र।', 'For older cards only.') ?>
-                    </div>
-                </div>
-            </div>
-
             <button type="submit" class="vp-btn">
                 <i class="fas fa-shield-halved"></i> <?= $_t('प्रमाणित गर्नुहोस्', 'Verify Now') ?>
-            </button>
-            <button type="button" class="vp-btn-link" id="vpToggleMode" style="display:block;width:100%;margin-top:14px;background:none;border:none;color:#6b7280;font-size:.85rem;cursor:pointer;text-decoration:underline;">
-                <?= $verifyMode === 'legacy'
-                    ? $_t('← नाम + सदस्यता नं. बाट verify', '← Verify with name + member ID')
-                    : $_t('पुरानो Verification Code प्रयोग गर्ने?', 'Use legacy verification code?') ?>
             </button>
         </form>
     </div>
@@ -1009,55 +980,6 @@ $__hasPartnerCol = !empty($partners);
 .vp-secret-code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: 800; letter-spacing: .12em; color: var(--primary-dark,#0a4a25); font-size: 1.15rem; }
 .vp-secret-hint { font-size: .78rem; color: #6b7280; margin: 8px 0 0; line-height: 1.45; }
 </style>
-<script>
-(function () {
-    var modeInput = document.getElementById('vpVerifyMode');
-    var btn = document.getElementById('vpToggleMode');
-    var nameBox = document.getElementById('vpModeName');
-    var legacyBox = document.getElementById('vpModeLegacy');
-    var nameEl = document.getElementById('vpMemberName');
-    var midEl = document.getElementById('vpMemberId');
-    var codeEl = document.getElementById('vpCode');
-    var cvvEl = document.getElementById('vpCvv');
-    var cvvLegacy = document.getElementById('vpCvvLegacy');
-    var form = document.getElementById('vpVerifyForm');
-    if (!btn || !modeInput) return;
-
-    var labels = {
-        toLegacy: <?= json_encode($_t('पुरानो Verification Code प्रयोग गर्ने?', 'Use legacy verification code?')) ?>,
-        toName: <?= json_encode($_t('← नाम + सदस्यता नं. बाट verify', '← Verify with name + member ID')) ?>
-    };
-
-    function setMode(mode) {
-        var legacy = mode === 'legacy';
-        modeInput.value = legacy ? 'legacy' : 'name';
-        if (nameBox) nameBox.style.display = legacy ? 'none' : '';
-        if (legacyBox) legacyBox.style.display = legacy ? '' : 'none';
-        if (nameEl) nameEl.required = !legacy;
-        if (midEl) midEl.required = !legacy;
-        if (codeEl) codeEl.required = legacy;
-        if (cvvLegacy) cvvLegacy.required = legacy;
-        btn.textContent = legacy ? labels.toName : labels.toLegacy;
-    }
-
-    btn.addEventListener('click', function () {
-        setMode(modeInput.value === 'legacy' ? 'name' : 'legacy');
-    });
-
-    if (form) {
-        form.addEventListener('submit', function () {
-            // Map legacy CVV field into shared name=cvv for PHP
-            if (modeInput.value === 'legacy' && cvvLegacy && cvvEl) {
-                cvvEl.name = '';
-                cvvLegacy.name = 'cvv';
-            } else if (cvvLegacy) {
-                cvvLegacy.name = 'cvv_legacy';
-                if (cvvEl) cvvEl.name = 'cvv';
-            }
-        });
-    }
-})();
-</script>
 
 <div class="vp-secure">
     <i class="fas fa-shield-halved" style="margin-right:4px;"></i>
