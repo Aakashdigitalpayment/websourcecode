@@ -27,7 +27,9 @@ if ($localDbConfigExists && !$installLockExists && is_writable(__DIR__)) {
 if (($installLockExists || $localDbConfigExists) && !$allowInstallRerun) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=UTF-8');
-    echo "Install wizard is disabled for security. Use admin/db-setup.php for maintenance.";
+    echo "Install wizard is disabled.\n";
+    echo "Preferred setup: includes/database.local.php + includes/superadmin-config.local.php → /admin/ login.\n";
+    echo "Emergency: admin/db-setup.php\n";
     exit;
 }
 

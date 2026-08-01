@@ -11,6 +11,7 @@ includes/.cred-master.key
 install.lock
 .setup.lock
 .schema.lock
+.admin-schema.lock
 includes/database.local.php
 includes/database.php
 *.local.php

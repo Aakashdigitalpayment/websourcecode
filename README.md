@@ -98,15 +98,18 @@ Branch used for this work: `feat/ai-chat-speed-security`.
 
 ---
 
-## Database & setup
+## Database & setup (नयाँ client)
 
-1. Upload to `public_html/`.
-2. Copy `includes/database.dist.php` → `includes/database.local.php` (gitignored) and set credentials.
-3. Run `install.php` once → then **delete** it.
-4. PHP 8.2 recommended (8.0+).
-5. Cron: `php /path/to/cron-cleanup.php` daily.
+सरल path — घुमाउरो wizard चाहिँदैन:
 
-Auto-migration: `includes/ensure-tables.php` / `admin/includes/ensure-admin-tables.php` create missing tables safely.
+1. Upload repo → `public_html/`
+2. cPanel मा MySQL database + user बनाउने
+3. `includes/database.local.php.example` → `database.local.php` (credentials)
+4. `includes/superadmin-config.local.php.example` → `superadmin-config.local.php` (password)
+5. `/admin/` मा login — tables/columns auto (`ensure*Tables`)
+
+Optional: browser wizard `install.php` (पछि lock/delete)। Emergency मात्र: `admin/db-setup.php`।  
+PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 
 ---
 

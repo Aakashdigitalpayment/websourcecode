@@ -282,9 +282,8 @@ try {
                 </div>
                 <div class="card-body">
                     <p class="small text-muted mb-2">
-                        दैनिक admin मा DB Setup / Migration देखाइँदैन।
-                        Credentials: <code>install.php</code> (पहिलो पटक) वा <code>includes/database.local.php</code>।
-                        नयाँ column/table: <code>ensure*Tables</code> auto।
+                        नयाँ client: <code>database.local.php</code> + <code>superadmin-config.local.php</code> → <code>/admin/</code> login।
+                        Tables auto। Sidebar मा DB Setup छैन।
                     </p>
                     <p class="mb-2">
                         Public install:
