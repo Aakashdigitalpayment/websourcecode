@@ -38,7 +38,7 @@ if (!function_exists('ensureWelfareClaimsTables')) {
             phone VARCHAR(20) NOT NULL,
             email VARCHAR(100),
             address VARCHAR(255),
-            claim_type ENUM('maternity','death','insurance','medical','other') DEFAULT 'other',
+            claim_type VARCHAR(60) NOT NULL DEFAULT 'other',
             claim_type_np VARCHAR(100),
             beneficiary_name VARCHAR(100),
             beneficiary_relation VARCHAR(50),
@@ -72,7 +72,8 @@ if (!function_exists('ensureWelfareClaimsTables')) {
                 'ALTER TABLE member_welfare_claims ADD COLUMN insurer_name VARCHAR(150) DEFAULT NULL',
                 'ALTER TABLE member_welfare_claims ADD COLUMN member_portal_id INT DEFAULT NULL',
                 'ALTER TABLE member_welfare_claims ADD COLUMN attachment_path VARCHAR(255) DEFAULT NULL',
-                "ALTER TABLE member_welfare_claims MODIFY COLUMN claim_type ENUM('maternity','death','insurance','medical','accident','other') NOT NULL",
+                /* Prefer VARCHAR so custom catalog slugs are not blocked by ENUM */
+                "ALTER TABLE member_welfare_claims MODIFY COLUMN claim_type VARCHAR(60) NOT NULL DEFAULT 'other'",
                 'ALTER TABLE member_welfare_claims ADD INDEX idx_claim_type (claim_type)',
                 'ALTER TABLE member_welfare_claims ADD INDEX idx_created (created_at)',
                 'ALTER TABLE member_welfare_claims ADD INDEX idx_member_id (member_id)',

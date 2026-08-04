@@ -664,6 +664,12 @@ set_exception_handler(function (\Throwable $ex) {
                                     <?php if ($adminAlertCounts['digital'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['digital']; ?></span><?php endif; ?>
                                 </a>
                             </li>
+                            <li class="<?php echo $currentPage=='digital-service-types' ? 'active' : ''; ?>">
+                                <a href="digital-service-types.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="tags"></i></span>
+                                    <span><?php echo $adminT('सेवा प्रकार', 'Service Types'); ?></span>
+                                </a>
+                            </li>
                             <li class="<?php echo $currentPage=='honor-applications' ? 'active' : ''; ?>">
                                 <a href="honor-applications.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i></span>
@@ -823,6 +829,12 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="heart-plus"></i></span>
                                     <span><?php echo $adminT('कल्याण दाबी', 'Welfare Claims'); ?></span>
                                     <?php if ($adminAlertCounts['welfare'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['welfare']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='welfare-claim-types' ? 'active' : ''; ?>">
+                                <a href="welfare-claim-types.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="list-tree"></i></span>
+                                    <span><?php echo $adminT('दाबी प्रकार', 'Claim Types'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='help-center' ? 'active' : ''; ?>">

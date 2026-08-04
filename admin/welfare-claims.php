@@ -244,8 +244,14 @@ if (!$claim) {
                     </div>
                 </div>
 
-                <!-- Claim-specific Details -->
-                <?php if ($claim['claim_type'] === 'death' && ($claim['deceased_name'] || $claim['death_date'])): ?>
+                <!-- Claim-specific Details (use catalog form_profile, not raw slug) -->
+                <?php
+                $claimProfile = (string)($claimTypes[$claim['claim_type']]['profile'] ?? $claim['claim_type']);
+                if ($claimProfile === 'accident') {
+                    $claimProfile = 'medical';
+                }
+                ?>
+                <?php if ($claimProfile === 'death' && ($claim['deceased_name'] || $claim['death_date'])): ?>
                 <div class="wlf-info-section">
                     <h6><i class="fas fa-heart-broken"></i> मृत्यु दाबी विवरण</h6>
                     <div class="row">
@@ -273,7 +279,7 @@ if (!$claim) {
                 </div>
                 <?php endif; ?>
 
-                <?php if ($claim['claim_type'] === 'maternity' && ($claim['delivery_date'] || $claim['hospital_name'])): ?>
+                <?php if ($claimProfile === 'maternity' && ($claim['delivery_date'] || $claim['hospital_name'])): ?>
                 <div class="wlf-info-section">
                     <h6><i class="fas fa-baby"></i> सुत्केरी विवरण</h6>
                     <div class="row">
@@ -287,10 +293,10 @@ if (!$claim) {
                 </div>
                 <?php endif; ?>
 
-                <?php if (in_array($claim['claim_type'], ['medical','accident']) && ($claim['disease_illness'] || $claim['treatment_date'] || $claim['hospital_clinic'])): ?>
+                <?php if (in_array($claimProfile, ['medical','accident'], true) && ($claim['disease_illness'] || $claim['treatment_date'] || $claim['hospital_clinic'])): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-<?php echo $claim['claim_type']==='accident'?'triangle-exclamation':'hospital'; ?>"></i>
-                        <?php echo $claim['claim_type']==='accident'?'दुर्घटना / उपचार विवरण':'उपचार विवरण'; ?>
+                    <h6><i class="fas fa-<?php echo ($claim['claim_type'] === 'accident' || ($claimTypes[$claim['claim_type']]['profile'] ?? '') === 'accident') ? 'triangle-exclamation' : 'hospital'; ?>"></i>
+                        <?php echo ($claim['claim_type'] === 'accident' || ($claimTypes[$claim['claim_type']]['profile'] ?? '') === 'accident') ? 'दुर्घटना / उपचार विवरण' : 'उपचार विवरण'; ?>
                     </h6>
                     <div class="row">
                         <div class="col-md-6">
@@ -304,7 +310,7 @@ if (!$claim) {
                 </div>
                 <?php endif; ?>
 
-                <?php if ($claim['claim_type'] === 'insurance' && ($claim['policy_number'] || $claim['insurer_name'])): ?>
+                <?php if ($claimProfile === 'insurance' && ($claim['policy_number'] || $claim['insurer_name'])): ?>
                 <div class="wlf-info-section">
                     <h6><i class="fas fa-shield-halved"></i> बीमा विवरण</h6>
                     <div class="row">
