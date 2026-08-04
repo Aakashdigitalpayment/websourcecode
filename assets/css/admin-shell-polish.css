@@ -884,10 +884,24 @@ body.has-bottomnav {
 }
 
 .admin-fab-msg .lucide-icon,
-.admin-fab-msg svg {
+.admin-fab-msg svg,
+.admin-fab-msg svg.lucide,
+.admin-fab-msg .lucide {
   width: 22px !important;
   height: 22px !important;
   stroke-width: 2 !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.admin-fab-msg:hover .lucide-icon,
+.admin-fab-msg:hover svg,
+.admin-fab-msg:hover svg.lucide,
+.admin-fab-msg:hover .lucide {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 @media (min-width: 900px) {

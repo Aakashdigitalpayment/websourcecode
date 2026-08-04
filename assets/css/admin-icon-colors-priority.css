@@ -158,6 +158,18 @@ svg.lucide,
     fill: none;
 }
 
+/* Brand FAB — white icon on primary green (override global dark stroke) */
+.admin-fab-msg .lucide-icon,
+.admin-fab-msg svg,
+.admin-fab-msg svg.lucide,
+.admin-fab-msg .lucide,
+a.admin-fab-msg .lucide-icon,
+a.admin-fab-msg svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+    fill: none !important;
+}
+
 /* Active lucide icons */
 .sidebar-nav li.active svg,
 .admin-sidebar li.active svg,
