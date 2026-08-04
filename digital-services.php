@@ -5,6 +5,9 @@ ensurePublicTables();
 $_dsrtFile = __DIR__ . '/includes/digital-service-requests-tables.php';
 if (is_file($_dsrtFile)) { require_once $_dsrtFile; }
 unset($_dsrtFile);
+$_dstypes = __DIR__ . '/includes/digital-service-types.php';
+if (is_file($_dstypes)) { require_once $_dstypes; }
+unset($_dstypes);
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
 if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
@@ -19,26 +22,15 @@ $lockedMemberFields = $loggedMember ? 'readonly' : '';
 $isEmbed = !empty($_GET['embed']);
 $trackerUrl = $isEmbed ? (SITE_URL . 'member/tracker.php') : 'application-tracker.php';
 
-/* सेवा प्रकारहरू — icon, Nepali र English नाम */
-$serviceTypes = [
-    'missed_call_banking' => ['np' => 'मिस्ड कल बैंकिङ',        'en' => 'Missed Call Banking',     'icon' => 'fa-phone-volume',   'color' => 'var(--primary-color)'],
-    'statement_request'   => ['np' => 'स्टेटमेन्ट अनुरोध',       'en' => 'Statement Request',        'icon' => 'fa-file-invoice',   'color' => 'var(--primary-color)'],
-    'bill_payment'        => ['np' => 'बिल भुक्तानी सहयोग',      'en' => 'Bill Payment Support',     'icon' => 'fa-receipt',        'color' => 'var(--secondary-color)'],
-    'mobile_recharge'     => ['np' => 'मोबाइल रिचार्ज अनुरोध',   'en' => 'Mobile Recharge Request',  'icon' => 'fa-mobile-screen',  'color' => 'var(--primary-light)'],
-    'internet_banking'    => ['np' => 'इन्टरनेट/मोबाइल बैंकिङ', 'en' => 'Internet/Mobile Banking',  'icon' => 'fa-laptop-code',    'color' => 'var(--accent-color)'],
-    'sms_alert'           => ['np' => 'SMS अलर्ट सेवा',          'en' => 'SMS Alert Service',        'icon' => 'fa-bell',           'color' => 'var(--secondary-color)'],
-    'card_service'        => ['np' => 'कार्ड सेवा',              'en' => 'Card Service',             'icon' => 'fa-credit-card',    'color' => 'var(--primary-color)'],
-    'qr_payment'          => ['np' => 'QR/डिजिटल भुक्तानी',     'en' => 'QR / Digital Payment',     'icon' => 'fa-qrcode',         'color' => 'var(--primary-light)'],
-    'share_refund'        => ['np' => 'शेयर फिर्ता (Refund)',    'en' => 'Share Refund',             'icon' => 'fa-money-bill-transfer', 'color' => 'var(--accent-color)'],
-    'share_increase'      => ['np' => 'शेयर वृद्धि (Increase)',  'en' => 'Share Increase',           'icon' => 'fa-chart-line',     'color' => 'var(--primary-color)'],
-    'other'               => ['np' => 'अन्य डिजिटल सेवा',        'en' => 'Other Digital Service',    'icon' => 'fa-headset',        'color' => 'var(--secondary-color)'],
-];
-
+/* सेवा प्रकारहरू — DB catalog + hardcoded fallback */
 $db = null;
 try {
     $db = getDB();
 } catch (\Throwable $e) {
 }
+$serviceTypes = function_exists('digitalServiceTypesMap')
+    ? digitalServiceTypesMap($db)
+    : (function_exists('digitalServiceTypesDefaults') ? digitalServiceTypesDefaults() : []);
 
 /* =============================================
    FORM SUBMIT — POST handler

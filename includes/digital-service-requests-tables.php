@@ -65,6 +65,14 @@ if (!function_exists('ensureDigitalServiceRequestsTables')) {
                 }
             }
 
+            $_dstFile = __DIR__ . '/digital-service-types.php';
+            if (is_file($_dstFile)) {
+                require_once $_dstFile;
+            }
+            if (function_exists('ensureDigitalServiceTypes')) {
+                ensureDigitalServiceTypes($db);
+            }
+
             $done = true;
         } catch (Exception $e) {
         }

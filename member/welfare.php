@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/welfare-claims-tables.php';
+require_once __DIR__ . '/../includes/welfare-claim-types.php';
 require_once __DIR__ . '/../includes/welfare-claims-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
@@ -49,6 +50,7 @@ $resolvedEmail = $memEmail ?: strtolower(trim((string)($kycRow['email'] ?? '')))
 $resolvedAddress = trim((string)($kycRow['temporary_address'] ?? $kycRow['permanent_address'] ?? ''));
 
 ensureWelfareClaimsTables($db);
+$claimTypes = welfareClaimTypesMap($db);
 
 /* ── Handle POST: new claim ── */
 $successMsg = '';
@@ -78,8 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         $policyNo   = trim(mb_substr((string)($_POST['policy_number'] ?? ''), 0, 80, 'UTF-8'));
         $insurerNm  = trim(mb_substr((string)($_POST['insurer_name'] ?? ''), 0, 150, 'UTF-8'));
 
-        $validTypes = ['maternity','death','insurance','medical','accident','other'];
-        if (!in_array($claimType, $validTypes, true)) {
+        if (!array_key_exists($claimType, $claimTypes)) {
             header('Location: welfare.php?err=no_type');
             exit;
         } else {
@@ -408,12 +409,9 @@ HTML;
         <label><?php echo $_t('दाबी प्रकार', 'Claim Type'); ?> <span class="wf-required">*</span></label>
         <select name="claim_type" class="form-control" required onchange="showTypeFields(this.value)">
           <option value=""><?php echo $_t('— प्रकार छान्नुहोस् —', '— Select claim type —'); ?></option>
-          <option value="death"><?php echo $_t('⚫ मृत्यु सुविधा', '⚫ Death benefit'); ?></option>
-          <option value="maternity"><?php echo $_t('🟢 सुत्केरी सुविधा', '🟢 Maternity benefit'); ?></option>
-          <option value="medical"><?php echo $_t('🔵 उपचार खर्च', '🔵 Medical expense'); ?></option>
-          <option value="accident"><?php echo $_t('🟠 दुर्घटना सुविधा', '🟠 Accident benefit'); ?></option>
-          <option value="insurance"><?php echo $_t('🟣 बीमा दाबी', '🟣 Insurance claim'); ?></option>
-          <option value="other"><?php echo $_t('⚪ अन्य सुविधा', '⚪ Other benefit'); ?></option>
+          <?php foreach ($claimTypes as $ck => $ct): ?>
+          <option value="<?php echo htmlspecialchars($ck); ?>"><?php echo htmlspecialchars(isEnglish() ? ($ct['en'] ?: $ct['np']) : ($ct['np'] ?: $ct['en'])); ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
 
@@ -530,10 +528,17 @@ function showTab(btn, tab) {
     while (el && el.tagName !== 'BUTTON') el = el.parentElement;
     if (el) el.classList.add('active');
 }
+var claimTypeProfiles = <?php
+$__profiles = [];
+foreach ($claimTypes as $__k => $__t) {
+    $__profiles[$__k] = $__t['profile'] ?? 'other';
+}
+echo json_encode($__profiles, JSON_UNESCAPED_UNICODE);
+?>;
 function showTypeFields(type) {
     setTimeout(function() {
         document.querySelectorAll('.type-fields').forEach(f => f.classList.remove('show'));
-        var map = {
+        var profileMap = {
             'death'     : 'tf-death',
             'maternity' : 'tf-maternity',
             'medical'   : 'tf-medical',
@@ -541,7 +546,12 @@ function showTypeFields(type) {
             'insurance' : 'tf-insurance',
             'other'     : 'tf-other'
         };
-        if (map[type]) document.getElementById(map[type]).classList.add('show');
+        var profile = (claimTypeProfiles && claimTypeProfiles[type]) ? claimTypeProfiles[type] : type;
+        var id = profileMap[profile] || null;
+        if (id) {
+            var el = document.getElementById(id);
+            if (el) el.classList.add('show');
+        }
     }, 0);
 }
 function showFiles(input) {

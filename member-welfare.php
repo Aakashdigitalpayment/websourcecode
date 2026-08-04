@@ -6,6 +6,7 @@
  */
 require_once 'includes/config.php';
 require_once 'includes/welfare-claims-tables.php';
+require_once 'includes/welfare-claim-types.php';
 require_once 'includes/welfare-claims-submit-helper.php';
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
 if (is_file($kycPublicFormFile)) {
@@ -22,6 +23,13 @@ $oldInput = [];
 $trackingResult = null;
 $loggedMember = getLoggedInMemberProfile();
 $lockedMemberFields = $loggedMember ? 'readonly' : '';
+
+$dbEarly = null;
+try { $dbEarly = getDB(); } catch (Exception $e) {}
+if (function_exists('ensureWelfareClaimsTables') && $dbEarly) { ensureWelfareClaimsTables($dbEarly); }
+$claimTypes = function_exists('welfareClaimTypesMap')
+    ? welfareClaimTypesMap($dbEarly)
+    : (function_exists('welfareClaimTypesDefaults') ? welfareClaimTypesDefaults() : []);
 
 // Handle tracking lookup
 if (isset($_GET['track']) && !empty($_GET['track'])) {
@@ -51,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $phone = preg_replace('/[^0-9]/', '', clean_text($_POST['phone'] ?? '', 15));
         $email = strtolower(clean_text($_POST['email'] ?? '', 254));
         $address = clean_text($_POST['address'] ?? '', 2000);
-        $claim_type = clean_text($_POST['claim_type'] ?? '', 40);
+        $claim_type = clean_text($_POST['claim_type'] ?? '', 60);
         $beneficiary_name = clean_text($_POST['beneficiary_name'] ?? '', 200);
         $beneficiary_relation = clean_text($_POST['beneficiary_relation'] ?? '', 120);
         $claim_amount = floatval($_POST['claim_amount'] ?? 0);
@@ -112,12 +120,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        $validClaimTypes = ['maternity', 'death', 'insurance', 'medical', 'accident', 'other'];
-
         // Validation
         if (!$error && (empty($member_name) || empty($phone) || empty($claim_type))) {
             $error = isEnglish() ? 'Please fill all required fields.' : 'कृपया सबै आवश्यक फिल्डहरू भर्नुहोस्।';
-        } elseif (!$error && !in_array($claim_type, $validClaimTypes, true)) {
+        } elseif (!$error && !array_key_exists($claim_type, $claimTypes)) {
             $error = isEnglish() ? 'Please select a valid claim type.' : 'कृपया मान्य दाबी प्रकार छान्नुहोस्।';
         } elseif (!$error) {
             try {
@@ -194,14 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$claimTypes = [
-    'maternity' => ['np' => 'सुत्केरी सुविधा', 'en' => 'Maternity Benefit', 'icon' => 'fa-baby', 'color' => '#e91e63'],
-    'death' => ['np' => 'मृत्यु सुविधा', 'en' => 'Death Benefit', 'icon' => 'fa-heart-broken', 'color' => '#607d8b'],
-    'insurance' => ['np' => 'बीमा दाबी', 'en' => 'Insurance Claim', 'icon' => 'fa-shield-alt', 'color' => '#2196f3'],
-    'medical' => ['np' => 'उपचार खर्च', 'en' => 'Medical Expense', 'icon' => 'fa-hospital', 'color' => '#4caf50'],
-    'accident' => ['np' => 'दुर्घटना सुविधा', 'en' => 'Accident Benefit', 'icon' => 'fa-car-burst', 'color' => '#f59e0b'],
-    'other' => ['np' => 'अन्य सुविधा', 'en' => 'Other Benefit', 'icon' => 'fa-gift', 'color' => '#ff9800']
-];
+
 ?>
 
 <!-- Page Banner -->
@@ -592,26 +591,40 @@ function selectClaimType(type) {
     document.querySelector('.claim-type-item[data-type="' + type + '"]').classList.add('active');
 }
 
+var claimTypeProfiles = <?php
+$__profiles = [];
+foreach ($claimTypes as $__k => $__t) {
+    $__profiles[$__k] = $__t['profile'] ?? 'other';
+}
+echo json_encode($__profiles, JSON_UNESCAPED_UNICODE);
+?>;
+
 function showTypeFields(type) {
-    // Hide all type-specific fields
     document.querySelectorAll('.type-fields').forEach(el => {
         el.style.display = 'none';
     });
+    var bene = document.getElementById('beneficiary-fields');
+    if (bene) bene.style.display = 'none';
 
-    // Show fields based on type
-    switch(type) {
+    var profile = (claimTypeProfiles && claimTypeProfiles[type]) ? claimTypeProfiles[type] : type;
+    switch(profile) {
         case 'maternity':
-            document.getElementById('maternity-fields').style.display = 'block';
+            var el = document.getElementById('maternity-fields');
+            if (el) el.style.display = 'block';
             break;
         case 'death':
-            document.getElementById('death-fields').style.display = 'block';
-            document.getElementById('beneficiary-fields').style.display = 'block';
+            var d = document.getElementById('death-fields');
+            if (d) d.style.display = 'block';
+            if (bene) bene.style.display = 'block';
             break;
         case 'medical':
-            document.getElementById('medical-fields').style.display = 'block';
+            var m = document.getElementById('medical-fields');
+            if (m) m.style.display = 'block';
             break;
+        case 'accident':
         case 'insurance':
-            // Can show insurance-specific fields if needed
+        case 'other':
+        default:
             break;
     }
 }

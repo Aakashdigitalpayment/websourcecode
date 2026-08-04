@@ -18,24 +18,19 @@ $memEmail     = trim((string)($mem['email'] ?? ''));
 $memPhone     = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
 $memName      = trim((string)($mem['name'] ?? ''));
 require __DIR__ . '/../includes/member-portal-identity.php';
+$_dstypes = __DIR__ . '/../includes/digital-service-types.php';
+if (is_file($_dstypes)) { require_once $_dstypes; }
+if (is_file(__DIR__ . '/../includes/digital-service-requests-tables.php')) { require_once __DIR__ . '/../includes/digital-service-requests-tables.php'; }
+if (function_exists('ensureDigitalServiceRequestsTables')) { ensureDigitalServiceRequestsTables($db); }
+unset($_dstypes);
 
 $rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
 
-/* Service types */
-$serviceTypes = [
-    'missed_call_banking' => ['np' => 'मिस्ड कल बैंकिङ',        'en' => 'Missed Call Banking',     'icon' => 'fa-phone-volume'],
-    'statement_request'   => ['np' => 'स्टेटमेन्ट अनुरोध',       'en' => 'Statement Request',        'icon' => 'fa-file-invoice'],
-    'bill_payment'        => ['np' => 'बिल भुक्तानी सहयोग',      'en' => 'Bill Payment Support',     'icon' => 'fa-receipt'],
-    'mobile_recharge'     => ['np' => 'मोबाइल रिचार्ज अनुरोध',   'en' => 'Mobile Recharge Request',  'icon' => 'fa-mobile-screen'],
-    'internet_banking'    => ['np' => 'इन्टरनेट/मोबाइल बैंकिङ', 'en' => 'Internet/Mobile Banking',  'icon' => 'fa-laptop-code'],
-    'sms_alert'           => ['np' => 'SMS अलर्ट सेवा',          'en' => 'SMS Alert Service',        'icon' => 'fa-bell'],
-    'card_service'        => ['np' => 'कार्ड सेवा',              'en' => 'Card Service',             'icon' => 'fa-credit-card'],
-    'qr_payment'          => ['np' => 'QR/डिजिटल भुक्तानी',     'en' => 'QR / Digital Payment',     'icon' => 'fa-qrcode'],
-    'share_refund'        => ['np' => 'शेयर फिर्ता (Refund)',    'en' => 'Share Refund',             'icon' => 'fa-money-bill-transfer'],
-    'share_increase'      => ['np' => 'शेयर वृद्धि (Increase)',  'en' => 'Share Increase',           'icon' => 'fa-chart-line'],
-    'other'               => ['np' => 'अन्य डिजिटल सेवा',        'en' => 'Other Digital Service',    'icon' => 'fa-headset'],
-];
+/* Service types — DB catalog + hardcoded fallback */
+$serviceTypes = function_exists('digitalServiceTypesMap')
+    ? digitalServiceTypesMap($db)
+    : (function_exists('digitalServiceTypesDefaults') ? digitalServiceTypesDefaults() : []);
 
 /* Recent digital service requests */
 $recentRequests = [];
