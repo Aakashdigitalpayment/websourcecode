@@ -111,6 +111,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = isEnglish() ? 'Please select a valid service.' : 'कृपया सही सेवा छान्नुहोस्।';
         } elseif (!$error && in_array($serviceType, ['share_refund', 'share_increase'], true) && ($serviceAmount === null || $serviceAmount <= 0)) {
             $error = isEnglish() ? 'Please enter a valid amount for selected share service.' : 'छानिएको शेयर सेवाको लागि सही रकम राख्नुहोस्।';
+        } elseif (!$error && !empty($serviceTypes[$serviceType]['requires_document'])
+            && (!isset($_FILES['attachment']) || (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
+            $error = isEnglish() ? 'Please attach a supporting document for this service.' : 'यो सेवाको लागि संलग्न कागजात अनिवार्य छ।';
         } elseif (!$error) {
             try {
                 $trackingId = 'DSR-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
@@ -457,6 +460,7 @@ $L = getLangStrings();
                                 <option value=""><?php echo isEnglish() ? 'Select a service...' : 'सेवा छान्नुहोस्...'; ?></option>
                                 <?php foreach ($serviceTypes as $key => $type): ?>
                                 <option value="<?php echo $key; ?>"
+                                    data-doc="<?php echo !empty($type['requires_document']) ? '1' : '0'; ?>"
                                     <?php echo (($_POST['service_type'] ?? '') === $key) ? 'selected' : ''; ?>>
                                     <?php echo isEnglish() ? $type['en'] : ($type['np'] . ' / ' . $type['en']); ?>
                                 </option>
@@ -572,11 +576,12 @@ $L = getLangStrings();
                             ><?php echo e($_POST['request_details'] ?? ''); ?></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">
+                            <label class="form-label" id="dsAttachLabel">
                                 <?php echo isEnglish() ? 'Attachment' : 'संलग्न कागजात'; ?>
-                                <small class="ds-muted">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
+                                <small class="ds-muted" id="dsAttachHint">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
+                                <span class="req" id="dsAttachReq" style="display:none;">*</span>
                             </label>
-                            <input type="file" name="attachment" class="form-control"
+                            <input type="file" name="attachment" id="dsAttachment" class="form-control"
                                    accept="image/*,.pdf,.doc,.docx">
                         </div>
                         <div class="col-md-6">
@@ -633,6 +638,26 @@ $L = getLangStrings();
         if (type === 'share_refund' || type === 'share_increase') {
             var shareEl = document.querySelector('.share-fields');
             if (shareEl) shareEl.style.display = 'block';
+        }
+        /* Document required flag from catalog (honor-style) — special panels unchanged */
+        var opt = serviceEl && serviceEl.options[serviceEl.selectedIndex];
+        var needDoc = opt && opt.getAttribute('data-doc') === '1';
+        var attach = document.getElementById('dsAttachment');
+        var hint = document.getElementById('dsAttachHint');
+        var req = document.getElementById('dsAttachReq');
+        if (attach) {
+            if (needDoc) {
+                attach.setAttribute('required', 'required');
+            } else {
+                attach.removeAttribute('required');
+            }
+        }
+        if (hint) {
+            hint.style.display = needDoc ? 'none' : '';
+            hint.textContent = needDoc ? '' : '(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)';
+        }
+        if (req) {
+            req.style.display = needDoc ? '' : 'none';
         }
     }
 

@@ -7,11 +7,11 @@
 if (!function_exists('digitalServiceTypesDefaults')) {
     /**
      * Hardcoded defaults — same shape as legacy $serviceTypes map.
-     * @return array<string, array{np:string,en:string,icon:string,color:string}>
+     * @return array<string, array{np:string,en:string,icon:string,color:string,requires_document:int}>
      */
     function digitalServiceTypesDefaults(): array
     {
-        return [
+        $base = [
             'missed_call_banking' => ['np' => 'मिस्ड कल बैंकिङ',        'en' => 'Missed Call Banking',     'icon' => 'fa-phone-volume',   'color' => 'var(--primary-color)'],
             'statement_request'   => ['np' => 'स्टेटमेन्ट अनुरोध',       'en' => 'Statement Request',        'icon' => 'fa-file-invoice',   'color' => 'var(--primary-color)'],
             'bill_payment'        => ['np' => 'बिल भुक्तानी सहयोग',      'en' => 'Bill Payment Support',     'icon' => 'fa-receipt',        'color' => 'var(--secondary-color)'],
@@ -24,6 +24,10 @@ if (!function_exists('digitalServiceTypesDefaults')) {
             'share_increase'      => ['np' => 'शेयर वृद्धि (Increase)',  'en' => 'Share Increase',           'icon' => 'fa-chart-line',     'color' => 'var(--primary-color)'],
             'other'               => ['np' => 'अन्य डिजिटल सेवा',        'en' => 'Other Digital Service',    'icon' => 'fa-headset',        'color' => 'var(--secondary-color)'],
         ];
+        foreach ($base as $k => $row) {
+            $base[$k]['requires_document'] = 0;
+        }
+        return $base;
     }
 }
 
@@ -62,11 +66,18 @@ if (!function_exists('ensureDigitalServiceTypes')) {
                 display_order INT NOT NULL DEFAULT 0,
                 is_active TINYINT(1) NOT NULL DEFAULT 1,
                 is_builtin TINYINT(1) NOT NULL DEFAULT 0,
+                requires_document TINYINT(1) NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE KEY uq_dst_slug (slug),
                 INDEX idx_dst_active (is_active),
                 INDEX idx_dst_order (display_order)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+            try {
+                $db->exec('ALTER TABLE digital_service_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
+            } catch (Throwable $e) {
+                /* already present */
+            }
 
             $count = 0;
             try {
@@ -109,7 +120,7 @@ if (!function_exists('ensureDigitalServiceTypes')) {
 
 if (!function_exists('digitalServiceTypesMap')) {
     /**
-     * @return array<string, array{np:string,en:string,icon:string,color:string}>
+     * @return array<string, array{np:string,en:string,icon:string,color:string,requires_document:int}>
      */
     function digitalServiceTypesMap(?PDO $db = null, bool $activeOnly = true): array
     {
@@ -126,7 +137,7 @@ if (!function_exists('digitalServiceTypesMap')) {
         }
         try {
             ensureDigitalServiceTypes($db);
-            $sql = 'SELECT slug, name_np, name_en, icon, color FROM digital_service_types';
+            $sql = 'SELECT slug, name_np, name_en, icon, color, requires_document FROM digital_service_types';
             if ($activeOnly) {
                 $sql .= ' WHERE is_active = 1';
             }
@@ -154,11 +165,41 @@ if (!function_exists('digitalServiceTypesMap')) {
                     'en' => (string)($r['name_en'] ?? ''),
                     'icon' => $icon,
                     'color' => (string)($r['color'] ?? '') ?: 'var(--primary-color)',
+                    'requires_document' => !empty($r['requires_document']) ? 1 : 0,
                 ];
             }
             return $map ?: $defaults;
         } catch (Throwable $e) {
-            return $defaults;
+            /* Older DBs without column — retry without requires_document */
+            try {
+                $sql = 'SELECT slug, name_np, name_en, icon, color FROM digital_service_types';
+                if ($activeOnly) {
+                    $sql .= ' WHERE is_active = 1';
+                }
+                $sql .= ' ORDER BY display_order ASC, id ASC';
+                $rows = $db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                $map = [];
+                foreach ($rows as $r) {
+                    $slug = (string)($r['slug'] ?? '');
+                    if ($slug === '') {
+                        continue;
+                    }
+                    $icon = trim((string)($r['icon'] ?? ''));
+                    if (stripos($icon, 'fas ') === 0) {
+                        $icon = trim(substr($icon, 4));
+                    }
+                    $map[$slug] = [
+                        'np' => (string)($r['name_np'] ?? ''),
+                        'en' => (string)($r['name_en'] ?? ''),
+                        'icon' => $icon !== '' ? $icon : ($defaults[$slug]['icon'] ?? 'fa-laptop'),
+                        'color' => (string)($r['color'] ?? '') ?: 'var(--primary-color)',
+                        'requires_document' => 0,
+                    ];
+                }
+                return $map ?: $defaults;
+            } catch (Throwable $e2) {
+                return $defaults;
+            }
         }
     }
 }
