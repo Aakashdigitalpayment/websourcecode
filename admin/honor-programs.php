@@ -16,16 +16,22 @@ $__t = static function (string $np, string $en): string {
 };
 
 $action = $_GET['action'] ?? 'list';
-if (!in_array($action, ['list', 'add', 'edit'], true)) {
+if (!in_array($action, ['list', 'add', 'edit', 'categories'], true)) {
     $action = 'list';
 }
 $editId = (int)($_GET['id'] ?? 0);
+$editCatId = (int)($_GET['edit_cat'] ?? 0);
 
 $allCategories = [];
+$manageCategories = [];
 try {
+    /* Program form: active only */
     $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    /* Manage screen: all rows */
+    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     $allCategories = [];
+    $manageCategories = [];
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -116,6 +122,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             redirect('honor-programs.php');
         }
+
+        /* ── Dynamic honor categories (coop-managed, like team categories) ── */
+        if ($postAction === 'save_category') {
+            $cid = (int)($_POST['category_id'] ?? 0);
+            $nameNp = clean_text($_POST['name_np'] ?? '', 160);
+            $nameEn = clean_text($_POST['name_en'] ?? '', 160);
+            $order = (int)($_POST['display_order'] ?? 0);
+            $reqNominee = isset($_POST['requires_nominee']) ? 1 : 0;
+            $reqDoc = isset($_POST['requires_document']) ? 1 : 0;
+            $isActive = isset($_POST['is_active']) ? 1 : 0;
+
+            if ($nameNp === '') {
+                setFlash('error', $__t('कोटि नाम (नेपाली) अनिवार्य छ।', 'Category name (Nepali) is required.'));
+                redirect('honor-programs.php?action=categories' . ($cid > 0 ? '&edit_cat=' . $cid : ''));
+            }
+
+            if ($cid > 0) {
+                $db->prepare(
+                    'UPDATE honor_categories SET name_np=?, name_en=?, requires_nominee=?, requires_document=?, is_active=?, display_order=? WHERE id=?'
+                )->execute([$nameNp, $nameEn, $reqNominee, $reqDoc, $isActive, $order, $cid]);
+                setFlash('success', $__t('कोटि अद्यावधिक भयो।', 'Category updated.'));
+            } else {
+                $base = honorCategorySlugify($nameEn !== '' ? $nameEn : $nameNp, 'honor');
+                $slug = $base;
+                $n = 0;
+                $chk = $db->prepare('SELECT id FROM honor_categories WHERE slug = ? LIMIT 1');
+                while (true) {
+                    $chk->execute([$slug]);
+                    if (!$chk->fetchColumn()) {
+                        break;
+                    }
+                    $n++;
+                    $slug = substr($base, 0, 40) . '-' . $n;
+                    if ($n > 50) {
+                        $slug = 'honor-' . substr(md5((string)microtime(true)), 0, 10);
+                        break;
+                    }
+                }
+                if ($order <= 0) {
+                    try {
+                        $order = (int)$db->query('SELECT COALESCE(MAX(display_order),0) + 10 FROM honor_categories')->fetchColumn();
+                    } catch (Throwable $e) {
+                        $order = 10;
+                    }
+                }
+                $db->prepare(
+                    'INSERT INTO honor_categories (slug, name_np, name_en, requires_nominee, requires_document, is_active, display_order) VALUES (?,?,?,?,?,?,?)'
+                )->execute([$slug, $nameNp, $nameEn, $reqNominee, $reqDoc, $isActive, $order]);
+                setFlash('success', $__t('नयाँ कोटि थपियो।', 'Category added.'));
+            }
+            redirect('honor-programs.php?action=categories');
+        }
+
+        if ($postAction === 'toggle_category') {
+            $cid = (int)($_POST['category_id'] ?? 0);
+            if ($cid > 0) {
+                $db->prepare('UPDATE honor_categories SET is_active = IF(is_active=1,0,1) WHERE id = ?')->execute([$cid]);
+                setFlash('success', $__t('कोटि स्थिति बदलियो।', 'Category status updated.'));
+            }
+            redirect('honor-programs.php?action=categories');
+        }
+
+        if ($postAction === 'delete_category') {
+            $cid = (int)($_POST['category_id'] ?? 0);
+            if ($cid > 0) {
+                $appCount = 0;
+                $progCount = 0;
+                try {
+                    $st = $db->prepare('SELECT COUNT(*) FROM honor_applications WHERE category_id = ?');
+                    $st->execute([$cid]);
+                    $appCount = (int)$st->fetchColumn();
+                    $st2 = $db->prepare('SELECT COUNT(*) FROM honor_program_categories WHERE category_id = ?');
+                    $st2->execute([$cid]);
+                    $progCount = (int)$st2->fetchColumn();
+                } catch (Throwable $e) { /* ignore */ }
+
+                if ($appCount > 0 || $progCount > 0) {
+                    $db->prepare('UPDATE honor_categories SET is_active = 0 WHERE id = ?')->execute([$cid]);
+                    setFlash('warning', $__t(
+                        'यो कोटि प्रयोगमा छ — मेटाउन सकिएन, निष्क्रिय गरियो।',
+                        'Category is in use — deactivated instead of deleted.'
+                    ));
+                } else {
+                    $db->prepare('DELETE FROM honor_categories WHERE id = ?')->execute([$cid]);
+                    setFlash('success', $__t('कोटि हटाइयो।', 'Category deleted.'));
+                }
+            }
+            redirect('honor-programs.php?action=categories');
+        }
     } catch (Throwable $e) {
         error_log('[honor-programs] ' . $e->getMessage());
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
@@ -125,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $editRow = null;
 $editCatIds = [];
+$editCategory = null;
 if ($action === 'edit' && $editId > 0) {
     $editRow = honorFetchProgramById($db, $editId);
     if (!$editRow) {
@@ -134,6 +230,22 @@ if ($action === 'edit' && $editId > 0) {
     foreach (honorFetchProgramCategories($db, $editId) as $c) {
         $editCatIds[] = (int)$c['id'];
     }
+}
+if ($action === 'categories' && $editCatId > 0) {
+    $editCategory = honorFetchCategoryById($db, $editCatId);
+    if (!$editCategory) {
+        setFlash('error', $__t('कोटि फेला परेन।', 'Category not found.'));
+        redirect('honor-programs.php?action=categories');
+    }
+}
+
+/* Refresh category lists after any schema/seed (and for manage screen) */
+try {
+    $allCategories = $db->query('SELECT * FROM honor_categories WHERE is_active = 1 ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $manageCategories = $db->query('SELECT * FROM honor_categories ORDER BY display_order ASC, id ASC')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $e) {
+    $allCategories = $allCategories ?: [];
+    $manageCategories = $manageCategories ?: [];
 }
 
 $programs = [];
@@ -179,24 +291,164 @@ function honorAdminTimePart(?string $mysqlDt, string $fallback = '00:00'): strin
         <h4 class="mb-1"><?php echo $__t('सम्मान आवेदन कार्यक्रम', 'Honor Application Programs'); ?></h4>
         <p class="text-muted mb-0 small"><?php echo $__t('AGM / वार्षिक उत्सवका लागि खुल्ने-बन्द मिति सहित कार्यक्रम बनाउनुहोस्। सक्रिय भए पनि खुल्ने मिति अगाडि भए public मा “चाँडै खुल्ने” देखिन्छ; आवेदन त्यसपछि मात्र।', 'Create programs with open/close dates. Even when Active, before opens_at the public shows “coming soon”; apply only after open.'); ?></p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <a href="honor-applications.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-inbox me-1"></i><?php echo $__t('आवेदनहरू', 'Applications'); ?></a>
+        <a href="honor-programs.php?action=categories" class="btn btn-outline-success btn-sm <?php echo $action === 'categories' ? 'active' : ''; ?>">
+            <i class="fas fa-tags me-1"></i><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?>
+        </a>
         <?php if ($action === 'list'): ?>
         <a href="honor-programs.php?action=add" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i><?php echo $__t('नयाँ कार्यक्रम', 'New Program'); ?></a>
-        <?php else: ?>
+        <?php elseif ($action !== 'categories'): ?>
         <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूची', 'List'); ?></a>
+        <?php else: ?>
+        <a href="honor-programs.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('कार्यक्रम सूची', 'Program list'); ?></a>
         <?php endif; ?>
     </div>
 </div>
 
-<?php if ($flash = getFlash()): ?>
-<div class="alert alert-<?php echo $flash['type'] === 'error' ? 'danger' : 'success'; ?> alert-dismissible fade show">
+<?php if ($flash = getFlash()):
+    $flashTone = $flash['type'] === 'error' ? 'danger' : ($flash['type'] === 'warning' ? 'warning' : 'success');
+?>
+<div class="alert alert-<?php echo $flashTone; ?> alert-dismissible fade show">
     <?php echo htmlspecialchars((string)$flash['message']); ?>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 <?php endif; ?>
 
-<?php if ($action === 'add' || $action === 'edit'): ?>
+<?php if ($action === 'categories'): ?>
+<?php
+$catForm = $editCategory ?: [
+    'id' => 0,
+    'name_np' => '',
+    'name_en' => '',
+    'display_order' => 0,
+    'requires_nominee' => 1,
+    'requires_document' => 0,
+    'is_active' => 1,
+];
+?>
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card admin-table-card border-0 shadow-sm">
+            <div class="card-header bg-light py-2">
+                <strong><?php echo !empty($catForm['id']) ? $__t('कोटि सम्पादन', 'Edit category') : $__t('नयाँ सम्मान कोटि', 'New honor category'); ?></strong>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted"><?php echo $__t('Team को श्रेणी जस्तै — सहकारीले आफैं नयाँ कोटि थप्न/सम्पादन गर्न सक्छ।', 'Like team categories — the cooperative can add/edit its own honor types.'); ?></p>
+                <form method="post" class="row g-3">
+                    <?php echo csrfField(); ?>
+                    <input type="hidden" name="action" value="save_category">
+                    <input type="hidden" name="category_id" value="<?php echo (int)($catForm['id'] ?? 0); ?>">
+                    <div class="col-12">
+                        <label class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
+                        <input type="text" name="name_np" class="form-control" required maxlength="160"
+                               value="<?php echo htmlspecialchars((string)$catForm['name_np']); ?>"
+                               placeholder="<?php echo $__t('जस्तै: राष्ट्रिय खेलाडी', 'e.g. National athlete'); ?>">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                        <input type="text" name="name_en" class="form-control" maxlength="160"
+                               value="<?php echo htmlspecialchars((string)$catForm['name_en']); ?>"
+                               placeholder="e.g. National athlete">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                        <input type="number" name="display_order" class="form-control" value="<?php echo (int)($catForm['display_order'] ?? 0); ?>">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="catActive" <?php echo !empty($catForm['is_active']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="catActive"><?php echo $__t('सक्रिय', 'Active'); ?></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="requires_nominee" id="catNom" <?php echo !empty($catForm['requires_nominee']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="catNom"><?php echo $__t('Nominee चाहिन्छ', 'Requires nominee'); ?></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="requires_document" id="catDoc" <?php echo !empty($catForm['requires_document']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="catDoc"><?php echo $__t('कागजात चाहिन्छ', 'Requires document'); ?></label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
+                        <?php if (!empty($catForm['id'])): ?>
+                        <a href="honor-programs.php?action=categories" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card admin-table-card border-0 shadow-sm">
+            <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+                <strong><?php echo $__t('सबै कोटिहरू', 'All categories'); ?></strong>
+                <span class="badge bg-secondary"><?php echo count($manageCategories); ?></span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th><?php echo $__t('कोटि', 'Category'); ?></th>
+                                <th class="text-center"><?php echo $__t('क्रम', 'Order'); ?></th>
+                                <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
+                                <th class="text-center"><?php echo $__t('कार्य', 'Actions'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php if (empty($manageCategories)): ?>
+                            <tr><td colspan="4" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै कोटि छैन। बायाँबाट थप्नुहोस्।', 'No categories yet. Add one on the left.'); ?></td></tr>
+                        <?php else: foreach ($manageCategories as $mc): ?>
+                            <tr>
+                                <td>
+                                    <strong><?php echo htmlspecialchars(honorCategoryLabel($mc, false)); ?></strong>
+                                    <?php if (!empty($mc['name_en'])): ?>
+                                    <div class="small text-muted"><?php echo htmlspecialchars((string)$mc['name_en']); ?></div>
+                                    <?php endif; ?>
+                                    <div class="small text-muted">
+                                        <?php if (!empty($mc['requires_nominee'])): ?><span class="me-2">Nominee</span><?php endif; ?>
+                                        <?php if (!empty($mc['requires_document'])): ?><span>Document</span><?php endif; ?>
+                                    </div>
+                                </td>
+                                <td class="text-center"><?php echo (int)$mc['display_order']; ?></td>
+                                <td class="text-center">
+                                    <?php if (!empty($mc['is_active'])): ?>
+                                    <span class="badge bg-success"><?php echo $__t('सक्रिय', 'Active'); ?></span>
+                                    <?php else: ?>
+                                    <span class="badge bg-secondary"><?php echo $__t('निष्क्रिय', 'Inactive'); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center text-nowrap">
+                                    <a href="honor-programs.php?action=categories&edit_cat=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
+                                        <?php echo csrfField(); ?>
+                                        <input type="hidden" name="action" value="toggle_category">
+                                        <input type="hidden" name="category_id" value="<?php echo (int)$mc['id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="fas fa-power-off"></i></button>
+                                    </form>
+                                    <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने? प्रयोगमा भए निष्क्रिय हुन्छ।', 'Delete? If in use it will be deactivated.'); ?>');">
+                                        <?php echo csrfField(); ?>
+                                        <input type="hidden" name="action" value="delete_category">
+                                        <input type="hidden" name="category_id" value="<?php echo (int)$mc['id']; ?>">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php elseif ($action === 'add' || $action === 'edit'): ?>
 <?php
 $form = $editRow ?: [
     'title_np' => '', 'title_en' => '', 'event_label' => '', 'fiscal_year' => '',
@@ -287,7 +539,12 @@ $selectedCats = $editCatIds;
                 </div>
             </div>
             <div class="col-12">
-                <label class="form-label"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
+                    <label class="form-label mb-0"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
+                    <a href="honor-programs.php?action=categories" class="btn btn-sm btn-outline-success">
+                        <i class="fas fa-plus me-1"></i><?php echo $__t('कोटि थप्नुहोस् / व्यवस्थापन', 'Add / manage categories'); ?>
+                    </a>
+                </div>
                 <div class="border rounded p-3 bg-light">
                     <div class="row g-2">
                         <?php foreach ($allCategories as $cat): ?>
@@ -305,7 +562,9 @@ $selectedCats = $editCatIds;
                         <?php endforeach; ?>
                     </div>
                     <?php if (empty($allCategories)): ?>
-                    <p class="text-muted mb-0 small"><?php echo $__t('कोटि सूची खाली छ — schema seed जाँच गर्नुहोस्।', 'No categories — check schema seed.'); ?></p>
+                    <p class="text-muted mb-0 small"><?php echo $__t('सक्रिय कोटि छैन — माथिबाट नयाँ कोटि थप्नुहोस्।', 'No active categories — add one from the manage link above.'); ?></p>
+                    <?php else: ?>
+                    <p class="text-muted mb-0 small mt-2"><?php echo $__t('नयाँ प्रकार चाहिएमा “कोटि थप्नुहोस्” बाट आफैं थप्न सकिन्छ (team श्रेणी जस्तै)।', 'Need a new type? Add it yourself via “Add categories” (like team categories).'); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
