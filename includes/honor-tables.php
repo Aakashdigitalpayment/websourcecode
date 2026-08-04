@@ -408,6 +408,24 @@ if (!function_exists('honorProgramLabel')) {
     }
 }
 
+if (!function_exists('honorCategorySlugify')) {
+    /** Unique-ish slug from name for honor_categories.slug */
+    function honorCategorySlugify(string $name, string $fallback = 'cat'): string
+    {
+        $name = trim($name);
+        $slug = strtolower($name);
+        $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug) ?? '';
+        $slug = trim((string)$slug, '-');
+        if ($slug === '' || strlen($slug) < 2) {
+            $slug = $fallback . '-' . substr(md5($name !== '' ? $name : (string)microtime(true)), 0, 8);
+        }
+        if (strlen($slug) > 50) {
+            $slug = rtrim(substr($slug, 0, 50), '-');
+        }
+        return $slug;
+    }
+}
+
 if (!function_exists('honorCategoryLabel')) {
     function honorCategoryLabel(array $category, bool $english = false): string
     {
