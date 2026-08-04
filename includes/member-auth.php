@@ -47,6 +47,7 @@ function ensureMemberTables() {
     if (!$db) return;
 
     /* Core members table */
+    try {
     $db->exec("CREATE TABLE IF NOT EXISTS members (
         id                  INT AUTO_INCREMENT PRIMARY KEY,
         name                VARCHAR(255) NOT NULL,
@@ -73,6 +74,9 @@ function ensureMemberTables() {
         created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         last_login          TIMESTAMP NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables members] ' . $e->getMessage());
+    }
 
     /* Add new columns to existing tables (silently ignore if exists) */
     $newCols = [
@@ -129,6 +133,7 @@ function ensureMemberTables() {
     }
 
     /* Notifications table */
+    try {
     $db->exec("CREATE TABLE IF NOT EXISTS member_notifications (
         id          INT AUTO_INCREMENT PRIMARY KEY,
         member_id   INT NOT NULL,
@@ -138,10 +143,14 @@ function ensureMemberTables() {
         link        VARCHAR(500),
         is_read     TINYINT DEFAULT 0,
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+        INDEX (member_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables notifications] ' . $e->getMessage());
+    }
 
     /* Password reset requests table (admin-approved fallback) */
+    try {
     $db->exec("CREATE TABLE IF NOT EXISTS member_password_reset_requests (
         id              INT AUTO_INCREMENT PRIMARY KEY,
         member_id       INT NOT NULL,
@@ -151,10 +160,14 @@ function ensureMemberTables() {
         resolved_at     TIMESTAMP NULL DEFAULT NULL,
         temp_password   VARCHAR(255) NULL DEFAULT NULL,
         admin_note      TEXT,
-        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+        INDEX (member_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables pwd_reset] ' . $e->getMessage());
+    }
 
     /* OTP tokens table — self-service password reset */
+    try {
     $db->exec("CREATE TABLE IF NOT EXISTS member_otp_tokens (
         id          INT AUTO_INCREMENT PRIMARY KEY,
         member_id   INT NOT NULL,
@@ -166,8 +179,11 @@ function ensureMemberTables() {
         attempts    TINYINT DEFAULT 0,
         expires_at  TIMESTAMP NOT NULL,
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+        INDEX (member_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables otp] ' . $e->getMessage());
+    }
 }
 
 /* ─── Security Headers ─── */
