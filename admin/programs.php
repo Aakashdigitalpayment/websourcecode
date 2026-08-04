@@ -22,8 +22,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $loc  = trim((string)($_POST['location'] ?? ''));
             $active = !empty($_POST['is_active']) ? 1 : 0;
             $preRegOpen = !empty($_POST['pre_registration_open']) ? 1 : 0;
-            $qrStartsAt = trim((string)($_POST['qr_starts_at'] ?? '')) ?: null;
-            $qrExpiresAt = trim((string)($_POST['qr_expires_at'] ?? '')) ?: null;
+            $qrStartsBs = trim((string)($_POST['qr_starts_at_bs'] ?? ''));
+            $qrStartsTime = trim((string)($_POST['qr_starts_at_time'] ?? ''));
+            $qrExpiresBs = trim((string)($_POST['qr_expires_at_bs'] ?? ''));
+            $qrExpiresTime = trim((string)($_POST['qr_expires_at_time'] ?? ''));
+            /* Legacy AD datetime-local fallback (older form posts) */
+            $qrStartsLegacy = trim((string)($_POST['qr_starts_at'] ?? ''));
+            $qrExpiresLegacy = trim((string)($_POST['qr_expires_at'] ?? ''));
+
+            $qrStartsAt = null;
+            if ($qrStartsBs !== '') {
+                $combined = programCombineBsDateTime($qrStartsBs, $qrStartsTime !== '' ? $qrStartsTime : '00:00');
+                $qrStartsAt = $combined !== '' ? $combined : null;
+            } elseif ($qrStartsLegacy !== '') {
+                $ts = strtotime(str_replace('T', ' ', $qrStartsLegacy));
+                $qrStartsAt = $ts ? date('Y-m-d H:i:s', $ts) : null;
+            }
+
+            $qrExpiresAt = null;
+            if ($qrExpiresBs !== '') {
+                $combined = programCombineBsDateTime($qrExpiresBs, $qrExpiresTime !== '' ? $qrExpiresTime : '23:59');
+                $qrExpiresAt = $combined !== '' ? $combined : null;
+            } elseif ($qrExpiresLegacy !== '') {
+                $ts = strtotime(str_replace('T', ' ', $qrExpiresLegacy));
+                $qrExpiresAt = $ts ? date('Y-m-d H:i:s', $ts) : null;
+            }
             if ($title === '') throw new Exception('कार्यक्रम शीर्षक आवश्यक छ।');
             if ($id > 0) {
                 $st = $db->prepare("UPDATE upcoming_programs SET title=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=? WHERE id=?");
@@ -187,8 +210,38 @@ foreach ($rows as $_r) {
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
         </div>
-        <div class="col-md-6"><label class="form-label">QR सुरु समय <span class="text-muted small">(AD)</span></label><input type="datetime-local" name="qr_starts_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_starts_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_starts_at'])) : ''); ?>"><div class="form-text">खाली = Generate QR गर्दा अहिलेबाट</div></div>
-        <div class="col-md-6"><label class="form-label">QR समाप्त समय <span class="text-muted small">(AD)</span></label><input type="datetime-local" name="qr_expires_at" class="form-control" value="<?php echo htmlspecialchars(!empty($edit['qr_expires_at']) ? date('Y-m-d\TH:i', strtotime($edit['qr_expires_at'])) : ''); ?>"><div class="form-text">खाली = कार्यक्रम मिति (BS→AD) + १ दिन</div></div>
+        <?php
+          $qrStartBs = !empty($edit['qr_starts_at']) ? programMysqlDtToBsDate((string)$edit['qr_starts_at']) : '';
+          $qrStartTime = !empty($edit['qr_starts_at']) ? programMysqlDtToTime((string)$edit['qr_starts_at'], '00:00') : '00:00';
+          $qrEndBs = !empty($edit['qr_expires_at']) ? programMysqlDtToBsDate((string)$edit['qr_expires_at']) : '';
+          $qrEndTime = !empty($edit['qr_expires_at']) ? programMysqlDtToTime((string)$edit['qr_expires_at'], '23:59') : '23:59';
+        ?>
+        <div class="col-md-3">
+          <label class="form-label">QR सुरु मिति <span class="text-muted small">(वि.सं.)</span></label>
+          <div class="input-group">
+            <input type="text" name="qr_starts_at_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
+                   value="<?php echo htmlspecialchars($qrStartBs); ?>">
+            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">QR सुरु समय</label>
+          <input type="time" name="qr_starts_at_time" class="form-control" value="<?php echo htmlspecialchars($qrStartTime); ?>">
+          <div class="form-text">खाली मिति = Generate QR गर्दा अहिलेबाट</div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">QR समाप्त मिति <span class="text-muted small">(वि.सं.)</span></label>
+          <div class="input-group">
+            <input type="text" name="qr_expires_at_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
+                   value="<?php echo htmlspecialchars($qrEndBs); ?>">
+            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">QR समाप्त समय</label>
+          <input type="time" name="qr_expires_at_time" class="form-control" value="<?php echo htmlspecialchars($qrEndTime); ?>">
+          <div class="form-text">खाली मिति = कार्यक्रम मिति + १ दिन</div>
+        </div>
         <div class="col-12 d-flex gap-2">
           <button class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button>
           <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
