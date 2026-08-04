@@ -89,6 +89,14 @@ if (!function_exists('ensureWelfareClaimsTables')) {
             } catch (Exception $e) {
             }
 
+            $_wctFile = __DIR__ . '/welfare-claim-types.php';
+            if (is_file($_wctFile)) {
+                require_once $_wctFile;
+            }
+            if (function_exists('ensureWelfareClaimTypes')) {
+                ensureWelfareClaimTypes($db);
+            }
+
             $done = true;
         } catch (Exception $e) {
         }

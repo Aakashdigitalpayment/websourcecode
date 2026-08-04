@@ -4,9 +4,20 @@
  * Keeps DB insert + upload logic consistent across public/member flows.
  */
 
+$_wctTypes = __DIR__ . '/welfare-claim-types.php';
+if (is_file($_wctTypes)) { require_once $_wctTypes; }
+unset($_wctTypes);
+
 if (!function_exists('welfareClaimTypeLabelNp')) {
     function welfareClaimTypeLabelNp($claimType)
     {
+        if (function_exists('welfareClaimTypeLabel')) {
+            $mapCheck = function_exists('welfareClaimTypesMap') ? welfareClaimTypesMap(null, false) : [];
+            if (isset($mapCheck[(string)$claimType])) {
+                $label = welfareClaimTypeLabel((string)$claimType, false);
+                return $label !== '' ? $label : 'अन्य';
+            }
+        }
         $map = [
             'maternity' => 'सुत्केरी सुविधा',
             'death' => 'मृत्यु सुविधा',

@@ -13,6 +13,7 @@ require_once __DIR__ . '/includes/admin-request-view.php';
 require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/digital-service-requests-tables.php';
+require_once __DIR__ . '/../includes/digital-service-types.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') require_role('admin');
@@ -32,19 +33,8 @@ $statusLabels = [
     'completed' => ['np' => 'सम्पन्न', 'en' => 'Completed', 'class' => 'primary']
 ];
 
-$serviceLabels = [
-    'missed_call_banking' => ['np' => 'मिस्ड कल बैंकिङ', 'en' => 'Missed Call Banking'],
-    'statement_request' => ['np' => 'स्टेटमेन्ट अनुरोध', 'en' => 'Statement Request'],
-    'bill_payment' => ['np' => 'बिल भुक्तानी सहयोग', 'en' => 'Bill Payment Support'],
-    'mobile_recharge' => ['np' => 'मोबाइल रिचार्ज', 'en' => 'Mobile Recharge'],
-    'internet_banking' => ['np' => 'इन्टरनेट/मोबाइल बैंकिङ', 'en' => 'Internet/Mobile Banking'],
-    'sms_alert' => ['np' => 'SMS अलर्ट', 'en' => 'SMS Alert'],
-    'card_service' => ['np' => 'कार्ड सेवा', 'en' => 'Card Service'],
-    'qr_payment' => ['np' => 'QR/डिजिटल भुक्तानी', 'en' => 'QR/Digital Payment'],
-    'share_refund' => ['np' => 'शेयर फिर्ता', 'en' => 'Share Refund'],
-    'share_increase' => ['np' => 'शेयर वृद्धि', 'en' => 'Share Increase'],
-    'other' => ['np' => 'अन्य', 'en' => 'Other']
-];
+$serviceLabels = digitalServiceTypesMap($db, false);
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -365,7 +355,8 @@ $dsrFilterQs = array_filter([
 echo adminPageHeader(
     $__t('डिजिटल सेवा अनुरोधहरू', 'Digital Service Requests'), 'fa-mobile-alt',
     $__t('अनलाइन डिजिटल सेवा अनुरोधहरूको स्थिति र व्यवस्थापन', 'Manage status of online digital service requests'),
-    adminStatLink('?status=pending', 'danger', $__t('पेन्डिङ', 'Pending'), $statusCounts['pending'] ?? 0)
+    '<a href="digital-service-types.php" class="btn btn-outline-success btn-sm"><i class="fas fa-tags me-1"></i>' . $__t('सेवा प्रकार', 'Service types') . '</a> '
+    . adminStatLink('?status=pending', 'danger', $__t('पेन्डिङ', 'Pending'), $statusCounts['pending'] ?? 0)
     . ' ' . adminStatLink('?status=completed', 'success', $__t('सम्पन्न', 'Completed'), $statusCounts['completed'] ?? 0)
     . ' ' . adminStatLink('digital-service-requests.php', 'secondary', $__t('जम्मा', 'Total'), $totalRequests)
 );

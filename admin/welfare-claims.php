@@ -12,6 +12,7 @@ require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/includes/admin-request-view.php';
 require_once __DIR__ . '/includes/admin-excel-export.php';
 require_once __DIR__ . '/../includes/welfare-claims-tables.php';
+require_once __DIR__ . '/../includes/welfare-claim-types.php';
 require_once __DIR__ . '/../includes/request-status-history.php';
 
 $db = getDB();
@@ -102,15 +103,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Claim type labels
-$claimTypes = [
-    'maternity' => ['np' => 'सुत्केरी सुविधा',  'en' => 'Maternity', 'icon' => 'fa-baby',         'color' => '#e91e63'],
-    'death'     => ['np' => 'मृत्यु सुविधा',    'en' => 'Death',     'icon' => 'fa-heart-broken',  'color' => '#607d8b'],
-    'insurance' => ['np' => 'बीमा दाबी',         'en' => 'Insurance', 'icon' => 'fa-shield-halved', 'color' => 'var(--secondary-color,#c0392b)'],
-    'medical'   => ['np' => 'उपचार खर्च',        'en' => 'Medical',   'icon' => 'fa-hospital',      'color' => '#4caf50'],
-    'accident'  => ['np' => 'दुर्घटना सुविधा',  'en' => 'Accident',  'icon' => 'fa-triangle-exclamation', 'color' => '#f97316'],
-    'other'     => ['np' => 'अन्य सुविधा',       'en' => 'Other',     'icon' => 'fa-gift',          'color' => '#ff9800'],
-];
+// Claim type labels — DB catalog + fallback (include inactive for old rows)
+$claimTypes = welfareClaimTypesMap($db, false);
+
 
 $statusLabels = [
     'pending' => ['np' => 'पेन्डिङ', 'class' => 'warning'],
@@ -484,6 +479,7 @@ $wlfFilterQs = array_filter([
 <?php
 echo adminPageHeader('कल्याण दाबी व्यवस्थापन', 'fa-hand-holding-heart',
     'सदस्य कल्याण दाबीहरू हेर्नुहोस् र व्यवस्थापन गर्नुहोस्',
+    '<a href="welfare-claim-types.php" class="btn btn-outline-success btn-sm"><i class="fas fa-tags me-1"></i>दाबी प्रकार</a> ' .
     adminStatLink('?status=pending',   'warning', 'पेन्डिङ',     $statusCounts['pending']      ?? 0) . ' ' .
     adminStatLink('?status=approved',  'success', 'स्वीकृत',     $statusCounts['approved']     ?? 0) . ' ' .
     adminStatLink('?status=rejected',  'danger',  'अस्वीकृत',    $statusCounts['rejected']     ?? 0)

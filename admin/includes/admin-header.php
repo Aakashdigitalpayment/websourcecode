@@ -280,11 +280,11 @@ $pageGroups = [
     /* सदस्य / Member ID यात्रा — सूची→import→नयाँ अनुरोध→KYM→portal (आवेदनबाट छुट्टै) */
     'sadasya'=> ['members','member-import','membership-apps','kyc','kyc-risk-reviews','member-ssot-duplicates','member-activities','member-online-portal'],
     /* अन्य सेवा आवेदन (सदस्यता/KYM यसमा होइन) */
-    'aavedan'=> ['loans','account-apps','digital-service-requests','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
+    'aavedan'=> ['loans','account-apps','digital-service-requests','digital-service-types','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
-    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','help-center'],
+    'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
     'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
     /* admin management pages — site-setup kept for direct URL; not in daily nav */

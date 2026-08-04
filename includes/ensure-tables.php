@@ -19,7 +19,9 @@
 foreach ([
     __DIR__ . '/program-tables.php',
     __DIR__ . '/welfare-claims-tables.php',
+    __DIR__ . '/welfare-claim-types.php',
     __DIR__ . '/digital-service-requests-tables.php',
+    __DIR__ . '/digital-service-types.php',
     __DIR__ . '/honor-tables.php',
     __DIR__ . '/partner-facilities-tables.php',
     __DIR__ . '/member-partner-services-tables.php',
