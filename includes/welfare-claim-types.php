@@ -7,11 +7,11 @@
 if (!function_exists('welfareClaimTypesDefaults')) {
     /**
      * Hardcoded defaults — same shape as legacy $claimTypes + form profile.
-     * @return array<string, array{np:string,en:string,icon:string,color:string,profile:string}>
+     * @return array<string, array{np:string,en:string,icon:string,color:string,profile:string,requires_document:int}>
      */
     function welfareClaimTypesDefaults(): array
     {
-        return [
+        $base = [
             'maternity' => ['np' => 'सुत्केरी सुविधा', 'en' => 'Maternity Benefit', 'icon' => 'fa-baby', 'color' => '#e91e63', 'profile' => 'maternity'],
             'death'     => ['np' => 'मृत्यु सुविधा', 'en' => 'Death Benefit', 'icon' => 'fa-heart-broken', 'color' => '#607d8b', 'profile' => 'death'],
             'insurance' => ['np' => 'बीमा दाबी', 'en' => 'Insurance Claim', 'icon' => 'fa-shield-alt', 'color' => '#2196f3', 'profile' => 'insurance'],
@@ -19,6 +19,10 @@ if (!function_exists('welfareClaimTypesDefaults')) {
             'accident'  => ['np' => 'दुर्घटना सुविधा', 'en' => 'Accident Benefit', 'icon' => 'fa-car-burst', 'color' => '#f59e0b', 'profile' => 'accident'],
             'other'     => ['np' => 'अन्य सुविधा', 'en' => 'Other Benefit', 'icon' => 'fa-gift', 'color' => '#ff9800', 'profile' => 'other'],
         ];
+        foreach ($base as $k => $row) {
+            $base[$k]['requires_document'] = 0;
+        }
+        return $base;
     }
 }
 
@@ -66,11 +70,18 @@ if (!function_exists('ensureWelfareClaimTypes')) {
                 display_order INT NOT NULL DEFAULT 0,
                 is_active TINYINT(1) NOT NULL DEFAULT 1,
                 is_builtin TINYINT(1) NOT NULL DEFAULT 0,
+                requires_document TINYINT(1) NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE KEY uq_wct_slug (slug),
                 INDEX idx_wct_active (is_active),
                 INDEX idx_wct_order (display_order)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+            try {
+                $db->exec('ALTER TABLE welfare_claim_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
+            } catch (Throwable $e) {
+                /* already present */
+            }
 
             /* Allow custom slugs on existing claims table */
             try {
@@ -93,8 +104,8 @@ if (!function_exists('ensureWelfareClaimTypes')) {
             $defaults = welfareClaimTypesDefaults();
             $order = 10;
             $stmt = $db->prepare(
-                'INSERT INTO welfare_claim_types (slug, name_np, name_en, icon, color, form_profile, display_order, is_active, is_builtin)
-                 VALUES (?,?,?,?,?,?,?,1,1)'
+                'INSERT INTO welfare_claim_types (slug, name_np, name_en, icon, color, form_profile, display_order, is_active, is_builtin, requires_document)
+                 VALUES (?,?,?,?,?,?,?,1,1,0)'
             );
             foreach ($defaults as $slug => $row) {
                 try {
@@ -121,7 +132,7 @@ if (!function_exists('ensureWelfareClaimTypes')) {
 
 if (!function_exists('welfareClaimTypesMap')) {
     /**
-     * @return array<string, array{np:string,en:string,icon:string,color:string,profile:string}>
+     * @return array<string, array{np:string,en:string,icon:string,color:string,profile:string,requires_document:int}>
      */
     function welfareClaimTypesMap(?PDO $db = null, bool $activeOnly = true): array
     {
@@ -138,7 +149,7 @@ if (!function_exists('welfareClaimTypesMap')) {
         }
         try {
             ensureWelfareClaimTypes($db);
-            $sql = 'SELECT slug, name_np, name_en, icon, color, form_profile FROM welfare_claim_types';
+            $sql = 'SELECT slug, name_np, name_en, icon, color, form_profile, requires_document FROM welfare_claim_types';
             if ($activeOnly) {
                 $sql .= ' WHERE is_active = 1';
             }
@@ -171,11 +182,46 @@ if (!function_exists('welfareClaimTypesMap')) {
                     'icon' => $icon,
                     'color' => (string)($r['color'] ?? '') ?: '#ff9800',
                     'profile' => $profile,
+                    'requires_document' => !empty($r['requires_document']) ? 1 : 0,
                 ];
             }
             return $map ?: $defaults;
         } catch (Throwable $e) {
-            return $defaults;
+            try {
+                $sql = 'SELECT slug, name_np, name_en, icon, color, form_profile FROM welfare_claim_types';
+                if ($activeOnly) {
+                    $sql .= ' WHERE is_active = 1';
+                }
+                $sql .= ' ORDER BY display_order ASC, id ASC';
+                $rows = $db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                $validProfiles = welfareClaimTypeProfiles();
+                $map = [];
+                foreach ($rows as $r) {
+                    $slug = (string)($r['slug'] ?? '');
+                    if ($slug === '') {
+                        continue;
+                    }
+                    $icon = trim((string)($r['icon'] ?? ''));
+                    if (stripos($icon, 'fas ') === 0) {
+                        $icon = trim(substr($icon, 4));
+                    }
+                    $profile = (string)($r['form_profile'] ?? 'other');
+                    if (!in_array($profile, $validProfiles, true)) {
+                        $profile = 'other';
+                    }
+                    $map[$slug] = [
+                        'np' => (string)($r['name_np'] ?? ''),
+                        'en' => (string)($r['name_en'] ?? ''),
+                        'icon' => $icon !== '' ? $icon : ($defaults[$slug]['icon'] ?? 'fa-gift'),
+                        'color' => (string)($r['color'] ?? '') ?: '#ff9800',
+                        'profile' => $profile,
+                        'requires_document' => 0,
+                    ];
+                }
+                return $map ?: $defaults;
+            } catch (Throwable $e2) {
+                return $defaults;
+            }
         }
     }
 }

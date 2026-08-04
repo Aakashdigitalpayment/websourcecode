@@ -83,6 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         if (!array_key_exists($claimType, $claimTypes)) {
             header('Location: welfare.php?err=no_type');
             exit;
+        } elseif (!empty($claimTypes[$claimType]['requires_document']) && !welfareHasSupportingDocuments($_FILES)) {
+            header('Location: welfare.php?err=doc_required');
+            exit;
         } else {
             try {
                 $submit = submitWelfareClaimUnified($db, [
@@ -114,7 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                 exit;
             } catch (Throwable $e) {
                 error_log('[welfare portal] ' . $e->getMessage());
-                header('Location: welfare.php?err=submit_failed');
+                if ($e->getMessage() === 'DOC_REQUIRED') {
+                    header('Location: welfare.php?err=doc_required');
+                } else {
+                    header('Location: welfare.php?err=submit_failed');
+                }
                 exit;
             }
         }
@@ -153,6 +160,7 @@ if (!empty($_GET['err'])) {
     if ($errKey === 'csrf')         $errorMsg = $_t('सुरक्षा जाँच असफल। पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please try again.');
     elseif ($errKey === 'ratelimit') $errorMsg = $_t('धेरै अनुरोधहरू भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     elseif ($errKey === 'no_type')   $errorMsg = $_t('दाबी प्रकार छान्नुहोस्।', 'Please select claim type.');
+    elseif ($errKey === 'doc_required') $errorMsg = $_t('यो दाबी प्रकारको लागि सहयोगी कागजात अनिवार्य छ।', 'Please attach supporting documents for this claim type.');
     else                             $errorMsg = $_t('दाबी दर्ता गर्न समस्या भयो। पुनः प्रयास गर्नुहोस्।', 'Failed to submit claim. Please try again.');
 }
 
@@ -407,10 +415,13 @@ HTML;
       <!-- Claim Type -->
       <div class="form-group">
         <label><?php echo $_t('दाबी प्रकार', 'Claim Type'); ?> <span class="wf-required">*</span></label>
-        <select name="claim_type" class="form-control" required onchange="showTypeFields(this.value)">
+        <select name="claim_type" id="wlfClaimType" class="form-control" required onchange="showTypeFields(this.value)">
           <option value=""><?php echo $_t('— प्रकार छान्नुहोस् —', '— Select claim type —'); ?></option>
           <?php foreach ($claimTypes as $ck => $ct): ?>
-          <option value="<?php echo htmlspecialchars($ck); ?>"><?php echo htmlspecialchars(isEnglish() ? ($ct['en'] ?: $ct['np']) : ($ct['np'] ?: $ct['en'])); ?></option>
+          <option value="<?php echo htmlspecialchars($ck); ?>"
+                  data-doc="<?php echo !empty($ct['requires_document']) ? '1' : '0'; ?>">
+            <?php echo htmlspecialchars(isEnglish() ? ($ct['en'] ?: $ct['np']) : ($ct['np'] ?: $ct['en'])); ?>
+          </option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -499,7 +510,11 @@ HTML;
 
       <!-- Document upload -->
       <div class="form-group">
-        <label><i class="fas fa-paperclip wf-icon-gap-sm"></i>सम्बन्धित कागजपत्र (Optional)</label>
+        <label id="wlfDocLabel">
+          <i class="fas fa-paperclip wf-icon-gap-sm"></i><?php echo $_t('सम्बन्धित कागजपत्र', 'Supporting documents'); ?>
+          <small class="text-muted" id="wlfDocHint">(<?php echo $_t('ऐच्छिक', 'Optional'); ?>)</small>
+          <span class="wf-required" id="wlfDocReq" style="display:none;">*</span>
+        </label>
         <label class="doc-upload" for="docUpload">
           <i class="fas fa-cloud-upload-alt wf-upload-icon"></i>
           <div class="wf-upload-title">Click गरी files छान्नुहोस् वा यहाँ drag गर्नुहोस्</div>
@@ -535,6 +550,20 @@ foreach ($claimTypes as $__k => $__t) {
 }
 echo json_encode($__profiles, JSON_UNESCAPED_UNICODE);
 ?>;
+function updateDocRequired(type) {
+    var sel = document.getElementById('wlfClaimType');
+    var opt = sel && sel.options[sel.selectedIndex];
+    var needDoc = opt && opt.getAttribute('data-doc') === '1';
+    var attach = document.getElementById('docUpload');
+    var hint = document.getElementById('wlfDocHint');
+    var req = document.getElementById('wlfDocReq');
+    if (attach) {
+        if (needDoc) attach.setAttribute('required', 'required');
+        else attach.removeAttribute('required');
+    }
+    if (hint) hint.style.display = needDoc ? 'none' : '';
+    if (req) req.style.display = needDoc ? '' : 'none';
+}
 function showTypeFields(type) {
     setTimeout(function() {
         document.querySelectorAll('.type-fields').forEach(f => f.classList.remove('show'));
@@ -552,6 +581,7 @@ function showTypeFields(type) {
             var el = document.getElementById(id);
             if (el) el.classList.add('show');
         }
+        updateDocRequired(type);
     }, 0);
 }
 function showFiles(input) {

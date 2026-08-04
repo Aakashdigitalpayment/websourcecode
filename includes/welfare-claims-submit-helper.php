@@ -71,12 +71,37 @@ if (!function_exists('welfareUploadDeathCertificate')) {
     }
 }
 
+if (!function_exists('welfareHasSupportingDocuments')) {
+    function welfareHasSupportingDocuments($files): bool
+    {
+        if (!isset($files['documents']['name']) || !is_array($files['documents']['name'])) {
+            return false;
+        }
+        $errors = $files['documents']['error'] ?? [];
+        if (!is_array($errors)) {
+            return false;
+        }
+        foreach ($errors as $err) {
+            if ((int)$err === UPLOAD_ERR_OK) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 if (!function_exists('submitWelfareClaimUnified')) {
     function submitWelfareClaimUnified($db, $payload, $files)
     {
         $trackingId = 'WLF-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
         $claimType = $payload['claim_type'] ?? 'other';
         $claimTypeNp = welfareClaimTypeLabelNp($claimType);
+
+        $map = function_exists('welfareClaimTypesMap') ? welfareClaimTypesMap($db instanceof PDO ? $db : null, false) : [];
+        if (!empty($map[$claimType]['requires_document']) && !welfareHasSupportingDocuments($files)) {
+            throw new InvalidArgumentException('DOC_REQUIRED');
+        }
+
         $documents = welfareUploadSupportingDocuments($files);
         $deathCertificate = welfareUploadDeathCertificate($files);
 

@@ -1203,6 +1203,7 @@ CREATE TABLE IF NOT EXISTS welfare_claim_types (
     display_order INT NOT NULL DEFAULT 0,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
     is_builtin TINYINT(1) NOT NULL DEFAULT 0,
+    requires_document TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_wct_slug (slug),
     INDEX idx_wct_active (is_active),
