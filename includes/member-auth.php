@@ -90,6 +90,13 @@ function ensureMemberTables() {
         /* Issue #3: card 5-year validity */
         "ALTER TABLE members ADD COLUMN card_expires_at TIMESTAMP NULL DEFAULT NULL",
         "ALTER TABLE members ADD COLUMN kyc_application_id INT NULL DEFAULT NULL",
+        "ALTER TABLE members ADD COLUMN is_active TINYINT NOT NULL DEFAULT 1",
+        "ALTER TABLE members ADD COLUMN google_id VARCHAR(255) NULL",
+        "ALTER TABLE members ADD COLUMN facebook_id VARCHAR(255) NULL",
+        "ALTER TABLE members ADD COLUMN avatar_url VARCHAR(500) NULL",
+        "ALTER TABLE members ADD COLUMN password_hash VARCHAR(255) NULL",
+        "ALTER TABLE members ADD COLUMN phone VARCHAR(20) NULL",
+        "ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL",
         "ALTER TABLE members ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
         "ALTER TABLE members ADD COLUMN twofa_secret VARCHAR(64) NULL",
         "ALTER TABLE members ADD COLUMN twofa_backup_codes TEXT NULL",

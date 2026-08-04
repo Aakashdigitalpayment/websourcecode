@@ -174,54 +174,105 @@ if (!in_array($memSub, ['live', 'arch'], true)) {
     $memSub = 'live';
 }
 
+$listError = '';
+$listErrorDetail = '';
+$countLiveMembers = 0;
+$countArchMembers = 0;
+$totalCount = 0;
+$members = [];
+$showAllActiveFallback = false;
+$whereList = '1=1';
+$paramsBase = [];
+
+/* Cheap one-shot column heal — DDL only, never multi-row UPDATE.
+   Live import DBs often lack columns that CREATE TABLE IF NOT EXISTS never adds. */
+$colHeal = [
+    "ALTER TABLE members ADD COLUMN is_active TINYINT NOT NULL DEFAULT 1",
+    "ALTER TABLE members ADD COLUMN approval_status VARCHAR(20) DEFAULT 'pending'",
+    "ALTER TABLE members ADD COLUMN google_id VARCHAR(255) NULL",
+    "ALTER TABLE members ADD COLUMN facebook_id VARCHAR(255) NULL",
+    "ALTER TABLE members ADD COLUMN avatar_url VARCHAR(500) NULL",
+    "ALTER TABLE members ADD COLUMN password_hash VARCHAR(255) NULL",
+    "ALTER TABLE members ADD COLUMN kyc_application_id INT NULL DEFAULT NULL",
+    "ALTER TABLE members ADD COLUMN sadasyata_number VARCHAR(50) NOT NULL DEFAULT ''",
+    "ALTER TABLE members ADD COLUMN phone VARCHAR(20) NULL",
+    "ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL",
+    "ALTER TABLE members ADD COLUMN created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
+];
+if ($db instanceof PDO) {
+    foreach ($colHeal as $ddl) {
+        try { $db->exec($ddl); } catch (Throwable $e) { /* already exists */ }
+    }
+}
+
+$hasCol = static function (string $col): bool {
+    return function_exists('safeColumnExists') ? safeColumnExists('members', $col) : true;
+};
+$hasIsActive = $hasCol('is_active');
+$hasApproval = $hasCol('approval_status');
+$hasGoogle = $hasCol('google_id');
+$hasFacebook = $hasCol('facebook_id');
+$hasAvatar = $hasCol('avatar_url');
+$hasPassword = $hasCol('password_hash');
+$hasKycId = $hasCol('kyc_application_id');
+$hasSadasyata = $hasCol('sadasyata_number');
+$hasPhone = $hasCol('phone');
+$hasEmail = $hasCol('email');
+$hasCardNo = $hasCol('member_card_no');
+$hasCreated = $hasCol('created_at');
+
 $where = '1=1';
 $params = [];
 if ($search !== '') {
-    $searchParts = ['name LIKE ?', 'email LIKE ?', 'phone LIKE ?', 'sadasyata_number LIKE ?'];
+    $searchParts = [];
     $t = '%' . $search . '%';
-    $params = [$t, $t, $t, $t];
-    try {
-        if (function_exists('safeColumnExists') && safeColumnExists('members', 'member_card_no')) {
-            $searchParts[] = 'member_card_no LIKE ?';
-            $params[] = $t;
-        }
-    } catch (Throwable $e) { /* ignore */ }
-    $where .= ' AND (' . implode(' OR ', $searchParts) . ')';
+    if ($hasCol('name')) { $searchParts[] = 'name LIKE ?'; $params[] = $t; }
+    if ($hasEmail) { $searchParts[] = 'email LIKE ?'; $params[] = $t; }
+    if ($hasPhone) { $searchParts[] = 'phone LIKE ?'; $params[] = $t; }
+    if ($hasSadasyata) { $searchParts[] = 'sadasyata_number LIKE ?'; $params[] = $t; }
+    if ($hasCardNo) { $searchParts[] = 'member_card_no LIKE ?'; $params[] = $t; }
+    if ($searchParts) {
+        $where .= ' AND (' . implode(' OR ', $searchParts) . ')';
+    }
 }
-if ($kycFilter === 'linked') {
+if ($kycFilter === 'linked' && $hasKycId && $hasPassword) {
     $where .= " AND kyc_application_id IS NOT NULL AND kyc_application_id <> 0 AND password_hash IS NOT NULL AND password_hash <> ''";
-} elseif ($kycFilter === 'unlinked') {
+} elseif ($kycFilter === 'unlinked' && $hasKycId) {
     $where .= " AND (kyc_application_id IS NULL OR kyc_application_id = 0)";
-} elseif ($kycFilter === 'no_password') {
+} elseif ($kycFilter === 'no_password' && $hasPassword) {
     $where .= " AND (password_hash IS NULL OR password_hash = '')";
 }
 
 $whereBase = $where;
 $paramsBase = $params;
 
-$listError = '';
-$countLiveMembers = 0;
-$countArchMembers = 0;
-$totalCount = 0;
-$members = [];
-$showAllActiveFallback = false;
+$liveClause = $hasIsActive ? ' AND COALESCE(is_active, 1) = 1' : '';
+$archClause = $hasIsActive ? ' AND COALESCE(is_active, 1) = 0' : ' AND 0=1';
 
 try {
     if (!($db instanceof PDO)) {
         throw new RuntimeException('Database connection unavailable');
     }
 
-    $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND COALESCE(is_active, 1) = 1");
+    $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase" . ($hasIsActive ? $liveClause : ''));
     $cntLiveSt->execute($paramsBase);
     $countLiveMembers = (int) $cntLiveSt->fetchColumn();
 
-    $cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND COALESCE(is_active, 1) = 0");
-    $cntArchSt->execute($paramsBase);
-    $countArchMembers = (int) $cntArchSt->fetchColumn();
+    if ($hasIsActive) {
+        $cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase" . $archClause);
+        $cntArchSt->execute($paramsBase);
+        $countArchMembers = (int) $cntArchSt->fetchColumn();
+    } else {
+        $countArchMembers = 0;
+        $countLiveMembers = (int) $countLiveMembers;
+    }
 
-    $activeClause = $memSub === 'live'
-        ? ' AND COALESCE(is_active, 1) = 1'
-        : ' AND COALESCE(is_active, 1) = 0';
+    /* No is_active column → treat entire ledger as live */
+    if (!$hasIsActive) {
+        $memSub = 'live';
+    }
+
+    $activeClause = $memSub === 'live' ? $liveClause : $archClause;
     $whereList = $whereBase . $activeClause;
 
     $total = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereList");
@@ -247,10 +298,21 @@ try {
         $offset = ($page - 1) * $limit;
     }
 
-    /* Lean columns only — avoid SELECT * pulling 2FA secrets / huge text for 20 rows */
-    $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
-                   google_id, facebook_id, password_hash, kyc_application_id,
-                   is_active, approval_status, created_at, member_card_no
+    $selectCols = ['id', 'name'];
+    if ($hasEmail) $selectCols[] = 'email';
+    if ($hasPhone) $selectCols[] = 'phone';
+    if ($hasSadasyata) $selectCols[] = 'sadasyata_number';
+    if ($hasAvatar) $selectCols[] = 'avatar_url';
+    if ($hasGoogle) $selectCols[] = 'google_id';
+    if ($hasFacebook) $selectCols[] = 'facebook_id';
+    if ($hasPassword) $selectCols[] = 'password_hash';
+    if ($hasKycId) $selectCols[] = 'kyc_application_id';
+    if ($hasIsActive) $selectCols[] = 'is_active';
+    if ($hasApproval) $selectCols[] = 'approval_status';
+    if ($hasCreated) $selectCols[] = 'created_at';
+    if ($hasCardNo) $selectCols[] = 'member_card_no';
+
+    $sql = 'SELECT ' . implode(', ', $selectCols) . "
             FROM members
             WHERE $whereList
             ORDER BY id DESC
@@ -260,21 +322,34 @@ try {
     $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     error_log('[admin/members list] ' . $e->getMessage());
-    /* Fallback without optional columns if schema is older */
+    $listErrorDetail = $e->getMessage();
+    /* Absolute fallback — ignore filters/optional columns; still show imported rows */
     try {
-        $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
-                       password_hash, kyc_application_id, is_active, approval_status, created_at
-                FROM members
-                WHERE $whereList
-                ORDER BY id DESC
-                LIMIT {$limit} OFFSET {$offset}";
-        $st = $db->prepare($sql);
-        $st->execute($paramsBase);
-        $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        $listError = '';
+        if (!($db instanceof PDO)) {
+            throw new RuntimeException('no db');
+        }
+        $totalCount = (int) $db->query('SELECT COUNT(*) FROM members')->fetchColumn();
+        $countLiveMembers = $totalCount;
+        $countArchMembers = 0;
+        $showAllActiveFallback = true;
+        $limit = max(1, min(100, (int)$limit));
+        $offset = max(0, (int)$offset);
+        if ($totalCount > 0 && $offset >= $totalCount) {
+            $page = max(1, (int)ceil($totalCount / $limit));
+            $offset = ($page - 1) * $limit;
+        }
+        $members = $db->query(
+            "SELECT * FROM members ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}"
+        )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $listError = $members ? '' : 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+        if ($members) {
+            $listError = '';
+            $listErrorDetail = '';
+        }
     } catch (Throwable $e2) {
         error_log('[admin/members list fallback] ' . $e2->getMessage());
         $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+        $listErrorDetail = $e2->getMessage();
         $members = [];
         $totalCount = 0;
     }
@@ -295,28 +370,29 @@ if ($totalCount === 0) {
 $stats = ['total'=>0,'active'=>0,'pending'=>0,'renewal'=>0,'kyc_linked'=>0,'google'=>0,'facebook'=>0];
 try {
     if ($db instanceof PDO) {
-        $row = $db->query(
-            "SELECT
-                COUNT(*) AS total,
-                COALESCE(SUM(COALESCE(is_active, 1) = 1), 0) AS active,
-                COALESCE(SUM(approval_status = 'pending'), 0) AS pending,
-                COALESCE(SUM(approval_status = 'renewal_pending'), 0) AS renewal,
-                COALESCE(SUM(kyc_application_id IS NOT NULL), 0) AS kyc_linked,
-                COALESCE(SUM(google_id IS NOT NULL AND google_id != ''), 0) AS google,
-                COALESCE(SUM(facebook_id IS NOT NULL AND facebook_id != ''), 0) AS facebook
-             FROM members"
-        )->fetch(PDO::FETCH_ASSOC);
-        if ($row) {
-            $stats['total']      = (int)($row['total'] ?? 0);
-            $stats['active']     = (int)($row['active'] ?? 0);
-            $stats['pending']    = (int)($row['pending'] ?? 0);
-            $stats['renewal']    = (int)($row['renewal'] ?? 0);
-            $stats['kyc_linked'] = (int)($row['kyc_linked'] ?? 0);
-            $stats['google']     = (int)($row['google'] ?? 0);
-            $stats['facebook']   = (int)($row['facebook'] ?? 0);
+        $stats['total'] = (int) $db->query('SELECT COUNT(*) FROM members')->fetchColumn();
+        if ($hasIsActive) {
+            $stats['active'] = (int) $db->query('SELECT COUNT(*) FROM members WHERE COALESCE(is_active, 1) = 1')->fetchColumn();
+        } else {
+            $stats['active'] = $stats['total'];
+        }
+        if ($hasApproval) {
+            $stats['pending'] = (int) $db->query("SELECT COUNT(*) FROM members WHERE approval_status = 'pending'")->fetchColumn();
+            $stats['renewal'] = (int) $db->query("SELECT COUNT(*) FROM members WHERE approval_status = 'renewal_pending'")->fetchColumn();
+        }
+        if ($hasKycId) {
+            $stats['kyc_linked'] = (int) $db->query('SELECT COUNT(*) FROM members WHERE kyc_application_id IS NOT NULL')->fetchColumn();
+        }
+        if ($hasGoogle) {
+            $stats['google'] = (int) $db->query("SELECT COUNT(*) FROM members WHERE google_id IS NOT NULL AND google_id != ''")->fetchColumn();
+        }
+        if ($hasFacebook) {
+            $stats['facebook'] = (int) $db->query("SELECT COUNT(*) FROM members WHERE facebook_id IS NOT NULL AND facebook_id != ''")->fetchColumn();
         }
     }
-} catch (Throwable $e) { /* keep zeros */ }
+} catch (Throwable $e) {
+    error_log('[admin/members stats] ' . $e->getMessage());
+}
 
 require_once __DIR__ . '/includes/admin-header.php';
 ?>
@@ -345,7 +421,11 @@ try {
 <?php endif; ?>
 
 <?php if ($listError !== ''): ?>
-<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($listError, ENT_QUOTES, 'UTF-8'); ?></div>
+<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($listError, ENT_QUOTES, 'UTF-8'); ?>
+<?php if ($listErrorDetail !== ''): ?>
+<div class="small mt-1 text-muted"><code><?php echo htmlspecialchars(function_exists('mb_substr') ? mb_substr($listErrorDetail, 0, 240, 'UTF-8') : substr($listErrorDetail, 0, 240), ENT_QUOTES, 'UTF-8'); ?></code></div>
+<?php endif; ?>
+</div>
 <?php endif; ?>
 
 
@@ -759,8 +839,8 @@ try {
                     </td>
                     <td class="small text-muted"><?php echo formatNepaliDate($m['created_at']); ?></td>
                     <td>
-                        <span class="badge <?php echo $m['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
-                            <?php echo $m['is_active'] ? 'Active' : 'Inactive'; ?>
+                        <span class="badge <?php echo !empty($m['is_active']) || !array_key_exists('is_active', $m) ? 'bg-success' : 'bg-secondary'; ?>">
+                            <?php echo !empty($m['is_active']) || !array_key_exists('is_active', $m) ? 'Active' : 'Inactive'; ?>
                         </span>
                         <?php
                         $as = $m['approval_status'] ?? 'pending';
