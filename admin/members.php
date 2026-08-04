@@ -19,11 +19,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_role('admin');
 }
 
-/* Do NOT call ensureMemberTables() on every list GET — import already created schema.
-   Schema self-heal runs via member-auth lock bootstrap (once) and migration runner. */
+/* Do NOT call ensureMemberTables() on list GET.
+   Root cause of blank Active Members page after ~2k Excel import (live main):
+   header flushed → ensureMemberTables() ran multi-row UPDATE+KYC JOIN → timeout
+   → white main pane while KYC list still worked. Schema CREATE stays in member-auth
+   for register/login only; list page only needs SELECT. */
 
 $pageTitle   = 'सबै सदस्य (Member ID)';
 $currentPage = 'members';
+
+/* Unstick DBs where backfill flag never got set (timeout before updateSetting). */
+try {
+    if ($db instanceof PDO) {
+        $stFlag = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
+        $stFlag->execute(['migration_member_schema_backfill_v1']);
+        if ((string)$stFlag->fetchColumn() !== '1') {
+            if (function_exists('updateSetting')) {
+                updateSetting('migration_member_schema_backfill_v1', '1');
+            } else {
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('migration_member_schema_backfill_v1', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
+            }
+        }
+    }
+} catch (Throwable $e) { /* never block list */ }
 
 /* ── Send Notification (single + bulk) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
@@ -225,7 +247,11 @@ try {
         $offset = ($page - 1) * $limit;
     }
 
-    $sql = "SELECT * FROM members
+    /* Lean columns only — avoid SELECT * pulling 2FA secrets / huge text for 20 rows */
+    $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
+                   google_id, facebook_id, password_hash, kyc_application_id,
+                   is_active, approval_status, created_at, member_card_no
+            FROM members
             WHERE $whereList
             ORDER BY id DESC
             LIMIT {$limit} OFFSET {$offset}";
@@ -234,9 +260,24 @@ try {
     $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     error_log('[admin/members list] ' . $e->getMessage());
-    $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
-    $members = [];
-    $totalCount = 0;
+    /* Fallback without optional columns if schema is older */
+    try {
+        $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
+                       password_hash, kyc_application_id, is_active, approval_status, created_at
+                FROM members
+                WHERE $whereList
+                ORDER BY id DESC
+                LIMIT {$limit} OFFSET {$offset}";
+        $st = $db->prepare($sql);
+        $st->execute($paramsBase);
+        $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $listError = '';
+    } catch (Throwable $e2) {
+        error_log('[admin/members list fallback] ' . $e2->getMessage());
+        $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+        $members = [];
+        $totalCount = 0;
+    }
 }
 
 $memPreserveQ = array_filter([
@@ -326,7 +367,7 @@ try {
                 <img src="<?php echo htmlspecialchars($viewMember['avatar_url']); ?>" class="rounded-circle mb-3 mem-avatar-lg">
                 <?php else: ?>
                 <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3 mem-avatar-fallback-lg">
-                    <?php echo mb_substr($viewMember['name'],0,1); ?>
+                    <?php echo function_exists('mb_substr') ? mb_substr((string)($viewMember['name'] ?? ''), 0, 1) : substr((string)($viewMember['name'] ?? ''), 0, 1); ?>
                 </div>
                 <?php endif; ?>
                 <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($viewMember['name']); ?></h5>
@@ -684,9 +725,12 @@ try {
                 </tr></thead>
                 <tbody>
                 <?php foreach ($members as $i => $m):
+                    try {
                     $ssotCode = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($m) : 'unknown';
                     $mName = trim((string)($m['name'] ?? ''));
-                    $mInitial = $mName !== '' ? mb_substr($mName, 0, 1, 'UTF-8') : '?';
+                    $mInitial = $mName !== ''
+                        ? (function_exists('mb_substr') ? mb_substr($mName, 0, 1, 'UTF-8') : substr($mName, 0, 1))
+                        : '?';
                 ?>
                 <tr>
                     <td class="text-muted small"><?php echo $offset + $i + 1; ?></td>
@@ -752,26 +796,53 @@ try {
                         </div>
                     </td>
                 </tr>
-                <?php endforeach; ?>
+                <?php
+                    } catch (Throwable $rowEx) {
+                        error_log('[admin/members row] ' . $rowEx->getMessage());
+                        echo '<tr><td colspan="9" class="text-danger small">यो पङ्क्ति देखाउन सकिएन।</td></tr>';
+                    }
+                endforeach; ?>
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination — windowed so 2000+ members never paint 100+ page buttons -->
         <?php if ($totalPages > 1): ?>
         <div class="d-flex justify-content-between align-items-center p-3 border-top">
             <div class="text-muted small">जम्मा <?php echo $totalCount; ?> मध्ये <?php echo min($offset+$limit, $totalCount); ?> देखाइएको</div>
             <nav><ul class="pagination pagination-sm mb-0">
-                <?php for ($pg = 1; $pg <= $totalPages; $pg++): ?>
-                <li class="page-item <?php echo $pg === $page ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo htmlspecialchars('members.php?' . http_build_query(array_filter([
-                        'page' => $pg,
+                <?php
+                $pgWindow = 7;
+                $pgStart = max(1, $page - (int)floor($pgWindow / 2));
+                $pgEnd = min($totalPages, $pgStart + $pgWindow - 1);
+                $pgStart = max(1, $pgEnd - $pgWindow + 1);
+                $memPageQ = static function (int $pg) use ($search, $kycFilter, $memSub): string {
+                    return htmlspecialchars('members.php?' . http_build_query(array_filter([
+                        'page' => $pg > 1 ? $pg : null,
                         'search' => $search !== '' ? $search : null,
                         'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
                         'mem_sub' => $memSub !== 'live' ? $memSub : null,
-                    ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pg; ?></a>
+                    ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8');
+                };
+                if ($page > 1): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($page - 1); ?>">‹</a></li>
+                <?php endif;
+                if ($pgStart > 1): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ(1); ?>">1</a></li>
+                <?php if ($pgStart > 2): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif;
+                endif;
+                for ($pg = $pgStart; $pg <= $pgEnd; $pg++): ?>
+                <li class="page-item <?php echo $pg === $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="<?php echo $memPageQ($pg); ?>"><?php echo $pg; ?></a>
                 </li>
-                <?php endfor; ?>
+                <?php endfor;
+                if ($pgEnd < $totalPages):
+                    if ($pgEnd < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($totalPages); ?>"><?php echo $totalPages; ?></a></li>
+                <?php endif;
+                if ($page < $totalPages): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($page + 1); ?>">›</a></li>
+                <?php endif; ?>
             </ul></nav>
         </div>
         <?php endif; ?>

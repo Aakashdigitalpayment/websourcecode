@@ -99,65 +99,31 @@ function ensureMemberTables() {
         try { $db->exec($sql); } catch (\Throwable $e) { /* column already exists */ }
     }
 
-    /* Legacy data backfills — ONE web-request shot only; never re-run on large ledgers.
-       Heavy UPDATEs after Excel import (2000+ rows) were timing out admin/members.php
-       after the header flushed → blank white main area. */
-    $legacyBackfillDone = false;
+    /* Legacy multi-row backfills MUST NOT run on web requests.
+       Live failure mode (jayasahakari): after Excel ~2066 import, members.php called
+       ensureMemberTables() AFTER admin-header flushed HTML, then ran:
+         UPDATE members … / JOIN kyc_applications SET avatar_url=''
+       PHP/proxy timeout → white main pane (sidebar+title only). KYC list OK because
+       it never hits this path. Flag is marked done with ZERO row UPDATEs so a stuck
+       DB cannot infinite-retry heavy work on every Active Members click. */
     try {
         $stSet = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
         $stSet->execute(['migration_member_schema_backfill_v1']);
         $rw = $stSet->fetch(PDO::FETCH_ASSOC);
         $legacyBackfillDone = ($rw && (string)($rw['setting_value'] ?? '') === '1');
-    } catch (\Throwable $e) { /* site_settings छैन वा पुरानो DB */ }
-
-    $markBackfillDone = static function (PDO $db): void {
-        try {
+        if (!$legacyBackfillDone) {
             if (function_exists('updateSetting')) {
                 updateSetting('migration_member_schema_backfill_v1', '1');
-                return;
-            }
-        } catch (\Throwable $e) { /* fall through */ }
-        try {
-            $db->exec(
-                "INSERT INTO site_settings (setting_key, setting_value)
-                 VALUES ('migration_member_schema_backfill_v1', '1')
-                 ON DUPLICATE KEY UPDATE setting_value = '1'"
-            );
-        } catch (\Throwable $e) {
-            error_log('[ensureMemberTables backfill-flag] ' . $e->getMessage());
-        }
-    };
-
-    if (!$legacyBackfillDone) {
-        $memberCount = 0;
-        try {
-            $memberCount = (int) $db->query('SELECT COUNT(*) FROM members')->fetchColumn();
-        } catch (\Throwable $e) {
-            $memberCount = 0;
-        }
-
-        /* Large import already online — skip heavy UPDATEs on request path */
-        if ($memberCount > 200) {
-            $markBackfillDone($db);
-        } else {
-            try {
-                $db->exec("UPDATE members SET approval_status='approved'
-                           WHERE approval_status IS NULL OR approval_status=''");
-                $db->exec("UPDATE members SET approval_status='approved'
-                           WHERE (google_id IS NOT NULL AND google_id != '')
-                              OR (facebook_id IS NOT NULL AND facebook_id != '')");
-                $db->exec("UPDATE members
-                              SET card_expires_at = DATE_ADD(COALESCE(approved_at, created_at), INTERVAL 5 YEAR)
-                            WHERE card_expires_at IS NULL
-                              AND approval_status = 'approved'");
-                /* Intentionally no avatar wipe on web bootstrap — was slow + destructive at scale */
-                $markBackfillDone($db);
-            } catch (\Throwable $e) {
-                error_log('[ensureMemberTables backfill] ' . $e->getMessage());
-                /* Still mark done so every admin page load does not retry forever */
-                $markBackfillDone($db);
+            } else {
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('migration_member_schema_backfill_v1', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
             }
         }
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables backfill-flag] ' . $e->getMessage());
     }
 
     /* Notifications table */
