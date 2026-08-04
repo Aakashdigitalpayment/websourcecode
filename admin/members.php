@@ -14,6 +14,17 @@ require_once __DIR__ . '/../includes/member-auth.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/includes/admin-ui.php';
 
+/* List data loads BEFORE admin-header, so $db is not set yet (header normally assigns it).
+   Same pattern as kyc-applications.php — without this, queries see null → "no db". */
+if (!isset($db) || !($db instanceof PDO)) {
+    try {
+        $db = function_exists('getDB') ? getDB() : null;
+    } catch (Throwable $e) {
+        error_log('[admin/members getDB] ' . $e->getMessage());
+        $db = null;
+    }
+}
+
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_role('admin');
@@ -325,8 +336,11 @@ try {
     $listErrorDetail = $e->getMessage();
     /* Absolute fallback — ignore filters/optional columns; still show imported rows */
     try {
+        if (!($db instanceof PDO) && function_exists('getDB')) {
+            $db = getDB();
+        }
         if (!($db instanceof PDO)) {
-            throw new RuntimeException('no db');
+            throw new RuntimeException('Database connection unavailable');
         }
         $totalCount = (int) $db->query('SELECT COUNT(*) FROM members')->fetchColumn();
         $countLiveMembers = $totalCount;
@@ -341,11 +355,8 @@ try {
         $members = $db->query(
             "SELECT * FROM members ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}"
         )->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        $listError = $members ? '' : 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
-        if ($members) {
-            $listError = '';
-            $listErrorDetail = '';
-        }
+        $listError = '';
+        $listErrorDetail = '';
     } catch (Throwable $e2) {
         error_log('[admin/members list fallback] ' . $e2->getMessage());
         $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
