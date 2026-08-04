@@ -12,8 +12,12 @@ require_once __DIR__ . '/../includes/auth-roles.php';
 /* RBAC: staff hercha matra; mutate admin+ matra */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') require_role('admin');
 
-/* ── Ensure tables ── */
-ensureMemberTables();
+/* ── Ensure tables (never blank the page if schema helper fails) ── */
+try {
+    ensureMemberTables();
+} catch (Throwable $e) {
+    error_log('[admin/members ensureMemberTables] ' . $e->getMessage());
+}
 
 /* ── Send Notification (single + bulk) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
@@ -127,8 +131,17 @@ if (!in_array($memSub, ['live', 'arch'], true)) {
 
 $where = '1=1'; $params = [];
 if ($search) {
-    $where .= " AND (name LIKE ? OR email LIKE ? OR phone LIKE ? OR member_card_no LIKE ? OR sadasyata_number LIKE ?)";
-    $t = "%$search%"; $params = [$t,$t,$t,$t,$t];
+    /* Soft search — missing optional columns must not kill the page */
+    $searchParts = ['name LIKE ?', 'email LIKE ?', 'phone LIKE ?', 'sadasyata_number LIKE ?'];
+    $t = "%$search%";
+    $params = [$t, $t, $t, $t];
+    try {
+        if (function_exists('safeColumnExists') && safeColumnExists('members', 'member_card_no')) {
+            $searchParts[] = 'member_card_no LIKE ?';
+            $params[] = $t;
+        }
+    } catch (Throwable $e) { /* ignore */ }
+    $where .= ' AND (' . implode(' OR ', $searchParts) . ')';
 }
 if ($kycFilter === 'linked') {
     $where .= " AND kyc_application_id IS NOT NULL AND kyc_application_id <> 0 AND password_hash IS NOT NULL AND password_hash <> ''";
@@ -146,24 +159,41 @@ $countLiveMembers = 0;
 $countArchMembers = 0;
 $totalCount = 0;
 $members = [];
+$showAllActiveFallback = false;
 
 try {
-    $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 1");
+    /* Treat NULL is_active as active — some imports/legacy rows leave NULL */
+    $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND COALESCE(is_active, 1) = 1");
     $cntLiveSt->execute($paramsBase);
     $countLiveMembers = (int) $cntLiveSt->fetchColumn();
 
-    $cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 0");
+    $cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND COALESCE(is_active, 1) = 0");
     $cntArchSt->execute($paramsBase);
     $countArchMembers = (int) $cntArchSt->fetchColumn();
 
-    $where .= $memSub === 'live' ? ' AND is_active = 1' : ' AND is_active = 0';
+    $activeClause = $memSub === 'live'
+        ? ' AND COALESCE(is_active, 1) = 1'
+        : ' AND COALESCE(is_active, 1) = 0';
+    $whereList = $whereBase . $activeClause;
 
-    $total = $db->prepare("SELECT COUNT(*) FROM members WHERE $where");
-    $total->execute($params);
+    $total = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereList");
+    $total->execute($paramsBase);
     $totalCount = (int)$total->fetchColumn();
 
-    /* Native PDO prepares (ATTR_EMULATE_PREPARES=false) reject bound LIMIT/OFFSET on MySQL —
-       page dies after admin chrome → blank main area. Embed sanitized ints only. */
+    /* If live/arch both empty but rows exist, still list them (schema quirks) */
+    if ($totalCount === 0 && $countLiveMembers === 0 && $countArchMembers === 0) {
+        $raw = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase");
+        $raw->execute($paramsBase);
+        $rawTotal = (int)$raw->fetchColumn();
+        if ($rawTotal > 0) {
+            $whereList = $whereBase;
+            $totalCount = $rawTotal;
+            $showAllActiveFallback = true;
+            $countLiveMembers = $rawTotal;
+        }
+    }
+
+    /* Native PDO prepares reject bound LIMIT/OFFSET on MySQL — embed ints only */
     $limit = max(1, min(100, (int)$limit));
     $offset = max(0, (int)$offset);
     if ($totalCount > 0 && $offset >= $totalCount) {
@@ -172,11 +202,11 @@ try {
     }
 
     $sql = "SELECT * FROM members
-            WHERE $where
-            ORDER BY created_at DESC
+            WHERE $whereList
+            ORDER BY id DESC
             LIMIT {$limit} OFFSET {$offset}";
     $st = $db->prepare($sql);
-    $st->execute($params);
+    $st->execute($paramsBase);
     $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     error_log('[admin/members list] ' . $e->getMessage());
@@ -188,9 +218,11 @@ try {
 $memPreserveQ = array_filter([
     'search' => $search !== '' ? $search : null,
     'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
-], static fn ($v) => $v !== null && $v !== '');
+], static function ($v) {
+    return $v !== null && $v !== '';
+});
 
-$totalPages = max(1, (int)ceil(max(1, $totalCount) / $limit));
+$totalPages = max(1, (int)ceil(max(1, $totalCount) / max(1, $limit)));
 if ($totalCount === 0) {
     $totalPages = 1;
 }
@@ -218,11 +250,27 @@ try {
         $stats['google']     = (int)($row['google'] ?? 0);
         $stats['facebook']   = (int)($row['facebook'] ?? 0);
     }
-} catch (Exception $e) { /* keep zeros */ }
+} catch (Throwable $e) { /* keep zeros — missing social columns etc. */ }
 ?>
 
 <div class="container-fluid py-3">
-<?php echo adminHelpTip('यो पृष्ठबाट संस्थाका सदस्यहरूको सूची र स्थिति देख्न सकिन्छ।', ['Pending सदस्य approve गर्न: "Approve" बटन थिच्नुहोस्।', 'सदस्य खोज्न: माथिको Search box प्रयोग गर्नुहोस्।', 'KYC status हेर्न: सदस्यको नाममा क्लिक गर्नुहोस्।']); ?>
+<?php
+try {
+    if (function_exists('adminHelpTip')) {
+        echo adminHelpTip(
+            'यो पृष्ठबाट संस्थाका सदस्यहरूको सूची र स्थिति देख्न सकिन्छ।',
+            ['Pending सदस्य approve गर्न: "Approve" बटन थिच्नुहोस्।', 'सदस्य खोज्न: माथिको Search box प्रयोग गर्नुहोस्।', 'KYC status हेर्न: सदस्यको नाममा क्लिक गर्नुहोस्।']
+        );
+    }
+} catch (Throwable $e) { /* tip must never blank the page */ }
+?>
+
+<?php if (!empty($showAllActiveFallback)): ?>
+<div class="alert alert-warning mb-3">
+    <i class="fas fa-info-circle me-2"></i>
+    सक्रिय/निष्क्रिय फिल्टर मिलेन — सबै सदस्य देखाइँदैछ। Import पछिको डेटा ठिकै छ कि जाँच्नुहोस्।
+</div>
+<?php endif; ?>
 
 <?php if ($flash = getFlash()): ?>
 <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
@@ -233,7 +281,7 @@ try {
 <?php endif; ?>
 
 
-<?php displayFlash(); ?>
+<?php if (function_exists('displayFlash')) { displayFlash(); } ?>
 
 <?php if ($viewMember): /* ── Single Member View ── */ ?>
 
