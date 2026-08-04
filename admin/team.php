@@ -97,20 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $cat       = clean_text($_POST['category']    ?? 'staff');
                 $order     = (int)($_POST['display_order']  ?? 0);
                 $chartRow  = max(0, min(5, (int)($_POST['chart_row'] ?? 0)));
-                /* Karmachari form मा chart_row field छैन — edit गर्दा पुरानो मान राख्ने */
-                if ($teamListSection !== 'governance') {
-                    if ($id) {
-                        try {
-                            $stCr = $db->prepare('SELECT chart_row FROM team_members WHERE id = ? LIMIT 1');
-                            $stCr->execute([$id]);
-                            $chartRow = max(0, min(5, (int) ($stCr->fetchColumn() ?: 0)));
-                        } catch (Throwable $e) {
-                            $chartRow = 0;
-                        }
-                    } else {
-                        $chartRow = 0;
-                    }
-                }
                 $isInfo    = isset($_POST['is_information_officer']) ? 1 : 0;
                 $isGriev   = isset($_POST['is_grievance_officer'])   ? 1 : 0;
                 $isChairman = isset($_POST['is_chairman']) ? 1 : 0;
@@ -904,7 +890,6 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="display_order" id="tmf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
-                        <?php if ($teamListSection === 'governance'): ?>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold tm-form-label" for="tmf_chart_row"><?php echo $__t('चार्टमा फोटो row', 'Photo row on chart'); ?></label>
                             <select name="chart_row" id="tmf_chart_row" class="form-select admin-fancy-input">
@@ -928,7 +913,6 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 ); ?>
                             </div>
                         </div>
-                        <?php endif; ?>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold tm-form-label"><?php echo $__t('फोटो', 'Photo'); ?>
                                 <small class="tm-meta-muted fw-normal" id="tmf_photo_note"></small>
