@@ -304,13 +304,17 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
             }
 
             $trackingId = 'KYC-' . date('Ymd') . '-' . strtoupper(substr(md5('m' . $memberPk . $sid . microtime(true)), 0, 6));
-            $hasTracking = true;
-            try {
-                $c = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
-                $hasTracking = $c && $c->fetch() !== false;
-            } catch (Throwable $e) {
-                $hasTracking = false;
+            static $hasTrackingCol = null;
+            if ($hasTrackingCol === null) {
+                $hasTrackingCol = true;
+                try {
+                    $c = $db->query("SHOW COLUMNS FROM kyc_applications LIKE 'tracking_id'");
+                    $hasTrackingCol = $c && $c->fetch() !== false;
+                } catch (Throwable $e) {
+                    $hasTrackingCol = false;
+                }
             }
+            $hasTracking = $hasTrackingCol;
 
             if ($hasTracking) {
                 $ins = $db->prepare(

@@ -2635,15 +2635,20 @@ function safeColumnExists(string $table, string $column): bool {
     /* Whitelist: identifier मा अल्फानुमेरिक र underscore मात्र */
     if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $table)) return false;
     if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $column)) return false;
+    static $cache = [];
+    $key = $table . '.' . $column;
+    if (array_key_exists($key, $cache)) {
+        return $cache[$key];
+    }
     try {
         $db = getDB();
         $stmt = $db->prepare("SELECT 1 FROM information_schema.COLUMNS
                               WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?
                               LIMIT 1");
         $stmt->execute([$table, $column]);
-        return (bool)$stmt->fetchColumn();
+        return $cache[$key] = (bool)$stmt->fetchColumn();
     } catch (\Throwable $e) {
-        return false;
+        return $cache[$key] = false;
     }
 }
 
