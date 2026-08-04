@@ -111,20 +111,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = isEnglish() ? 'Please select a valid service.' : 'कृपया सही सेवा छान्नुहोस्।';
         } elseif (!$error && in_array($serviceType, ['share_refund', 'share_increase'], true) && ($serviceAmount === null || $serviceAmount <= 0)) {
             $error = isEnglish() ? 'Please enter a valid amount for selected share service.' : 'छानिएको शेयर सेवाको लागि सही रकम राख्नुहोस्।';
-        } elseif (!$error && !empty($serviceTypes[$serviceType]['requires_document'])
-            && (!isset($_FILES['attachment']) || (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
-            $error = isEnglish() ? 'Please attach a supporting document for this service.' : 'यो सेवाको लागि संलग्न कागजात अनिवार्य छ।';
         } elseif (!$error) {
             try {
                 $trackingId = 'DSR-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
                 $attachment = '';
-                if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+                $needDoc = !empty($serviceTypes[$serviceType]['requires_document']);
+                if (isset($_FILES['attachment']) && (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
                     $upload = uploadFile($_FILES['attachment'], 'digital_services');
-                    if ($upload['success']) {
-                        $attachment = $upload['path'];
+                    if (!empty($upload['success']) && !empty($upload['path'])) {
+                        $attachment = (string)$upload['path'];
                     }
                 }
-
+                if ($needDoc && $attachment === '') {
+                    $error = isEnglish()
+                        ? 'Please attach a valid supporting document for this service.'
+                        : 'यो सेवाको लागि मान्य संलग्न कागजात अनिवार्य छ।';
+                }
+                if (!$error) {
                 $stmt = $db->prepare("INSERT INTO digital_service_requests
                     (tracking_id, requester_name, member_id, phone, email,
                      service_type, service_type_np, account_number,
@@ -182,6 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'सम्पर्क माध्यम' => $preferredContact,
                     'मिति'          => date('Y-m-d H:i'),
                 ], $trackingId);
+                } /* end if (!$error) after attachment check */
             } catch (\Throwable $e) {
                 $error = isEnglish() ? 'Unable to submit. Please try again.' : 'अनुरोध पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।';
             }

@@ -105,6 +105,10 @@ if (!function_exists('submitWelfareClaimUnified')) {
         $documents = welfareUploadSupportingDocuments($files);
         $deathCertificate = welfareUploadDeathCertificate($files);
 
+        if (!empty($map[$claimType]['requires_document']) && $documents === '') {
+            throw new InvalidArgumentException('DOC_REQUIRED');
+        }
+
         $stmt = $db->prepare("INSERT INTO member_welfare_claims (
             tracking_id, member_name, member_id, member_portal_id, phone, email, address,
             claim_type, claim_type_np, beneficiary_name, beneficiary_relation,

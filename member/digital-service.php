@@ -66,21 +66,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!$serviceType || !isset($serviceTypes[$serviceType])) {
             $errorMsg = $_t('सेवा प्रकार छान्नुहोस्।', 'Please select a service type.');
-        } elseif (!empty($serviceTypes[$serviceType]['requires_document'])
-            && (!isset($_FILES['attachment']) || (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
-            $errorMsg = $_t('यो सेवाको लागि संलग्न कागजात अनिवार्य छ।', 'Please attach a supporting document for this service.');
         }
 
         if (!$errorMsg) {
             try {
                 $trackingId = 'DSR-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
                 $attachment = '';
-                if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+                $needDoc = !empty($serviceTypes[$serviceType]['requires_document']);
+                if (isset($_FILES['attachment']) && (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
                     if (function_exists('uploadFile')) {
                         $up = uploadFile($_FILES['attachment'], 'digital_services');
-                        $attachment = $up['path'] ?? '';
+                        if (!empty($up['path'])) {
+                            $attachment = (string)$up['path'];
+                        }
                     }
                 }
+                if ($needDoc && $attachment === '') {
+                    $errorMsg = $_t('यो सेवाको लागि मान्य संलग्न कागजात अनिवार्य छ।', 'Please attach a valid supporting document for this service.');
+                }
+                if (!$errorMsg) {
                 $stmt = $db->prepare("INSERT INTO digital_service_requests
                     (tracking_id, requester_name, member_id, phone, email,
                      service_type, service_type_np, account_number,
@@ -109,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                     ], $trackingId);
                 }
                 logSecurityEvent('digital_service_request', 'Member portal: ' . $memName . ' (' . $trackingId . ')');
+                } /* end if (!$errorMsg) after attachment */
             } catch (Throwable $e) {
                 $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
             }

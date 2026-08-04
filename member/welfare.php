@@ -554,13 +554,9 @@ function updateDocRequired(type) {
     var sel = document.getElementById('wlfClaimType');
     var opt = sel && sel.options[sel.selectedIndex];
     var needDoc = opt && opt.getAttribute('data-doc') === '1';
-    var attach = document.getElementById('docUpload');
     var hint = document.getElementById('wlfDocHint');
     var req = document.getElementById('wlfDocReq');
-    if (attach) {
-        if (needDoc) attach.setAttribute('required', 'required');
-        else attach.removeAttribute('required');
-    }
+    /* Do NOT set HTML required on #docUpload — it is display:none and blocks submit */
     if (hint) hint.style.display = needDoc ? 'none' : '';
     if (req) req.style.display = needDoc ? '' : 'none';
 }
