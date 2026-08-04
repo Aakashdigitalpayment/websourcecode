@@ -2,22 +2,50 @@
 /**
  * Admin: Members list (Member ID SSOT ledger)
  * - Member list, details, direct notification send
+ *
+ * IMPORTANT: load deps + data BEFORE admin-header output.
+ * Heavy schema backfill after header was blanking the main pane on large imports.
  */
+if (!defined('IS_ADMIN_PAGE')) {
+    define('IS_ADMIN_PAGE', true);
+}
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/member-auth.php';
+require_once __DIR__ . '/../includes/auth-roles.php';
+require_once __DIR__ . '/includes/admin-ui.php';
+
+/* RBAC: staff hercha matra; mutate admin+ matra */
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_role('admin');
+}
+
+/* Do NOT call ensureMemberTables() on list GET.
+   Root cause of blank Active Members page after ~2k Excel import (live main):
+   header flushed → ensureMemberTables() ran multi-row UPDATE+KYC JOIN → timeout
+   → white main pane while KYC list still worked. Schema CREATE stays in member-auth
+   for register/login only; list page only needs SELECT. */
+
 $pageTitle   = 'सबै सदस्य (Member ID)';
 $currentPage = 'members';
-require_once 'includes/admin-header.php';
-require_once 'includes/admin-ui.php';
-require_once '../includes/member-auth.php';
-require_once __DIR__ . '/../includes/auth-roles.php';
-/* RBAC: staff hercha matra; mutate admin+ matra */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') require_role('admin');
 
-/* ── Ensure tables (never blank the page if schema helper fails) ── */
+/* Unstick DBs where backfill flag never got set (timeout before updateSetting). */
 try {
-    ensureMemberTables();
-} catch (Throwable $e) {
-    error_log('[admin/members ensureMemberTables] ' . $e->getMessage());
-}
+    if ($db instanceof PDO) {
+        $stFlag = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
+        $stFlag->execute(['migration_member_schema_backfill_v1']);
+        if ((string)$stFlag->fetchColumn() !== '1') {
+            if (function_exists('updateSetting')) {
+                updateSetting('migration_member_schema_backfill_v1', '1');
+            } else {
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('migration_member_schema_backfill_v1', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
+            }
+        }
+    }
+} catch (Throwable $e) { /* never block list */ }
 
 /* ── Send Notification (single + bulk) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
@@ -25,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
     $target   = (string)($_POST['notif_target'] ?? 'single');
     $title    = clean_text($_POST['notif_title']   ?? '');
     $message  = clean_text($_POST['notif_message'] ?? '');
-    $type     = in_array($_POST['notif_type'] ?? '', ['info','success','warning','error']) ? $_POST['notif_type'] : 'info';
+    $type     = in_array($_POST['notif_type'] ?? '', ['info','success','warning','error'], true) ? $_POST['notif_type'] : 'info';
     $url      = SITE_URL . 'member/notifications.php';
 
     if (trim($title) === '') {
@@ -34,7 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
     }
 
     if ($target === 'all') {
-        /* Bulk: सबै सक्रिय + अनुमोदित member-portal सदस्यहरू */
         $audience = (string)($_POST['notif_audience'] ?? 'active');
         $where = "is_active = 1 AND COALESCE(approval_status, 'approved') IN ('approved','active')";
         if ($audience === 'pending') {
@@ -60,7 +87,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
         redirect('members.php');
     }
 
-    /* Single member */
     $memberId = (int)($_POST['member_id'] ?? 0);
     if ($memberId) {
         createMemberNotification($memberId, $title, $message, $type, $url);
@@ -75,9 +101,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
 if (isset($_POST['toggle_active'])) {
     checkCSRF();
     $mid = (int)$_POST['member_id'];
-    $db->prepare("UPDATE members SET is_active = 1 - is_active WHERE id=?")->execute([$mid]);
-    setFlash('success', 'Member status बदलियो।');
-    writeAuditLog('member_status_toggle', "Toggled active status for member ID: {$mid}", 'member', $mid);
+    try {
+        $db->prepare("UPDATE members SET is_active = 1 - COALESCE(is_active, 0) WHERE id=?")->execute([$mid]);
+        setFlash('success', 'Member status बदलियो।');
+        if (function_exists('writeAuditLog')) {
+            writeAuditLog('member_status_toggle', "Toggled active status for member ID: {$mid}", 'member', $mid);
+        }
+    } catch (Throwable $e) {
+        setFlash('error', 'Status बदल्न सकिएन।');
+    }
     redirect('members.php');
 }
 
@@ -86,36 +118,49 @@ $viewId = isset($_GET['view']) ? (int)$_GET['view'] : 0;
 $viewMember = null;
 $viewApps   = [];
 $viewNotifs = [];
-$viewCard   = null; /* Issue #3: card details (CVV / VCode / expiry) */
-if ($viewId) {
-    $st = $db->prepare("SELECT * FROM members WHERE id=?");
-    $st->execute([$viewId]);
-    $viewMember = $st->fetch(PDO::FETCH_ASSOC);
-    if ($viewMember) {
-        $viewApps   = getMemberApplications($viewMember['email'] ?? '', $viewMember['phone'] ?? '', 30, $viewMember['id'] ?? null);
-        $nst = $db->prepare("SELECT * FROM member_notifications WHERE member_id=? ORDER BY created_at DESC LIMIT 20");
-        $nst->execute([$viewId]);
-        $viewNotifs = $nst->fetchAll(PDO::FETCH_ASSOC);
-
-        /* Issue #3: load active ID card for CVV / verification code display */
-        try {
-            $cs = $db->prepare(
-                "SELECT card_no, verification_code, cvv, issued_date, status
-                   FROM member_id_cards
-                  WHERE (member_id = :id OR member_id = :sid)
-                  ORDER BY id DESC LIMIT 1"
-            );
-            $cs->execute([
-                ':id'  => (string)$viewMember['id'],
-                ':sid' => (string)($viewMember['sadasyata_number'] ?? ''),
-            ]);
-            $viewCard = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
-        } catch (Throwable $e) { /* table may not exist on legacy installs */ }
+$viewCard   = null;
+if ($viewId > 0) {
+    try {
+        $st = $db->prepare("SELECT * FROM members WHERE id=?");
+        $st->execute([$viewId]);
+        $viewMember = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($viewMember) {
+            if (function_exists('getMemberApplications')) {
+                $viewApps = getMemberApplications($viewMember['email'] ?? '', $viewMember['phone'] ?? '', 30, $viewMember['id'] ?? null);
+            }
+            try {
+                $nst = $db->prepare("SELECT * FROM member_notifications WHERE member_id=? ORDER BY created_at DESC LIMIT 20");
+                $nst->execute([$viewId]);
+                $viewNotifs = $nst->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e) {
+                $viewNotifs = [];
+            }
+            try {
+                $cs = $db->prepare(
+                    "SELECT card_no, verification_code, cvv, issued_date, status
+                       FROM member_id_cards
+                      WHERE (member_id = :id OR member_id = :sid)
+                      ORDER BY id DESC LIMIT 1"
+                );
+                $cs->execute([
+                    ':id'  => (string)$viewMember['id'],
+                    ':sid' => (string)($viewMember['sadasyata_number'] ?? ''),
+                ]);
+                $viewCard = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
+            } catch (Throwable $e) {
+                $viewCard = null;
+            }
+        }
+    } catch (Throwable $e) {
+        error_log('[admin/members view] ' . $e->getMessage());
+        $viewMember = null;
     }
 }
 
-/* ── Member list ── */
-$search = mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8');
+/* ── Member list (before header so failures never blank the chrome mid-page) ── */
+$search = function_exists('mb_substr')
+    ? mb_substr(trim((string)($_GET['search'] ?? '')), 0, 200, 'UTF-8')
+    : substr(trim((string)($_GET['search'] ?? '')), 0, 200);
 $kycFilter = trim((string)($_GET['kyc'] ?? 'all'));
 if (!in_array($kycFilter, ['all', 'linked', 'unlinked', 'no_password'], true)) {
     $kycFilter = 'all';
@@ -129,11 +174,11 @@ if (!in_array($memSub, ['live', 'arch'], true)) {
     $memSub = 'live';
 }
 
-$where = '1=1'; $params = [];
-if ($search) {
-    /* Soft search — missing optional columns must not kill the page */
+$where = '1=1';
+$params = [];
+if ($search !== '') {
     $searchParts = ['name LIKE ?', 'email LIKE ?', 'phone LIKE ?', 'sadasyata_number LIKE ?'];
-    $t = "%$search%";
+    $t = '%' . $search . '%';
     $params = [$t, $t, $t, $t];
     try {
         if (function_exists('safeColumnExists') && safeColumnExists('members', 'member_card_no')) {
@@ -162,7 +207,10 @@ $members = [];
 $showAllActiveFallback = false;
 
 try {
-    /* Treat NULL is_active as active — some imports/legacy rows leave NULL */
+    if (!($db instanceof PDO)) {
+        throw new RuntimeException('Database connection unavailable');
+    }
+
     $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND COALESCE(is_active, 1) = 1");
     $cntLiveSt->execute($paramsBase);
     $countLiveMembers = (int) $cntLiveSt->fetchColumn();
@@ -180,7 +228,6 @@ try {
     $total->execute($paramsBase);
     $totalCount = (int)$total->fetchColumn();
 
-    /* If live/arch both empty but rows exist, still list them (schema quirks) */
     if ($totalCount === 0 && $countLiveMembers === 0 && $countArchMembers === 0) {
         $raw = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase");
         $raw->execute($paramsBase);
@@ -193,7 +240,6 @@ try {
         }
     }
 
-    /* Native PDO prepares reject bound LIMIT/OFFSET on MySQL — embed ints only */
     $limit = max(1, min(100, (int)$limit));
     $offset = max(0, (int)$offset);
     if ($totalCount > 0 && $offset >= $totalCount) {
@@ -201,7 +247,11 @@ try {
         $offset = ($page - 1) * $limit;
     }
 
-    $sql = "SELECT * FROM members
+    /* Lean columns only — avoid SELECT * pulling 2FA secrets / huge text for 20 rows */
+    $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
+                   google_id, facebook_id, password_hash, kyc_application_id,
+                   is_active, approval_status, created_at, member_card_no
+            FROM members
             WHERE $whereList
             ORDER BY id DESC
             LIMIT {$limit} OFFSET {$offset}";
@@ -210,9 +260,24 @@ try {
     $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {
     error_log('[admin/members list] ' . $e->getMessage());
-    $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
-    $members = [];
-    $totalCount = 0;
+    /* Fallback without optional columns if schema is older */
+    try {
+        $sql = "SELECT id, name, email, phone, sadasyata_number, avatar_url,
+                       password_hash, kyc_application_id, is_active, approval_status, created_at
+                FROM members
+                WHERE $whereList
+                ORDER BY id DESC
+                LIMIT {$limit} OFFSET {$offset}";
+        $st = $db->prepare($sql);
+        $st->execute($paramsBase);
+        $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $listError = '';
+    } catch (Throwable $e2) {
+        error_log('[admin/members list fallback] ' . $e2->getMessage());
+        $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+        $members = [];
+        $totalCount = 0;
+    }
 }
 
 $memPreserveQ = array_filter([
@@ -227,30 +292,33 @@ if ($totalCount === 0) {
     $totalPages = 1;
 }
 
-/* Stats — single scan of members */
 $stats = ['total'=>0,'active'=>0,'pending'=>0,'renewal'=>0,'kyc_linked'=>0,'google'=>0,'facebook'=>0];
 try {
-    $row = $db->query(
-        "SELECT
-            COUNT(*) AS total,
-            COALESCE(SUM(is_active = 1), 0) AS active,
-            COALESCE(SUM(approval_status = 'pending'), 0) AS pending,
-            COALESCE(SUM(approval_status = 'renewal_pending'), 0) AS renewal,
-            COALESCE(SUM(kyc_application_id IS NOT NULL), 0) AS kyc_linked,
-            COALESCE(SUM(google_id IS NOT NULL AND google_id != ''), 0) AS google,
-            COALESCE(SUM(facebook_id IS NOT NULL AND facebook_id != ''), 0) AS facebook
-         FROM members"
-    )->fetch(PDO::FETCH_ASSOC);
-    if ($row) {
-        $stats['total']      = (int)($row['total'] ?? 0);
-        $stats['active']     = (int)($row['active'] ?? 0);
-        $stats['pending']    = (int)($row['pending'] ?? 0);
-        $stats['renewal']    = (int)($row['renewal'] ?? 0);
-        $stats['kyc_linked'] = (int)($row['kyc_linked'] ?? 0);
-        $stats['google']     = (int)($row['google'] ?? 0);
-        $stats['facebook']   = (int)($row['facebook'] ?? 0);
+    if ($db instanceof PDO) {
+        $row = $db->query(
+            "SELECT
+                COUNT(*) AS total,
+                COALESCE(SUM(COALESCE(is_active, 1) = 1), 0) AS active,
+                COALESCE(SUM(approval_status = 'pending'), 0) AS pending,
+                COALESCE(SUM(approval_status = 'renewal_pending'), 0) AS renewal,
+                COALESCE(SUM(kyc_application_id IS NOT NULL), 0) AS kyc_linked,
+                COALESCE(SUM(google_id IS NOT NULL AND google_id != ''), 0) AS google,
+                COALESCE(SUM(facebook_id IS NOT NULL AND facebook_id != ''), 0) AS facebook
+             FROM members"
+        )->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $stats['total']      = (int)($row['total'] ?? 0);
+            $stats['active']     = (int)($row['active'] ?? 0);
+            $stats['pending']    = (int)($row['pending'] ?? 0);
+            $stats['renewal']    = (int)($row['renewal'] ?? 0);
+            $stats['kyc_linked'] = (int)($row['kyc_linked'] ?? 0);
+            $stats['google']     = (int)($row['google'] ?? 0);
+            $stats['facebook']   = (int)($row['facebook'] ?? 0);
+        }
     }
-} catch (Throwable $e) { /* keep zeros — missing social columns etc. */ }
+} catch (Throwable $e) { /* keep zeros */ }
+
+require_once __DIR__ . '/includes/admin-header.php';
 ?>
 
 <div class="container-fluid py-3">
@@ -299,7 +367,7 @@ try {
                 <img src="<?php echo htmlspecialchars($viewMember['avatar_url']); ?>" class="rounded-circle mb-3 mem-avatar-lg">
                 <?php else: ?>
                 <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3 mem-avatar-fallback-lg">
-                    <?php echo mb_substr($viewMember['name'],0,1); ?>
+                    <?php echo function_exists('mb_substr') ? mb_substr((string)($viewMember['name'] ?? ''), 0, 1) : substr((string)($viewMember['name'] ?? ''), 0, 1); ?>
                 </div>
                 <?php endif; ?>
                 <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($viewMember['name']); ?></h5>
@@ -657,9 +725,12 @@ try {
                 </tr></thead>
                 <tbody>
                 <?php foreach ($members as $i => $m):
+                    try {
                     $ssotCode = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($m) : 'unknown';
                     $mName = trim((string)($m['name'] ?? ''));
-                    $mInitial = $mName !== '' ? mb_substr($mName, 0, 1, 'UTF-8') : '?';
+                    $mInitial = $mName !== ''
+                        ? (function_exists('mb_substr') ? mb_substr($mName, 0, 1, 'UTF-8') : substr($mName, 0, 1))
+                        : '?';
                 ?>
                 <tr>
                     <td class="text-muted small"><?php echo $offset + $i + 1; ?></td>
@@ -725,26 +796,53 @@ try {
                         </div>
                     </td>
                 </tr>
-                <?php endforeach; ?>
+                <?php
+                    } catch (Throwable $rowEx) {
+                        error_log('[admin/members row] ' . $rowEx->getMessage());
+                        echo '<tr><td colspan="9" class="text-danger small">यो पङ्क्ति देखाउन सकिएन।</td></tr>';
+                    }
+                endforeach; ?>
                 </tbody>
             </table>
         </div>
 
-        <!-- Pagination -->
+        <!-- Pagination — windowed so 2000+ members never paint 100+ page buttons -->
         <?php if ($totalPages > 1): ?>
         <div class="d-flex justify-content-between align-items-center p-3 border-top">
             <div class="text-muted small">जम्मा <?php echo $totalCount; ?> मध्ये <?php echo min($offset+$limit, $totalCount); ?> देखाइएको</div>
             <nav><ul class="pagination pagination-sm mb-0">
-                <?php for ($pg = 1; $pg <= $totalPages; $pg++): ?>
-                <li class="page-item <?php echo $pg === $page ? 'active' : ''; ?>">
-                    <a class="page-link" href="<?php echo htmlspecialchars('members.php?' . http_build_query(array_filter([
-                        'page' => $pg,
+                <?php
+                $pgWindow = 7;
+                $pgStart = max(1, $page - (int)floor($pgWindow / 2));
+                $pgEnd = min($totalPages, $pgStart + $pgWindow - 1);
+                $pgStart = max(1, $pgEnd - $pgWindow + 1);
+                $memPageQ = static function (int $pg) use ($search, $kycFilter, $memSub): string {
+                    return htmlspecialchars('members.php?' . http_build_query(array_filter([
+                        'page' => $pg > 1 ? $pg : null,
                         'search' => $search !== '' ? $search : null,
                         'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
                         'mem_sub' => $memSub !== 'live' ? $memSub : null,
-                    ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $pg; ?></a>
+                    ], static fn ($v) => $v !== null && $v !== '')), ENT_QUOTES, 'UTF-8');
+                };
+                if ($page > 1): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($page - 1); ?>">‹</a></li>
+                <?php endif;
+                if ($pgStart > 1): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ(1); ?>">1</a></li>
+                <?php if ($pgStart > 2): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif;
+                endif;
+                for ($pg = $pgStart; $pg <= $pgEnd; $pg++): ?>
+                <li class="page-item <?php echo $pg === $page ? 'active' : ''; ?>">
+                    <a class="page-link" href="<?php echo $memPageQ($pg); ?>"><?php echo $pg; ?></a>
                 </li>
-                <?php endfor; ?>
+                <?php endfor;
+                if ($pgEnd < $totalPages):
+                    if ($pgEnd < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($totalPages); ?>"><?php echo $totalPages; ?></a></li>
+                <?php endif;
+                if ($page < $totalPages): ?>
+                <li class="page-item"><a class="page-link" href="<?php echo $memPageQ($page + 1); ?>">›</a></li>
+                <?php endif; ?>
             </ul></nav>
         </div>
         <?php endif; ?>

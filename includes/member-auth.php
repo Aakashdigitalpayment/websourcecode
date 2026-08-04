@@ -99,37 +99,31 @@ function ensureMemberTables() {
         try { $db->exec($sql); } catch (\Throwable $e) { /* column already exists */ }
     }
 
-    /* Legacy data backfills — एक पटक मात्र (हरेक request मा UPDATE दोहोर्याउँदा admin NULL wipe हुन्थ्यो) */
-    $legacyBackfillDone = false;
+    /* Legacy multi-row backfills MUST NOT run on web requests.
+       Live failure mode (jayasahakari): after Excel ~2066 import, members.php called
+       ensureMemberTables() AFTER admin-header flushed HTML, then ran:
+         UPDATE members … / JOIN kyc_applications SET avatar_url=''
+       PHP/proxy timeout → white main pane (sidebar+title only). KYC list OK because
+       it never hits this path. Flag is marked done with ZERO row UPDATEs so a stuck
+       DB cannot infinite-retry heavy work on every Active Members click. */
     try {
         $stSet = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
         $stSet->execute(['migration_member_schema_backfill_v1']);
         $rw = $stSet->fetch(PDO::FETCH_ASSOC);
-        $legacyBackfillDone = ($rw && ($rw['setting_value'] ?? '') === '1');
-    } catch (\Throwable $e) { /* site_settings छैन वा पुरानो DB */ }
-
-    if (!$legacyBackfillDone) {
-        try {
-            $db->exec("UPDATE members SET approval_status='approved'
-                       WHERE approval_status IS NULL OR approval_status=''");
-            $db->exec("UPDATE members SET approval_status='approved'
-                       WHERE (google_id IS NOT NULL AND google_id != '')
-                          OR (facebook_id IS NOT NULL AND facebook_id != '')");
-            $db->exec("UPDATE members
-                          SET card_expires_at = DATE_ADD(COALESCE(approved_at, created_at), INTERVAL 5 YEAR)
-                        WHERE card_expires_at IS NULL
-                          AND approval_status = 'approved'");
-            $db->exec("UPDATE members m
-                       INNER JOIN kyc_applications k ON k.id = m.kyc_application_id
-                          SET m.avatar_url = ''
-                        WHERE COALESCE(m.avatar_url, '') <> ''
-                          AND COALESCE(k.photo, '') <> ''
-                          AND COALESCE(m.google_id, '') = ''
-                          AND COALESCE(m.facebook_id, '') = ''");
+        $legacyBackfillDone = ($rw && (string)($rw['setting_value'] ?? '') === '1');
+        if (!$legacyBackfillDone) {
             if (function_exists('updateSetting')) {
                 updateSetting('migration_member_schema_backfill_v1', '1');
+            } else {
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('migration_member_schema_backfill_v1', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
             }
-        } catch (\Throwable $e) { /* silent */ }
+        }
+    } catch (\Throwable $e) {
+        error_log('[ensureMemberTables backfill-flag] ' . $e->getMessage());
     }
 
     /* Notifications table */
