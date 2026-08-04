@@ -33,6 +33,106 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+/* ─── Members list/import schema heal (DDL only, once per install) ─── */
+if (!function_exists('ensureMembersListSchema')) {
+    /**
+     * Cheap ADD COLUMN heal for list/import pages.
+     * Never runs multi-row UPDATEs. Gated by site_settings flag so fresh/legacy
+     * projects heal once, then Active Members stays fast forever.
+     */
+    function ensureMembersListSchema(?PDO $db = null): void
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+
+        if (!$db instanceof PDO) {
+            try {
+                $db = function_exists('getDB') ? getDB() : null;
+            } catch (Throwable $e) {
+                return;
+            }
+        }
+        if (!$db instanceof PDO) {
+            return;
+        }
+
+        $flagKey = 'migration_members_list_schema_v2';
+        try {
+            $st = $db->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1');
+            $st->execute([$flagKey]);
+            if ((string)$st->fetchColumn() === '1') {
+                return;
+            }
+        } catch (Throwable $e) { /* continue heal */ }
+
+        /* Do not mark flag if members table is missing (fresh install mid-setup) */
+        try {
+            $db->query('SELECT 1 FROM members LIMIT 1');
+        } catch (Throwable $e) {
+            $done = false; /* allow retry next request */
+            return;
+        }
+
+        $cols = [
+            'is_active' => 'TINYINT NOT NULL DEFAULT 1',
+            'approval_status' => "VARCHAR(20) DEFAULT 'pending'",
+            'google_id' => 'VARCHAR(255) NULL',
+            'facebook_id' => 'VARCHAR(255) NULL',
+            'avatar_url' => 'VARCHAR(500) NULL',
+            'password_hash' => 'VARCHAR(255) NULL',
+            'kyc_application_id' => 'INT NULL DEFAULT NULL',
+            'sadasyata_number' => "VARCHAR(50) NOT NULL DEFAULT ''",
+            'phone' => 'VARCHAR(20) NULL',
+            'member_card_no' => 'VARCHAR(50) NULL',
+            'card_expires_at' => 'TIMESTAMP NULL DEFAULT NULL',
+            'created_at' => 'TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP',
+        ];
+        foreach ($cols as $col => $def) {
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'members', $col, $def);
+            } else {
+                try {
+                    $db->exec("ALTER TABLE members ADD COLUMN `{$col}` {$def}");
+                } catch (Throwable $e) { /* exists */ }
+            }
+        }
+
+        /* Fresh projects: KYC table must exist before import stubs link */
+        $ensureTables = __DIR__ . '/ensure-tables.php';
+        if (is_file($ensureTables)) {
+            require_once $ensureTables;
+        }
+        if (function_exists('ensurePublicTables')) {
+            try {
+                ensurePublicTables();
+            } catch (Throwable $e) { /* optional */ }
+        }
+
+        try {
+            if (function_exists('updateSetting')) {
+                updateSetting($flagKey, '1');
+                updateSetting('migration_member_schema_backfill_v1', '1');
+            } else {
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('{$flagKey}', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
+                $db->exec(
+                    "INSERT INTO site_settings (setting_key, setting_value)
+                     VALUES ('migration_member_schema_backfill_v1', '1')
+                     ON DUPLICATE KEY UPDATE setting_value = '1'"
+                );
+            }
+        } catch (Throwable $e) {
+            error_log('[ensureMembersListSchema flag] ' . $e->getMessage());
+        }
+    }
+}
+
 /* ─── Ensure member tables exist ─── */
 function ensureMemberTables() {
     /* v2: एकपटक मात्र चल्ने guard — register/login बीचमा बारम्बार call हुँदा overhead हटाउन */
@@ -132,6 +232,13 @@ function ensureMemberTables() {
     } catch (\Throwable $e) {
         error_log('[ensureMemberTables backfill-flag] ' . $e->getMessage());
     }
+
+    /* Also mark list-schema heal so admin/members.php skips per-request ALTER spam */
+    try {
+        if (function_exists('ensureMembersListSchema')) {
+            ensureMembersListSchema($db);
+        }
+    } catch (\Throwable $e) { /* best-effort */ }
 
     /* Notifications table */
     try {

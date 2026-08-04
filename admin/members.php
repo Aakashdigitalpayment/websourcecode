@@ -42,6 +42,9 @@ $currentPage = 'members';
 /* Unstick DBs where backfill flag never got set (timeout before updateSetting). */
 try {
     if ($db instanceof PDO) {
+        if (function_exists('ensureMembersListSchema')) {
+            ensureMembersListSchema($db);
+        }
         $stFlag = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
         $stFlag->execute(['migration_member_schema_backfill_v1']);
         if ((string)$stFlag->fetchColumn() !== '1') {
@@ -195,26 +198,7 @@ $showAllActiveFallback = false;
 $whereList = '1=1';
 $paramsBase = [];
 
-/* Cheap one-shot column heal — DDL only, never multi-row UPDATE.
-   Live import DBs often lack columns that CREATE TABLE IF NOT EXISTS never adds. */
-$colHeal = [
-    "ALTER TABLE members ADD COLUMN is_active TINYINT NOT NULL DEFAULT 1",
-    "ALTER TABLE members ADD COLUMN approval_status VARCHAR(20) DEFAULT 'pending'",
-    "ALTER TABLE members ADD COLUMN google_id VARCHAR(255) NULL",
-    "ALTER TABLE members ADD COLUMN facebook_id VARCHAR(255) NULL",
-    "ALTER TABLE members ADD COLUMN avatar_url VARCHAR(500) NULL",
-    "ALTER TABLE members ADD COLUMN password_hash VARCHAR(255) NULL",
-    "ALTER TABLE members ADD COLUMN kyc_application_id INT NULL DEFAULT NULL",
-    "ALTER TABLE members ADD COLUMN sadasyata_number VARCHAR(50) NOT NULL DEFAULT ''",
-    "ALTER TABLE members ADD COLUMN phone VARCHAR(20) NULL",
-    "ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL",
-    "ALTER TABLE members ADD COLUMN created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP",
-];
-if ($db instanceof PDO) {
-    foreach ($colHeal as $ddl) {
-        try { $db->exec($ddl); } catch (Throwable $e) { /* already exists */ }
-    }
-}
+/* Schema heal already ran once via ensureMembersListSchema() above (flag-gated). */
 
 $hasCol = static function (string $col): bool {
     return function_exists('safeColumnExists') ? safeColumnExists('members', $col) : true;

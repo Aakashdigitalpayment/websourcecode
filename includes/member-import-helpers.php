@@ -247,8 +247,17 @@ if (!function_exists('memberImportProcessTick')) {
         if (function_exists('ensureMemberTables')) {
             try { ensureMemberTables(); } catch (Throwable $e) {}
         }
+        if (function_exists('ensureMembersListSchema')) {
+            try { ensureMembersListSchema($pdo); } catch (Throwable $e) {}
+        }
+        if (function_exists('ensurePublicTables')) {
+            try { ensurePublicTables(); } catch (Throwable $e) {}
+        }
         if (file_exists(__DIR__ . '/card-verify-helpers.php')) {
             require_once __DIR__ . '/card-verify-helpers.php';
+        }
+        if (file_exists(__DIR__ . '/member-ssot.php')) {
+            require_once __DIR__ . '/member-ssot.php';
         }
 
         @set_time_limit(90);
@@ -779,7 +788,19 @@ if (!function_exists('_memberImportImportChunk')) {
 
                 $kymMsg = '';
                 if ($memberPk > 0 && function_exists('memberSsotEnsureKycStubFromMember')) {
-                    $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk);
+                    $kr = memberSsotEnsureKycStubFromMember($pdo, $memberPk, [
+                        'id' => $memberPk,
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $mobile,
+                        'sadasyata_number' => $sid,
+                        'address' => $address,
+                        'dob' => $dob,
+                        'gender' => $gender,
+                        'password_hash' => $hash,
+                        'is_active' => 1,
+                        'approval_status' => 'approved',
+                    ]);
                     if (!empty($kr['ok'])) {
                         $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
                     }

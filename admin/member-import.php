@@ -24,6 +24,9 @@ $pdo = null;
 try { $pdo = getDB(); } catch (Throwable $e) { $pdo = null; }
 if ($pdo) {
     ensureMemberImportTables($pdo);
+    if (function_exists('ensureMembersListSchema')) {
+        try { ensureMembersListSchema($pdo); } catch (Throwable $e) {}
+    }
 }
 
 $adminId = (int)($_SESSION['admin_id'] ?? ($_SESSION['user_id'] ?? 0));

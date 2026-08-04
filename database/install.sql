@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS members (
     facebook_id          VARCHAR(255),
     avatar_url           VARCHAR(500),
     member_card_no       VARCHAR(50),
+    kyc_application_id   INT NULL DEFAULT NULL,
     address              TEXT,
     dob                  DATE,
     gender               VARCHAR(20),
@@ -59,13 +60,16 @@ CREATE TABLE IF NOT EXISTS members (
     rejection_reason     TEXT,
     id_card_generated    TINYINT DEFAULT 0,
     id_card_generated_at TIMESTAMP NULL DEFAULT NULL,
+    card_expires_at      TIMESTAMP NULL DEFAULT NULL,
     is_verified          TINYINT DEFAULT 0,
     is_active            TINYINT DEFAULT 1,
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login           TIMESTAMP NULL,
     INDEX idx_email (email),
     INDEX idx_sadasyata_number (sadasyata_number),
-    INDEX idx_approval_status (approval_status)
+    INDEX idx_approval_status (approval_status),
+    INDEX idx_kyc_application_id (kyc_application_id),
+    INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
