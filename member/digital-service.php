@@ -66,6 +66,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!$serviceType || !isset($serviceTypes[$serviceType])) {
             $errorMsg = $_t('सेवा प्रकार छान्नुहोस्।', 'Please select a service type.');
+        } elseif (!empty($serviceTypes[$serviceType]['requires_document'])
+            && (!isset($_FILES['attachment']) || (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE)) {
+            $errorMsg = $_t('यो सेवाको लागि संलग्न कागजात अनिवार्य छ।', 'Please attach a supporting document for this service.');
         }
 
         if (!$errorMsg) {
@@ -190,7 +193,9 @@ require __DIR__ . '/includes/chrome.php';
         <select name="service_type" class="mem-form-control" required id="dsServiceType" onchange="dsToggleFields(this.value)">
           <option value="">— <?php echo $_t('सेवा छान्नुहोस्', 'Select a service'); ?> —</option>
           <?php foreach ($serviceTypes as $val => $st): ?>
-          <option value="<?= $val ?>" <?= ($_POST['service_type'] ?? '') === $val ? 'selected' : '' ?>>
+          <option value="<?= $val ?>"
+            data-doc="<?= !empty($st['requires_document']) ? '1' : '0' ?>"
+            <?= ($_POST['service_type'] ?? '') === $val ? 'selected' : '' ?>>
             <?= isEnglish() ? $st['en'] : $st['np'] ?>
           </option>
           <?php endforeach; ?>
@@ -271,8 +276,13 @@ require __DIR__ . '/includes/chrome.php';
 
       <!-- Attachment -->
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-paperclip ico-primary"></i><?php echo $_t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?></label>
-        <input type="file" name="attachment" class="mem-form-control" accept=".jpg,.jpeg,.png,.pdf">
+        <label class="mem-form-label" id="dsAttachLabel">
+          <i class="fas fa-paperclip ico-primary"></i>
+          <span id="dsAttachTitle"><?php echo $_t('संलग्न फाइल', 'Attachment'); ?></span>
+          <small class="text-muted" id="dsAttachHint">(<?php echo $_t('ऐच्छिक', 'Optional'); ?>)</small>
+          <span class="text-danger" id="dsAttachReq" style="display:none;">*</span>
+        </label>
+        <input type="file" name="attachment" id="dsAttachment" class="mem-form-control" accept=".jpg,.jpeg,.png,.pdf">
         <div class="mp-file-hint"><?php echo $_t('JPG, PNG, PDF — अधिकतम 5MB', 'JPG, PNG, PDF — max 5MB'); ?></div>
       </div>
 
@@ -336,6 +346,18 @@ function dsToggleFields(val) {
     document.getElementById('ds-field-bill').style.display      = val === 'bill_payment'       ? '' : 'none';
     document.getElementById('ds-field-recharge').style.display  = val === 'mobile_recharge'    ? '' : 'none';
     document.getElementById('ds-field-share').style.display     = (val === 'share_refund' || val === 'share_increase') ? '' : 'none';
+    var sel = document.getElementById('dsServiceType');
+    var opt = sel && sel.options[sel.selectedIndex];
+    var needDoc = opt && opt.getAttribute('data-doc') === '1';
+    var attach = document.getElementById('dsAttachment');
+    var hint = document.getElementById('dsAttachHint');
+    var req = document.getElementById('dsAttachReq');
+    if (attach) {
+        if (needDoc) attach.setAttribute('required', 'required');
+        else attach.removeAttribute('required');
+    }
+    if (hint) hint.style.display = needDoc ? 'none' : '';
+    if (req) req.style.display = needDoc ? '' : 'none';
 }
 document.addEventListener('DOMContentLoaded', function(){
     var sel = document.getElementById('dsServiceType');

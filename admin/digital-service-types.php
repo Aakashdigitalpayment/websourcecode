@@ -38,6 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $color = clean_text($_POST['color'] ?? 'var(--primary-color)', 40) ?: 'var(--primary-color)';
             $order = (int)($_POST['display_order'] ?? 0);
             $isActive = isset($_POST['is_active']) ? 1 : 0;
+            $requiresDocument = isset($_POST['requires_document']) ? 1 : 0;
 
             if ($nameNp === '') {
                 setFlash('error', $__t('नाम (नेपाली) अनिवार्य छ।', 'Name (Nepali) is required.'));
@@ -46,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($tid > 0) {
                 $db->prepare(
-                    'UPDATE digital_service_types SET name_np=?, name_en=?, icon=?, color=?, display_order=?, is_active=? WHERE id=?'
-                )->execute([$nameNp, $nameEn, $icon, $color, $order, $isActive, $tid]);
+                    'UPDATE digital_service_types SET name_np=?, name_en=?, icon=?, color=?, display_order=?, is_active=?, requires_document=? WHERE id=?'
+                )->execute([$nameNp, $nameEn, $icon, $color, $order, $isActive, $requiresDocument, $tid]);
                 setFlash('success', $__t('सेवा प्रकार अद्यावधिक भयो।', 'Service type updated.'));
             } else {
                 $base = digitalServiceTypeSlugify($nameEn !== '' ? $nameEn : $nameNp, 'svc');
@@ -74,8 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
                 $db->prepare(
-                    'INSERT INTO digital_service_types (slug, name_np, name_en, icon, color, display_order, is_active, is_builtin) VALUES (?,?,?,?,?,?,?,0)'
-                )->execute([$slug, $nameNp, $nameEn, $icon, $color, $order, $isActive]);
+                    'INSERT INTO digital_service_types (slug, name_np, name_en, icon, color, display_order, is_active, is_builtin, requires_document) VALUES (?,?,?,?,?,?,?,0,?)'
+                )->execute([$slug, $nameNp, $nameEn, $icon, $color, $order, $isActive, $requiresDocument]);
                 setFlash('success', $__t('नयाँ सेवा प्रकार थपियो।', 'Service type added.'));
             }
             redirect('digital-service-types.php');
@@ -154,6 +155,7 @@ $form = $editRow ?: [
     'color' => 'var(--primary-color)',
     'display_order' => 0,
     'is_active' => 1,
+    'requires_document' => 0,
 ];
 
 echo adminPageHeader(
@@ -211,6 +213,13 @@ if ($_flash) {
                         </div>
                     </div>
                     <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="requires_document" id="dstDoc" <?php echo !empty($form['requires_document']) ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="dstDoc"><?php echo $__t('कागजात चाहिन्छ', 'Requires document'); ?></label>
+                        </div>
+                        <div class="form-text"><?php echo $__t('सक्रिय गर्दा सदस्यले संलग्न फाइल अनिवार्य अपलोड गर्नुपर्छ। रिचार्ज/शेयर जस्ता विशेष फिल्ड जस्ताको तस्तै रहन्छ।', 'When enabled, members must upload an attachment. Built-in panels (recharge/share/etc.) stay unchanged.'); ?></div>
+                    </div>
+                    <div class="col-12">
                         <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
                         <?php if (!empty($form['id'])): ?>
                         <a href="digital-service-types.php" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
@@ -232,6 +241,7 @@ if ($_flash) {
                         <thead>
                             <tr>
                                 <th><?php echo $__t('प्रकार', 'Type'); ?></th>
+                                <th class="text-center"><?php echo $__t('कागजात', 'Doc'); ?></th>
                                 <th class="text-center"><?php echo $__t('क्रम', 'Order'); ?></th>
                                 <th class="text-center"><?php echo $__t('स्थिति', 'Status'); ?></th>
                                 <th class="text-center"><?php echo $__t('कार्य', 'Actions'); ?></th>
@@ -239,7 +249,7 @@ if ($_flash) {
                         </thead>
                         <tbody>
                         <?php if (empty($manageRows)): ?>
-                            <tr><td colspan="4" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै प्रकार छैन।', 'No types yet.'); ?></td></tr>
+                            <tr><td colspan="5" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै प्रकार छैन।', 'No types yet.'); ?></td></tr>
                         <?php else: foreach ($manageRows as $mc):
                             $iconShow = (string)($mc['icon'] ?? 'fa-laptop');
                             if (stripos($iconShow, 'fas ') === 0) {
@@ -255,6 +265,13 @@ if ($_flash) {
                                     <div class="small text-muted"><?php echo htmlspecialchars((string)$mc['name_en']); ?></div>
                                     <?php endif; ?>
                                     <div class="small text-muted"><?php echo htmlspecialchars((string)$mc['slug']); ?></div>
+                                </td>
+                                <td class="text-center">
+                                    <?php if (!empty($mc['requires_document'])): ?>
+                                    <span class="badge bg-warning text-dark"><?php echo $__t('चाहिन्छ', 'Required'); ?></span>
+                                    <?php else: ?>
+                                    <span class="text-muted">—</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center"><?php echo (int)$mc['display_order']; ?></td>
                                 <td class="text-center">
