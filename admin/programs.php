@@ -31,24 +31,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $qrExpiresLegacy = trim((string)($_POST['qr_expires_at'] ?? ''));
 
             $qrStartsAt = null;
+            $qrStartsProvided = false;
             if ($qrStartsBs !== '') {
+                $qrStartsProvided = true;
                 $combined = programCombineBsDateTime($qrStartsBs, $qrStartsTime !== '' ? $qrStartsTime : '00:00');
-                $qrStartsAt = $combined !== '' ? $combined : null;
+                if ($combined === '') {
+                    throw new Exception('QR सुरु मिति (वि.सं.) अमान्य छ। सही मिति छानेर फेरि सेभ गर्नुहोस्।');
+                }
+                $qrStartsAt = $combined;
             } elseif ($qrStartsLegacy !== '') {
+                $qrStartsProvided = true;
                 $ts = strtotime(str_replace('T', ' ', $qrStartsLegacy));
                 $qrStartsAt = $ts ? date('Y-m-d H:i:s', $ts) : null;
+                if ($qrStartsAt === null) {
+                    throw new Exception('QR सुरु मिति अमान्य छ।');
+                }
             }
 
             $qrExpiresAt = null;
+            $qrExpiresProvided = false;
             if ($qrExpiresBs !== '') {
+                $qrExpiresProvided = true;
                 $combined = programCombineBsDateTime($qrExpiresBs, $qrExpiresTime !== '' ? $qrExpiresTime : '23:59');
-                $qrExpiresAt = $combined !== '' ? $combined : null;
+                if ($combined === '') {
+                    throw new Exception('QR अन्त्य मिति (वि.सं.) अमान्य छ। सही मिति छानेर फेरि सेभ गर्नुहोस्।');
+                }
+                $qrExpiresAt = $combined;
             } elseif ($qrExpiresLegacy !== '') {
+                $qrExpiresProvided = true;
                 $ts = strtotime(str_replace('T', ' ', $qrExpiresLegacy));
                 $qrExpiresAt = $ts ? date('Y-m-d H:i:s', $ts) : null;
+                if ($qrExpiresAt === null) {
+                    throw new Exception('QR अन्त्य मिति अमान्य छ।');
+                }
             }
+
+            if ($qrStartsAt !== null && $qrExpiresAt !== null && strtotime($qrStartsAt) > strtotime($qrExpiresAt)) {
+                throw new Exception('QR सुरु मिति अन्त्य मितिभन्दा अगाडि हुनुपर्छ।');
+            }
+
             if ($title === '') throw new Exception('कार्यक्रम शीर्षक आवश्यक छ।');
             if ($id > 0) {
+                /* Keep existing QR window when fields left blank (avoid silent wipe) */
+                $prevStarts = null;
+                $prevExpires = null;
+                $prevSt = $db->prepare('SELECT qr_starts_at, qr_expires_at FROM upcoming_programs WHERE id=? LIMIT 1');
+                $prevSt->execute([$id]);
+                $prevRow = $prevSt->fetch(PDO::FETCH_ASSOC) ?: [];
+                $prevStarts = $prevRow['qr_starts_at'] ?? null;
+                $prevExpires = $prevRow['qr_expires_at'] ?? null;
+                if (!$qrStartsProvided) {
+                    $qrStartsAt = $prevStarts;
+                }
+                if (!$qrExpiresProvided) {
+                    $qrExpiresAt = $prevExpires;
+                }
                 $st = $db->prepare("UPDATE upcoming_programs SET title=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=? WHERE id=?");
                 $st->execute([$title, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');

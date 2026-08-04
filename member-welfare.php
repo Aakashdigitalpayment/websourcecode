@@ -532,6 +532,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                         </div>
 
+                        <!-- Insurance Fields -->
+                        <div class="form-section type-fields" id="insurance-fields" style="display:none;">
+                            <h5><i class="fas fa-shield-halved"></i> <?php echo isEnglish() ? 'Insurance Details' : 'बीमा विवरण'; ?></h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Policy Number' : 'पोलिसी नम्बर'; ?></label>
+                                    <input type="text" name="policy_number" class="form-control" value="<?php echo e($_POST['policy_number'] ?? ''); ?>">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label"><?php echo isEnglish() ? 'Insurer Name' : 'बीमा कम्पनी'; ?></label>
+                                    <input type="text" name="insurer_name" class="form-control" value="<?php echo e($_POST['insurer_name'] ?? ''); ?>">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Common Claim Details -->
                         <div class="form-section" id="beneficiary-fields" style="display:none;">
                             <h5><i class="fas fa-user-friends"></i> <?php echo isEnglish() ? 'Beneficiary Details' : 'लाभग्राही विवरण'; ?></h5>
@@ -617,12 +632,15 @@ function showTypeFields(type) {
             if (d) d.style.display = 'block';
             if (bene) bene.style.display = 'block';
             break;
+        case 'accident':
         case 'medical':
             var m = document.getElementById('medical-fields');
             if (m) m.style.display = 'block';
             break;
-        case 'accident':
         case 'insurance':
+            var ins = document.getElementById('insurance-fields');
+            if (ins) ins.style.display = 'block';
+            break;
         case 'other':
         default:
             break;

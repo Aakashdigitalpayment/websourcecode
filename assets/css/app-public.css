@@ -18938,6 +18938,54 @@ body.dark-mode .pf-btn-verify {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
 }
+body.dark-mode .pf-toolbar,
+body.dark-mode .pf-search-input,
+body.dark-mode .pf-view-toggle,
+body.dark-mode .pf-count,
+body.dark-mode .pf-how-step,
+body.dark-mode .pf-featured-strip,
+body.dark-mode .pf-note,
+body.dark-mode .pf-featured-chip-item {
+    background: #fff !important;
+    color: #1f2937 !important;
+    -webkit-text-fill-color: #1f2937 !important;
+    border-color: rgba(26, 95, 42, .14) !important;
+}
+body.dark-mode .pf-filter-pill {
+    background: #fff !important;
+    color: #145021 !important;
+    -webkit-text-fill-color: #145021 !important;
+}
+body.dark-mode .pf-filter-pill.active,
+body.dark-mode .pf-view-btn.active {
+    background: #1a5f2a !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+body.dark-mode .pf-how-step strong,
+body.dark-mode .pf-featured-strip-title,
+body.dark-mode .pf-hero-title,
+body.dark-mode .pf-note {
+    color: #145021 !important;
+    -webkit-text-fill-color: #145021 !important;
+}
+body.dark-mode .pf-how-step p,
+body.dark-mode .pf-intro-text,
+body.dark-mode .pf-featured-chip-item em {
+    color: #4b5563 !important;
+    -webkit-text-fill-color: #4b5563 !important;
+}
+body.dark-mode .pf-how-num {
+    background: #1a5f2a !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+body.dark-mode .pf-table thead tr,
+body.dark-mode .pf-table th {
+    background: #1a5f2a !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
 
 .pf-note {
     background: rgba(var(--primary-rgb,26,95,42),.06);

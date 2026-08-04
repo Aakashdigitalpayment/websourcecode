@@ -27,10 +27,13 @@ unset($_dstypes);
 $rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
 
-/* Service types — DB catalog + hardcoded fallback */
+/* Service types — active for form; all (incl. inactive) for history labels */
 $serviceTypes = function_exists('digitalServiceTypesMap')
     ? digitalServiceTypesMap($db)
     : (function_exists('digitalServiceTypesDefaults') ? digitalServiceTypesDefaults() : []);
+$serviceTypesAll = function_exists('digitalServiceTypesMap')
+    ? digitalServiceTypesMap($db, false)
+    : $serviceTypes;
 
 /* Recent digital service requests */
 $recentRequests = [];
@@ -298,8 +301,8 @@ require __DIR__ . '/includes/chrome.php';
         $stCls = $statusColors[$req['status']] ?? 'sr-status--pending';
         $stLbl = $statusLabels[$req['status']] ?? htmlspecialchars($req['status']);
         $svcLabel = isEnglish()
-            ? ($serviceTypes[$req['service_type']]['en'] ?? htmlspecialchars($req['service_type']))
-            : htmlspecialchars($req['service_type_np'] ?: $req['service_type']);
+            ? htmlspecialchars((string)($serviceTypesAll[$req['service_type']]['en'] ?? $req['service_type']))
+            : htmlspecialchars((string)($req['service_type_np'] ?: ($serviceTypesAll[$req['service_type']]['np'] ?? $req['service_type'])));
     ?>
     <div class="recent-card">
       <div>

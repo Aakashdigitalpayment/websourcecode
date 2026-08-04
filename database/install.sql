@@ -1190,6 +1190,45 @@ CREATE TABLE IF NOT EXISTS member_welfare_claims (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- WELFARE CLAIM TYPES — दाबी प्रकार क्याटलग
+-- =====================================================
+CREATE TABLE IF NOT EXISTS welfare_claim_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(60) NOT NULL,
+    name_np VARCHAR(160) NOT NULL,
+    name_en VARCHAR(160) DEFAULT '',
+    icon VARCHAR(80) NOT NULL DEFAULT 'fa-gift',
+    color VARCHAR(40) NOT NULL DEFAULT '#ff9800',
+    form_profile VARCHAR(40) NOT NULL DEFAULT 'other',
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_builtin TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_wct_slug (slug),
+    INDEX idx_wct_active (is_active),
+    INDEX idx_wct_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- DIGITAL SERVICE TYPES — डिजिटल सेवा प्रकार क्याटलग
+-- =====================================================
+CREATE TABLE IF NOT EXISTS digital_service_types (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(60) NOT NULL,
+    name_np VARCHAR(160) NOT NULL,
+    name_en VARCHAR(160) DEFAULT '',
+    icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-laptop',
+    color VARCHAR(40) NOT NULL DEFAULT 'var(--primary-color)',
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    is_builtin TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dst_slug (slug),
+    INDEX idx_dst_active (is_active),
+    INDEX idx_dst_order (display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- MEMBER SURVEY TABLE — सदस्य सर्वेक्षण
 -- =====================================================
 -- DROP TABLE IF EXISTS member_survey;
