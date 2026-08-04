@@ -165,7 +165,7 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
     </div>
     <?php endif; ?>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <div class="pf-toolbar">
         <div class="pf-search-wrap">
             <i class="fas fa-search pf-search-icon" aria-hidden="true"></i>
             <input type="search" id="pfSearch"
@@ -174,17 +174,17 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                    autocomplete="off"
                    oninput="pfSearchFn()">
         </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="pf-toolbar-end">
             <div class="pf-view-toggle pf-view-toggle-desktop" role="group" aria-label="View">
                 <?php
                 $baseQ = $activeType !== '' ? ('type=' . urlencode($activeType) . '&') : '';
                 ?>
                 <a class="pf-view-btn <?php echo $view === 'cards' ? 'active' : ''; ?>"
-                   href="?<?php echo $baseQ; ?>view=cards"><?php echo isEnglish() ? 'Cards' : 'कार्ड'; ?></a>
+                   href="?<?php echo $baseQ; ?>view=cards"><i class="fas fa-th-large me-1"></i><?php echo isEnglish() ? 'Cards' : 'कार्ड'; ?></a>
                 <a class="pf-view-btn <?php echo $view === 'table' ? 'active' : ''; ?>"
-                   href="?<?php echo $baseQ; ?>view=table"><?php echo isEnglish() ? 'Table' : 'तालिका'; ?></a>
+                   href="?<?php echo $baseQ; ?>view=table"><i class="fas fa-list me-1"></i><?php echo isEnglish() ? 'Table' : 'तालिका'; ?></a>
             </div>
-            <div id="pfCount" class="text-muted pf-count">
+            <div id="pfCount" class="pf-count">
                 <?php echo count($filtered); ?> <?php echo isEnglish() ? 'partners' : 'साझेदार'; ?>
             </div>
         </div>
@@ -201,53 +201,72 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
             $email = trim((string)($f['contact_email'] ?? ''));
             $web = trim((string)($f['website_url'] ?? ''));
             $terms = trim((string)($f['terms_np'] ?? ''));
-            $searchBlob = strtolower($name . ' ' . ($f['location'] ?? '') . ' ' . ($f['facility_type'] ?? '') . ' ' . $desc . ' ' . $disc);
+            $loc = trim((string)($f['location'] ?? ''));
+            $ftype = trim((string)($f['facility_type'] ?? ''));
+            $deskCode = trim((string)($f['partner_code'] ?? ''));
+            $verifyHref = SITE_URL . 'verify.php' . ($deskCode !== '' ? ('?partner=' . rawurlencode($deskCode)) : '');
+            $searchBlob = strtolower($name . ' ' . $loc . ' ' . $ftype . ' ' . $desc . ' ' . $disc);
         ?>
         <article class="pf-card <?php echo !empty($f['is_featured']) ? 'pf-card-featured' : ''; ?>"
                  data-search="<?php echo htmlspecialchars($searchBlob, ENT_QUOTES, 'UTF-8'); ?>">
+            <?php if (!empty($f['is_featured'])): ?>
+                <span class="pf-featured-chip"><i class="fas fa-star"></i> <?php echo isEnglish() ? 'Featured' : 'विशेष'; ?></span>
+            <?php endif; ?>
             <div class="pf-card-top">
-                <div class="pf-card-logo">
+                <div class="pf-card-logo" aria-hidden="true">
                     <?php if ($logo !== ''): ?>
                         <img src="<?php echo htmlspecialchars($logo); ?>" alt="" loading="lazy">
                     <?php else: ?>
-                        <i class="fas fa-store"></i>
+                        <i class="fas fa-handshake"></i>
                     <?php endif; ?>
                 </div>
                 <div class="pf-card-head-text">
-                    <?php if (!empty($f['is_featured'])): ?>
-                        <span class="pf-featured-chip"><?php echo isEnglish() ? 'Featured' : 'विशेष'; ?></span>
-                    <?php endif; ?>
                     <h3 class="pf-card-title"><?php echo htmlspecialchars($name); ?></h3>
-                    <div class="pf-location"><i class="fas fa-location-dot"></i><?php echo htmlspecialchars(($f['location'] ?? '') !== '' ? $f['location'] : '—'); ?></div>
+                    <?php if ($loc !== ''): ?>
+                    <div class="pf-location"><i class="fas fa-location-dot" aria-hidden="true"></i><?php echo htmlspecialchars($loc); ?></div>
+                    <?php endif; ?>
                 </div>
             </div>
+
             <?php if ($disc !== ''): ?>
-            <div class="pf-card-discount"><?php echo htmlspecialchars($disc); ?></div>
+            <div class="pf-card-offer">
+                <span class="pf-card-offer-label"><?php echo isEnglish() ? 'Member offer' : 'सदस्य छुट'; ?></span>
+                <p class="pf-card-offer-text"><?php echo htmlspecialchars($disc); ?></p>
+            </div>
             <?php endif; ?>
-            <?php if (!empty($f['facility_type'])): ?>
-                <span class="pf-type-badge"><?php echo htmlspecialchars((string)$f['facility_type']); ?></span>
-            <?php endif; ?>
+
+            <div class="pf-card-meta">
+                <?php if ($ftype !== ''): ?>
+                    <span class="pf-type-badge"><?php echo htmlspecialchars($ftype); ?></span>
+                <?php endif; ?>
+            </div>
+
             <?php if ($desc !== ''): ?>
-                <p class="pf-card-desc"><?php echo nl2br(htmlspecialchars(mb_substr($desc, 0, 220))); ?><?php echo mb_strlen($desc) > 220 ? '…' : ''; ?></p>
+                <p class="pf-card-desc"><?php echo nl2br(htmlspecialchars(mb_substr($desc, 0, 160))); ?><?php echo mb_strlen($desc) > 160 ? '…' : ''; ?></p>
             <?php endif; ?>
             <?php if ($terms !== ''): ?>
-                <p class="pf-card-terms"><i class="fas fa-info-circle me-1"></i><?php echo htmlspecialchars(mb_substr($terms, 0, 140)); ?><?php echo mb_strlen($terms) > 140 ? '…' : ''; ?></p>
+                <p class="pf-card-terms"><i class="fas fa-circle-info" aria-hidden="true"></i><?php echo htmlspecialchars(mb_substr($terms, 0, 120)); ?><?php echo mb_strlen($terms) > 120 ? '…' : ''; ?></p>
             <?php endif; ?>
-            <div class="pf-card-actions">
+
+            <?php if ($phone !== '' || $email !== '' || $web !== ''): ?>
+            <div class="pf-card-contact">
                 <?php if ($phone !== ''): ?>
-                    <a href="tel:<?php echo htmlspecialchars(preg_replace('/\s+/', '', $phone)); ?>" class="pf-action-link"><i class="fas fa-phone"></i><?php echo htmlspecialchars($phone); ?></a>
+                    <a href="tel:<?php echo htmlspecialchars(preg_replace('/\s+/', '', $phone)); ?>" class="pf-contact-item"><i class="fas fa-phone" aria-hidden="true"></i><span><?php echo htmlspecialchars($phone); ?></span></a>
                 <?php endif; ?>
                 <?php if ($email !== ''): ?>
-                    <a href="mailto:<?php echo htmlspecialchars($email); ?>" class="pf-action-link"><i class="fas fa-envelope"></i><?php echo htmlspecialchars($email); ?></a>
+                    <a href="mailto:<?php echo htmlspecialchars($email); ?>" class="pf-contact-item"><i class="fas fa-envelope" aria-hidden="true"></i><span><?php echo htmlspecialchars($email); ?></span></a>
                 <?php endif; ?>
                 <?php if ($web !== ''): ?>
-                    <a href="<?php echo htmlspecialchars($web); ?>" class="pf-action-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?></a>
+                    <a href="<?php echo htmlspecialchars($web); ?>" class="pf-contact-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe" aria-hidden="true"></i><span><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?></span></a>
                 <?php endif; ?>
-                <?php
-                $deskCode = trim((string)($f['partner_code'] ?? ''));
-                $verifyHref = SITE_URL . 'verify.php' . ($deskCode !== '' ? ('?partner=' . rawurlencode($deskCode)) : '');
-                ?>
-                <a href="<?php echo htmlspecialchars($verifyHref); ?>" class="pf-action-link pf-action-verify"><i class="fas fa-shield-halved"></i><?php echo isEnglish() ? 'Desk verify' : 'डेस्क verify'; ?></a>
+            </div>
+            <?php endif; ?>
+
+            <div class="pf-card-footer">
+                <a href="<?php echo htmlspecialchars($verifyHref); ?>" class="pf-btn-verify">
+                    <i class="fas fa-shield-halved" aria-hidden="true"></i>
+                    <?php echo isEnglish() ? 'Desk verify' : 'डेस्क verify'; ?>
+                </a>
             </div>
         </article>
         <?php endforeach; ?>
@@ -263,11 +282,10 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                 <tr>
                     <th class="pf-th-sn"><?php echo isEnglish() ? '#' : 'क्र.स.'; ?></th>
                     <th><?php echo isEnglish() ? 'Partner' : 'साझेदार संस्था'; ?></th>
-                    <th><?php echo isEnglish() ? 'Location' : 'स्थान'; ?></th>
                     <th><?php echo isEnglish() ? 'Type' : 'प्रकार'; ?></th>
-                    <th class="pf-th-center"><?php echo isEnglish() ? 'Discount' : 'छुट'; ?></th>
+                    <th><?php echo isEnglish() ? 'Offer' : 'छुट / सुविधा'; ?></th>
                     <th><?php echo isEnglish() ? 'Contact' : 'सम्पर्क'; ?></th>
-                    <th><?php echo isEnglish() ? 'Details' : 'विवरण'; ?></th>
+                    <th class="pf-th-action"><?php echo isEnglish() ? 'Action' : 'कार्य'; ?></th>
                 </tr>
             </thead>
             <tbody id="pfTbody">
@@ -275,46 +293,76 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                     $name = partnerFacilityDisplayName($f);
                     $desc = partnerFacilityDescription($f);
                     $disc = partnerDiscountDisplay($f);
+                    $logo = partnerFacilityLogoUrl($f);
                     $phone = trim((string)($f['contact_phone'] ?? ''));
+                    $email = trim((string)($f['contact_email'] ?? ''));
+                    $web = trim((string)($f['website_url'] ?? ''));
+                    $loc = trim((string)($f['location'] ?? ''));
+                    $ftype = trim((string)($f['facility_type'] ?? ''));
+                    $deskCode = trim((string)($f['partner_code'] ?? ''));
+                    $verifyHref = SITE_URL . 'verify.php' . ($deskCode !== '' ? ('?partner=' . rawurlencode($deskCode)) : '');
                 ?>
                 <tr>
                     <td class="pf-td-sn"><?php echo $sn++; ?></td>
                     <td>
-                        <div class="pf-org-name"><?php echo htmlspecialchars($name); ?></div>
-                        <?php if (!empty($f['is_featured'])): ?><span class="pf-featured-chip"><?php echo isEnglish() ? 'Featured' : 'विशेष'; ?></span><?php endif; ?>
+                        <div class="pf-table-partner">
+                            <div class="pf-table-logo" aria-hidden="true">
+                                <?php if ($logo !== ''): ?>
+                                    <img src="<?php echo htmlspecialchars($logo); ?>" alt="" loading="lazy">
+                                <?php else: ?>
+                                    <i class="fas fa-handshake"></i>
+                                <?php endif; ?>
+                            </div>
+                            <div class="pf-table-partner-text">
+                                <div class="pf-org-name">
+                                    <?php echo htmlspecialchars($name); ?>
+                                    <?php if (!empty($f['is_featured'])): ?><span class="pf-featured-chip pf-featured-inline"><?php echo isEnglish() ? 'Featured' : 'विशेष'; ?></span><?php endif; ?>
+                                </div>
+                                <?php if ($loc !== ''): ?>
+                                <div class="pf-location"><i class="fas fa-location-dot" aria-hidden="true"></i><?php echo htmlspecialchars($loc); ?></div>
+                                <?php endif; ?>
+                                <?php if ($desc !== ''): ?>
+                                <div class="pf-td-desc"><?php echo htmlspecialchars(mb_substr($desc, 0, 110)); ?><?php echo mb_strlen($desc) > 110 ? '…' : ''; ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </td>
                     <td>
-                        <span class="pf-location">
-                            <i class="fas fa-location-dot"></i>
-                            <?php echo htmlspecialchars(($f['location'] ?? '') !== '' ? $f['location'] : '—'); ?>
-                        </span>
-                    </td>
-                    <td>
-                        <?php if (!empty($f['facility_type'])): ?>
-                        <span class="pf-type-badge"><?php echo htmlspecialchars((string)$f['facility_type']); ?></span>
+                        <?php if ($ftype !== ''): ?>
+                        <span class="pf-type-badge"><?php echo htmlspecialchars($ftype); ?></span>
                         <?php else: echo '<span class="pf-muted-dash">—</span>'; endif; ?>
                     </td>
-                    <td class="pf-th-center">
+                    <td>
                         <?php if ($disc !== ''): ?>
-                        <span class="pf-discount-badge"><?php echo htmlspecialchars($disc); ?></span>
+                        <div class="pf-table-offer"><?php echo htmlspecialchars($disc); ?></div>
                         <?php else: ?>
                         <span class="pf-muted-dash-sm">—</span>
                         <?php endif; ?>
                     </td>
                     <td class="pf-td-contact">
                         <?php if ($phone !== ''): ?>
-                            <a href="tel:<?php echo htmlspecialchars(preg_replace('/\s+/', '', $phone)); ?>"><?php echo htmlspecialchars($phone); ?></a>
-                        <?php else: ?>
+                            <a href="tel:<?php echo htmlspecialchars(preg_replace('/\s+/', '', $phone)); ?>"><i class="fas fa-phone me-1" aria-hidden="true"></i><?php echo htmlspecialchars($phone); ?></a>
+                        <?php endif; ?>
+                        <?php if ($email !== ''): ?>
+                            <a href="mailto:<?php echo htmlspecialchars($email); ?>" class="d-block"><i class="fas fa-envelope me-1" aria-hidden="true"></i><?php echo htmlspecialchars($email); ?></a>
+                        <?php endif; ?>
+                        <?php if ($web !== ''): ?>
+                            <a href="<?php echo htmlspecialchars($web); ?>" target="_blank" rel="noopener noreferrer" class="d-block"><i class="fas fa-globe me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?></a>
+                        <?php endif; ?>
+                        <?php if ($phone === '' && $email === '' && $web === ''): ?>
                             <span class="pf-muted-dash">—</span>
                         <?php endif; ?>
                     </td>
-                    <td class="pf-td-desc">
-                        <?php echo $desc !== '' ? nl2br(htmlspecialchars(mb_substr($desc, 0, 160))) : '—'; ?>
+                    <td class="pf-th-action">
+                        <a href="<?php echo htmlspecialchars($verifyHref); ?>" class="pf-btn-verify pf-btn-verify-sm">
+                            <i class="fas fa-shield-halved" aria-hidden="true"></i>
+                            <?php echo isEnglish() ? 'Verify' : 'Verify'; ?>
+                        </a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
                 <tr id="pfNoResult" style="display:none;">
-                    <td colspan="7" class="pf-no-result">
+                    <td colspan="6" class="pf-no-result">
                         <i class="fas fa-search pf-no-result-icon"></i>
                         <?php echo isEnglish() ? 'No partners matched your search.' : 'खोजसँग मिल्ने साझेदार भेटिएन।'; ?>
                     </td>
