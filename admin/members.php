@@ -141,30 +141,59 @@ if ($kycFilter === 'linked') {
 $whereBase = $where;
 $paramsBase = $params;
 
-$cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 1");
-$cntLiveSt->execute($paramsBase);
-$countLiveMembers = (int) $cntLiveSt->fetchColumn();
+$listError = '';
+$countLiveMembers = 0;
+$countArchMembers = 0;
+$totalCount = 0;
+$members = [];
 
-$cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 0");
-$cntArchSt->execute($paramsBase);
-$countArchMembers = (int) $cntArchSt->fetchColumn();
+try {
+    $cntLiveSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 1");
+    $cntLiveSt->execute($paramsBase);
+    $countLiveMembers = (int) $cntLiveSt->fetchColumn();
 
-$where .= $memSub === 'live' ? ' AND is_active = 1' : ' AND is_active = 0';
+    $cntArchSt = $db->prepare("SELECT COUNT(*) FROM members WHERE $whereBase AND is_active = 0");
+    $cntArchSt->execute($paramsBase);
+    $countArchMembers = (int) $cntArchSt->fetchColumn();
 
-$total = $db->prepare("SELECT COUNT(*) FROM members WHERE $where");
-$total->execute($params);
-$totalCount = (int)$total->fetchColumn();
+    $where .= $memSub === 'live' ? ' AND is_active = 1' : ' AND is_active = 0';
 
-$members = $db->prepare("SELECT * FROM members WHERE $where ORDER BY created_at DESC LIMIT ? OFFSET ?");
-$members->execute(array_merge($params, [$limit, $offset]));
-$members = $members->fetchAll(PDO::FETCH_ASSOC);
+    $total = $db->prepare("SELECT COUNT(*) FROM members WHERE $where");
+    $total->execute($params);
+    $totalCount = (int)$total->fetchColumn();
+
+    /* Native PDO prepares (ATTR_EMULATE_PREPARES=false) reject bound LIMIT/OFFSET on MySQL —
+       page dies after admin chrome → blank main area. Embed sanitized ints only. */
+    $limit = max(1, min(100, (int)$limit));
+    $offset = max(0, (int)$offset);
+    if ($totalCount > 0 && $offset >= $totalCount) {
+        $page = max(1, (int)ceil($totalCount / $limit));
+        $offset = ($page - 1) * $limit;
+    }
+
+    $sql = "SELECT * FROM members
+            WHERE $where
+            ORDER BY created_at DESC
+            LIMIT {$limit} OFFSET {$offset}";
+    $st = $db->prepare($sql);
+    $st->execute($params);
+    $members = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+} catch (Throwable $e) {
+    error_log('[admin/members list] ' . $e->getMessage());
+    $listError = 'सदस्य सूची लोड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+    $members = [];
+    $totalCount = 0;
+}
 
 $memPreserveQ = array_filter([
     'search' => $search !== '' ? $search : null,
     'kyc' => $kycFilter !== 'all' ? $kycFilter : null,
 ], static fn ($v) => $v !== null && $v !== '');
 
-$totalPages = max(1, ceil($totalCount / $limit));
+$totalPages = max(1, (int)ceil(max(1, $totalCount) / $limit));
+if ($totalCount === 0) {
+    $totalPages = 1;
+}
 
 /* Stats — single scan of members */
 $stats = ['total'=>0,'active'=>0,'pending'=>0,'renewal'=>0,'kyc_linked'=>0,'google'=>0,'facebook'=>0];
@@ -197,6 +226,10 @@ try {
 
 <?php if ($flash = getFlash()): ?>
 <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<?php endif; ?>
+
+<?php if ($listError !== ''): ?>
+<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($listError, ENT_QUOTES, 'UTF-8'); ?></div>
 <?php endif; ?>
 
 
@@ -540,8 +573,27 @@ try {
         <?php if (empty($members)): ?>
         <div class="text-center text-muted py-5 px-3">
             <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
-            <div><?php echo $search !== '' ? "'" . htmlspecialchars($search, ENT_QUOTES, 'UTF-8') . "' फेला परेन।" : ($memSub === 'arch' ? 'अभिलेखमा कुनै सदस्य छैन।' : 'अहिलेसम्म कुनै सक्रिय Member छैन।'); ?></div>
-            <small class="text-muted mt-1 d-block">
+            <div><?php
+                if ($listError !== '') {
+                    echo 'सूची अहिले देखाइएन।';
+                } elseif ($search !== '') {
+                    echo "'" . htmlspecialchars($search, ENT_QUOTES, 'UTF-8') . "' फेला परेन।";
+                } elseif ($memSub === 'arch') {
+                    echo 'अभिलेखमा कुनै सदस्य छैन।';
+                } elseif ($countArchMembers > 0) {
+                    echo 'सक्रिय सूची खाली छ — ' . (int)$countArchMembers . ' जना अभिलेख (निष्क्रिय) ट्याबमा छन्।';
+                } else {
+                    echo 'अहिलेसम्म कुनै सक्रिय Member छैन।';
+                }
+            ?></div>
+            <?php if ($memSub === 'live' && $countArchMembers > 0 && $listError === ''): ?>
+            <div class="mt-2">
+                <a class="btn btn-sm btn-outline-secondary" href="members.php?mem_sub=arch<?php echo $search !== '' ? '&search=' . urlencode($search) : ''; ?>">
+                    अभिलेख हेर्नुहोस् (<?php echo (int)$countArchMembers; ?>)
+                </a>
+            </div>
+            <?php endif; ?>
+            <small class="text-muted mt-2 d-block">
                 थप्न: <a href="member-import.php">Bulk Import</a>
                 · नयाँ व्यक्ति: <a href="membership-applications.php">सदस्यता अनुरोध</a>
                 · कागजात: <a href="kyc-applications.php">KYM</a>
@@ -558,21 +610,23 @@ try {
                 <tbody>
                 <?php foreach ($members as $i => $m):
                     $ssotCode = function_exists('memberSsotStatusForMemberRow') ? memberSsotStatusForMemberRow($m) : 'unknown';
+                    $mName = trim((string)($m['name'] ?? ''));
+                    $mInitial = $mName !== '' ? mb_substr($mName, 0, 1, 'UTF-8') : '?';
                 ?>
                 <tr>
                     <td class="text-muted small"><?php echo $offset + $i + 1; ?></td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <?php if ($m['avatar_url']): ?>
-                            <img src="<?php echo htmlspecialchars($m['avatar_url']); ?>" class="rounded-circle mem-avatar-sm">
+                            <?php if (!empty($m['avatar_url'])): ?>
+                            <img src="<?php echo htmlspecialchars((string)$m['avatar_url'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded-circle mem-avatar-sm" alt="">
                             <?php else: ?>
                             <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold mem-avatar-fallback-sm">
-                                <?php echo mb_substr($m['name'],0,1); ?>
+                                <?php echo htmlspecialchars($mInitial, ENT_QUOTES, 'UTF-8'); ?>
                             </div>
                             <?php endif; ?>
                             <div>
-                                <div class="fw-bold small"><?php echo htmlspecialchars($m['name']); ?></div>
-                                <div class="text-muted mem-email-xs"><?php echo htmlspecialchars($m['email'] ?? '—'); ?></div>
+                                <div class="fw-bold small"><?php echo htmlspecialchars($mName !== '' ? $mName : '—', ENT_QUOTES, 'UTF-8'); ?></div>
+                                <div class="text-muted mem-email-xs"><?php echo htmlspecialchars((string)($m['email'] ?? '') !== '' ? (string)$m['email'] : '—', ENT_QUOTES, 'UTF-8'); ?></div>
                             </div>
                         </div>
                     </td>
