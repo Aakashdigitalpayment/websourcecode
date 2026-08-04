@@ -186,6 +186,74 @@ if (!function_exists('programEventDateToAd')) {
     }
 }
 
+/** BS (or AD) date + H:i → AD MySQL DATETIME for QR window storage. */
+if (!function_exists('programCombineBsDateTime')) {
+    function programCombineBsDateTime(string $dateIn, string $timeIn): string
+    {
+        $dateIn = trim($dateIn);
+        $timeIn = trim($timeIn);
+        if ($dateIn === '') {
+            return '';
+        }
+        if ($timeIn === '') {
+            $timeIn = '00:00:00';
+        }
+        if (!preg_match('/^\d{1,2}:\d{2}(:\d{2})?$/', $timeIn)) {
+            return '';
+        }
+        if (substr_count($timeIn, ':') === 1) {
+            $timeIn .= ':00';
+        }
+        $datePart = substr($dateIn, 0, 10);
+        if (!preg_match('/^(\d{4})-\d{2}-\d{2}$/', $datePart, $m)) {
+            return '';
+        }
+        $y = (int)$m[1];
+        if ($y >= 2070 && function_exists('bsToAd')) {
+            $ad = trim((string)bsToAd($datePart));
+            $ad = preg_match('/^\d{4}-\d{2}-\d{2}/', $ad) ? substr($ad, 0, 10) : '';
+        } else {
+            $ad = $datePart;
+        }
+        if ($ad === '') {
+            return '';
+        }
+        $ts = strtotime($ad . ' ' . $timeIn);
+        return $ts ? date('Y-m-d H:i:s', $ts) : '';
+    }
+}
+
+/** Stored AD DATETIME → BS Y-m-d for nepali-datepicker display. */
+if (!function_exists('programMysqlDtToBsDate')) {
+    function programMysqlDtToBsDate(?string $mysqlDt): string
+    {
+        if (!$mysqlDt) {
+            return '';
+        }
+        $ad = substr((string)$mysqlDt, 0, 10);
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+            return '';
+        }
+        if (function_exists('adToBs')) {
+            $bs = trim((string)adToBs($ad));
+            if (preg_match('/^\d{4}-\d{2}-\d{2}/', $bs)) {
+                return substr($bs, 0, 10);
+            }
+        }
+        return $ad;
+    }
+}
+
+if (!function_exists('programMysqlDtToTime')) {
+    function programMysqlDtToTime(?string $mysqlDt, string $fallback = '00:00'): string
+    {
+        if (!$mysqlDt || strlen((string)$mysqlDt) < 16) {
+            return $fallback;
+        }
+        return substr((string)$mysqlDt, 11, 5) ?: $fallback;
+    }
+}
+
 /** Admin UI मा attendance request source लेबल */
 if (!function_exists('programAttendanceSourceLabel')) {
     function programAttendanceSourceLabel(?string $source): string
