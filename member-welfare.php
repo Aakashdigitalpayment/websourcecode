@@ -194,7 +194,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (Exception $ignored) {}
 
             } catch (Exception $e) {
-                $error = isEnglish() ? 'Failed to submit claim: ' . $e->getMessage() : 'दाबी दर्ता गर्न सकिएन: ' . $e->getMessage();
+                if ($e->getMessage() === 'DOC_REQUIRED') {
+                    $error = isEnglish()
+                        ? 'Please attach supporting documents for this claim type.'
+                        : 'यो दाबी प्रकारको लागि सहयोगी कागजात अनिवार्य छ।';
+                } else {
+                    $error = isEnglish() ? 'Failed to submit claim: ' . $e->getMessage() : 'दाबी दर्ता गर्न सकिएन: ' . $e->getMessage();
+                }
             }
         }
     }
@@ -386,7 +392,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="claim-type-selector">
                                 <?php foreach ($claimTypes as $key => $type): ?>
                                 <label class="type-option">
-                                    <input type="radio" name="claim_type" value="<?php echo $key; ?>" <?php echo ($_POST['claim_type'] ?? '') === $key ? 'checked' : ''; ?> required onchange="showTypeFields('<?php echo $key; ?>')">
+                                    <input type="radio" name="claim_type" value="<?php echo $key; ?>"
+                                           data-doc="<?php echo !empty($type['requires_document']) ? '1' : '0'; ?>"
+                                           <?php echo ($_POST['claim_type'] ?? '') === $key ? 'checked' : ''; ?>
+                                           required onchange="showTypeFields('<?php echo $key; ?>')">
                                     <span class="type-box" style="--type-color: <?php echo $type['color']; ?>">
                                         <i class="fas <?php echo $type['icon']; ?>"></i>
                                         <span><?php echo isEnglish() ? $type['en'] : $type['np']; ?></span>
@@ -570,8 +579,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="number" name="claim_amount" class="form-control" min="0" step="0.01" value="<?php echo e($_POST['claim_amount'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Supporting Documents' : 'सहयोगी कागजात'; ?></label>
-                                    <input type="file" name="documents[]" class="form-control" multiple accept="image/*,.pdf,.doc,.docx">
+                                    <label class="form-label" id="wlfDocLabel">
+                                        <?php echo isEnglish() ? 'Supporting Documents' : 'सहयोगी कागजात'; ?>
+                                        <small class="text-muted" id="wlfDocHint">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
+                                        <span class="text-danger" id="wlfDocReq" style="display:none;">*</span>
+                                    </label>
+                                    <input type="file" name="documents[]" id="wlfDocuments" class="form-control" multiple accept="image/*,.pdf,.doc,.docx">
                                 </div>
                                 <div class="col-12 mb-3">
                                     <label class="form-label"><?php echo isEnglish() ? 'Description' : 'विवरण'; ?></label>
@@ -613,6 +626,26 @@ foreach ($claimTypes as $__k => $__t) {
 }
 echo json_encode($__profiles, JSON_UNESCAPED_UNICODE);
 ?>;
+var claimTypeDocs = <?php
+$__docs = [];
+foreach ($claimTypes as $__k => $__t) {
+    $__docs[$__k] = !empty($__t['requires_document']) ? 1 : 0;
+}
+echo json_encode($__docs, JSON_UNESCAPED_UNICODE);
+?>;
+
+function updateDocRequired(type) {
+    var needDoc = !!(claimTypeDocs && claimTypeDocs[type]);
+    var input = document.getElementById('wlfDocuments');
+    var hint = document.getElementById('wlfDocHint');
+    var req = document.getElementById('wlfDocReq');
+    if (input) {
+        if (needDoc) input.setAttribute('required', 'required');
+        else input.removeAttribute('required');
+    }
+    if (hint) hint.style.display = needDoc ? 'none' : '';
+    if (req) req.style.display = needDoc ? '' : 'none';
+}
 
 function showTypeFields(type) {
     document.querySelectorAll('.type-fields').forEach(el => {
@@ -645,6 +678,7 @@ function showTypeFields(type) {
         default:
             break;
     }
+    updateDocRequired(type);
 }
 
 // Initialize on page load
