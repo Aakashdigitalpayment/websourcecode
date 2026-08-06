@@ -645,57 +645,24 @@ if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDive
 
                 <div class="tab-pane fade" id="memTabKyc" role="tabpanel">
                     <?php if ($viewKyc): ?>
-                    <div class="alert alert-light border small mb-3">
-                        <i class="fas fa-info-circle me-1 text-success"></i>
-                        यहाँ KYM को मुख्य विवरण <strong>हेर्न</strong> मात्र — नागरिकता, बाबु/आमा, AML जस्ता गहन फिल्ड
-                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>">KYM पृष्ठ</a> बाट सुरक्षित सम्पादन गर्नुहोस्।
+                    <div class="alert alert-info border-0 small mb-3">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>KYM विवरण</strong> (नागरिकता, परिवार, AML, कागजात) →
+                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>&from_member=<?php echo (int)$viewMember['id']; ?>#kycProfileEdit">KYM सम्पादन पृष्ठ</a> बाट सच्याउनुहोस्।
+                        यहाँ preview मात्र — save यो form बाट हुँदैन।
                     </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">KYM स्थिति</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['status'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">Tracking ID</label>
-                            <div class="form-control bg-light"><code><?php echo htmlspecialchars((string)($viewKyc['tracking_id'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></code></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">नागरिकता नं.</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['citizenship_no'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">पेशा</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['occupation'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">बाबुको नाम</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['father_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">आमाको नाम</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['mother_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">हजुरबुबाको नाम</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['grandfather_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">पति/पत्नी</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['spouse_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">स्थायी ठेगाना (KYM)</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['permanent_address'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted">अस्थायी ठेगाना (KYM)</label>
-                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['temporary_address'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        </div>
+                    <div class="row g-2 small">
+                        <div class="col-md-4"><span class="text-muted">स्थिति:</span> <?php echo htmlspecialchars((string)($viewKyc['status'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="col-md-4"><span class="text-muted">नागरिकता:</span> <?php echo htmlspecialchars((string)($viewKyc['citizenship_no'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="col-md-4"><span class="text-muted">पेशा:</span> <?php echo htmlspecialchars((string)($viewKyc['occupation'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="col-md-6"><span class="text-muted">बाबु:</span> <?php echo htmlspecialchars((string)($viewKyc['father_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        <div class="col-md-6"><span class="text-muted">आमा:</span> <?php echo htmlspecialchars((string)($viewKyc['mother_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
                     </div>
-                    <div class="mt-3">
-                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>" class="btn btn-outline-primary">
-                            <i class="fas fa-id-card me-1"></i>पूरा KYM सम्पादन खोल्नुहोस्
+                    <div class="mt-3 d-flex flex-wrap gap-2">
+                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>&from_member=<?php echo (int)$viewMember['id']; ?>#kycProfileEdit" class="btn btn-primary">
+                            <i class="fas fa-id-card me-1"></i>KYM सम्पादन खोल्नुहोस्
                         </a>
+                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>" class="btn btn-outline-secondary btn-sm">KYM विवरण (view)</a>
                     </div>
                     <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
                     <div class="text-center text-muted py-4">

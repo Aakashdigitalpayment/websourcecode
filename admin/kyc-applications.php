@@ -347,6 +347,116 @@ if (isset($_POST['ssot_create_member'])) {
     redirect('kyc-applications.php?' . $backQs);
 }
 
+/* ─── KYM profile fields (admin correction — syncs shared fields to Members) ─── */
+if (isset($_POST['update_kyc_profile'])) {
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id < 1) {
+        setFlash('error', 'अमान्य KYM।');
+        redirect('kyc-applications.php');
+    }
+
+    $fullName = mb_substr(trim(clean_text($_POST['full_name'] ?? '')), 0, 200);
+    if ($fullName === '') {
+        setFlash('error', 'पूरा नाम अनिवार्य छ।');
+        redirect('kyc-applications.php?view=' . $id . '#kycProfileEdit');
+    }
+
+    $fullNameEn = mb_substr(trim(clean_text($_POST['full_name_en'] ?? '')), 0, 200);
+    $mobile = preg_replace('/[^0-9]/', '', (string)($_POST['mobile'] ?? ''));
+    if (strlen($mobile) > 10 && str_starts_with($mobile, '977')) {
+        $mobile = substr($mobile, -10);
+    }
+    $email = strtolower(trim((string)($_POST['email'] ?? '')));
+    $email = ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : '';
+
+    $permAddr = mb_substr(trim(clean_text($_POST['permanent_address'] ?? '')), 0, 500);
+    $tempAddr = mb_substr(trim(clean_text($_POST['temporary_address'] ?? '')), 0, 500);
+
+    $genderRaw = strtolower(trim((string)($_POST['gender'] ?? '')));
+    $gender = in_array($genderRaw, ['male', 'female', 'other'], true) ? $genderRaw : '';
+
+    $dobAd = trim((string)($_POST['dob_ad'] ?? ''));
+    if ($dobAd !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dobAd)) {
+        $dobAd = '';
+    }
+    $dobBs = mb_substr(trim(clean_text($_POST['dob_bs'] ?? '')), 0, 20);
+
+    $maritalRaw = strtolower(trim((string)($_POST['marital_status'] ?? '')));
+    $marital = in_array($maritalRaw, ['single', 'married', 'divorced', 'widowed'], true) ? $maritalRaw : '';
+    $nationality = mb_substr(trim(clean_text($_POST['nationality'] ?? '')), 0, 100);
+
+    $citNo = mb_substr(trim(clean_text($_POST['citizenship_no'] ?? '')), 0, 50);
+    $citDate = mb_substr(trim(clean_text($_POST['citizenship_issued_date'] ?? '')), 0, 50);
+    $citPlace = mb_substr(trim(clean_text($_POST['citizenship_issued_place'] ?? '')), 0, 200);
+    $nid = mb_substr(trim(clean_text($_POST['national_id_number'] ?? '')), 0, 50);
+
+    $father = mb_substr(trim(clean_text($_POST['father_name'] ?? '')), 0, 200);
+    $mother = mb_substr(trim(clean_text($_POST['mother_name'] ?? '')), 0, 200);
+    $grandfather = mb_substr(trim(clean_text($_POST['grandfather_name'] ?? '')), 0, 200);
+    $spouse = mb_substr(trim(clean_text($_POST['spouse_name'] ?? '')), 0, 200);
+
+    $occupation = mb_substr(trim(clean_text($_POST['occupation'] ?? '')), 0, 200);
+    $organization = mb_substr(trim(clean_text($_POST['organization_name'] ?? '')), 0, 200);
+    $monthlyIncome = mb_substr(trim(clean_text($_POST['monthly_income'] ?? '')), 0, 100);
+
+    try {
+        $db->prepare(
+            "UPDATE kyc_applications SET
+                full_name=?, full_name_en=?, mobile=?, email=?,
+                permanent_address=?, temporary_address=?,
+                gender=?, dob_ad=?, dob_bs=?, marital_status=?, nationality=?,
+                citizenship_no=?, citizenship_issued_date=?, citizenship_issued_place=?,
+                national_id_number=?,
+                father_name=?, mother_name=?, grandfather_name=?, spouse_name=?,
+                occupation=?, organization_name=?, monthly_income=?,
+                updated_at=NOW()
+             WHERE id=?"
+        )->execute([
+            $fullName,
+            $fullNameEn !== '' ? $fullNameEn : null,
+            $mobile !== '' ? $mobile : null,
+            $email !== '' ? $email : null,
+            $permAddr !== '' ? $permAddr : null,
+            $tempAddr !== '' ? $tempAddr : null,
+            $gender !== '' ? $gender : null,
+            $dobAd !== '' ? $dobAd : null,
+            $dobBs !== '' ? $dobBs : null,
+            $marital !== '' ? $marital : null,
+            $nationality !== '' ? $nationality : null,
+            $citNo !== '' ? $citNo : null,
+            $citDate !== '' ? $citDate : null,
+            $citPlace !== '' ? $citPlace : null,
+            $nid !== '' ? $nid : null,
+            $father !== '' ? $father : null,
+            $mother !== '' ? $mother : null,
+            $grandfather !== '' ? $grandfather : null,
+            $spouse !== '' ? $spouse : null,
+            $occupation !== '' ? $occupation : null,
+            $organization !== '' ? $organization : null,
+            $monthlyIncome !== '' ? $monthlyIncome : null,
+            $id,
+        ]);
+
+        if (function_exists('memberSsotAfterKycWrite')) {
+            memberSsotAfterKycWrite($db, $id);
+        }
+        if (function_exists('writeAuditLog')) {
+            writeAuditLog('kyc_profile_update', 'Admin updated KYM profile (synced to member): ' . $fullName, 'kyc', $id);
+        }
+        setFlash('success', 'KYM विवरण अपडेट भयो। नाम/मोबाइल/इमेल/ठेगाना Members मा sync भयो।');
+    } catch (Throwable $e) {
+        error_log('[kyc update_kyc_profile] ' . $e->getMessage());
+        setFlash('error', 'KYM विवरण अपडेट गर्न सकिएन।');
+    }
+
+    $fromMember = (int)($_POST['from_member'] ?? 0);
+    $redir = 'kyc-applications.php?view=' . $id . '#kycProfileEdit';
+    if ($fromMember > 0) {
+        $redir .= '&from_member=' . $fromMember;
+    }
+    redirect($redir);
+}
+
 /* ─── Status Update ─── */
 if (isset($_POST['update_status'])) {
     $id      = (int)$_POST['id'];
@@ -683,8 +793,18 @@ if (isset($_GET['view'])) {
     if (!$viewApp) { setFlash('error', 'आवेदन फेला परेन।'); redirect('kyc-applications.php'); }
 }
 $kycHistory = [];
+$viewLinkedMember = null;
+$kycSsotDivergent = [];
+$kycFromMemberId = isset($_GET['from_member']) ? (int)$_GET['from_member'] : 0;
 if ($viewApp && !empty($viewApp['id'])) {
     try { $kycHistory = fetchRequestStatusHistory($db, 'kyc', (int)$viewApp['id'], 40); } catch (Exception $e) { $kycHistory = []; }
+    $linkedMid = trim((string)($viewApp['member_id'] ?? ''));
+    if ($linkedMid !== '' && function_exists('memberSsotFindBySadasyata')) {
+        $viewLinkedMember = memberSsotFindBySadasyata($db, $linkedMid);
+        if ($viewLinkedMember && function_exists('memberSsotCompareSharedContact')) {
+            $kycSsotDivergent = memberSsotCompareSharedContact($viewLinkedMember, $viewApp);
+        }
+    }
 }
 
 $statusClass = ['pending'=>'warning','approved'=>'success','rejected'=>'danger','incomplete'=>'secondary','partial'=>'info'];
@@ -708,6 +828,18 @@ $flash = getFlash(); if ($flash) echo adminAlert($flash['type'] === 'success' ? 
 if (function_exists('memberSsotAdminHelpHtml')) {
     echo memberSsotAdminHelpHtml('kyc');
 }
+
+if ($viewApp && $kycSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')) {
+    echo memberSsotDivergenceAlertHtml($kycSsotDivergent);
+}
+
+if ($viewApp && $kycFromMemberId > 0): ?>
+<div class="mb-3">
+    <a href="members.php?view=<?php echo $kycFromMemberId; ?>" class="btn btn-sm btn-outline-secondary">
+        <i class="fas fa-arrow-left me-1"></i>Member विवरणमा फर्कनुहोस्
+    </a>
+</div>
+<?php endif;
 
 /* ═══════════════════════════════════
    SINGLE DETAIL VIEW
@@ -1163,12 +1295,202 @@ if ($viewApp):
             </script>
 
 
-            <!-- ── RIGHT: Status Update Form ── -->
+            <!-- ── RIGHT: KYM Edit + Status ── -->
             <div class="col-lg-5">
                 <?php
                 $viewSsot = function_exists('memberSsotStatusForKycRow') ? memberSsotStatusForKycRow($db, $viewApp) : 'unknown';
                 $viewMid = trim((string)($viewApp['member_id'] ?? ''));
+                $kycGender = strtolower(trim((string)($viewApp['gender'] ?? '')));
+                if (!in_array($kycGender, ['male', 'female', 'other'], true)) {
+                    $kycGender = '';
+                }
+                $kycMarital = strtolower(trim((string)($viewApp['marital_status'] ?? '')));
+                if (!in_array($kycMarital, ['single', 'married', 'divorced', 'widowed'], true)) {
+                    $kycMarital = '';
+                }
+                $kycDobAd = trim((string)($viewApp['dob_ad'] ?? ''));
+                $kycDobAd = ($kycDobAd !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $kycDobAd)) ? $kycDobAd : '';
                 ?>
+                <div class="card border-0 shadow-sm mb-3" id="kycProfileEdit">
+                    <div class="card-header bg-white py-2 fw-bold text-primary">
+                        <i class="fas fa-user-pen me-1"></i>KYM विवरण सम्पादन
+                    </div>
+                    <div class="card-body">
+                        <div class="small text-muted mb-3">
+                            नागरिकता, परिवार, ठेगाना, पेशा — यहीँ सच्याउनुहोस्। Save पछि नाम/मोबाइल/इमेल/ठेगाना Members मा sync हुन्छ।
+                            Member ID / status तलको form बाट।
+                        </div>
+                        <form method="POST">
+                            <?php echo csrfField(); ?>
+                            <input type="hidden" name="update_kyc_profile" value="1">
+                            <input type="hidden" name="id" value="<?php echo (int)$viewApp['id']; ?>">
+                            <?php if ($kycFromMemberId > 0): ?>
+                            <input type="hidden" name="from_member" value="<?php echo $kycFromMemberId; ?>">
+                            <?php endif; ?>
+
+                            <ul class="nav nav-tabs admin-nav-tabs mb-3" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" type="button" data-bs-toggle="tab" data-bs-target="#kycEditPersonal" role="tab">व्यक्तिगत</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#kycEditFamily" role="tab">परिवार</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#kycEditAddress" role="tab">ठेगाना</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#kycEditId" role="tab">पहिचान</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#kycEditWork" role="tab">पेशा</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content">
+                                <div class="tab-pane fade show active" id="kycEditPersonal" role="tabpanel">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">पूरा नाम <span class="text-danger">*</span></label>
+                                        <input type="text" name="full_name" class="form-control form-control-sm" required maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['full_name'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">Full Name (EN)</label>
+                                        <input type="text" name="full_name_en" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['full_name_en'] ?? '')); ?>">
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">मोबाइल</label>
+                                            <input type="tel" name="mobile" class="form-control form-control-sm" maxlength="20"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['mobile'] ?? '')); ?>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">इमेल</label>
+                                            <input type="email" name="email" class="form-control form-control-sm" maxlength="200"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['email'] ?? '')); ?>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">लिङ्ग</label>
+                                            <select name="gender" class="form-select form-select-sm">
+                                                <option value=""<?php echo $kycGender === '' ? ' selected' : ''; ?>>—</option>
+                                                <option value="male"<?php echo $kycGender === 'male' ? ' selected' : ''; ?>>पुरुष</option>
+                                                <option value="female"<?php echo $kycGender === 'female' ? ' selected' : ''; ?>>महिला</option>
+                                                <option value="other"<?php echo $kycGender === 'other' ? ' selected' : ''; ?>>अन्य</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">वैवाहिक स्थिति</label>
+                                            <select name="marital_status" class="form-select form-select-sm">
+                                                <option value=""<?php echo $kycMarital === '' ? ' selected' : ''; ?>>—</option>
+                                                <option value="single"<?php echo $kycMarital === 'single' ? ' selected' : ''; ?>>अविवाहित</option>
+                                                <option value="married"<?php echo $kycMarital === 'married' ? ' selected' : ''; ?>>विवाहित</option>
+                                                <option value="divorced"<?php echo $kycMarital === 'divorced' ? ' selected' : ''; ?>>सम्बन्ध विच्छेद</option>
+                                                <option value="widowed"<?php echo $kycMarital === 'widowed' ? ' selected' : ''; ?>>विधुर/विधुरा</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">जन्म मिति (AD)</label>
+                                            <input type="date" name="dob_ad" class="form-control form-control-sm" value="<?php echo htmlspecialchars($kycDobAd); ?>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">जन्म मिति (BS)</label>
+                                            <input type="text" name="dob_bs" class="form-control form-control-sm" maxlength="20"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['dob_bs'] ?? '')); ?>">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label fw-semibold small">राष्ट्रियता</label>
+                                            <input type="text" name="nationality" class="form-control form-control-sm" maxlength="100"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['nationality'] ?? '')); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="kycEditFamily" role="tabpanel">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">बाबुको नाम</label>
+                                        <input type="text" name="father_name" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['father_name'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">आमाको नाम</label>
+                                        <input type="text" name="mother_name" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['mother_name'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">हजुरबुबाको नाम</label>
+                                        <input type="text" name="grandfather_name" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['grandfather_name'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">पति/पत्नी</label>
+                                        <input type="text" name="spouse_name" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['spouse_name'] ?? '')); ?>">
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="kycEditAddress" role="tabpanel">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">स्थायी ठेगाना</label>
+                                        <textarea name="permanent_address" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['permanent_address'] ?? '')); ?></textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">अस्थायी ठेगाना</label>
+                                        <textarea name="temporary_address" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['temporary_address'] ?? '')); ?></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="kycEditId" role="tabpanel">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">नागरिकता नं.</label>
+                                        <input type="text" name="citizenship_no" class="form-control form-control-sm" maxlength="50"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['citizenship_no'] ?? '')); ?>">
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">जारी मिति</label>
+                                            <input type="text" name="citizenship_issued_date" class="form-control form-control-sm" maxlength="50"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['citizenship_issued_date'] ?? '')); ?>">
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="form-label fw-semibold small">जारी जिल्ला</label>
+                                            <input type="text" name="citizenship_issued_place" class="form-control form-control-sm" maxlength="200"
+                                                   value="<?php echo htmlspecialchars((string)($viewApp['citizenship_issued_place'] ?? '')); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 mt-2">
+                                        <label class="form-label fw-semibold small">National ID नं.</label>
+                                        <input type="text" name="national_id_number" class="form-control form-control-sm" maxlength="50"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['national_id_number'] ?? '')); ?>">
+                                    </div>
+                                </div>
+
+                                <div class="tab-pane fade" id="kycEditWork" role="tabpanel">
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">पेशा</label>
+                                        <input type="text" name="occupation" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['occupation'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">संस्था / व्यवसाय</label>
+                                        <input type="text" name="organization_name" class="form-control form-control-sm" maxlength="200"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['organization_name'] ?? '')); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label fw-semibold small">मासिक आय</label>
+                                        <input type="text" name="monthly_income" class="form-control form-control-sm" maxlength="100"
+                                               value="<?php echo htmlspecialchars((string)($viewApp['monthly_income'] ?? '')); ?>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-3 pt-2 border-top">
+                                <button type="submit" class="btn btn-primary btn-sm px-3">
+                                    <i class="fas fa-save me-1"></i>KYM विवरण सुरक्षित
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
                 <div class="card border-0 shadow-sm mb-3">
                     <div class="card-header bg-white py-2 fw-bold small text-success">
                         <i class="fas fa-link me-1"></i>Member ID SSOT

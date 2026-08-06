@@ -1300,9 +1300,8 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
             . 'CBS Import एक पटक → stub → online/portal भर्ने।';
         $body = $flow;
         if ($context === 'kyc') {
-            $body = '<strong>दिशा:</strong> पहिले Member → अनि KYM। '
-                . '<strong>सच्याउने ठाउँ = KYM</strong> (admin / online / portal) — नाम/मोबाइल/इमेल members मा <em>auto sync</em>, फरक रहँदैन। '
-                . 'यो पेज = समीक्षा/approve। KYM Excel import छैन।';
+            $body = '<strong>सच्याउने ठाउँ = KYM पृष्ठ</strong> — दायाँतर्फ <em>KYM विवरण सम्पादन</em> (tab: व्यक्तिगत/परिवार/ठेगाना/पहिचान/पेशा)। '
+                . 'Save पछि shared fields Members मा auto sync। Member ID / approve = तलको status form।';
         } elseif ($context === 'portal') {
             $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {
