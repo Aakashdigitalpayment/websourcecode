@@ -1290,6 +1290,35 @@ if (!function_exists('memberSsotDivergenceAlertHtml')) {
     }
 }
 
+if (!function_exists('memberSsotEditGuideHtml')) {
+    /**
+     * Compact “where to edit what” — reduces Member vs KYM duplicate confusion.
+     */
+    function memberSsotEditGuideHtml(string $context = 'member'): string
+    {
+        if ($context === 'kyc') {
+            $rows = [
+                ['fas fa-user-pen text-primary', 'KYM विवरण सम्पादन (माथि)', 'नाम, mobile, email, ठेगाना, नागरिकता, परिवार, पेशा'],
+                ['fas fa-check-circle text-success', 'स्थिति / Approve (तल)', 'approve/reject, Member ID, risk, कागजात attach'],
+                ['fas fa-user-tag text-secondary', 'Member पृष्ठ', 'import correction / portal-only — Members edit'],
+            ];
+        } else {
+            $rows = [
+                ['fas fa-address-book text-primary', 'Member सम्पादन (यहीँ)', 'नाम, mobile, email, ठेगाना, लिङ्ग, DOB → KYM sync'],
+                ['fas fa-id-card text-success', 'KYM पृष्ठ', 'नागरिकता, परिवार, AML, कागजात — Members मा auto sync'],
+            ];
+        }
+        $lis = '';
+        foreach ($rows as [$icon, $title, $desc]) {
+            $lis .= '<li class="mb-1"><i class="' . $icon . ' me-1"></i><strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</strong>'
+                . ' — ' . htmlspecialchars($desc, ENT_QUOTES, 'UTF-8') . '</li>';
+        }
+        return '<div class="alert alert-light border small py-2 px-3 mb-3 member-ssot-edit-guide" role="note">'
+            . '<div class="fw-semibold mb-1"><i class="fas fa-map-signs me-1"></i>कहाँ के सम्पादन? (duplicate छैन)</div>'
+            . '<ul class="mb-0 ps-3">' . $lis . '</ul></div>';
+    }
+}
+
 if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {

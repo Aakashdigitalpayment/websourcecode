@@ -468,8 +468,6 @@ if (isset($_POST['update_status'])) {
     $riskCategory = strtolower(trim((string)($_POST['risk_category'] ?? 'medium')));
     if (!in_array($riskCategory, ['low','medium','high'], true)) $riskCategory = 'medium';
     $editMemberId = strtoupper(trim(clean_text($_POST['member_id'] ?? '')));
-    $editMobile = preg_replace('/[^0-9]/', '', (string)($_POST['mobile'] ?? ''));
-    $editEmail  = strtolower(trim((string)($_POST['email'] ?? '')));
     $newFile = adminUploadFile('admin_attachment');
     $oldStatus = '';
     $notifyOptIn = !empty($_POST['notify_member']) && $_POST['notify_member'] === '1';
@@ -486,14 +484,6 @@ if (isset($_POST['update_status'])) {
 
     if ($editMemberId === '') {
         setFlash('error', 'Member ID खाली राख्न मिल्दैन।');
-        redirect('kyc-applications.php?view=' . $id);
-    }
-    if ($editMobile !== '' && (strlen($editMobile) < 7 || strlen($editMobile) > 15)) {
-        setFlash('error', 'मोबाइल नम्बर मान्य छैन।');
-        redirect('kyc-applications.php?view=' . $id);
-    }
-    if ($editEmail !== '' && !filter_var($editEmail, FILTER_VALIDATE_EMAIL)) {
-        setFlash('error', 'इमेल ठेगाना मान्य छैन।');
         redirect('kyc-applications.php?view=' . $id);
     }
 
@@ -513,7 +503,7 @@ if (isset($_POST['update_status'])) {
     try {
         if ($newFile) {
             $stmt = $db->prepare("UPDATE kyc_applications
-                                  SET status=?, remarks=?, member_id=?, mobile=?, email=?, risk_category=?, admin_attachment=?, updated_at=NOW(),
+                                  SET status=?, remarks=?, member_id=?, risk_category=?, admin_attachment=?, updated_at=NOW(),
                                       kyc_verified_at = CASE WHEN ?='approved' AND kyc_verified_at IS NULL THEN NOW() WHEN ?<>'approved' THEN NULL ELSE kyc_verified_at END,
                                       risk_review_due_at = CASE
                                           WHEN ?='approved' THEN DATE_ADD(DATE(COALESCE(kyc_verified_at, NOW())), INTERVAL (CASE WHEN ?='high' THEN 1 WHEN ?='low' THEN 3 ELSE 2 END) YEAR)
@@ -524,10 +514,10 @@ if (isset($_POST['update_status'])) {
                                               THEN 'due_review' ELSE 'normal' END)
                                           ELSE 'normal' END
                                   WHERE id=?");
-            $stmt->execute([$status, $remarks, $editMemberId, $editMobile ?: null, $editEmail ?: null, $riskCategory, $newFile, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
+            $stmt->execute([$status, $remarks, $editMemberId, $riskCategory, $newFile, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
         } else {
             $stmt = $db->prepare("UPDATE kyc_applications
-                                  SET status=?, remarks=?, member_id=?, mobile=?, email=?, risk_category=?, updated_at=NOW(),
+                                  SET status=?, remarks=?, member_id=?, risk_category=?, updated_at=NOW(),
                                       kyc_verified_at = CASE WHEN ?='approved' AND kyc_verified_at IS NULL THEN NOW() WHEN ?<>'approved' THEN NULL ELSE kyc_verified_at END,
                                       risk_review_due_at = CASE
                                           WHEN ?='approved' THEN DATE_ADD(DATE(COALESCE(kyc_verified_at, NOW())), INTERVAL (CASE WHEN ?='high' THEN 1 WHEN ?='low' THEN 3 ELSE 2 END) YEAR)
@@ -538,7 +528,7 @@ if (isset($_POST['update_status'])) {
                                               THEN 'due_review' ELSE 'normal' END)
                                           ELSE 'normal' END
                                   WHERE id=?");
-            $stmt->execute([$status, $remarks, $editMemberId, $editMobile ?: null, $editEmail ?: null, $riskCategory, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
+            $stmt->execute([$status, $remarks, $editMemberId, $riskCategory, $status, $status, $status, $riskCategory, $riskCategory, $status, $riskCategory, $riskCategory, $id]);
         }
         /* Member लाई status notification — email/SMS */
         try {
@@ -1317,10 +1307,9 @@ if ($viewApp):
                         <i class="fas fa-user-pen me-1"></i>KYM विवरण सम्पादन
                     </div>
                     <div class="card-body">
-                        <div class="small text-muted mb-3">
-                            नागरिकता, परिवार, ठेगाना, पेशा — यहीँ सच्याउनुहोस्। Save पछि नाम/मोबाइल/इमेल/ठेगाना Members मा sync हुन्छ।
-                            Member ID / status तलको form बाट।
-                        </div>
+                        <?php if (function_exists('memberSsotEditGuideHtml')) {
+                            echo memberSsotEditGuideHtml('kyc');
+                        } ?>
                         <form method="POST">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="update_kyc_profile" value="1">
@@ -1522,7 +1511,7 @@ if ($viewApp):
                 </div>
                 <div class="card border-0 shadow-sm">
                     <div class="card-header gradient-card-header py-2">
-                        <i class="fas fa-edit me-2"></i>स्थिति अपडेट / KYC Document
+                        <i class="fas fa-check-circle me-2"></i>स्थिति / Approve
                     </div>
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
@@ -1541,22 +1530,17 @@ if ($viewApp):
 
                             <div class="row g-2 mb-3">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold"><i class="fas fa-id-badge me-1 text-primary"></i>Member ID (Edit)</label>
+                                    <label class="form-label fw-semibold"><i class="fas fa-id-badge me-1 text-primary"></i>Member ID</label>
                                     <input type="text" name="member_id" class="form-control"
                                            value="<?php echo htmlspecialchars($viewApp['member_id'] ?? ''); ?>"
                                            placeholder="जस्तै: 1234" required>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold"><i class="fas fa-phone me-1 text-primary"></i>मोबाइल (Edit)</label>
-                                    <input type="text" name="mobile" class="form-control"
-                                           value="<?php echo htmlspecialchars($viewApp['mobile'] ?? ''); ?>"
-                                           placeholder="98XXXXXXXX">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold"><i class="fas fa-envelope me-1 text-primary"></i>इमेल (Edit)</label>
-                                    <input type="email" name="email" class="form-control"
-                                           value="<?php echo htmlspecialchars($viewApp['email'] ?? ''); ?>"
-                                           placeholder="name@example.com">
+                                <div class="col-md-12">
+                                    <div class="small text-muted border rounded px-2 py-2 bg-light">
+                                        <i class="fas fa-phone me-1"></i><?php echo htmlspecialchars((string)($viewApp['mobile'] ?? '—')); ?>
+                                        · <i class="fas fa-envelope me-1"></i><?php echo htmlspecialchars((string)($viewApp['email'] ?? '—')); ?>
+                                        <div class="mt-1">मोबाइल/इमेल → <a href="#kycProfileEdit">KYM विवरण सम्पादन</a> (duplicate छैन)</div>
+                                    </div>
                                 </div>
                                 <div class="col-md-12">
                                     <label class="form-label fw-semibold"><i class="fas fa-layer-group me-1 text-primary"></i>Risk Category</label>

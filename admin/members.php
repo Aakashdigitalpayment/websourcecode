@@ -539,6 +539,12 @@ $memEditGenderDisplay = $memGenderLabels[$memEditGender] ?? '—';
 $memSsotDivergent = ($viewKyc && function_exists('memberSsotCompareSharedContact'))
     ? memberSsotCompareSharedContact($viewMember, $viewKyc)
     : [];
+$memKycEditUrl = '';
+if ($viewKyc && !empty($viewKyc['id'])) {
+    $memKycEditUrl = 'kyc-applications.php?view=' . (int)$viewKyc['id'] . '&from_member=' . (int)$viewMember['id'] . '#kycProfileEdit';
+} elseif (!empty($viewMember['kyc_application_id'])) {
+    $memKycEditUrl = 'kyc-applications.php?view=' . (int)$viewMember['kyc_application_id'] . '&from_member=' . (int)$viewMember['id'] . '#kycProfileEdit';
+}
 ?>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
@@ -560,13 +566,16 @@ if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDive
 ?>
 
 <?php if ($memEditMode): ?>
-<!-- Full-width tabbed edit — shared fields sync to linked KYM; deep KYM fields stay on KYM page -->
+<!-- Member shared profile only — deep KYM is on kyc-applications.php (no duplicate tab) -->
 <div class="card border-0 shadow-sm mb-3" style="border-left:4px solid var(--primary-color,#1a5f2a) !important;">
     <div class="card-header bg-white py-3">
-        <div class="fw-bold text-success mb-1"><i class="fas fa-user-pen me-2"></i>सदस्य प्रोफाइल सच्याउनुहोस्</div>
-        <div class="small text-muted mb-0">Tab अनुसार भर्नुहोस् — save पछि linked KYM मा सम्पर्क/व्यक्तिगत sync हुन्छ। Member ID परिवर्तन हुँदैन।</div>
+        <div class="fw-bold text-success mb-1"><i class="fas fa-user-pen me-2"></i>सदस्य सम्पर्क / व्यक्तिगत सच्याउनुहोस्</div>
+        <div class="small text-muted mb-0">Import correction वा सम्पर्क fix — save पछि linked KYM मा sync। नागरिकता/परिवार → KYM पृष्ठ।</div>
     </div>
     <div class="card-body pt-2">
+        <?php if (function_exists('memberSsotEditGuideHtml')) {
+            echo memberSsotEditGuideHtml('member');
+        } ?>
         <form method="POST" action="members.php?view=<?php echo (int)$viewMember['id']; ?>" id="memProfileEditForm">
             <?php echo csrfField(); ?>
             <input type="hidden" name="update_member_profile" value="1">
@@ -589,11 +598,6 @@ if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDive
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="memTabPersonalBtn" data-bs-toggle="tab" data-bs-target="#memTabPersonal" type="button" role="tab">
                         <i class="fas fa-user me-1"></i>व्यक्तिगत
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="memTabKycBtn" data-bs-toggle="tab" data-bs-target="#memTabKyc" type="button" role="tab">
-                        <i class="fas fa-id-card me-1"></i>KYM विवरण
                     </button>
                 </li>
             </ul>
@@ -642,56 +646,43 @@ if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDive
                         </div>
                     </div>
                 </div>
-
-                <div class="tab-pane fade" id="memTabKyc" role="tabpanel">
-                    <?php if ($viewKyc): ?>
-                    <div class="alert alert-info border-0 small mb-3">
-                        <i class="fas fa-info-circle me-1"></i>
-                        <strong>KYM विवरण</strong> (नागरिकता, परिवार, AML, कागजात) →
-                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>&from_member=<?php echo (int)$viewMember['id']; ?>#kycProfileEdit">KYM सम्पादन पृष्ठ</a> बाट सच्याउनुहोस्।
-                        यहाँ preview मात्र — save यो form बाट हुँदैन।
-                    </div>
-                    <div class="row g-2 small">
-                        <div class="col-md-4"><span class="text-muted">स्थिति:</span> <?php echo htmlspecialchars((string)($viewKyc['status'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        <div class="col-md-4"><span class="text-muted">नागरिकता:</span> <?php echo htmlspecialchars((string)($viewKyc['citizenship_no'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        <div class="col-md-4"><span class="text-muted">पेशा:</span> <?php echo htmlspecialchars((string)($viewKyc['occupation'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        <div class="col-md-6"><span class="text-muted">बाबु:</span> <?php echo htmlspecialchars((string)($viewKyc['father_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                        <div class="col-md-6"><span class="text-muted">आमा:</span> <?php echo htmlspecialchars((string)($viewKyc['mother_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
-                    </div>
-                    <div class="mt-3 d-flex flex-wrap gap-2">
-                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>&from_member=<?php echo (int)$viewMember['id']; ?>#kycProfileEdit" class="btn btn-primary">
-                            <i class="fas fa-id-card me-1"></i>KYM सम्पादन खोल्नुहोस्
-                        </a>
-                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>" class="btn btn-outline-secondary btn-sm">KYM विवरण (view)</a>
-                    </div>
-                    <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-id-card fa-2x mb-2 d-block opacity-25"></i>
-                        Linked KYM अहिले छैन।
-                        <div class="mt-2">
-                            <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>" class="btn btn-sm btn-outline-secondary">
-                                Member ID बाट KYM खोज्नुहोस्
-                            </a>
-                        </div>
-                    </div>
-                    <?php else: ?>
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-id-card fa-2x mb-2 d-block opacity-25"></i>
-                        KYM विवरण अहिले उपलब्ध छैन — Member ID र KYM लिंक भएपछि यहाँ देखिन्छ।
-                    </div>
-                    <?php endif; ?>
-                </div>
             </div>
 
             <div class="d-flex flex-wrap gap-2 pt-3 mt-2 border-top">
                 <button type="submit" class="btn btn-success btn-lg px-4">
-                    <i class="fas fa-save me-1"></i>सुरक्षित गर्नुहोस्
+                    <i class="fas fa-save me-1"></i>सम्पर्क/व्यक्तिगत सुरक्षित
                 </button>
                 <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-outline-secondary btn-lg">रद्द</a>
             </div>
         </form>
     </div>
 </div>
+<?php if ($memKycEditUrl !== ''): ?>
+<div class="card border-0 shadow-sm mb-3 border-start border-4 border-info">
+    <div class="card-body py-3 d-flex flex-wrap align-items-center gap-3">
+        <div class="flex-grow-1">
+            <div class="fw-bold text-info mb-1"><i class="fas fa-id-card me-1"></i>KYM (नागरिकता, परिवार, कागजात)</div>
+            <div class="small text-muted mb-0">यो Member form बाट edit हुँदैन — छुट्टै KYM पृष्ठमा सच्याउनुहोस् (auto sync)।</div>
+            <?php if ($viewKyc): ?>
+            <div class="small mt-2 text-muted">
+                स्थिति: <strong><?php echo htmlspecialchars((string)($viewKyc['status'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></strong>
+                · नागरिकता: <?php echo htmlspecialchars((string)($viewKyc['citizenship_no'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <a href="<?php echo htmlspecialchars($memKycEditUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-info text-white px-4">
+            <i class="fas fa-arrow-right me-1"></i>KYM सम्पादन
+        </a>
+    </div>
+</div>
+<?php elseif (!empty($viewMember['sadasyata_number'])): ?>
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3 text-center text-muted small">
+        Linked KYM छैन —
+        <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>">Member ID बाट खोज्नुहोस्</a>
+    </div>
+</div>
+<?php endif; ?>
 <?php endif; ?>
 
 <div class="row g-3">
@@ -811,15 +802,15 @@ if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDive
             </div>
             <?php endif; ?>
             <div class="card-body border-top">
-                <div class="fw-bold small mb-2 text-success"><i class="fas fa-link me-1"></i>SSOT shortcuts</div>
+                <div class="fw-bold small mb-2 text-success"><i class="fas fa-link me-1"></i>Shortcuts</div>
                 <div class="d-grid gap-2">
-                    <?php if (!empty($viewMember['kyc_application_id'])): ?>
-                    <a href="kyc-applications.php?view=<?php echo (int)$viewMember['kyc_application_id']; ?>" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-id-card me-1"></i>केवाइएम खोल्नुहोस्
+                    <?php if ($memKycEditUrl !== ''): ?>
+                    <a href="<?php echo htmlspecialchars($memKycEditUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-id-card me-1"></i>KYM सम्पादन
                     </a>
                     <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
                     <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-search me-1"></i>केवाइएम खोज (Member ID)
+                        <i class="fas fa-search me-1"></i>KYM खोज (Member ID)
                     </a>
                     <?php endif; ?>
                     <a href="member-online-portal.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-success">
