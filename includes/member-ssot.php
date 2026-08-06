@@ -845,6 +845,110 @@ if (!function_exists('memberSsotAfterKycWrite')) {
     }
 }
 
+if (!function_exists('memberSsotSyncKycFromMember')) {
+    /**
+     * Admin members edit पछि: linked KYM मा shared contact overwrite (import correction)।
+     * Status/docs/AML छुँदैन। Soft-fill होइन — admin intentional fix।
+     *
+     * @param array<string,mixed>|null $memberRow
+     * @return array{ok:bool,kyc_id?:int,synced?:bool,message?:string}
+     */
+    function memberSsotSyncKycFromMember(PDO $db, int $memberPk, ?array $memberRow = null): array
+    {
+        if ($memberPk < 1) {
+            return ['ok' => false, 'message' => 'Invalid member'];
+        }
+        try {
+            if ($memberRow === null) {
+                $st = $db->prepare('SELECT * FROM members WHERE id = ? LIMIT 1');
+                $st->execute([$memberPk]);
+                $memberRow = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+            }
+            if (!$memberRow) {
+                return ['ok' => false, 'message' => 'Member not found'];
+            }
+
+            $kycId = (int)($memberRow['kyc_application_id'] ?? 0);
+            $sid = memberSsotNormalizeId((string)($memberRow['sadasyata_number'] ?? ''));
+            if ($kycId < 1 && $sid !== '') {
+                $kyc = memberSsotFindKycByMemberId($db, $sid);
+                $kycId = (int)($kyc['id'] ?? 0);
+                if ($kycId > 0) {
+                    memberSsotLinkMemberToKyc($db, $memberPk, $kycId);
+                }
+            }
+            if ($kycId < 1) {
+                /* No KYM yet — ensure stub so shared fields have a home */
+                if (function_exists('memberSsotEnsureKycStubFromMember')) {
+                    $stub = memberSsotEnsureKycStubFromMember($db, $memberPk, $memberRow);
+                    $kycId = (int)($stub['kyc_id'] ?? 0);
+                }
+            }
+            if ($kycId < 1) {
+                return ['ok' => true, 'synced' => false, 'message' => 'No KYM row to sync'];
+            }
+
+            $name = trim((string)($memberRow['name'] ?? ''));
+            $phone = function_exists('memberSsotNormalizeMobile')
+                ? memberSsotNormalizeMobile((string)($memberRow['phone'] ?? ''))
+                : (preg_replace('/[^0-9]/', '', (string)($memberRow['phone'] ?? '')) ?: '');
+            if (strlen($phone) > 10 && str_starts_with($phone, '977')) {
+                $phone = substr($phone, -10);
+            }
+            $email = trim((string)($memberRow['email'] ?? ''));
+            $email = ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : '';
+            $address = trim((string)($memberRow['address'] ?? ''));
+            $gender = trim((string)($memberRow['gender'] ?? ''));
+            $dobAd = trim((string)($memberRow['dob'] ?? ''));
+            if ($dobAd !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dobAd)) {
+                $dobAd = '';
+            }
+
+            $db->prepare(
+                "UPDATE kyc_applications SET
+                    full_name = CASE WHEN ? <> '' THEN ? ELSE full_name END,
+                    mobile = CASE WHEN ? <> '' THEN ? ELSE mobile END,
+                    email = CASE WHEN ? <> '' THEN ? ELSE email END,
+                    permanent_address = CASE WHEN ? <> '' THEN ? ELSE permanent_address END,
+                    gender = CASE WHEN ? <> '' THEN ? ELSE gender END,
+                    dob_ad = CASE WHEN ? <> '' THEN ? ELSE dob_ad END,
+                    updated_at = NOW()
+                 WHERE id = ?"
+            )->execute([
+                $name, $name,
+                $phone, $phone,
+                $email, $email,
+                $address, $address,
+                $gender, $gender,
+                $dobAd, $dobAd,
+                $kycId,
+            ]);
+
+            return ['ok' => true, 'synced' => true, 'kyc_id' => $kycId];
+        } catch (Throwable $e) {
+            error_log('[member-ssot] syncKycFromMember: ' . $e->getMessage());
+            return ['ok' => false, 'message' => $e->getMessage()];
+        }
+    }
+}
+
+if (!function_exists('memberSsotAfterMemberWrite')) {
+    /**
+     * Admin members profile save पछि: linked KYM मा shared contact sync।
+     */
+    function memberSsotAfterMemberWrite(PDO $db, int $memberPk): void
+    {
+        if ($memberPk < 1) {
+            return;
+        }
+        try {
+            memberSsotSyncKycFromMember($db, $memberPk);
+        } catch (Throwable $e) {
+            error_log('[member-ssot] afterMemberWrite: ' . $e->getMessage());
+        }
+    }
+}
+
 if (!function_exists('memberSsotUpsertMemberFromKyc')) {
     /**
      * On KYM approve: ensure a members row exists for kyc.member_id (SSOT).
@@ -1121,8 +1225,9 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
         } elseif ($context === 'portal') {
             $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सदस्यता खाता + लगइन। Shared contact KYM सँग sync। विस्तृत कागजात <a href="kyc-applications.php">KYM</a> मा। '
-                . 'CBS → <a href="member-import.php">Import एक पटक</a>।';
+            $body = 'यो सूची = सदस्यता खाता + लगइन। <strong>गलत import / प्रोफाइल सच्याउन</strong> → Member विवरणमा <em>सम्पादन</em> '
+                . '(नाम/मोबाइल/इमेल/ठेगाना) — linked KYM मा auto sync। Member ID परिवर्तन हुँदैन। '
+                . 'कागजात/AML <a href="kyc-applications.php">KYM</a> मा। CBS → <a href="member-import.php">Import</a>।';
         } elseif ($context === 'import') {
             $body = 'CBS Excel <strong>एक पटक</strong> Members मा। Shared field KYM stub मा auto copy — दोहोरो Excel नहाल्नुहोस्। बाँकी online/portal।';
         } elseif ($context === 'membership') {
