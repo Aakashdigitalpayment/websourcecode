@@ -1499,7 +1499,13 @@ if ($viewApp):
                                 </button>
                             </form>
                             <?php elseif ($viewMid !== ''): ?>
-                            <a href="members.php?search=<?php echo urlencode($viewMid); ?>" class="btn btn-sm btn-outline-success">
+                            <?php
+                            $kycOpenMemberUrl = 'members.php?search=' . urlencode($viewMid);
+                            if (!empty($viewLinkedMember['id'])) {
+                                $kycOpenMemberUrl = 'members.php?view=' . (int)$viewLinkedMember['id'];
+                            }
+                            ?>
+                            <a href="<?php echo htmlspecialchars($kycOpenMemberUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-success">
                                 <i class="fas fa-user-tag me-1"></i>Open Member
                             </a>
                             <a href="member-online-portal.php?search=<?php echo urlencode($viewMid); ?>" class="btn btn-sm btn-outline-primary">
