@@ -450,10 +450,11 @@ if (isset($_POST['update_kyc_profile'])) {
     }
 
     $fromMember = (int)($_POST['from_member'] ?? 0);
-    $redir = 'kyc-applications.php?view=' . $id . '#kycProfileEdit';
+    $redir = 'kyc-applications.php?view=' . $id;
     if ($fromMember > 0) {
         $redir .= '&from_member=' . $fromMember;
     }
+    $redir .= '#kycProfileEdit';
     redirect($redir);
 }
 
