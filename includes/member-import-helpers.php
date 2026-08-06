@@ -712,6 +712,10 @@ if (!function_exists('_memberImportImportChunk')) {
                                 $kymMsg = !empty($kr['created']) ? ' + KYM stub' : ' + KYM soft-fill/link';
                             }
                         }
+                        /* Import update = intentional correction — overwrite KYM shared fields like admin edit */
+                        if (function_exists('memberSsotSyncKycFromMember')) {
+                            memberSsotSyncKycFromMember($pdo, $memberPk);
+                        }
                         $mark->execute([
                             'ok',
                             'Updated existing member'

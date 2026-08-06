@@ -28,6 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mobile   = mb_substr(trim($_POST['mobile']    ?? ''), 0, 20);
         $email    = mb_substr(trim($_POST['email']     ?? ''), 0, 200);
         $address  = mb_substr(trim($_POST['address']   ?? ''), 0, 300);
+        $genderRaw = strtolower(trim($_POST['gender'] ?? ''));
+        $gender = in_array($genderRaw, ['male', 'female', 'other'], true) ? $genderRaw : '';
+        $dob = trim($_POST['dob'] ?? '');
+        if ($dob !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dob)) {
+            $dob = '';
+        }
         $status   = in_array($_POST['approval_status'] ?? '', ['approved','pending','rejected','suspended'])
                         ? $_POST['approval_status'] : 'pending';
 
@@ -36,8 +42,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!$errors) {
             try {
-                $pdo->prepare("UPDATE members SET name=?, phone=?, email=?, address=?, approval_status=? WHERE id=?")
-                    ->execute([$fullName, $mobile, $email, $address, $status, $id]);
+                $pdo->prepare("UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=?, approval_status=? WHERE id=?")
+                    ->execute([
+                        $fullName,
+                        $mobile,
+                        $email,
+                        $address,
+                        $gender !== '' ? $gender : null,
+                        $dob !== '' ? $dob : null,
+                        $status,
+                        $id,
+                    ]);
                 $_ssot = dirname(__DIR__, 2) . '/includes/member-ssot.php';
                 if (is_file($_ssot)) {
                     require_once $_ssot;
@@ -116,6 +131,24 @@ include __DIR__ . '/../_partials/header.php';
         <label class="admin-label">ठेगाना</label>
         <input type="text" name="address" class="admin-input"
                value="<?php echo htmlspecialchars($member['address'] ?? ''); ?>">
+      </div>
+      <div>
+        <label class="admin-label">लिङ्ग</label>
+        <?php $mg = strtolower(trim((string)($member['gender'] ?? ''))); ?>
+        <select name="gender" class="admin-select">
+          <option value="" <?php echo $mg === '' ? 'selected' : ''; ?>>छान्नुहोस्</option>
+          <option value="male" <?php echo $mg === 'male' ? 'selected' : ''; ?>>पुरुष</option>
+          <option value="female" <?php echo $mg === 'female' ? 'selected' : ''; ?>>महिला</option>
+          <option value="other" <?php echo $mg === 'other' ? 'selected' : ''; ?>>अन्य</option>
+        </select>
+      </div>
+      <div>
+        <label class="admin-label">जन्म मिति (AD)</label>
+        <?php
+        $mdob = trim((string)($member['dob'] ?? ''));
+        $mdob = ($mdob !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $mdob)) ? $mdob : '';
+        ?>
+        <input type="date" name="dob" class="admin-input" value="<?php echo htmlspecialchars($mdob); ?>">
       </div>
     </div>
     <div style="margin-top:20px;display:flex;gap:10px;">

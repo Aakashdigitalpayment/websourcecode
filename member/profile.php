@@ -39,7 +39,11 @@ try {
         if ($sid !== '' && function_exists('memberSsotFindKycByMemberId')) {
             $kycRow = memberSsotFindKycByMemberId($db, $sid, true);
             if ($kycRow && empty($mem['kyc_application_id'])) {
-                $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")->execute([(int)$kycRow['id'], $memberId]);
+                if (function_exists('memberSsotLinkMemberToKyc')) {
+                    memberSsotLinkMemberToKyc($db, $memberId, (int)$kycRow['id']);
+                } else {
+                    $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")->execute([(int)$kycRow['id'], $memberId]);
+                }
                 $mem['kyc_application_id'] = (int)$kycRow['id'];
             }
         }
@@ -152,6 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_update'])) {
             } elseif (!$kycRow) {
                 $db->prepare("UPDATE members SET name=?, phone=?, address=?, gender=?, dob=? WHERE id=?")
                    ->execute([$name, $phone ?: null, $address ?: null, $gender ?: null, $dob ?: null, $memberId]);
+                if (function_exists('memberSsotAfterMemberWrite')) {
+                    memberSsotAfterMemberWrite($db, $memberId);
+                }
                 $_SESSION['member_name'] = $name;
                 $success = 'प्रोफाइल सफलतापूर्वक अपडेट भयो।';
                 $mem = currentMember();
