@@ -38,6 +38,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->prepare("UPDATE members SET name=?, phone=?, email=?, address=?, approval_status=? WHERE id=?")
                     ->execute([$fullName, $mobile, $email, $address, $status, $id]);
+                $_ssot = dirname(__DIR__, 2) . '/includes/member-ssot.php';
+                if (is_file($_ssot)) {
+                    require_once $_ssot;
+                }
+                if (function_exists('memberSsotAfterMemberWrite')) {
+                    memberSsotAfterMemberWrite($pdo, $id);
+                }
                 header('Location: view.php?id=' . $id . '&updated=1'); exit;
             } catch (\Throwable $e) {
                 $errors[] = 'अपडेट गर्न सकिएन: ' . $e->getMessage();

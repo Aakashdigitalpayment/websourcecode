@@ -12,6 +12,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/member-auth.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
+require_once __DIR__ . '/../includes/member-ssot.php';
 require_once __DIR__ . '/includes/admin-ui.php';
 
 /* List data loads BEFORE admin-header, so $db is not set yet (header normally assigns it).
@@ -125,6 +126,64 @@ if (isset($_POST['toggle_active'])) {
         setFlash('error', 'Status बदल्न सकिएन।');
     }
     redirect('members.php');
+}
+
+/* ── Update shared profile (name/phone/email/address) + sync to linked KYM ── */
+if (isset($_POST['update_member_profile'])) {
+    checkCSRF();
+    $mid = (int)($_POST['member_id'] ?? 0);
+    $name = function_exists('mb_substr')
+        ? mb_substr(trim((string)($_POST['name'] ?? '')), 0, 200, 'UTF-8')
+        : substr(trim((string)($_POST['name'] ?? '')), 0, 200);
+    $phoneRaw = preg_replace('/[^0-9]/', '', (string)($_POST['phone'] ?? '')) ?: '';
+    if (strlen($phoneRaw) > 10 && str_starts_with($phoneRaw, '977')) {
+        $phoneRaw = substr($phoneRaw, -10);
+    }
+    $phone = $phoneRaw;
+    $email = function_exists('mb_substr')
+        ? mb_substr(trim((string)($_POST['email'] ?? '')), 0, 200, 'UTF-8')
+        : substr(trim((string)($_POST['email'] ?? '')), 0, 200);
+    $address = function_exists('mb_substr')
+        ? mb_substr(trim((string)($_POST['address'] ?? '')), 0, 300, 'UTF-8')
+        : substr(trim((string)($_POST['address'] ?? '')), 0, 300);
+
+    if ($mid < 1) {
+        setFlash('error', 'अमान्य सदस्य।');
+        redirect('members.php');
+    }
+    if ($name === '') {
+        setFlash('error', 'नाम अनिवार्य छ।');
+        redirect('members.php?view=' . $mid . '&edit=1');
+    }
+    if ($phone === '' || strlen($phone) < 10) {
+        setFlash('error', '१० अंकको मोबाइल नम्बर राख्नुहोस्।');
+        redirect('members.php?view=' . $mid . '&edit=1');
+    }
+    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        setFlash('error', 'इमेल सही छैन।');
+        redirect('members.php?view=' . $mid . '&edit=1');
+    }
+
+    try {
+        $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=? WHERE id=?')
+            ->execute([$name, $phone, $email !== '' ? $email : null, $address !== '' ? $address : null, $mid]);
+        if (function_exists('memberSsotAfterMemberWrite')) {
+            memberSsotAfterMemberWrite($db, $mid);
+        }
+        if (function_exists('writeAuditLog')) {
+            writeAuditLog(
+                'member_profile_update',
+                'Admin updated member profile (synced to KYM): ' . $name . ' / ' . $phone,
+                'member',
+                $mid
+            );
+        }
+        setFlash('success', 'सदस्य प्रोफाइल अपडेट भयो। Linked KYM मा पनि sync भयो।');
+    } catch (Throwable $e) {
+        error_log('[admin/members update_profile] ' . $e->getMessage());
+        setFlash('error', 'अपडेट गर्न सकिएन।');
+    }
+    redirect('members.php?view=' . $mid);
 }
 
 /* ── View single member ── */
@@ -428,9 +487,16 @@ try {
 
 <?php if ($viewMember): /* ── Single Member View ── */ ?>
 
-<div class="d-flex align-items-center gap-2 mb-3">
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
     <a href="members.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>फिर्ता</a>
     <h4 class="mb-0">Member विवरण</h4>
+    <?php if (empty($_GET['edit'])): ?>
+    <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>&edit=1" class="btn btn-sm btn-primary ms-auto">
+        <i class="fas fa-user-pen me-1"></i>प्रोफाइल सम्पादन
+    </a>
+    <?php else: ?>
+    <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-secondary ms-auto">रद्द</a>
+    <?php endif; ?>
 </div>
 
 <div class="row g-3">
@@ -571,6 +637,54 @@ try {
     </div>
 
     <div class="col-md-8">
+        <?php if (!empty($_GET['edit'])): ?>
+        <!-- Edit shared profile (admin correction after import) -->
+        <div class="card border-0 shadow-sm mb-3 border-start border-4 border-primary">
+            <div class="card-header bg-white fw-bold text-primary">
+                <i class="fas fa-user-pen me-2"></i>प्रोफाइल सम्पादन
+                <span class="fw-normal text-muted small ms-2">नाम / मोबाइल / इमेल / ठेगाना — KYM मा auto sync</span>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="row g-3">
+                    <?php echo csrfField(); ?>
+                    <input type="hidden" name="update_member_profile" value="1">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">सदस्यता नं. / Member ID</label>
+                        <input type="text" class="form-control" value="<?php echo htmlspecialchars((string)($viewMember['sadasyata_number'] ?? '')); ?>" disabled>
+                        <div class="form-text">Member ID परिवर्तन हुँदैन।</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">पूरा नाम <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control" required maxlength="200"
+                               value="<?php echo htmlspecialchars((string)($viewMember['name'] ?? '')); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">मोबाइल <span class="text-danger">*</span></label>
+                        <input type="tel" name="phone" class="form-control" required maxlength="20"
+                               value="<?php echo htmlspecialchars((string)($viewMember['phone'] ?? '')); ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">इमेल</label>
+                        <input type="email" name="email" class="form-control" maxlength="200"
+                               value="<?php echo htmlspecialchars((string)($viewMember['email'] ?? '')); ?>">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">ठेगाना</label>
+                        <input type="text" name="address" class="form-control" maxlength="300"
+                               value="<?php echo htmlspecialchars((string)($viewMember['address'] ?? '')); ?>">
+                    </div>
+                    <div class="col-12 d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>सुरक्षित गर्नुहोस्
+                        </button>
+                        <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-outline-secondary">रद्द</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Send Notification -->
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-white fw-bold text-success">
@@ -850,6 +964,9 @@ try {
                         <div class="btn-group btn-group-sm" role="group">
                             <a href="members.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-secondary" title="Member विवरण">
                                 <i class="fas fa-user"></i>
+                            </a>
+                            <a href="members.php?view=<?php echo (int)$m['id']; ?>&edit=1" class="btn btn-outline-primary" title="प्रोफाइल सम्पादन">
+                                <i class="fas fa-user-pen"></i>
                             </a>
                             <a href="member-online-portal.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-success" title="Portal">
                                 <i class="fas fa-globe"></i>
