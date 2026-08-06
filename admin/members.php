@@ -536,6 +536,9 @@ $memEditDob = ($memEditDobRaw !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $mem
 $memEditDobDisplay = $memEditDob !== '' ? htmlspecialchars($memEditDob, ENT_QUOTES, 'UTF-8') : '—';
 $memGenderLabels = ['male' => 'पुरुष', 'female' => 'महिला', 'other' => 'अन्य'];
 $memEditGenderDisplay = $memGenderLabels[$memEditGender] ?? '—';
+$memSsotDivergent = ($viewKyc && function_exists('memberSsotCompareSharedContact'))
+    ? memberSsotCompareSharedContact($viewMember, $viewKyc)
+    : [];
 ?>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
@@ -549,6 +552,12 @@ $memEditGenderDisplay = $memGenderLabels[$memEditGender] ?? '—';
     <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-secondary ms-auto">रद्द / फर्कनुहोस्</a>
     <?php endif; ?>
 </div>
+
+<?php
+if (!$memEditMode && $memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')) {
+    echo memberSsotDivergenceAlertHtml($memSsotDivergent);
+}
+?>
 
 <?php if ($memEditMode): ?>
 <!-- Full-width tabbed edit — shared fields sync to linked KYM; deep KYM fields stay on KYM page -->

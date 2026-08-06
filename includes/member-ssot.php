@@ -1118,6 +1118,9 @@ if (!function_exists('memberSsotRegisterOrAttach')) {
                 error_log('[member-ssot] register attach: ' . $e->getMessage());
                 return ['error' => 'दर्ता अपडेट असफल। पुनः प्रयास गर्नुहोस्।'];
             }
+            if (function_exists('memberSsotAfterMemberWrite')) {
+                memberSsotAfterMemberWrite($db, $pk);
+            }
             return [
                 'id' => $pk,
                 'card_no' => (string)($existing['member_card_no'] ?? ''),
@@ -1209,6 +1212,84 @@ if (!function_exists('memberSsotTryAddUniqueIndex')) {
     }
 }
 
+if (!function_exists('memberSsotNormalizePhoneCompare')) {
+    function memberSsotNormalizePhoneCompare(?string $phone): string
+    {
+        $p = preg_replace('/[^0-9]/', '', (string)$phone) ?: '';
+        if (strlen($p) > 10 && str_starts_with($p, '977')) {
+            $p = substr($p, -10);
+        }
+        return $p;
+    }
+}
+
+if (!function_exists('memberSsotCompareSharedContact')) {
+    /**
+     * Compare shared contact fields between members row and linked KYM.
+     * @param array<string,mixed>|null $member
+     * @param array<string,mixed>|null $kyc
+     * @return list<array{field:string,member:string,kyc:string}>
+     */
+    function memberSsotCompareSharedContact(?array $member, ?array $kyc): array
+    {
+        if (!$member || !$kyc) {
+            return [];
+        }
+        $pairs = [
+            ['name', 'full_name', 'नाम'],
+            ['phone', 'mobile', 'मोबाइल'],
+            ['email', 'email', 'इमेल'],
+            ['address', 'permanent_address', 'ठेगाना'],
+            ['gender', 'gender', 'लिङ्ग'],
+            ['dob', 'dob_ad', 'जन्म मिति'],
+        ];
+        $out = [];
+        foreach ($pairs as [$mCol, $kCol, $label]) {
+            $mv = trim((string)($member[$mCol] ?? ''));
+            $kv = trim((string)($kyc[$kCol] ?? ''));
+            if ($mCol === 'phone' || $kCol === 'mobile') {
+                $mv = memberSsotNormalizePhoneCompare($mv);
+                $kv = memberSsotNormalizePhoneCompare($kv);
+            }
+            if ($mv === '' && $kv === '') {
+                continue;
+            }
+            if ($mv !== $kv) {
+                $out[] = [
+                    'field' => $label,
+                    'member' => $mv !== '' ? $mv : '—',
+                    'kyc' => $kv !== '' ? $kv : '—',
+                ];
+            }
+        }
+        return $out;
+    }
+}
+
+if (!function_exists('memberSsotDivergenceAlertHtml')) {
+    /**
+     * Admin warning when members + KYM shared fields differ.
+     * @param list<array{field:string,member:string,kyc:string}> $divergent
+     */
+    function memberSsotDivergenceAlertHtml(array $divergent): string
+    {
+        if ($divergent === []) {
+            return '';
+        }
+        $rows = '';
+        foreach ($divergent as $d) {
+            $rows .= '<li><strong>' . htmlspecialchars($d['field'], ENT_QUOTES, 'UTF-8') . '</strong>: '
+                . 'Members = <code>' . htmlspecialchars($d['member'], ENT_QUOTES, 'UTF-8') . '</code>, '
+                . 'KYM = <code>' . htmlspecialchars($d['kyc'], ENT_QUOTES, 'UTF-8') . '</code></li>';
+        }
+        return '<div class="alert alert-warning border-0 shadow-sm py-2 px-3 mb-3" role="alert">'
+            . '<div class="fw-semibold small mb-1"><i class="fas fa-triangle-exclamation me-1"></i>SSOT mismatch — Members vs KYM</div>'
+            . '<ul class="small mb-2 ps-3">' . $rows . '</ul>'
+            . '<div class="small text-muted mb-0">Admin Members सम्पादन → KYM sync · Portal/Online KYM save → Members sync</div>'
+            . '</div>';
+    }
+}
+
 if (!function_exists('memberSsotAdminHelpHtml')) {
     function memberSsotAdminHelpHtml(string $context = 'general'): string
     {
@@ -1225,9 +1306,9 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
         } elseif ($context === 'portal') {
             $body = 'पोर्टल = लगइन unlock मात्र (पासवर्ड)। प्रोफाइल/कागजात KYM मा। Member ID + मोबाइल members सँग मिल्नुपर्छ।';
         } elseif ($context === 'members') {
-            $body = 'यो सूची = सदस्यता खाता + लगइन। <strong>गलत import / प्रोफाइल सच्याउन</strong> → Member विवरणमा <em>सम्पादन</em> '
-                . '(नाम/मोबाइल/इमेल/ठेगाना) — linked KYM मा auto sync। Member ID परिवर्तन हुँदैन। '
-                . 'कागजात/AML <a href="kyc-applications.php">KYM</a> मा। CBS → <a href="member-import.php">Import</a>।';
+            $body = 'यो सूची = सदस्यता खाता + लगइन। <strong>Shared data (नाम/मोबाइल/इमेल/ठेगाना/लिङ्ग/DOB)</strong> '
+                . 'Members ↔ KYM <em>auto sync</em> — admin, portal, online जहाँ बाट save गरे पनि। '
+                . 'Import correction → Member सम्पादन · कागजात/AML → <a href="kyc-applications.php">KYM</a>। Member ID परिवर्तन हुँदैन।';
         } elseif ($context === 'import') {
             $body = 'CBS Excel <strong>एक पटक</strong> Members मा। Shared field KYM stub मा auto copy — दोहोरो Excel नहाल्नुहोस्। बाँकी online/portal।';
         } elseif ($context === 'membership') {

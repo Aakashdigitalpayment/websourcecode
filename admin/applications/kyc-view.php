@@ -28,6 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && hash_equals($csrf, $_POST['csrf_tok
         try {
             $pdo->prepare("UPDATE kyc_applications SET status=?, remarks=?, updated_at=NOW() WHERE id=?")
                 ->execute([$newStatus, $remarks, $id]);
+            $_ssot = dirname(__DIR__, 2) . '/includes/member-ssot.php';
+            if (is_file($_ssot)) {
+                require_once $_ssot;
+            }
+            if (function_exists('memberSsotAfterKycWrite')) {
+                memberSsotAfterKycWrite($pdo, $id);
+            }
             header('Location: kyc-view.php?id=' . $id . '&msg=' . urlencode('स्थिति अपडेट भयो।')); exit;
         } catch (\Throwable $e) {
             $errorMsg = 'अपडेट गर्न सकिएन।';
