@@ -146,6 +146,12 @@ if (isset($_POST['update_member_profile'])) {
     $address = function_exists('mb_substr')
         ? mb_substr(trim((string)($_POST['address'] ?? '')), 0, 300, 'UTF-8')
         : substr(trim((string)($_POST['address'] ?? '')), 0, 300);
+    $genderRaw = strtolower(trim((string)($_POST['gender'] ?? '')));
+    $gender = in_array($genderRaw, ['male', 'female', 'other'], true) ? $genderRaw : '';
+    $dob = trim((string)($_POST['dob'] ?? ''));
+    if ($dob !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dob)) {
+        $dob = '';
+    }
 
     if ($mid < 1) {
         setFlash('error', 'अमान्य सदस्य।');
@@ -165,8 +171,16 @@ if (isset($_POST['update_member_profile'])) {
     }
 
     try {
-        $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=? WHERE id=?')
-            ->execute([$name, $phone, $email !== '' ? $email : null, $address !== '' ? $address : null, $mid]);
+        $db->prepare('UPDATE members SET name=?, phone=?, email=?, address=?, gender=?, dob=? WHERE id=?')
+            ->execute([
+                $name,
+                $phone,
+                $email !== '' ? $email : null,
+                $address !== '' ? $address : null,
+                $gender !== '' ? $gender : null,
+                $dob !== '' ? $dob : null,
+                $mid,
+            ]);
         if (function_exists('memberSsotAfterMemberWrite')) {
             memberSsotAfterMemberWrite($db, $mid);
         }
@@ -192,6 +206,7 @@ $viewMember = null;
 $viewApps   = [];
 $viewNotifs = [];
 $viewCard   = null;
+$viewKyc    = null;
 if ($viewId > 0) {
     try {
         $st = $db->prepare("SELECT * FROM members WHERE id=?");
@@ -222,6 +237,25 @@ if ($viewId > 0) {
                 $viewCard = $cs->fetch(PDO::FETCH_ASSOC) ?: null;
             } catch (Throwable $e) {
                 $viewCard = null;
+            }
+            try {
+                $kycPk = (int)($viewMember['kyc_application_id'] ?? 0);
+                if ($kycPk < 1 && function_exists('memberSsotFindKycByMemberId')) {
+                    $kycFound = memberSsotFindKycByMemberId($db, (string)($viewMember['sadasyata_number'] ?? ''));
+                    $kycPk = (int)($kycFound['id'] ?? 0);
+                }
+                if ($kycPk > 0) {
+                    $kst = $db->prepare(
+                        "SELECT id, tracking_id, member_id, full_name, citizenship_no, father_name, mother_name,
+                                grandfather_name, spouse_name, permanent_address, temporary_address, status,
+                                occupation, mobile, email, dob_ad, dob_bs
+                           FROM kyc_applications WHERE id = ? LIMIT 1"
+                    );
+                    $kst->execute([$kycPk]);
+                    $viewKyc = $kst->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+            } catch (Throwable $e) {
+                $viewKyc = null;
             }
         }
     } catch (Throwable $e) {
@@ -493,6 +527,15 @@ $memEditPhone = htmlspecialchars((string)($viewMember['phone'] ?? ''), ENT_QUOTE
 $memEditEmail = htmlspecialchars((string)($viewMember['email'] ?? ''), ENT_QUOTES, 'UTF-8');
 $memEditAddress = htmlspecialchars((string)($viewMember['address'] ?? ''), ENT_QUOTES, 'UTF-8');
 $memEditSid = htmlspecialchars((string)($viewMember['sadasyata_number'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditGender = strtolower(trim((string)($viewMember['gender'] ?? '')));
+if (!in_array($memEditGender, ['male', 'female', 'other'], true)) {
+    $memEditGender = '';
+}
+$memEditDobRaw = trim((string)($viewMember['dob'] ?? ''));
+$memEditDob = ($memEditDobRaw !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $memEditDobRaw)) ? $memEditDobRaw : '';
+$memEditDobDisplay = $memEditDob !== '' ? htmlspecialchars($memEditDob, ENT_QUOTES, 'UTF-8') : '—';
+$memGenderLabels = ['male' => 'पुरुष', 'female' => 'महिला', 'other' => 'अन्य'];
+$memEditGenderDisplay = $memGenderLabels[$memEditGender] ?? '—';
 ?>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
@@ -508,43 +551,163 @@ $memEditSid = htmlspecialchars((string)($viewMember['sadasyata_number'] ?? ''), 
 </div>
 
 <?php if ($memEditMode): ?>
-<!-- Full-width edit form (must be obvious — not buried in right column) -->
+<!-- Full-width tabbed edit — shared fields sync to linked KYM; deep KYM fields stay on KYM page -->
 <div class="card border-0 shadow-sm mb-3" style="border-left:4px solid var(--primary-color,#1a5f2a) !important;">
     <div class="card-header bg-white py-3">
         <div class="fw-bold text-success mb-1"><i class="fas fa-user-pen me-2"></i>सदस्य प्रोफाइल सच्याउनुहोस्</div>
-        <div class="small text-muted mb-0">नाम, मोबाइल, इमेल, ठेगाना — save पछि linked KYM मा पनि sync हुन्छ। Member ID परिवर्तन हुँदैन।</div>
+        <div class="small text-muted mb-0">Tab अनुसार भर्नुहोस् — save पछि linked KYM मा सम्पर्क/व्यक्तिगत sync हुन्छ। Member ID परिवर्तन हुँदैन।</div>
     </div>
-    <div class="card-body">
-        <form method="POST" action="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="row g-3" id="memProfileEditForm">
+    <div class="card-body pt-2">
+        <form method="POST" action="members.php?view=<?php echo (int)$viewMember['id']; ?>" id="memProfileEditForm">
             <?php echo csrfField(); ?>
             <input type="hidden" name="update_member_profile" value="1">
             <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
-            <div class="col-md-4">
-                <label class="form-label fw-semibold" for="mem_edit_sid">सदस्यता नं. / Member ID</label>
-                <input type="text" id="mem_edit_sid" class="form-control bg-light" value="<?php echo $memEditSid; ?>" disabled readonly>
-                <div class="form-text">पहिचान कोड — परिवर्तन हुँदैन।</div>
+
+            <div class="row g-3 mb-3 pb-3 border-bottom">
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold" for="mem_edit_sid">सदस्यता नं. / Member ID</label>
+                    <input type="text" id="mem_edit_sid" class="form-control bg-light" value="<?php echo $memEditSid; ?>" disabled readonly>
+                    <div class="form-text">पहिचान कोड — परिवर्तन हुँदैन।</div>
+                </div>
             </div>
-            <div class="col-md-8">
-                <label class="form-label fw-semibold" for="mem_edit_name">पूरा नाम <span class="text-danger">*</span></label>
-                <input type="text" name="name" id="mem_edit_name" class="form-control form-control-lg" required maxlength="200"
-                       value="<?php echo $memEditName; ?>" autocomplete="name">
+
+            <ul class="nav nav-tabs admin-nav-tabs mb-3" id="memEditTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="memTabContactBtn" data-bs-toggle="tab" data-bs-target="#memTabContact" type="button" role="tab">
+                        <i class="fas fa-address-book me-1"></i>सम्पर्क
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="memTabPersonalBtn" data-bs-toggle="tab" data-bs-target="#memTabPersonal" type="button" role="tab">
+                        <i class="fas fa-user me-1"></i>व्यक्तिगत
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="memTabKycBtn" data-bs-toggle="tab" data-bs-target="#memTabKyc" type="button" role="tab">
+                        <i class="fas fa-id-card me-1"></i>KYM विवरण
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="memEditTabContent">
+                <div class="tab-pane fade show active" id="memTabContact" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold" for="mem_edit_name">पूरा नाम <span class="text-danger">*</span></label>
+                            <input type="text" name="name" id="mem_edit_name" class="form-control form-control-lg" required maxlength="200"
+                                   value="<?php echo $memEditName; ?>" autocomplete="name">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="mem_edit_phone">मोबाइल <span class="text-danger">*</span></label>
+                            <input type="tel" name="phone" id="mem_edit_phone" class="form-control form-control-lg" required maxlength="20"
+                                   value="<?php echo $memEditPhone; ?>" inputmode="numeric" autocomplete="tel">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="mem_edit_email">इमेल</label>
+                            <input type="email" name="email" id="mem_edit_email" class="form-control" maxlength="200"
+                                   value="<?php echo $memEditEmail; ?>" autocomplete="email">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="mem_edit_address">ठेगाना</label>
+                            <input type="text" name="address" id="mem_edit_address" class="form-control" maxlength="300"
+                                   value="<?php echo $memEditAddress; ?>" autocomplete="street-address">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="memTabPersonal" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="mem_edit_gender">लिङ्ग</label>
+                            <select name="gender" id="mem_edit_gender" class="form-select">
+                                <option value=""<?php echo $memEditGender === '' ? ' selected' : ''; ?>>छान्नुहोस्</option>
+                                <option value="male"<?php echo $memEditGender === 'male' ? ' selected' : ''; ?>>पुरुष</option>
+                                <option value="female"<?php echo $memEditGender === 'female' ? ' selected' : ''; ?>>महिला</option>
+                                <option value="other"<?php echo $memEditGender === 'other' ? ' selected' : ''; ?>>अन्य</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold" for="mem_edit_dob">जन्म मिति (AD)</label>
+                            <input type="date" name="dob" id="mem_edit_dob" class="form-control" value="<?php echo $memEditDob !== '' ? htmlspecialchars($memEditDob, ENT_QUOTES, 'UTF-8') : ''; ?>">
+                            <div class="form-text">YYYY-MM-DD — linked KYM को dob_ad मा sync हुन्छ।</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="memTabKyc" role="tabpanel">
+                    <?php if ($viewKyc): ?>
+                    <div class="alert alert-light border small mb-3">
+                        <i class="fas fa-info-circle me-1 text-success"></i>
+                        यहाँ KYM को मुख्य विवरण <strong>हेर्न</strong> मात्र — नागरिकता, बाबु/आमा, AML जस्ता गहन फिल्ड
+                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>">KYM पृष्ठ</a> बाट सुरक्षित सम्पादन गर्नुहोस्।
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">KYM स्थिति</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['status'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">Tracking ID</label>
+                            <div class="form-control bg-light"><code><?php echo htmlspecialchars((string)($viewKyc['tracking_id'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></code></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">नागरिकता नं.</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['citizenship_no'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">पेशा</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['occupation'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">बाबुको नाम</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['father_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">आमाको नाम</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['mother_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">हजुरबुबाको नाम</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['grandfather_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">पति/पत्नी</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['spouse_name'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">स्थायी ठेगाना (KYM)</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['permanent_address'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted">अस्थायी ठेगाना (KYM)</label>
+                            <div class="form-control bg-light"><?php echo htmlspecialchars((string)($viewKyc['temporary_address'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="kyc-applications.php?view=<?php echo (int)$viewKyc['id']; ?>" class="btn btn-outline-primary">
+                            <i class="fas fa-id-card me-1"></i>पूरा KYM सम्पादन खोल्नुहोस्
+                        </a>
+                    </div>
+                    <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-id-card fa-2x mb-2 d-block opacity-25"></i>
+                        Linked KYM अहिले छैन।
+                        <div class="mt-2">
+                            <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>" class="btn btn-sm btn-outline-secondary">
+                                Member ID बाट KYM खोज्नुहोस्
+                            </a>
+                        </div>
+                    </div>
+                    <?php else: ?>
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-id-card fa-2x mb-2 d-block opacity-25"></i>
+                        KYM विवरण अहिले उपलब्ध छैन — Member ID र KYM लिंक भएपछि यहाँ देखिन्छ।
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold" for="mem_edit_phone">मोबाइल <span class="text-danger">*</span></label>
-                <input type="tel" name="phone" id="mem_edit_phone" class="form-control form-control-lg" required maxlength="20"
-                       value="<?php echo $memEditPhone; ?>" inputmode="numeric" autocomplete="tel">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold" for="mem_edit_email">इमेल</label>
-                <input type="email" name="email" id="mem_edit_email" class="form-control" maxlength="200"
-                       value="<?php echo $memEditEmail; ?>" autocomplete="email">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-semibold" for="mem_edit_address">ठेगाना</label>
-                <input type="text" name="address" id="mem_edit_address" class="form-control" maxlength="300"
-                       value="<?php echo $memEditAddress; ?>" autocomplete="street-address">
-            </div>
-            <div class="col-12 d-flex flex-wrap gap-2 pt-1">
+
+            <div class="d-flex flex-wrap gap-2 pt-3 mt-2 border-top">
                 <button type="submit" class="btn btn-success btn-lg px-4">
                     <i class="fas fa-save me-1"></i>सुरक्षित गर्नुहोस्
                 </button>
@@ -605,6 +768,14 @@ $memEditSid = htmlspecialchars((string)($viewMember['sadasyata_number'] ?? ''), 
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">ठेगाना</span>
                     <span class="small"><?php echo $memEditAddress !== '' ? $memEditAddress : '—'; ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">लिङ्ग</span>
+                    <span class="small"><?php echo htmlspecialchars($memEditGenderDisplay, ENT_QUOTES, 'UTF-8'); ?></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">जन्म मिति</span>
+                    <span class="small"><?php echo $memEditDobDisplay; ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">दर्ता</span>
