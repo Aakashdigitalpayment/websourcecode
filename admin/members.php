@@ -486,43 +486,106 @@ try {
 <?php if (function_exists('displayFlash')) { displayFlash(); } ?>
 
 <?php if ($viewMember): /* ── Single Member View ── */ ?>
+<?php
+$memEditMode = isset($_GET['edit']) && (string)$_GET['edit'] !== '' && (string)$_GET['edit'] !== '0';
+$memEditName = htmlspecialchars((string)($viewMember['name'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditPhone = htmlspecialchars((string)($viewMember['phone'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditEmail = htmlspecialchars((string)($viewMember['email'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditAddress = htmlspecialchars((string)($viewMember['address'] ?? ''), ENT_QUOTES, 'UTF-8');
+$memEditSid = htmlspecialchars((string)($viewMember['sadasyata_number'] ?? ''), ENT_QUOTES, 'UTF-8');
+?>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
     <a href="members.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>फिर्ता</a>
-    <h4 class="mb-0">Member विवरण</h4>
-    <?php if (empty($_GET['edit'])): ?>
+    <h4 class="mb-0"><?php echo $memEditMode ? 'प्रोफाइल सम्पादन' : 'Member विवरण'; ?></h4>
+    <?php if (!$memEditMode): ?>
     <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>&edit=1" class="btn btn-sm btn-primary ms-auto">
         <i class="fas fa-user-pen me-1"></i>प्रोफाइल सम्पादन
     </a>
     <?php else: ?>
-    <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-secondary ms-auto">रद्द</a>
+    <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-secondary ms-auto">रद्द / फर्कनुहोस्</a>
     <?php endif; ?>
 </div>
 
+<?php if ($memEditMode): ?>
+<!-- Full-width edit form (must be obvious — not buried in right column) -->
+<div class="card border-0 shadow-sm mb-3" style="border-left:4px solid var(--primary-color,#1a5f2a) !important;">
+    <div class="card-header bg-white py-3">
+        <div class="fw-bold text-success mb-1"><i class="fas fa-user-pen me-2"></i>सदस्य प्रोफाइल सच्याउनुहोस्</div>
+        <div class="small text-muted mb-0">नाम, मोबाइल, इमेल, ठेगाना — save पछि linked KYM मा पनि sync हुन्छ। Member ID परिवर्तन हुँदैन।</div>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="row g-3" id="memProfileEditForm">
+            <?php echo csrfField(); ?>
+            <input type="hidden" name="update_member_profile" value="1">
+            <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
+            <div class="col-md-4">
+                <label class="form-label fw-semibold" for="mem_edit_sid">सदस्यता नं. / Member ID</label>
+                <input type="text" id="mem_edit_sid" class="form-control bg-light" value="<?php echo $memEditSid; ?>" disabled readonly>
+                <div class="form-text">पहिचान कोड — परिवर्तन हुँदैन।</div>
+            </div>
+            <div class="col-md-8">
+                <label class="form-label fw-semibold" for="mem_edit_name">पूरा नाम <span class="text-danger">*</span></label>
+                <input type="text" name="name" id="mem_edit_name" class="form-control form-control-lg" required maxlength="200"
+                       value="<?php echo $memEditName; ?>" autocomplete="name">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold" for="mem_edit_phone">मोबाइल <span class="text-danger">*</span></label>
+                <input type="tel" name="phone" id="mem_edit_phone" class="form-control form-control-lg" required maxlength="20"
+                       value="<?php echo $memEditPhone; ?>" inputmode="numeric" autocomplete="tel">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold" for="mem_edit_email">इमेल</label>
+                <input type="email" name="email" id="mem_edit_email" class="form-control" maxlength="200"
+                       value="<?php echo $memEditEmail; ?>" autocomplete="email">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold" for="mem_edit_address">ठेगाना</label>
+                <input type="text" name="address" id="mem_edit_address" class="form-control" maxlength="300"
+                       value="<?php echo $memEditAddress; ?>" autocomplete="street-address">
+            </div>
+            <div class="col-12 d-flex flex-wrap gap-2 pt-1">
+                <button type="submit" class="btn btn-success btn-lg px-4">
+                    <i class="fas fa-save me-1"></i>सुरक्षित गर्नुहोस्
+                </button>
+                <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-outline-secondary btn-lg">रद्द</a>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
 <div class="row g-3">
     <!-- Member Info Card -->
-    <div class="col-md-4">
+    <div class="col-lg-4 col-md-5">
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-4">
-                <?php if ($viewMember['avatar_url']): ?>
-                <img src="<?php echo htmlspecialchars($viewMember['avatar_url']); ?>" class="rounded-circle mb-3 mem-avatar-lg">
+                <?php if (!empty($viewMember['avatar_url'])): ?>
+                <img src="<?php echo htmlspecialchars((string)$viewMember['avatar_url'], ENT_QUOTES, 'UTF-8'); ?>" class="rounded-circle mb-3 mem-avatar-lg" alt="">
                 <?php else: ?>
                 <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3 mem-avatar-fallback-lg">
-                    <?php echo function_exists('mb_substr') ? mb_substr((string)($viewMember['name'] ?? ''), 0, 1) : substr((string)($viewMember['name'] ?? ''), 0, 1); ?>
+                    <?php echo htmlspecialchars(function_exists('mb_substr') ? mb_substr((string)($viewMember['name'] ?? ''), 0, 1, 'UTF-8') : substr((string)($viewMember['name'] ?? ''), 0, 1), ENT_QUOTES, 'UTF-8'); ?>
                 </div>
                 <?php endif; ?>
-                <h5 class="fw-bold mb-1"><?php echo htmlspecialchars($viewMember['name']); ?></h5>
-                <div class="text-muted small"><code><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code></div>
+                <h5 class="fw-bold mb-1"><?php echo $memEditName !== '' ? $memEditName : '—'; ?></h5>
+                <div class="text-muted small"><code><?php echo $memEditSid !== '' ? $memEditSid : '—'; ?></code></div>
                 <div class="mt-2">
-                    <?php if ($viewMember['google_id']): ?><span class="badge mem-badge-google"><i class="fa-brands fa-google me-1"></i>Google</span><?php endif; ?>
-                    <?php if ($viewMember['facebook_id']): ?><span class="badge mem-badge-facebook"><i class="fa-brands fa-facebook-f me-1"></i>Facebook</span><?php endif; ?>
-                    <?php if ($viewMember['password_hash']): ?><span class="badge bg-success">Email</span><?php endif; ?>
+                    <?php if (!empty($viewMember['google_id'])): ?><span class="badge mem-badge-google"><i class="fa-brands fa-google me-1"></i>Google</span><?php endif; ?>
+                    <?php if (!empty($viewMember['facebook_id'])): ?><span class="badge mem-badge-facebook"><i class="fa-brands fa-facebook-f me-1"></i>Facebook</span><?php endif; ?>
+                    <?php if (!empty($viewMember['password_hash'])): ?><span class="badge bg-success">Email</span><?php endif; ?>
                 </div>
+                <?php if (!$memEditMode): ?>
+                <div class="mt-3">
+                    <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>&edit=1" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-user-pen me-1"></i>प्रोफाइल सम्पादन
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
             <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">सदस्यता नं. / Member ID</span>
-                    <code class="small"><?php echo htmlspecialchars($viewMember['sadasyata_number'] ?? '—'); ?></code>
+                    <code class="small"><?php echo $memEditSid !== '' ? $memEditSid : '—'; ?></code>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">लिंक स्थिति</span>
@@ -533,28 +596,27 @@ try {
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">इमेल</span>
-                    <span class="small"><?php echo htmlspecialchars($viewMember['email'] ?? '—'); ?></span>
+                    <span class="small"><?php echo $memEditEmail !== '' ? $memEditEmail : '—'; ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">मोबाइल</span>
-                    <span class="small"><?php echo htmlspecialchars($viewMember['phone'] ?? '—'); ?></span>
+                    <span class="small"><?php echo $memEditPhone !== '' ? $memEditPhone : '—'; ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">ठेगाना</span>
-                    <span class="small"><?php echo htmlspecialchars($viewMember['address'] ?? '—'); ?></span>
+                    <span class="small"><?php echo $memEditAddress !== '' ? $memEditAddress : '—'; ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">दर्ता</span>
-                    <span class="small"><?php echo formatNepaliDate($viewMember['created_at']); ?></span>
+                    <span class="small"><?php echo formatNepaliDate($viewMember['created_at'] ?? ''); ?></span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span class="text-muted small fw-bold">अवस्था</span>
-                    <span class="badge <?php echo $viewMember['is_active'] ? 'bg-success' : 'bg-secondary'; ?>">
-                        <?php echo $viewMember['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?>
+                    <span class="badge <?php echo !empty($viewMember['is_active']) ? 'bg-success' : 'bg-secondary'; ?>">
+                        <?php echo !empty($viewMember['is_active']) ? 'सक्रिय' : 'निष्क्रिय'; ?>
                     </span>
                 </li>
                 <?php
-                /* Issue #3: Card validity / expiry display */
                 $cExp = $viewMember['card_expires_at'] ?? '';
                 if ($cExp):
                     $cExpTs = strtotime($cExp);
@@ -636,55 +698,7 @@ try {
         </div>
     </div>
 
-    <div class="col-md-8">
-        <?php if (!empty($_GET['edit'])): ?>
-        <!-- Edit shared profile (admin correction after import) -->
-        <div class="card border-0 shadow-sm mb-3 border-start border-4 border-primary">
-            <div class="card-header bg-white fw-bold text-primary">
-                <i class="fas fa-user-pen me-2"></i>प्रोफाइल सम्पादन
-                <span class="fw-normal text-muted small ms-2">नाम / मोबाइल / इमेल / ठेगाना — KYM मा auto sync</span>
-            </div>
-            <div class="card-body">
-                <form method="POST" class="row g-3">
-                    <?php echo csrfField(); ?>
-                    <input type="hidden" name="update_member_profile" value="1">
-                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">सदस्यता नं. / Member ID</label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars((string)($viewMember['sadasyata_number'] ?? '')); ?>" disabled>
-                        <div class="form-text">Member ID परिवर्तन हुँदैन।</div>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">पूरा नाम <span class="text-danger">*</span></label>
-                        <input type="text" name="name" class="form-control" required maxlength="200"
-                               value="<?php echo htmlspecialchars((string)($viewMember['name'] ?? '')); ?>">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">मोबाइल <span class="text-danger">*</span></label>
-                        <input type="tel" name="phone" class="form-control" required maxlength="20"
-                               value="<?php echo htmlspecialchars((string)($viewMember['phone'] ?? '')); ?>">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-semibold">इमेल</label>
-                        <input type="email" name="email" class="form-control" maxlength="200"
-                               value="<?php echo htmlspecialchars((string)($viewMember['email'] ?? '')); ?>">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-semibold">ठेगाना</label>
-                        <input type="text" name="address" class="form-control" maxlength="300"
-                               value="<?php echo htmlspecialchars((string)($viewMember['address'] ?? '')); ?>">
-                    </div>
-                    <div class="col-12 d-flex flex-wrap gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>सुरक्षित गर्नुहोस्
-                        </button>
-                        <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-outline-secondary">रद्द</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <?php endif; ?>
-
+    <div class="col-lg-8 col-md-7">
         <!-- Send Notification -->
         <div class="card border-0 shadow-sm mb-3">
             <div class="card-header bg-white fw-bold text-success">
