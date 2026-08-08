@@ -106,22 +106,22 @@ if ($flash = getFlash()):
                         <input type="hidden" name="action" value="save_renewal_settings">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">नवीकरण रकम (देखाउन मात्र)</label>
-                            <input type="text" name="renewal_amount" class="form-control" placeholder="उदा. 5000" value="<?php echo htmlspecialchars($renewalAmount, ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="sl_renewal_amount" class="form-label fw-semibold">नवीकरण रकम (देखाउन मात्र)</label>
+                            <input type="text" name="renewal_amount" id="sl_renewal_amount" class="form-control" placeholder="उदा. 5000" value="<?php echo htmlspecialchars($renewalAmount, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">विक्रेता सूचना इमेल</label>
-                            <input type="email" name="vendor_email" class="form-control" placeholder="vendor@example.com" value="<?php echo htmlspecialchars($vendorEmail, ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="sl_vendor_email" class="form-label fw-semibold">विक्रेता सूचना इमेल</label>
+                            <input type="email" name="vendor_email" id="sl_vendor_email" class="form-control" placeholder="vendor@example.com" value="<?php echo htmlspecialchars($vendorEmail, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Khalti — पैसा पठाउने गन्तव्य ID</label>
+                            <label for="sl_khalti_id" class="form-label fw-semibold">Khalti — पैसा पठाउने गन्तव्य ID</label>
                             <div class="form-text small mb-1">ग्राहकले आफ्नो Khalti बाट <strong>यही नम्बरमा</strong> पठाउँछन्।</div>
-                            <input type="text" name="khalti_id" class="form-control" value="<?php echo htmlspecialchars($khaltiId, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="text" name="khalti_id" id="sl_khalti_id" class="form-control" value="<?php echo htmlspecialchars($khaltiId, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">eSewa — पैसा पठाउने गन्तव्य ID</label>
+                            <label for="sl_esewa_id" class="form-label fw-semibold">eSewa — पैसा पठाउने गन्तव्य ID</label>
                             <div class="form-text small mb-1">ग्राहकले आफ्नो eSewa बाट <strong>यही नम्बरमा</strong> पठाउँछन्।</div>
-                            <input type="text" name="esewa_id" class="form-control" value="<?php echo htmlspecialchars($esewaId, ENT_QUOTES, 'UTF-8'); ?>">
+                            <input type="text" name="esewa_id" id="sl_esewa_id" class="form-control" value="<?php echo htmlspecialchars($esewaId, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-outline-success"><i class="fas fa-save me-1"></i>भुक्तानी सेटिङ सेभ</button>
@@ -192,7 +192,7 @@ if ($flash = getFlash()):
                         <input type="hidden" name="action" value="save_license_date">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
 
-                        <label class="form-label fw-semibold">सेवा वैध रहने अन्तिम दिन (बि.सं.) — विक्रेता / Superadmin</label>
+                        <label for="site_license_bs" class="form-label fw-semibold">सेवा वैध रहने अन्तिम दिन (बि.सं.) — विक्रेता / Superadmin</label>
                         <input type="text" name="valid_until_bs" id="site_license_bs"
                                class="form-control form-control-lg mb-2 nepali-datepicker" autocomplete="off"
                                placeholder="YYYY-MM-DD"

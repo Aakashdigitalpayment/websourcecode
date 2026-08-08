@@ -272,16 +272,16 @@ try {
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="application_id" value="<?php echo (int)$app['id']; ?>">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('स्थिति', 'Status'); ?></label>
-                                <select name="status" class="form-select">
+                                <label for="ha_filter_status" class="form-label"><?php echo $__t('स्थिति', 'Status'); ?></label>
+                                <select name="status" id="ha_filter_status" class="form-select">
                                     <?php foreach ($statusOptions as $st): ?>
                                     <option value="<?php echo $st; ?>" <?php echo $app['status'] === $st ? 'selected' : ''; ?>><?php echo e(honorStatusLabel($st, false)); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('प्रशासक टिप्पणी / जवाफ', 'Admin remarks / reply'); ?></label>
-                                <textarea name="admin_remarks" class="form-control" rows="4" placeholder="<?php echo $__t('छनोट/अस्वीकृतको कारण वा सन्देश…', 'Selection/rejection reason or message…'); ?>"><?php echo e($app['admin_remarks'] ?? ''); ?></textarea>
+                                <label for="ha_admin_remarks" class="form-label"><?php echo $__t('प्रशासक टिप्पणी / जवाफ', 'Admin remarks / reply'); ?></label>
+                                <textarea name="admin_remarks" id="ha_admin_remarks" class="form-control" rows="4" placeholder="<?php echo $__t('छनोट/अस्वीकृतको कारण वा सन्देश…', 'Selection/rejection reason or message…'); ?>"><?php echo e($app['admin_remarks'] ?? ''); ?></textarea>
                                 <div class="form-text"><?php echo $__t('यो टिप्पणी आवेदकलाई email/SMS मा जान सक्छ।', 'This remark can be sent to the applicant by email/SMS.'); ?></div>
                             </div>
                             <?php $hasEmail = !empty($app['email']); $hasPhone = !empty($app['phone']); ?>
@@ -392,8 +392,8 @@ $exportQs = array_filter([
 <form method="get" class="card admin-table-card mb-3">
     <div class="card-body row g-2 align-items-end">
         <div class="col-md-3">
-            <label class="form-label small"><?php echo $__t('कार्यक्रम', 'Program'); ?></label>
-            <select name="program_id" class="form-select form-select-sm">
+            <label for="ha_program_id" class="form-label small"><?php echo $__t('कार्यक्रम', 'Program'); ?></label>
+            <select name="program_id" id="ha_program_id" class="form-select form-select-sm">
                 <option value="0"><?php echo $__t('सबै', 'All'); ?></option>
                 <?php foreach ($programs as $p): ?>
                 <option value="<?php echo (int)$p['id']; ?>" <?php echo $filterProgram === (int)$p['id'] ? 'selected' : ''; ?>><?php echo e($p['title_np'] ?: $p['title_en']); ?></option>
@@ -401,8 +401,8 @@ $exportQs = array_filter([
             </select>
         </div>
         <div class="col-md-3">
-            <label class="form-label small"><?php echo $__t('कोटि', 'Category'); ?></label>
-            <select name="category_id" class="form-select form-select-sm">
+            <label for="ha_category_id" class="form-label small"><?php echo $__t('कोटि', 'Category'); ?></label>
+            <select name="category_id" id="ha_category_id" class="form-select form-select-sm">
                 <option value="0"><?php echo $__t('सबै', 'All'); ?></option>
                 <?php foreach ($categories as $c): ?>
                 <option value="<?php echo (int)$c['id']; ?>" <?php echo $filterCategory === (int)$c['id'] ? 'selected' : ''; ?>><?php echo e($c['name_np'] ?: $c['name_en']); ?></option>
@@ -410,8 +410,8 @@ $exportQs = array_filter([
             </select>
         </div>
         <div class="col-md-2">
-            <label class="form-label small"><?php echo $__t('स्थिति', 'Status'); ?></label>
-            <select name="status" class="form-select form-select-sm">
+            <label for="ha_status" class="form-label small"><?php echo $__t('स्थिति', 'Status'); ?></label>
+            <select name="status" id="ha_status" class="form-select form-select-sm">
                 <option value=""><?php echo $__t('सबै', 'All'); ?></option>
                 <?php foreach ($statusOptions as $st): ?>
                 <option value="<?php echo $st; ?>" <?php echo $filterStatus === $st ? 'selected' : ''; ?>><?php echo e(honorStatusLabel($st, false)); ?></option>
@@ -420,8 +420,8 @@ $exportQs = array_filter([
         </div>
         <?php echo adminExcelDateInputsHtml($dateFrom, $dateTo, 'col-md-2 col-6'); ?>
         <div class="col-md-2">
-            <label class="form-label small"><?php echo $__t('खोज', 'Search'); ?></label>
-            <input type="text" name="search" class="form-control form-control-sm" value="<?php echo e($search); ?>" placeholder="HNR- / नाम / फोन">
+            <label for="ha_search" class="form-label small"><?php echo $__t('खोज', 'Search'); ?></label>
+            <input type="text" name="search" id="ha_search" class="form-control form-control-sm" value="<?php echo e($search); ?>" placeholder="HNR- / नाम / फोन">
         </div>
         <div class="col-md-1">
             <button class="btn btn-primary btn-sm w-100" type="submit"><i class="fas fa-search"></i></button>

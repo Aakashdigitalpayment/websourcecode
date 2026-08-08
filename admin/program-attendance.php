@@ -609,14 +609,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 <div class="card admin-table-card mb-3">
   <div class="card-body">
     <form class="row g-2 align-items-end" method="get" action="program-attendance.php">
-      <div class="col-md-3"><label class="form-label small mb-1"><?php echo $__t('कार्यक्रम','Program'); ?></label><select name="program_id" class="form-select"><option value="0"><?php echo $__t('सबै कार्यक्रम','All Programs'); ?></option><?php foreach ($programs as $p): ?><?php
+      <div class="col-md-3"><label for="pa_program_id" class="form-label small mb-1"><?php echo $__t('कार्यक्रम','Program'); ?></label><select name="program_id" id="pa_program_id" class="form-select"><option value="0"><?php echo $__t('सबै कार्यक्रम','All Programs'); ?></option><?php foreach ($programs as $p): ?><?php
           $pTitle = (string)($p['title'] ?? '');
           $pInactive = isset($p['is_active']) && (int)$p['is_active'] !== 1;
           $pLabel = $pTitle . ($pInactive ? ' (निष्क्रिय)' : '');
       ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId === (int)$p['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($pLabel); ?></option><?php endforeach; ?></select></div>
-      <div class="col-md-3"><label class="form-label small mb-1"><?php echo $__t('खोज (नाम / सदस्य नं. / कार्यक्रम)', 'Search (name / member no. / program)'); ?></label><input name="q" class="form-control" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo $__t('खोज…', 'Search...'); ?>"></div>
-      <div class="col-md-2"><label class="form-label small mb-1">देखि</label><input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($dateFrom); ?>"></div>
-      <div class="col-md-2"><label class="form-label small mb-1">सम्म</label><input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($dateTo); ?>"></div>
+      <div class="col-md-3"><label for="pa_q" class="form-label small mb-1"><?php echo $__t('खोज (नाम / सदस्य नं. / कार्यक्रम)', 'Search (name / member no. / program)'); ?></label><input name="q" id="pa_q" class="form-control" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo $__t('खोज…', 'Search...'); ?>"></div>
+      <div class="col-md-2"><label for="pa_date_from" class="form-label small mb-1">देखि</label><input type="date" name="date_from" id="pa_date_from" class="form-control" value="<?php echo htmlspecialchars($dateFrom); ?>"></div>
+      <div class="col-md-2"><label for="pa_date_to" class="form-label small mb-1">सम्म</label><input type="date" name="date_to" id="pa_date_to" class="form-control" value="<?php echo htmlspecialchars($dateTo); ?>"></div>
       <div class="col-md-2">
         <label class="form-check-label small d-block mb-1">
           <input class="form-check-input me-1" type="checkbox" name="active_only" value="1" <?php echo $activeOnly ? 'checked' : ''; ?>>
@@ -829,16 +829,16 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="bulk_notify_prereg">
       <div class="col-md-2">
-        <label class="form-label small mb-1">Channel</label>
-        <select name="notify_channel" class="form-select form-select-sm">
+        <label for="pa_notify_channel" class="form-label small mb-1">Channel</label>
+        <select name="notify_channel" id="pa_notify_channel" class="form-select form-select-sm">
           <option value="both">SMS + Email</option>
           <option value="sms">SMS Only</option>
           <option value="email">Email Only</option>
         </select>
       </div>
       <div class="col-md-7">
-        <label class="form-label small mb-1">Bulk message</label>
-        <input type="text" name="bulk_message" class="form-control form-control-sm" placeholder="उदाहरण: कार्यक्रम सुरु हुनुभन्दा ३० मिनेट अगाडि उपस्थित हुनुस्।" required>
+        <label for="pa_bulk_message" class="form-label small mb-1">Bulk message</label>
+        <input type="text" name="bulk_message" id="pa_bulk_message" class="form-control form-control-sm" placeholder="उदाहरण: कार्यक्रम सुरु हुनुभन्दा ३० मिनेट अगाडि उपस्थित हुनुस्।" required>
       </div>
       <div class="col-md-3 d-grid gap-1">
         <button type="submit" name="action" value="bulk_notify_prereg_test" class="btn btn-sm btn-outline-secondary"><i class="fas fa-vial-circle-check me-1"></i>Test Send</button>

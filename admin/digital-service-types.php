@@ -182,29 +182,29 @@ if ($_flash) {
                     <input type="hidden" name="action" value="save_type">
                     <input type="hidden" name="type_id" value="<?php echo (int)($form['id'] ?? 0); ?>">
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
-                        <input type="text" name="name_np" class="form-control" required maxlength="160"
+                        <label for="dst_name_np" class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
+                        <input type="text" name="name_np" id="dst_name_np" class="form-control" required maxlength="160"
                                value="<?php echo htmlspecialchars((string)$form['name_np']); ?>">
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                        <input type="text" name="name_en" class="form-control" maxlength="160"
+                        <label for="dst_name_en" class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                        <input type="text" name="name_en" id="dst_name_en" class="form-control" maxlength="160"
                                value="<?php echo htmlspecialchars((string)$form['name_en']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
-                        <input type="text" name="icon" class="form-control" maxlength="80"
+                        <label for="dst_icon" class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
+                        <input type="text" name="icon" id="dst_icon" class="form-control" maxlength="80"
                                placeholder="fa-laptop"
                                value="<?php echo htmlspecialchars((string)$form['icon']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('रङ', 'Color'); ?></label>
-                        <input type="text" name="color" class="form-control" maxlength="40"
+                        <label for="dst_color" class="form-label"><?php echo $__t('रङ', 'Color'); ?></label>
+                        <input type="text" name="color" id="dst_color" class="form-control" maxlength="40"
                                value="<?php echo htmlspecialchars((string)$form['color']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
-                        <input type="number" name="display_order" class="form-control" value="<?php echo (int)($form['display_order'] ?? 0); ?>">
+                        <label for="dst_order" class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                        <input type="number" name="display_order" id="dst_order" class="form-control" value="<?php echo (int)($form['display_order'] ?? 0); ?>">
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <div class="form-check mb-2">

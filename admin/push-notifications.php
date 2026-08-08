@@ -224,15 +224,15 @@ $typeColors = [
             <input type="hidden" name="_action" value="send_push">
 
             <div class="mb-3">
-                <label class="form-label fw-600">शीर्षक (Title) <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="title" class="form-control" maxlength="100"
+                <label for="push_title" class="form-label fw-600">शीर्षक (Title) <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="title" id="push_title" class="form-control" maxlength="100"
                        placeholder="जस्तै: ऋण स्वीकृत भयो" required
                        value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>">
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-600">सन्देश (Body)</label>
-                <textarea name="body" class="form-control" rows="3" maxlength="250"
+                <label for="push_body" class="form-label fw-600">सन्देश (Body)</label>
+                <textarea name="body" id="push_body" class="form-control" rows="3" maxlength="250"
                           placeholder="जस्तै: तपाईंको ऋण आवेदन स्वीकृत गरिएको छ। विवरणका लागि Member Portal खोल्नुहोस्।"><?php
                     echo htmlspecialchars($_POST['body'] ?? '');
                 ?></textarea>
@@ -240,8 +240,8 @@ $typeColors = [
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-600">प्रकार (Type)</label>
-                <select name="type" class="form-select">
+                <label for="push_type" class="form-label fw-600">प्रकार (Type)</label>
+                <select name="type" id="push_type" class="form-select">
                     <option value="info"    <?php echo ($_POST['type'] ?? '') === 'info'    ? 'selected' : ''; ?>>ℹ️ जानकारी (Info)</option>
                     <option value="success" <?php echo ($_POST['type'] ?? '') === 'success' ? 'selected' : ''; ?>>✅ सफल (Success)</option>
                     <option value="warning" <?php echo ($_POST['type'] ?? '') === 'warning' ? 'selected' : ''; ?>>⚠️ सचेतना (Warning)</option>
@@ -250,7 +250,7 @@ $typeColors = [
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-600">पठाउने लक्ष्य</label>
+                <label for="targetSelect" class="form-label fw-600">पठाउने लक्ष्य</label>
                 <select name="target_member_id" class="form-select" id="targetSelect">
                     <option value="">सबै Push-enabled सदस्यहरू (<?php echo $memberCount; ?> जना)</option>
                     <?php foreach ($members as $m): ?>

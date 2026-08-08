@@ -304,26 +304,26 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Nepali Title (अनिवार्य) -->
                         <div class="mb-3">
-                            <label class="form-label">नेपाली शीर्षक <span class="text-danger">*</span></label>
+                            <label for="sat_title" class="form-label">नेपाली शीर्षक <span class="text-danger">*</span></label>
                             <!-- जस्तै: "सदस्य सर्वेक्षण" -->
-                            <input type="text" name="title" class="form-control"
+                            <input type="text" name="title" id="sat_title" class="form-control"
                                    placeholder="जस्तै: सदस्य सर्वेक्षण"
                                    value="<?php echo htmlspecialchars($editLink['title'] ?? ''); ?>" required>
                         </div>
 
                         <!-- English Title (optional) -->
                         <div class="mb-3">
-                            <label class="form-label">अंग्रेजी शीर्षक <small class="text-muted">(optional)</small></label>
-                            <input type="text" name="title_en" class="form-control"
+                            <label for="sat_title_en" class="form-label">अंग्रेजी शीर्षक <small class="text-muted">(optional)</small></label>
+                            <input type="text" name="title_en" id="sat_title_en" class="form-control"
                                    placeholder="e.g. Member Survey"
                                    value="<?php echo htmlspecialchars($editLink['title_en'] ?? ''); ?>">
                         </div>
 
                         <!-- URL (अनिवार्य) -->
                         <div class="mb-3">
-                            <label class="form-label">URL / Link <span class="text-danger">*</span></label>
+                            <label for="sat_url" class="form-label">URL / Link <span class="text-danger">*</span></label>
                             <!-- Full URL वा relative path दुवै हुन्छ -->
-                            <input type="url" name="url" class="form-control"
+                            <input type="url" name="url" id="sat_url" class="form-control"
                                    placeholder="https://forms.google.com/..."
                                    value="<?php echo htmlspecialchars($editLink['url'] ?? ''); ?>" required>
                             <small class="text-muted">यो link नयाँ tab मा खुल्छ।</small>
@@ -331,7 +331,7 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Icon -->
                         <div class="mb-3">
-                            <label class="form-label">Icon <small class="text-muted">(FontAwesome class)</small></label>
+                            <label for="iconInput" class="form-label">Icon <small class="text-muted">(FontAwesome class)</small></label>
                             <div class="input-group">
                                 <span class="input-group-text" id="iconPreview">
                                     <i class="<?php echo htmlspecialchars($editLink['icon'] ?? 'fas fa-link'); ?>" id="previewIcon"></i>
@@ -349,9 +349,9 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Display Order -->
                         <div class="mb-3">
-                            <label class="form-label">क्रम (Display Order)</label>
+                            <label for="sat_order" class="form-label">क्रम (Display Order)</label>
                             <!-- सानो नम्बर पहिले देखिन्छ -->
-                            <input type="number" name="display_order" class="form-control"
+                            <input type="number" name="display_order" id="sat_order" class="form-control"
                                    value="<?php echo (int)($editLink['display_order'] ?? 0); ?>" min="0">
                         </div>
 
