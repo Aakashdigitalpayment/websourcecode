@@ -1952,14 +1952,20 @@ if (!headers_sent()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
     unset($_httpsOn);
-    /* CSP report-only — बिस्तारै enforce गर्न लग मोनिटर गर्न */
+    /* CSP report-only — still NOT enforcing. Broaden allowlists to match
+       live assets (Leaflet/unpkg, maps/youtube frames, CDN CSS, workers)
+       so future enforce can be staged without surprise blocks. */
     header(
         "Content-Security-Policy-Report-Only: default-src 'self'; "
         . "img-src 'self' data: blob: https:; "
-        . "media-src 'self' blob:; "
-        . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-        . "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-        . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        . "media-src 'self' blob: https:; "
+        . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; "
+        . "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://unpkg.com; "
+        . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; "
+        . "connect-src 'self' https:; "
+        . "frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com https://www.youtube-nocookie.com https://www.facebook.com; "
+        . "worker-src 'self' blob:; "
+        . "child-src 'self' blob:; "
         . "frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
     );
 }

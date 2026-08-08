@@ -97,6 +97,23 @@ assertFileContains('includes/config.php', "header('X-Frame-Options: SAMEORIGIN')
 assertFileContains('includes/config.php', "header('X-Content-Type-Options: nosniff')", 'nosniff');
 assertFileContains('includes/config.php', "header('Referrer-Policy: strict-origin-when-cross-origin')", 'Referrer-Policy');
 
+// CSP stays report-only (must NOT flip to enforce in this safe pass)
+$configSecurity = (string) file_get_contents($root . '/includes/config.php');
+if (strpos($configSecurity, 'Content-Security-Policy-Report-Only:') === false) {
+    fail('includes/config.php: missing CSP Report-Only header');
+} else {
+    ok('includes/config.php: CSP Report-Only present');
+}
+if (preg_match('/header\s*\(\s*[\'"]Content-Security-Policy:/', $configSecurity)) {
+    fail('includes/config.php: enforcing CSP header found (unsafe for this pass)');
+} else {
+    ok('includes/config.php: no enforcing CSP header');
+}
+assertFileContains('includes/config.php', 'https://unpkg.com', 'CSP allows unpkg (Leaflet)');
+assertFileContains('includes/config.php', 'frame-src', 'CSP frame-src for maps/embeds');
+assertFileContains('includes/config.php', 'connect-src', 'CSP connect-src for XHR/fetch');
+assertFileContains('includes/config.php', 'worker-src', 'CSP worker-src for QR scanner');
+
 // Tabnabbing — public high-traffic surfaces
 $noopenerFiles = [
     'important-links.php',
