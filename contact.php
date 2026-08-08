@@ -272,36 +272,36 @@ require_once 'includes/header.php';
                     <div class="row g-3">
                         <!-- नाम -->
                         <div class="col-md-6">
-                            <label class="form-label fw-500"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
-                            <input type="text" name="name" class="form-control" required
+                            <label for="contact_name" class="form-label fw-500"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
+                            <input type="text" name="name" id="contact_name" class="form-control" required
                                    value="<?php echo htmlspecialchars($_POST['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your name' : 'तपाईंको नाम'; ?>">
+                                   placeholder="<?php echo isEnglish() ? 'Your name' : 'तपाईंको नाम'; ?>" autocomplete="name">
                         </div>
                         <!-- इमेल -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
-                            <input type="email" name="email" class="form-control"
+                            <label for="contact_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                            <input type="email" name="email" id="contact_email" class="form-control"
                                    value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your email' : 'तपाईंको इमेल'; ?>">
+                                   placeholder="<?php echo isEnglish() ? 'Your email' : 'तपाईंको इमेल'; ?>" autocomplete="email">
                         </div>
                         <!-- फोन -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन नम्बर'; ?></label>
-                            <input type="tel" name="phone" class="form-control"
+                            <label for="contact_phone" class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन नम्बर'; ?></label>
+                            <input type="tel" name="phone" id="contact_phone" class="form-control"
                                    value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>">
+                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>" autocomplete="tel">
                         </div>
                         <!-- विषय -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?></label>
-                            <input type="text" name="subject" class="form-control"
+                            <label for="contact_subject" class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?></label>
+                            <input type="text" name="subject" id="contact_subject" class="form-control"
                                    value="<?php echo htmlspecialchars($_POST['subject'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                    placeholder="<?php echo isEnglish() ? 'Message subject' : 'सन्देशको विषय'; ?>">
                         </div>
                         <!-- सन्देश -->
                         <div class="col-12">
-                            <label class="form-label"><?php echo isEnglish() ? 'Message' : 'सन्देश'; ?> <span class="req">*</span></label>
-                            <textarea name="message" class="form-control" rows="4" required
+                            <label for="contact_message" class="form-label"><?php echo isEnglish() ? 'Message' : 'सन्देश'; ?> <span class="req">*</span></label>
+                            <textarea name="message" id="contact_message" class="form-control" rows="4" required
                                       placeholder="<?php echo isEnglish() ? 'Write your message here...' : 'तपाईंको सन्देश लेख्नुहोस्...'; ?>"><?php echo htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                     </div><!-- /row -->

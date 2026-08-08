@@ -214,10 +214,6 @@ if ($viewId > 0) {
         $viewMember = $st->fetch(PDO::FETCH_ASSOC) ?: null;
         if ($viewMember && function_exists('memberStripAuthSecrets')) {
             $viewMember = memberStripAuthSecrets($viewMember);
-            if (!isset($viewMember['has_password'])) {
-                $viewMember['has_password'] = !empty($viewMember['password_hash']) ? 1 : 0;
-            }
-            unset($viewMember['password_hash']);
         }
         if ($viewMember) {
             if (function_exists('getMemberApplications')) {

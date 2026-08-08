@@ -18,9 +18,8 @@ try {
     if (function_exists('memberStripAuthSecrets')) {
         $member = memberStripAuthSecrets($member);
     } else {
-        unset($member['twofa_secret'], $member['twofa_backup_codes']);
+        unset($member['twofa_secret'], $member['twofa_backup_codes'], $member['password_hash']);
     }
-    unset($member['password_hash']);
 
     // Notifications
     $ns = $pdo->prepare("SELECT * FROM member_notifications WHERE member_id=? ORDER BY created_at DESC LIMIT 30");
