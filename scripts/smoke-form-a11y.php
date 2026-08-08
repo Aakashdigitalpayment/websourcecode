@@ -82,6 +82,10 @@ $filesExpectZeroBare = [
     'member/appointment.php',
     'member/grievance.php',
     'sahakari-patro.php',
+    'grievance.php',
+    'member-welfare.php',
+    'digital-services.php',
+    'admin/site-health.php',
 ];
 
 foreach ($filesExpectZeroBare as $f) {
@@ -145,6 +149,12 @@ $pairs = [
     ['sahakari-patro.php', 'for="sp_birth_time"', 'birth time'],
     ['sahakari-patro.php', 'for="sp_nakshatra"', 'nakshatra'],
     ['sahakari-patro.php', 'for="sp_rashi"', 'rashi'],
+    ['grievance.php', 'aria-labelledby="grv_coop_member_label"', 'grievance coop group'],
+    ['member-welfare.php', 'aria-labelledby="wlf_coop_member_label"', 'welfare coop group'],
+    ['digital-services.php', 'aria-labelledby="ds_coop_member_label"', 'digital services coop group'],
+    ['admin/site-health.php', 'for="fp-char-ta"', 'char counter textarea'],
+    ['admin/site-health.php', 'for="fp-copy-field"', 'copy field'],
+    ['admin/site-health.php', 'for="fp-pw-field"', 'password reveal'],
 ];
 
 foreach ($pairs as [$file, $needle, $why]) {

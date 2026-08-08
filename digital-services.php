@@ -369,8 +369,8 @@ $L = getLangStrings();
                         require ROOT_PATH . 'includes/member-prefill-block.php';
                     else: ?>
                     <div class="border rounded-3 p-3 mb-3 ds-soft-bg ds-coop-card">
-                        <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you a cooperative member?' : 'तपाईं सहकारी सदस्य हुनुहुन्छ?'; ?></label>
-                        <div class="d-flex flex-wrap gap-3 ds-coop-radio-row">
+                        <label id="ds_coop_member_label" class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you a cooperative member?' : 'तपाईं सहकारी सदस्य हुनुहुन्छ?'; ?></label>
+                        <div class="d-flex flex-wrap gap-3 ds-coop-radio-row" role="group" aria-labelledby="ds_coop_member_label">
                             <label class="form-check-label ds-coop-option"><input type="radio" name="is_coop_member" value="no" class="form-check-input js-ds-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <span><?php echo isEnglish() ? 'No' : 'होइन'; ?></span></label>
                             <label class="form-check-label ds-coop-option"><input type="radio" name="is_coop_member" value="yes" class="form-check-input js-ds-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <span><?php echo isEnglish() ? 'Yes (Member ID + email + mobile = KYC)' : 'हो (KYC जस्तै तीन विवरण)'; ?></span></label>
                         </div>
