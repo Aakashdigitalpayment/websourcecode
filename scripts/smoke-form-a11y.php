@@ -43,11 +43,25 @@ function countBareFormLabels(string $file): int {
     if ($t === false) {
         return -1;
     }
-    // <label class="form-label..." without for=
-    if (!preg_match_all('/<label class="form-label[^"]*"(?![^>]*\bfor=)[^>]*>/', $t, $m)) {
+    // form-label / mem-form-label / sp-form-label without for=
+    // Labels that already have id= are treated as group legends (aria-labelledby).
+    if (!preg_match_all('/<label\b[^>]*>/i', $t, $m)) {
         return 0;
     }
-    return count($m[0]);
+    $n = 0;
+    foreach ($m[0] as $label) {
+        if (!preg_match('/\b(?:form-label|mem-form-label|sp-form-label)\b/', $label)) {
+            continue;
+        }
+        if (preg_match('/\bfor\s*=/', $label)) {
+            continue;
+        }
+        if (preg_match('/\bid\s*=/', $label)) {
+            continue;
+        }
+        $n++;
+    }
+    return $n;
 }
 
 $filesExpectZeroBare = [
@@ -67,6 +81,7 @@ $filesExpectZeroBare = [
     'member/service-request.php',
     'member/appointment.php',
     'member/grievance.php',
+    'sahakari-patro.php',
 ];
 
 foreach ($filesExpectZeroBare as $f) {
@@ -126,6 +141,10 @@ $pairs = [
     ['member/appointment.php', 'for="mapt_preferred_date"', 'preferred date'],
     ['member/grievance.php', 'for="mgr_category"', 'category'],
     ['member/grievance.php', 'for="mgr_subject"', 'subject'],
+    ['sahakari-patro.php', 'for="sp_birth_date"', 'birth date'],
+    ['sahakari-patro.php', 'for="sp_birth_time"', 'birth time'],
+    ['sahakari-patro.php', 'for="sp_nakshatra"', 'nakshatra'],
+    ['sahakari-patro.php', 'for="sp_rashi"', 'rashi'],
 ];
 
 foreach ($pairs as [$file, $needle, $why]) {
