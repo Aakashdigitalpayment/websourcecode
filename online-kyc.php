@@ -1329,12 +1329,12 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                     <form method="POST" enctype="multipart/form-data" class="kyc-form needs-validation" id="fullKymForm" novalidate>
                         <?php echo csrfField(); ?>
-                        <div id="kymProgressStrip" class="kym-progress-strip mb-2">
-                            <span id="kymStepCounter" class="kym-step-counter"></span>
-                            <div class="kym-progress-track"><div id="kymProgressFill" class="kym-progress-fill"></div></div>
+                        <div id="kymProgressStrip" class="kym-progress-strip mb-2" role="group" aria-label="<?php echo isEnglish() ? 'Form progress' : 'फारम प्रगति'; ?>">
+                            <span id="kymStepCounter" class="kym-step-counter" role="status" aria-live="polite"></span>
+                            <div class="kym-progress-track" aria-hidden="true"><div id="kymProgressFill" class="kym-progress-fill"></div></div>
                         </div>
-                        <div id="kymWizardNav" class="kym-wizard-nav mb-2"></div>
-                        <div class="kym-wizard-hint mb-3"><?php echo isEnglish() ? 'Use Save & Next to keep progress while moving between sections.' : 'सेक्सन अनुसार भर्नुहोस्, "Save & Next" ले हालसम्मको data सुरक्षित राख्छ।'; ?></div>
+                        <nav id="kymWizardNav" class="kym-wizard-nav mb-2" aria-label="<?php echo isEnglish() ? 'KYM sections' : 'केवाइएम खण्डहरू'; ?>"></nav>
+                        <div class="kym-wizard-hint mb-3"><?php echo isEnglish() ? 'Fill each section, then use Save & Next — your answers stay saved as you move.' : 'प्रत्येक खण्ड भर्नुहोस्, त्यसपछि «सेभ गरेर अगाडि» थिच्नुहोस् — अगाडि–पछाडि जाँदा डेटा सुरक्षित रहन्छ।'; ?></div>
 
                         <!-- Personal Information -->
                         <div class="form-section" id="kymExtendedSection">
@@ -2033,11 +2033,11 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         </div>
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2 mb-3" id="kymWizardControls">
-                            <button type="button" class="btn btn-outline-secondary" id="kymPrevBtn">
-                                <i class="fas fa-arrow-left me-1"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
+                            <button type="button" class="btn btn-outline-secondary" id="kymPrevBtn" aria-label="<?php echo isEnglish() ? 'Previous section' : 'अघिल्लो खण्ड'; ?>">
+                                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
                             </button>
-                            <button type="button" class="btn btn-coop" id="kymNextBtn">
-                                <?php echo isEnglish() ? 'Save & Next' : 'सेभ गरेर अगाडि'; ?> <i class="fas fa-arrow-right ms-1"></i>
+                            <button type="button" class="btn btn-coop" id="kymNextBtn" aria-label="<?php echo isEnglish() ? 'Save and go to next section' : 'सेभ गरेर अर्को खण्डमा जानुहोस्'; ?>">
+                                <?php echo isEnglish() ? 'Save & Next' : 'सेभ गरेर अगाडि'; ?> <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
                             </button>
                         </div>
 
@@ -2792,6 +2792,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 + (idx === currentStep ? ' active' : '')
                 + (isDone             ? ' done'   : '');
             b.title = getSectionTitle(sec, idx);
+            b.setAttribute('aria-label', getSectionTitle(sec, idx));
+            if (idx === currentStep) {
+                b.setAttribute('aria-current', 'step');
+            } else {
+                b.removeAttribute('aria-current');
+            }
 
             var numSpan = document.createElement('span');
             numSpan.className = 'kym-step-num';

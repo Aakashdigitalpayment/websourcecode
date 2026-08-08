@@ -223,6 +223,10 @@ if (!function_exists('coopThemeCssUrl')) {
             $panel = coopThemeDetectPanel();
         }
 
+        /* Load order (do not merge sheets here):
+         * panel base → global/forms → enhancements → shell polish →
+         * ui-readability-safe-patch → admin-ux-deep-patch (admin) → final-ui-polish LAST.
+         * Patches stay separate so live cascade fixes remain reversible. */
         if (empty($options['skip_fonts'])) {
             coopThemeGoogleFonts();
         }
