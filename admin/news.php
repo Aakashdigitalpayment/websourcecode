@@ -295,31 +295,31 @@ $newsArch = $newsPart['archived'];
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="nf_title_np" class="form-label fw-semibold text-success">
                                 <i class="fas fa-language me-1"></i>शीर्षक (नेपाली) <span class="text-danger">*</span>
                             </label>
                             <input type="text" name="title_np" id="nf_title_np" class="form-control admin-fancy-input" required placeholder="समाचारको शीर्षक नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="nf_title" class="form-label fw-semibold text-success">
                                 <i class="fas fa-globe me-1"></i>Title (English)
                             </label>
                             <input type="text" name="title" id="nf_title" class="form-control admin-fancy-input" placeholder="News title in English">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="nf_content_np" class="form-label fw-semibold text-success">
                                 <i class="fas fa-align-left me-1"></i>विवरण (नेपाली)
                             </label>
                             <textarea name="content_np" id="nf_content_np" class="form-control admin-fancy-input" rows="6" placeholder="समाचारको विवरण नेपालीमा..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="nf_content" class="form-label fw-semibold text-success">
                                 <i class="fas fa-align-left me-1"></i>Content (English)
                             </label>
                             <textarea name="content" id="nf_content" class="form-control admin-fancy-input" rows="6" placeholder="News content in English..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="nf_img_file" class="form-label fw-semibold text-success">
                                 <i class="fas fa-image me-1"></i>छवि (Image)
                                 <small class="text-muted fw-normal" id="nf_img_note"></small>
                             </label>
