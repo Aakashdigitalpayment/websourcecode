@@ -293,8 +293,8 @@ try {
                             <h5><i class="fas fa-wallet"></i> <?php echo isEnglish() ? 'Account Type' : 'खाता प्रकार'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Select Account Type' : 'खाता प्रकार छान्नुहोस्'; ?> <span class="text-danger">*</span></label>
-                                    <select name="account_type" class="form-select" required>
+                                    <label for="acc_account_type" class="form-label"><?php echo isEnglish() ? 'Select Account Type' : 'खाता प्रकार छान्नुहोस्'; ?> <span class="text-danger">*</span></label>
+                                    <select name="account_type" id="acc_account_type" class="form-select" required>
                                         <option value="saving"><?php echo isEnglish() ? 'Saving Account' : 'बचत खाता'; ?></option>
                                         <option value="current"><?php echo isEnglish() ? 'Current Account' : 'चल्ती खाता'; ?></option>
                                         <option value="fixed"><?php echo isEnglish() ? 'Fixed Deposit' : 'मुद्दती निक्षेप'; ?></option>
@@ -303,8 +303,8 @@ try {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Initial Deposit' : 'प्रारम्भिक जम्मा'; ?></label>
-                                    <select name="initial_deposit" class="form-select">
+                                    <label for="acc_initial_deposit" class="form-label"><?php echo isEnglish() ? 'Initial Deposit' : 'प्रारम्भिक जम्मा'; ?></label>
+                                    <select name="initial_deposit" id="acc_initial_deposit" class="form-select">
                                         <option value="1000">रु. १,०००</option>
                                         <option value="5000">रु. ५,०००</option>
                                         <option value="10000">रु. १०,०००</option>
@@ -322,53 +322,53 @@ try {
                             <h5><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-acc-mid-wrap" style="display:none;">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID (KYM)' : 'सदस्यता नम्बर (KYC)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="account_member_id" class="form-control js-acc-mid" autocomplete="off"
+                                    <label for="acc_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID (KYM)' : 'सदस्यता नम्बर (KYC)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="account_member_id" id="acc_member_id" class="form-control js-acc-mid" autocomplete="off"
                                            value="<?php echo htmlspecialchars($_POST['account_member_id'] ?? '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Same as KYC' : 'KYC जस्तै'; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3 js-acc-name-wrap">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपाली)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control js-acc-pers" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपाली)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" id="acc_full_name" class="form-control js-acc-pers" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? '', ENT_QUOTES); ?>" autocomplete="name">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name (English)' : 'पूरा नाम (अंग्रेजी)'; ?></label>
-                                    <input type="text" name="full_name_en" class="form-control" value="<?php echo htmlspecialchars($_POST['full_name_en'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_full_name_en" class="form-label"><?php echo isEnglish() ? 'Full Name (English)' : 'पूरा नाम (अंग्रेजी)'; ?></label>
+                                    <input type="text" name="full_name_en" id="acc_full_name_en" class="form-control" value="<?php echo htmlspecialchars($_POST['full_name_en'] ?? '', ENT_QUOTES); ?>">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (बि.सं.)'; ?></label>
-                                    <input type="text" name="dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($_POST['dob_bs'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_dob_bs" class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (बि.सं.)'; ?></label>
+                                    <input type="text" name="dob_bs" id="acc_dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($_POST['dob_bs'] ?? '', ENT_QUOTES); ?>">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
-                                    <select name="gender" class="form-select">
+                                    <label for="acc_gender" class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
+                                    <select name="gender" id="acc_gender" class="form-select">
                                         <option value="male"><?php echo isEnglish() ? 'Male' : 'पुरुष'; ?></option>
                                         <option value="female"><?php echo isEnglish() ? 'Female' : 'महिला'; ?></option>
                                         <option value="other"><?php echo isEnglish() ? 'Other' : 'अन्य'; ?></option>
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Marital Status' : 'वैवाहिक स्थिति'; ?></label>
-                                    <select name="marital_status" class="form-select">
+                                    <label for="acc_marital_status" class="form-label"><?php echo isEnglish() ? 'Marital Status' : 'वैवाहिक स्थिति'; ?></label>
+                                    <select name="marital_status" id="acc_marital_status" class="form-select">
                                         <option value="single"><?php echo isEnglish() ? 'Single' : 'अविवाहित'; ?></option>
                                         <option value="married"><?php echo isEnglish() ? 'Married' : 'विवाहित'; ?></option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3 js-hide-if-acc-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="mobile" class="form-control js-acc-contact" required maxlength="10" pattern="[0-9]{10}" placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" id="acc_mobile" class="form-control js-acc-contact" required maxlength="10" pattern="[0-9]{10}" placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? '', ENT_QUOTES); ?>" autocomplete="tel">
                                 </div>
                                 <div class="col-md-6 mb-3 js-hide-if-acc-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control js-acc-contact" required placeholder="akashpame@gmail.com" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" id="acc_email" class="form-control js-acc-contact" required placeholder="akashpame@gmail.com" value="<?php echo htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES); ?>" autocomplete="email">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?></label>
-                                    <textarea name="permanent_address" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['permanent_address'] ?? '', ENT_QUOTES); ?></textarea>
+                                    <label for="acc_permanent_address" class="form-label"><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?></label>
+                                    <textarea name="permanent_address" id="acc_permanent_address" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['permanent_address'] ?? '', ENT_QUOTES); ?></textarea>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
-                                    <textarea name="temporary_address" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['temporary_address'] ?? '', ENT_QUOTES); ?></textarea>
+                                    <label for="acc_temporary_address" class="form-label"><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
+                                    <textarea name="temporary_address" id="acc_temporary_address" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['temporary_address'] ?? '', ENT_QUOTES); ?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -423,28 +423,28 @@ try {
                             <h5><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i> <?php echo isEnglish() ? 'Citizenship Details' : 'नागरिकता विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नं.'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="citizenship_no" class="form-control js-acc-cit-req" required>
+                                    <label for="acc_citizenship_no" class="form-label"><?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नं.'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="citizenship_no" id="acc_citizenship_no" class="form-control js-acc-cit-req" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Issued Date' : 'जारी मिति'; ?></label>
-                                    <input type="text" name="citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off">
+                                    <label for="acc_citizenship_issued_date" class="form-label"><?php echo isEnglish() ? 'Issued Date' : 'जारी मिति'; ?></label>
+                                    <input type="text" name="citizenship_issued_date" id="acc_citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Issued Place' : 'जारी स्थान'; ?></label>
-                                    <input type="text" name="citizenship_issued_place" class="form-control">
+                                    <label for="acc_citizenship_issued_place" class="form-label"><?php echo isEnglish() ? 'Issued Place' : 'जारी स्थान'; ?></label>
+                                    <input type="text" name="citizenship_issued_place" id="acc_citizenship_issued_place" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? "Father's Name" : 'बुबाको नाम'; ?></label>
-                                    <input type="text" name="father_name" class="form-control">
+                                    <label for="acc_father_name" class="form-label"><?php echo isEnglish() ? "Father's Name" : 'बुबाको नाम'; ?></label>
+                                    <input type="text" name="father_name" id="acc_father_name" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? "Mother's Name" : 'आमाको नाम'; ?></label>
-                                    <input type="text" name="mother_name" class="form-control">
+                                    <label for="acc_mother_name" class="form-label"><?php echo isEnglish() ? "Mother's Name" : 'आमाको नाम'; ?></label>
+                                    <input type="text" name="mother_name" id="acc_mother_name" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
-                                    <input type="text" name="occupation" class="form-control">
+                                    <label for="acc_occupation" class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
+                                    <input type="text" name="occupation" id="acc_occupation" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -462,16 +462,16 @@ try {
                             <h5><i class="fas fa-user-shield"></i> <?php echo isEnglish() ? 'Guarantor Details' : 'धन जमानी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धन जमानीको नाम'; ?></label>
-                                    <input type="text" name="nominee_name" class="form-control">
+                                    <label for="acc_nominee_name" class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धन जमानीको नाम'; ?></label>
+                                    <input type="text" name="nominee_name" id="acc_nominee_name" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Relation' : 'सम्बन्ध'; ?></label>
-                                    <input type="text" name="nominee_relation" class="form-control">
+                                    <label for="acc_nominee_relation" class="form-label"><?php echo isEnglish() ? 'Relation' : 'सम्बन्ध'; ?></label>
+                                    <input type="text" name="nominee_relation" id="acc_nominee_relation" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Guarantor Phone' : 'धन जमानीको फोन'; ?></label>
-                                    <input type="tel" name="nominee_phone" class="form-control">
+                                    <label for="acc_nominee_phone" class="form-label"><?php echo isEnglish() ? 'Guarantor Phone' : 'धन जमानीको फोन'; ?></label>
+                                    <input type="tel" name="nominee_phone" id="acc_nominee_phone" class="form-control" autocomplete="tel">
                                 </div>
                             </div>
                         </div>
