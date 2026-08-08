@@ -98,7 +98,7 @@ if (!$kycRow) {
 <body>
 <div class="wrap">
     <div class="toolbar">
-        <a href="#" class="btn" onclick="window.print();return false;"><?php echo $_t('प्रिन्ट', 'Print'); ?></a>
+        <button type="button" class="btn" onclick="window.print();"><?php echo $_t('प्रिन्ट', 'Print'); ?></button>
         <a href="<?php echo SITE_URL; ?>member/profile.php" class="btn"><?php echo $_t('फिर्ता', 'Back'); ?></a>
     </div>
     <div class="page">

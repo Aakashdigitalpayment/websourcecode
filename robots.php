@@ -27,7 +27,9 @@ echo "Disallow: /member/\n";
 echo "Disallow: /includes/\n";
 echo "Disallow: /database/\n";
 echo "Disallow: /scripts/\n";
-echo "Disallow: /logs/\n\n";
+echo "Disallow: /logs/\n";
+echo "Disallow: /cache/\n";
+echo "Disallow: /core/\n\n";
 
 /* sensitive upload subdirs */
 echo "Disallow: /assets/uploads/kyc/\n";
@@ -35,7 +37,11 @@ echo "Disallow: /assets/uploads/loan/\n";
 echo "Disallow: /assets/uploads/welfare_claims/\n";
 echo "Disallow: /assets/uploads/digital_services/\n";
 echo "Disallow: /assets/uploads/grievances/\n";
-echo "Disallow: /assets/uploads/appointments/\n\n";
+echo "Disallow: /assets/uploads/appointments/\n";
+echo "Disallow: /assets/uploads/honor_applications/\n";
+echo "Disallow: /assets/uploads/admin-replies/\n";
+echo "Disallow: /assets/uploads/member-imports/\n";
+echo "Disallow: /assets/uploads/hrm/\n\n";
 
 /* utility / token-gated / thin form flows (keep crawl budget for content) */
 echo "Disallow: /install.php\n";
@@ -61,7 +67,11 @@ echo "Allow: /assets/uploads/notices/\n";
 echo "Disallow: /assets/uploads/kyc/\n";
 echo "Disallow: /assets/uploads/loan/\n";
 echo "Disallow: /assets/uploads/welfare_claims/\n";
-echo "Disallow: /assets/uploads/digital_services/\n\n";
+echo "Disallow: /assets/uploads/digital_services/\n";
+echo "Disallow: /assets/uploads/honor_applications/\n";
+echo "Disallow: /assets/uploads/admin-replies/\n";
+echo "Disallow: /assets/uploads/member-imports/\n";
+echo "Disallow: /assets/uploads/hrm/\n\n";
 
 echo "User-agent: Bingbot\n";
 echo "Allow: /\n";
