@@ -257,8 +257,8 @@ $flash = getFlash();
 
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">वर्ग <span class="text-danger">*</span></label>
-                            <div class="d-flex gap-2">
+                            <label id="fld_category_label" class="form-label fw-semibold text-success">वर्ग <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-2" role="group" aria-labelledby="fld_category_label">
                                 <button type="button" class="btn btn-success flex-fill cat-btn" data-val="saving" id="catSaving">
                                     <i class="fas fa-piggy-bank me-1"></i>बचत (Saving)
                                 </button>
@@ -268,22 +268,22 @@ $flash = getFlash();
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">नाम (English) <span class="text-danger">*</span></label>
+                            <label for="fld_name" class="form-label fw-semibold text-success">नाम (English) <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="fld_name" class="form-control admin-fancy-input" placeholder="e.g. Regular Saving" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">नाम (नेपाली)</label>
+                            <label for="fld_name_np" class="form-label fw-semibold text-success">नाम (नेपाली)</label>
                             <input type="text" name="name_np" id="fld_name_np" class="form-control admin-fancy-input" placeholder="साधारण बचत">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label fw-semibold text-success">ब्याज दर (%) <span class="text-danger">*</span></label>
+                            <label for="fld_rate" class="form-label fw-semibold text-success">ब्याज दर (%) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input type="number" name="rate" id="fld_rate" class="form-control admin-fancy-input" step="0.01" min="0" max="100" placeholder="0.00" required>
                                 <span class="input-group-text bg-success text-white border-success">%</span>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
+                            <label for="fld_order" class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="fld_order" class="form-control admin-fancy-input" min="0" value="0">
                         </div>
                         <div class="col-md-4 d-flex align-items-end pb-1">
@@ -293,7 +293,7 @@ $flash = getFlash();
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">विवरण / नोट</label>
+                            <label for="fld_desc" class="form-label fw-semibold text-success">विवरण / नोट</label>
                             <input type="text" name="description" id="fld_desc" class="form-control admin-fancy-input" placeholder="थप विवरण (वैकल्पिक)">
                         </div>
                     </div>

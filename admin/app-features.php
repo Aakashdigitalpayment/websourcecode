@@ -183,15 +183,15 @@ $flash = getFlash();
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold appfeat-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> <span class="appfeat-required">*</span></label>
+                            <label for="fef_title_np" class="form-label fw-semibold appfeat-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> <span class="appfeat-required">*</span></label>
                             <input type="text" name="title_np" id="fef_title_np" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सुविधाको नाम नेपालीमा', 'Feature name in Nepali'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold appfeat-label">Title (English)</label>
+                            <label for="fef_title" class="form-label fw-semibold appfeat-label">Title (English)</label>
                             <input type="text" name="title" id="fef_title" class="form-control admin-fancy-input" placeholder="Feature name in English">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold appfeat-label"><?php echo $__t('Font Awesome आइकन', 'Font Awesome Icon'); ?></label>
+                            <label for="fef_icon" class="form-label fw-semibold appfeat-label"><?php echo $__t('Font Awesome आइकन', 'Font Awesome Icon'); ?></label>
                             <div class="input-group">
                                 <span class="input-group-text appfeat-icon-prev" id="fefIconPrev"><i class="fas fa-star"></i></span>
                                 <input type="text" name="icon" id="fef_icon" class="form-control admin-fancy-input"
@@ -200,15 +200,15 @@ $flash = getFlash();
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold appfeat-label"><?php echo $__t('विवरण (नेपाली)', 'Description (Nepali)'); ?></label>
+                            <label for="fef_desc_np" class="form-label fw-semibold appfeat-label"><?php echo $__t('विवरण (नेपाली)', 'Description (Nepali)'); ?></label>
                             <textarea name="description_np" id="fef_desc_np" class="form-control admin-fancy-input" rows="3" placeholder="<?php echo $__t('सुविधाको विवरण नेपालीमा...', 'Feature description in Nepali...'); ?>"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold appfeat-label">Description (English)</label>
+                            <label for="fef_desc" class="form-label fw-semibold appfeat-label">Description (English)</label>
                             <textarea name="description" id="fef_desc" class="form-control admin-fancy-input" rows="3" placeholder="Feature description in English..."></textarea>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold appfeat-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                            <label for="fef_order" class="form-label fw-semibold appfeat-label"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="sort_order" id="fef_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-4 d-flex align-items-end pb-1">
