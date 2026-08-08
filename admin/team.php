@@ -810,11 +810,11 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> <span class="tm-req-star">*</span></label>
+                            <label for="tmf_name" class="form-label fw-semibold tm-form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> <span class="tm-req-star">*</span></label>
                             <input type="text" name="name" id="tmf_name" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('पूरा नाम नेपालीमा', 'Full name in Nepali'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                            <label for="tmf_name_en" class="form-label fw-semibold tm-form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
                             <input type="text" name="name_en" id="tmf_name_en" class="form-control admin-fancy-input" placeholder="Full name in English">
                         </div>
                         <?php
@@ -824,7 +824,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         $__teamDesigs = fetchDesignations(getDB(), $__desigCats);
                         ?>
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('पद (मास्टरबाट)', 'Designation (from master)'); ?></label>
+                            <label for="tmf_pos_pick" class="form-label fw-semibold tm-form-label"><?php echo $__t('पद (मास्टरबाट)', 'Designation (from master)'); ?></label>
                             <select name="__pos_pick" id="tmf_pos_pick" class="form-select admin-fancy-input" onchange="(function(sel){var o=sel.options[sel.selectedIndex];document.getElementById('tmf_pos_np').value=o.dataset.np||'';document.getElementById('tmf_pos_en').value=o.dataset.en||'';document.getElementById('tmf_pos').value=o.dataset.np||'';})(this)">
                                 <option value=""><?php echo $__t('— पद छान्नुहोस् —', '- Select designation -'); ?></option>
                                 <?php foreach ($__teamDesigs as $__d): ?>
@@ -845,15 +845,15 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <input type="hidden" name="position_en" id="tmf_pos_en">
                         <input type="hidden" name="position" id="tmf_pos">
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('फोन', 'Phone'); ?></label>
+                            <label for="tmf_phone" class="form-label fw-semibold tm-form-label"><?php echo $__t('फोन', 'Phone'); ?></label>
                             <input type="text" name="phone" id="tmf_phone" class="form-control admin-fancy-input" placeholder="98XXXXXXXX">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('इमेल', 'Email'); ?></label>
+                            <label for="tmf_email" class="form-label fw-semibold tm-form-label"><?php echo $__t('इमेल', 'Email'); ?></label>
                             <input type="email" name="email" id="tmf_email" class="form-control admin-fancy-input" placeholder="email@example.com">
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('वर्ग / समूह', 'Category / Group'); ?></label>
+                            <label for="tmf_cat" class="form-label fw-semibold tm-form-label"><?php echo $__t('वर्ग / समूह', 'Category / Group'); ?></label>
                             <div class="form-text tm-meta-muted mb-2">
                                 <?php if ($teamListSection === 'karmachari'): ?>
                                     <?php echo $__t('वर्गहरू:', 'Groups:'); ?>
@@ -887,7 +887,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                            <label for="tmf_order" class="form-label fw-semibold tm-form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="display_order" id="tmf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-4">
@@ -914,10 +914,10 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold tm-form-label"><?php echo $__t('फोटो', 'Photo'); ?>
+                            <label for="tmf_photo" class="form-label fw-semibold tm-form-label"><?php echo $__t('फोटो', 'Photo'); ?>
                                 <small class="tm-meta-muted fw-normal" id="tmf_photo_note"></small>
                             </label>
-                            <input type="file" name="photo" class="form-control admin-fancy-input" accept="image/*">
+                            <input type="file" name="photo" id="tmf_photo" class="form-control admin-fancy-input" accept="image/*">
                             <div id="tmf_photo_prev" class="mt-2"></div>
                         </div>
                         <div class="col-md-4">
@@ -993,25 +993,25 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
-                                <input type="text" name="group_name_np" class="form-control" required
+                                <label for="grp_name_np" class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="group_name_np" id="grp_name_np" class="form-control" required
                                        value="<?php echo htmlspecialchars($editGroup['name_np'] ?? ''); ?>"
                                        placeholder="<?php echo $__t('जस्तै: लेखा समिति', 'e.g. Accounts Committee'); ?>">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                                <input type="text" name="group_name_en" class="form-control"
+                                <label for="grp_name_en" class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="group_name_en" id="grp_name_en" class="form-control"
                                        value="<?php echo htmlspecialchars($editGroup['name'] ?? ''); ?>"
                                        placeholder="e.g. Accounts Committee">
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
-                                <input type="number" name="group_order" class="form-control" min="0"
+                                <label for="grp_order" class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="group_order" id="grp_order" class="form-control" min="0"
                                        value="<?php echo (int)($editGroup['display_order'] ?? 0); ?>">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
-                                <select name="group_menu_category_id" class="form-select">
+                                <label for="grp_menu_cat" class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
+                                <select name="group_menu_category_id" id="grp_menu_cat" class="form-select">
                                     <option value=""><?php echo $__t('— छान्नुहोस् —', '— Choose —'); ?></option>
                                     <?php foreach ($committeeMenuCategories as $_mc): ?>
                                     <option value="<?php echo (int)$_mc['id']; ?>" <?php echo (int)($editGroup['menu_category_id'] ?? 0) === (int)$_mc['id'] ? 'selected' : ''; ?>>
@@ -1034,7 +1034,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <span class="fa-ip-preview input-group-text" data-fa-preview>
                                             <i class="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"></i>
                                         </span>
-                                        <input type="text" name="group_icon" class="form-control" data-fa-input
+                                        <input type="text" name="group_icon" id="grp_icon" class="form-control" data-fa-input
                                                value="<?php echo htmlspecialchars($_gIcon, ENT_QUOTES, 'UTF-8'); ?>"
                                                placeholder="fas fa-users-gear">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open
@@ -1150,26 +1150,26 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <?php if ($editGroup): ?><input type="hidden" name="group_id" value="<?php echo (int)$editGroup['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
-                                <input type="text" name="group_name_np" class="form-control" required
+                                <label for="sgrp_name_np" class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="group_name_np" id="sgrp_name_np" class="form-control" required
                                        value="<?php echo htmlspecialchars($editGroup['name_np'] ?? ''); ?>"
                                        placeholder="<?php echo $__t('जस्तै: व्यवस्थापन', 'e.g. Management'); ?>">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                                <input type="text" name="group_name_en" class="form-control"
+                                <label for="sgrp_name_en" class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="group_name_en" id="sgrp_name_en" class="form-control"
                                        value="<?php echo htmlspecialchars($editGroup['name_en'] ?? ($editGroup['name'] ?? '')); ?>"
                                        placeholder="e.g. Management">
                                 <small class="text-muted"><?php echo $__t('नयाँ समूहको slug अंग्रेजी नामबाट बन्छ।', 'New group slug is generated from the English name.'); ?></small>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
-                                <input type="number" name="group_order" class="form-control" min="0"
+                                <label for="sgrp_order" class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="group_order" id="sgrp_order" class="form-control" min="0"
                                        value="<?php echo (int)($editGroup['display_order'] ?? 0); ?>">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
-                                <select name="group_menu_category_id" class="form-select">
+                                <label for="sgrp_menu_cat" class="form-label fw-semibold"><?php echo $__t('मेनु श्रेणी', 'Menu category'); ?></label>
+                                <select name="group_menu_category_id" id="sgrp_menu_cat" class="form-select">
                                     <option value=""><?php echo $__t('— छान्नुहोस् —', '— Choose —'); ?></option>
                                     <?php foreach ($staffMenuCategories as $_mc): ?>
                                     <option value="<?php echo (int)$_mc['id']; ?>" <?php echo (int)($editGroup['menu_category_id'] ?? 0) === (int)$_mc['id'] ? 'selected' : ''; ?>>
@@ -1273,19 +1273,19 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                         <?php if ($editMenuCat): ?><input type="hidden" name="menu_cat_id" value="<?php echo (int)$editMenuCat['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
-                                <input type="text" name="menu_name_np" class="form-control" required
+                                <label for="menu_name_np_field" class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="menu_name_np" id="menu_name_np_field" class="form-control" required
                                        value="<?php echo htmlspecialchars($editMenuCat['name_np'] ?? ''); ?>"
                                        placeholder="<?php echo $__t('जस्तै: व्यवस्थापन', 'e.g. Management'); ?>">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                                <input type="text" name="menu_name_en" class="form-control"
+                                <label for="menu_name_en_field" class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="menu_name_en" id="menu_name_en_field" class="form-control"
                                        value="<?php echo htmlspecialchars($editMenuCat['name_en'] ?? ''); ?>"
                                        placeholder="e.g. Management">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('आइटम स्रोत', 'Item source'); ?></label>
+                                <label for="menu_source_type" class="form-label fw-semibold"><?php echo $__t('आइटम स्रोत', 'Item source'); ?></label>
                                 <select name="menu_source_type" class="form-select" id="menu_source_type">
                                     <option value="staff" <?php echo ($editMenuCat['source_type'] ?? 'staff') === 'staff' ? 'selected' : ''; ?>><?php echo $__t('कर्मचारी वर्गहरू', 'Staff groups'); ?></option>
                                     <option value="committees" <?php echo ($editMenuCat['source_type'] ?? '') === 'committees' ? 'selected' : ''; ?>><?php echo $__t('समितिहरू', 'Committees'); ?></option>
@@ -1298,7 +1298,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <span class="fa-ip-preview input-group-text" data-fa-preview>
                                             <i class="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"></i>
                                         </span>
-                                        <input type="text" name="menu_icon" class="form-control" data-fa-input
+                                        <input type="text" name="menu_icon" id="menu_icon_field" class="form-control" data-fa-input
                                                value="<?php echo htmlspecialchars($editMenuCat['icon'] ?? 'fas fa-folder', ENT_QUOTES, 'UTF-8'); ?>"
                                                placeholder="fas fa-briefcase">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open
@@ -1310,8 +1310,8 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
-                                <input type="number" name="menu_order" class="form-control" min="0" value="<?php echo (int)($editMenuCat['display_order'] ?? 0); ?>">
+                                <label for="menu_order_field" class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="menu_order" id="menu_order_field" class="form-control" min="0" value="<?php echo (int)($editMenuCat['display_order'] ?? 0); ?>">
                             </div>
                             <div class="col-md-4 d-flex flex-wrap align-items-end gap-4 pb-1">
                                 <div class="form-check form-switch">

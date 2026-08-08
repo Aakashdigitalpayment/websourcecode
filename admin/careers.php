@@ -335,23 +335,23 @@ $flash = getFlash();
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('शीर्षक (नेपाली)', 'Job Title (Nepali)'); ?> <span class="text-danger">*</span></label>
+                            <label for="crf_title_np" class="form-label fw-semibold text-success"><?php echo $__t('शीर्षक (नेपाली)', 'Job Title (Nepali)'); ?> <span class="text-danger">*</span></label>
                             <input type="text" name="title_np" id="crf_title_np" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('पदको नाम नेपालीमा', 'Position title in Nepali'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Job Title (English)</label>
+                            <label for="crf_title" class="form-label fw-semibold text-success">Job Title (English)</label>
                             <input type="text" name="title" id="crf_title" class="form-control admin-fancy-input" placeholder="Position title in English">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('विभाग', 'Department'); ?></label>
+                            <label for="crf_dept" class="form-label fw-semibold text-success"><?php echo $__t('विभाग', 'Department'); ?></label>
                             <input type="text" name="department" id="crf_dept" class="form-control admin-fancy-input" placeholder="Loans / IT / Admin...">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('स्थान', 'Location'); ?></label>
+                            <label for="crf_loc" class="form-label fw-semibold text-success"><?php echo $__t('स्थान', 'Location'); ?></label>
                             <input type="text" name="location" id="crf_loc" class="form-control admin-fancy-input" placeholder="Head Office">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('कामको प्रकार', 'Job Type'); ?></label>
+                            <label for="crf_jtype" class="form-label fw-semibold text-success"><?php echo $__t('कामको प्रकार', 'Job Type'); ?></label>
                             <select name="job_type" id="crf_jtype" class="form-select admin-fancy-input">
                                 <option value="full_time">Full Time</option>
                                 <option value="part_time">Part Time</option>
@@ -361,40 +361,40 @@ $flash = getFlash();
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('रिक्त पद संख्या', 'Number of Vacancies'); ?></label>
+                            <label for="crf_vac" class="form-label fw-semibold text-success"><?php echo $__t('रिक्त पद संख्या', 'Number of Vacancies'); ?></label>
                             <input type="number" name="vacancies" id="crf_vac" class="form-control admin-fancy-input" value="1" min="1">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('न्यूनतम योग्यता', 'Minimum Qualification'); ?></label>
+                            <label for="crf_qual" class="form-label fw-semibold text-success"><?php echo $__t('न्यूनतम योग्यता', 'Minimum Qualification'); ?></label>
                             <input type="text" name="min_qualification" id="crf_qual" class="form-control admin-fancy-input" placeholder="+2 / Bachelor">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('अनुभव', 'Experience'); ?></label>
+                            <label for="crf_exp" class="form-label fw-semibold text-success"><?php echo $__t('अनुभव', 'Experience'); ?></label>
                             <input type="text" name="experience_required" id="crf_exp" class="form-control admin-fancy-input" placeholder="२ वर्ष">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('तलब दायरा', 'Salary Range'); ?></label>
+                            <label for="crf_salary" class="form-label fw-semibold text-success"><?php echo $__t('तलब दायरा', 'Salary Range'); ?></label>
                             <input type="text" name="salary_range" id="crf_salary" class="form-control admin-fancy-input" placeholder="<?php echo $__t('रु. ३०,०००–४०,०००', 'NPR 30,000-40,000'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Deadline (मिति बि.सं.)</label>
+                            <label for="crf_deadline" class="form-label fw-semibold text-success">Deadline (मिति बि.सं.)</label>
                             <div class="input-group">
                                 <input type="text" name="deadline" id="crf_deadline" class="form-control admin-fancy-input nepali-datepicker" placeholder="२०८२-०१-३०">
                                 <span class="input-group-text bg-success text-white"><i class="fas fa-calendar-alt"></i></span>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">संलग्नक (PDF/DOC)
+                            <label for="crf_attachment" class="form-label fw-semibold text-success">संलग्नक (PDF/DOC)
                                 <small class="text-muted fw-normal" id="crf_att_note"></small>
                             </label>
-                            <input type="file" name="attachment" class="form-control admin-fancy-input" accept=".pdf,.doc,.docx">
+                            <input type="file" name="attachment" id="crf_attachment" class="form-control admin-fancy-input" accept=".pdf,.doc,.docx">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
+                            <label for="crf_desc_np" class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
                             <textarea name="description_np" id="crf_desc_np" class="form-control admin-fancy-input" rows="3" placeholder="रोजगारीको विवरण नेपालीमा..."></textarea>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">Requirements / आवश्यकताहरू</label>
+                            <label for="crf_req" class="form-label fw-semibold text-success">Requirements / आवश्यकताहरू</label>
                             <textarea name="requirements" id="crf_req" class="form-control admin-fancy-input" rows="3" placeholder="Required skills, qualifications..."></textarea>
                         </div>
                         <div class="col-md-6">
