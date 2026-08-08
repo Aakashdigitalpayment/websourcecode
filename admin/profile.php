@@ -68,24 +68,24 @@ echo adminPageHeader('प्रोफाइल', 'fa-user-circle', 'Admin प्
     <?php echo csrfField(); ?>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">युजरनेम</label>
-                            <input type="text" class="form-control" value="<?php echo $admin['username']; ?>" disabled>
+                            <label for="admin_profile_username" class="form-label">युजरनेम</label>
+                            <input type="text" id="admin_profile_username" class="form-control" value="<?php echo $admin['username']; ?>" disabled>
                             <small class="text-muted">युजरनेम परिवर्तन गर्न मिल्दैन</small>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">पूरा नाम <span class="text-danger">*</span></label>
-                            <input type="text" name="full_name" class="form-control" value="<?php echo $admin['full_name']; ?>" required>
+                            <label for="admin_profile_full_name" class="form-label">पूरा नाम <span class="text-danger">*</span></label>
+                            <input type="text" name="full_name" id="admin_profile_full_name" class="form-control" value="<?php echo $admin['full_name']; ?>" required autocomplete="name">
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">इमेल</label>
-                            <input type="email" name="email" class="form-control" value="<?php echo $admin['email']; ?>">
+                            <label for="admin_profile_email" class="form-label">इमेल</label>
+                            <input type="email" name="email" id="admin_profile_email" class="form-control" value="<?php echo $admin['email']; ?>" autocomplete="email">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">अन्तिम लगइन</label>
-                            <input type="text" class="form-control" value="<?php echo $admin['last_login'] ? formatDate($admin['last_login'], 'Y-m-d H:i:s') : 'N/A'; ?>" disabled>
+                            <label for="admin_profile_last_login" class="form-label">अन्तिम लगइन</label>
+                            <input type="text" id="admin_profile_last_login" class="form-control" value="<?php echo $admin['last_login'] ? formatDate($admin['last_login'], 'Y-m-d H:i:s') : 'N/A'; ?>" disabled>
                         </div>
                     </div>
 
