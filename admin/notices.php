@@ -279,13 +279,13 @@ $flash = getFlash();
                     <div class="row g-3">
                         <div class="col-md-8">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold ntc-label ntc-title-label">
+                                <label for="ntf_title" class="form-label fw-semibold ntc-label ntc-title-label">
                                     <i class="fas fa-heading me-1"></i><?php echo $__t('शीर्षक', 'Title'); ?> <span class="ntc-required">*</span>
                                 </label>
                                 <input type="text" name="title" id="ntf_title" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सूचनाको शीर्षक', 'Notice title'); ?>">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold ntc-label ntc-content-label">
+                                <label for="ntf_content" class="form-label fw-semibold ntc-label ntc-content-label">
                                     <i class="fas fa-align-left me-1"></i><?php echo $__t('विवरण (वैकल्पिक)', 'Description (optional)'); ?>
                                 </label>
                                 <textarea name="content" id="ntf_content" class="form-control admin-fancy-input" rows="6" placeholder="<?php echo $__t('सूचनाको विवरण...', 'Notice details...'); ?>"></textarea>
@@ -293,7 +293,7 @@ $flash = getFlash();
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label fw-semibold ntc-label ntc-date-label">
+                                <label for="ntf_date" class="form-label fw-semibold ntc-label ntc-date-label">
                                     <i class="fas fa-calendar-alt me-1"></i><?php echo $__t('मिति (बि.सं.)', 'Date (BS)'); ?>
                                 </label>
                                 <div class="input-group">
@@ -307,11 +307,11 @@ $flash = getFlash();
                                 <small class="ntc-muted"><?php echo $__t('बि.सं. मिति (नेपाली क्यालेन्डर)', 'BS date (Nepali calendar)'); ?></small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold ntc-label ntc-attach-label">
+                                <label for="ntf_attachment" class="form-label fw-semibold ntc-label ntc-attach-label">
                                     <i class="fas fa-paperclip me-1"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
                                     <small class="ntc-muted fw-normal" id="ntf_att_note"></small>
                                 </label>
-                                <input type="file" name="attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png">
+                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png">
                                 <div id="ntf_att_link" class="mt-1 d-none">
                                     <small class="ntc-muted"><?php echo $__t('हालको फाइल', 'Current file'); ?>:
                                         <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link">
@@ -347,7 +347,7 @@ $flash = getFlash();
                                     </label>
                                 </div>
                                 <div class="mt-2">
-                                    <label class="form-label fw-semibold small mb-1">
+                                    <label for="ntf_popup_image" class="form-label fw-semibold small mb-1">
                                         <i class="fas fa-image me-1 text-success"></i>
                                         <?php echo $__t('पप-अप फोटो (वैकल्पिक)', 'Popup image (optional)'); ?>
                                     </label>
