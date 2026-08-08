@@ -69,10 +69,10 @@ $loanTypes = [
 
                     <!-- Loan Type Quick Select -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold">
+                        <label id="emi_loan_type_label" class="form-label fw-semibold">
                             <?php echo isEnglish() ? 'Loan Type' : 'ऋण प्रकार'; ?>
                         </label>
-                        <div class="d-flex flex-wrap gap-2" id="loanTypeButtons">
+                        <div class="d-flex flex-wrap gap-2" id="loanTypeButtons" role="group" aria-labelledby="emi_loan_type_label">
                             <?php foreach ($loanTypes as $key => $lt): ?>
                             <button type="button"
                                     class="btn btn-sm btn-outline-primary loan-type-btn <?php echo $key === 'custom' ? '' : ''; ?>"
@@ -94,7 +94,7 @@ $loanTypes = [
 
                     <!-- Loan Amount -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold d-flex justify-content-between">
+                        <label for="amountSlider" class="form-label fw-semibold d-flex justify-content-between">
                             <span><?php echo isEnglish() ? 'Loan Amount (रु.)' : 'ऋण रकम (रु.)'; ?></span>
                             <span class="text-primary fw-bold" id="amountDisplay">रु. 5,00,000</span>
                         </label>
@@ -108,13 +108,13 @@ $loanTypes = [
                             <span class="input-group-text">रु.</span>
                             <input type="number" class="form-control" id="amountInput"
                                    value="500000" min="10000" max="10000000" step="1000"
-                                   placeholder="ऋण रकम">
+                                   placeholder="ऋण रकम" aria-label="<?php echo isEnglish() ? 'Loan amount' : 'ऋण रकम'; ?>">
                         </div>
                     </div>
 
                     <!-- Interest Rate -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold d-flex justify-content-between">
+                        <label for="rateSlider" class="form-label fw-semibold d-flex justify-content-between">
                             <span><?php echo isEnglish() ? 'Annual Interest Rate (%)' : 'वार्षिक ब्याज दर (%)'; ?></span>
                             <span class="text-primary fw-bold" id="rateDisplay">12.00%</span>
                         </label>
@@ -127,19 +127,19 @@ $loanTypes = [
                         <div class="input-group mt-2">
                             <input type="number" class="form-control" id="rateInput"
                                    value="12" min="1" max="30" step="0.25"
-                                   placeholder="ब्याज दर">
+                                   placeholder="ब्याज दर" aria-label="<?php echo isEnglish() ? 'Interest rate' : 'ब्याज दर'; ?>">
                             <span class="input-group-text">% / वर्ष</span>
                         </div>
                     </div>
 
                     <!-- Tenure -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold d-flex justify-content-between">
+                        <label for="tenureSlider" class="form-label fw-semibold d-flex justify-content-between">
                             <span><?php echo isEnglish() ? 'Loan Tenure' : 'ऋण अवधि'; ?></span>
                             <span class="text-primary fw-bold" id="tenureDisplay">5 वर्ष (60 महिना)</span>
                         </label>
                         <!-- Year / Month toggle -->
-                        <div class="btn-group btn-group-sm w-100 mb-2" role="group">
+                        <div class="btn-group btn-group-sm w-100 mb-2" role="group" aria-label="<?php echo isEnglish() ? 'Tenure unit' : 'अवधि एकाइ'; ?>">
                             <input type="radio" class="btn-check" name="tenureUnit" id="tenureYears" value="years" checked>
                             <label class="btn btn-outline-primary" for="tenureYears">
                                 <?php echo isEnglish() ? 'Years' : 'वर्ष'; ?>
@@ -158,7 +158,7 @@ $loanTypes = [
                         <div class="input-group mt-2">
                             <input type="number" class="form-control" id="tenureInput"
                                    value="5" min="1" max="30" step="1"
-                                   placeholder="अवधि">
+                                   placeholder="अवधि" aria-label="<?php echo isEnglish() ? 'Tenure' : 'अवधि'; ?>">
                             <span class="input-group-text" id="tenureUnitLabel">वर्ष</span>
                         </div>
                     </div>
