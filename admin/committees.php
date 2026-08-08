@@ -332,19 +332,19 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
             <input type="hidden" name="type_id" id="typ_id" value="">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                    <label for="typ_name_np" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
                     <input type="text" name="type_name_np" id="typ_name_np" class="form-control admin-fancy-input" required placeholder="संचालक समिति">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">Name (English)</label>
+                    <label for="typ_name" class="form-label fw-semibold text-success">Name (English)</label>
                     <input type="text" name="type_name" id="typ_name" class="form-control admin-fancy-input" placeholder="Board of Directors">
                 </div>
                 <div class="col-12">
-                    <label class="form-label fw-semibold text-success">विवरण</label>
+                    <label for="typ_desc" class="form-label fw-semibold text-success">विवरण</label>
                     <input type="text" name="type_description" id="typ_desc" class="form-control admin-fancy-input" placeholder="समितिको संक्षिप्त विवरण">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">आइकन</label>
+                    <label for="typ_icon" class="form-label fw-semibold text-success">आइकन</label>
                     <div class="js-fa-icon-picker fa-ip-wrap">
                         <div class="fa-ip-row input-group">
                             <span class="fa-ip-preview input-group-text" data-fa-preview id="typIconPreview">
@@ -360,7 +360,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">मेनु श्रेणी</label>
+                    <label for="typ_menu_cat" class="form-label fw-semibold text-success">मेनु श्रेणी</label>
                     <select name="type_menu_category_id" id="typ_menu_cat" class="form-select admin-fancy-input">
                         <option value="">— छान्नुहोस् —</option>
                         <?php foreach ($committeeMenuCategories as $_mc): ?>
@@ -382,7 +382,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     </small>
                 </div>
                 <div class="col-md-2">
-                    <label class="form-label fw-semibold text-success">क्रम</label>
+                    <label for="typ_order" class="form-label fw-semibold text-success">क्रम</label>
                     <input type="number" name="type_order" id="typ_order" class="form-control admin-fancy-input" value="0" min="0">
                 </div>
                 <div class="col-md-2 d-flex align-items-end pb-1">
@@ -560,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="hidden" name="tenure_edit_id" id="ten_id" value="">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">समिति प्रकार <span class="text-danger">*</span></label>
+                    <label for="ten_type_id" class="form-label fw-semibold text-success">समिति प्रकार <span class="text-danger">*</span></label>
                     <select name="committee_type_id" id="ten_type_id" class="form-select admin-fancy-input" required>
                         <option value="">— छान्नुहोस् —</option>
                         <?php foreach ($committeeTypes as $ct): ?>
@@ -576,20 +576,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल <span class="text-danger">*</span></label>
+                    <label for="ten_name" class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल <span class="text-danger">*</span></label>
                     <input type="text" name="tenure_name" id="ten_name" class="form-control admin-fancy-input" required placeholder="2080-2084 or FY 2023/24">
                     <small class="text-muted">उदाहरण: 2080-2084, २०८०-२०८४, वा आ.व. २०८०/८१</small>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल (नेपाली)</label>
+                    <label for="ten_name_np" class="form-label fw-semibold text-success">कार्यकाल / आर्थिक वर्ष लेबल (नेपाली)</label>
                     <input type="text" name="tenure_name_np" id="ten_name_np" class="form-control admin-fancy-input" placeholder="२०८०-२०८४ वा आ.व. २०८०/८१">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-success">सुरु मिति (वि.सं.)</label>
+                    <label for="ten_start" class="form-label fw-semibold text-success">सुरु मिति (वि.सं.)</label>
                     <input type="text" name="start_date" id="ten_start" class="form-control admin-fancy-input nepali-datepicker" placeholder="YYYY-MM-DD">
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-success">अन्त्य मिति (वि.सं.)</label>
+                    <label for="ten_end" class="form-label fw-semibold text-success">अन्त्य मिति (वि.सं.)</label>
                     <input type="text" name="end_date" id="ten_end" class="form-control admin-fancy-input nepali-datepicker" placeholder="YYYY-MM-DD">
                 </div>
                 <div class="col-md-4 d-flex align-items-end pb-1">
@@ -763,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             <div class="row g-3">
                 <div class="col-12">
-                    <label class="form-label fw-semibold text-success">कार्यकाल <span class="text-danger">*</span></label>
+                    <label for="mem_tenure_id" class="form-label fw-semibold text-success">कार्यकाल <span class="text-danger">*</span></label>
                     <select name="tenure_id" id="mem_tenure_id" class="form-select admin-fancy-input" required>
                         <option value="">— कार्यकाल छान्नुहोस् —</option>
                         <?php foreach ($tenures as $tn): ?>
@@ -775,15 +775,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                    <label for="mem_name" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
                     <input type="text" name="member_name" id="mem_name" class="form-control admin-fancy-input" required placeholder="पूरा नाम नेपालीमा">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">Name (English)</label>
+                    <label for="mem_name_en" class="form-label fw-semibold text-success">Name (English)</label>
                     <input type="text" name="member_name_en" id="mem_name_en" class="form-control admin-fancy-input" placeholder="Full name in English">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">पद (नेपाली) <span class="text-danger">*</span></label>
+                    <label for="mem_position" class="form-label fw-semibold text-success">पद (नेपाली) <span class="text-danger">*</span></label>
                     <select class="form-select admin-fancy-input" name="member_position" id="mem_position" required onchange="(function(sel){var o=sel.options[sel.selectedIndex];var en=document.getElementById('mem_position_en');if(en && o.dataset.en) en.value=o.dataset.en;})(this)">
                         <option value="">— पद छान्नुहोस् —</option>
                         <?php foreach ($__designations as $__d): ?>
@@ -793,31 +793,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="small text-muted mt-1">नयाँ पद <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">Position (English)</label>
+                    <label for="mem_position_en" class="form-label fw-semibold text-success">Position (English)</label>
                     <input type="text" name="member_position_en" id="mem_position_en" class="form-control admin-fancy-input" placeholder="Chairperson, Secretary ...">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold text-success">फोन</label>
+                    <label for="mem_phone" class="form-label fw-semibold text-success">फोन</label>
                     <input type="text" name="member_phone" id="mem_phone" class="form-control admin-fancy-input" placeholder="९८xxxxxxxx">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold text-success">इमेल</label>
+                    <label for="mem_email" class="form-label fw-semibold text-success">इमेल</label>
                     <input type="email" name="member_email" id="mem_email" class="form-control admin-fancy-input" placeholder="email@example.com">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold text-success">ठेगाना</label>
+                    <label for="mem_address" class="form-label fw-semibold text-success">ठेगाना</label>
                     <input type="text" name="member_address" id="mem_address" class="form-control admin-fancy-input" placeholder="काठमाडौं ...">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold text-success">फोटो
+                    <label for="mem_photo" class="form-label fw-semibold text-success">फोटो
                         <small class="text-muted fw-normal" id="mem_photo_note"></small>
                     </label>
-                    <input type="file" name="member_photo" class="form-control admin-fancy-input" accept="image/*"
+                    <input type="file" name="member_photo" id="mem_photo" class="form-control admin-fancy-input" accept="image/*"
                            onchange="previewMemPhoto(this)">
                     <div id="mem_photo_prev" class="mt-2"></div>
                 </div>
                 <div class="col-md-3">
-                    <label class="form-label fw-semibold text-success">क्रम</label>
+                    <label for="mem_order" class="form-label fw-semibold text-success">क्रम</label>
                     <input type="number" name="member_order" id="mem_order" class="form-control admin-fancy-input" value="0" min="0">
                 </div>
                 <div class="col-md-3 d-flex align-items-end pb-1">
