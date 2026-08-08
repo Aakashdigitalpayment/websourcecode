@@ -425,8 +425,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <hr>
                     <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-bullseye me-2"></i>Search / Share Content</h6>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('संक्षिप्त परिचय', 'Short Introduction'); ?></label>
-                        <textarea name="about_short" class="form-control" rows="3"><?php echo $settings['about_short'] ?? ''; ?></textarea>
+                        <label for="stg_about_short" class="form-label"><?php echo $__t('संक्षिप्त परिचय', 'Short Introduction'); ?></label>
+                        <textarea name="about_short" id="stg_about_short" class="form-control" rows="3"><?php echo $settings['about_short'] ?? ''; ?></textarea>
                     </div>
 
                     <hr>
