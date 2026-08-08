@@ -291,15 +291,15 @@ $flash = getFlash();
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="dlf_title_np" class="form-label fw-semibold text-success">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="title_np" id="dlf_title_np" class="form-control admin-fancy-input" required placeholder="फाइलको शीर्षक नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Title (English)</label>
+                            <label for="dlf_title" class="form-label fw-semibold text-success">Title (English)</label>
                             <input type="text" name="title" id="dlf_title" class="form-control admin-fancy-input" placeholder="File title in English">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">वर्ग</label>
+                            <label for="dlf_category" class="form-label fw-semibold text-success">वर्ग</label>
                             <select name="category" id="dlf_category" class="form-select admin-fancy-input">
                                 <option value="forms">Forms</option>
                                 <option value="policies">Policies</option>
@@ -308,7 +308,7 @@ $flash = getFlash();
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">फाइल अपलोड
+                            <label for="dlf_file_input" class="form-label fw-semibold text-success">फाइल अपलोड
                                 <small class="text-muted fw-normal" id="dlf_file_note"></small>
                             </label>
                             <input type="file" name="file" class="form-control admin-fancy-input" id="dlf_file_input">

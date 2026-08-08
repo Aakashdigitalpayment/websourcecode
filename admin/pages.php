@@ -395,12 +395,12 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
 
                                         <div class="row g-3">
                                             <div class="col-md-8">
-                                                <label class="form-label fw-semibold">Slug (URL) <span class="text-danger">*</span></label>
-                                                <input type="text" name="slug" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['slug'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <label for="pgv2_slug" class="form-label fw-semibold">Slug (URL) <span class="text-danger">*</span></label>
+                                                <input type="text" name="slug" id="pgv2_slug" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['slug'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                                 <div class="form-text">URL: <code><?php echo SITE_URL; ?>page.php?slug=[slug]</code></div>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-semibold">स्थिति</label>
+                                                <label for="pgv2_isActive" class="form-label fw-semibold">स्थिति</label>
                                                 <div class="form-check form-switch mt-2">
                                                     <input class="form-check-input" type="checkbox" name="is_active" id="pgv2_isActive" <?php echo !isset($dynEditRow) || !is_array($dynEditRow) || !array_key_exists('is_active',$dynEditRow) || (int)($dynEditRow['is_active'] ?? 1) === 1 ? 'checked' : ''; ?>>
                                                     <label class="form-check-label" for="pgv2_isActive">सक्रिय</label>
@@ -408,12 +408,12 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             </div>
 
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
-                                                <input type="text" name="title_np" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['title_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <label for="pgv2_title_np" class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                                                <input type="text" name="title_np" id="pgv2_title_np" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['title_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                             </div>
                                             <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Title (English)</label>
-                                                <input type="text" name="title_en" class="form-control" value="<?php echo htmlspecialchars((string)($dynEditRow['title_en'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                                                <label for="pgv2_title_en" class="form-label fw-semibold">Title (English)</label>
+                                                <input type="text" name="title_en" id="pgv2_title_en" class="form-control" value="<?php echo htmlspecialchars((string)($dynEditRow['title_en'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                             </div>
 
                                             <div class="col-md-4">
@@ -423,8 +423,8 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-semibold">मेनु</label>
-                                                <select name="menu_position" class="form-select form-select-sm">
+                                                <label for="pgv2_menu_position" class="form-label fw-semibold">मेनु</label>
+                                                <select name="menu_position" id="pgv2_menu_position" class="form-select form-select-sm">
                                                     <option value="about" <?php echo (($dynEditRow['menu_position'] ?? '') === 'about') ? 'selected' : ''; ?>>हाम्रो बारेमा</option>
                                                     <option value="services" <?php echo (($dynEditRow['menu_position'] ?? '') === 'services') ? 'selected' : ''; ?>>सेवाहरू</option>
                                                     <option value="more" <?php echo (($dynEditRow['menu_position'] ?? '') === 'more') ? 'selected' : ''; ?>>थप</option>
@@ -432,8 +432,8 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
-                                                <label class="form-label fw-semibold">क्रम</label>
-                                                <input type="number" name="menu_order" class="form-control form-control-sm" value="<?php echo (int)($dynEditRow['menu_order'] ?? 0); ?>">
+                                                <label for="pgv2_menu_order" class="form-label fw-semibold">क्रम</label>
+                                                <input type="number" name="menu_order" id="pgv2_menu_order" class="form-control form-control-sm" value="<?php echo (int)($dynEditRow['menu_order'] ?? 0); ?>">
                                             </div>
 
                                             <div class="col-12">
@@ -443,10 +443,12 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 </ul>
                                                 <div class="tab-content">
                                                     <div class="tab-pane fade show active" id="pgv2_np" role="tabpanel">
-                                                        <textarea name="content_np" class="form-control editor" rows="14"><?php echo htmlspecialchars((string)($dynEditRow['content_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                        <label for="pgv2_content_np" class="visually-hidden">Content Nepali</label>
+                                                        <textarea name="content_np" id="pgv2_content_np" class="form-control editor" rows="14"><?php echo htmlspecialchars((string)($dynEditRow['content_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                     </div>
                                                     <div class="tab-pane fade" id="pgv2_en" role="tabpanel">
-                                                        <textarea name="content_en" class="form-control editor" rows="14"><?php echo htmlspecialchars((string)($dynEditRow['content'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                        <label for="pgv2_content_en" class="visually-hidden">Content English</label>
+                                                        <textarea name="content_en" id="pgv2_content_en" class="form-control editor" rows="14"><?php echo htmlspecialchars((string)($dynEditRow['content'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                                                     </div>
                                                 </div>
                                             </div>
@@ -526,8 +528,8 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             <input type="hidden" name="action" value="edit_static">
                                             <input type="hidden" name="panel" value="form">
                                             <div class="col-md-8">
-                                                <label class="form-label fw-semibold">सेक्सन छान्नुहोस्</label>
-                                                <select name="page" class="form-select" required>
+                                                <label for="pgv2_static_page" class="form-label fw-semibold">सेक्सन छान्नुहोस्</label>
+                                                <select name="page" id="pgv2_static_page" class="form-select" required>
                                                     <option value="" selected disabled>— सेक्सन छान्नुहोस् —</option>
                                                     <?php foreach ($staticPagesResolved as $key => $info): ?>
                                                         <option value="<?php echo htmlspecialchars((string)$key, ENT_QUOTES, 'UTF-8'); ?>">
@@ -549,13 +551,13 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         <input type="hidden" name="page_key" value="<?php echo htmlspecialchars($editStaticKey, ENT_QUOTES, 'UTF-8'); ?>">
 
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">सेक्सन नाम (नेपाली)</label>
-                                            <input type="text" name="title_np" class="form-control" required value="<?php echo htmlspecialchars($staticPagesResolved[$editStaticKey]['title'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <label for="pgv2_static_title_np" class="form-label fw-semibold">सेक्सन नाम (नेपाली)</label>
+                                            <input type="text" name="title_np" id="pgv2_static_title_np" class="form-control" required value="<?php echo htmlspecialchars($staticPagesResolved[$editStaticKey]['title'], ENT_QUOTES, 'UTF-8'); ?>">
                                             <div class="form-text">यो नाम सूचीमा देखिने शीर्षक हो।</div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Section Name (English)</label>
-                                            <input type="text" name="title_en" class="form-control" value="<?php echo htmlspecialchars($staticPagesResolved[$editStaticKey]['title_en'], ENT_QUOTES, 'UTF-8'); ?>">
+                                            <label for="pgv2_static_title_en" class="form-label fw-semibold">Section Name (English)</label>
+                                            <input type="text" name="title_en" id="pgv2_static_title_en" class="form-control" value="<?php echo htmlspecialchars($staticPagesResolved[$editStaticKey]['title_en'], ENT_QUOTES, 'UTF-8'); ?>">
                                         </div>
 
                                         <ul class="nav nav-tabs admin-nav-tabs mb-2" role="tablist">
