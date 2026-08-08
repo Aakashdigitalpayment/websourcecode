@@ -187,7 +187,7 @@ $businessLabels = [
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label fw-semibold text-muted small">विवरण</label>
+                    <div class="form-label fw-semibold text-muted small">विवरण</div>
                     <div class="p-3 bg-light rounded ven-desc-box">
                         <?php echo nl2br(htmlspecialchars($detail['description'] ?? '—')); ?>
                     </div>

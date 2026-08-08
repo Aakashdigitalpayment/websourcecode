@@ -242,8 +242,8 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                     <form method="POST" enctype="multipart/form-data" onsubmit="return confirm('Restore/Import गर्ने हो? पहिले backup download गरेको छ भने मात्र OK थिच्नुहोस्।');">
                         <?php echo csrfField(); ?>
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">SQL file छान्नुहोस्</label>
-                            <input type="file" name="sql_file" class="form-control" accept=".sql" required>
+                            <label for="br_sql_file" class="form-label fw-semibold">SQL file छान्नुहोस्</label>
+                            <input type="file" name="sql_file" id="br_sql_file" class="form-control" accept=".sql" required>
                         </div>
                         <button type="submit" name="restore_backup" value="1" class="btn btn-danger">
                             <i class="fas fa-database me-1"></i> Restore / Import SQL
