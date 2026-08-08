@@ -293,11 +293,11 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Recipient emails -->
                         <div class="mb-3">
-                            <label class="form-label">
+                            <label for="notify_email_recipients" class="form-label">
                                 Admin Email(s) <span class="text-danger">*</span>
                             </label>
                             <!-- Multiple emails: comma separated -->
-                            <input type="text" name="notify_email_recipients" class="form-control"
+                            <input type="text" name="notify_email_recipients" id="notify_email_recipients" class="form-control"
                                    placeholder="akashpame@gmail.com, akashpame@gmail.com"
                                    value="<?php echo gs('notify_email_recipients'); ?>">
                             <small class="text-muted">Multiple emails: comma (,) ले छुट्याउनुहोस्</small>
@@ -305,8 +305,8 @@ require_once 'includes/admin-ui.php';
 
                         <!-- From email -->
                         <div class="mb-4">
-                            <label class="form-label">From Email</label>
-                            <input type="email" name="notify_email_from" class="form-control"
+                            <label for="notify_email_from" class="form-label">From Email</label>
+                            <input type="email" name="notify_email_from" id="notify_email_from" class="form-control"
                                    placeholder="noreply@cooperative.com"
                                    value="<?php echo gs('notify_email_from'); ?>">
                             <small class="text-muted">
@@ -317,8 +317,8 @@ require_once 'includes/admin-ui.php';
                         </div>
 
                         <!-- Per-event email toggles -->
-                        <label class="form-label fw-semibold">Email पठाउने events:</label>
-                        <div class="row g-2">
+                        <label id="notify_email_events_label" class="form-label fw-semibold">Email पठाउने events:</label>
+                        <div class="row g-2" role="group" aria-labelledby="notify_email_events_label">
                             <?php foreach ($events as $ev => $info): ?>
                             <div class="col-6">
                                 <div class="form-check form-switch">
@@ -358,8 +358,8 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Admin phone numbers -->
                         <div class="mb-3">
-                            <label class="form-label">Admin Mobile Number(s) <span class="text-danger">*</span></label>
-                            <input type="text" name="notify_sms_recipients" class="form-control"
+                            <label for="notify_sms_recipients" class="form-label">Admin Mobile Number(s) <span class="text-danger">*</span></label>
+                            <input type="text" name="notify_sms_recipients" id="notify_sms_recipients" class="form-control"
                                    placeholder="9827157000"
                                    value="<?php echo gs('notify_sms_recipients'); ?>">
                             <small class="text-muted">Multiple numbers: comma (,) ले छुट्याउनुहोस्</small>
@@ -367,7 +367,7 @@ require_once 'includes/admin-ui.php';
 
                         <!-- SMS Gateway -->
                         <div class="mb-3">
-                            <label class="form-label">SMS Gateway</label>
+                            <label for="smsGateway" class="form-label">SMS Gateway</label>
                             <select name="notify_sms_gateway" class="form-select" id="smsGateway"
                                     onchange="toggleGatewayFields()">
                                 <option value="sparrow" <?php echo gs('notify_sms_gateway')==='sparrow' ? 'selected':''; ?>>
@@ -384,8 +384,8 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Sparrow/Aakash: API Token -->
                         <div class="mb-3">
-                            <label class="form-label">API Token / Key <span class="text-danger">*</span></label>
-                            <input type="password" name="notify_sms_token" class="form-control"
+                            <label for="notify_sms_token" class="form-label">API Token / Key <span class="text-danger">*</span></label>
+                            <input type="password" name="notify_sms_token" id="notify_sms_token" class="form-control"
                                    placeholder="Sparrow SMS API token यहाँ राख्नुहोस्"
                                    value="<?php echo gs('notify_sms_token'); ?>">
                             <small class="text-muted">
@@ -395,8 +395,8 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Sender ID -->
                         <div class="mb-3">
-                            <label class="form-label">Sender ID / Name</label>
-                            <input type="text" name="notify_sms_sender_id" class="form-control"
+                            <label for="notify_sms_sender_id" class="form-label">Sender ID / Name</label>
+                            <input type="text" name="notify_sms_sender_id" id="notify_sms_sender_id" class="form-control"
                                    maxlength="11"
                                    placeholder="COOP"
                                    value="<?php echo gs('notify_sms_sender_id', 'COOP'); ?>">
@@ -405,15 +405,15 @@ require_once 'includes/admin-ui.php';
 
                         <!-- Custom API URL (for webhook/aakash) -->
                         <div class="mb-4" id="customApiUrlField" style="<?php echo in_array(gs('notify_sms_gateway'), ['aakash','webhook']) ? '' : 'display:none;'; ?>">
-                            <label class="form-label">Custom API URL</label>
-                            <input type="url" name="notify_sms_api_url" class="form-control"
+                            <label for="notify_sms_api_url" class="form-label">Custom API URL</label>
+                            <input type="url" name="notify_sms_api_url" id="notify_sms_api_url" class="form-control"
                                    placeholder="https://your-sms-api.com/send"
                                    value="<?php echo gs('notify_sms_api_url'); ?>">
                         </div>
 
                         <!-- Per-event SMS toggles -->
-                        <label class="form-label fw-semibold">SMS पठाउने events:</label>
-                        <div class="row g-2">
+                        <label id="notify_sms_events_label" class="form-label fw-semibold">SMS पठाउने events:</label>
+                        <div class="row g-2" role="group" aria-labelledby="notify_sms_events_label">
                             <?php foreach ($events as $ev => $info): ?>
                             <div class="col-6">
                                 <div class="form-check form-switch">
@@ -462,8 +462,8 @@ require_once 'includes/admin-ui.php';
                 <div class="row g-3">
                     <!-- SMTP Host -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">SMTP Host <span class="text-danger">*</span></label>
-                        <input type="text" name="smtp_host" class="form-control"
+                        <label for="smtp_host" class="form-label fw-semibold">SMTP Host <span class="text-danger">*</span></label>
+                        <input type="text" name="smtp_host" id="smtp_host" class="form-control"
                                placeholder="smtp.gmail.com  वा  mail.yourdomain.com"
                                value="<?php echo gs('smtp_host'); ?>">
                         <small class="text-muted">
@@ -473,15 +473,15 @@ require_once 'includes/admin-ui.php';
                     </div>
                     <!-- SMTP Port + Encryption -->
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold">Port</label>
-                        <input type="number" name="smtp_port" class="form-control"
+                        <label for="smtp_port" class="form-label fw-semibold">Port</label>
+                        <input type="number" name="smtp_port" id="smtp_port" class="form-control"
                                placeholder="587"
                                value="<?php echo gs('smtp_port', '587'); ?>">
                         <small class="text-muted">TLS=587 | SSL=465 | Plain=25</small>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label fw-semibold">Encryption</label>
-                        <select name="smtp_encryption" class="form-select">
+                        <label for="smtp_encryption" class="form-label fw-semibold">Encryption</label>
+                        <select name="smtp_encryption" id="smtp_encryption" class="form-select">
                             <option value="tls"  <?php echo gs('smtp_encryption','tls')==='tls'  ? 'selected':''; ?>>TLS (port 587) — Recommended</option>
                             <option value="ssl"  <?php echo gs('smtp_encryption')    ==='ssl'  ? 'selected':''; ?>>SSL (port 465)</option>
                             <option value="none" <?php echo gs('smtp_encryption')    ==='none' ? 'selected':''; ?>>None (port 25)</option>
@@ -489,15 +489,15 @@ require_once 'includes/admin-ui.php';
                     </div>
                     <!-- SMTP Username -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">SMTP Username (Email) <span class="text-danger">*</span></label>
-                        <input type="email" name="smtp_user" class="form-control"
+                        <label for="smtp_user" class="form-label fw-semibold">SMTP Username (Email) <span class="text-danger">*</span></label>
+                        <input type="email" name="smtp_user" id="smtp_user" class="form-control"
                                placeholder="akashpame@gmail.com"
                                value="<?php echo gs('smtp_user'); ?>">
                         <small class="text-muted">Gmail/Outlook को email address नै username हो।</small>
                     </div>
                     <!-- SMTP Password -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">SMTP Password / App Password <span class="text-danger">*</span></label>
+                        <label for="smtpPass" class="form-label fw-semibold">SMTP Password / App Password <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="password" name="smtp_password" class="form-control"
                                    id="smtpPass"
@@ -515,15 +515,15 @@ require_once 'includes/admin-ui.php';
                     </div>
                     <!-- From Email / Name -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">From Email</label>
-                        <input type="email" name="smtp_from_email" class="form-control"
+                        <label for="smtp_from_email" class="form-label fw-semibold">From Email</label>
+                        <input type="email" name="smtp_from_email" id="smtp_from_email" class="form-control"
                                placeholder="noreply@cooperative.com"
                                value="<?php echo gs('smtp_from_email'); ?>">
                         <small class="text-muted">Email मा देखिने sender address</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">From Name</label>
-                        <input type="text" name="smtp_from_name" class="form-control"
+                        <label for="smtp_from_name" class="form-label fw-semibold">From Name</label>
+                        <input type="text" name="smtp_from_name" id="smtp_from_name" class="form-control"
                                placeholder="Aakash Cooperative"
                                value="<?php echo gs('smtp_from_name', getSetting('site_name','')); ?>">
                         <small class="text-muted">Email मा देखिने sender नाम</small>
