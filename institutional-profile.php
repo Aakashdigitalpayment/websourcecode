@@ -684,7 +684,7 @@ if ($ipChartSeries['count'] >= 2):
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <a id="ipDocDlBtn" href="#" download target="_blank"
+        <a id="ipDocDlBtn" href="#" download target="_blank" rel="noopener noreferrer"
            style="width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#f0fdf4;color:#166534;text-decoration:none;border:1px solid #bbf7d0;"
            title="<?php echo $isEn ? 'Download' : 'डाउनलोड'; ?>"
            data-testid="institutional-profile-document-download-link">
