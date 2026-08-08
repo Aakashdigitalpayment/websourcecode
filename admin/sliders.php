@@ -313,23 +313,23 @@ $slidersArch = $slPart['archived'];
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">मुख्य शीर्षक</label>
+                            <label for="slf_title" class="form-label fw-semibold text-success">मुख्य शीर्षक</label>
                             <input type="text" name="title" id="slf_title" class="form-control admin-fancy-input" placeholder="Homepage मा देखिने मुख्य पाठ">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">उपशीर्षक</label>
+                            <label for="slf_subtitle" class="form-label fw-semibold text-success">उपशीर्षक</label>
                             <input type="text" name="subtitle" id="slf_subtitle" class="form-control admin-fancy-input" placeholder="थप विवरण वा slogan">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">बटन पाठ</label>
+                            <label for="slf_btn_text" class="form-label fw-semibold text-success">बटन पाठ</label>
                             <input type="text" name="button_text" id="slf_btn_text" class="form-control admin-fancy-input" placeholder="थप जानकारी">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">बटन URL</label>
+                            <label for="slf_btn_url" class="form-label fw-semibold text-success">बटन URL</label>
                             <input type="text" name="button_url" id="slf_btn_url" class="form-control admin-fancy-input" placeholder="https://... वा /about.php">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">
+                            <label for="slf_image" class="form-label fw-semibold text-success">
                                 स्लाइडर छवि
                                 <span id="slf_img_required" class="text-danger">*</span>
                                 <small class="text-muted fw-normal" id="slf_img_note">— नयाँ थप्दा अनिवार्य छ</small>
@@ -339,7 +339,7 @@ $slidersArch = $slPart['archived'];
                             <div id="slf_img_prev" class="mt-2"></div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
+                            <label for="slf_order" class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="slf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-8 d-flex align-items-end pb-1">
