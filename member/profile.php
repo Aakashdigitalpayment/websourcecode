@@ -227,7 +227,7 @@ if ($kycRow) {
 $extraHead = '';
 if ($profileKycCapture) {
     $extraHead = '<link rel="stylesheet" href="' . htmlspecialchars($siteUrl) . 'assets/css/kyc-capture.css?v=10.6">' . "\n"
-        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=10.8"></script>';
+        . '<script defer src="' . htmlspecialchars($siteUrl) . 'assets/js/kyc-capture.js?v=10.10"></script>';
 }
 
 require __DIR__ . '/includes/chrome.php';
