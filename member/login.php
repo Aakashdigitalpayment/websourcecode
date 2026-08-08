@@ -548,8 +548,8 @@ body {
             <?php if (($member2faPending['mode'] ?? '') === 'setup'): ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो setup गर्नुहोस्:</div>
                 <div class="field">
-                    <label>Manual Secret Key</label>
-                    <input type="text" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>">
+                    <label for="twofa_manual_secret">Manual Secret Key</label>
+                    <input type="text" id="twofa_manual_secret" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>">
                 </div>
                 <?php if ($member2faSetupUri !== ''): ?>
                 <div class="twofa-qr-wrap">
