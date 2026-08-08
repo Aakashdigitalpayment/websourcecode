@@ -432,8 +432,8 @@ if ($viewApt):
                             <input type="hidden" name="id" value="<?php echo $viewApt['id']; ?>">
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>अवस्था</label>
-                                <select name="status" class="form-select">
+                                <label for="appt_status" class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>अवस्था</label>
+                                <select name="status" id="appt_status" class="form-select">
                                     <option value="pending"   <?php echo $viewApt['status']==='pending'  ?'selected':''; ?>>पेन्डिङ</option>
                                     <option value="confirmed" <?php echo $viewApt['status']==='confirmed'?'selected':''; ?>>पुष्टि भएको</option>
                                     <option value="completed" <?php echo $viewApt['status']==='completed'?'selected':''; ?>>सम्पन्न</option>
@@ -442,11 +442,11 @@ if ($viewApt):
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="appt_remarks" class="form-label fw-semibold">
                                     <i class="fas fa-reply me-1 text-success"></i>Admin कैफियत
                                     <span class="text-muted fw-normal small">— Member ले Tracker मा देख्छ</span>
                                 </label>
-                                <textarea name="remarks" class="form-control" rows="4"
+                                <textarea name="remarks" id="appt_remarks" class="form-control" rows="4"
                                     placeholder="Confirmation को विवरण, cancelled भएको कारण..."
                                 ><?php echo htmlspecialchars($viewApt['remarks'] ?? ''); ?></textarea>
                             </div>
@@ -465,11 +465,11 @@ if ($viewApt):
 
                             <!-- Admin ले appointment confirmation letter attach गर्न सक्छ -->
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">
+                                <label for="appt_admin_attachment" class="form-label fw-semibold">
                                     <i class="fas fa-paperclip me-1 text-primary"></i>Confirmation Letter/Document
                                     <span class="text-muted fw-normal small">— PDF, Image (max 5MB)</span>
                                 </label>
-                                <input type="file" name="admin_attachment" class="form-control"
+                                <input type="file" name="admin_attachment" id="appt_admin_attachment" class="form-control"
                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                 <?php if (!empty($viewApt['admin_attachment'])): ?>
                                 <div class="form-text text-primary mt-1">

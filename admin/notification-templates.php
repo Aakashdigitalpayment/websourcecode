@@ -130,14 +130,14 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
 
           <?php if ($selChan === 'email'): ?>
           <div class="mb-3">
-            <label class="form-label fw-semibold">Subject Line</label>
-            <input type="text" name="subject" class="form-control" value="<?php echo htmlspecialchars($tpl['subject']??''); ?>" placeholder="उदाहरण: नयाँ ऋण आवेदन ({tracking_id})">
+            <label for="nt_subject" class="form-label fw-semibold">Subject Line</label>
+            <input type="text" name="subject" id="nt_subject" class="form-control" value="<?php echo htmlspecialchars($tpl['subject']??''); ?>" placeholder="उदाहरण: नयाँ ऋण आवेदन ({tracking_id})">
           </div>
           <?php endif; ?>
 
           <div class="mb-3">
-            <label class="form-label fw-semibold">Body / Message <?php if ($selChan==='sms') echo '<small class="text-danger">(Max 160 char)</small>'; ?></label>
-            <textarea name="body" class="form-control font-monospace" rows="<?php echo $selChan==='email'?12:5; ?>" required><?php echo htmlspecialchars($tpl['body']??''); ?></textarea>
+            <label for="nt_body" class="form-label fw-semibold">Body / Message <?php if ($selChan==='sms') echo '<small class="text-danger">(Max 160 char)</small>'; ?></label>
+            <textarea name="body" id="nt_body" class="form-control font-monospace" rows="<?php echo $selChan==='email'?12:5; ?>" required><?php echo htmlspecialchars($tpl['body']??''); ?></textarea>
             <small class="text-muted">Available placeholders: <code>{name}</code> <code>{tracking_id}</code> <code>{status}</code> <code>{remarks}</code> <code>{amount}</code> <code>{date}</code> <code>{details}</code> <code>{site_name}</code></small>
           </div>
 

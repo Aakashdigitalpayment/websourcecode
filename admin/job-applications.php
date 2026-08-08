@@ -398,8 +398,8 @@ if ($viewApplication && !empty($viewApplication['id'])) {
             <input type="hidden" name="action" value="update_status">
             <input type="hidden" name="id" value="<?php echo (int)$viewApplication['id']; ?>">
             <div class="mb-3">
-                <label class="form-label">स्थिति</label>
-                <select name="status" class="form-select form-select-sm">
+                <label for="job_status" class="form-label">स्थिति</label>
+                <select name="status" id="job_status" class="form-select form-select-sm">
                     <option value="pending"     <?php echo $viewApplication['status']==='pending'    ?'selected':''; ?>>⏳ पेन्डिङ</option>
                     <option value="shortlisted" <?php echo $viewApplication['status']==='shortlisted'?'selected':''; ?>>📋 छनोट</option>
                     <option value="interviewed" <?php echo $viewApplication['status']==='interviewed'?'selected':''; ?>>💬 अन्तर्वार्ता</option>
@@ -408,8 +408,8 @@ if ($viewApplication && !empty($viewApplication['id'])) {
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label">नोट / टिप्पणी</label>
-                <textarea name="admin_notes" class="form-control form-control-sm" rows="3"
+                <label for="job_admin_notes" class="form-label">नोट / टिप्पणी</label>
+                <textarea name="admin_notes" id="job_admin_notes" class="form-control form-control-sm" rows="3"
                     placeholder="(वैकल्पिक) यो स्थिति परिवर्तनको कारण..."><?php echo htmlspecialchars((string)($viewApplication['admin_notes'] ?? '')); ?></textarea>
             </div>
             <?php

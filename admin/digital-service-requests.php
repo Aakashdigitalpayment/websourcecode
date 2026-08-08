@@ -258,16 +258,16 @@ try {
                             <input type="hidden" name="update_status" value="1">
                             <input type="hidden" name="request_id" value="<?php echo (int)$request['id']; ?>">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('स्थिति', 'Status'); ?></label>
-                                <select name="status" class="form-select">
+                                <label for="dsr_status" class="form-label"><?php echo $__t('स्थिति', 'Status'); ?></label>
+                                <select name="status" id="dsr_status" class="form-select">
                                     <?php foreach ($statusLabels as $key => $label): ?>
                                     <option value="<?php echo $key; ?>" <?php echo $request['status'] === $key ? 'selected' : ''; ?>><?php echo $__t($label['np'], $label['en']); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('Admin टिप्पणी', 'Admin Remarks'); ?></label>
-                                <textarea name="admin_remarks" class="form-control" rows="4"><?php echo e($request['admin_remarks']); ?></textarea>
+                                <label for="dsr_admin_remarks" class="form-label"><?php echo $__t('Admin टिप्पणी', 'Admin Remarks'); ?></label>
+                                <textarea name="admin_remarks" id="dsr_admin_remarks" class="form-control" rows="4"><?php echo e($request['admin_remarks']); ?></textarea>
                             </div>
                             <?php $hasEmail = !empty($request['email']); $hasPhone = !empty($request['phone']); ?>
                             <div class="arv-notify-row mb-3">
@@ -282,13 +282,13 @@ try {
                             </div>
                             <!-- Admin ले सेवा सम्बन्धी document वा instruction attach गर्न सक्छ -->
                             <div class="mb-3">
-                                <label class="form-label">
+                                <label for="dsr_admin_attachment" class="form-label">
                                     <i class="fas fa-paperclip me-1"></i><?php echo $__t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?>
                                 </label>
                                 <?php if (!empty($request['admin_attachment'])): ?>
                                 <div class="mb-1"><?php echo adminAttachmentHtml($request['admin_attachment']); ?></div>
                                 <?php endif; ?>
-                                <input type="file" name="admin_attachment" class="form-control"
+                                <input type="file" name="admin_attachment" id="dsr_admin_attachment" class="form-control"
                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                 <small class="dsr-muted"><?php echo $__t('PDF, JPG, PNG, DOC — अधिकतम 5MB', 'PDF, JPG, PNG, DOC — max 5MB'); ?></small>
                             </div>
