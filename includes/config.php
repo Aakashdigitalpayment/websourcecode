@@ -1940,7 +1940,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!headers_sent()) {
     header('X-Frame-Options: SAMEORIGIN');
     header('X-Content-Type-Options: nosniff');
-    header('X-XSS-Protection: 1; mode=block');
+    /* X-XSS-Protection removed — deprecated; real XSS defense is CSP (report-only → enforce) */
     header('Referrer-Policy: strict-origin-when-cross-origin');
     /* KYC / QR scan / verify — camera must be allowed on same-origin
        Both old (allowlist) and new (structured) syntax sent for max compatibility */

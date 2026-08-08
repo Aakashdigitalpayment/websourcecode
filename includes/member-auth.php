@@ -299,7 +299,7 @@ function memberSecurityHeaders() {
     if (headers_sent()) return;
     header('X-Frame-Options: SAMEORIGIN');
     header('X-Content-Type-Options: nosniff');
-    header('X-XSS-Protection: 1; mode=block');
+    /* X-XSS-Protection removed — deprecated; prefer CSP */
     header('Referrer-Policy: strict-origin-when-cross-origin');
     /* member KYC / profile photo — same-origin camera/mic (public config.php सँग मेल) */
     header('Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(), usb=()');
@@ -442,16 +442,25 @@ if (!function_exists('memberSafeListSelectSql')) {
 
 /**
  * Strip auth secrets from a members row before rendering / logging.
+ * By default also maps password_hash → has_password and drops the hash.
+ *
  * @param array<string,mixed>|null $row
+ * @param bool $stripPasswordHash When true (default), expose has_password and drop password_hash.
  * @return array<string,mixed>|null
  */
 if (!function_exists('memberStripAuthSecrets')) {
-    function memberStripAuthSecrets(?array $row): ?array
+    function memberStripAuthSecrets(?array $row, bool $stripPasswordHash = true): ?array
     {
         if ($row === null) {
             return null;
         }
         unset($row['twofa_secret'], $row['twofa_backup_codes']);
+        if ($stripPasswordHash) {
+            if (!array_key_exists('has_password', $row)) {
+                $row['has_password'] = !empty($row['password_hash']) ? 1 : 0;
+            }
+            unset($row['password_hash']);
+        }
         return $row;
     }
 }

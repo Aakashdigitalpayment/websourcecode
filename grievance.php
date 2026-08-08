@@ -337,26 +337,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-grv-name-wrap">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger required-star">*</span></label>
-                                    <input type="text" name="name" id="nameField" class="form-control">
+                                    <label for="nameField" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger required-star">*</span></label>
+                                    <input type="text" name="name" id="nameField" class="form-control" autocomplete="name">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID (if any)' : 'सदस्य नं. (भएमा)'; ?></label>
-                                    <input type="text" name="member_id" class="form-control">
+                                    <label for="grv_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID (if any)' : 'सदस्य नं. (भएमा)'; ?></label>
+                                    <input type="text" name="member_id" id="grv_member_id" class="form-control" autocomplete="off">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label" id="phoneLabel"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> <span class="text-danger required-star">*</span></label>
+                                    <label for="phoneField" class="form-label" id="phoneLabel"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> <span class="text-danger required-star">*</span></label>
                                     <input type="tel" name="phone" id="phoneField" class="form-control"
                                            required maxlength="10" pattern="[0-9]{10}"
-                                           placeholder="98XXXXXXXX">
+                                           placeholder="98XXXXXXXX" autocomplete="tel">
                                 </div>
                                 <div class="col-md-6 mb-3 js-hide-if-grv-coop-yes">
-                                    <label class="form-label" id="emailLabel">
+                                    <label for="emailField" class="form-label" id="emailLabel">
                                         <?php echo isEnglish() ? 'Email' : 'इमेल'; ?>
                                         <span class="text-danger required-star" id="emailStar">*</span>
                                     </label>
                                     <input type="email" name="email" id="emailField" class="form-control"
-                                           required placeholder="akashpame@gmail.com">
+                                           required placeholder="akashpame@gmail.com" autocomplete="email">
                                 </div>
                             </div>
                         </div>
@@ -367,8 +367,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Grievance Details' : 'गुनासो विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Category' : 'वर्ग'; ?></label>
-                                    <select name="category" class="form-select">
+                                    <label for="grv_category" class="form-label"><?php echo isEnglish() ? 'Category' : 'वर्ग'; ?></label>
+                                    <select name="category" id="grv_category" class="form-select">
                                         <option value="service"><?php echo isEnglish() ? 'Service Related' : 'सेवा सम्बन्धी'; ?></option>
                                         <option value="staff"><?php echo isEnglish() ? 'Staff Behavior' : 'कर्मचारी व्यवहार'; ?></option>
                                         <option value="loan"><?php echo isEnglish() ? 'Loan Related' : 'ऋण सम्बन्धी'; ?></option>
@@ -378,16 +378,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="subject" class="form-control" required>
+                                    <label for="grv_subject" class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="subject" id="grv_subject" class="form-control" required>
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Description' : 'विवरण'; ?> <span class="text-danger">*</span></label>
-                                    <textarea name="description" class="form-control" rows="5" required placeholder="<?php echo isEnglish() ? 'Describe your grievance in detail...' : 'आफ्नो गुनासो विस्तृत रूपमा लेख्नुहोस्...'; ?>"></textarea>
+                                    <label for="grv_description" class="form-label"><?php echo isEnglish() ? 'Description' : 'विवरण'; ?> <span class="text-danger">*</span></label>
+                                    <textarea name="description" id="grv_description" class="form-control" rows="5" required placeholder="<?php echo isEnglish() ? 'Describe your grievance in detail...' : 'आफ्नो गुनासो विस्तृत रूपमा लेख्नुहोस्...'; ?>"></textarea>
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Attachment (if any)' : 'संलग्न (भएमा)'; ?></label>
-                                    <input type="file" name="attachment" class="form-control" accept="image/*,.pdf,.doc,.docx" capture="environment">
+                                    <label for="grv_attachment" class="form-label"><?php echo isEnglish() ? 'Attachment (if any)' : 'संलग्न (भएमा)'; ?></label>
+                                    <input type="file" name="attachment" id="grv_attachment" class="form-control" accept="image/*,.pdf,.doc,.docx" capture="environment">
                                     <small class="text-muted"><?php echo isEnglish() ? 'Max 5MB. Supported: Images, PDF, DOC' : 'अधिकतम ५MB। समर्थित: फोटो, PDF, DOC'; ?></small>
                                 </div>
                             </div>
