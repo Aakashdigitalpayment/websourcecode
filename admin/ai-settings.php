@@ -149,7 +149,7 @@ if ($_flash) {
 
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">AI Provider</label>
+                    <label for="ai_provider" class="form-label">AI Provider</label>
                     <select name="ai_provider" id="ai_provider" class="form-select">
                         <option value="gemini" <?php echo $provider === 'gemini' ? 'selected' : ''; ?>>Google Gemini (सिफारिस — free tier)</option>
                         <option value="deepseek" <?php echo $provider === 'deepseek' ? 'selected' : ''; ?>>DeepSeek (paid — सस्तो)</option>
@@ -157,7 +157,7 @@ if ($_flash) {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Model</label>
+                    <label for="ai_model_pick" class="form-label">Model</label>
                     <select name="ai_model_pick" id="ai_model_pick" class="form-select">
                         <optgroup label="Gemini" id="opt-gemini">
                             <?php foreach ($geminiModels as $m): ?>
@@ -180,8 +180,8 @@ if ($_flash) {
                            value="<?php echo $modelIsCustom ? htmlspecialchars($displayModel) : ''; ?>" placeholder="custom model id">
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">API Key <?php echo $hasKey ? '<span class="badge bg-success">सुरक्षित छ</span>' : '<span class="badge bg-warning text-dark">छैन</span>'; ?></label>
-                    <input type="password" name="ai_api_key" class="form-control" autocomplete="new-password"
+                    <label for="ai_api_key" class="form-label">API Key <?php echo $hasKey ? '<span class="badge bg-success">सुरक्षित छ</span>' : '<span class="badge bg-warning text-dark">छैन</span>'; ?></label>
+                    <input type="password" name="ai_api_key" id="ai_api_key" class="form-control" autocomplete="new-password"
                            placeholder="<?php echo $hasKey ? '(सुरक्षित छ — बदल्न नयाँ key लेख्नुहोस्)' : 'API key यहाँ राख्नुहोस्'; ?>">
                     <div class="form-text">
                         <?php echo $encryptOn
@@ -191,12 +191,12 @@ if ($_flash) {
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Welcome (नेपाली)</label>
-                    <textarea name="ai_welcome_np" class="form-control" rows="2" maxlength="500" placeholder="खाली = डिफल्ट सन्देश"><?php echo htmlspecialchars($welcomeNp); ?></textarea>
+                    <label for="ai_welcome_np" class="form-label">Welcome (नेपाली)</label>
+                    <textarea name="ai_welcome_np" id="ai_welcome_np" class="form-control" rows="2" maxlength="500" placeholder="खाली = डिफल्ट सन्देश"><?php echo htmlspecialchars($welcomeNp); ?></textarea>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Welcome (English)</label>
-                    <textarea name="ai_welcome_en" class="form-control" rows="2" maxlength="500"><?php echo htmlspecialchars($welcomeEn); ?></textarea>
+                    <label for="ai_welcome_en" class="form-label">Welcome (English)</label>
+                    <textarea name="ai_welcome_en" id="ai_welcome_en" class="form-control" rows="2" maxlength="500"><?php echo htmlspecialchars($welcomeEn); ?></textarea>
                 </div>
             </div>
 

@@ -348,47 +348,47 @@ $flash = getFlash();
 
                     <div class="row g-3">
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">वर्ष <span class="text-danger">*</span></label>
+                            <label for="motf_year" class="form-label fw-semibold text-success">वर्ष <span class="text-danger">*</span></label>
                             <input type="number" name="spotlight_year" id="motf_year" class="form-control admin-fancy-input" min="2000" max="2100" required value="<?php echo date('Y'); ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="motf_name" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="member_name" id="motf_name" class="form-control admin-fancy-input" required placeholder="सदस्यको पूरा नाम">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label fw-semibold text-success">Name (English)</label>
+                            <label for="motf_name_en" class="form-label fw-semibold text-success">Name (English)</label>
                             <input type="text" name="member_name_en" id="motf_name_en" class="form-control admin-fancy-input" placeholder="Full name in English">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">सदस्य नं.</label>
+                            <label for="motf_member_id" class="form-label fw-semibold text-success">सदस्य नं.</label>
                             <input type="text" name="member_id" id="motf_member_id" class="form-control admin-fancy-input" placeholder="MBR-0001">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">सदस्य बनेको वर्ष</label>
+                            <label for="motf_since" class="form-label fw-semibold text-success">सदस्य बनेको वर्ष</label>
                             <input type="text" name="member_since" id="motf_since" class="form-control admin-fancy-input" placeholder="२०५५">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Photo
+                            <label for="motf_photo" class="form-label fw-semibold text-success">Photo
                                 <small class="text-muted fw-normal" id="motf_photo_note"></small>
                             </label>
-                            <input type="file" name="photo" class="form-control admin-fancy-input" accept=".jpg,.jpeg,.png,.gif,.webp"
+                            <input type="file" name="photo" id="motf_photo" class="form-control admin-fancy-input" accept=".jpg,.jpeg,.png,.gif,.webp"
                                    onchange="previewPhotoMot(this)">
                             <div id="motf_photo_prev" class="mt-2"></div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Quote (नेपाली)</label>
+                            <label for="motf_quote" class="form-label fw-semibold text-success">Quote (नेपाली)</label>
                             <textarea name="quote" id="motf_quote" class="form-control admin-fancy-input" rows="3" placeholder="उद्धरण..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Quote (English)</label>
+                            <label for="motf_quote_en" class="form-label fw-semibold text-success">Quote (English)</label>
                             <textarea name="quote_en" id="motf_quote_en" class="form-control admin-fancy-input" rows="3" placeholder="Quote in English..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">उपलब्धि (नेपाली)</label>
+                            <label for="motf_achievement" class="form-label fw-semibold text-success">उपलब्धि (नेपाली)</label>
                             <input type="text" name="achievement" id="motf_achievement" class="form-control admin-fancy-input" placeholder="प्रमुख उपलब्धि">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Achievement (English)</label>
+                            <label for="motf_achievement_en" class="form-label fw-semibold text-success">Achievement (English)</label>
                             <input type="text" name="achievement_en" id="motf_achievement_en" class="form-control admin-fancy-input" placeholder="Key achievement">
                         </div>
                         <div class="col-12">
