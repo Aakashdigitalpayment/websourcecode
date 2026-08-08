@@ -1339,29 +1339,29 @@ if ($viewApp):
                             <div class="tab-content">
                                 <div class="tab-pane fade show active" id="kycEditPersonal" role="tabpanel">
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">पूरा नाम <span class="text-danger">*</span></label>
-                                        <input type="text" name="full_name" class="form-control form-control-sm" required maxlength="200"
+                                        <label for="kyc_ed_full_name" class="form-label fw-semibold small">पूरा नाम <span class="text-danger">*</span></label>
+                                        <input type="text" name="full_name" id="kyc_ed_full_name" class="form-control form-control-sm" required maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['full_name'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">Full Name (EN)</label>
-                                        <input type="text" name="full_name_en" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_full_name_en" class="form-label fw-semibold small">Full Name (EN)</label>
+                                        <input type="text" name="full_name_en" id="kyc_ed_full_name_en" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['full_name_en'] ?? '')); ?>">
                                     </div>
                                     <div class="row g-2">
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">मोबाइल</label>
-                                            <input type="tel" name="mobile" class="form-control form-control-sm" maxlength="20"
+                                            <label for="kyc_ed_mobile" class="form-label fw-semibold small">मोबाइल</label>
+                                            <input type="tel" name="mobile" id="kyc_ed_mobile" class="form-control form-control-sm" maxlength="20"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['mobile'] ?? '')); ?>">
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">इमेल</label>
-                                            <input type="email" name="email" class="form-control form-control-sm" maxlength="200"
+                                            <label for="kyc_ed_email" class="form-label fw-semibold small">इमेल</label>
+                                            <input type="email" name="email" id="kyc_ed_email" class="form-control form-control-sm" maxlength="200"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['email'] ?? '')); ?>">
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">लिङ्ग</label>
-                                            <select name="gender" class="form-select form-select-sm">
+                                            <label for="kyc_ed_gender" class="form-label fw-semibold small">लिङ्ग</label>
+                                            <select name="gender" id="kyc_ed_gender" class="form-select form-select-sm">
                                                 <option value=""<?php echo $kycGender === '' ? ' selected' : ''; ?>>—</option>
                                                 <option value="male"<?php echo $kycGender === 'male' ? ' selected' : ''; ?>>पुरुष</option>
                                                 <option value="female"<?php echo $kycGender === 'female' ? ' selected' : ''; ?>>महिला</option>
@@ -1369,8 +1369,8 @@ if ($viewApp):
                                             </select>
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">वैवाहिक स्थिति</label>
-                                            <select name="marital_status" class="form-select form-select-sm">
+                                            <label for="kyc_ed_marital" class="form-label fw-semibold small">वैवाहिक स्थिति</label>
+                                            <select name="marital_status" id="kyc_ed_marital" class="form-select form-select-sm">
                                                 <option value=""<?php echo $kycMarital === '' ? ' selected' : ''; ?>>—</option>
                                                 <option value="single"<?php echo $kycMarital === 'single' ? ' selected' : ''; ?>>अविवाहित</option>
                                                 <option value="married"<?php echo $kycMarital === 'married' ? ' selected' : ''; ?>>विवाहित</option>
@@ -1379,17 +1379,17 @@ if ($viewApp):
                                             </select>
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">जन्म मिति (AD)</label>
-                                            <input type="date" name="dob_ad" class="form-control form-control-sm" value="<?php echo htmlspecialchars($kycDobAd); ?>">
+                                            <label for="kyc_ed_dob_ad" class="form-label fw-semibold small">जन्म मिति (AD)</label>
+                                            <input type="date" name="dob_ad" id="kyc_ed_dob_ad" class="form-control form-control-sm" value="<?php echo htmlspecialchars($kycDobAd); ?>">
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">जन्म मिति (BS)</label>
-                                            <input type="text" name="dob_bs" class="form-control form-control-sm" maxlength="20"
+                                            <label for="kyc_ed_dob_bs" class="form-label fw-semibold small">जन्म मिति (BS)</label>
+                                            <input type="text" name="dob_bs" id="kyc_ed_dob_bs" class="form-control form-control-sm" maxlength="20"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['dob_bs'] ?? '')); ?>">
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-semibold small">राष्ट्रियता</label>
-                                            <input type="text" name="nationality" class="form-control form-control-sm" maxlength="100"
+                                            <label for="kyc_ed_nationality" class="form-label fw-semibold small">राष्ट्रियता</label>
+                                            <input type="text" name="nationality" id="kyc_ed_nationality" class="form-control form-control-sm" maxlength="100"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['nationality'] ?? '')); ?>">
                                         </div>
                                     </div>
@@ -1397,77 +1397,77 @@ if ($viewApp):
 
                                 <div class="tab-pane fade" id="kycEditFamily" role="tabpanel">
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">बाबुको नाम</label>
-                                        <input type="text" name="father_name" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_father" class="form-label fw-semibold small">बाबुको नाम</label>
+                                        <input type="text" name="father_name" id="kyc_ed_father" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['father_name'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">आमाको नाम</label>
-                                        <input type="text" name="mother_name" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_mother" class="form-label fw-semibold small">आमाको नाम</label>
+                                        <input type="text" name="mother_name" id="kyc_ed_mother" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['mother_name'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">हजुरबुबाको नाम</label>
-                                        <input type="text" name="grandfather_name" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_grandfather" class="form-label fw-semibold small">हजुरबुबाको नाम</label>
+                                        <input type="text" name="grandfather_name" id="kyc_ed_grandfather" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['grandfather_name'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">पति/पत्नी</label>
-                                        <input type="text" name="spouse_name" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_spouse" class="form-label fw-semibold small">पति/पत्नी</label>
+                                        <input type="text" name="spouse_name" id="kyc_ed_spouse" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['spouse_name'] ?? '')); ?>">
                                     </div>
                                 </div>
 
                                 <div class="tab-pane fade" id="kycEditAddress" role="tabpanel">
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">स्थायी ठेगाना</label>
-                                        <textarea name="permanent_address" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['permanent_address'] ?? '')); ?></textarea>
+                                        <label for="kyc_ed_perm_addr" class="form-label fw-semibold small">स्थायी ठेगाना</label>
+                                        <textarea name="permanent_address" id="kyc_ed_perm_addr" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['permanent_address'] ?? '')); ?></textarea>
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">अस्थायी ठेगाना</label>
-                                        <textarea name="temporary_address" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['temporary_address'] ?? '')); ?></textarea>
+                                        <label for="kyc_ed_temp_addr" class="form-label fw-semibold small">अस्थायी ठेगाना</label>
+                                        <textarea name="temporary_address" id="kyc_ed_temp_addr" class="form-control form-control-sm" rows="2" maxlength="500"><?php echo htmlspecialchars((string)($viewApp['temporary_address'] ?? '')); ?></textarea>
                                     </div>
                                 </div>
 
                                 <div class="tab-pane fade" id="kycEditId" role="tabpanel">
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">नागरिकता नं.</label>
-                                        <input type="text" name="citizenship_no" class="form-control form-control-sm" maxlength="50"
+                                        <label for="kyc_ed_citizenship_no" class="form-label fw-semibold small">नागरिकता नं.</label>
+                                        <input type="text" name="citizenship_no" id="kyc_ed_citizenship_no" class="form-control form-control-sm" maxlength="50"
                                                value="<?php echo htmlspecialchars((string)($viewApp['citizenship_no'] ?? '')); ?>">
                                     </div>
                                     <div class="row g-2">
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">जारी मिति</label>
-                                            <input type="text" name="citizenship_issued_date" class="form-control form-control-sm" maxlength="50"
+                                            <label for="kyc_ed_citizenship_date" class="form-label fw-semibold small">जारी मिति</label>
+                                            <input type="text" name="citizenship_issued_date" id="kyc_ed_citizenship_date" class="form-control form-control-sm" maxlength="50"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['citizenship_issued_date'] ?? '')); ?>">
                                         </div>
                                         <div class="col-6">
-                                            <label class="form-label fw-semibold small">जारी जिल्ला</label>
-                                            <input type="text" name="citizenship_issued_place" class="form-control form-control-sm" maxlength="200"
+                                            <label for="kyc_ed_citizenship_place" class="form-label fw-semibold small">जारी जिल्ला</label>
+                                            <input type="text" name="citizenship_issued_place" id="kyc_ed_citizenship_place" class="form-control form-control-sm" maxlength="200"
                                                    value="<?php echo htmlspecialchars((string)($viewApp['citizenship_issued_place'] ?? '')); ?>">
                                         </div>
                                     </div>
                                     <div class="mb-2 mt-2">
-                                        <label class="form-label fw-semibold small">National ID नं.</label>
-                                        <input type="text" name="national_id_number" class="form-control form-control-sm" maxlength="50"
+                                        <label for="kyc_ed_national_id" class="form-label fw-semibold small">National ID नं.</label>
+                                        <input type="text" name="national_id_number" id="kyc_ed_national_id" class="form-control form-control-sm" maxlength="50"
                                                value="<?php echo htmlspecialchars((string)($viewApp['national_id_number'] ?? '')); ?>">
                                     </div>
                                 </div>
 
                                 <div class="tab-pane fade" id="kycEditWork" role="tabpanel">
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">पेशा</label>
-                                        <input type="text" name="occupation" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_occupation" class="form-label fw-semibold small">पेशा</label>
+                                        <input type="text" name="occupation" id="kyc_ed_occupation" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['occupation'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">संस्था / व्यवसाय</label>
-                                        <input type="text" name="organization_name" class="form-control form-control-sm" maxlength="200"
+                                        <label for="kyc_ed_org" class="form-label fw-semibold small">संस्था / व्यवसाय</label>
+                                        <input type="text" name="organization_name" id="kyc_ed_org" class="form-control form-control-sm" maxlength="200"
                                                value="<?php echo htmlspecialchars((string)($viewApp['organization_name'] ?? '')); ?>">
                                     </div>
                                     <div class="mb-2">
-                                        <label class="form-label fw-semibold small">मासिक आय</label>
-                                        <input type="text" name="monthly_income" class="form-control form-control-sm" maxlength="100"
+                                        <label for="kyc_ed_income" class="form-label fw-semibold small">मासिक आय</label>
+                                        <input type="text" name="monthly_income" id="kyc_ed_income" class="form-control form-control-sm" maxlength="100"
                                                value="<?php echo htmlspecialchars((string)($viewApp['monthly_income'] ?? '')); ?>">
                                     </div>
                                 </div>
@@ -1526,8 +1526,8 @@ if ($viewApp):
                             <input type="hidden" name="id" value="<?php echo $viewApp['id']; ?>">
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>KYC अवस्था</label>
-                                <select name="status" class="form-select">
+                                <label for="kyc_st_status" class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i>KYC अवस्था</label>
+                                <select name="status" id="kyc_st_status" class="form-select">
                                     <?php foreach ($statusLabel as $v => $l): ?>
                                     <option value="<?php echo $v; ?>" <?php echo $viewApp['status']===$v?'selected':''; ?>><?php echo $l; ?></option>
                                     <?php endforeach; ?>
@@ -1536,8 +1536,8 @@ if ($viewApp):
 
                             <div class="row g-2 mb-3">
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold"><i class="fas fa-id-badge me-1 text-primary"></i>Member ID</label>
-                                    <input type="text" name="member_id" class="form-control"
+                                    <label for="kyc_st_member_id" class="form-label fw-semibold"><i class="fas fa-id-badge me-1 text-primary"></i>Member ID</label>
+                                    <input type="text" name="member_id" id="kyc_st_member_id" class="form-control"
                                            value="<?php echo htmlspecialchars($viewApp['member_id'] ?? ''); ?>"
                                            placeholder="जस्तै: 1234" required>
                                 </div>
@@ -1549,9 +1549,9 @@ if ($viewApp):
                                     </div>
                                 </div>
                                 <div class="col-md-12">
-                                    <label class="form-label fw-semibold"><i class="fas fa-layer-group me-1 text-primary"></i>Risk Category</label>
+                                    <label for="kyc_st_risk" class="form-label fw-semibold"><i class="fas fa-layer-group me-1 text-primary"></i>Risk Category</label>
                                     <?php $curRisk = strtolower(trim((string)($viewApp['risk_category'] ?? 'medium'))); ?>
-                                    <select name="risk_category" class="form-select">
+                                    <select name="risk_category" id="kyc_st_risk" class="form-select">
                                         <option value="low" <?php echo $curRisk==='low'?'selected':''; ?>>Low Risk (3 years)</option>
                                         <option value="medium" <?php echo $curRisk==='medium'?'selected':''; ?>>Medium Risk (2 years)</option>
                                         <option value="high" <?php echo $curRisk==='high'?'selected':''; ?>>High Risk (1 year)</option>
@@ -1560,11 +1560,11 @@ if ($viewApp):
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="kyc_st_remarks" class="form-label fw-semibold">
                                     <i class="fas fa-reply me-1 text-success"></i>Admin टिप्पणी
                                     <span class="text-muted fw-normal small">— Member ले Tracker मा देख्छ</span>
                                 </label>
-                                <textarea name="remarks" class="form-control" rows="4"
+                                <textarea name="remarks" id="kyc_st_remarks" class="form-control" rows="4"
                                     placeholder="KYC approval/rejection को कारण, थप आवश्यक कागजात..."
                                 ><?php echo htmlspecialchars($viewApp['remarks'] ?? ''); ?></textarea>
                             </div>
@@ -1583,11 +1583,11 @@ if ($viewApp):
 
                             <!-- Admin ले KYC approval letter attach गर्न सक्छ -->
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">
+                                <label for="kyc_st_attachment" class="form-label fw-semibold">
                                     <i class="fas fa-paperclip me-1 text-primary"></i>KYC Document/Letter संलग्न
                                     <span class="text-muted fw-normal small">— PDF, Word, Image (max 5MB)</span>
                                 </label>
-                                <input type="file" name="admin_attachment" class="form-control"
+                                <input type="file" name="admin_attachment" id="kyc_st_attachment" class="form-control"
                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <?php if (!empty($viewApp['admin_attachment'])): ?>
                                 <div class="form-text text-primary mt-1">

@@ -424,7 +424,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                 <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
 
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-semibold small">
+                                                    <label for="rp_new_<?php echo $adm['id']; ?>" class="form-label fw-semibold small">
                                                         नयाँ पासवर्ड <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="input-group">
@@ -449,7 +449,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label class="form-label fw-semibold small">
+                                                    <label for="rp_confirm_<?php echo $adm['id']; ?>" class="form-label fw-semibold small">
                                                         पासवर्ड पुष्टि <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="input-group">
@@ -540,14 +540,14 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                         <!-- युजरनेम -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="ma_username" class="form-label fw-semibold">
                                 युजरनेम <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
                                     <i class="fas fa-at text-muted"></i>
                                 </span>
-                                <input type="text" name="username" class="form-control"
+                                <input type="text" name="username" id="ma_username" class="form-control"
                                        placeholder="uniqueusername" required
                                        pattern="[a-zA-Z0-9_]{3,30}"
                                        title="३–३० अक्षर: a-z, 0-9, _ मात्र">
@@ -560,42 +560,42 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                         <!-- पूरा नाम -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="ma_full_name" class="form-label fw-semibold">
                                 पूरा नाम <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
                                     <i class="fas fa-user text-muted"></i>
                                 </span>
-                                <input type="text" name="full_name" class="form-control"
+                                <input type="text" name="full_name" id="ma_full_name" class="form-control"
                                        placeholder="Admin को पूरा नाम" required>
                             </div>
                         </div>
 
                         <!-- इमेल -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="ma_email" class="form-label fw-semibold">
                                 इमेल <span class="text-muted fw-normal small">(optional)</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
                                     <i class="fas fa-envelope text-muted"></i>
                                 </span>
-                                <input type="email" name="email" class="form-control"
+                                <input type="email" name="email" id="ma_email" class="form-control"
                                        placeholder="admin@example.com">
                             </div>
                         </div>
 
                         <!-- Role -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="ma_role" class="form-label fw-semibold">
                                 Role <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
                                     <i class="fas fa-user-shield text-muted"></i>
                                 </span>
-                                <select name="role" class="form-select">
+                                <select name="role" id="ma_role" class="form-select">
                                     <option value="admin">Admin — सबै काम गर्न सक्छ</option>
                                     <option value="editor">Editor — content मात्र edit गर्न सक्छ</option>
                                 </select>
@@ -604,7 +604,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                         <!-- पासवर्ड -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="cp_new" class="form-label fw-semibold">
                                 पासवर्ड <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">
@@ -624,7 +624,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                         <!-- पासवर्ड पुष्टि -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="cp_confirm" class="form-label fw-semibold">
                                 पासवर्ड पुष्टि <span class="text-danger">*</span>
                             </label>
                             <div class="input-group">

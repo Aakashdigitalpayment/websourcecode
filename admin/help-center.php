@@ -196,30 +196,30 @@ if ($action === 'add' || $action === 'edit') {
             <?php endif; ?>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
-                    <input type="text" name="question" class="form-control" required
+                    <label for="hc_question" class="form-label fw-semibold">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
+                    <input type="text" name="question" id="hc_question" class="form-control" required
                            value="<?php echo htmlspecialchars($editItem['question'] ?? ''); ?>"
                            placeholder="कार्यालय समय कति हो?">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Question (English)</label>
-                    <input type="text" name="question_en" class="form-control"
+                    <label for="hc_question_en" class="form-label fw-semibold">Question (English)</label>
+                    <input type="text" name="question_en" id="hc_question_en" class="form-control"
                            value="<?php echo htmlspecialchars($editItem['question_en'] ?? ''); ?>"
                            placeholder="What are office hours?">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">उत्तर (नेपाली) <span class="text-danger">*</span></label>
-                    <textarea name="answer" class="form-control" rows="4" required
+                    <label for="hc_answer" class="form-label fw-semibold">उत्तर (नेपाली) <span class="text-danger">*</span></label>
+                    <textarea name="answer" id="hc_answer" class="form-control" rows="4" required
                               placeholder="नेपालीमा उत्तर लेख्नुहोस्..."><?php echo htmlspecialchars($editItem['answer'] ?? ''); ?></textarea>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Answer (English)</label>
-                    <textarea name="answer_en" class="form-control" rows="4"
+                    <label for="hc_answer_en" class="form-label fw-semibold">Answer (English)</label>
+                    <textarea name="answer_en" id="hc_answer_en" class="form-control" rows="4"
                               placeholder="Write answer in English..."><?php echo htmlspecialchars($editItem['answer_en'] ?? ''); ?></textarea>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">वर्ग</label>
-                    <select name="category" class="form-select">
+                    <label for="hc_category" class="form-label fw-semibold">वर्ग</label>
+                    <select name="category" id="hc_category" class="form-select">
                         <?php foreach (['general'=>'सामान्य','interest'=>'ब्याज दर','membership'=>'सदस्यता','loan'=>'ऋण','service'=>'सेवा'] as $val=>$lbl): ?>
                         <option value="<?php echo $val; ?>" <?php echo (($editItem['category'] ?? 'general') === $val) ? 'selected' : ''; ?>>
                             <?php echo $lbl; ?>
@@ -228,15 +228,15 @@ if ($action === 'add' || $action === 'edit') {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">खोज कुञ्जी शब्दहरू</label>
-                    <input type="text" name="keywords" class="form-control"
+                    <label for="hc_keywords" class="form-label fw-semibold">खोज कुञ्जी शब्दहरू</label>
+                    <input type="text" name="keywords" id="hc_keywords" class="form-control"
                            value="<?php echo htmlspecialchars($editItem['keywords'] ?? ''); ?>"
                            placeholder="समय,time,office,कार्यालय">
                     <small class="text-muted">अल्पविराम (,) ले विभाजित गर्नुहोस्</small>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">क्रम नम्बर</label>
-                    <input type="number" name="display_order" class="form-control" value="<?php echo (int)($editItem['display_order'] ?? 0); ?>" min="0">
+                    <label for="hc_order" class="form-label fw-semibold">क्रम नम्बर</label>
+                    <input type="number" name="display_order" id="hc_order" class="form-control" value="<?php echo (int)($editItem['display_order'] ?? 0); ?>" min="0">
                 </div>
                 <div class="col-12">
                     <div class="form-check">
@@ -272,28 +272,28 @@ if ($action === 'add' || $action === 'edit') {
             <input type="hidden" name="id" value="<?php echo (int)$editItem['id']; ?>">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
-                    <input type="text" name="question" class="form-control" required
+                    <label for="hc_edit_question" class="form-label fw-semibold">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
+                    <input type="text" name="question" id="hc_edit_question" class="form-control" required
                            value="<?php echo htmlspecialchars($editItem['question'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Question (English)</label>
-                    <input type="text" name="question_en" class="form-control"
+                    <label for="hc_edit_question_en" class="form-label fw-semibold">Question (English)</label>
+                    <input type="text" name="question_en" id="hc_edit_question_en" class="form-control"
                            value="<?php echo htmlspecialchars($editItem['question_en'] ?? ''); ?>">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">उत्तर (नेपाली) <span class="text-danger">*</span></label>
-                    <textarea name="answer" class="form-control" rows="5" required
+                    <label for="hc_edit_answer" class="form-label fw-semibold">उत्तर (नेपाली) <span class="text-danger">*</span></label>
+                    <textarea name="answer" id="hc_edit_answer" class="form-control" rows="5" required
                     ><?php echo htmlspecialchars($editItem['answer'] ?? ''); ?></textarea>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold">Answer (English)</label>
-                    <textarea name="answer_en" class="form-control" rows="5"
+                    <label for="hc_edit_answer_en" class="form-label fw-semibold">Answer (English)</label>
+                    <textarea name="answer_en" id="hc_edit_answer_en" class="form-control" rows="5"
                     ><?php echo htmlspecialchars($editItem['answer_en'] ?? ''); ?></textarea>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">वर्ग</label>
-                    <select name="category" class="form-select">
+                    <label for="hc_edit_category" class="form-label fw-semibold">वर्ग</label>
+                    <select name="category" id="hc_edit_category" class="form-select">
                         <?php foreach (['general'=>'सामान्य','interest'=>'ब्याज दर','membership'=>'सदस्यता','loan'=>'ऋण','service'=>'सेवा'] as $val=>$lbl): ?>
                         <option value="<?php echo $val; ?>" <?php echo ($editItem['category'] ?? '') === $val ? 'selected' : ''; ?>>
                             <?php echo $lbl; ?>
@@ -302,14 +302,14 @@ if ($action === 'add' || $action === 'edit') {
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">खोज कुञ्जी शब्दहरू</label>
-                    <input type="text" name="keywords" class="form-control"
+                    <label for="hc_edit_keywords" class="form-label fw-semibold">खोज कुञ्जी शब्दहरू</label>
+                    <input type="text" name="keywords" id="hc_edit_keywords" class="form-control"
                            value="<?php echo htmlspecialchars($editItem['keywords'] ?? ''); ?>">
                     <small class="text-muted">अल्पविराम (,) ले विभाजित गर्नुहोस्</small>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold">क्रम नम्बर</label>
-                    <input type="number" name="display_order" class="form-control" min="0"
+                    <label for="hc_edit_order" class="form-label fw-semibold">क्रम नम्बर</label>
+                    <input type="number" name="display_order" id="hc_edit_order" class="form-control" min="0"
                            value="<?php echo (int)($editItem['display_order'] ?? 0); ?>">
                 </div>
                 <div class="col-12">

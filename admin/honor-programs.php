@@ -340,20 +340,20 @@ $catForm = $editCategory ?: [
                     <input type="hidden" name="action" value="save_category">
                     <input type="hidden" name="category_id" value="<?php echo (int)($catForm['id'] ?? 0); ?>">
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
-                        <input type="text" name="name_np" class="form-control" required maxlength="160"
+                        <label for="hpc_name_np" class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
+                        <input type="text" name="name_np" id="hpc_name_np" class="form-control" required maxlength="160"
                                value="<?php echo htmlspecialchars((string)$catForm['name_np']); ?>"
                                placeholder="<?php echo $__t('जस्तै: राष्ट्रिय खेलाडी', 'e.g. National athlete'); ?>">
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                        <input type="text" name="name_en" class="form-control" maxlength="160"
+                        <label for="hpc_name_en" class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                        <input type="text" name="name_en" id="hpc_name_en" class="form-control" maxlength="160"
                                value="<?php echo htmlspecialchars((string)$catForm['name_en']); ?>"
                                placeholder="e.g. National athlete">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
-                        <input type="number" name="display_order" class="form-control" value="<?php echo (int)($catForm['display_order'] ?? 0); ?>">
+                        <label for="hpc_order" class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                        <input type="number" name="display_order" id="hpc_order" class="form-control" value="<?php echo (int)($catForm['display_order'] ?? 0); ?>">
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <div class="form-check mb-2">
@@ -468,24 +468,24 @@ $selectedCats = $editCatIds;
             <input type="hidden" name="id" value="<?php echo (int)($form['id'] ?? 0); ?>">
 
             <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> *</label>
-                <input type="text" name="title_np" class="form-control" required maxlength="200"
+                <label for="hp_title_np" class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> *</label>
+                <input type="text" name="title_np" id="hp_title_np" class="form-control" required maxlength="200"
                        value="<?php echo htmlspecialchars((string)$form['title_np']); ?>">
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('शीर्षक (अंग्रेजी)', 'Title (English)'); ?></label>
-                <input type="text" name="title_en" class="form-control" maxlength="200"
+                <label for="hp_title_en" class="form-label"><?php echo $__t('शीर्षक (अंग्रेजी)', 'Title (English)'); ?></label>
+                <input type="text" name="title_en" id="hp_title_en" class="form-control" maxlength="200"
                        value="<?php echo htmlspecialchars((string)$form['title_en']); ?>">
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo $__t('कार्यक्रम लेबल', 'Event label'); ?></label>
-                <input type="text" name="event_label" class="form-control" maxlength="120"
+                <label for="hp_event_label" class="form-label"><?php echo $__t('कार्यक्रम लेबल', 'Event label'); ?></label>
+                <input type="text" name="event_label" id="hp_event_label" class="form-control" maxlength="120"
                        placeholder="<?php echo $__t('जस्तै: २५ औं AGM', 'e.g. 25th AGM'); ?>"
                        value="<?php echo htmlspecialchars((string)$form['event_label']); ?>">
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo $__t('आर्थिक वर्ष', 'Fiscal year'); ?></label>
-                <input type="text" name="fiscal_year" class="form-control" maxlength="40"
+                <label for="hp_fiscal_year" class="form-label"><?php echo $__t('आर्थिक वर्ष', 'Fiscal year'); ?></label>
+                <input type="text" name="fiscal_year" id="hp_fiscal_year" class="form-control" maxlength="40"
                        placeholder="2082/83"
                        value="<?php echo htmlspecialchars((string)$form['fiscal_year']); ?>">
             </div>
@@ -506,31 +506,31 @@ $selectedCats = $editCatIds;
             $closesTimeVal = honorAdminTimePart((string)$form['closes_at'], '23:59');
             ?>
             <div class="col-md-3">
-                <label class="form-label"><?php echo $__t('खुल्ने मिति (वि.सं.)', 'Opens date (BS)'); ?> *</label>
+                <label for="hp_opens_bs" class="form-label"><?php echo $__t('खुल्ने मिति (वि.सं.)', 'Opens date (BS)'); ?> *</label>
                 <div class="input-group">
-                    <input type="text" name="opens_at_bs" class="form-control nepali-datepicker" required
+                    <input type="text" name="opens_at_bs" id="hp_opens_bs" class="form-control nepali-datepicker" required
                            placeholder="YYYY-MM-DD" autocomplete="off"
                            value="<?php echo htmlspecialchars($opensBsVal); ?>">
                     <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="form-label"><?php echo $__t('खुल्ने समय', 'Opens time'); ?> *</label>
-                <input type="time" name="opens_at_time" class="form-control" required
+                <label for="hp_opens_time" class="form-label"><?php echo $__t('खुल्ने समय', 'Opens time'); ?> *</label>
+                <input type="time" name="opens_at_time" id="hp_opens_time" class="form-control" required
                        value="<?php echo htmlspecialchars($opensTimeVal); ?>">
             </div>
             <div class="col-md-3">
-                <label class="form-label"><?php echo $__t('बन्द मिति (वि.सं.)', 'Closes date (BS)'); ?> *</label>
+                <label for="hp_closes_bs" class="form-label"><?php echo $__t('बन्द मिति (वि.सं.)', 'Closes date (BS)'); ?> *</label>
                 <div class="input-group">
-                    <input type="text" name="closes_at_bs" class="form-control nepali-datepicker" required
+                    <input type="text" name="closes_at_bs" id="hp_closes_bs" class="form-control nepali-datepicker" required
                            placeholder="YYYY-MM-DD" autocomplete="off"
                            value="<?php echo htmlspecialchars($closesBsVal); ?>">
                     <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                 </div>
             </div>
             <div class="col-md-3">
-                <label class="form-label"><?php echo $__t('बन्द समय', 'Closes time'); ?> *</label>
-                <input type="time" name="closes_at_time" class="form-control" required
+                <label for="hp_closes_time" class="form-label"><?php echo $__t('बन्द समय', 'Closes time'); ?> *</label>
+                <input type="time" name="closes_at_time" id="hp_closes_time" class="form-control" required
                        value="<?php echo htmlspecialchars($closesTimeVal); ?>">
             </div>
             <div class="col-12">
@@ -540,12 +540,12 @@ $selectedCats = $editCatIds;
             </div>
             <div class="col-12">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-1">
-                    <label class="form-label mb-0"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
+                    <label id="hp_categories_label" class="form-label mb-0"><?php echo $__t('सम्मान कोटिहरू', 'Honor categories'); ?> *</label>
                     <a href="honor-programs.php?action=categories" class="btn btn-sm btn-outline-success">
                         <i class="fas fa-plus me-1"></i><?php echo $__t('कोटि थप्नुहोस् / व्यवस्थापन', 'Add / manage categories'); ?>
                     </a>
                 </div>
-                <div class="border rounded p-3 bg-light">
+                <div class="border rounded p-3 bg-light" role="group" aria-labelledby="hp_categories_label">
                     <div class="row g-2">
                         <?php foreach ($allCategories as $cat): ?>
                         <div class="col-md-4 col-sm-6">
@@ -569,12 +569,12 @@ $selectedCats = $editCatIds;
                 </div>
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('निर्देशन (नेपाली)', 'Instructions (Nepali)'); ?></label>
-                <textarea name="instructions_np" class="form-control" rows="4"><?php echo htmlspecialchars((string)$form['instructions_np']); ?></textarea>
+                <label for="hp_instructions_np" class="form-label"><?php echo $__t('निर्देशन (नेपाली)', 'Instructions (Nepali)'); ?></label>
+                <textarea name="instructions_np" id="hp_instructions_np" class="form-control" rows="4"><?php echo htmlspecialchars((string)$form['instructions_np']); ?></textarea>
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo $__t('निर्देशन (अंग्रेजी)', 'Instructions (English)'); ?></label>
-                <textarea name="instructions_en" class="form-control" rows="4"><?php echo htmlspecialchars((string)$form['instructions_en']); ?></textarea>
+                <label for="hp_instructions_en" class="form-label"><?php echo $__t('निर्देशन (अंग्रेजी)', 'Instructions (English)'); ?></label>
+                <textarea name="instructions_en" id="hp_instructions_en" class="form-control" rows="4"><?php echo htmlspecialchars((string)$form['instructions_en']); ?></textarea>
             </div>
             <div class="col-12">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित गर्नुहोस्', 'Save'); ?></button>
