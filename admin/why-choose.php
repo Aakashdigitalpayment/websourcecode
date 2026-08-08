@@ -225,7 +225,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                     <div class="row g-3">
                         <!-- Icon -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">Font Awesome Icon Class <span class="text-danger">*</span></label>
+                            <label for="wcIcon" class="form-label fw-semibold">Font Awesome Icon Class <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text" id="iconPreview"><i class="fas fa-star"></i></span>
                                 <input type="text" name="icon" id="wcIcon" class="form-control"
@@ -237,7 +237,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
 
                         <!-- Sort order -->
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold">क्रम (Sort)</label>
+                            <label for="wcSort" class="form-label fw-semibold">क्रम (Sort)</label>
                             <input type="number" name="sort_order" id="wcSort" class="form-control" value="0" min="0">
                         </div>
 
@@ -252,22 +252,22 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
 
                     <div class="row g-3 mt-1">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="wcTitleNp" class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="title_np" id="wcTitleNp" class="form-control" required
                                    placeholder="जस्तै: सुरक्षित बचत">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Title (English)</label>
+                            <label for="wcTitleEn" class="form-label fw-semibold">Title (English)</label>
                             <input type="text" name="title_en" id="wcTitleEn" class="form-control"
                                    placeholder="e.g. Safe Savings">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">विवरण (नेपाली)</label>
+                            <label for="wcDescNp" class="form-label fw-semibold">विवरण (नेपाली)</label>
                             <textarea name="desc_np" id="wcDescNp" class="form-control" rows="3"
                                       placeholder="छोटो विवरण नेपालीमा..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Description (English)</label>
+                            <label for="wcDescEn" class="form-label fw-semibold">Description (English)</label>
                             <textarea name="desc_en" id="wcDescEn" class="form-control" rows="3"
                                       placeholder="Short description in English..."></textarea>
                         </div>

@@ -271,27 +271,27 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">सेवा कार्यालयको नाम (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="scf_name_np" class="form-label fw-semibold text-success">सेवा कार्यालयको नाम (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="name_np" id="scf_name_np" class="form-control admin-fancy-input" required placeholder="सेवा कार्यालयको नाम नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Branch Name (English)</label>
+                            <label for="scf_name" class="form-label fw-semibold text-success">Branch Name (English)</label>
                             <input type="text" name="name" id="scf_name" class="form-control admin-fancy-input" placeholder="Branch name in English">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">ठेगाना</label>
+                            <label for="scf_address" class="form-label fw-semibold text-success">ठेगाना</label>
                             <input type="text" name="address" id="scf_address" class="form-control admin-fancy-input" placeholder="पूरा ठेगाना">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">फोन</label>
+                            <label for="scf_phone" class="form-label fw-semibold text-success">फोन</label>
                             <input type="text" name="phone" id="scf_phone" class="form-control admin-fancy-input" placeholder="०१-XXXXXXX">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">इमेल</label>
+                            <label for="scf_email" class="form-label fw-semibold text-success">इमेल</label>
                             <input type="email" name="email" id="scf_email" class="form-control admin-fancy-input" placeholder="branch@example.com">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">प्रदेश</label>
+                            <label for="scf_province" class="form-label fw-semibold text-success">प्रदेश</label>
                             <select name="province" id="scf_province" class="form-select admin-fancy-input">
                                 <option value="">छान्नुहोस्</option>
                                 <?php foreach ($provinces as $k => $v): ?>
@@ -300,16 +300,16 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">कार्यालय समय</label>
+                            <label for="scf_hours" class="form-label fw-semibold text-success">कार्यालय समय</label>
                             <input type="text" name="opening_hours" id="scf_hours" class="form-control admin-fancy-input" placeholder="आइत–शुक्र, बिहान ९–साँझ ५">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
+                            <label for="scf_order" class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="scf_order" class="form-control admin-fancy-input" value="0" min="0" step="1">
                             <small class="text-muted">सानो नम्बर पहिले देखिन्छ (०, १, २…). मुख्य सेवा कार्यालय स्वतः अगाडि।</small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">Google Map URL</label>
+                            <label for="scf_map" class="form-label fw-semibold text-success">Google Map URL</label>
                             <input type="url" name="map_url" id="scf_map" class="form-control admin-fancy-input" placeholder="https://maps.google.com/...">
                         </div>
                         <div class="col-md-6">
