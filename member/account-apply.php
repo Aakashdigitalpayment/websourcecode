@@ -198,8 +198,8 @@ require __DIR__ . '/includes/chrome.php';
       <!-- Account Type -->
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('खाता प्रकार', 'Account Type'); ?> <span class="mem-form-required">*</span></label>
-          <select name="account_type" class="mem-form-control" required>
+          <label class="mem-form-label" for="maa_account_type"><?php echo $_t('खाता प्रकार', 'Account Type'); ?> <span class="mem-form-required">*</span></label>
+          <select name="account_type" class="mem-form-control" required id="maa_account_type">
             <option value="">— <?php echo $_t('खाता छान्नुहोस्', 'Select account type'); ?> —</option>
             <?php foreach ($accountTypeLabels as $val => $lbl): ?>
             <option value="<?= $val ?>" <?= ($_POST['account_type'] ?? '') === $val ? 'selected' : '' ?>><?= $lbl ?></option>
@@ -207,8 +207,8 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('प्रारम्भिक जम्मा', 'Initial Deposit'); ?></label>
-          <select name="initial_deposit" class="mem-form-control">
+          <label class="mem-form-label" for="maa_initial_deposit"><?php echo $_t('प्रारम्भिक जम्मा', 'Initial Deposit'); ?></label>
+          <select name="initial_deposit" class="mem-form-control" id="maa_initial_deposit">
             <option value="1000">रु. १,०००</option>
             <option value="5000">रु. ५,०००</option>
             <option value="10000">रु. १०,०००</option>
@@ -220,8 +220,8 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
-        <select name="branch" class="mem-form-control">
+        <label class="mem-form-label" for="maa_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <select name="branch" class="mem-form-control" id="maa_branch">
           <option value=""><?php echo $_t('सेवा कार्यालय छान्नुहोस्', 'Select branch'); ?></option>
           <?php foreach ($branches as $br): ?>
           <option value="<?= htmlspecialchars($br['name']) ?>"><?= htmlspecialchars($br['name']) ?></option>
@@ -236,12 +236,12 @@ require __DIR__ . '/includes/chrome.php';
       </div>
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('धन जमानीको नाम', 'Guarantor Name'); ?></label>
-          <input type="text" name="nominee_name" class="mem-form-control" value="<?= htmlspecialchars($_POST['nominee_name'] ?? '') ?>" placeholder="<?php echo $_t('पूरा नाम', 'Full name'); ?>">
+          <label class="mem-form-label" for="maa_nominee_name"><?php echo $_t('धन जमानीको नाम', 'Guarantor Name'); ?></label>
+          <input type="text" name="nominee_name" class="mem-form-control" value="<?= htmlspecialchars($_POST['nominee_name'] ?? '') ?>" placeholder="<?php echo $_t('पूरा नाम', 'Full name'); ?>" id="maa_nominee_name">
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('सम्बन्ध', 'Relation'); ?></label>
-          <select name="nominee_relation" class="mem-form-control">
+          <label class="mem-form-label" for="maa_nominee_relation"><?php echo $_t('सम्बन्ध', 'Relation'); ?></label>
+          <select name="nominee_relation" class="mem-form-control" id="maa_nominee_relation">
             <option value="">—</option>
             <option value="spouse"><?php echo $_t('पति/पत्नी', 'Spouse'); ?></option>
             <option value="son"><?php echo $_t('छोरा', 'Son'); ?></option>
@@ -253,8 +253,8 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('धन जमानीको फोन', 'Guarantor Phone'); ?></label>
-          <input type="tel" name="nominee_phone" class="mem-form-control" maxlength="10" placeholder="98XXXXXXXX" value="<?= htmlspecialchars($_POST['nominee_phone'] ?? '') ?>">
+          <label class="mem-form-label" for="maa_nominee_phone"><?php echo $_t('धन जमानीको फोन', 'Guarantor Phone'); ?></label>
+          <input type="tel" name="nominee_phone" class="mem-form-control" maxlength="10" placeholder="98XXXXXXXX" value="<?= htmlspecialchars($_POST['nominee_phone'] ?? '') ?>" id="maa_nominee_phone">
         </div>
       </div>
 

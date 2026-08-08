@@ -167,8 +167,8 @@ require __DIR__ . '/includes/chrome.php';
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('गुनासोको वर्ग', 'Category'); ?> <span class="mem-form-required">*</span></label>
-          <select name="category" class="mem-form-control" required>
+          <label class="mem-form-label" for="mgr_category"><?php echo $_t('गुनासोको वर्ग', 'Category'); ?> <span class="mem-form-required">*</span></label>
+          <select name="category" class="mem-form-control" required id="mgr_category">
             <?php foreach ($categories as $val => $lbl): ?>
             <option value="<?= $val ?>" <?= ($_POST['category'] ?? 'other') === $val ? 'selected' : '' ?>><?= $lbl ?></option>
             <?php endforeach; ?>
@@ -183,21 +183,21 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('विषय', 'Subject'); ?> <span class="mem-form-required">*</span></label>
+        <label class="mem-form-label" for="mgr_subject"><?php echo $_t('विषय', 'Subject'); ?> <span class="mem-form-required">*</span></label>
         <input type="text" name="subject" class="mem-form-control" required maxlength="300"
                placeholder="<?php echo $_t('गुनासोको विषय संक्षेपमा लेख्नुहोस्', 'Brief subject of your grievance'); ?>"
-               value="<?= htmlspecialchars($_POST['subject'] ?? '') ?>">
+               value="<?= htmlspecialchars($_POST['subject'] ?? '') ?>" id="mgr_subject">
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('विस्तृत विवरण', 'Detailed Description'); ?> <span class="mem-form-required">*</span></label>
+        <label class="mem-form-label" for="mgr_description"><?php echo $_t('विस्तृत विवरण', 'Detailed Description'); ?> <span class="mem-form-required">*</span></label>
         <textarea name="description" class="mem-form-control" rows="5" required maxlength="8000"
-                  placeholder="<?php echo $_t('तपाईंको गुनासोको विस्तृत विवरण लेख्नुहोस्...', 'Describe your grievance in detail...'); ?>"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
+                  placeholder="<?php echo $_t('तपाईंको गुनासोको विस्तृत विवरण लेख्नुहोस्...', 'Describe your grievance in detail...'); ?>" id="mgr_description"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-paperclip ico-primary"></i><?php echo $_t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?></label>
-        <input type="file" name="attachment" class="mem-form-control" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+        <label class="mem-form-label" for="mgr_attachment"><i class="fas fa-paperclip ico-primary"></i><?php echo $_t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?></label>
+        <input type="file" name="attachment" class="mem-form-control" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" id="mgr_attachment">
         <div class="mp-file-hint"><?php echo $_t('JPG, PNG, PDF, DOC — अधिकतम 5MB', 'JPG, PNG, PDF, DOC — max 5MB'); ?></div>
       </div>
 
