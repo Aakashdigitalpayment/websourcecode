@@ -48,7 +48,7 @@ require_once 'includes/header.php';
                 <i class="fas fa-home me-2"></i>
                 <?php echo isEnglish() ? 'Go to Home' : 'गृहपृष्ठमा जानुहोस्'; ?>
             </a>
-            <button onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
+            <button type="button" onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
                 <i class="fas fa-arrow-left me-2"></i>
                 <?php echo isEnglish() ? 'Go Back' : 'फर्कनुहोस्'; ?>
             </button>

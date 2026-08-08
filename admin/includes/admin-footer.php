@@ -31,7 +31,7 @@
     <script src="../assets/vendor/datatables/dataTables.bootstrap5.min.js"></script>
 
     <!-- CKEditor for rich text editing -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js" integrity="sha384-iRqAtUS5zaxUb29RlrazJxjB/+B6yhysd3tFSeMTcmvAgxeXTVWBk4OlbSJWpthT" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Nepali Datepicker JS v5 (self-hosted — CSS admin-header.php मा load भएको छ) -->
     <script src="../assets/js/nepali.datepicker.min.js"></script>

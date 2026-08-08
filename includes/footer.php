@@ -315,7 +315,7 @@ try {
                     <i class="fas fa-robot"></i>
                     <span><?php echo isEnglish() ? 'Help Assistant' : 'सहायता केन्द्र'; ?></span>
                 </div>
-                <button class="chatbot-close" id="chatbotClose" aria-label="Close" title="Close">
+                <button type="button" class="chatbot-close" id="chatbotClose" aria-label="Close" title="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -493,7 +493,7 @@ try {
     <div class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="<?php echo isEnglish() ? 'Site search' : 'साइट खोज'; ?>">
         <div class="search-modal-overlay"></div>
         <div class="search-modal-content">
-            <button class="search-modal-close" id="searchModalClose" title="बन्द गर्नुहोस्">
+            <button type="button" class="search-modal-close" id="searchModalClose" title="बन्द गर्नुहोस्" aria-label="<?php echo isEnglish() ? 'Close search' : 'खोज बन्द गर्नुहोस्'; ?>">
                 <i class="fas fa-times"></i>
             </button>
             <div class="search-modal-body">

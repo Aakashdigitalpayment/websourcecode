@@ -109,8 +109,9 @@ if (!function_exists('auctionSanitizeMapEmbed')) {
             if (!$allowed) {
                 return '';
             }
-            $iframe = preg_replace('/\s+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $iframe);
-            return $iframe;
+            // Rebuild a minimal safe iframe (drop handlers / unknown attrs).
+            $srcEsc = htmlspecialchars($src, ENT_QUOTES, 'UTF-8');
+            return '<iframe src="' . $srcEsc . '" title="Auction location map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>';
         }
         return '';
     }
