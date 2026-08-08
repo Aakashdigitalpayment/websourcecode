@@ -267,19 +267,19 @@ $linksArch = $lnkPart['archived'];
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="lnkf_title_np" class="form-label fw-semibold text-success">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="title_np" id="lnkf_title_np" class="form-control admin-fancy-input" required placeholder="लिंकको शीर्षक नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Title (English)</label>
+                            <label for="lnkf_title" class="form-label fw-semibold text-success">Title (English)</label>
                             <input type="text" name="title" id="lnkf_title" class="form-control admin-fancy-input" placeholder="Link title in English">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">URL <span class="text-danger">*</span></label>
+                            <label for="lnkf_url" class="form-label fw-semibold text-success">URL <span class="text-danger">*</span></label>
                             <input type="url" name="url" id="lnkf_url" class="form-control admin-fancy-input" required placeholder="https://example.com">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">आइकन (Font Awesome)</label>
+                            <label for="lnkf_icon" class="form-label fw-semibold text-success">आइकन (Font Awesome)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-success text-white" id="lnkIconPrev"><i class="fas fa-link"></i></span>
                                 <input type="text" name="icon" id="lnkf_icon" class="form-control admin-fancy-input"
@@ -288,11 +288,11 @@ $linksArch = $lnkPart['archived'];
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">विवरण (वैकल्पिक)</label>
+                            <label for="lnkf_desc" class="form-label fw-semibold text-success">विवरण (वैकल्पिक)</label>
                             <input type="text" name="description" id="lnkf_desc" class="form-control admin-fancy-input" placeholder="संक्षिप्त विवरण">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">क्रम</label>
+                            <label for="lnkf_order" class="form-label fw-semibold text-success">क्रम</label>
                             <input type="number" name="display_order" id="lnkf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-4 d-flex align-items-end pb-1">
