@@ -350,31 +350,31 @@ $L = getLangStrings();
                             <h5><?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" required maxlength="200" value="<?php echo e($_POST['full_name'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Enter your full name' : 'पूरा नाम लेख्नुहोस्'; ?>">
+                                    <label for="job_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" id="job_full_name" class="form-control" required maxlength="200" value="<?php echo e($_POST['full_name'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Enter your full name' : 'पूरा नाम लेख्नुहोस्'; ?>" autocomplete="name">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" required maxlength="254" value="<?php echo e($_POST['email'] ?? ''); ?>" placeholder="name@example.com">
+                                    <label for="job_email" class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                    <input type="email" name="email" id="job_email" class="form-control" required maxlength="254" value="<?php echo e($_POST['email'] ?? ''); ?>" placeholder="name@example.com" autocomplete="email">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="phone" class="form-control" required pattern="9[0-9]{9}" maxlength="10" value="<?php echo e($_POST['phone'] ?? ''); ?>" placeholder="98XXXXXXXX">
+                                    <label for="job_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="phone" id="job_phone" class="form-control" required pattern="9[0-9]{9}" maxlength="10" value="<?php echo e($_POST['phone'] ?? ''); ?>" placeholder="98XXXXXXXX" autocomplete="tel">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
-                                    <input type="text" name="address" class="form-control" maxlength="500" value="<?php echo e($_POST['address'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Your current address' : 'हालको ठेगाना'; ?>">
+                                    <label for="job_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
+                                    <input type="text" name="address" id="job_address" class="form-control" maxlength="500" value="<?php echo e($_POST['address'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Your current address' : 'हालको ठेगाना'; ?>" autocomplete="street-address">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Date of Birth (B.S.)' : 'जन्म मिति (बि.सं.)'; ?></label>
+                                    <label for="dob_nepali" class="form-label"><?php echo isEnglish() ? 'Date of Birth (B.S.)' : 'जन्म मिति (बि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
-                                        <input type="text" name="date_of_birth" id="dob_nepali" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo e($_POST['date_of_birth'] ?? ''); ?>">
+                                        <input type="text" name="date_of_birth" id="dob_nepali" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo e($_POST['date_of_birth'] ?? ''); ?>" autocomplete="off">
                                         <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
-                                    <select name="gender" class="form-select">
+                                    <label for="job_gender" class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
+                                    <select name="gender" id="job_gender" class="form-select">
                                         <?php $selG = $_POST['gender'] ?? 'male'; ?>
                                         <option value="male" <?php echo $selG === 'male' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Male' : 'पुरुष'; ?></option>
                                         <option value="female" <?php echo $selG === 'female' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Female' : 'महिला'; ?></option>
@@ -388,20 +388,20 @@ $L = getLangStrings();
                             <h5><?php echo isEnglish() ? 'Education & Experience' : 'शिक्षा र अनुभव'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Highest Education' : 'उच्चतम शिक्षा'; ?></label>
-                                    <input type="text" name="education" class="form-control" value="<?php echo e($_POST['education'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., Bachelor in Business' : 'जस्तै: व्यवसायमा स्नातक'; ?>">
+                                    <label for="job_education" class="form-label"><?php echo isEnglish() ? 'Highest Education' : 'उच्चतम शिक्षा'; ?></label>
+                                    <input type="text" name="education" id="job_education" class="form-control" value="<?php echo e($_POST['education'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., Bachelor in Business' : 'जस्तै: व्यवसायमा स्नातक'; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Years of Experience' : 'अनुभवको वर्ष'; ?></label>
-                                    <input type="text" name="experience" class="form-control" value="<?php echo e($_POST['experience'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., 2 years' : 'जस्तै: २ वर्ष'; ?>">
+                                    <label for="job_experience" class="form-label"><?php echo isEnglish() ? 'Years of Experience' : 'अनुभवको वर्ष'; ?></label>
+                                    <input type="text" name="experience" id="job_experience" class="form-control" value="<?php echo e($_POST['experience'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., 2 years' : 'जस्तै: २ वर्ष'; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Current Employer' : 'हालको रोजगारदाता'; ?></label>
-                                    <input type="text" name="current_employer" class="form-control" value="<?php echo e($_POST['current_employer'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Company name (if employed)' : 'कम्पनीको नाम (कार्यरत भए)'; ?>">
+                                    <label for="job_current_employer" class="form-label"><?php echo isEnglish() ? 'Current Employer' : 'हालको रोजगारदाता'; ?></label>
+                                    <input type="text" name="current_employer" id="job_current_employer" class="form-control" value="<?php echo e($_POST['current_employer'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'Company name (if employed)' : 'कम्पनीको नाम (कार्यरत भए)'; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Expected Salary' : 'अपेक्षित तलब'; ?></label>
-                                    <input type="text" name="expected_salary" class="form-control" value="<?php echo e($_POST['expected_salary'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., Rs. 30,000 - 40,000' : 'जस्तै: रु. ३०,००० - ४०,०००'; ?>">
+                                    <label for="job_expected_salary" class="form-label"><?php echo isEnglish() ? 'Expected Salary' : 'अपेक्षित तलब'; ?></label>
+                                    <input type="text" name="expected_salary" id="job_expected_salary" class="form-control" value="<?php echo e($_POST['expected_salary'] ?? ''); ?>" placeholder="<?php echo isEnglish() ? 'e.g., Rs. 30,000 - 40,000' : 'जस्तै: रु. ३०,००० - ४०,०००'; ?>">
                                 </div>
                             </div>
                         </div>
@@ -409,8 +409,8 @@ $L = getLangStrings();
                         <div class="form-section">
                             <h5><?php echo isEnglish() ? 'Cover Letter' : 'आवेदन पत्र'; ?></h5>
                             <div class="mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Why should we hire you?' : 'हामीले तपाईंलाई किन नियुक्त गर्नुपर्छ?'; ?></label>
-                                <textarea name="cover_letter" class="form-control" rows="4" placeholder="<?php echo isEnglish() ? 'Write about your skills, experience, and why you are suitable for this position...' : 'तपाईंको सीप, अनुभव, र यस पदको लागि तपाईं किन उपयुक्त हुनुहुन्छ भनेर लेख्नुहोस्...'; ?>"><?php echo e($_POST['cover_letter'] ?? ''); ?></textarea>
+                                <label for="job_cover_letter" class="form-label"><?php echo isEnglish() ? 'Why should we hire you?' : 'हामीले तपाईंलाई किन नियुक्त गर्नुपर्छ?'; ?></label>
+                                <textarea name="cover_letter" id="job_cover_letter" class="form-control" rows="4" placeholder="<?php echo isEnglish() ? 'Write about your skills, experience, and why you are suitable for this position...' : 'तपाईंको सीप, अनुभव, र यस पदको लागि तपाईं किन उपयुक्त हुनुहुन्छ भनेर लेख्नुहोस्...'; ?>"><?php echo e($_POST['cover_letter'] ?? ''); ?></textarea>
                             </div>
                         </div>
 
@@ -418,23 +418,23 @@ $L = getLangStrings();
                             <h5><?php echo isEnglish() ? 'Document Upload' : 'कागजात अपलोड'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Resume/CV' : 'बायोडाटा/CV'; ?> <span class="text-danger">*</span></label>
-                                    <input type="file" name="resume" class="form-control" accept=".pdf,.doc,.docx" required>
+                                    <label for="job_resume" class="form-label"><?php echo isEnglish() ? 'Resume/CV' : 'बायोडाटा/CV'; ?> <span class="text-danger">*</span></label>
+                                    <input type="file" name="resume" id="job_resume" class="form-control" accept=".pdf,.doc,.docx" required>
                                     <small class="text-muted"><?php echo isEnglish() ? 'PDF, DOC (Max 5MB)' : 'PDF, DOC (अधिकतम ५MB)'; ?></small>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?></label>
-                                    <input type="file" name="photo" class="form-control" accept=".jpg,.jpeg,.png">
+                                    <label for="job_photo" class="form-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?></label>
+                                    <input type="file" name="photo" id="job_photo" class="form-control" accept=".jpg,.jpeg,.png">
                                     <small class="text-muted"><?php echo isEnglish() ? 'JPG, PNG (Max 2MB)' : 'JPG, PNG (अधिकतम २MB)'; ?></small>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship Copy' : 'नागरिकताको प्रतिलिपि'; ?></label>
-                                    <input type="file" name="citizenship" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="job_citizenship" class="form-label"><?php echo isEnglish() ? 'Citizenship Copy' : 'नागरिकताको प्रतिलिपि'; ?></label>
+                                    <input type="file" name="citizenship" id="job_citizenship" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                                     <small class="text-muted"><?php echo isEnglish() ? 'PDF, JPG, PNG' : 'PDF, JPG, PNG'; ?></small>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Certificates' : 'प्रमाणपत्रहरू'; ?></label>
-                                    <input type="file" name="certificates" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+                                    <label for="job_certificates" class="form-label"><?php echo isEnglish() ? 'Certificates' : 'प्रमाणपत्रहरू'; ?></label>
+                                    <input type="file" name="certificates" id="job_certificates" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                                     <small class="text-muted"><?php echo isEnglish() ? 'Academic certificates (PDF recommended)' : 'शैक्षिक प्रमाणपत्र (PDF सिफारिश)'; ?></small>
                                 </div>
                             </div>

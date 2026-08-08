@@ -385,37 +385,37 @@ $L = getLangStrings();
                     </div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6 js-ds-name-wrap">
-                            <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
-                            <input type="text" name="requester_name" class="form-control js-ds-personal" required
+                            <label for="ds_requester_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
+                            <input type="text" name="requester_name" id="ds_requester_name" class="form-control js-ds-personal" required
                                    placeholder="<?php echo isEnglish() ? 'Your full name' : 'तपाईंको पूरा नाम'; ?>"
-                                   value="<?php echo e($_POST['requester_name'] ?? ''); ?>">
+                                   value="<?php echo e($_POST['requester_name'] ?? ''); ?>" autocomplete="name">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">
+                            <label for="ds_member_id" class="form-label">
                                 <?php echo isEnglish() ? 'Member No.' : 'सदस्य नं.'; ?>
                                 <span class="ds-req-mark js-ds-mid-req ds-mid-req">*</span>
                                 <small class="ds-muted js-ds-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऌच्छिक'; ?>)</small>
                             </label>
-                            <input type="text" name="member_id" class="form-control js-ds-mid"
+                            <input type="text" name="member_id" id="ds_member_id" class="form-control js-ds-mid"
                                    placeholder="<?php echo isEnglish() ? 'e.g. 12345' : 'जस्तै: १२३४५'; ?>"
-                                   value="<?php echo e($_POST['member_id'] ?? ''); ?>">
+                                   value="<?php echo e($_POST['member_id'] ?? ''); ?>" autocomplete="off">
                         </div>
                         <div class="col-md-6 js-hide-if-ds-coop-yes">
-                            <label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="req">*</span></label>
+                            <label for="ds_phone" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="req">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-mobile-alt"></i></span>
-                                <input type="tel" name="phone" class="form-control js-ds-personal" required
+                                <input type="tel" name="phone" id="ds_phone" class="form-control js-ds-personal" required
                                        placeholder="9827157000" pattern="[0-9]{10}" maxlength="10"
-                                       value="<?php echo e($_POST['phone'] ?? ''); ?>">
+                                       value="<?php echo e($_POST['phone'] ?? ''); ?>" autocomplete="tel">
                             </div>
                         </div>
                         <div class="col-md-6 js-hide-if-ds-coop-yes">
-                            <label class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="req">*</span></label>
+                            <label for="ds_email" class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="req">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                <input type="email" name="email" class="form-control js-ds-personal" required
+                                <input type="email" name="email" id="ds_email" class="form-control js-ds-personal" required
                                        placeholder="akashpame@gmail.com"
-                                       value="<?php echo e($_POST['email'] ?? ''); ?>">
+                                       value="<?php echo e($_POST['email'] ?? ''); ?>" autocomplete="email">
                             </div>
                         </div>
                     </div>
@@ -459,7 +459,7 @@ $L = getLangStrings();
                     <div class="row g-3 mb-3">
                         <!-- सेवा प्रकार -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Service Type' : 'सेवा प्रकार'; ?> <span class="req">*</span></label>
+                            <label for="serviceType" class="form-label"><?php echo isEnglish() ? 'Service Type' : 'सेवा प्रकार'; ?> <span class="req">*</span></label>
                             <select name="service_type" id="serviceType" class="form-select" required>
                                 <option value=""><?php echo isEnglish() ? 'Select a service...' : 'सेवा छान्नुहोस्...'; ?></option>
                                 <?php foreach ($serviceTypes as $key => $type): ?>
@@ -473,13 +473,13 @@ $L = getLangStrings();
                         </div>
                         <!-- खाता नं. -->
                         <div class="col-md-6">
-                            <label class="form-label">
+                            <label for="ds_account_number" class="form-label">
                                 <?php echo isEnglish() ? 'Account No.' : 'खाता नं.'; ?>
                                 <small class="ds-muted">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
                             </label>
-                            <input type="text" name="account_number" class="form-control"
+                            <input type="text" name="account_number" id="ds_account_number" class="form-control"
                                    placeholder="<?php echo isEnglish() ? 'Account number' : 'खाता नम्बर'; ?>"
-                                   value="<?php echo e($_POST['account_number'] ?? ''); ?>">
+                                   value="<?php echo e($_POST['account_number'] ?? ''); ?>" autocomplete="off">
                         </div>
                     </div>
 
@@ -492,13 +492,13 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'From Date' : 'देखि मिति'; ?></label>
-                                    <input type="text" name="statement_from" class="form-control nepali-datepicker"
+                                    <label for="ds_statement_from" class="form-label"><?php echo isEnglish() ? 'From Date' : 'देखि मिति'; ?></label>
+                                    <input type="text" name="statement_from" id="ds_statement_from" class="form-control nepali-datepicker"
                                            value="<?php echo e($_POST['statement_from'] ?? ''); ?>" placeholder="YYYY-MM-DD" autocomplete="off">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'To Date' : 'सम्म मिति'; ?></label>
-                                    <input type="text" name="statement_to" class="form-control nepali-datepicker"
+                                    <label for="ds_statement_to" class="form-label"><?php echo isEnglish() ? 'To Date' : 'सम्म मिति'; ?></label>
+                                    <input type="text" name="statement_to" id="ds_statement_to" class="form-control nepali-datepicker"
                                            value="<?php echo e($_POST['statement_to'] ?? ''); ?>" placeholder="YYYY-MM-DD" autocomplete="off">
                                 </div>
                             </div>
@@ -514,14 +514,14 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Biller / Service Provider' : 'बिल/सेवा प्रदायक'; ?></label>
-                                    <input type="text" name="biller_name" class="form-control"
+                                    <label for="ds_biller_name" class="form-label"><?php echo isEnglish() ? 'Biller / Service Provider' : 'बिल/सेवा प्रदायक'; ?></label>
+                                    <input type="text" name="biller_name" id="ds_biller_name" class="form-control"
                                            placeholder="<?php echo isEnglish() ? 'e.g. NEA, Municipality' : 'जस्तै: NEA, नगरपालिका'; ?>"
                                            value="<?php echo e($_POST['biller_name'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Bill / Reference No.' : 'बिल/Reference नं.'; ?></label>
-                                    <input type="text" name="bill_reference" class="form-control"
+                                    <label for="ds_bill_ref" class="form-label"><?php echo isEnglish() ? 'Bill / Reference No.' : 'बिल/Reference नं.'; ?></label>
+                                    <input type="text" name="bill_reference" id="ds_bill_ref" class="form-control"
                                            value="<?php echo e($_POST['bill_reference'] ?? ''); ?>">
                                 </div>
                             </div>
@@ -537,14 +537,14 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Recharge Number' : 'रिचार्ज नम्बर'; ?></label>
-                                    <input type="tel" name="recharge_number" class="form-control"
+                                    <label for="ds_recharge_number" class="form-label"><?php echo isEnglish() ? 'Recharge Number' : 'रिचार्ज नम्बर'; ?></label>
+                                    <input type="tel" name="recharge_number" id="ds_recharge_number" class="form-control"
                                            placeholder="9827157000"
-                                           value="<?php echo e($_POST['recharge_number'] ?? ''); ?>">
+                                           value="<?php echo e($_POST['recharge_number'] ?? ''); ?>" autocomplete="tel">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Amount (Rs.)' : 'रकम (रु.)'; ?></label>
-                                    <input type="number" name="recharge_amount" class="form-control"
+                                    <label for="ds_recharge_amount" class="form-label"><?php echo isEnglish() ? 'Amount (Rs.)' : 'रकम (रु.)'; ?></label>
+                                    <input type="number" name="recharge_amount" id="ds_recharge_amount" class="form-control"
                                            min="0" step="1" placeholder="100"
                                            value="<?php echo e($_POST['recharge_amount'] ?? ''); ?>">
                                 </div>
@@ -561,8 +561,8 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Amount (Rs.)' : 'रकम (रु.)'; ?> <span class="req">*</span></label>
-                                    <input type="number" name="service_amount" class="form-control"
+                                    <label for="ds_service_amount" class="form-label"><?php echo isEnglish() ? 'Amount (Rs.)' : 'रकम (रु.)'; ?> <span class="req">*</span></label>
+                                    <input type="number" name="service_amount" id="ds_service_amount" class="form-control"
                                            min="0" step="1" placeholder="1000"
                                            value="<?php echo e($_POST['service_amount'] ?? ''); ?>">
                                     <small class="ds-muted"><?php echo isEnglish() ? 'Enter requested share refund/increase amount.' : 'मागिएको शेयर refund/increase रकम राख्नुहोस्।'; ?></small>
@@ -574,13 +574,13 @@ $L = getLangStrings();
                     <!-- थप विवरण र Attachment -->
                     <div class="row g-3 mt-1">
                         <div class="col-12">
-                            <label class="form-label"><?php echo isEnglish() ? 'Additional Details' : 'थप विवरण'; ?></label>
-                            <textarea name="request_details" class="form-control" rows="3"
+                            <label for="ds_request_details" class="form-label"><?php echo isEnglish() ? 'Additional Details' : 'थप विवरण'; ?></label>
+                            <textarea name="request_details" id="ds_request_details" class="form-control" rows="3"
                                 placeholder="<?php echo isEnglish() ? 'Describe your request in detail...' : 'सेवा सम्बन्धी थप विवरण लेख्नुहोस्...'; ?>"
                             ><?php echo e($_POST['request_details'] ?? ''); ?></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label" id="dsAttachLabel">
+                            <label for="dsAttachment" class="form-label" id="dsAttachLabel">
                                 <?php echo isEnglish() ? 'Attachment' : 'संलग्न कागजात'; ?>
                                 <small class="ds-muted" id="dsAttachHint">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
                                 <span class="req" id="dsAttachReq" style="display:none;">*</span>
@@ -589,8 +589,8 @@ $L = getLangStrings();
                                    accept="image/*,.pdf,.doc,.docx">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Preferred Contact' : 'सम्पर्क माध्यम'; ?></label>
-                            <select name="preferred_contact" class="form-select">
+                            <label for="ds_preferred_contact" class="form-label"><?php echo isEnglish() ? 'Preferred Contact' : 'सम्पर्क माध्यम'; ?></label>
+                            <select name="preferred_contact" id="ds_preferred_contact" class="form-select">
                                 <option value="phone"  <?php echo (($_POST['preferred_contact'] ?? 'phone') === 'phone') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Phone Call' : 'फोन'; ?></option>
                                 <option value="email"  <?php echo (($_POST['preferred_contact'] ?? '') === 'email') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></option>
                                 <option value="branch" <?php echo (($_POST['preferred_contact'] ?? '') === 'branch') ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Visit Service Office' : 'सेवा कार्यालय भ्रमण'; ?></option>
