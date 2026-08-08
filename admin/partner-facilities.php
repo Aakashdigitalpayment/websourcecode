@@ -434,19 +434,19 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="pff_name" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="partner_name" id="pff_name" class="form-control admin-fancy-input" required placeholder="जस्तै: ABC Hospital">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Name (English)</label>
+                            <label for="pff_name_en" class="form-label fw-semibold text-success">Name (English)</label>
                             <input type="text" name="partner_name_en" id="pff_name_en" class="form-control admin-fancy-input" placeholder="Optional English name">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">स्थान</label>
+                            <label for="pff_location" class="form-label fw-semibold text-success">स्थान</label>
                             <input type="text" name="location" id="pff_location" class="form-control admin-fancy-input" placeholder="काठमाडौं, पोखरा…">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">सुविधा प्रकार</label>
+                            <label for="pff_type" class="form-label fw-semibold text-success">सुविधा प्रकार</label>
                             <input type="text" name="facility_type" id="pff_type" class="form-control admin-fancy-input" list="pfTypeList" placeholder="स्वास्थ्य, शिक्षा…">
                             <datalist id="pfTypeList">
                                 <option value="स्वास्थ्य सेवा"><option value="शिक्षा"><option value="किराना तथा खाद्यान्न">
@@ -456,39 +456,39 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                             </datalist>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold text-success">छुट (%)</label>
+                            <label for="pff_discount" class="form-label fw-semibold text-success">छुट (%)</label>
                             <div class="input-group">
                                 <input type="number" name="discount_percent" id="pff_discount" class="form-control admin-fancy-input" min="0" max="100" step="0.5" value="0">
                                 <span class="input-group-text">%</span>
                             </div>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label fw-semibold text-success">छुट लेबल <small class="text-muted">(override)</small></label>
+                            <label for="pff_dlabel" class="form-label fw-semibold text-success">छुट लेबल <small class="text-muted">(override)</small></label>
                             <input type="text" name="discount_label" id="pff_dlabel" class="form-control admin-fancy-input" placeholder="जस्तै: १०% ल्याब + ५% OPD">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
+                            <label for="pff_order" class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="pff_order" class="form-control admin-fancy-input" min="0" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">फोन</label>
+                            <label for="pff_phone" class="form-label fw-semibold text-success">फोन</label>
                             <input type="text" name="contact_phone" id="pff_phone" class="form-control admin-fancy-input" placeholder="98XXXXXXXX">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">इमेल</label>
+                            <label for="pff_email" class="form-label fw-semibold text-success">इमेल</label>
                             <input type="email" name="contact_email" id="pff_email" class="form-control admin-fancy-input" placeholder="info@example.com">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">वेबसाइट</label>
+                            <label for="pff_web" class="form-label fw-semibold text-success">वेबसाइट</label>
                             <input type="text" name="website_url" id="pff_web" class="form-control admin-fancy-input" placeholder="https://…">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">लोगो</label>
+                            <label for="pff_logo" class="form-label fw-semibold text-success">लोगो</label>
                             <input type="file" name="logo" id="pff_logo" class="form-control" accept="image/*">
                             <div id="pff_logo_preview" class="small text-muted mt-1"></div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Desk PIN <small class="text-muted">(ऐच्छिक — verify लग)</small></label>
+                            <label for="pff_pin" class="form-label fw-semibold text-success">Desk PIN <small class="text-muted">(ऐच्छिक — verify लग)</small></label>
                             <input type="password" name="partner_pin" id="pff_pin" class="form-control admin-fancy-input" placeholder="नयाँ PIN (खाली = नचलाउने)" autocomplete="new-password">
                             <div class="form-check mt-2" id="pff_clear_pin_wrap" style="display:none;">
                                 <input class="form-check-input" type="checkbox" name="clear_pin" id="pff_clear_pin">
@@ -496,15 +496,15 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
+                            <label for="pff_desc" class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
                             <textarea name="description" id="pff_desc" class="form-control admin-fancy-input" rows="3" placeholder="सदस्यले के पाउँछन्…"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Description (English)</label>
+                            <label for="pff_desc_en" class="form-label fw-semibold text-success">Description (English)</label>
                             <textarea name="description_en" id="pff_desc_en" class="form-control admin-fancy-input" rows="3"></textarea>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success">शर्त / Terms</label>
+                            <label for="pff_terms" class="form-label fw-semibold text-success">शर्त / Terms</label>
                             <textarea name="terms_np" id="pff_terms" class="form-control admin-fancy-input" rows="2" placeholder="कार्ड अनिवार्य, केही सेवामा लागू नहुने…"></textarea>
                         </div>
                         <div class="col-md-6">
