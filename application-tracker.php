@@ -848,7 +848,7 @@ function getAppTypeLabel($type) {
                                             </p>
                                             <div class="row g-2 mb-3">
                                                 <div class="col-md-4">
-                                                    <label class="form-label small"><i class="fas fa-phone me-1 text-muted"></i>
+                                                    <label for="secPhone" class="form-label small"><i class="fas fa-phone me-1 text-muted"></i>
                                                         <?php echo isEnglish() ? 'Phone Number (used when applying)' : 'फोन नम्बर (आवेदनमा प्रयोग गरिएको)'; ?>
                                                     </label>
                                                     <input type="tel" name="sec_phone" id="secPhone" class="form-control"
@@ -856,7 +856,7 @@ function getAppTypeLabel($type) {
                                                            value="<?php echo htmlspecialchars($_POST['sec_phone'] ?? ''); ?>">
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label class="form-label small"><i class="fas fa-envelope me-1 text-muted"></i>
+                                                    <label for="secEmail" class="form-label small"><i class="fas fa-envelope me-1 text-muted"></i>
                                                         <?php echo isEnglish() ? 'Email Address (used when applying)' : 'इमेल ठेगाना (आवेदनमा प्रयोग गरिएको)'; ?>
                                                     </label>
                                                     <input type="email" name="sec_email" id="secEmail" class="form-control"
@@ -864,7 +864,7 @@ function getAppTypeLabel($type) {
                                                            value="<?php echo htmlspecialchars($_POST['sec_email'] ?? ''); ?>">
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label class="form-label small"><i class="fas fa-key me-1 tracker-ico-warn"></i>
+                                                    <label for="securityCode" class="form-label small"><i class="fas fa-key me-1 tracker-ico-warn"></i>
                                                         <?php echo isEnglish() ? 'Security Code' : 'सुरक्षा कोड'; ?>
                                                     </label>
                                                     <div class="input-group">
