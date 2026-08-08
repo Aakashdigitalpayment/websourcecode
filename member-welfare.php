@@ -410,24 +410,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Member Information' : 'सदस्य जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-wlf-name-wrap">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="member_name" class="form-control js-wlf-nameonly" required value="<?php echo e($_POST['member_name'] ?? ($loggedMember['name'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
+                                    <label for="wlf_member_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="member_name" id="wlf_member_name" class="form-control js-wlf-nameonly" required value="<?php echo e($_POST['member_name'] ?? ($loggedMember['name'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-wlf-mid-req" style="display:none;">*</span><span class="text-muted small js-wlf-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                                    <input type="text" name="member_id" class="form-control js-wlf-mid" value="<?php echo e($_POST['member_id'] ?? ($loggedMember['sadasyata_number'] ?? '')); ?>" placeholder="<?php echo isEnglish() ? 'If available' : 'भएमा'; ?>" <?php echo $lockedMemberFields; ?>>
+                                    <label for="wlf_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-wlf-mid-req" style="display:none;">*</span><span class="text-muted small js-wlf-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
+                                    <input type="text" name="member_id" id="wlf_member_id" class="form-control js-wlf-mid" value="<?php echo e($_POST['member_id'] ?? ($loggedMember['sadasyata_number'] ?? '')); ?>" placeholder="<?php echo isEnglish() ? 'If available' : 'भएमा'; ?>" <?php echo $lockedMemberFields; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3 js-hide-if-wlf-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="phone" class="form-control js-wlf-triple" required maxlength="15" value="<?php echo e($_POST['phone'] ?? ($loggedMember['phone'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
+                                    <label for="wlf_phone" class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="phone" id="wlf_phone" class="form-control js-wlf-triple" required maxlength="15" value="<?php echo e($_POST['phone'] ?? ($loggedMember['phone'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3 js-hide-if-wlf-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger js-wlf-email-req">*</span></label>
-                                    <input type="email" name="email" class="form-control js-wlf-triple" value="<?php echo e($_POST['email'] ?? ($loggedMember['email'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
+                                    <label for="wlf_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger js-wlf-email-req">*</span></label>
+                                    <input type="email" name="email" id="wlf_email" class="form-control js-wlf-triple" value="<?php echo e($_POST['email'] ?? ($loggedMember['email'] ?? '')); ?>" <?php echo $lockedMemberFields; ?>>
                                 </div>
                                 <div class="col-12 mb-3 js-wlf-addr-wrap">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
-                                    <input type="text" name="address" class="form-control js-wlf-addronly" value="<?php echo e($_POST['address'] ?? ''); ?>">
+                                    <label for="wlf_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
+                                    <input type="text" name="address" id="wlf_address" class="form-control js-wlf-addronly" value="<?php echo e($_POST['address'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
@@ -482,12 +482,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-baby"></i> <?php echo isEnglish() ? 'Maternity Details' : 'सुत्केरी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Delivery Date' : 'प्रसूति मिति'; ?></label>
-                                    <input type="date" name="delivery_date" class="form-control">
+                                    <label for="wlf_delivery_date" class="form-label"><?php echo isEnglish() ? 'Delivery Date' : 'प्रसूति मिति'; ?></label>
+                                    <input type="date" name="delivery_date" id="wlf_delivery_date" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Hospital/Clinic' : 'अस्पताल/क्लिनिक'; ?></label>
-                                    <input type="text" name="hospital_name" class="form-control">
+                                    <label for="wlf_hospital_name" class="form-label"><?php echo isEnglish() ? 'Hospital/Clinic' : 'अस्पताल/क्लिनिक'; ?></label>
+                                    <input type="text" name="hospital_name" id="wlf_hospital_name" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -497,12 +497,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-heart-broken"></i> <?php echo isEnglish() ? 'Death Claim Details' : 'मृत्यु दाबी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Deceased Name' : 'मृतकको नाम'; ?></label>
-                                    <input type="text" name="deceased_name" class="form-control">
+                                    <label for="wlf_deceased_name" class="form-label"><?php echo isEnglish() ? 'Deceased Name' : 'मृतकको नाम'; ?></label>
+                                    <input type="text" name="deceased_name" id="wlf_deceased_name" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
-                                    <select name="deceased_relation" class="form-select">
+                                    <label for="wlf_deceased_relation" class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
+                                    <select name="deceased_relation" id="wlf_deceased_relation" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="self"><?php echo isEnglish() ? 'Self (Member)' : 'आफैं (सदस्य)'; ?></option>
                                         <option value="spouse"><?php echo isEnglish() ? 'Spouse' : 'पति/पत्नी'; ?></option>
@@ -512,12 +512,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Death Date' : 'मृत्यु मिति'; ?></label>
-                                    <input type="date" name="death_date" class="form-control">
+                                    <label for="wlf_death_date" class="form-label"><?php echo isEnglish() ? 'Death Date' : 'मृत्यु मिति'; ?></label>
+                                    <input type="date" name="death_date" id="wlf_death_date" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Death Certificate' : 'मृत्यु प्रमाणपत्र'; ?></label>
-                                    <input type="file" name="death_certificate" class="form-control" accept="image/*,.pdf">
+                                    <label for="wlf_death_certificate" class="form-label"><?php echo isEnglish() ? 'Death Certificate' : 'मृत्यु प्रमाणपत्र'; ?></label>
+                                    <input type="file" name="death_certificate" id="wlf_death_certificate" class="form-control" accept="image/*,.pdf">
                                 </div>
                             </div>
                         </div>
@@ -527,16 +527,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-notes-medical"></i> <?php echo isEnglish() ? 'Medical Claim Details' : 'उपचार दाबी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Disease / Illness' : 'रोग / समस्या'; ?></label>
-                                    <input type="text" name="disease_illness" class="form-control">
+                                    <label for="wlf_disease_illness" class="form-label"><?php echo isEnglish() ? 'Disease / Illness' : 'रोग / समस्या'; ?></label>
+                                    <input type="text" name="disease_illness" id="wlf_disease_illness" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Treatment Date' : 'उपचार मिति'; ?></label>
-                                    <input type="date" name="treatment_date" class="form-control">
+                                    <label for="wlf_treatment_date" class="form-label"><?php echo isEnglish() ? 'Treatment Date' : 'उपचार मिति'; ?></label>
+                                    <input type="date" name="treatment_date" id="wlf_treatment_date" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Hospital / Clinic' : 'अस्पताल / क्लिनिक'; ?></label>
-                                    <input type="text" name="hospital_clinic" class="form-control">
+                                    <label for="wlf_hospital_clinic" class="form-label"><?php echo isEnglish() ? 'Hospital / Clinic' : 'अस्पताल / क्लिनिक'; ?></label>
+                                    <input type="text" name="hospital_clinic" id="wlf_hospital_clinic" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -546,12 +546,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-shield-halved"></i> <?php echo isEnglish() ? 'Insurance Details' : 'बीमा विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Policy Number' : 'पोलिसी नम्बर'; ?></label>
-                                    <input type="text" name="policy_number" class="form-control" value="<?php echo e($_POST['policy_number'] ?? ''); ?>">
+                                    <label for="wlf_policy_number" class="form-label"><?php echo isEnglish() ? 'Policy Number' : 'पोलिसी नम्बर'; ?></label>
+                                    <input type="text" name="policy_number" id="wlf_policy_number" class="form-control" value="<?php echo e($_POST['policy_number'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Insurer Name' : 'बीमा कम्पनी'; ?></label>
-                                    <input type="text" name="insurer_name" class="form-control" value="<?php echo e($_POST['insurer_name'] ?? ''); ?>">
+                                    <label for="wlf_insurer_name" class="form-label"><?php echo isEnglish() ? 'Insurer Name' : 'बीमा कम्पनी'; ?></label>
+                                    <input type="text" name="insurer_name" id="wlf_insurer_name" class="form-control" value="<?php echo e($_POST['insurer_name'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
@@ -561,12 +561,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-user-friends"></i> <?php echo isEnglish() ? 'Beneficiary Details' : 'लाभग्राही विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Beneficiary Name' : 'लाभग्राही नाम'; ?></label>
-                                    <input type="text" name="beneficiary_name" class="form-control" value="<?php echo e($_POST['beneficiary_name'] ?? ''); ?>">
+                                    <label for="wlf_beneficiary_name" class="form-label"><?php echo isEnglish() ? 'Beneficiary Name' : 'लाभग्राही नाम'; ?></label>
+                                    <input type="text" name="beneficiary_name" id="wlf_beneficiary_name" class="form-control" value="<?php echo e($_POST['beneficiary_name'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
-                                    <input type="text" name="beneficiary_relation" class="form-control" value="<?php echo e($_POST['beneficiary_relation'] ?? ''); ?>">
+                                    <label for="wlf_beneficiary_relation" class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
+                                    <input type="text" name="beneficiary_relation" id="wlf_beneficiary_relation" class="form-control" value="<?php echo e($_POST['beneficiary_relation'] ?? ''); ?>">
                                 </div>
                             </div>
                         </div>
@@ -575,11 +575,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-file-invoice-dollar"></i> <?php echo isEnglish() ? 'Claim Summary' : 'दाबी सारांश'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Claim Amount (Rs.)' : 'दाबी रकम (रु.)'; ?></label>
-                                    <input type="number" name="claim_amount" class="form-control" min="0" step="0.01" value="<?php echo e($_POST['claim_amount'] ?? ''); ?>">
+                                    <label for="wlf_claim_amount" class="form-label"><?php echo isEnglish() ? 'Claim Amount (Rs.)' : 'दाबी रकम (रु.)'; ?></label>
+                                    <input type="number" name="claim_amount" id="wlf_claim_amount" class="form-control" min="0" step="0.01" value="<?php echo e($_POST['claim_amount'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label" id="wlfDocLabel">
+                                    <label for="wlfDocuments" class="form-label" id="wlfDocLabel">
                                         <?php echo isEnglish() ? 'Supporting Documents' : 'सहयोगी कागजात'; ?>
                                         <small class="text-muted" id="wlfDocHint">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</small>
                                         <span class="text-danger" id="wlfDocReq" style="display:none;">*</span>
@@ -587,8 +587,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="file" name="documents[]" id="wlfDocuments" class="form-control" multiple accept="image/*,.pdf,.doc,.docx">
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Description' : 'विवरण'; ?></label>
-                                    <textarea name="description" class="form-control" rows="3"><?php echo e($_POST['description'] ?? ''); ?></textarea>
+                                    <label for="wlf_description" class="form-label"><?php echo isEnglish() ? 'Description' : 'विवरण'; ?></label>
+                                    <textarea name="description" id="wlf_description" class="form-control" rows="3"><?php echo e($_POST['description'] ?? ''); ?></textarea>
                                 </div>
                             </div>
                         </div>
