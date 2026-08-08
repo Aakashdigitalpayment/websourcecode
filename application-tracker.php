@@ -940,7 +940,7 @@ function getAppTypeLabel($type) {
                                 : htmlspecialchars($publicIdCardName) . ' को आधिकारिक डिजिटल परिचयपत्र हेर्नुहोस् (verified phone + email)।'; ?>
                         </div>
                     </div>
-                    <a href="<?php echo htmlspecialchars($publicIdCardLink); ?>" target="_blank" rel="noopener"
+                    <a href="<?php echo htmlspecialchars($publicIdCardLink); ?>" target="_blank" rel="noopener noreferrer"
                        class="public-id-card-btn">
                         <i class="fas fa-eye"></i>
                         <?php echo isEnglish() ? 'View ID Card' : 'ID Card हेर्नुहोस्'; ?>

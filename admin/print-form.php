@@ -1217,14 +1217,14 @@ body {
                 ?>
                 <div class="pf-doc-card">
                     <?php if (!$isFile && $isImg): ?>
-                    <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener">
+                    <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener noreferrer">
                         <img src="<?php echo pf_e($url); ?>" alt="<?php echo pf_e($doc['label_np'] ?? ''); ?>"
                              onerror="this.parentElement.innerHTML='<div class=\'pf-doc-file\'>Image unavailable</div>'">
                     </a>
                     <?php else: ?>
                     <div class="pf-doc-file">
                         <i class="fas fa-file-alt" style="font-size:22px;opacity:.55;display:block;margin-bottom:6px;"></i>
-                        <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener">खोल्नुहोस् / Open</a>
+                        <a href="<?php echo pf_e($url); ?>" target="_blank" rel="noopener noreferrer">खोल्नुहोस् / Open</a>
                     </div>
                     <?php endif; ?>
                     <div class="pf-doc-label">

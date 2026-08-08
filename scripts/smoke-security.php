@@ -65,15 +65,16 @@ function assertNoBareBlankTargets(string $file): void {
         if (!preg_match('/target=["\']_blank["\']/i', $tag)) {
             continue;
         }
-        if (!preg_match('/rel=["\'][^"\']*noopener/i', $tag)) {
+        if (!preg_match('/rel=["\'][^"\']*noopener/i', $tag)
+            || !preg_match('/rel=["\'][^"\']*noreferrer/i', $tag)) {
             $bad++;
         }
     }
     if ($bad > 0) {
-        fail("{$file}: {$bad} target=_blank without noopener");
+        fail("{$file}: {$bad} target=_blank without noopener noreferrer");
         return;
     }
-    ok("{$file}: all target=_blank have noopener");
+    ok("{$file}: all target=_blank have noopener noreferrer");
 }
 
 // Session debug stub must not leak
@@ -129,7 +130,7 @@ if (preg_match('/header\s*\(\s*[\'"]X-XSS-Protection/i', $boot)) {
     ok('_bootstrap.php: no deprecated X-XSS-Protection header');
 }
 
-// Tabnabbing — public high-traffic surfaces
+// Tabnabbing — public/member/admin surfaces (noopener + noreferrer)
 $noopenerFiles = [
     'important-links.php',
     'includes/footer.php',
@@ -139,21 +140,36 @@ $noopenerFiles = [
     'index.php',
     'contact.php',
     'news-detail.php',
+    'notices.php',
+    'career-detail.php',
+    'auction.php',
+    'election-information.php',
     'reports.php',
     'downloads.php',
     'application-tracker.php',
+    'program-attendance-verify.php',
+    'install.php',
     'member/profile.php',
     'member/tracker.php',
+    'member/index.php',
+    'member/includes/chrome.php',
     'admin/help-guide.php',
     'admin/dashboard.php',
     'admin/settings.php',
     'admin/hrm-employees.php',
     'admin/notification-settings.php',
     'admin/kyc-applications.php',
+    'admin/ai-settings.php',
+    'admin/auctions.php',
+    'admin/credentials.php',
+    'admin/includes/admin-excel-export.php',
+    'admin/includes/admin-request-view.php',
 ];
 foreach ($noopenerFiles as $f) {
     assertNoBareBlankTargets($f);
 }
+assertFileContains('assets/js/main.js', 'target="_blank" rel="noopener noreferrer" class="popup-doc-btn"', 'popup PDF link hardened');
+assertFileContains('install.php', 'id="linkAdmin" class="btn-site btn-site-primary" target="_blank" rel="noopener noreferrer"', 'install admin link hardened');
 
 // Critical pairs
 assertFileContains('important-links.php', 'rel="noopener noreferrer"', 'NRB/gov links hardened');

@@ -887,10 +887,10 @@ body {
                     <h3>🎉 Installation सम्पन्न!</h3>
                     <p>तपाईंको सहकारी website सफलतापूर्वक install भयो। अब Admin Panel मा login गर्नुहोस्।</p>
                     <div class="success-links">
-                        <a href="#" id="linkAdmin" class="btn-site btn-site-primary" target="_blank">
+                        <a href="#" id="linkAdmin" class="btn-site btn-site-primary" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-user-shield"></i> Admin Panel खोल्नुहोस्
                         </a>
-                        <a href="#" id="linkSite" class="btn-site btn-site-outline" target="_blank">
+                        <a href="#" id="linkSite" class="btn-site btn-site-outline" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-globe"></i> Website हेर्नुहोस्
                         </a>
                     </div>

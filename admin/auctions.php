@@ -423,7 +423,7 @@ if ($action === 'edit' || $action === 'add') {
                         <?php if (!empty($auction['document'])): ?>
                         <div class="doc-preview">
                             <i class="fas fa-file-alt text-danger"></i>
-                            <a href="<?php echo SITE_URL . htmlspecialchars($auction['document']); ?>" target="_blank" rel="noopener">
+                            <a href="<?php echo SITE_URL . htmlspecialchars($auction['document']); ?>" target="_blank" rel="noopener noreferrer">
                                 हालको कागजपत्र हेर्नुहोस्
                             </a>
                         </div>

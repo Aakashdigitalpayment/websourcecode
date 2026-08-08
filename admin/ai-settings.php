@@ -106,7 +106,7 @@ echo adminPageHeader(
     ($enabled && $hasKey
         ? '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-check-circle me-1"></i>सक्रिय</span>'
         : '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border"><i class="fas fa-pause-circle me-1"></i>बन्द / key छैन</span>')
-    . ' <a class="btn btn-sm btn-outline-success ms-1" href="' . htmlspecialchars($publicUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener">साइट हेर्नुहोस्</a>'
+    . ' <a class="btn btn-sm btn-outline-success ms-1" href="' . htmlspecialchars($publicUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">साइट हेर्नुहोस्</a>'
 );
 if ($_flash) {
     $ft = ($_flash['type'] ?? '') === 'error' ? 'danger' : (string)($_flash['type'] ?? 'info');
@@ -116,7 +116,7 @@ if ($_flash) {
 
 <div class="alert alert-success border-success border-opacity-25">
     <strong>सिफारिस:</strong> सुरुमा <strong>Google Gemini</strong> + <code>gemini-2.5-flash</code> (free tier)।
-    Traffic बढ्यो वा paid mode चाहनु भए <strong>DeepSeek</strong> छान्नुहोस् — सस्तो, quality राम्रो (<a href="https://platform.deepseek.com" target="_blank" rel="noopener">platform.deepseek.com</a> मा top-up)।
+    Traffic बढ्यो वा paid mode चाहनु भए <strong>DeepSeek</strong> छान्नुहोस् — सस्तो, quality राम्रो (<a href="https://platform.deepseek.com" target="_blank" rel="noopener noreferrer">platform.deepseek.com</a> मा top-up)।
     OpenAI पनि paid। Visitor ले कहिल्यै key हाल्दैन — Admin मा मात्र।
 </div>
 
@@ -124,9 +124,9 @@ if ($_flash) {
     <div class="card-body py-3">
         <div class="fw-semibold mb-2"><i class="fas fa-list-ol me-1 text-success"></i>API key कहाँबाट?</div>
         <ul class="mb-0 small text-muted ps-3">
-            <li><strong>Gemini (free):</strong> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio → API key</a></li>
-            <li><strong>DeepSeek (paid, सस्तो):</strong> <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">DeepSeek Platform → API Keys</a> — balance top-up गर्नुपर्छ</li>
-            <li><strong>OpenAI (paid):</strong> <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">OpenAI API keys</a></li>
+            <li><strong>Gemini (free):</strong> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio → API key</a></li>
+            <li><strong>DeepSeek (paid, सस्तो):</strong> <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek Platform → API Keys</a> — balance top-up गर्नुपर्छ</li>
+            <li><strong>OpenAI (paid):</strong> <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">OpenAI API keys</a></li>
         </ul>
         <ol class="mb-0 mt-2 small text-muted ps-3">
             <li>Provider छान्नुहोस् → key paste → <strong>सेभ</strong></li>

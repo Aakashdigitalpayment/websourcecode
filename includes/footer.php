@@ -252,7 +252,7 @@ try {
                 <p class="developer footer-developer-supported">
                     <?php echo isEnglish() ? 'Supported By' : 'समर्थन'; ?>
                     <?php if ($supportedUrl !== ''): ?>
-                    <a href="<?php echo htmlspecialchars($supportedUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener"><?php echo htmlspecialchars($supportedName, ENT_QUOTES, 'UTF-8'); ?></a>
+                    <a href="<?php echo htmlspecialchars($supportedUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo htmlspecialchars($supportedName, ENT_QUOTES, 'UTF-8'); ?></a>
                     <?php else: ?>
                     <span><?php echo htmlspecialchars($supportedName, ENT_QUOTES, 'UTF-8'); ?></span>
                     <?php endif; ?>
@@ -261,7 +261,7 @@ try {
 
                 <p class="developer footer-developer-main">
                     <?php echo isEnglish() ? 'Developed By' : 'विकास सहयोग'; ?>
-                    <a href="<?php echo $developerUrl; ?>" target="_blank" rel="noopener"><?php echo $developerName; ?></a>
+                    <a href="<?php echo $developerUrl; ?>" target="_blank" rel="noopener noreferrer"><?php echo $developerName; ?></a>
                 </p>
             </div>
         </div>
