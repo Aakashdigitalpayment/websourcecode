@@ -155,8 +155,8 @@ require __DIR__ . '/includes/chrome.php';
 
                 <?php if (count($openPrograms) > 1): ?>
                 <div class="mb-3">
-                    <label class="form-label"><?php echo $_t('कार्यक्रम', 'Program'); ?></label>
-                    <select name="program_id" class="form-select" required onchange="location.href='honor-apply.php?program_id='+encodeURIComponent(this.value)">
+                    <label for="mha_program_id" class="form-label"><?php echo $_t('कार्यक्रम', 'Program'); ?></label>
+                    <select name="program_id" id="mha_program_id" class="form-select" required onchange="location.href='honor-apply.php?program_id='+encodeURIComponent(this.value)">
                         <?php foreach ($openPrograms as $op): ?>
                         <option value="<?php echo (int)$op['id']; ?>" <?php echo $selectedProgramId === (int)$op['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars(honorProgramLabel($op, isEnglish())); ?>
@@ -170,7 +170,7 @@ require __DIR__ . '/includes/chrome.php';
                 <?php endif; ?>
 
                 <div class="mb-3">
-                    <label class="form-label"><?php echo $_t('कोटि', 'Category'); ?> *</label>
+                    <label for="memberHonorCategory" class="form-label"><?php echo $_t('कोटि', 'Category'); ?> *</label>
                     <select name="category_id" id="memberHonorCategory" class="form-select" required>
                         <option value=""><?php echo $_t('छान्नुहोस्…', 'Select…'); ?></option>
                         <?php foreach ($programCats as $c): ?>
@@ -186,32 +186,32 @@ require __DIR__ . '/includes/chrome.php';
 
                 <div class="row g-2 mb-3">
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $_t('नाम', 'Name'); ?></label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($memName); ?>" readonly>
+                        <label for="mha_name" class="form-label"><?php echo $_t('नाम', 'Name'); ?></label>
+                        <input type="text" id="mha_name" class="form-control" value="<?php echo htmlspecialchars($memName); ?>" readonly>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $_t('सदस्य नं.', 'Member No.'); ?></label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($memSadasyata); ?>" readonly>
+                        <label for="mha_member_no" class="form-label"><?php echo $_t('सदस्य नं.', 'Member No.'); ?></label>
+                        <input type="text" id="mha_member_no" class="form-control" value="<?php echo htmlspecialchars($memSadasyata); ?>" readonly>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $_t('फोन', 'Phone'); ?></label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($memPhone); ?>" readonly>
+                        <label for="mha_phone" class="form-label"><?php echo $_t('फोन', 'Phone'); ?></label>
+                        <input type="text" id="mha_phone" class="form-control" value="<?php echo htmlspecialchars($memPhone); ?>" readonly>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $_t('इमेल', 'Email'); ?></label>
-                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($memEmail); ?>" readonly>
+                        <label for="mha_email" class="form-label"><?php echo $_t('इमेल', 'Email'); ?></label>
+                        <input type="text" id="mha_email" class="form-control" value="<?php echo htmlspecialchars($memEmail); ?>" readonly>
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $_t('ठेगाना', 'Address'); ?></label>
-                        <input type="text" name="address" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string)($_POST['address'] ?? '')); ?>">
+                        <label for="mha_address" class="form-label"><?php echo $_t('ठेगाना', 'Address'); ?></label>
+                        <input type="text" name="address" id="mha_address" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string)($_POST['address'] ?? '')); ?>">
                     </div>
                     <div class="col-md-6 member-honor-nominee">
-                        <label class="form-label"><?php echo $_t('नामांकित नाम', 'Nominee name'); ?></label>
-                        <input type="text" name="nominee_name" class="form-control" maxlength="160">
+                        <label for="mha_nominee_name" class="form-label"><?php echo $_t('नामांकित नाम', 'Nominee name'); ?></label>
+                        <input type="text" name="nominee_name" id="mha_nominee_name" class="form-control" maxlength="160">
                     </div>
                     <div class="col-md-6 member-honor-nominee">
-                        <label class="form-label"><?php echo $_t('नाता', 'Relation'); ?></label>
-                        <select name="nominee_relation" class="form-select">
+                        <label for="mha_nominee_relation" class="form-label"><?php echo $_t('नाता', 'Relation'); ?></label>
+                        <select name="nominee_relation" id="mha_nominee_relation" class="form-select">
                             <option value=""><?php echo $_t('छान्नुहोस्…', 'Select…'); ?></option>
                             <option value="छोरा"><?php echo $_t('छोरा', 'Son'); ?></option>
                             <option value="छोरी"><?php echo $_t('छोरी', 'Daughter'); ?></option>
@@ -220,24 +220,24 @@ require __DIR__ . '/includes/chrome.php';
                         </select>
                     </div>
                     <div class="col-md-6 member-honor-edu">
-                        <label class="form-label"><?php echo $_t('परीक्षा वर्ष', 'Exam year'); ?></label>
-                        <input type="text" name="exam_year" class="form-control" maxlength="40">
+                        <label for="mha_exam_year" class="form-label"><?php echo $_t('परीक्षा वर्ष', 'Exam year'); ?></label>
+                        <input type="text" name="exam_year" id="mha_exam_year" class="form-control" maxlength="40">
                     </div>
                     <div class="col-md-6 member-honor-edu">
-                        <label class="form-label"><?php echo $_t('संस्था', 'Institution'); ?></label>
-                        <input type="text" name="institution" class="form-control" maxlength="200">
+                        <label for="mha_institution" class="form-label"><?php echo $_t('संस्था', 'Institution'); ?></label>
+                        <input type="text" name="institution" id="mha_institution" class="form-control" maxlength="200">
                     </div>
                     <div class="col-12 member-honor-biz" style="display:none">
-                        <label class="form-label"><?php echo $_t('कारोबार नोट', 'Business note'); ?></label>
-                        <input type="text" name="business_note" class="form-control" maxlength="255">
+                        <label for="mha_business_note" class="form-label"><?php echo $_t('कारोबार नोट', 'Business note'); ?></label>
+                        <input type="text" name="business_note" id="mha_business_note" class="form-control" maxlength="255">
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $_t('विवरण', 'Description'); ?></label>
-                        <textarea name="description" class="form-control" rows="3" maxlength="4000"></textarea>
+                        <label for="mha_description" class="form-label"><?php echo $_t('विवरण', 'Description'); ?></label>
+                        <textarea name="description" id="mha_description" class="form-control" rows="3" maxlength="4000"></textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $_t('प्रमाण कागजात', 'Document'); ?> <span id="memberHonorDocReq" class="text-danger" style="display:none">*</span></label>
-                        <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp">
+                        <label for="mha_attachment" class="form-label"><?php echo $_t('प्रमाण कागजात', 'Document'); ?> <span id="memberHonorDocReq" class="text-danger" style="display:none">*</span></label>
+                        <input type="file" name="attachment" id="mha_attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary"><?php echo $_t('पठाउनुहोस्', 'Submit'); ?></button>

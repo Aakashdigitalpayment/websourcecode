@@ -272,8 +272,8 @@ foreach ($openPrograms as $op) {
 
                             <?php if (!$loggedMember): ?>
                             <div class="mb-3">
-                                <label class="form-label d-block"><?php echo isEnglish() ? 'Are you a cooperative member?' : 'के तपाईं सहकारी सदस्य हुनुहुन्छ?'; ?></label>
-                                <div class="d-flex gap-3">
+                                <label id="honor_coop_member_label" class="form-label d-block"><?php echo isEnglish() ? 'Are you a cooperative member?' : 'के तपाईं सहकारी सदस्य हुनुहुन्छ?'; ?></label>
+                                <div class="d-flex gap-3" role="group" aria-labelledby="honor_coop_member_label">
                                     <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input js-honor-member" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
                                     <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input js-honor-member" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes' : 'हो'; ?></label>
                                 </div>

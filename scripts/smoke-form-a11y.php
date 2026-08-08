@@ -56,6 +56,10 @@ $filesExpectZeroBare = [
     'online-account.php',
     'application-tracker.php',
     'member/password-reset-request.php',
+    'member/honor-apply.php',
+    'emi-calculator.php',
+    'honor-apply.php',
+    'member-survey.php',
 ];
 
 foreach ($filesExpectZeroBare as $f) {
@@ -86,6 +90,15 @@ $pairs = [
     ['member/password-reset-request.php', 'for="mpr_identifier"', 'identifier'],
     ['member/password-reset-request.php', 'for="pw1"', 'new password'],
     ['member/password-reset-request.php', 'aria-labelledby="mpr_channel_label"', 'OTP channel group'],
+    ['member/honor-apply.php', 'for="memberHonorCategory"', 'honor category'],
+    ['member/honor-apply.php', 'for="mha_attachment"', 'honor attachment'],
+    ['member/honor-apply.php', 'for="mha_name"', 'readonly name'],
+    ['emi-calculator.php', 'for="amountSlider"', 'amount slider'],
+    ['emi-calculator.php', 'for="rateSlider"', 'rate slider'],
+    ['emi-calculator.php', 'for="tenureSlider"', 'tenure slider'],
+    ['emi-calculator.php', 'aria-labelledby="emi_loan_type_label"', 'loan type group'],
+    ['honor-apply.php', 'aria-labelledby="honor_coop_member_label"', 'honor coop group'],
+    ['member-survey.php', 'aria-labelledby="svy_coop_member_label"', 'survey coop group'],
 ];
 
 foreach ($pairs as [$file, $needle, $why]) {
