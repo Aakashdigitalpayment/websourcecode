@@ -38,8 +38,15 @@ function assertFileContains(string $file, string $needle, string $why): void {
 }
 
 // Rewrite rules for crawler-friendly URLs
+assertFileContains('.htaccess', 'RewriteRule ^includes/', 'block includes');
+assertFileContains('.htaccess', 'RewriteRule ^cache/', 'block cache');
+assertFileContains('.htaccess', 'RewriteRule ^logs/', 'block logs');
+assertFileContains('.htaccess', 'RewriteRule ^scripts/', 'block scripts');
+assertFileContains('.htaccess', 'RewriteRule ^database/', 'block database');
+assertFileContains('.htaccess', 'RewriteRule ^core/', 'block core');
 assertFileContains('.htaccess', 'RewriteRule ^sitemap\\.xml$ sitemap.php', 'sitemap.xml rewrite');
 assertFileContains('.htaccess', 'RewriteRule ^robots\\.txt$ robots.php', 'robots.txt rewrite');
+assertFileContains('admin/pages.php', 'tinymce@6.8.5/tinymce.min.js', 'TinyMCE pinned version');
 
 // robots.php policy
 $robotsNeedles = [

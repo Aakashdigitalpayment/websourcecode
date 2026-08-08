@@ -6,6 +6,10 @@
     # Block direct HTTP access to secrets / private PHP sources / file cache
     RewriteRule ^includes/ - [F,L]
     RewriteRule ^cache/ - [F,L]
+    RewriteRule ^logs/ - [F,L]
+    RewriteRule ^scripts/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^core/ - [F,L]
     RewriteRule (^|/)\.cred - [F,L]
     RewriteRule \.cred-master\.key$ - [F,L]
     # Debug session dump — must not be web-accessible (live safety)
