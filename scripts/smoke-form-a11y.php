@@ -60,6 +60,7 @@ $filesExpectZeroBare = [
     'emi-calculator.php',
     'honor-apply.php',
     'member-survey.php',
+    'online-kyc.php',
 ];
 
 foreach ($filesExpectZeroBare as $f) {
@@ -99,6 +100,14 @@ $pairs = [
     ['emi-calculator.php', 'aria-labelledby="emi_loan_type_label"', 'loan type group'],
     ['honor-apply.php', 'aria-labelledby="honor_coop_member_label"', 'honor coop group'],
     ['member-survey.php', 'aria-labelledby="svy_coop_member_label"', 'survey coop group'],
+    ['online-kyc.php', 'id="fullKymForm"', 'main KYC form'],
+    ['online-kyc.php', 'for="familyRelation"', 'family relation'],
+    ['online-kyc.php', 'for="familyMemberName"', 'family name'],
+    ['online-kyc.php', 'for="incomeSourceName"', 'income source'],
+    ['online-kyc.php', 'for="netSavingDisplay"', 'net saving display'],
+    ['online-kyc.php', 'id="kyc_full_name"', 'main full name id'],
+    ['online-kyc.php', 'for="kyc_full_name"', 'main full name label'],
+    ['online-kyc.php', 'id="dob_ad_picker"', 'dob picker preserved'],
 ];
 
 foreach ($pairs as [$file, $needle, $why]) {

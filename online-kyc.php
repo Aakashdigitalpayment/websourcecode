@@ -1205,28 +1205,28 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-user-plus me-1"></i><?php echo isEnglish() ? 'Become a Member' : 'सदस्य बन्नुस्'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
+                                    <label for="kyc_f0_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" id="kyc_f0_full_name" class="form-control" required value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>">
+                                    <label for="kyc_f0_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" id="kyc_f0_mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
-                                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                                    <label for="kyc_f0_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                                    <input type="email" name="email" id="kyc_f0_email" class="form-control" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship No. (recommended)' : 'नागरिकता नं. (सिफारिस)'; ?></label>
-                                    <input type="text" name="citizenship_no" class="form-control" value="<?php echo htmlspecialchars($_POST['citizenship_no'] ?? ''); ?>">
+                                    <label for="kyc_f0_citizenship_no" class="form-label"><?php echo isEnglish() ? 'Citizenship No. (recommended)' : 'नागरिकता नं. (सिफारिस)'; ?></label>
+                                    <input type="text" name="citizenship_no" id="kyc_f0_citizenship_no" class="form-control" value="<?php echo htmlspecialchars($_POST['citizenship_no'] ?? ''); ?>">
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="text-danger">*</span></label>
-                                    <textarea name="address" class="form-control" rows="2" required><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
+                                    <label for="kyc_f0_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                    <textarea name="address" id="kyc_f0_address" class="form-control" rows="2" required><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Remarks (optional)' : 'कैफियत (ऐच्छिक)'; ?></label>
-                                    <textarea name="remarks" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['remarks'] ?? ''); ?></textarea>
+                                    <label for="kyc_f0_remarks" class="form-label"><?php echo isEnglish() ? 'Remarks (optional)' : 'कैफियत (ऐच्छिक)'; ?></label>
+                                    <textarea name="remarks" id="kyc_f0_remarks" class="form-control" rows="2"><?php echo htmlspecialchars($_POST['remarks'] ?? ''); ?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -1256,13 +1256,13 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 : 'सहकारी सदस्य सूचीमा भएको मोबाइल (CBS/import) नै प्रयोग गर्नुहोस्।'; ?></p>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="member_id" class="form-control" required
+                                    <label for="kyc_f1_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="member_id" id="kyc_f1_member_id" class="form-control" required
                                            value="<?php echo htmlspecialchars($_POST['member_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX"
+                                    <label for="kyc_f1_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile (10 digits)' : 'मोबाइल (१० अंक)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" id="kyc_f1_mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX"
                                            value="<?php echo htmlspecialchars($_POST['mobile'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                             </div>
@@ -1294,16 +1294,16 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         <div class="form-section">
                             <h5><i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYM (empty fields only)' : 'Quick केवाइएम (खाली मात्र)'; ?></h5>
                             <div class="row">
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?></label>
-                                    <input type="text" name="member_id" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Mobile' : 'मोबाइल'; ?></label>
-                                    <input type="tel" name="mobile" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" required value="<?php echo htmlspecialchars((string)($prefillInput['full_name'] ?? $_POST['full_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
-                                    <input type="email" name="email" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['email'] ?? $_POST['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['email']) ? ' readonly' : ''; ?>></div>
-                                <div class="col-md-6 mb-3"><label class="form-label"><?php echo isEnglish() ? 'National ID (if empty)' : 'National ID (खाली भए)'; ?></label>
-                                    <input type="text" name="national_id_number" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['national_id_number'] ?? $_POST['national_id_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['national_id_number']) ? ' readonly' : ''; ?>></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?></label>
+                                    <input type="text" name="member_id" id="kyc_f2_member_id" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile' : 'मोबाइल'; ?></label>
+                                    <input type="tel" name="mobile" id="kyc_f2_mobile" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" id="kyc_f2_full_name" class="form-control" required value="<?php echo htmlspecialchars((string)($prefillInput['full_name'] ?? $_POST['full_name'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                                    <input type="email" name="email" id="kyc_f2_email" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['email'] ?? $_POST['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['email']) ? ' readonly' : ''; ?>></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_f2_national_id_number" class="form-label"><?php echo isEnglish() ? 'National ID (if empty)' : 'National ID (खाली भए)'; ?></label>
+                                    <input type="text" name="national_id_number" id="kyc_f2_national_id_number" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['national_id_number'] ?? $_POST['national_id_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['national_id_number']) ? ' readonly' : ''; ?>></div>
                             </div>
                             <button type="submit" class="btn btn-primary"><?php echo isEnglish() ? 'Save empty fields' : 'खाली field सुरक्षित'; ?></button>
                         </div>
@@ -1341,16 +1341,16 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपालीमा)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="full_name" class="form-control" required<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>>
+                                    <label for="kyc_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपालीमा)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="full_name" id="kyc_full_name" class="form-control" required<?php echo !empty($publicKycLockedFields['full_name']) ? ' readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name (English)' : 'पूरा नाम (अंग्रेजीमा)'; ?></label>
-                                    <input type="text" name="full_name_en" class="form-control"<?php echo !empty($publicKycLockedFields['full_name_en']) ? ' readonly' : ''; ?>>
+                                    <label for="kyc_full_name_en" class="form-label"><?php echo isEnglish() ? 'Full Name (English)' : 'पूरा नाम (अंग्रेजीमा)'; ?></label>
+                                    <input type="text" name="full_name_en" id="kyc_full_name_en" class="form-control"<?php echo !empty($publicKycLockedFields['full_name_en']) ? ' readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID / Membership Number' : 'सदस्यता नम्बर (Member ID)'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="member_id" class="form-control" required
+                                    <label for="kyc_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID / Membership Number' : 'सदस्यता नम्बर (Member ID)'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="member_id" id="kyc_member_id" class="form-control" required
                                            placeholder="<?php echo isEnglish() ? 'Example: 1234' : 'उदाहरण: १२३४'; ?>"
                                            <?php echo $lockMemberId ? 'readonly' : ''; ?>
                                            value="<?php echo $lockMemberId ? htmlspecialchars((string)$prefillInput['member_id'], ENT_QUOTES, 'UTF-8') : ''; ?>">
@@ -1367,17 +1367,17 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     ?></div>
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (वि.सं.)'; ?></label>
+                                    <label for="kyc_dob_bs" class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (वि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
-                                        <input type="text" name="dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
+                                        <input type="text" name="dob_bs" id="kyc_dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
                                         <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
                                     </div>
                                 </div>
                                 <!-- AD date field hidden — BS date मात्र user ले हाल्छन्, AD auto-fill गर्न JS ले गर्छ -->
                                 <input type="hidden" name="dob_ad" id="dob_ad_picker" value="">
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
-                                    <select name="gender" class="form-select">
+                                    <label for="kyc_gender" class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
+                                    <select name="gender" id="kyc_gender" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="male"><?php echo isEnglish() ? 'Male' : 'पुरुष'; ?></option>
                                         <option value="female"><?php echo isEnglish() ? 'Female' : 'महिला'; ?></option>
@@ -1385,8 +1385,8 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-3 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Marital Status' : 'वैवाहिक स्थिति'; ?></label>
-                                    <select name="marital_status" class="form-select">
+                                    <label for="kyc_marital_status" class="form-label"><?php echo isEnglish() ? 'Marital Status' : 'वैवाहिक स्थिति'; ?></label>
+                                    <select name="marital_status" id="kyc_marital_status" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="single"><?php echo isEnglish() ? 'Single' : 'अविवाहित'; ?></option>
                                         <option value="married"><?php echo isEnglish() ? 'Married' : 'विवाहित'; ?></option>
@@ -1402,48 +1402,48 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-phone"></i> <?php echo isEnglish() ? 'Contact Information' : 'सम्पर्क जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
-                                    <input type="tel" name="mobile" class="form-control" required placeholder="98XXXXXXXX"
+                                    <label for="kyc_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
+                                    <input type="tel" name="mobile" id="kyc_mobile" class="form-control" required placeholder="98XXXXXXXX"
                                            <?php echo !empty($lockPublicMobile) ? 'readonly' : ''; ?>
                                            <?php echo !empty($publicKycLockedFields['mobile']) ? 'readonly' : ''; ?>
                                            value="<?php echo ($lockPublicMobile || !empty($publicKycLockedFields['mobile'])) ? htmlspecialchars((string)($prefillInput['mobile'] ?? ''), ENT_QUOTES, 'UTF-8') : ''; ?>">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">
+                                    <label for="kyc_email" class="form-label">
                                         <?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?>
                                         <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" name="email" class="form-control" required
+                                    <input type="email" name="email" id="kyc_email" class="form-control" required
                                            placeholder="akashpame@gmail.com"
                                            value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
                                 </div>
                                 <!-- v10.4: Structured Permanent Address (Province → District → Municipality → Ward → Tole) -->
                                 <div class="col-12 mb-3">
-                                    <label class="form-label fw-semibold"><i class="fas fa-map-marker-alt text-success me-1"></i><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                    <label for="kyc_permanent_district" class="form-label fw-semibold"><i class="fas fa-map-marker-alt text-success me-1"></i><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?> <span class="text-danger">*</span></label>
                                     <div class="kyc-addr-grid" data-kyc-address="permanent">
                                         <div class="kyc-addr-cell"><label>प्रदेश</label>
-                                            <select name="permanent_province" class="form-select form-select-sm" required data-testid="kyc-permanent-province-select">
+               <select name="permanent_province" id="kyc_permanent_province" class="form-select form-select-sm" required data-testid="kyc-permanent-province-select">c-permanent-province-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>जिल्ला</label>
-                                            <select name="permanent_district" class="form-select form-select-sm" required data-testid="kyc-permanent-district-select">
+                                            <select name="permanent_district" id="kyc_permanent_district" class="form-select form-select-sm" required data-testid="kyc-permanent-district-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>नगर/गाउँपालिका</label>
-                                            <select name="permanent_municipality" class="form-select form-select-sm" required data-testid="kyc-permanent-municipality-select">
+                                            <select name="permanent_municipality" id="kyc_permanent_municipality" class="form-select form-select-sm" required data-testid="kyc-permanent-municipality-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>वडा नं.</label>
-                                            <select name="permanent_ward" class="form-select form-select-sm" required data-testid="kyc-permanent-ward-select">
+                                            <select name="permanent_ward" id="kyc_permanent_ward" class="form-select form-select-sm" required data-testid="kyc-permanent-ward-select">
                                                 <option value="">— वडा —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell" style="grid-column:1/-1;">
                                             <label>टोल / गाउँ (Tole)</label>
-                                            <input type="text" name="permanent_tole" class="form-control form-control-sm" placeholder="जस्तै: नयाँ बानेश्वर" data-testid="kyc-permanent-tole-input">
+                                            <input type="text" name="permanent_tole" id="kyc_permanent_tole" class="form-control form-control-sm" placeholder="जस्तै: नयाँ बानेश्वर" data-testid="kyc-permanent-tole-input">
                                         </div>
                                     </div>
                                 </div>
@@ -1458,32 +1458,32 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                                 <!-- v10.4: Structured Temporary Address -->
                                 <div class="col-12 mb-3" id="kycTemporaryAddressWrap">
-                                    <label class="form-label fw-semibold"><i class="fas fa-location-dot text-primary me-1"></i><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
+                                    <label for="kyc_temporary_province" class="form-label fw-semibold"><i class="fas fa-location-dot text-primary me-1"></i><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
                                     <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Fill this only if temporary address is different.' : 'अस्थायी ठेगाना फरक भएमा मात्र भर्नुहोस्।'; ?></div>
                                     <div class="kyc-addr-grid" data-kyc-address="temporary">
                                         <div class="kyc-addr-cell"><label>प्रदेश</label>
-                                            <select name="temporary_province" class="form-select form-select-sm" data-testid="kyc-temporary-province-select">
+                                            <select name="temporary_province" id="kyc_temporary_province" class="form-select form-select-sm" data-testid="kyc-temporary-province-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>जिल्ला</label>
-                                            <select name="temporary_district" class="form-select form-select-sm" data-testid="kyc-temporary-district-select">
+                                            <select name="temporary_district" id="kyc_temporary_district" class="form-select form-select-sm" data-testid="kyc-temporary-district-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>नगर/गाउँपालिका</label>
-                                            <select name="temporary_municipality" class="form-select form-select-sm" data-testid="kyc-temporary-municipality-select">
+                                            <select name="temporary_municipality" id="kyc_temporary_municipality" class="form-select form-select-sm" data-testid="kyc-temporary-municipality-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell"><label>वडा नं.</label>
-                                            <select name="temporary_ward" class="form-select form-select-sm" data-testid="kyc-temporary-ward-select">
+                                            <select name="temporary_ward" id="kyc_temporary_ward" class="form-select form-select-sm" data-testid="kyc-temporary-ward-select">
                                                 <option value="">— वडा —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell" style="grid-column:1/-1;">
                                             <label>टोल / गाउँ (Tole)</label>
-                                            <input type="text" name="temporary_tole" class="form-control form-control-sm">
+                                            <input type="text" name="temporary_tole" id="kyc_temporary_tole" class="form-control form-control-sm">
                                         </div>
                                     </div>
                                 </div>
@@ -1495,19 +1495,19 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-id-card"></i> <?php echo isEnglish() ? 'Identity Information' : 'परिचय पत्र जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship Number' : 'नागरिकता नम्बर'; ?> <span class="text-danger">*</span></label>
-                                    <input type="text" name="citizenship_no" class="form-control" required>
+                                    <label for="kyc_citizenship_no" class="form-label"><?php echo isEnglish() ? 'Citizenship Number' : 'नागरिकता नम्बर'; ?> <span class="text-danger">*</span></label>
+                                    <input type="text" name="citizenship_no" id="kyc_citizenship_no" class="form-control" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Issued Date (BS)' : 'जारी मिति (वि.सं.)'; ?></label>
+                                    <label for="kyc_citizenship_issued_date" class="form-label"><?php echo isEnglish() ? 'Issued Date (BS)' : 'जारी मिति (वि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
-                                        <input type="text" name="citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
+                                        <input type="text" name="citizenship_issued_date" id="kyc_citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
                                         <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Issue District' : 'जारी जिल्ला'; ?></label>
-                                    <select name="citizenship_issued_place" class="form-select">
+                                    <label for="kyc_citizenship_issued_place" class="form-label"><?php echo isEnglish() ? 'Issue District' : 'जारी जिल्ला'; ?></label>
+                                    <select name="citizenship_issued_place" id="kyc_citizenship_issued_place" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select district' : 'जिल्ला छान्नुहोस्'; ?></option>
                                         <?php foreach ($nepalDistricts as $district): ?>
                                             <option value="<?php echo htmlspecialchars($district); ?>"><?php echo htmlspecialchars($district); ?></option>
@@ -1515,13 +1515,13 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'National ID Number' : 'National ID नम्बर'; ?></label>
-                                    <input type="text" name="national_id_number" class="form-control" placeholder="<?php echo isEnglish() ? 'Enter NID number' : 'NID नम्बर लेख्नुहोस्'; ?>">
+                                    <label for="kyc_national_id_number" class="form-label"><?php echo isEnglish() ? 'National ID Number' : 'National ID नम्बर'; ?></label>
+                                    <input type="text" name="national_id_number" id="kyc_national_id_number" class="form-control" placeholder="<?php echo isEnglish() ? 'Enter NID number' : 'NID नम्बर लेख्नुहोस्'; ?>">
                                     <small class="text-muted"><?php echo isEnglish() ? 'Nepal: enter 14-digit NID. It should not be exactly same as citizenship number.' : 'नेपाल: १४ अङ्कको NID लेख्नुहोस्। नागरिकता नम्बरसँग ठ्याक्कै उस्तै हुनु हुँदैन।'; ?></small>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'KYC Risk Category' : 'KYC जोखिम श्रेणी'; ?> <span class="text-danger">*</span></label>
-                                    <select name="risk_category" class="form-select" required>
+                                    <label for="kyc_risk_category" class="form-label"><?php echo isEnglish() ? 'KYC Risk Category' : 'KYC जोखिम श्रेणी'; ?> <span class="text-danger">*</span></label>
+                                    <select name="risk_category" id="kyc_risk_category" class="form-select" required>
                                         <option value=""><?php echo isEnglish() ? 'Select risk category' : 'जोखिम श्रेणी छान्नुहोस्'; ?></option>
                                         <option value="low"><?php echo isEnglish() ? 'Low Risk (Auto review after 3 years)' : 'Low Risk (३ वर्षपछि auto review)'; ?></option>
                                         <option value="medium"><?php echo isEnglish() ? 'Medium Risk (Auto review after 2 years)' : 'Medium Risk (२ वर्षपछि auto review)'; ?></option>
@@ -1537,7 +1537,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Choose relation, add family member, and keep list in table.' : 'सम्बन्ध छानेर सदस्य थप्नुहोस्, सूची तालिकामा राख्नुहोस्।'; ?></div>
                             <div class="row g-2 align-items-end" id="familyRowBuilder">
                                 <div class="col-md-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Relation' : 'सम्बन्ध'; ?></label>
+                                    <label for="familyRelation" class="form-label"><?php echo isEnglish() ? 'Relation' : 'सम्बन्ध'; ?></label>
                                     <select id="familyRelation" class="form-select form-select-sm">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="father"><?php echo isEnglish() ? 'Father' : 'बुबा'; ?></option>
@@ -1551,11 +1551,11 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Name' : 'नाम'; ?></label>
+                                    <label for="familyMemberName" class="form-label"><?php echo isEnglish() ? 'Name' : 'नाम'; ?></label>
                                     <input type="text" id="familyMemberName" class="form-control form-control-sm" placeholder="<?php echo isEnglish() ? 'Member name' : 'सदस्यको नाम'; ?>">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone (optional)' : 'फोन (ऐच्छिक)'; ?></label>
+                                    <label for="familyMemberPhone" class="form-label"><?php echo isEnglish() ? 'Phone (optional)' : 'फोन (ऐच्छिक)'; ?></label>
                                     <input type="text" id="familyMemberPhone" class="form-control form-control-sm" placeholder="98XXXXXXXX">
                                 </div>
                                 <div class="col-md-2">
@@ -1593,8 +1593,8 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-briefcase"></i> <?php echo isEnglish() ? 'Occupation Information' : 'पेशागत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
-                                    <select name="occupation" class="form-select">
+                                    <label for="kyc_occupation" class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
+                                    <select name="occupation" id="kyc_occupation" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="government"><?php echo isEnglish() ? 'Government Job' : 'सरकारी नोकरी'; ?></option>
                                         <option value="private"><?php echo isEnglish() ? 'Private Job' : 'निजी नोकरी'; ?></option>
@@ -1608,12 +1608,12 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Organization Name' : 'संस्थाको नाम'; ?></label>
-                                    <input type="text" name="organization_name" class="form-control">
+                                    <label for="kyc_organization_name" class="form-label"><?php echo isEnglish() ? 'Organization Name' : 'संस्थाको नाम'; ?></label>
+                                    <input type="text" name="organization_name" id="kyc_organization_name" class="form-control">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Monthly Income' : 'मासिक आय'; ?></label>
-                                    <select name="monthly_income" class="form-select">
+                                    <label for="kyc_monthly_income" class="form-label"><?php echo isEnglish() ? 'Monthly Income' : 'मासिक आय'; ?></label>
+                                    <select name="monthly_income" id="kyc_monthly_income" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="below_20000"><?php echo isEnglish() ? 'Below Rs. 20,000' : 'रु. २०,००० भन्दा कम'; ?></option>
                                         <option value="20000_50000"><?php echo isEnglish() ? 'Rs. 20,000 - 50,000' : 'रु. २०,००० - ५०,०००'; ?></option>
@@ -1622,11 +1622,11 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-12 business-only-field"><div class="kym-subsec-title">Business Details</div></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">पेशा/व्यवसाय स्थान</label><input type="text" name="occupation_location" class="form-control"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">पेशा/व्यवसायको नाम</label><input type="text" name="occupation_business_name" class="form-control"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">Business PAN नं.</label><input type="text" name="business_pan_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">Business दर्ता प्रकार</label>
-                                    <select name="business_registration_type" class="form-select">
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_occupation_location" class="form-label">पेशा/व्यवसाय स्थान</label><input type="text" name="occupation_location" id="kyc_occupation_location" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_occupation_business_name" class="form-label">पेशा/व्यवसायको नाम</label><input type="text" name="occupation_business_name" id="kyc_occupation_business_name" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_pan_no" class="form-label">Business PAN नं.</label><input type="text" name="business_pan_no" id="kyc_business_pan_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_registration_type" class="form-label">Business दर्ता प्रकार</label>
+                                    <select name="business_registration_type" id="kyc_business_registration_type" class="form-select">
                                         <option value="">छान्नुहोस्</option>
                                         <option value="sole_proprietor">एकल स्वामित्व</option>
                                         <option value="partnership">साझेदारी</option>
@@ -1636,15 +1636,15 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                         <option value="other">अन्य</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">Business दर्ता नं.</label><input type="text" name="business_registration_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">दर्ता निकाय</label>
-                                    <select name="business_registration_office" class="form-select">
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_registration_no" class="form-label">Business दर्ता नं.</label><input type="text" name="business_registration_no" id="kyc_business_registration_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_registration_office" class="form-label">दर्ता निकाय</label>
+                                    <select name="business_registration_office" id="kyc_business_registration_office" class="form-select">
                                         <option value="">छान्नुहोस्</option><option value="घरेलु">घरेलु</option><option value="company_registrar">Company Registrar</option><option value="rajaswo_karyalaya">राजस्व कार्यालय</option><option value="nagarpalika">नगरपालिका</option><option value="gaupalika">गाउँपालिका</option><option value="other">अन्य</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">Business दर्ता मिति (BS)</label><input type="text" name="business_registration_date_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">व्यवसायको प्रकृति</label><input type="text" name="business_nature" class="form-control"></div>
-                                <div class="col-md-4 mb-3 business-only-field"><label class="form-label">अनुमानित वार्षिक आय</label><input type="text" name="estimated_annual_income" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_registration_date_bs" class="form-label">Business दर्ता मिति (BS)</label><input type="text" name="business_registration_date_bs" id="kyc_business_registration_date_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_business_nature" class="form-label">व्यवसायको प्रकृति</label><input type="text" name="business_nature" id="kyc_business_nature" class="form-control"></div>
+                                <div class="col-md-4 mb-3 business-only-field"><label for="kyc_estimated_annual_income" class="form-label">अनुमानित वार्षिक आय</label><input type="text" name="estimated_annual_income" id="kyc_estimated_annual_income" class="form-control"></div>
                             </div>
                         </div>
 
@@ -1654,21 +1654,21 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Fill additional KYM details if available (as per cooperative format).' : 'सहकारीको KYM ढाँचाअनुसार उपलब्ध थप विवरण भर्नुहोस्।'; ?></div>
                             <div class="row">
                                 <div class="col-12"><div class="kym-part-box"><div class="kym-subsec-title">क. विस्तारित व्यक्तिगत विवरण</div></div></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">Passport नं.</label><input type="text" name="passport_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">PAN नं.</label><input type="text" name="pan_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">Driving License नं.</label><input type="text" name="driving_license_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">शैक्षिक योग्यता</label>
-                                    <select name="education_qualification" class="form-select">
+                                <div class="col-md-4 mb-3"><label for="kyc_passport_no" class="form-label">Passport नं.</label><input type="text" name="passport_no" id="kyc_passport_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_pan_no" class="form-label">PAN नं.</label><input type="text" name="pan_no" id="kyc_pan_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_driving_license_no" class="form-label">Driving License नं.</label><input type="text" name="driving_license_no" id="kyc_driving_license_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_education_qualification" class="form-label">शैक्षिक योग्यता</label>
+                                    <select name="education_qualification" id="kyc_education_qualification" class="form-select">
                                         <option value="">छान्नुहोस्</option><option>निरक्षर</option><option>सामान्य लेखपढ</option><option>SEE</option><option>+2</option><option>स्नातक</option><option>स्नातकोत्तर</option><option>MPhil/PhD</option><option value="other">अन्य</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3"><label class="form-label">धर्म</label>
-                                    <select name="religion" class="form-select">
+                                <div class="col-md-4 mb-3"><label for="kyc_religion" class="form-label">धर्म</label>
+                                    <select name="religion" id="kyc_religion" class="form-select">
                                         <option value="">छान्नुहोस्</option><option>हिन्दु</option><option>बौद्ध</option><option>किराँत</option><option>इस्लाम</option><option>क्रिश्चियन</option><option>अन्य</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3"><label class="form-label">जात</label>
-                                    <select name="caste" class="form-select">
+                                <div class="col-md-4 mb-3"><label for="kyc_caste" class="form-label">जात</label>
+                                    <select name="caste" id="kyc_caste" class="form-select">
                                         <option value="">छान्नुहोस्</option><option>ब्राह्मण</option><option>क्षेत्री</option><option>नेवार</option><option>जनजाति</option><option>दलित</option><option>मधेसी</option><option>थारु</option><option>मुस्लिम</option><option>अन्य</option>
                                     </select>
                                 </div>
@@ -1676,16 +1676,16 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 <div class="col-12"><div class="kym-subsec-divider"></div></div>
                                 <div class="col-12"><div class="kym-subsec-title">ख. बसोबास/सदस्यता सम्बन्धी विवरण</div></div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">राजनीतिक रूपमा आबद्ध (PEP)?</label>
-                                    <select name="politically_exposed" class="form-select">
+                                    <label for="kyc_politically_exposed" class="form-label">राजनीतिक रूपमा आबद्ध (PEP)?</label>
+                                    <select name="politically_exposed" id="kyc_politically_exposed" class="form-select">
                                         <option value="">छान्नुहोस्</option>
                                         <option value="yes">हो</option>
                                         <option value="no">होइन</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">विगतमा अपराधमा दोषी ठहर?</label>
-                                    <select name="past_crime_declared" class="form-select">
+                                    <label for="kyc_past_crime_declared" class="form-label">विगतमा अपराधमा दोषी ठहर?</label>
+                                    <select name="past_crime_declared" id="kyc_past_crime_declared" class="form-select">
                                         <option value="">छान्नुहोस्</option>
                                         <option value="yes">हो</option>
                                         <option value="no">होइन</option>
@@ -1693,27 +1693,27 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
 
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">भाडामा बस्ने हो?</label>
+                                    <label for="isRentedSelect" class="form-label">भाडामा बस्ने हो?</label>
                                     <select name="is_rented" id="isRentedSelect" class="form-select">
                                         <option value="">छान्नुहोस्</option><option value="yes">हो</option><option value="no">होइन</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3 rented-only-field"><label class="form-label">घरधनीको नाम</label><input type="text" name="landlord_name" class="form-control"></div>
-                                <div class="col-md-4 mb-3 rented-only-field"><label class="form-label">घरधनी सम्पर्क नं.</label><input type="text" name="landlord_contact" class="form-control"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">मतदाता परिचयपत्र नं.</label><input type="text" name="voter_id_card_no" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">मतदान स्थल</label><input type="text" name="polling_station" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">सदस्यता लिने मुख्य उद्देश्य</label><input type="text" name="member_purpose" class="form-control"></div>
+                                <div class="col-md-4 mb-3 rented-only-field"><label for="kyc_landlord_name" class="form-label">घरधनीको नाम</label><input type="text" name="landlord_name" id="kyc_landlord_name" class="form-control"></div>
+                                <div class="col-md-4 mb-3 rented-only-field"><label for="kyc_landlord_contact" class="form-label">घरधनी सम्पर्क नं.</label><input type="text" name="landlord_contact" id="kyc_landlord_contact" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_voter_id_card_no" class="form-label">मतदाता परिचयपत्र नं.</label><input type="text" name="voter_id_card_no" id="kyc_voter_id_card_no" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_polling_station" class="form-label">मतदान स्थल</label><input type="text" name="polling_station" id="kyc_polling_station" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_member_purpose" class="form-label">सदस्यता लिने मुख्य उद्देश्य</label><input type="text" name="member_purpose" id="kyc_member_purpose" class="form-control"></div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">आफू अन्य सहकारीको सदस्य?</label>
+                                    <label for="selfOtherCoopSelect" class="form-label">आफू अन्य सहकारीको सदस्य?</label>
                                     <select name="self_other_coop_member" id="selfOtherCoopSelect" class="form-select">
                                         <option value="">छान्नुहोस्</option>
                                         <option value="yes">हो</option>
                                         <option value="no">होइन</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3 self-coop-only-field"><label class="form-label">अन्य सहकारी विवरण</label><input type="text" name="self_other_coop_details" class="form-control" placeholder="संस्था/सदस्यता नं./भूमिका"></div>
+                                <div class="col-md-6 mb-3 self-coop-only-field"><label for="kyc_self_other_coop_details" class="form-label">अन्य सहकारी विवरण</label><input type="text" name="self_other_coop_details" id="kyc_self_other_coop_details" class="form-control" placeholder="संस्था/सदस्यता नं./भूमिका"></div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">परिवारका सदस्य यसै संस्थामा?</label>
+                                    <label for="familySameCoopSelect" class="form-label">परिवारका सदस्य यसै संस्थामा?</label>
                                     <select name="family_same_coop_member" id="familySameCoopSelect" class="form-select">
                                         <option value="">छान्नुहोस्</option>
                                         <option value="yes">हो</option>
@@ -1721,62 +1721,62 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-4 mb-3 family-coop-only-field">
-                                    <label class="form-label">परिवार सदस्य (सूचीबाट)</label>
+                                    <label for="familySameMemberSelect" class="form-label">परिवार सदस्य (सूचीबाट)</label>
                                     <select id="familySameMemberSelect" name="family_same_member_name" class="form-select">
                                         <option value="">परिवार सूचीबाट छान्नुहोस्</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3 family-coop-only-field"><label class="form-label">Member ID</label><input type="text" name="family_same_member_id" class="form-control" placeholder="जस्तै: 001001002"></div>
-                                <div class="col-md-4 mb-3 family-coop-only-field"><label class="form-label">परिवार सदस्य विवरण</label><input type="text" name="family_same_coop_details" class="form-control" placeholder="नाम/नाता/सदस्यता नं."></div>
+                                <div class="col-md-4 mb-3 family-coop-only-field"><label for="kyc_family_same_member_id" class="form-label">Member ID</label><input type="text" name="family_same_member_id" id="kyc_family_same_member_id" class="form-control" placeholder="जस्तै: 001001002"></div>
+                                <div class="col-md-4 mb-3 family-coop-only-field"><label for="kyc_family_same_coop_details" class="form-label">परिवार सदस्य विवरण</label><input type="text" name="family_same_coop_details" id="kyc_family_same_coop_details" class="form-control" placeholder="नाम/नाता/सदस्यता नं."></div>
 
                                 <div class="col-12"><div class="kym-subsec-divider"></div></div>
                                 <div class="col-12"><div class="kym-subsec-title">ग. वित्तीय कारोबार</div></div>
-                                <div class="col-md-3 mb-3"><label class="form-label">वार्षिक डेबिट/क्रेडिट अनुमान</label><input type="text" name="annual_debit_credit_estimate" class="form-control"></div>
-                                <div class="col-md-3 mb-3"><label class="form-label">वार्षिक कारोबार संख्या</label><input type="text" name="annual_turnover_numbers" class="form-control"></div>
-                                <div class="col-md-3 mb-3"><label class="form-label">वार्षिक जम्मा अनुमान</label><input type="text" name="annual_deposit_estimate" class="form-control"></div>
-                                <div class="col-md-3 mb-3"><label class="form-label">संस्थासँग ऋणधन अनुमान</label><input type="text" name="institution_debt_estimate" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">वार्षिक पारिवारिक आम्दानी</label><input type="text" name="annual_family_income" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">सम्पत्ति/Net Worth विवरण</label><input type="text" name="net_worth_details" class="form-control"></div>
+                                <div class="col-md-3 mb-3"><label for="kyc_annual_debit_credit_estimate" class="form-label">वार्षिक डेबिट/क्रेडिट अनुमान</label><input type="text" name="annual_debit_credit_estimate" id="kyc_annual_debit_credit_estimate" class="form-control"></div>
+                                <div class="col-md-3 mb-3"><label for="kyc_annual_turnover_numbers" class="form-label">वार्षिक कारोबार संख्या</label><input type="text" name="annual_turnover_numbers" id="kyc_annual_turnover_numbers" class="form-control"></div>
+                                <div class="col-md-3 mb-3"><label for="kyc_annual_deposit_estimate" class="form-label">वार्षिक जम्मा अनुमान</label><input type="text" name="annual_deposit_estimate" id="kyc_annual_deposit_estimate" class="form-control"></div>
+                                <div class="col-md-3 mb-3"><label for="kyc_institution_debt_estimate" class="form-label">संस्थासँग ऋणधन अनुमान</label><input type="text" name="institution_debt_estimate" id="kyc_institution_debt_estimate" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_annual_family_income" class="form-label">वार्षिक पारिवारिक आम्दानी</label><input type="text" name="annual_family_income" id="kyc_annual_family_income" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_net_worth_details" class="form-label">सम्पत्ति/Net Worth विवरण</label><input type="text" name="net_worth_details" id="kyc_net_worth_details" class="form-control"></div>
 
                                 <div class="col-12"><div class="kym-subsec-divider"></div></div>
                                 <div class="col-12"><div class="kym-subsec-title">घ. नजिकको व्यक्ति / हकवाला विवरण</div></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">नजिकको व्यक्तिको नाम</label><input type="text" name="nearest_person_name" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">नाता</label><input type="text" name="nearest_person_relation" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_nearest_person_name" class="form-label">नजिकको व्यक्तिको नाम</label><input type="text" name="nearest_person_name" id="kyc_nearest_person_name" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_nearest_person_relation" class="form-label">नाता</label><input type="text" name="nearest_person_relation" id="kyc_nearest_person_relation" class="form-control"></div>
 
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">हकवालाको नाम</label>
+                                    <label for="nomineeNameInput" class="form-label">हकवालाको नाम</label>
                                     <select id="nomineeFromFamily" class="form-select mb-1">
                                         <option value="">परिवार सूचीबाट छान्नुहोस्</option>
                                     </select>
                                     <input type="text" name="nominee_name" id="nomineeNameInput" class="form-control" placeholder="manual नाम पनि लेख्न सकिन्छ">
                                 </div>
-                                <div class="col-md-4 mb-3"><label class="form-label">हकवाला जन्म मिति</label><input type="text" name="nominee_dob" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">हकवाला नागरिकता नं.</label><input type="text" name="nominee_citizenship_no" class="form-control"></div>
-                                <div class="col-md-4 mb-3"><label class="form-label">हकवालासँग नाता</label>
-                                    <select name="nominee_relation" class="form-select">
+                                <div class="col-md-4 mb-3"><label for="kyc_nominee_dob" class="form-label">हकवाला जन्म मिति</label><input type="text" name="nominee_dob" id="kyc_nominee_dob" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_nominee_citizenship_no" class="form-label">हकवाला नागरिकता नं.</label><input type="text" name="nominee_citizenship_no" id="kyc_nominee_citizenship_no" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_nominee_relation" class="form-label">हकवालासँग नाता</label>
+                                    <select name="nominee_relation" id="kyc_nominee_relation" class="form-select">
                                         <option value="">छान्नुहोस्</option><option>पति/पत्नी</option><option>छोरा</option><option>छोरी</option><option>बुबा</option><option>आमा</option><option>दाजु/भाइ</option><option>दिदी/बहिनी</option><option>अभिभावक</option><option>अन्य</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3"><label class="form-label">हकवाला जारी जिल्ला</label>
-                                    <select name="nominee_issue_district" class="form-select">
+                                <div class="col-md-4 mb-3"><label for="kyc_nominee_issue_district" class="form-label">हकवाला जारी जिल्ला</label>
+                                    <select name="nominee_issue_district" id="kyc_nominee_issue_district" class="form-select">
                                         <option value="">जिल्ला छान्नुहोस्</option>
                                         <?php foreach ($nepalDistricts as $district): ?>
                                             <option value="<?php echo htmlspecialchars($district); ?>"><?php echo htmlspecialchars($district); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
-                                <div class="col-md-4 mb-3"><label class="form-label">हकवाला जारी मिति</label><input type="text" name="nominee_issue_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">हकवाला स्थायी ठेगाना</label><input type="text" name="nominee_permanent_address" class="form-control"></div>
-                                <div class="col-md-6 mb-3"><label class="form-label">हकवाला अस्थायी ठेगाना</label><input type="text" name="nominee_temporary_address" class="form-control"></div>
+                                <div class="col-md-4 mb-3"><label for="kyc_nominee_issue_date" class="form-label">हकवाला जारी मिति</label><input type="text" name="nominee_issue_date" id="kyc_nominee_issue_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_nominee_permanent_address" class="form-label">हकवाला स्थायी ठेगाना</label><input type="text" name="nominee_permanent_address" id="kyc_nominee_permanent_address" class="form-control"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_nominee_temporary_address" class="form-label">हकवाला अस्थायी ठेगाना</label><input type="text" name="nominee_temporary_address" id="kyc_nominee_temporary_address" class="form-control"></div>
 
                                 <div class="col-12"><div class="kym-subsec-divider"></div></div>
                                 <div class="col-12"><div class="kym-subsec-title">ङ. नक्सा र आय/खर्च विवरण</div></div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">घर/ठाउँको नक्सा/देशान्तर-अक्षांश</label>
+                                    <label for="longitudeLatitudeInput" class="form-label">घर/ठाउँको नक्सा/देशान्तर-अक्षांश</label>
                                     <input type="text" name="longitude_latitude" id="longitudeLatitudeInput" class="form-control" placeholder="Map बाट location छान्नुहोस्" readonly>
                                     <small class="text-muted d-block mt-1">नक्सामा click गरेर location छान्नुहोस्।</small>
                                 </div>
-                                <div class="col-md-6 mb-3"><label class="form-label">अन्य संलग्न कागजात</label><input type="text" name="other_attached_docs" class="form-control" placeholder="उदा: विवाह दर्ता, बसाइँसराइ, आदि"></div>
+                                <div class="col-md-6 mb-3"><label for="kyc_other_attached_docs" class="form-label">अन्य संलग्न कागजात</label><input type="text" name="other_attached_docs" id="kyc_other_attached_docs" class="form-control" placeholder="उदा: विवाह दर्ता, बसाइँसराइ, आदि"></div>
                                 <div class="col-12 mb-2">
                                     <div class="d-flex gap-2 flex-wrap align-items-center">
                                         <button type="button" class="btn btn-sm btn-outline-success" id="btnUseCurrentLocation">
@@ -1787,16 +1787,16 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <div id="kycMapPicker" style="height:280px;border:1px solid #d1d5db;border-radius:10px;margin-top:8px;background:#f8fafc;"></div>
                                 </div>
                                 <div class="col-12 mb-3">
-                                    <label class="form-label">Map बाट प्राप्त ठेगाना</label>
+                                    <label for="mapResolvedAddressInput" class="form-label">Map बाट प्राप्त ठेगाना</label>
                                     <input type="text" name="map_resolved_address" id="mapResolvedAddressInput" class="form-control" placeholder="Location छानेपछि यहाँ ठेगाना आउँछ" readonly>
                                 </div>
 
                                 <div class="col-12"><hr></div>
                                 <div class="col-12">
-                                    <label class="form-label fw-semibold">मासिक आय स्रोतहरू (Multiple + Total)</label>
+                                    <label for="incomeSourceName" class="form-label fw-semibold">मासिक आय स्रोतहरू (Multiple + Total)</label>
                                     <div class="row g-2 align-items-end">
                                         <div class="col-md-6"><input type="text" id="incomeSourceName" class="form-control form-control-sm" placeholder="उदा: तलब (मासिक)"></div>
-                                        <div class="col-md-4"><input type="number" min="0" step="0.01" id="incomeSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम"></div>
+                                        <div class="col-md-4"><input type="number" min="0" step="0.01" id="incomeSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम" aria-label="मासिक आय रकम"></div>
                                         <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addIncomeSourceBtn"><i class="fas fa-plus me-1"></i>थप</button></div>
                                     </div>
                                     <div class="table-responsive mt-2">
@@ -1809,10 +1809,10 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
 
                                 <div class="col-12 mt-2">
-                                    <label class="form-label fw-semibold">मासिक खर्च स्रोतहरू (Multiple + Total)</label>
+                                    <label for="expenseSourceName" class="form-label fw-semibold">मासिक खर्च स्रोतहरू (Multiple + Total)</label>
                                     <div class="row g-2 align-items-end">
                                         <div class="col-md-6"><input type="text" id="expenseSourceName" class="form-control form-control-sm" placeholder="उदा: घर खर्च (मासिक)"></div>
-                                        <div class="col-md-4"><input type="number" min="0" step="0.01" id="expenseSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम"></div>
+                                        <div class="col-md-4"><input type="number" min="0" step="0.01" id="expenseSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम" aria-label="मासिक खर्च रकम"></div>
                                         <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addExpenseSourceBtn"><i class="fas fa-plus me-1"></i>थप</button></div>
                                     </div>
                                     <div class="table-responsive mt-2">
@@ -1825,15 +1825,15 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
 
                                 <div class="col-md-4 mt-3">
-                                    <label class="form-label fw-bold">मासिक जम्मा आय</label>
+                                    <label for="incomeTotalDisplay" class="form-label fw-bold">मासिक जम्मा आय</label>
                                     <input type="text" class="form-control form-control-sm bg-light" id="incomeTotalDisplay" readonly value="0.00">
                                 </div>
                                 <div class="col-md-4 mt-3">
-                                    <label class="form-label fw-bold">मासिक जम्मा खर्च</label>
+                                    <label for="expenseTotalDisplay" class="form-label fw-bold">मासिक जम्मा खर्च</label>
                                     <input type="text" class="form-control form-control-sm bg-light" id="expenseTotalDisplay" readonly value="0.00">
                                 </div>
                                 <div class="col-md-4 mt-3">
-                                    <label class="form-label fw-bold">अन्तर (मासिक आय - मासिक खर्च)</label>
+                                    <label for="netSavingDisplay" class="form-label fw-bold">अन्तर (मासिक आय - मासिक खर्च)</label>
                                     <input type="text" class="form-control form-control-sm bg-light" id="netSavingDisplay" readonly value="0.00">
                                 </div>
                             </div>
@@ -1844,8 +1844,8 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             <h5><i class="fas fa-university"></i> <?php echo isEnglish() ? 'Account Information' : 'खाता जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Account Type' : 'खाताको प्रकार'; ?></label>
-                                    <select name="account_type" class="form-select">
+                                    <label for="kyc_account_type" class="form-label"><?php echo isEnglish() ? 'Account Type' : 'खाताको प्रकार'; ?></label>
+                                    <select name="account_type" id="kyc_account_type" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <option value="saving"><?php echo isEnglish() ? 'Saving Account' : 'बचत खाता'; ?></option>
                                         <option value="current"><?php echo isEnglish() ? 'Current Account' : 'चल्ती खाता'; ?></option>
@@ -1854,8 +1854,8 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'मनपर्ने सेवा कार्यालय'; ?></label>
-                                    <select name="branch" class="form-select">
+                                    <label for="kyc_branch" class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'मनपर्ने सेवा कार्यालय'; ?></label>
+                                    <select name="branch" id="kyc_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
                                         <option value="<?php echo $branch['name']; ?>"><?php echo $branch['name']; ?></option>
@@ -1902,7 +1902,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                                     : 'अनुहार सिधा, राम्रो उज्यालो, काला चस्मा नलगाउनुहोस्। दुवै आँखा र दुवै कान स्पष्ट देखिनुपर्छ।'; ?>
                                             </div>
                                             <label class="form-check" style="margin-bottom:8px;">
-                                                <input class="form-check-input" type="checkbox" name="passport_face_confirm" value="1">
+                                                <input class="form-check-input" type="checkbox" name="passport_face_confirm" id="kyc_passport_face_confirm" value="1">
                                                 <span class="form-check-label" style="font-size:.82rem;">
                                                     <?php echo isEnglish()
                                                         ? 'I confirm that both eyes and both ears are clearly visible.'
