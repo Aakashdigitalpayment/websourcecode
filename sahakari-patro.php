@@ -1218,12 +1218,12 @@ elseif($activeTab==='lagna'): ?>
         <form method="get" action="">
           <input type="hidden" name="tab" value="lagna">
           <div style="margin-bottom:12px;">
-            <label class="sp-form-label">जन्म मिति (ई.सं.)</label>
-            <input type="date" name="birth_date" value="<?php echo htmlspecialchars($_GET['birth_date']??'1990-01-15'); ?>" class="sp-form-control">
+            <label class="sp-form-label" for="sp_birth_date">जन्म मिति (ई.सं.)</label>
+            <input type="date" name="birth_date" value="<?php echo htmlspecialchars($_GET['birth_date']??'1990-01-15'); ?>" class="sp-form-control" id="sp_birth_date">
           </div>
           <div style="margin-bottom:14px;">
-            <label class="sp-form-label">जन्म समय (स्थानीय)</label>
-            <input type="time" name="birth_time" value="<?php echo htmlspecialchars($_GET['birth_time']??'06:30'); ?>" class="sp-form-control">
+            <label class="sp-form-label" for="sp_birth_time">जन्म समय (स्थानीय)</label>
+            <input type="time" name="birth_time" value="<?php echo htmlspecialchars($_GET['birth_time']??'06:30'); ?>" class="sp-form-control" id="sp_birth_time">
           </div>
           <button type="submit" class="sp-btn-primary">
             <i class="lucide-icon" style="width:15px;height:15px;" data-lucide="search"></i> लग्न निकाल्नुहोस्
@@ -1305,8 +1305,8 @@ elseif($activeTab==='gunmilan'): ?>
           <div style="border:2px solid <?php echo $pc; ?>;border-radius:10px;overflow:hidden;">
             <div style="background:<?php echo $pc; ?>;color:#fff;padding:10px 14px;font-weight:700;font-size:14px;"><?php echo $plabel; ?></div>
             <div style="padding:14px;">
-              <label class="sp-form-label">जन्म नक्षत्र</label>
-              <select name="<?php echo $nKey; ?>" class="sp-form-control" style="margin-bottom:12px;" required>
+              <label class="sp-form-label" for="sp_nakshatra">जन्म नक्षत्र</label>
+              <select name="<?php echo $nKey; ?>" class="sp-form-control" style="margin-bottom:12px;" required id="sp_nakshatra">
                 <option value="">नक्षत्र छान्नुहोस्...</option>
                 <?php foreach($nakshatraAll as $ni=>$nk):
                   $sel = ($nPost !== '' && (int)$nPost === (int)$ni);
@@ -1314,8 +1314,8 @@ elseif($activeTab==='gunmilan'): ?>
                 <option value="<?php echo (int)$ni; ?>"<?php echo $sel ? ' selected' : ''; ?>><?php echo sp_np($ni+1).'. '.$nk['name']; ?></option>
                 <?php endforeach; ?>
               </select>
-              <label class="sp-form-label">चन्द्र राशि</label>
-              <select name="<?php echo $rKey; ?>" class="sp-form-control" required>
+              <label class="sp-form-label" for="sp_rashi">चन्द्र राशि</label>
+              <select name="<?php echo $rKey; ?>" class="sp-form-control" required id="sp_rashi">
                 <option value="">राशि छान्नुहोस्...</option>
                 <?php foreach($rashiNames as $ri=>$rn):
                   $sel = ($rPost !== '' && (int)$rPost === (int)$ri);
