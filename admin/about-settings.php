@@ -221,10 +221,10 @@ require_once 'includes/admin-ui.php';
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
 
                         <div class="mb-3">
-                            <label class="form-label">
+                            <label for="abt_history_photo" class="form-label">
                                 <?php echo $historyPhoto ? 'नयाँ Photo छान्नुहोस्' : 'Photo Upload गर्नुहोस्'; ?>
                             </label>
-                            <input type="file" name="history_photo" class="form-control"
+                            <input type="file" name="history_photo" id="abt_history_photo" class="form-control"
                                    accept=".jpg,.jpeg,.png,.gif,.webp" required>
                             <small class="text-muted">JPG, PNG, WebP — max 5MB</small>
                         </div>
@@ -249,22 +249,22 @@ require_once 'includes/admin-ui.php';
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
 
                         <div class="mb-3">
-                            <label class="form-label">स्थापना वर्ष / Established Year</label>
-                            <input type="text" name="established_year" class="form-control"
+                            <label for="abt_established_year" class="form-label">स्थापना वर्ष / Established Year</label>
+                            <input type="text" name="established_year" id="abt_established_year" class="form-control"
                                    value="<?php echo htmlspecialchars($establishedYear); ?>"
                                    placeholder="जस्तै: २०७५">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">History Content — नेपाली</label>
-                            <textarea name="history_content_np" class="form-control" rows="6"
+                            <label for="abt_history_np" class="form-label">History Content — नेपाली</label>
+                            <textarea name="history_content_np" id="abt_history_np" class="form-control" rows="6"
                                       placeholder="हाम्रो सहकारीको इतिहास नेपालीमा..."><?php echo htmlspecialchars($historyNp); ?></textarea>
                             <small class="text-muted">HTML allowed: &lt;p&gt;, &lt;strong&gt;, &lt;ul&gt;, &lt;li&gt;</small>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">History Content — English</label>
-                            <textarea name="history_content_en" class="form-control" rows="6"
+                            <label for="abt_history_en" class="form-label">History Content — English</label>
+                            <textarea name="history_content_en" id="abt_history_en" class="form-control" rows="6"
                                       placeholder="Our cooperative's history in English..."><?php echo htmlspecialchars($historyEn); ?></textarea>
                         </div>
 
@@ -291,29 +291,29 @@ require_once 'includes/admin-ui.php';
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">सदस्य संख्या (Members)</label>
-                                <input type="text" name="total_members" class="form-control"
+                                <label for="abt_total_members" class="form-label">सदस्य संख्या (Members)</label>
+                                <input type="text" name="total_members" id="abt_total_members" class="form-control"
                                        value="<?php echo htmlspecialchars($statMembers, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="जस्तै: ५०००">
                                 <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">वर्षको अनुभव (Years)</label>
-                                <input type="text" name="years_experience" class="form-control"
+                                <label for="abt_years_experience" class="form-label">वर्षको अनुभव (Years)</label>
+                                <input type="text" name="years_experience" id="abt_years_experience" class="form-control"
                                        value="<?php echo htmlspecialchars($statYears, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="जस्तै: २०">
                                 <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">सेवा संख्या (Services)</label>
-                                <input type="text" name="total_services" class="form-control"
+                                <label for="abt_total_services" class="form-label">सेवा संख्या (Services)</label>
+                                <input type="text" name="total_services" id="abt_total_services" class="form-control"
                                        value="<?php echo htmlspecialchars($statServices, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="जस्तै: १०">
                                 <small class="text-muted">Frontend मा «+» स्वतः थपिन्छ</small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">सन्तुष्टि दर (Satisfaction %)</label>
-                                <input type="text" name="satisfaction_rate" class="form-control"
+                                <label for="abt_satisfaction_rate" class="form-label">सन्तुष्टि दर (Satisfaction %)</label>
+                                <input type="text" name="satisfaction_rate" id="abt_satisfaction_rate" class="form-control"
                                        value="<?php echo htmlspecialchars($statSatisfaction, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="जस्तै: ९९">
                                 <small class="text-muted">Frontend मा «%» स्वतः थपिन्छ</small>

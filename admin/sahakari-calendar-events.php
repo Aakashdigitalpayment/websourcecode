@@ -204,8 +204,8 @@ if ($_sceFlash) {
             <div class="card-body border-bottom py-3">
                 <form method="get" class="row g-2 align-items-end">
                     <div class="col-auto">
-                        <label class="form-label mb-1 small text-muted">वर्षिक फिल्टर (बी.स.)</label>
-                        <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <label for="sce_f_year" class="form-label mb-1 small text-muted">वर्षिक फिल्टर (बी.स.)</label>
+                        <select name="year" id="sce_f_year" class="form-select form-select-sm" onchange="this.form.submit()">
                             <?php foreach ($yearOptions as $y): ?>
                             <option value="<?php echo (int)$y; ?>" <?php echo $y === $filterYear ? 'selected' : ''; ?>><?php echo (int)$y; ?></option>
                             <?php endforeach; ?>
@@ -308,23 +308,23 @@ if ($_sceFlash) {
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
-                            <input type="text" name="title_np" class="form-control" required maxlength="200" value="<?php echo htmlspecialchars($form['title_np']); ?>" placeholder="जस्तै: Board बैठक">
+                            <label for="sce_title_np" class="form-label">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                            <input type="text" name="title_np" id="sce_title_np" class="form-control" required maxlength="200" value="<?php echo htmlspecialchars($form['title_np']); ?>" placeholder="जस्तै: Board बैठक">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Title (English)</label>
-                            <input type="text" name="title_en" class="form-control" maxlength="200" value="<?php echo htmlspecialchars($form['title_en']); ?>">
+                            <label for="sce_title_en" class="form-label">Title (English)</label>
+                            <input type="text" name="title_en" id="sce_title_en" class="form-control" maxlength="200" value="<?php echo htmlspecialchars($form['title_en']); ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">प्रकार</label>
-                            <select name="event_type" class="form-select">
+                            <label for="sce_event_type" class="form-label">प्रकार</label>
+                            <select name="event_type" id="sce_event_type" class="form-select">
                                 <?php foreach ($EVENT_TYPES as $k => $lab): ?>
                                 <option value="<?php echo htmlspecialchars($k); ?>" <?php echo $form['event_type'] === $k ? 'selected' : ''; ?>><?php echo htmlspecialchars($lab); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">दोहोरिने</label>
+                            <label for="sce-recurrence" class="form-label">दोहोरिने</label>
                             <select name="recurrence" id="sce-recurrence" class="form-select">
                                 <option value="once" <?php echo $form['recurrence'] === 'once' ? 'selected' : ''; ?>>एक पटक (मिति)</option>
                                 <option value="monthly" <?php echo $form['recurrence'] === 'monthly' ? 'selected' : ''; ?>>हरेक महिनाको सोही गते</option>
@@ -332,20 +332,20 @@ if ($_sceFlash) {
                             <div class="form-text">मासिक = सो वर्षका सबै महिनाको त्यही गते (महिना छोटो भए छुट्छ)।</div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">बी.स. वर्ष <span class="text-danger">*</span></label>
-                            <input type="number" name="bs_year" class="form-control" min="1970" max="2100" required value="<?php echo (int)$form['bs_year']; ?>">
+                            <label for="sce_bs_year" class="form-label">बी.स. वर्ष <span class="text-danger">*</span></label>
+                            <input type="number" name="bs_year" id="sce_bs_year" class="form-control" min="1970" max="2100" required value="<?php echo (int)$form['bs_year']; ?>">
                         </div>
                         <div class="col-md-4" id="sce-month-wrap">
-                            <label class="form-label">महिना <span class="text-danger">*</span></label>
-                            <select name="bs_month" class="form-select">
+                            <label for="sce_bs_month" class="form-label">महिना <span class="text-danger">*</span></label>
+                            <select name="bs_month" id="sce_bs_month" class="form-select">
                                 <?php foreach ($BS_MONTHS_NP as $mi => $mn): ?>
                                 <option value="<?php echo $mi + 1; ?>" <?php echo (int)$form['bs_month'] === ($mi + 1) ? 'selected' : ''; ?>><?php echo htmlspecialchars($mn); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">गते <span class="text-danger">*</span></label>
-                            <input type="number" name="bs_day" class="form-control" min="1" max="32" required value="<?php echo (int)$form['bs_day']; ?>">
+                            <label for="sce_bs_day" class="form-label">गते <span class="text-danger">*</span></label>
+                            <input type="number" name="bs_day" id="sce_bs_day" class="form-control" min="1" max="32" required value="<?php echo (int)$form['bs_day']; ?>">
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
                             <div class="form-check mb-2">
@@ -354,12 +354,12 @@ if ($_sceFlash) {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">विवरण (नेपाली)</label>
-                            <textarea name="description_np" class="form-control" rows="3"><?php echo htmlspecialchars($form['description_np']); ?></textarea>
+                            <label for="sce_desc_np" class="form-label">विवरण (नेपाली)</label>
+                            <textarea name="description_np" id="sce_desc_np" class="form-control" rows="3"><?php echo htmlspecialchars($form['description_np']); ?></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Description (EN)</label>
-                            <textarea name="description_en" class="form-control" rows="3"><?php echo htmlspecialchars($form['description_en']); ?></textarea>
+                            <label for="sce_desc_en" class="form-label">Description (EN)</label>
+                            <textarea name="description_en" id="sce_desc_en" class="form-control" rows="3"><?php echo htmlspecialchars($form['description_en']); ?></textarea>
                         </div>
                     </div>
 

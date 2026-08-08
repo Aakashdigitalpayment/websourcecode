@@ -221,20 +221,20 @@ if ($action === 'edit' || $action === 'add') {
                 <h6 class="section-heading"><i class="fas fa-file-alt"></i> मुख्य जानकारी</h6>
                 <div class="row g-3">
                     <div class="col-md-8">
-                        <label class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
-                        <input type="text" name="title" class="form-control" required
+                        <label for="auc_title" class="form-label fw-semibold">शीर्षक (नेपाली) <span class="text-danger">*</span></label>
+                        <input type="text" name="title" id="auc_title" class="form-control" required
                                value="<?php echo htmlspecialchars($auction['title'] ?? ''); ?>"
                                placeholder="उदा: काठमाडौं महानगर-१२ को लिलामी जग्गा">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">Title (English) <small class="text-muted">(वैकल्पिक)</small></label>
-                        <input type="text" name="title_en" class="form-control"
+                        <label for="auc_title_en" class="form-label fw-semibold">Title (English) <small class="text-muted">(वैकल्पिक)</small></label>
+                        <input type="text" name="title_en" id="auc_title_en" class="form-control"
                                value="<?php echo htmlspecialchars($auction['title_en'] ?? ''); ?>"
                                placeholder="Land Auction - Kathmandu-12">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">सम्पत्ति प्रकार</label>
-                        <select name="property_type" class="form-select">
+                        <label for="auc_property_type" class="form-label fw-semibold">सम्पत्ति प्रकार</label>
+                        <select name="property_type" id="auc_property_type" class="form-select">
                             <option value="">-- छान्नुहोस् --</option>
                             <?php
                             $ptypes = ['जग्गा','घर तथा जग्गा','अपार्टमेन्ट','व्यावसायिक घर','गाडी','मेशिनरी','अन्य'];
@@ -248,19 +248,19 @@ if ($action === 'edit' || $action === 'add') {
                         </select>
                     </div>
                     <div class="col-md-8">
-                        <label class="form-label fw-semibold">स्थान / ठेगाना</label>
-                        <input type="text" name="location" class="form-control"
+                        <label for="auc_location" class="form-label fw-semibold">स्थान / ठेगाना</label>
+                        <input type="text" name="location" id="auc_location" class="form-control"
                                value="<?php echo htmlspecialchars($auction['location'] ?? ''); ?>"
                                placeholder="उदा: काठमाडौं महानगरपालिका वडा नं. १२">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">विवरण (नेपाली)</label>
-                        <textarea name="description" class="form-control" rows="4"
+                        <label for="auc_description" class="form-label fw-semibold">विवरण (नेपाली)</label>
+                        <textarea name="description" id="auc_description" class="form-control" rows="4"
                                   placeholder="सम्पत्तिको विस्तृत विवरण, सीमाना, विशेषता..."><?php echo htmlspecialchars($auction['description'] ?? ''); ?></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">Description (English) <small class="text-muted">(वैकल्पिक)</small></label>
-                        <textarea name="description_en" class="form-control" rows="4"
+                        <label for="auc_description_en" class="form-label fw-semibold">Description (English) <small class="text-muted">(वैकल्पिक)</small></label>
+                        <textarea name="description_en" id="auc_description_en" class="form-control" rows="4"
                                   placeholder="Detailed property description..."><?php echo htmlspecialchars($auction['description_en'] ?? ''); ?></textarea>
                     </div>
                 </div>
@@ -271,31 +271,31 @@ if ($action === 'edit' || $action === 'add') {
                 <h6 class="section-heading"><i class="fas fa-ruler-combined"></i> जग्गाको क्षेत्रफल (Terai / Hilly मापन)</h6>
                 <div class="row g-3">
                     <div class="col-6 col-md-3">
-                        <label class="form-label fw-semibold">बिगाहा <span class="area-unit">(Bigha)</span></label>
-                        <input type="number" name="area_bigha" class="form-control" min="0" step="0.25"
+                        <label for="auc_area_bigha" class="form-label fw-semibold">बिगाहा <span class="area-unit">(Bigha)</span></label>
+                        <input type="number" name="area_bigha" id="auc_area_bigha" class="form-control" min="0" step="0.25"
                                value="<?php echo htmlspecialchars($auction['area_bigha'] ?? '0'); ?>"
                                placeholder="0">
                     </div>
                     <div class="col-6 col-md-3">
-                        <label class="form-label fw-semibold">रोपनी <span class="area-unit">(Ropani)</span></label>
-                        <input type="number" name="area_ropani" class="form-control" min="0" step="0.5"
+                        <label for="auc_area_ropani" class="form-label fw-semibold">रोपनी <span class="area-unit">(Ropani)</span></label>
+                        <input type="number" name="area_ropani" id="auc_area_ropani" class="form-control" min="0" step="0.5"
                                value="<?php echo htmlspecialchars($auction['area_ropani'] ?? '0'); ?>"
                                placeholder="0">
                     </div>
                     <div class="col-6 col-md-3">
-                        <label class="form-label fw-semibold">आना <span class="area-unit">(Aana)</span></label>
-                        <input type="number" name="area_aana" class="form-control" min="0" max="16" step="1"
+                        <label for="auc_area_aana" class="form-label fw-semibold">आना <span class="area-unit">(Aana)</span></label>
+                        <input type="number" name="area_aana" id="auc_area_aana" class="form-control" min="0" max="16" step="1"
                                value="<?php echo htmlspecialchars($auction['area_aana'] ?? '0'); ?>"
                                placeholder="0">
                     </div>
                     <div class="col-6 col-md-3">
-                        <label class="form-label fw-semibold">पैसा <span class="area-unit">(Paisa)</span></label>
-                        <input type="number" name="area_paisa" class="form-control" min="0" max="4" step="1"
+                        <label for="auc_area_paisa" class="form-label fw-semibold">पैसा <span class="area-unit">(Paisa)</span></label>
+                        <input type="number" name="area_paisa" id="auc_area_paisa" class="form-control" min="0" max="4" step="1"
                                value="<?php echo htmlspecialchars($auction['area_paisa'] ?? '0'); ?>"
                                placeholder="0">
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold">अतिरिक्त क्षेत्रफल विवरण <small class="text-muted">(माथि नभरेको भए यहाँ भर्नुहोस्)</small></label>
+                        <label for="areaTextInput" class="form-label fw-semibold">अतिरिक्त क्षेत्रफल विवरण <small class="text-muted">(माथि नभरेको भए यहाँ भर्नुहोस्)</small></label>
                         <input type="text" name="area" class="form-control" id="areaTextInput"
                                value="<?php echo htmlspecialchars($auction['area'] ?? ''); ?>"
                                placeholder="उदा: ५ आना २ पैसा / ३ रोपनी">
@@ -309,27 +309,27 @@ if ($action === 'edit' || $action === 'add') {
                 <h6 class="section-heading"><i class="fas fa-calendar-alt"></i> मूल्य, मिति र सम्पर्क</h6>
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">न्यूनतम मूल्य (रु.) <span class="text-danger">*</span></label>
+                        <label for="auc_minimum_price" class="form-label fw-semibold">न्यूनतम मूल्य (रु.) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text fw-bold">रु.</span>
-                            <input type="number" name="minimum_price" class="form-control" min="0" step="1000"
+                            <input type="number" name="minimum_price" id="auc_minimum_price" class="form-control" min="0" step="1000"
                                    value="<?php echo htmlspecialchars($auction['minimum_price'] ?? ''); ?>"
                                    placeholder="5000000">
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">लिलामी मिति</label>
+                        <label for="auc_auction_date" class="form-label fw-semibold">लिलामी मिति</label>
                         <div class="input-group">
-                            <input type="text" name="auction_date" class="form-control nepali-datepicker"
+                            <input type="text" name="auction_date" id="auc_auction_date" class="form-control nepali-datepicker"
                                    placeholder="YYYY-MM-DD"
                                    value="<?php echo htmlspecialchars($auctionDateBs); ?>">
                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">समय</label>
+                        <label for="auc_auction_time" class="form-label fw-semibold">समय</label>
                         <?php $auctionTimeValue = trim((string)($auction['auction_time'] ?? '')); $auctionTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
-                        <select name="auction_time" class="form-select">
+                        <select name="auction_time" id="auc_auction_time" class="form-select">
                             <option value="">— समय छान्नुहोस् —</option>
                             <?php foreach ($auctionTimeOptions as $optVal => $optLabel): ?>
                             <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $auctionTimeValue === $optVal ? 'selected' : ''; ?>>
@@ -344,23 +344,23 @@ if ($action === 'edit' || $action === 'add') {
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">सम्पर्क व्यक्ति</label>
-                        <input type="text" name="contact_person" class="form-control"
+                        <label for="auc_contact_person" class="form-label fw-semibold">सम्पर्क व्यक्ति</label>
+                        <input type="text" name="contact_person" id="auc_contact_person" class="form-control"
                                value="<?php echo htmlspecialchars($auction['contact_person'] ?? ''); ?>"
                                placeholder="जिम्मेवार कर्मचारीको नाम">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold">सम्पर्क फोन</label>
+                        <label for="auc_contact_phone" class="form-label fw-semibold">सम्पर्क फोन</label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                            <input type="text" name="contact_phone" class="form-control"
+                            <input type="text" name="contact_phone" id="auc_contact_phone" class="form-control"
                                    value="<?php echo htmlspecialchars($auction['contact_phone'] ?? ''); ?>"
                                    placeholder="98XXXXXXXX">
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold">स्थिति</label>
-                        <select name="status" class="form-select">
+                        <label for="auc_status" class="form-label fw-semibold">स्थिति</label>
+                        <select name="status" id="auc_status" class="form-select">
                             <?php foreach ($statusLabels as $key => $lbl): ?>
                             <option value="<?php echo $key; ?>"
                                 <?php echo ($auction['status'] ?? 'upcoming') === $key ? 'selected' : ''; ?>>
@@ -388,7 +388,7 @@ if ($action === 'edit' || $action === 'add') {
 
                     <!-- Main Photo -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold"><i class="fas fa-image text-primary me-1"></i>मुख्य फोटो</label>
+                        <label for="mainImgInput" class="form-label fw-semibold"><i class="fas fa-image text-primary me-1"></i>मुख्य फोटो</label>
                         <input type="file" name="image" id="mainImgInput" class="form-control" accept="image/*,.webp,.png,.jpg,.jpeg">
                         <?php if (!empty($auction['image'])): ?>
                         <div class="mt-2" id="mainImgPreview">
@@ -403,8 +403,8 @@ if ($action === 'edit' || $action === 'add') {
 
                     <!-- Additional Photos -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold"><i class="fas fa-images text-info me-1"></i>थप फोटोहरू</label>
-                        <input type="file" name="additional_images[]" class="form-control" accept="image/*,.webp,.png,.jpg,.jpeg" multiple>
+                        <label for="auc_additional_images" class="form-label fw-semibold"><i class="fas fa-images text-info me-1"></i>थप फोटोहरू</label>
+                        <input type="file" name="additional_images[]" id="auc_additional_images" class="form-control" accept="image/*,.webp,.png,.jpg,.jpeg" multiple>
                         <?php
                         $exImgs = json_decode($auction['images'] ?? '[]', true) ?: [];
                         if (!empty($exImgs)): ?>
@@ -418,8 +418,8 @@ if ($action === 'edit' || $action === 'add') {
 
                     <!-- Document -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold"><i class="fas fa-file-pdf text-danger me-1"></i>कागजपत्र (PDF/DOC/DOCX)</label>
-                        <input type="file" name="document" class="form-control" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                        <label for="auc_document" class="form-label fw-semibold"><i class="fas fa-file-pdf text-danger me-1"></i>कागजपत्र (PDF/DOC/DOCX)</label>
+                        <input type="file" name="document" id="auc_document" class="form-control" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                         <?php if (!empty($auction['document'])): ?>
                         <div class="doc-preview">
                             <i class="fas fa-file-alt text-danger"></i>
@@ -432,16 +432,16 @@ if ($action === 'edit' || $action === 'add') {
 
                     <!-- Google Map Link -->
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold"><i class="fab fa-google text-danger me-1"></i>Google Map Link</label>
-                        <input type="url" name="google_map_link" class="form-control"
+                        <label for="auc_map_link" class="form-label fw-semibold"><i class="fab fa-google text-danger me-1"></i>Google Map Link</label>
+                        <input type="url" name="google_map_link" id="auc_map_link" class="form-control"
                                value="<?php echo htmlspecialchars($auction['google_map_link'] ?? ''); ?>"
                                placeholder="https://maps.google.com/...">
                     </div>
 
                     <!-- Google Map Embed -->
                     <div class="col-12">
-                        <label class="form-label fw-semibold"><i class="fas fa-map-marked-alt text-primary me-1"></i>Google Map Embed (iframe)</label>
-                        <textarea name="google_map_embed" class="form-control" rows="3"
+                        <label for="auc_map_embed" class="form-label fw-semibold"><i class="fas fa-map-marked-alt text-primary me-1"></i>Google Map Embed (iframe)</label>
+                        <textarea name="google_map_embed" id="auc_map_embed" class="form-control" rows="3"
                                   placeholder="<iframe ...></iframe>"><?php echo htmlspecialchars($auction['google_map_embed'] ?? ''); ?></textarea>
                     </div>
                 </div>

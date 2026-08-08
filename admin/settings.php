@@ -838,25 +838,25 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold"><?php echo $__t('साइट लोगो (Default)', 'Site Logo (Default)'); ?></label>
+                            <label for="stg_logo" class="form-label fw-semibold"><?php echo $__t('साइट लोगो (Default)', 'Site Logo (Default)'); ?></label>
                             <?php if (!empty($settings['logo'])): ?><img src="../<?php echo htmlspecialchars($settings['logo'], ENT_QUOTES, 'UTF-8'); ?>" alt="Logo" class="img-fluid mb-2 border rounded stg-media-preview-logo"><?php endif; ?>
-                            <input type="file" name="logo" class="form-control" accept="image/*">
+                            <input type="file" name="logo" id="stg_logo" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('Fallback लोगो', 'Fallback logo'); ?> · <?php echo $__t('अनुशंसित', 'Recommended'); ?>: 1200x460+</small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold"><?php echo $__t('नेपाली लोगो (NE)', 'Nepali Logo (NE)'); ?></label>
+                            <label for="stg_logo_np" class="form-label fw-semibold"><?php echo $__t('नेपाली लोगो (NE)', 'Nepali Logo (NE)'); ?></label>
                             <?php if (!empty($settings['logo_np'])): ?><img src="../<?php echo htmlspecialchars($settings['logo_np'], ENT_QUOTES, 'UTF-8'); ?>" alt="Logo NP" class="img-fluid mb-2 border rounded stg-media-preview-logo"><?php endif; ?>
-                            <input type="file" name="logo_np" class="form-control" accept="image/*">
+                            <input type="file" name="logo_np" id="stg_logo_np" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('नेपाली भाषा हुँदा यो देखिन्छ', 'Shown when site language is Nepali'); ?></small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold"><?php echo $__t('अंग्रेजी लोगो (EN)', 'English Logo (EN)'); ?></label>
+                            <label for="stg_logo_en" class="form-label fw-semibold"><?php echo $__t('अंग्रेजी लोगो (EN)', 'English Logo (EN)'); ?></label>
                             <?php if (!empty($settings['logo_en'])): ?><img src="../<?php echo htmlspecialchars($settings['logo_en'], ENT_QUOTES, 'UTF-8'); ?>" alt="Logo EN" class="img-fluid mb-2 border rounded stg-media-preview-logo"><?php endif; ?>
-                            <input type="file" name="logo_en" class="form-control" accept="image/*">
+                            <input type="file" name="logo_en" id="stg_logo_en" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('English भाषा हुँदा यो देखिन्छ', 'Shown when site language is English'); ?></small>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">
+                            <label for="stg_favicon" class="form-label fw-semibold">
                                 <i class="fas fa-globe text-success me-1"></i>
                                 <?php echo $__t('Favicon (Site Icon)', 'Favicon (Site Icon)'); ?>
                             </label>
@@ -879,11 +879,11 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 </label>
                             </div>
                             <?php endif; ?>
-                            <input type="file" name="site_favicon" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.ico">
+                            <input type="file" name="site_favicon" id="stg_favicon" class="form-control" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml,.ico">
                             <small class="stg-muted d-block mt-1"><?php echo $__t('अनुशंसित: 64×64 वा 192×192 PNG/ICO — Google search र browser tab', 'Recommended: 64×64 or 192×192 PNG/ICO — for browser tab and search'); ?></small>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">
+                            <label for="stg_himal_bg" class="form-label fw-semibold">
                                 <i class="fas fa-mountain text-info me-1"></i>
                                 <?php echo $__t('हेडर हिमाल पृष्ठभूमि फोटो', 'Header Himal Background Photo'); ?>
                             </label>
@@ -909,12 +909,12 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 </label>
                             </div>
                             <?php endif; ?>
-                            <input type="file" name="himal_bg" class="form-control mb-2" accept="image/*">
+                            <input type="file" name="himal_bg" id="stg_himal_bg" class="form-control mb-2" accept="image/*">
                             <small class="stg-muted d-block mb-2">
                                 <?php echo $__t('अनुशंसित: फराकिलो panoramic फोटो (जस्तै 1400×220px) — navigation को दायाँ भागमा gradient सहित देखिन्छ।', 'Recommended: wide panoramic photo (e.g. 1400×220px) — shows on the right side of the navigation with a white gradient fade.'); ?>
                             </small>
                             <!-- Opacity slider -->
-                            <label class="form-label fw-semibold mb-1">
+                            <label for="himal_bg_opacity" class="form-label fw-semibold mb-1">
                                 <?php echo $__t('हिमाल देखिने मात्रा', 'Himal Visibility'); ?>:
                                 <strong id="himal_opacity_display"><?php echo $himalOpacityVal; ?>%</strong>
                             </label>
@@ -928,27 +928,27 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('About पेज फोटो', 'About Page Image'); ?></label>
+                            <label for="stg_about_page_image" class="form-label fw-semibold"><?php echo $__t('About पेज फोटो', 'About Page Image'); ?></label>
                             <?php if (!empty($settings['about_page_image'])): ?><img src="../<?php echo htmlspecialchars($settings['about_page_image'], ENT_QUOTES, 'UTF-8'); ?>" alt="About" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
-                            <input type="file" name="about_page_image" class="form-control" accept="image/*">
+                            <input type="file" name="about_page_image" id="stg_about_page_image" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 600x400</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('About Intro दायाँ फोटो', 'About Intro Right Image'); ?></label>
+                            <label for="stg_about_intro_image" class="form-label fw-semibold"><?php echo $__t('About Intro दायाँ फोटो', 'About Intro Right Image'); ?></label>
                             <?php if (!empty($settings['about_intro_image'])): ?><img src="../<?php echo htmlspecialchars($settings['about_intro_image'], ENT_QUOTES, 'UTF-8'); ?>" alt="About Intro" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
-                            <input type="file" name="about_intro_image" class="form-control" accept="image/*">
+                            <input type="file" name="about_intro_image" id="stg_about_intro_image" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 700x900</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('इतिहास सेक्शन फोटो', 'History Section Photo'); ?></label>
+                            <label for="stg_history_photo" class="form-label fw-semibold"><?php echo $__t('इतिहास सेक्शन फोटो', 'History Section Photo'); ?></label>
                             <?php if (!empty($settings['history_photo'])): ?><img src="../<?php echo htmlspecialchars($settings['history_photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="History" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
-                            <input type="file" name="history_photo" class="form-control" accept="image/*">
+                            <input type="file" name="history_photo" id="stg_history_photo" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('"हाम्रो इतिहास" section फोटो', '"Our History" section photo'); ?></small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold"><?php echo $__t('मोबाइल एप फोटो', 'Mobile App Photo'); ?></label>
+                            <label for="stg_mobile_app_photo" class="form-label fw-semibold"><?php echo $__t('मोबाइल एप फोटो', 'Mobile App Photo'); ?></label>
                             <?php if (!empty($settings['mobile_app_photo'])): ?><img src="../<?php echo htmlspecialchars($settings['mobile_app_photo'], ENT_QUOTES, 'UTF-8'); ?>" alt="App" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
-                            <input type="file" name="mobile_app_photo" class="form-control" accept="image/*">
+                            <input type="file" name="mobile_app_photo" id="stg_mobile_app_photo" class="form-control" accept="image/*">
                             <small class="stg-muted"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 400x600</small>
                         </div>
                         <div class="col-md-6 d-flex align-items-center">
@@ -959,9 +959,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             </div>
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label fw-semibold"><?php echo $__t('Default Share Image (SEO OG)', 'Default Share Image (SEO OG)'); ?></label>
+                            <label for="stg_seo_og_image" class="form-label fw-semibold"><?php echo $__t('Default Share Image (SEO OG)', 'Default Share Image (SEO OG)'); ?></label>
                             <?php if (!empty($settings['seo_og_image'])): ?><img src="../<?php echo htmlspecialchars($settings['seo_og_image'], ENT_QUOTES, 'UTF-8'); ?>" alt="OG" class="img-fluid mb-2 border rounded stg-media-preview-md"><?php endif; ?>
-                            <input type="file" name="seo_og_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+                            <input type="file" name="seo_og_image" id="stg_seo_og_image" class="form-control" accept="image/jpeg,image/png,image/webp">
                             <small class="stg-muted d-block mt-1"><?php echo $__t('अनुशंसित', 'Recommended'); ?>: 1200x630</small>
                             <?php if (!empty($settings['seo_og_image'])): ?>
                             <div class="form-check mt-2">
@@ -993,9 +993,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
 
                 <!-- Presets -->
                 <div class="mb-3">
-                    <label class="form-label fw-semibold small text-uppercase" style="letter-spacing:.05em;color:#6b7280">
+                    <div class="form-label fw-semibold small text-uppercase" style="letter-spacing:.05em;color:#6b7280">
                         <i class="fas fa-swatchbook me-1"></i><?php echo $__t('प्रिसेट', 'Presets'); ?>
-                    </label>
+                    </div>
                     <div class="d-flex flex-wrap gap-2" id="stgPresets">
                         <?php
                         $presets = [
@@ -1036,7 +1036,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     $val = htmlspecialchars($settings[$cf['key']] ?? $cf['default']);
                 ?>
                 <div class="stg-color-row mb-3" data-preview="<?php echo $cf['preview']; ?>">
-                    <label class="form-label fw-semibold small mb-1">
+                    <label for="stg-clr-<?php echo $cf['key']; ?>" class="form-label fw-semibold small mb-1">
                         <i class="<?php echo $cf['icon']; ?> me-1" style="color:<?php echo $val; ?>;" id="stg-icon-<?php echo $cf['key']; ?>"></i>
                         <?php echo $cf['label']; ?>
                     </label>
@@ -1528,18 +1528,18 @@ $all('.stg-device-btn').forEach(function(btn) {
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold"><?php echo $__t('संस्करण नम्बर', 'Version Number'); ?></label>
+                        <label for="stg_site_version" class="form-label fw-semibold"><?php echo $__t('संस्करण नम्बर', 'Version Number'); ?></label>
                         <!-- जस्तै: 1.0.0 वा 2.5.1 -->
-                        <input type="text" name="site_version" class="form-control"
+                        <input type="text" name="site_version" id="stg_site_version" class="form-control"
                                value="<?php echo htmlspecialchars($settings['site_version'] ?? '1.0.0'); ?>"
                                placeholder="e.g. 1.0.0">
                         <small class="stg-muted"><?php echo $__t('Website को संस्करण नम्बर — जस्तै: 1.0.0, 2.1.0', 'Website version number — e.g., 1.0.0, 2.1.0'); ?></small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold"><?php echo $__t('सुरु मिति (BS)', 'Launch Date (BS)'); ?></label>
+                        <label for="stg_site_launch_date" class="form-label fw-semibold"><?php echo $__t('सुरु मिति (BS)', 'Launch Date (BS)'); ?></label>
                         <!-- Website सुरु भएको मिति — BS (बि.सं.) format मा -->
                         <div class="input-group">
-                            <input type="text" name="site_launch_date"
+                            <input type="text" name="site_launch_date" id="stg_site_launch_date"
                                    class="form-control nepali-datepicker"
                                    value="<?php echo htmlspecialchars($settings['site_launch_date'] ?? ''); ?>"
                                    placeholder="YYYY-MM-DD" autocomplete="off">

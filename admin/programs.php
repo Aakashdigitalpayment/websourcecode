@@ -216,18 +216,18 @@ foreach ($rows as $_r) {
         <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="save">
         <input type="hidden" name="id" value="<?php echo (int)($edit['id'] ?? 0); ?>">
-        <div class="col-md-6"><label class="form-label">शीर्षक *</label><input required name="title" class="form-control" value="<?php echo htmlspecialchars($edit['title'] ?? ''); ?>"></div>
+        <div class="col-md-6"><label for="prog_title" class="form-label">शीर्षक *</label><input required name="title" id="prog_title" class="form-control" value="<?php echo htmlspecialchars($edit['title'] ?? ''); ?>"></div>
         <div class="col-md-3">
-          <label class="form-label">मिति (वि.सं.)</label>
+          <label for="prog_event_date" class="form-label">मिति (वि.सं.)</label>
           <div class="input-group">
-            <input type="text" name="event_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>">
+            <input type="text" name="event_date" id="prog_event_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>">
             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
           </div>
         </div>
         <div class="col-md-3">
-          <label class="form-label">समय</label>
+          <label for="prog_event_time" class="form-label">समय</label>
           <?php $eventTimeValue = trim((string)($edit['event_time'] ?? '')); $eventTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
-          <select name="event_time" class="form-select">
+          <select name="event_time" id="prog_event_time" class="form-select">
             <option value="">— समय छान्नुहोस् —</option>
             <?php foreach ($eventTimeOptions as $optVal => $optLabel): ?>
               <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $eventTimeValue === $optVal ? 'selected' : ''; ?>>
@@ -241,8 +241,8 @@ foreach ($rows as $_r) {
             <?php endif; ?>
           </select>
         </div>
-        <div class="col-md-6"><label class="form-label">स्थान</label><input name="location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
-        <div class="col-md-6"><label class="form-label">विवरण</label><input name="description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
+        <div class="col-md-6"><label for="prog_location" class="form-label">स्थान</label><input name="location" id="prog_location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
+        <div class="col-md-6"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
         <div class="col-12 d-flex flex-wrap gap-3">
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
@@ -254,29 +254,29 @@ foreach ($rows as $_r) {
           $qrEndTime = !empty($edit['qr_expires_at']) ? programMysqlDtToTime((string)$edit['qr_expires_at'], '23:59') : '23:59';
         ?>
         <div class="col-md-3">
-          <label class="form-label">QR सुरु मिति <span class="text-muted small">(वि.सं.)</span></label>
+          <label for="prog_qr_start_bs" class="form-label">QR सुरु मिति <span class="text-muted small">(वि.सं.)</span></label>
           <div class="input-group">
-            <input type="text" name="qr_starts_at_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
+            <input type="text" name="qr_starts_at_bs" id="prog_qr_start_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
                    value="<?php echo htmlspecialchars($qrStartBs); ?>">
             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
           </div>
         </div>
         <div class="col-md-3">
-          <label class="form-label">QR सुरु समय</label>
-          <input type="time" name="qr_starts_at_time" class="form-control" value="<?php echo htmlspecialchars($qrStartTime); ?>">
+          <label for="prog_qr_start_time" class="form-label">QR सुरु समय</label>
+          <input type="time" name="qr_starts_at_time" id="prog_qr_start_time" class="form-control" value="<?php echo htmlspecialchars($qrStartTime); ?>">
           <div class="form-text">खाली मिति = Generate QR गर्दा अहिलेबाट</div>
         </div>
         <div class="col-md-3">
-          <label class="form-label">QR समाप्त मिति <span class="text-muted small">(वि.सं.)</span></label>
+          <label for="prog_qr_exp_bs" class="form-label">QR समाप्त मिति <span class="text-muted small">(वि.सं.)</span></label>
           <div class="input-group">
-            <input type="text" name="qr_expires_at_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
+            <input type="text" name="qr_expires_at_bs" id="prog_qr_exp_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
                    value="<?php echo htmlspecialchars($qrEndBs); ?>">
             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
           </div>
         </div>
         <div class="col-md-3">
-          <label class="form-label">QR समाप्त समय</label>
-          <input type="time" name="qr_expires_at_time" class="form-control" value="<?php echo htmlspecialchars($qrEndTime); ?>">
+          <label for="prog_qr_exp_time" class="form-label">QR समाप्त समय</label>
+          <input type="time" name="qr_expires_at_time" id="prog_qr_exp_time" class="form-control" value="<?php echo htmlspecialchars($qrEndTime); ?>">
           <div class="form-text">खाली मिति = कार्यक्रम मिति + १ दिन</div>
         </div>
         <div class="col-12 d-flex gap-2">
@@ -421,7 +421,7 @@ foreach ($rows as $_r) {
           <img id="programQrModalImg" src="" alt="QR" width="480" height="480" class="img-fluid mx-auto d-block" style="max-width:min(92vw, 480px);width:100%;height:auto;border:1px solid #dee2e6;border-radius:12px;background:#fff;">
         </div>
         <div class="mb-2">
-          <label class="form-label small text-muted mb-0">Member Portal URL (मुख्य)</label>
+          <label for="programQrModalUrlInput" class="form-label small text-muted mb-0">Member Portal URL (मुख्य)</label>
           <div class="input-group">
             <input type="text" class="form-control font-monospace small" id="programQrModalUrlInput" readonly>
             <button class="btn btn-outline-primary" type="button" id="programQrModalCopyBtn" aria-label="Copy" title="Copy"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>
