@@ -156,8 +156,8 @@ $flash = getFlash();
         <div class="card-body py-2">
             <form method="GET" class="row g-2 align-items-end">
                 <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label form-label-sm mb-1"><?php echo $__t('प्रशासक', 'Admin'); ?></label>
-                    <select name="admin_id" class="form-select form-select-sm">
+                    <label for="audit_admin_id" class="form-label form-label-sm mb-1"><?php echo $__t('प्रशासक', 'Admin'); ?></label>
+                    <select name="admin_id" id="audit_admin_id" class="form-select form-select-sm">
                         <option value=""><?php echo $__t('सबै', 'All Admins'); ?></option>
                         <?php foreach ($admins as $a): ?>
                             <option value="<?php echo (int)$a['admin_id']; ?>"
@@ -168,8 +168,8 @@ $flash = getFlash();
                     </select>
                 </div>
                 <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label form-label-sm mb-1"><?php echo $__t('कार्य', 'Action'); ?></label>
-                    <select name="action_type" class="form-select form-select-sm">
+                    <label for="audit_action_type" class="form-label form-label-sm mb-1"><?php echo $__t('कार्य', 'Action'); ?></label>
+                    <select name="action_type" id="audit_action_type" class="form-select form-select-sm">
                         <option value=""><?php echo $__t('सबै कार्य', 'All Actions'); ?></option>
                         <?php foreach ($actionTypes as $at): ?>
                             <option value="<?php echo htmlspecialchars($at, ENT_QUOTES); ?>"
@@ -180,13 +180,13 @@ $flash = getFlash();
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
-                    <label class="form-label form-label-sm mb-1"><?php echo $__t('देखि', 'From'); ?></label>
-                    <input type="date" name="from_date" class="form-control form-control-sm"
+                    <label for="audit_from_date" class="form-label form-label-sm mb-1"><?php echo $__t('देखि', 'From'); ?></label>
+                    <input type="date" name="from_date" id="audit_from_date" class="form-control form-control-sm"
                            value="<?php echo htmlspecialchars($filterFrom, ENT_QUOTES); ?>">
                 </div>
                 <div class="col-6 col-md-2">
-                    <label class="form-label form-label-sm mb-1"><?php echo $__t('सम्म', 'To'); ?></label>
-                    <input type="date" name="to_date" class="form-control form-control-sm"
+                    <label for="audit_to_date" class="form-label form-label-sm mb-1"><?php echo $__t('सम्म', 'To'); ?></label>
+                    <input type="date" name="to_date" id="audit_to_date" class="form-control form-control-sm"
                            value="<?php echo htmlspecialchars($filterTo, ENT_QUOTES); ?>">
                 </div>
                 <div class="col-12 col-md-2 d-flex gap-1">

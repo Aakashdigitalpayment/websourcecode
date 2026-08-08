@@ -136,21 +136,21 @@ echo adminPageHeader(
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="save">
                     <input type="hidden" name="id" value="<?php echo $editRow ? (int)$editRow['id'] : 0; ?>">
-                    <div class="col-12"><label class="form-label small">पदको नाम (नेपाली) *</label>
-                        <input class="form-control" name="title_np" required value="<?php echo htmlspecialchars($editRow['title_np'] ?? ''); ?>" placeholder="अध्यक्ष, सचिव, प्रबन्धक ...">
+                    <div class="col-12"><label for="desig_title_np" class="form-label small">पदको नाम (नेपाली) *</label>
+                        <input class="form-control" name="title_np" id="desig_title_np" required value="<?php echo htmlspecialchars($editRow['title_np'] ?? ''); ?>" placeholder="अध्यक्ष, सचिव, प्रबन्धक ...">
                     </div>
-                    <div class="col-12"><label class="form-label small">Title (English)</label>
-                        <input class="form-control" name="title_en" value="<?php echo htmlspecialchars($editRow['title_en'] ?? ''); ?>" placeholder="Chairperson, Secretary ...">
+                    <div class="col-12"><label for="desig_title_en" class="form-label small">Title (English)</label>
+                        <input class="form-control" name="title_en" id="desig_title_en" value="<?php echo htmlspecialchars($editRow['title_en'] ?? ''); ?>" placeholder="Chairperson, Secretary ...">
                     </div>
-                    <div class="col-7"><label class="form-label small">वर्ग *</label>
-                        <select class="form-select" name="category">
+                    <div class="col-7"><label for="desig_category" class="form-label small">वर्ग *</label>
+                        <select class="form-select" name="category" id="desig_category">
                             <?php foreach ($cats as $k => $lbl): ?>
                                 <option value="<?php echo $k; ?>" <?php echo (($editRow['category'] ?? 'committee') === $k) ? 'selected' : ''; ?>><?php echo htmlspecialchars($lbl); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-5"><label class="form-label small">क्रम</label>
-                        <input type="number" class="form-control" name="display_order" value="<?php echo (int)($editRow['display_order'] ?? 0); ?>">
+                    <div class="col-5"><label for="desig_order" class="form-label small">क्रम</label>
+                        <input type="number" class="form-control" name="display_order" id="desig_order" value="<?php echo (int)($editRow['display_order'] ?? 0); ?>">
                     </div>
                     <div class="col-12">
                         <div class="form-check form-switch">

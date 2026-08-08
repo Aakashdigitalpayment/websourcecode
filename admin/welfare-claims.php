@@ -390,8 +390,8 @@ if (!$claim) {
                             <input type="hidden" name="claim_id" value="<?php echo $claim['id']; ?>">
 
                             <div class="mb-3">
-                                <label class="form-label">स्थिति</label>
-                                <select name="status" class="form-select" required>
+                                <label for="wc_status" class="form-label">स्थिति</label>
+                                <select name="status" id="wc_status" class="form-select" required>
                                     <?php foreach ($statusLabels as $key => $label): ?>
                                     <option value="<?php echo $key; ?>" <?php echo $claim['status'] === $key ? 'selected' : ''; ?>>
                                         <?php echo $label['np']; ?>
@@ -401,13 +401,13 @@ if (!$claim) {
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">स्वीकृत रकम (रू.)</label>
-                                <input type="number" name="approved_amount" class="form-control" step="0.01" value="<?php echo $claim['approved_amount'] ?: $claim['claim_amount']; ?>">
+                                <label for="wc_approved_amount" class="form-label">स्वीकृत रकम (रू.)</label>
+                                <input type="number" name="approved_amount" id="wc_approved_amount" class="form-control" step="0.01" value="<?php echo $claim['approved_amount'] ?: $claim['claim_amount']; ?>">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">टिप्पणी/कारण</label>
-                                <textarea name="admin_remarks" class="form-control" rows="3"><?php echo e($claim['admin_remarks']); ?></textarea>
+                                <label for="wc_admin_remarks" class="form-label">टिप्पणी/कारण</label>
+                                <textarea name="admin_remarks" id="wc_admin_remarks" class="form-control" rows="3"><?php echo e($claim['admin_remarks']); ?></textarea>
                             </div>
 
                             <?php $hasEmail = !empty($claim['email']); $hasPhone = !empty($claim['phone']); ?>

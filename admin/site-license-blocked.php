@@ -220,25 +220,25 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
                 <input type="hidden" name="action" value="submit_renewal_notice_blocked">
                 <?php echo csrfField(); ?>
                 <div class="mb-2">
-                    <label class="form-label small fw-semibold">संस्थाको नाम (साइट सेटिङबाट स्वतः)</label>
+                    <label for="slb_submitter_name" class="form-label small fw-semibold">संस्थाको नाम (साइट सेटिङबाट स्वतः)</label>
                     <div class="form-control form-control-sm" style="background:#f3f4f6;cursor:default;"><?php echo htmlspecialchars($blockedSubmitterDefault !== '' ? $blockedSubmitterDefault : 'सहकारी', ENT_QUOTES, 'UTF-8'); ?></div>
-                    <input type="hidden" name="submitter_name" value="<?php echo htmlspecialchars($blockedSubmitterDefault !== '' ? $blockedSubmitterDefault : 'सहकारी', ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="submitter_name" id="slb_submitter_name" value="<?php echo htmlspecialchars($blockedSubmitterDefault !== '' ? $blockedSubmitterDefault : 'सहकारी', ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label small fw-semibold">गेटवेइ</label>
-                    <select name="gateway" class="form-select form-select-sm" required>
+                    <label for="slb_gateway" class="form-label small fw-semibold">गेटवेइ</label>
+                    <select name="gateway" id="slb_gateway" class="form-select form-select-sm" required>
                         <option value="khalti">Khalti</option>
                         <option value="esewa" selected>eSewa</option>
                         <option value="other">अन्य</option>
                     </select>
                 </div>
                 <div class="mb-2">
-                    <label class="form-label small fw-semibold">कारोबार नम्बर / Ref <span class="text-danger">*</span></label>
-                    <input type="text" name="txn_reference" class="form-control form-control-sm" required minlength="3" maxlength="180" placeholder="wallet ref" autocomplete="off">
+                    <label for="slb_txn_reference" class="form-label small fw-semibold">कारोबार नम्बर / Ref <span class="text-danger">*</span></label>
+                    <input type="text" name="txn_reference" id="slb_txn_reference" class="form-control form-control-sm" required minlength="3" maxlength="180" placeholder="wallet ref" autocomplete="off">
                 </div>
                 <div class="mb-2">
-                    <label class="form-label small fw-semibold">टिप्पणी</label>
-                    <textarea name="renewal_note" class="form-control form-control-sm" rows="2" maxlength="2000" placeholder="ऐच्छिक"></textarea>
+                    <label for="slb_renewal_note" class="form-label small fw-semibold">टिप्पणी</label>
+                    <textarea name="renewal_note" id="slb_renewal_note" class="form-control form-control-sm" rows="2" maxlength="2000" placeholder="ऐच्छिक"></textarea>
                 </div>
                 <button type="submit" class="btn btn-success w-100"><i class="fas fa-paper-plane me-1"></i>Pay SSL certificates तथा domain active Charge now</button>
             </form>

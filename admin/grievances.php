@@ -474,10 +474,10 @@ if ($viewGrv):
 
                             <!-- Status -->
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="grv_status" class="form-label fw-semibold">
                                     <i class="fas fa-circle-dot me-1"></i>अवस्था (Status)
                                 </label>
-                                <select name="status" class="form-select">
+                                <select name="status" id="grv_status" class="form-select">
                                     <?php foreach ($statusLabel as $v => $l): ?>
                                     <option value="<?php echo $v; ?>" <?php echo $viewGrv['status']===$v?'selected':''; ?>>
                                         <?php echo $l; ?>
@@ -488,11 +488,11 @@ if ($viewGrv):
 
                             <!-- Admin Response — member ले tracker मा देख्छ -->
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="grv_admin_response" class="form-label fw-semibold">
                                     <i class="fas fa-reply me-1 text-success"></i>Admin प्रतिक्रिया
                                     <span class="text-muted fw-normal small">— Member ले Application Tracker मा देख्छ</span>
                                 </label>
-                                <textarea name="admin_response" class="form-control" rows="3"
+                                <textarea name="admin_response" id="grv_admin_response" class="form-control" rows="3"
                                     placeholder="सदस्यलाई प्रतिक्रिया लेख्नुहोस्..."
                                 ><?php echo htmlspecialchars($viewGrv['admin_response'] ?? ''); ?></textarea>
                             </div>
@@ -511,23 +511,23 @@ if ($viewGrv):
 
                             <!-- Admin Internal Note — member देख्दैन -->
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="grv_admin_note" class="form-label fw-semibold">
                                     <i class="fas fa-sticky-note me-1 grv-note-icon"></i>
                                     Admin आन्तरिक टिप्पणी (Note)
                                     <span class="text-muted fw-normal small">— Member ले देख्दैन</span>
                                 </label>
-                                <textarea name="admin_note" class="form-control grv-note-textarea" rows="3"
+                                <textarea name="admin_note" id="grv_admin_note" class="form-control grv-note-textarea" rows="3"
                                     placeholder="Admin को internal note — member देख्दैन..."
                                 ><?php echo htmlspecialchars($viewGrv['admin_note'] ?? ''); ?></textarea>
                             </div>
 
                             <!-- Document Upload -->
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">
+                                <label for="grv_admin_attachment" class="form-label fw-semibold">
                                     <i class="fas fa-paperclip me-1 text-primary"></i>Document संलग्न गर्नुहोस्
                                     <span class="text-muted fw-normal small">— PDF, Word, Image (max 5MB)</span>
                                 </label>
-                                <input type="file" name="admin_attachment" class="form-control"
+                                <input type="file" name="admin_attachment" id="grv_admin_attachment" class="form-control"
                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
                                 <?php if (!empty($viewGrv['admin_attachment'])): ?>
                                 <div class="form-text text-primary">

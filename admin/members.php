@@ -1224,12 +1224,12 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 
                 <div class="row g-3">
                     <div class="col-md-7">
-                        <label class="form-label fw-semibold"><i class="fas fa-heading me-1 text-success"></i>शीर्षक <span class="text-danger">*</span></label>
-                        <input type="text" name="notif_title" class="form-control" required maxlength="200" placeholder="Notification शीर्षक (e.g. आजको कार्यक्रमको सूचना)">
+                        <label for="mem_bc_notif_title" class="form-label fw-semibold"><i class="fas fa-heading me-1 text-success"></i>शीर्षक <span class="text-danger">*</span></label>
+                        <input type="text" name="notif_title" id="mem_bc_notif_title" class="form-control" required maxlength="200" placeholder="Notification शीर्षक (e.g. आजको कार्यक्रमको सूचना)">
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label fw-semibold"><i class="fas fa-tag me-1 text-success"></i>प्रकार</label>
-                        <select name="notif_type" class="form-select">
+                        <label for="mem_bc_notif_type" class="form-label fw-semibold"><i class="fas fa-tag me-1 text-success"></i>प्रकार</label>
+                        <select name="notif_type" id="mem_bc_notif_type" class="form-select">
                             <option value="info">📘 सूचना (Info)</option>
                             <option value="success">✅ सफलता (Success)</option>
                             <option value="warning">⚠️ सतर्कता (Warning)</option>
@@ -1237,12 +1237,12 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold"><i class="fas fa-comment me-1 text-success"></i>विस्तृत सन्देश</label>
-                        <textarea name="notif_message" class="form-control" rows="4" maxlength="2000" placeholder="विस्तृत सन्देश यहाँ लेख्नुहोस्…"></textarea>
+                        <label for="mem_bc_notif_message" class="form-label fw-semibold"><i class="fas fa-comment me-1 text-success"></i>विस्तृत सन्देश</label>
+                        <textarea name="notif_message" id="mem_bc_notif_message" class="form-control" rows="4" maxlength="2000" placeholder="विस्तृत सन्देश यहाँ लेख्नुहोस्…"></textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" aria-hidden="true" data-lucide="users"></i>कसलाई पठाउने (Audience)</label>
-                        <select name="notif_audience" class="form-select">
+                        <label for="mem_notif_audience" class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" aria-hidden="true" data-lucide="users"></i>कसलाई पठाउने (Audience)</label>
+                        <select name="notif_audience" id="mem_notif_audience" class="form-select">
                             <option value="active" selected>✅ सक्रिय + अनुमोदित सदस्य मात्र (recommended)</option>
                             <option value="all_active">🌐 सबै सक्रिय (अनुमोदन-स्थिति नहेरी)</option>
                             <option value="kyc_linked">🔗 KYC-Linked सक्रिय सदस्य मात्र</option>

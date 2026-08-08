@@ -250,20 +250,20 @@ echo adminPageHeader('Member Activities Search', 'fa-magnifying-glass-chart', '�
                 <div class="card-body">
                     <form method="GET" class="row g-2 align-items-end">
                         <div class="col-lg-4">
-                            <label class="form-label fw-semibold">Member Search</label>
-                            <input type="text" name="q" class="form-control" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Member ID / फोन / इमेल / सदस्यता नं / Card नं">
+                            <label for="ma_q" class="form-label fw-semibold">Member Search</label>
+                            <input type="text" name="q" id="ma_q" class="form-control" value="<?php echo htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Member ID / फोन / इमेल / सदस्यता नं / Card नं">
                         </div>
                         <div class="col-lg-2">
-                            <label class="form-label fw-semibold">From</label>
-                            <input type="date" name="from" class="form-control" value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ma_from" class="form-label fw-semibold">From</label>
+                            <input type="date" name="from" id="ma_from" class="form-control" value="<?php echo htmlspecialchars($dateFrom, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-lg-2">
-                            <label class="form-label fw-semibold">To</label>
-                            <input type="date" name="to" class="form-control" value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ma_to" class="form-label fw-semibold">To</label>
+                            <input type="date" name="to" id="ma_to" class="form-control" value="<?php echo htmlspecialchars($dateTo, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-lg-2">
-                            <label class="form-label fw-semibold">View</label>
-                            <select name="view" class="form-select">
+                            <label for="ma_view" class="form-label fw-semibold">View</label>
+                            <select name="view" id="ma_view" class="form-select">
                                 <option value="tables" <?php echo $viewMode === 'tables' ? 'selected' : ''; ?>>Tables</option>
                                 <option value="timeline" <?php echo $viewMode === 'timeline' ? 'selected' : ''; ?>>Timeline</option>
                             </select>
