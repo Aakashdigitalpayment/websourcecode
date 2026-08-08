@@ -75,6 +75,14 @@ if (!$me) {
         $me = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     } catch (Throwable $e) {}
 }
+if (is_array($me)) {
+    if (function_exists('memberStripAuthSecrets')) {
+        $me = memberStripAuthSecrets($me);
+    } else {
+        unset($me['twofa_secret'], $me['twofa_backup_codes']);
+    }
+    unset($me['password_hash']);
+}
 
 /* Step 1.5: KYC-linked details override (name/mobile/email/address/photo consistency) */
 $kycRow = null;

@@ -418,7 +418,42 @@ function currentMember() {
     if (!$db) return null;
     $st = $db->prepare("SELECT * FROM members WHERE id=? AND is_active=1 AND approval_status='approved'");
     $st->execute([$_SESSION['member_id']]);
-    return $st->fetch(PDO::FETCH_ASSOC);
+    $row = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+    /* Never keep 2FA secrets in request-scoped member blob (profile/list pages) */
+    if (is_array($row)) {
+        unset($row['twofa_secret'], $row['twofa_backup_codes']);
+    }
+    return $row;
+}
+
+/**
+ * Safe members column list for UI/list (no password_hash / 2FA secrets).
+ * has_password = 1|0 for Email-login badge without exposing the hash.
+ */
+if (!function_exists('memberSafeListSelectSql')) {
+    function memberSafeListSelectSql(): string
+    {
+        return "id, name, email, phone, sadasyata_number, avatar_url, google_id, facebook_id, "
+            . "kyc_application_id, is_active, approval_status, created_at, member_card_no, address, dob, gender, "
+            . "card_expires_at, id_card_generated, "
+            . "CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password";
+    }
+}
+
+/**
+ * Strip auth secrets from a members row before rendering / logging.
+ * @param array<string,mixed>|null $row
+ * @return array<string,mixed>|null
+ */
+if (!function_exists('memberStripAuthSecrets')) {
+    function memberStripAuthSecrets(?array $row): ?array
+    {
+        if ($row === null) {
+            return null;
+        }
+        unset($row['twofa_secret'], $row['twofa_backup_codes']);
+        return $row;
+    }
 }
 
 function requireMemberLogin($redirectBack = true) {

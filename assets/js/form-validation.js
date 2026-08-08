@@ -203,6 +203,22 @@
                 }
                 return false;
             }
+
+            /* Valid submit — prevent double-click / double POST */
+            if (form.getAttribute('data-submitting') === '1') {
+                e.preventDefault();
+                return false;
+            }
+            form.setAttribute('data-submitting', '1');
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (btn) {
+                if (btn.disabled) return;
+                btn.disabled = true;
+                btn.setAttribute('aria-busy', 'true');
+                if (btn.tagName === 'BUTTON' && !btn.dataset.origLabel) {
+                    btn.dataset.origLabel = btn.innerHTML;
+                    btn.innerHTML = (document.documentElement.lang === 'en') ? 'Saving…' : 'सुरक्षित गर्दैछ…';
+                }
+            });
         });
     });
 

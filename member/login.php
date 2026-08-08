@@ -560,8 +560,8 @@ body {
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i> Google Authenticator code वा backup code राख्नुहोस्।</div>
             <?php endif; ?>
             <div class="field">
-                <label>2FA Code</label>
-                <input type="text" name="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
+                <label for="twofa_code">2FA Code</label>
+                <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
             </div>
             <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php if (!empty($_SESSION['member_2fa_backup_plain']) && is_array($_SESSION['member_2fa_backup_plain'])): ?>
@@ -588,13 +588,13 @@ body {
             <input type="hidden" name="csrf_token" value="<?php echo $csrf; ?>">
             <input type="hidden" name="do_login" value="1">
             <div class="field">
-                <label><?php echo $_t('इमेल वा सदस्यता नम्बर', 'Email or Member Number'); ?></label>
-                <input type="text" name="login_id" placeholder="<?php echo $_t('email@example.com वा १२३४५', 'email@example.com or 12345'); ?>" required autofocus>
+                <label for="login_id"><?php echo $_t('इमेल वा सदस्यता नम्बर', 'Email or Member Number'); ?></label>
+                <input type="text" name="login_id" id="login_id" placeholder="<?php echo $_t('email@example.com वा १२३४५', 'email@example.com or 12345'); ?>" required autofocus autocomplete="username">
             </div>
             <div class="field">
-                <label><?php echo $_t('पासवर्ड', 'Password'); ?></label>
+                <label for="loginPw"><?php echo $_t('पासवर्ड', 'Password'); ?></label>
                 <div class="pw-wrap">
-                    <input type="password" name="password" id="loginPw" placeholder="••••••••" required>
+                    <input type="password" name="password" id="loginPw" placeholder="••••••••" required autocomplete="current-password">
                     <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)" aria-label="Show password" aria-pressed="false" title="Show password"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
                 </div>
             </div>
@@ -625,18 +625,18 @@ body {
             <input type="hidden" name="csrf_token" value="<?php echo $csrf; ?>">
             <input type="hidden" name="do_register" value="1">
             <div class="field">
-                <label><?php echo $_t('सदस्यता नम्बर', 'Member Number'); ?> <span class="req-star">*</span></label>
+                <label for="regSadasyata"><?php echo $_t('सदस्यता नम्बर', 'Member Number'); ?> <span class="req-star">*</span></label>
                 <input type="text" name="sadasyata_number" id="regSadasyata" placeholder="<?php echo $_t('जस्तै: १२३४', 'e.g. 1234'); ?>" required>
                 <div class="field-feedback" id="fbSadasyata"></div>
             </div>
             <div class="field">
-                <label><?php echo $_t('इमेल', 'Email'); ?> <span class="req-star">*</span></label>
-                <input type="email" name="email" id="regEmail" placeholder="email@example.com" required>
+                <label for="regEmail"><?php echo $_t('इमेल', 'Email'); ?> <span class="req-star">*</span></label>
+                <input type="email" name="email" id="regEmail" placeholder="email@example.com" required autocomplete="email">
                 <div class="field-feedback" id="fbEmail"></div>
             </div>
             <div class="field">
-                <label><?php echo $_t('मोबाइल नम्बर', 'Mobile Number'); ?> <span class="req-star">*</span></label>
-                <input type="tel" name="phone" id="regPhone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" maxlength="10" required>
+                <label for="regPhone"><?php echo $_t('मोबाइल नम्बर', 'Mobile Number'); ?> <span class="req-star">*</span></label>
+                <input type="tel" name="phone" id="regPhone" placeholder="98XXXXXXXX" pattern="[0-9]{10}" maxlength="10" required autocomplete="tel">
                 <div class="field-feedback" id="fbPhone"></div>
             </div>
             <div class="alert alert-info kyc-note">
@@ -644,9 +644,9 @@ body {
                 नाम KYM बाट स्वतः लिइन्छ। सदस्यता नम्बर + इमेल + मोबाइल KYC सँग मिल्नुपर्छ।
             </div>
             <div class="field">
-                <label><?php echo $_t('पासवर्ड', 'Password'); ?> <span class="req-star">*</span></label>
+                <label for="regPw"><?php echo $_t('पासवर्ड', 'Password'); ?> <span class="req-star">*</span></label>
                 <div class="pw-wrap">
-                    <input type="password" name="password" id="regPw" placeholder="<?php echo $_t('८+ अक्षर, A-Z, a-z, 0-9 सहित', '8+ chars with A-Z, a-z, 0-9'); ?>" required minlength="8">
+                    <input type="password" name="password" id="regPw" placeholder="<?php echo $_t('८+ अक्षर, A-Z, a-z, 0-9 सहित', '8+ chars with A-Z, a-z, 0-9'); ?>" required minlength="8" autocomplete="new-password">
                     <button type="button" class="pw-toggle" onclick="togglePw('regPw',this)" aria-label="Show password" aria-pressed="false" title="Show password"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
                 </div>
                 <div class="pw-strength" id="pwStrength"></div>
@@ -658,8 +658,8 @@ body {
                 </ul>
             </div>
             <div class="field">
-                <label><?php echo $_t('पासवर्ड पुनः', 'Confirm Password'); ?> <span class="req-star">*</span></label>
-                <input type="password" name="confirm" id="regConfirm" placeholder="<?php echo $_t('माथिको जस्तै', 'Same as above'); ?>" required>
+                <label for="regConfirm"><?php echo $_t('पासवर्ड पुनः', 'Confirm Password'); ?> <span class="req-star">*</span></label>
+                <input type="password" name="confirm" id="regConfirm" placeholder="<?php echo $_t('माथिको जस्तै', 'Same as above'); ?>" required autocomplete="new-password">
                 <div class="field-feedback" id="fbConfirm"></div>
             </div>
             <button type="submit" class="submit-btn" id="regSubmitBtn">
