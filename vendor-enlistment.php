@@ -156,41 +156,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php echo csrfField(); ?>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Company/Firm Name' : 'कम्पनी/फर्मको नाम'; ?> <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="company_name" required>
+                                <label for="vendor_company_name" class="form-label"><?php echo isEnglish() ? 'Company/Firm Name' : 'कम्पनी/फर्मको नाम'; ?> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="company_name" id="vendor_company_name" required autocomplete="organization">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Owner/Proprietor Name' : 'मालिक/प्रोप्राइटरको नाम'; ?> <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="owner_name" required>
+                                <label for="vendor_owner_name" class="form-label"><?php echo isEnglish() ? 'Owner/Proprietor Name' : 'मालिक/प्रोप्राइटरको नाम'; ?> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="owner_name" id="vendor_owner_name" required autocomplete="name">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="address" required>
+                                <label for="vendor_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="address" id="vendor_address" required autocomplete="street-address">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="text-danger">*</span></label>
-                                <input type="tel" class="form-control" name="phone" required>
+                                <label for="vendor_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="text-danger">*</span></label>
+                                <input type="tel" class="form-control" name="phone" id="vendor_phone" required autocomplete="tel">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?></label>
-                                <input type="email" class="form-control" name="email">
+                                <label for="vendor_email" class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?></label>
+                                <input type="email" class="form-control" name="email" id="vendor_email" autocomplete="email">
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'PAN/VAT Number' : 'प्यान/भ्याट नम्बर'; ?> <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="pan_no" required>
+                                <label for="vendor_pan_no" class="form-label"><?php echo isEnglish() ? 'PAN/VAT Number' : 'प्यान/भ्याट नम्बर'; ?> <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="pan_no" id="vendor_pan_no" required autocomplete="off">
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Business Type' : 'व्यवसायको प्रकार'; ?> <span class="text-danger">*</span></label>
-                                <select class="form-select" name="business_type" required>
+                                <label for="vendor_business_type" class="form-label"><?php echo isEnglish() ? 'Business Type' : 'व्यवसायको प्रकार'; ?> <span class="text-danger">*</span></label>
+                                <select class="form-select" name="business_type" id="vendor_business_type" required>
                                     <option value=""><?php echo isEnglish() ? 'Select...' : 'छान्नुहोस्...'; ?></option>
                                     <option value="stationery"><?php echo isEnglish() ? 'Stationery & Office Supplies' : 'स्टेशनरी र कार्यालय सामग्री'; ?></option>
                                     <option value="electronics"><?php echo isEnglish() ? 'Electronics & IT Equipment' : 'इलेक्ट्रोनिक्स र IT उपकरण'; ?></option>
@@ -205,8 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label"><?php echo isEnglish() ? 'Description of Goods/Services' : 'सामान/सेवाहरूको विवरण'; ?></label>
-                            <textarea class="form-control" name="description" rows="4" placeholder="<?php echo isEnglish() ? 'Describe the goods or services you can provide...' : 'तपाईंले प्रदान गर्न सक्ने सामान वा सेवाहरूको विवरण दिनुहोस्...'; ?>"></textarea>
+                            <label for="vendor_description" class="form-label"><?php echo isEnglish() ? 'Description of Goods/Services' : 'सामान/सेवाहरूको विवरण'; ?></label>
+                            <textarea class="form-control" name="description" id="vendor_description" rows="4" placeholder="<?php echo isEnglish() ? 'Describe the goods or services you can provide...' : 'तपाईंले प्रदान गर्न सक्ने सामान वा सेवाहरूको विवरण दिनुहोस्...'; ?>"></textarea>
                         </div>
 
                         <div class="form-check mb-4">

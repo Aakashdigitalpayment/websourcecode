@@ -241,7 +241,7 @@ foreach ($openPrograms as $op) {
 
                             <?php if (count($openPrograms) > 1): ?>
                             <div class="mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Program' : 'कार्यक्रम'; ?> *</label>
+                                <label for="honorProgramSelect" class="form-label"><?php echo isEnglish() ? 'Program' : 'कार्यक्रम'; ?> *</label>
                                 <select name="program_id" id="honorProgramSelect" class="form-select" required>
                                     <?php foreach ($openPrograms as $op): ?>
                                     <option value="<?php echo (int)$op['id']; ?>" <?php echo $selectedProgramId === (int)$op['id'] ? 'selected' : ''; ?>>
@@ -255,7 +255,7 @@ foreach ($openPrograms as $op) {
                             <?php endif; ?>
 
                             <div class="mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Honor category' : 'सम्मान कोटि'; ?> *</label>
+                                <label for="honorCategorySelect" class="form-label"><?php echo isEnglish() ? 'Honor category' : 'सम्मान कोटि'; ?> *</label>
                                 <select name="category_id" id="honorCategorySelect" class="form-select" required>
                                     <option value=""><?php echo isEnglish() ? 'Select…' : 'छान्नुहोस्…'; ?></option>
                                     <?php foreach ($programCats as $c): ?>
@@ -284,44 +284,49 @@ foreach ($openPrograms as $op) {
 
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Applicant name' : 'आवेदकको नाम'; ?> *</label>
-                                    <input type="text" name="applicant_name" class="form-control" required maxlength="160"
+                                    <label for="honor_applicant_name" class="form-label"><?php echo isEnglish() ? 'Applicant name' : 'आवेदकको नाम'; ?> *</label>
+                                    <input type="text" name="applicant_name" id="honor_applicant_name" class="form-control" required maxlength="160"
                                            value="<?php echo htmlspecialchars((string)($_POST['applicant_name'] ?? ($loggedMember['name'] ?? ''))); ?>"
+                                           autocomplete="name"
                                            <?php echo $loggedMember ? 'readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6 honor-member-field" style="<?php echo ((!$loggedMember) && (($_POST['is_coop_member'] ?? 'no') !== 'yes')) ? 'display:none' : ''; ?>">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member number' : 'सदस्य नम्बर'; ?> *</label>
-                                    <input type="text" name="member_id" class="form-control" maxlength="50"
+                                    <label for="honor_member_id" class="form-label"><?php echo isEnglish() ? 'Member number' : 'सदस्य नम्बर'; ?> *</label>
+                                    <input type="text" name="member_id" id="honor_member_id" class="form-control" maxlength="50"
                                            value="<?php echo htmlspecialchars((string)($_POST['member_id'] ?? ($loggedMember['sadasyata_number'] ?? ''))); ?>"
+                                           autocomplete="off"
                                            <?php echo $loggedMember ? 'readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> *</label>
-                                    <input type="tel" name="phone" class="form-control" required maxlength="20"
+                                    <label for="honor_phone" class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन'; ?> *</label>
+                                    <input type="tel" name="phone" id="honor_phone" class="form-control" required maxlength="20"
                                            value="<?php echo htmlspecialchars((string)($_POST['phone'] ?? ($loggedMember['phone'] ?? ''))); ?>"
+                                           autocomplete="tel"
                                            <?php echo $loggedMember ? 'readonly' : ''; ?>>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
-                                    <input type="email" name="email" class="form-control" maxlength="120"
-                                           value="<?php echo htmlspecialchars((string)($_POST['email'] ?? ($loggedMember['email'] ?? ''))); ?>">
+                                    <label for="honor_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?></label>
+                                    <input type="email" name="email" id="honor_email" class="form-control" maxlength="120"
+                                           value="<?php echo htmlspecialchars((string)($_POST['email'] ?? ($loggedMember['email'] ?? ''))); ?>"
+                                           autocomplete="email">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
-                                    <input type="text" name="address" class="form-control" maxlength="255"
-                                           value="<?php echo htmlspecialchars((string)($_POST['address'] ?? '')); ?>">
+                                    <label for="honor_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
+                                    <input type="text" name="address" id="honor_address" class="form-control" maxlength="255"
+                                           value="<?php echo htmlspecialchars((string)($_POST['address'] ?? '')); ?>"
+                                           autocomplete="street-address">
                                 </div>
                             </div>
 
                             <div id="honorNomineeBlock" class="row g-3 mt-1">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Nominee name (child / person)' : 'नामांकित नाम (छोरा/छोरी/व्यक्ति)'; ?></label>
-                                    <input type="text" name="nominee_name" class="form-control" maxlength="160"
+                                    <label for="honor_nominee_name" class="form-label"><?php echo isEnglish() ? 'Nominee name (child / person)' : 'नामांकित नाम (छोरा/छोरी/व्यक्ति)'; ?></label>
+                                    <input type="text" name="nominee_name" id="honor_nominee_name" class="form-control" maxlength="160"
                                            value="<?php echo htmlspecialchars((string)($_POST['nominee_name'] ?? '')); ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
-                                    <select name="nominee_relation" class="form-select">
+                                    <label for="honor_nominee_relation" class="form-label"><?php echo isEnglish() ? 'Relation' : 'नाता'; ?></label>
+                                    <select name="nominee_relation" id="honor_nominee_relation" class="form-select">
                                         <?php
                                         $rels = isEnglish()
                                             ? ['' => 'Select…', 'छोरा' => 'Son', 'छोरी' => 'Daughter', 'आफैं' => 'Self', 'अन्य' => 'Other']
@@ -334,31 +339,31 @@ foreach ($openPrograms as $op) {
                                     </select>
                                 </div>
                                 <div class="col-md-6 honor-edu-fields">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Pass / exam year' : 'पास / परीक्षा वर्ष'; ?></label>
-                                    <input type="text" name="exam_year" class="form-control" maxlength="40"
+                                    <label for="honor_exam_year" class="form-label"><?php echo isEnglish() ? 'Pass / exam year' : 'पास / परीक्षा वर्ष'; ?></label>
+                                    <input type="text" name="exam_year" id="honor_exam_year" class="form-control" maxlength="40"
                                            value="<?php echo htmlspecialchars((string)($_POST['exam_year'] ?? '')); ?>">
                                 </div>
                                 <div class="col-md-6 honor-edu-fields">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Institution / college' : 'विद्यालय / क्याम्पस'; ?></label>
-                                    <input type="text" name="institution" class="form-control" maxlength="200"
+                                    <label for="honor_institution" class="form-label"><?php echo isEnglish() ? 'Institution / college' : 'विद्यालय / क्याम्पस'; ?></label>
+                                    <input type="text" name="institution" id="honor_institution" class="form-control" maxlength="200"
                                            value="<?php echo htmlspecialchars((string)($_POST['institution'] ?? '')); ?>">
                                 </div>
                             </div>
 
                             <div class="mb-3 mt-3 honor-business-fields" style="display:none">
-                                <label class="form-label"><?php echo isEnglish() ? 'Account / product note (optional)' : 'खाता / उत्पादन नोट (ऐच्छिक)'; ?></label>
-                                <input type="text" name="business_note" class="form-control" maxlength="255"
+                                <label for="honor_business_note" class="form-label"><?php echo isEnglish() ? 'Account / product note (optional)' : 'खाता / उत्पादन नोट (ऐच्छिक)'; ?></label>
+                                <input type="text" name="business_note" id="honor_business_note" class="form-control" maxlength="255"
                                        value="<?php echo htmlspecialchars((string)($_POST['business_note'] ?? '')); ?>">
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Brief statement' : 'संक्षिप्त विवरण'; ?></label>
-                                <textarea name="description" class="form-control" rows="4" maxlength="4000"><?php echo htmlspecialchars((string)($_POST['description'] ?? '')); ?></textarea>
+                                <label for="honor_description" class="form-label"><?php echo isEnglish() ? 'Brief statement' : 'संक्षिप्त विवरण'; ?></label>
+                                <textarea name="description" id="honor_description" class="form-control" rows="4" maxlength="4000"><?php echo htmlspecialchars((string)($_POST['description'] ?? '')); ?></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label"><?php echo isEnglish() ? 'Supporting document' : 'प्रमाण कागजात'; ?> <span id="honorDocReq" class="text-danger" style="display:none">*</span></label>
-                                <input type="file" name="attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp">
+                                <label for="honor_attachment" class="form-label"><?php echo isEnglish() ? 'Supporting document' : 'प्रमाण कागजात'; ?> <span id="honorDocReq" class="text-danger" style="display:none">*</span></label>
+                                <input type="file" name="attachment" id="honor_attachment" class="form-control" accept=".jpg,.jpeg,.png,.pdf,.webp">
                                 <div class="form-text"><?php echo isEnglish() ? 'PDF or image, max as per site upload limit.' : 'PDF वा फोटो।'; ?></div>
                             </div>
 
