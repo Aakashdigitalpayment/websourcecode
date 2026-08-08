@@ -378,8 +378,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <?php else: ?>
                         <div class="border rounded-3 p-3 mb-3 bg-light">
-                            <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
-                            <div class="d-flex flex-wrap gap-3">
+                            <label id="wlf_coop_member_label" class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
+                            <div class="d-flex flex-wrap gap-3" role="group" aria-labelledby="wlf_coop_member_label">
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-wlf-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-wlf-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (KYC triple)' : 'हो (KYC तीन विवरण)'; ?></label>
                             </div>

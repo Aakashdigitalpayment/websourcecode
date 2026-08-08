@@ -363,12 +363,12 @@ function htmlEsc(s) {
                           foreach ($textInputs as $inp):
                           ?>
                           <div class="col-md-6 col-xl-4">
-                              <label class="form-label fw-semibold small text-muted mb-1">
+                              <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_1">
                                   <i class="fas <?php echo $inp['icon']; ?> me-1"></i><?php echo $inp['label']; ?>
                                   <code class="ms-1 text-muted" style="font-size:.7rem;">type="<?php echo $inp['type']; ?>"</code>
                               </label>
                               <?php if ($inp['type'] === 'range'): ?>
-                                  <input type="range" class="form-range" min="0" max="100" value="40">
+                                  <input type="range" class="form-range" min="0" max="100" value="40" id="sh_field_1">
                                   <div class="d-flex justify-content-between"><small class="text-muted">0</small><small class="text-muted">100</small></div>
                               <?php elseif ($inp['type'] === 'file'): ?>
                                   <input type="file" class="form-control form-control-sm">
@@ -387,8 +387,8 @@ function htmlEsc(s) {
                       <div class="fp-section-label">Selects &amp; Dropdowns</div>
                       <div class="row g-4">
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Single Select <code class="text-muted" style="font-size:.7rem;">form-select</code></label>
-                              <select class="form-select form-select-sm">
+                              <label class="form-label fw-semibold small" for="sh_field_2">Single Select <code class="text-muted" style="font-size:.7rem;">form-select</code></label>
+                              <select class="form-select form-select-sm" id="sh_field_2">
                                   <option value="">— छान्नुहोस् —</option>
                                   <option>बचत खाता</option>
                                   <option>ऋण खाता</option>
@@ -396,30 +396,30 @@ function htmlEsc(s) {
                               </select>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Large Select <code class="text-muted" style="font-size:.7rem;">form-select-lg</code></label>
-                              <select class="form-select form-select-lg">
+                              <label class="form-label fw-semibold small" for="sh_field_3">Large Select <code class="text-muted" style="font-size:.7rem;">form-select-lg</code></label>
+                              <select class="form-select form-select-lg" id="sh_field_3">
                                   <option value="">— छान्नुहोस् —</option>
                                   <option>सदस्य खाता</option>
                                   <option>संस्थागत खाता</option>
                               </select>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Disabled Select</label>
-                              <select class="form-select form-select-sm" disabled>
+                              <label class="form-label fw-semibold small" for="sh_field_4">Disabled Select</label>
+                              <select class="form-select form-select-sm" disabled id="sh_field_4">
                                   <option>Disabled विकल्प</option>
                               </select>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Invalid Select</label>
-                              <select class="form-select form-select-sm is-invalid">
+                              <label class="form-label fw-semibold small" for="sh_field_5">Invalid Select</label>
+                              <select class="form-select form-select-sm is-invalid" id="sh_field_5">
                                   <option value="">— कृपया छान्नुहोस् —</option>
                                   <option>विकल्प १</option>
                               </select>
                               <div class="invalid-feedback">यो field आवश्यक छ।</div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Multiple Select</label>
-                              <select class="form-select form-select-sm" multiple size="4">
+                              <label class="form-label fw-semibold small" for="sh_field_6">Multiple Select</label>
+                              <select class="form-select form-select-sm" multiple size="4" id="sh_field_6">
                                   <option>बचत</option>
                                   <option selected>ऋण</option>
                                   <option>मुद्दती</option>
@@ -428,8 +428,8 @@ function htmlEsc(s) {
                               <div class="form-text">Ctrl/Cmd + click गरी धेरै छान्नुहोस्।</div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Valid Select</label>
-                              <select class="form-select form-select-sm is-valid">
+                              <label class="form-label fw-semibold small" for="sh_field_7">Valid Select</label>
+                              <select class="form-select form-select-sm is-valid" id="sh_field_7">
                                   <option>बचत खाता ✓</option>
                               </select>
                               <div class="valid-feedback">राम्रो छ।</div>
@@ -442,25 +442,25 @@ function htmlEsc(s) {
                       <div class="fp-section-label">Textareas</div>
                       <div class="row g-4">
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Normal <code class="text-muted" style="font-size:.7rem;">rows="3"</code></label>
-                              <textarea class="form-control" rows="3" placeholder="यहाँ टिप्पणी लेख्नुहोस्…"></textarea>
+                              <label class="form-label fw-semibold small" for="sh_field_8">Normal <code class="text-muted" style="font-size:.7rem;">rows="3"</code></label>
+                              <textarea class="form-control" rows="3" placeholder="यहाँ टिप्पणी लेख्नुहोस्…" id="sh_field_8"></textarea>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Disabled</label>
-                              <textarea class="form-control" rows="3" disabled>यो field disabled छ।</textarea>
+                              <label class="form-label fw-semibold small" for="sh_field_9">Disabled</label>
+                              <textarea class="form-control" rows="3" disabled id="sh_field_9">यो field disabled छ।</textarea>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Invalid — Error State</label>
-                              <textarea class="form-control is-invalid" rows="3" placeholder="विवरण लेख्नुहोस्…"></textarea>
+                              <label class="form-label fw-semibold small" for="sh_field_10">Invalid — Error State</label>
+                              <textarea class="form-control is-invalid" rows="3" placeholder="विवरण लेख्नुहोस्…" id="sh_field_10"></textarea>
                               <div class="invalid-feedback">यो field खाली छाड्न मिल्दैन।</div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Valid — Success State</label>
-                              <textarea class="form-control is-valid" rows="3">सदस्यता नं १२३४ — राम्रो।</textarea>
+                              <label class="form-label fw-semibold small" for="sh_field_11">Valid — Success State</label>
+                              <textarea class="form-control is-valid" rows="3" id="sh_field_11">सदस्यता नं १२३४ — राम्रो।</textarea>
                               <div class="valid-feedback">Input valid छ।</div>
                           </div>
                           <div class="col-12">
-                              <label class="form-label fw-semibold small">With char counter <code class="text-muted" style="font-size:.7rem;">maxlength="200"</code></label>
+                              <label class="form-label fw-semibold small" for="fp-char-ta">With char counter <code class="text-muted" style="font-size:.7rem;">maxlength="200"</code></label>
                               <textarea class="form-control" rows="3" id="fp-char-ta" maxlength="200" placeholder="यहाँ सूचना/नोट लेख्नुहोस्…"></textarea>
                               <div class="d-flex justify-content-between mt-1">
                                   <div class="form-text">अधिकतम २०० अक्षर।</div>
@@ -571,12 +571,12 @@ function htmlEsc(s) {
                               $extra = isset($s['extra']) ? $s['extra'] : '';
                           ?>
                           <div class="col-md-6 col-xl-4">
-                              <label class="form-label fw-semibold small text-muted mb-1"><?php echo $s['label']; ?></label>
+                              <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_12"><?php echo $s['label']; ?></label>
                               <input type="text"
                                      class="form-control <?php echo $s['cls']; ?>"
                                      value="<?php echo htmlspecialchars($s['val']); ?>"
                                      placeholder="<?php echo htmlspecialchars($s['ph']); ?>"
-                                     <?php echo $extra; ?>>
+                                     <?php echo $extra; ?> id="sh_field_12">
                               <?php if (!empty($s['err'])): ?>
                                   <div class="invalid-feedback"><?php echo $s['err']; ?></div>
                               <?php endif; ?>
@@ -596,46 +596,46 @@ function htmlEsc(s) {
                       <div class="fp-section-label">Input Groups &amp; Add-ons</div>
                       <div class="row g-4">
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Prefix icon / text</label>
+                              <label class="form-label fw-semibold small" for="sh_field_13">Prefix icon / text</label>
                               <div class="input-group input-group-sm">
                                   <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                  <input type="text" class="form-control" placeholder="सदस्यको नाम">
+                                  <input type="text" class="form-control" placeholder="सदस्यको नाम" id="sh_field_13">
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Suffix text</label>
+                              <label class="form-label fw-semibold small" for="sh_field_14">Suffix text</label>
                               <div class="input-group input-group-sm">
-                                  <input type="number" class="form-control" placeholder="रकम">
+                                  <input type="number" class="form-control" placeholder="रकम" id="sh_field_14">
                                   <span class="input-group-text">रु.</span>
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Both sides</label>
+                              <label class="form-label fw-semibold small" for="sh_field_15">Both sides</label>
                               <div class="input-group input-group-sm">
                                   <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                  <input type="tel" class="form-control" placeholder="९८xxxxxxxx">
+                                  <input type="tel" class="form-control" placeholder="९८xxxxxxxx" id="sh_field_15">
                                   <span class="input-group-text">NP</span>
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">With button</label>
+                              <label class="form-label fw-semibold small" for="sh_field_16">With button</label>
                               <div class="input-group input-group-sm">
-                                  <input type="text" class="form-control" placeholder="खोज्नुहोस्…">
+                                  <input type="text" class="form-control" placeholder="खोज्नुहोस्…" id="sh_field_16">
                                   <button class="btn btn-primary" type="button" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Invalid group</label>
+                              <label class="form-label fw-semibold small" for="sh_field_17">Invalid group</label>
                               <div class="input-group input-group-sm has-validation">
                                   <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                  <input type="email" class="form-control is-invalid" placeholder="email@domain.com">
+                                  <input type="email" class="form-control is-invalid" placeholder="email@domain.com" id="sh_field_17">
                                   <div class="invalid-feedback">Valid email आवश्यक छ।</div>
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Select + Input combo</label>
+                              <label class="form-label fw-semibold small" for="sh_field_18">Select + Input combo</label>
                               <div class="input-group input-group-sm">
-                                  <select class="form-select" style="max-width:110px">
+                                  <select class="form-select" style="max-width:110px" id="sh_field_18">
                                       <option>NPR</option>
                                       <option>USD</option>
                                       <option>INR</option>
@@ -644,7 +644,7 @@ function htmlEsc(s) {
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Copy-to-clipboard</label>
+                              <label class="form-label fw-semibold small" for="fp-copy-field">Copy-to-clipboard</label>
                               <div class="input-group input-group-sm">
                                   <input type="text" class="form-control" id="fp-copy-field" value="MEMBER-<?php echo str_pad(rand(1000,9999),6,'0',STR_PAD_LEFT); ?>" readonly>
                                   <button class="btn btn-outline-secondary" type="button" id="fp-copy-btn" title="Copy">
@@ -653,7 +653,7 @@ function htmlEsc(s) {
                               </div>
                           </div>
                           <div class="col-md-6">
-                              <label class="form-label fw-semibold small">Password reveal</label>
+                              <label class="form-label fw-semibold small" for="fp-pw-field">Password reveal</label>
                               <div class="input-group input-group-sm">
                                   <input type="password" class="form-control" id="fp-pw-field" value="secret1234">
                                   <button class="btn btn-outline-secondary" type="button" id="fp-pw-toggle" title="Show/Hide">
