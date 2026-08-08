@@ -3,8 +3,9 @@
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    # Block direct HTTP access to secrets / private PHP sources
+    # Block direct HTTP access to secrets / private PHP sources / file cache
     RewriteRule ^includes/ - [F,L]
+    RewriteRule ^cache/ - [F,L]
     RewriteRule (^|/)\.cred - [F,L]
     RewriteRule \.cred-master\.key$ - [F,L]
     # Debug session dump — must not be web-accessible (live safety)

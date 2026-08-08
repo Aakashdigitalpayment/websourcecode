@@ -1,8 +1,10 @@
 .DS_Store
 *.log
 
-# Runtime dirs (created on live server)
-/cache/
+# Runtime dirs (created on live server) — keep deny rules tracked
+/cache/*
+!/cache/.htaccess
+!/cache/.gitkeep
 /logs/
 
 # Local / secret config — never commit

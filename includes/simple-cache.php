@@ -36,7 +36,23 @@ function getCachedData($key, $ttl_or_callback = 3600, $callback = null) {
     if (!is_dir($cacheDir)) {
         @mkdir($cacheDir, 0755, true);
     }
-    
+    /* Belt-and-suspenders: recreate deny rules if deploy wiped cache/.htaccess */
+    $denyHtaccess = $cacheDir . '/.htaccess';
+    if (is_dir($cacheDir) && !is_file($denyHtaccess)) {
+        @file_put_contents(
+            $denyHtaccess,
+            "# Auto-restored — file cache must not be HTTP-readable\n"
+            . "Options -Indexes\n"
+            . "<IfModule mod_authz_core.c>\n"
+            . "    Require all denied\n"
+            . "</IfModule>\n"
+            . "<IfModule !mod_authz_core.c>\n"
+            . "    Order deny,allow\n"
+            . "    Deny from all\n"
+            . "</IfModule>\n"
+        );
+    }
+
     $cacheFile = $cacheDir . '/cache_' . md5($key) . '.json';
     $expireTime = time() - $ttl;
     
