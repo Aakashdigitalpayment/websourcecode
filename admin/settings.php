@@ -574,8 +574,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><i class="fab fa-whatsapp stg-ico-success"></i> WhatsApp Number</label>
-                        <input type="text" name="whatsapp_number" class="form-control"
+                        <label for="stg_whatsapp_number" class="form-label"><i class="fab fa-whatsapp stg-ico-success"></i> WhatsApp Number</label>
+                        <input type="text" name="whatsapp_number" id="stg_whatsapp_number" class="form-control"
                                value="<?php echo $settings['whatsapp_number'] ?? ''; ?>"
                                placeholder="9779812345678">
                         <small class="stg-muted"><?php echo $__t('Country code सहित (जस्तै: 9779812345678)', 'Include country code (e.g., 9779812345678)'); ?></small>
@@ -590,24 +590,24 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Internet Banking URL</label>
-                        <input type="url" name="internet_banking_url" class="form-control"
+                        <label for="stg_internet_banking_url" class="form-label">Internet Banking URL</label>
+                        <input type="url" name="internet_banking_url" id="stg_internet_banking_url" class="form-control"
                                value="<?php echo $settings['internet_banking_url'] ?? ''; ?>"
                                placeholder="https://ibanking.yoursite.com">
                         <small class="stg-muted"><?php echo $__t('इन्टरनेट बैंकिङ लगइन URL', 'Internet banking login URL'); ?></small>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Google Play Store URL</label>
-                        <input type="url" name="play_store_url" class="form-control"
+                        <label for="stg_play_store_url" class="form-label">Google Play Store URL</label>
+                        <input type="url" name="play_store_url" id="stg_play_store_url" class="form-control"
                                value="<?php echo $settings['play_store_url'] ?? ''; ?>"
                                placeholder="https://play.google.com/store/apps/details?id=...">
                         <small class="stg-muted"><?php echo $__t('मोबाइल एप (Android)', 'Mobile app (Android)'); ?></small>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Apple App Store URL</label>
-                        <input type="url" name="app_store_url" class="form-control"
+                        <label for="stg_app_store_url" class="form-label">Apple App Store URL</label>
+                        <input type="url" name="app_store_url" id="stg_app_store_url" class="form-control"
                                value="<?php echo $settings['app_store_url'] ?? ''; ?>"
                                placeholder="https://apps.apple.com/app/...">
                         <small class="stg-muted"><?php echo $__t('मोबाइल एप (iOS)', 'Mobile app (iOS)'); ?></small>
@@ -623,26 +623,26 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client ID</label>
-                            <input type="text" name="google_client_id" class="form-control font-monospace"
+                            <label for="stg_google_client_id" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client ID</label>
+                            <input type="text" name="google_client_id" id="stg_google_client_id" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['google_client_id'] ?? ''); ?>"
                                    placeholder="xxxx.apps.googleusercontent.com">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client Secret</label>
-                            <input type="password" name="google_client_secret" class="form-control font-monospace"
+                            <label for="stg_google_client_secret" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client Secret</label>
+                            <input type="password" name="google_client_secret" id="stg_google_client_secret" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['google_client_secret'] ?? ''); ?>"
                                    placeholder="GOCSPX-...">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App ID</label>
-                            <input type="text" name="facebook_app_id" class="form-control font-monospace"
+                            <label for="stg_facebook_app_id" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App ID</label>
+                            <input type="text" name="facebook_app_id" id="stg_facebook_app_id" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['facebook_app_id'] ?? ''); ?>"
                                    placeholder="1234567890">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App Secret</label>
-                            <input type="password" name="facebook_app_secret" class="form-control font-monospace"
+                            <label for="stg_facebook_app_secret" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App Secret</label>
+                            <input type="password" name="facebook_app_secret" id="stg_facebook_app_secret" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['facebook_app_secret'] ?? ''); ?>"
                                    placeholder="abcdef1234...">
                         </div>
@@ -688,24 +688,24 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
                     <?php endif; ?>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('Copyright Text', 'Copyright Text'); ?></label>
-                        <input type="text" name="footer_text" class="form-control"
+                        <label for="stg_footer_text" class="form-label"><?php echo $__t('Copyright Text', 'Copyright Text'); ?></label>
+                        <input type="text" name="footer_text" id="stg_footer_text" class="form-control"
                                value="<?php echo $settings['footer_text'] ?? ''; ?>"
                                <?php echo $canEditFooterDev ? '' : 'readonly'; ?>>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Developed By (Name)</label>
-                                <input type="text" name="developer_name" class="form-control"
+                                <label for="stg_developer_name" class="form-label">Developed By (Name)</label>
+                                <input type="text" name="developer_name" id="stg_developer_name" class="form-control"
                                        value="<?php echo $settings['developer_name'] ?? 'Tanka Adhikari'; ?>"
                                        <?php echo $canEditFooterDev ? '' : 'readonly'; ?>>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Developed By URL</label>
-                                <input type="url" name="developer_url" class="form-control"
+                                <label for="stg_developer_url" class="form-label">Developed By URL</label>
+                                <input type="url" name="developer_url" id="stg_developer_url" class="form-control"
                                        value="<?php echo $settings['developer_url'] ?? 'https://www.tankaadhikari.com.np/'; ?>"
                                        <?php echo $canEditFooterDev ? '' : 'readonly'; ?>>
                             </div>
@@ -714,16 +714,16 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('Supported By (Name)', 'Supported By (Name)'); ?></label>
-                                <input type="text" name="supported_name" class="form-control"
+                                <label for="stg_supported_name" class="form-label"><?php echo $__t('Supported By (Name)', 'Supported By (Name)'); ?></label>
+                                <input type="text" name="supported_name" id="stg_supported_name" class="form-control"
                                        value="<?php echo $settings['supported_name'] ?? ''; ?>"
                                        <?php echo $canEditFooterDev ? '' : 'readonly'; ?>>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('Supported By URL', 'Supported By URL'); ?></label>
-                                <input type="url" name="supported_url" class="form-control"
+                                <label for="stg_supported_url" class="form-label"><?php echo $__t('Supported By URL', 'Supported By URL'); ?></label>
+                                <input type="url" name="supported_url" id="stg_supported_url" class="form-control"
                                        value="<?php echo $settings['supported_url'] ?? ''; ?>"
                                        <?php echo $canEditFooterDev ? '' : 'readonly'; ?>>
                             </div>
@@ -741,8 +741,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label">Google Map Embed URL</label>
-                        <input type="url" name="google_map_url" class="form-control"
+                        <label for="stg_google_map_url" class="form-label">Google Map Embed URL</label>
+                        <input type="url" name="google_map_url" id="stg_google_map_url" class="form-control"
                                value="<?php echo htmlspecialchars($settings['google_map_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="https://www.google.com/maps/embed?pb=...">
                         <small class="stg-muted d-block mt-1">
@@ -769,16 +769,16 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('आइत–शुक्रबार समय', 'Sunday–Friday Hours'); ?> <small class="stg-muted">(Sunday–Friday)</small></label>
-                                <input type="text" name="working_hours" class="form-control"
+                                <label for="stg_working_hours" class="form-label"><?php echo $__t('आइत–शुक्रबार समय', 'Sunday–Friday Hours'); ?> <small class="stg-muted">(Sunday–Friday)</small></label>
+                                <input type="text" name="working_hours" id="stg_working_hours" class="form-control"
                                        placeholder="बिहान १०:०० - साँझ ५:००"
                                        value="<?php echo $settings['working_hours'] ?? 'बिहान १०:०० - साँझ ५:००'; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('शनिबार समय', 'Saturday Hours'); ?> <small class="stg-muted">(Saturday)</small></label>
-                                <input type="text" name="saturday_hours" class="form-control"
+                                <label for="stg_saturday_hours" class="form-label"><?php echo $__t('शनिबार समय', 'Saturday Hours'); ?> <small class="stg-muted">(Saturday)</small></label>
+                                <input type="text" name="saturday_hours" id="stg_saturday_hours" class="form-control"
                                        placeholder="बिहान १०:०० - दिउँसो १:००"
                                        value="<?php echo $settings['saturday_hours'] ?? 'बिहान १०:०० - दिउँसो १:००'; ?>">
                             </div>
@@ -790,15 +790,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('Appointment सुरु समय', 'Appointment Start Time'); ?></label>
-                                <input type="time" name="office_time_start" class="form-control" step="1800"
+                                <label for="stg_office_time_start" class="form-label"><?php echo $__t('Appointment सुरु समय', 'Appointment Start Time'); ?></label>
+                                <input type="time" name="office_time_start" id="stg_office_time_start" class="form-control" step="1800"
                                        value="<?php echo htmlspecialchars($settings['office_time_start'] ?? '10:00', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('Appointment अन्त्य समय', 'Appointment End Time'); ?></label>
-                                <input type="time" name="office_time_end" class="form-control" step="1800"
+                                <label for="stg_office_time_end" class="form-label"><?php echo $__t('Appointment अन्त्य समय', 'Appointment End Time'); ?></label>
+                                <input type="time" name="office_time_end" id="stg_office_time_end" class="form-control" step="1800"
                                        value="<?php echo htmlspecialchars($settings['office_time_end'] ?? '17:00', ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                         </div>

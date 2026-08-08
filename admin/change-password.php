@@ -114,27 +114,27 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                 <form method="POST" action="" class="needs-validation" novalidate>
     <?php echo csrfField(); ?>
                     <div class="mb-3">
-                        <label class="form-label">हालको पासवर्ड <span class="text-danger">*</span></label>
+                        <label for="admin_current_password" class="form-label">हालको पासवर्ड <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                            <input type="password" name="current_password" class="form-control" required>
+                            <input type="password" name="current_password" id="admin_current_password" class="form-control" required autocomplete="current-password">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">नयाँ पासवर्ड <span class="text-danger">*</span></label>
+                        <label for="admin_new_password" class="form-label">नयाँ पासवर्ड <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-key"></i></span>
-                            <input type="password" name="new_password" class="form-control" minlength="6" required>
+                            <input type="password" name="new_password" id="admin_new_password" class="form-control" minlength="6" required autocomplete="new-password">
                         </div>
                         <small class="text-muted">कम्तिमा ६ अक्षर</small>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">नयाँ पासवर्ड पुष्टि गर्नुहोस् <span class="text-danger">*</span></label>
+                        <label for="admin_confirm_password" class="form-label">नयाँ पासवर्ड पुष्टि गर्नुहोस् <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-key"></i></span>
-                            <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+                            <input type="password" name="confirm_password" id="admin_confirm_password" class="form-control" minlength="6" required autocomplete="new-password">
                         </div>
                     </div>
 
