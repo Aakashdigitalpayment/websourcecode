@@ -437,7 +437,7 @@ if ($viewGrv):
                             <?php echo htmlspecialchars(grvAttachName($viewGrv['admin_attachment'])); ?>
                         </div>
                         <a href="<?php echo htmlspecialchars(grvAttachUrl($viewGrv['admin_attachment'])); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                         <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo $__t('फाइल हटाउने?', 'Remove this file?'); ?>')">

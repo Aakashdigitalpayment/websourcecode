@@ -203,7 +203,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       </ol>
 
       <div class="hg-info">
-        ✨ <b>EMI Calculator:</b> <a href="../emi-calculator.php" target="_blank">Public EMI Calculator</a> बाट ऋण सम्बन्धी हिसाब गर्न सकिन्छ।
+        ✨ <b>EMI Calculator:</b> <a href="../emi-calculator.php" target="_blank" rel="noopener noreferrer">Public EMI Calculator</a> बाट ऋण सम्बन्धी हिसाब गर्न सकिन्छ।
       </div>
       <div class="hg-warn">⚠️ ऋण approve गर्नु अगाडि KYM approved छ कि check गर्नुहोस्।</div>
     </section>
@@ -232,7 +232,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>Request View → Status update → Member लाई reply।</li>
       </ol>
 
-      <div class="hg-info">💡 Member Portal को <a href="../member/service-request.php" target="_blank">Service Request</a> page बाट पनि member ले request पठाउन सक्छ।</div>
+      <div class="hg-info">💡 Member Portal को <a href="../member/service-request.php" target="_blank" rel="noopener noreferrer">Service Request</a> page बाट पनि member ले request पठाउन सक्छ।</div>
     </section>
 
     <!-- ══ 7b. HONOR APPLICATIONS ══ -->
@@ -543,14 +543,14 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <!-- ══ 24. PROGRAMS ══ -->
     <section id="sec-programs" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-calendar-days"></i></span> कार्यक्रमहरू (Programs)</h3>
-      <p>Training, seminar, AGM जस्ता events: pre-registration, QR उपस्थिति, र रिपोर्ट। Public page: <a href="../cooperative-programs.php" target="_blank">cooperative-programs.php</a>।</p>
+      <p>Training, seminar, AGM जस्ता events: pre-registration, QR उपस्थिति, र रिपोर्ट। Public page: <a href="../cooperative-programs.php" target="_blank" rel="noopener noreferrer">cooperative-programs.php</a>।</p>
 
       <h5>नयाँ कार्यक्रम थप्ने:</h5>
       <ol class="hg-steps-list">
         <li>बायाँ menu → <b>कार्यक्रमहरू</b> (<a href="programs.php">वा यहाँ</a>) → Add / Save।</li>
         <li>शीर्षक, मिति, समय, स्थान, विवरण भर्नुहोस्। Pre-registration खुला गर्न toggle ON।</li>
         <li><span class="kbd">Generate QR</span> → सदस्यले Member Portal बाट scan गर्छन्। Default expiry: कार्यक्रम मिति + १ दिन (मिति नभए +७ दिन)।</li>
-        <li>Public list: <a href="../cooperative-programs.php" target="_blank">Cooperative Programs</a>।</li>
+        <li>Public list: <a href="../cooperative-programs.php" target="_blank" rel="noopener noreferrer">Cooperative Programs</a>।</li>
       </ol>
       <p class="small text-muted mb-0"><b>Pre-reg</b> = अगाडि नाम दर्ता (गणना होइन)। <b>QR / Check-in</b> = स्थल उपस्थिति अनुरोध → Admin approve पछि गणना।</p>
     </section>
@@ -562,8 +562,8 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
       <h5>Attendance कसरी लिने:</h5>
       <ol class="hg-steps-list">
-        <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank">Member Portal → Scan</a> वा Attend बाट check-in → Admin approve।</li>
-        <li><b>Staff Verify (तत्काल):</b> <a href="../program-attendance-verify.php" target="_blank">program-attendance-verify.php</a> (admin login) — कार्ड Verification Code + CVV।</li>
+        <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank" rel="noopener noreferrer">Member Portal → Scan</a> वा Attend बाट check-in → Admin approve।</li>
+        <li><b>Staff Verify (तत्काल):</b> <a href="../program-attendance-verify.php" target="_blank" rel="noopener noreferrer">program-attendance-verify.php</a> (admin login) — कार्ड Verification Code + CVV।</li>
         <li><b>Approve / रिपोर्ट:</b> Admin → <a href="program-attendance.php">Program Attendance</a> — pending approve, program-wise list, CSV download।</li>
       </ol>
     </section>
@@ -571,7 +571,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <!-- ══ ELECTION ══ -->
     <section id="sec-election" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-check-to-slot"></i></span> निर्वाचन (Election)</h3>
-      <p>सञ्चालक/लेखा समिति निर्वाचन: चक्र बनाउने → पद/उम्मेदवार → मतदान समय → सदस्य मत → नतिजा। Public: <a href="../election-information.php" target="_blank">election-information.php</a>।</p>
+      <p>सञ्चालक/लेखा समिति निर्वाचन: चक्र बनाउने → पद/उम्मेदवार → मतदान समय → सदस्य मत → नतिजा। Public: <a href="../election-information.php" target="_blank" rel="noopener noreferrer">election-information.php</a>।</p>
 
       <h5>Setup क्रम:</h5>
       <ol class="hg-steps-list">
@@ -641,8 +641,8 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <h5>साझेदार सुविधा (Member discounts):</h5>
       <ol class="hg-steps-list">
         <li><a href="partner-facilities.php">Partner Facilities</a> → नयाँ थप्नुहोस्: नाम, प्रकार, छुट %, सम्पर्क, लोगो, Desk code/PIN।</li>
-        <li>Public: <a href="../partner-facilities.php" target="_blank">partner-facilities.php</a> — कार्ड/तालिका + खोज।</li>
-        <li>साझेदार डेस्क: <a href="../verify.php" target="_blank">verify.php</a> → सदस्य verify → <b>सेवा लग</b> (partner छानेर)। PIN सेट भए PIN चाहिन्छ।</li>
+        <li>Public: <a href="../partner-facilities.php" target="_blank" rel="noopener noreferrer">partner-facilities.php</a> — कार्ड/तालिका + खोज।</li>
+        <li>साझेदार डेस्क: <a href="../verify.php" target="_blank" rel="noopener noreferrer">verify.php</a> → सदस्य verify → <b>सेवा लग</b> (partner छानेर)। PIN सेट भए PIN चाहिन्छ।</li>
         <li>सदस्य पोर्टल dashboard मा लग इतिहास देखिन्छ।</li>
       </ol>
 
@@ -874,7 +874,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
           <summary>❌ File upload हुँदैन / "File too large" error</summary>
           <div class="mt-2">
             <ul>
-              <li>Image: JPG/PNG, <b>1MB भन्दा कम</b> राख्नुहोस् (<a href="https://tinypng.com" target="_blank">TinyPNG.com</a> use गर्नुहोस्)।</li>
+              <li>Image: JPG/PNG, <b>1MB भन्दा कम</b> राख्नुहोस् (<a href="https://tinypng.com" target="_blank" rel="noopener noreferrer">TinyPNG.com</a> use गर्नुहोस्)।</li>
               <li>Document: PDF, <b>5MB भन्दा कम</b>।</li>
               <li>ठूलो file नै upload गर्नु छ भने hosting PHP settings (<code>upload_max_filesize</code>) बढाउन developer लाई भन्नुहोस्।</li>
             </ul>
@@ -903,7 +903,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
           <summary>❌ Website slow भएको</summary>
           <div class="mt-2">
             <ol>
-              <li>Gallery / News मा ठूला images छन् भने <a href="https://tinypng.com" target="_blank">TinyPNG</a> बाट compress गरेर re-upload गर्नुहोस्।</li>
+              <li>Gallery / News मा ठूला images छन् भने <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer">TinyPNG</a> बाट compress गरेर re-upload गर्नुहोस्।</li>
               <li><a href="site-health.php">Site Health</a> check गर्नुहोस् — कुनै warning छ कि।</li>
               <li>Hosting plan upgrade बारे hosting provider लाई सोध्नुहोस्।</li>
             </ol>

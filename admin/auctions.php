@@ -625,7 +625,7 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                             <?php endif; ?>
                             <?php if (!empty($auc['document'])): ?>
                             <br><a href="<?php echo SITE_URL . htmlspecialchars($auc['document']); ?>" target="_blank"
-                               title="Document" class="badge bg-danger text-decoration-none mt-1">
+                               title="Document" class="badge bg-danger text-decoration-none mt-1" rel="noopener noreferrer">
                                 <i class="fas fa-file-pdf"></i> Doc
                             </a>
                             <?php endif; ?>
@@ -637,7 +637,7 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                             <?php endif; ?>
                             <?php if (!empty($auc['google_map_link'])): ?>
                             <br><a href="<?php echo htmlspecialchars($auc['google_map_link']); ?>" target="_blank"
-                               class="badge bg-danger text-decoration-none mt-1 auc-badge-xs">
+                               class="badge bg-danger text-decoration-none mt-1 auc-badge-xs" rel="noopener noreferrer">
                                 <i class="fab fa-google me-1"></i>Map
                             </a>
                             <?php endif; ?>

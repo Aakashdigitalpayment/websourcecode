@@ -256,7 +256,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-primary">
@@ -298,7 +298,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-warning">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-warning">
@@ -337,7 +337,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-info">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-info" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-info">
@@ -377,7 +377,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-success">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-success" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-success">
@@ -416,7 +416,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-primary">
@@ -455,7 +455,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-danger">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-danger" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-danger">
@@ -494,7 +494,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-purple">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-purple" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-purple">
@@ -533,7 +533,7 @@ function getTypeLabel($type) {
                             </div>
                             <?php if ($report['file_path']): ?>
                             <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-secondary">
+                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-secondary" rel="noopener noreferrer">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-secondary">

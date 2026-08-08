@@ -340,7 +340,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                     <td class="align-middle">
                                         <div class="btn-group" role="group">
                                             <?php if ($report['file_path']): ?>
-                                            <a href="../<?php echo $report['file_path']; ?>" class="btn btn-sm btn-success" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>">
+                                            <a href="../<?php echo $report['file_path']; ?>" class="btn btn-sm btn-success" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
                                             </a>
                                             <?php endif; ?>

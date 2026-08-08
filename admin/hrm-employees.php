@@ -257,7 +257,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td data-label="अवस्था"><?= hrmStatusBadge($r['status']) ?></td>
                     <td class="stf-align-right" data-label="कार्य">
                         <a class="btn btn-sm btn-outline-primary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a>
-                        <a class="btn btn-sm btn-outline-success" target="_blank" title="Digital ID Card" href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-id-card"></i></a>
+                        <a class="btn btn-sm btn-outline-success" target="_blank" title="Digital ID Card" href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>" rel="noopener noreferrer"><i class="fas fa-id-card"></i></a>
                         <button type="button" class="btn btn-sm btn-outline-secondary hrm-edit-btn"
                                 data-emp="<?= e(json_encode($r, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)) ?>"
                                 onclick="editEmpFromBtn(this)" title="सम्पादन"><i class="fas fa-pen"></i></button>
@@ -316,7 +316,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <small class="text-muted d-block mt-1">
           छानेपछि नाम, मोबाइल, इमेल, पद auto-fill हुन्छ — चाहे अनुसार फेरि टाइप/सच्याउन सकिन्छ।
           <?php if (empty($teamStaffForHrm)): ?>
-          <span class="text-warning">अहिले टोलीमा कर्मचारी/व्यवस्थापन सदस्य छैनन् — <a href="team-karmachari.php" target="_blank">यहाँ थप्नुहोस्</a>।</span>
+          <span class="text-warning">अहिले टोलीमा कर्मचारी/व्यवस्थापन सदस्य छैनन् — <a href="team-karmachari.php" target="_blank" rel="noopener noreferrer">यहाँ थप्नुहोस्</a>।</span>
           <?php endif; ?>
         </small>
       </div>
@@ -372,7 +372,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <option value="<?= e($d['title_np']) ?>"><?= e($d['title_np']) ?><?= !empty($d['title_en']) ? ' / ' . e($d['title_en']) : '' ?></option>
             <?php endforeach; ?>
           </datalist>
-          <small class="text-muted">मास्टर: <a href="designations.php" target="_blank">पद मास्टर</a></small>
+          <small class="text-muted">मास्टर: <a href="designations.php" target="_blank" rel="noopener noreferrer">पद मास्टर</a></small>
         </div>
         <div class="col-md-4"><label class="small" for="f_dept">विभाग</label>
           <select class="field-coop" name="department_id" id="f_dept">
@@ -390,7 +390,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
           </select>
           <small class="text-muted">
-            सूची <a href="service-centers.php" target="_blank">सेवा केन्द्र / शाखा</a> बाट आउँछ।
+            सूची <a href="service-centers.php" target="_blank" rel="noopener noreferrer">सेवा केन्द्र / शाखा</a> बाट आउँछ।
             <?php if (empty($branches)): ?>
             <span class="text-warning">अहिले कुनै सक्रिय सेवा कार्यालय छैन — पहिले त्यहाँ थप्नुहोस्।</span>
             <?php endif; ?>

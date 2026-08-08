@@ -170,7 +170,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center">
                                     <?php if (!empty($d['file_path'])): ?>
-                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्">
+                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
                                         <i class="fas fa-download"></i>
                                     </a>
                                     <?php else: ?><span class="text-muted">—</span><?php endif; ?>
@@ -235,7 +235,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center">
                                     <?php if (!empty($d['file_path'])): ?>
-                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्">
+                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
                                         <i class="fas fa-download"></i>
                                     </a>
                                     <?php else: ?><span class="text-muted">—</span><?php endif; ?>

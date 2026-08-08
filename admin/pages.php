@@ -309,7 +309,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                 <td class="text-center"><input type="checkbox" class="pgv2-select" name="selected_ids[]" value="<?php echo (int)$pg['id']; ?>"></td>
                                                                 <td><?php echo $i + 1; ?></td>
                                                                 <td>
-                                                                    <a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars((string)$pg['slug']); ?>" target="_blank" class="text-decoration-none">
+                                                                    <a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars((string)$pg['slug']); ?>" target="_blank" class="text-decoration-none" rel="noopener noreferrer">
                                                                         <code><?php echo htmlspecialchars((string)$pg['slug']); ?></code>
                                                                         <i class="fas fa-external-link-alt fa-xs ms-1"></i>
                                                                     </a>

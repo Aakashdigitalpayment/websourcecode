@@ -389,7 +389,7 @@ require_once 'includes/admin-ui.php';
                                    placeholder="Sparrow SMS API token यहाँ राख्नुहोस्"
                                    value="<?php echo gs('notify_sms_token'); ?>">
                             <small class="text-muted">
-                                Sparrow SMS: <a href="https://sparrowsms.com" target="_blank">sparrowsms.com</a> मा account खोलेर token लिनुहोस्।
+                                Sparrow SMS: <a href="https://sparrowsms.com" target="_blank" rel="noopener noreferrer">sparrowsms.com</a> मा account खोलेर token लिनुहोस्।
                             </small>
                         </div>
 
@@ -510,7 +510,7 @@ require_once 'includes/admin-ui.php';
                         <small class="text-muted text-warning">
                             <i class="fas fa-exclamation-triangle"></i>
                             Gmail: Normal password काम गर्दैन — <strong>App Password</strong> बनाउनुहोस्।
-                            <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-primary">यहाँ बनाउनुहोस् →</a>
+                            <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-primary" rel="noopener noreferrer">यहाँ बनाउनुहोस् →</a>
                         </small>
                     </div>
                     <!-- From Email / Name -->
@@ -695,7 +695,7 @@ require_once 'includes/admin-ui.php';
                         <li>
                             <strong>SMS Setup (Sparrow SMS):</strong>
                             <ul class="ps-2 mt-1">
-                                <li><a href="https://sparrowsms.com" target="_blank">sparrowsms.com</a> मा account खोल्नुहोस्</li>
+                                <li><a href="https://sparrowsms.com" target="_blank" rel="noopener noreferrer">sparrowsms.com</a> मा account खोल्नुहोस्</li>
                                 <li>Dashboard बाट API Token copy गर्नुहोस्</li>
                                 <li>Token यहाँ paste गर्नुहोस् र Save गर्नुहोस्</li>
                             </ul>

@@ -49,6 +49,13 @@ function assertNoBareBlankTargets(string $file): void {
         fail("{$file}: unreadable");
         return;
     }
+    // Mask PHP blocks so close-tags inside attrs do not truncate anchors.
+    $phpClose = '?' . '>';
+    $t = preg_replace('/<\?(?:php|=)?[\s\S]*?' . preg_quote($phpClose, '/') . '/i', ' PHP ', $t);
+    if (!is_string($t)) {
+        fail("{$file}: php-mask failed");
+        return;
+    }
     if (!preg_match_all('/<a\b[^>]*>/i', $t, $m)) {
         ok("{$file}: no anchors (noopener sweep)");
         return;
@@ -94,8 +101,23 @@ assertFileContains('includes/config.php', "header('Referrer-Policy: strict-origi
 $noopenerFiles = [
     'important-links.php',
     'includes/footer.php',
+    'includes/header.php',
     'loan-apply.php',
     'institutional-profile.php',
+    'index.php',
+    'contact.php',
+    'news-detail.php',
+    'reports.php',
+    'downloads.php',
+    'application-tracker.php',
+    'member/profile.php',
+    'member/tracker.php',
+    'admin/help-guide.php',
+    'admin/dashboard.php',
+    'admin/settings.php',
+    'admin/hrm-employees.php',
+    'admin/notification-settings.php',
+    'admin/kyc-applications.php',
 ];
 foreach ($noopenerFiles as $f) {
     assertNoBareBlankTargets($f);
@@ -104,6 +126,8 @@ foreach ($noopenerFiles as $f) {
 // Critical pairs
 assertFileContains('important-links.php', 'rel="noopener noreferrer"', 'NRB/gov links hardened');
 assertFileContains('includes/footer.php', 'whatsapp-float" target="_blank" rel="noopener noreferrer"', 'WhatsApp float hardened');
+
+assertFileContains('admin/help-guide.php', 'rel="noopener noreferrer"', 'admin help-guide links hardened');
 
 // Syntax
 $lintFiles = array_merge(

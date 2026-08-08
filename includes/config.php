@@ -2429,7 +2429,7 @@ function adminAttachmentHtml(?string $path): string {
     $name = basename($path);
     $url  = SITE_URL . '/' . ltrim($path, '/');
     $icon = str_ends_with(strtolower($path), '.pdf') ? 'fa-file-pdf text-danger' : 'fa-file text-primary';
-    return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="btn btn-sm btn-outline-secondary mt-1">
+    return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="btn btn-sm btn-outline-secondary mt-1" rel="noopener noreferrer">
         <i class="fas ' . $icon . ' me-1"></i>' . htmlspecialchars($name) . '
     </a>';
 }

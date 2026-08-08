@@ -226,7 +226,7 @@ try {
       <a href="reports.php" class="btn dash-btn-outline-primary btn-sm"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-line"></i> <?php echo $__t('रिपोर्ट', 'Reports'); ?></a>
       <a href="programs.php" class="btn dash-btn-outline-primary btn-sm"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-plus"></i> <?php echo $__t('कार्यक्रम', 'Programs'); ?></a>
       <a href="program-attendance.php" class="btn dash-btn-outline-primary btn-sm"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i> <?php echo $__t('उपस्थिति रिपोर्ट', 'Attendance Report'); ?></a>
-      <a href="../verify.php" target="_blank" class="btn dash-btn-outline-primary btn-sm"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> <?php echo $__t('सदस्य प्रमाणीकरण', 'Member Verify'); ?></a>
+      <a href="../verify.php" target="_blank" class="btn dash-btn-outline-primary btn-sm" rel="noopener noreferrer"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> <?php echo $__t('सदस्य प्रमाणीकरण', 'Member Verify'); ?></a>
     </div>
   </div>
 

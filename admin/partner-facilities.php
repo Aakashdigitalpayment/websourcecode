@@ -249,11 +249,11 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 <?php echo adminPageHeader(
     'साझेदार सुविधा व्यवस्थापन',
     'fa-handshake',
-    'सदस्य छुट — public सूची + verify desk लग। Public: <a href="../partner-facilities.php" target="_blank">partner-facilities.php</a>',
+    'सदस्य छुट — public सूची + verify desk लग। Public: <a href="../partner-facilities.php" target="_blank" rel="noopener noreferrer">partner-facilities.php</a>',
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($facilities) . '</span>'
     . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($facilitiesLive) . '</span>'
     . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 me-2"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($facilitiesArch) . '</span>'
-    . '<a class="btn btn-outline-success btn-sm" href="../verify.php" target="_blank"><i class="fas fa-id-card me-1"></i>Verify</a>'
+    . '<a class="btn btn-outline-success btn-sm" href="../verify.php" target="_blank" rel="noopener noreferrer"><i class="fas fa-id-card me-1"></i>Verify</a>'
     . ' <a class="btn btn-outline-secondary btn-sm" href="vendor-enlistment.php"><i class="fas fa-store me-1"></i>Vendor</a>'
 ); ?>
 

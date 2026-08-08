@@ -85,7 +85,7 @@ foreach ($downloads as $download) {
                                     <i class="fas fa-download"></i> <?php echo $item['download_count'] ?? 0; ?>
                                 </span>
                             </div>
-                            <a href="<?php echo SITE_URL . $item['file_path']; ?>" class="btn btn-primary btn-sm" target="_blank" download>
+                            <a href="<?php echo SITE_URL . $item['file_path']; ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer">
                                 <i class="fas fa-download"></i> <?php echo $L['download']; ?>
                             </a>
                         </div>

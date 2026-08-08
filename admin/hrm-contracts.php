@@ -59,7 +59,7 @@ $rows = $db->query("SELECT c.*, e.full_name_np, e.employee_code
             <?php endif; ?>
           </td>
           <td class="text-end">रू <?= number_format((float)$r['basic_salary'], 2) ?></td>
-          <td class="text-end"><?php if ($r['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($r['file_path']) ?>"><i class="fas fa-file-pdf"></i></a><?php endif; ?></td>
+          <td class="text-end"><?php if ($r['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($r['file_path']) ?>" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i></a><?php endif; ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

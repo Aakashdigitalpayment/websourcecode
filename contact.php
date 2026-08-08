@@ -140,8 +140,8 @@ require_once 'includes/header.php';
 
                     <div class="contact-social">
                         <h6><?php echo isEnglish() ? 'Social Media' : 'सामाजिक सञ्जाल'; ?></h6>
-                        <a href="<?php echo $facebookUrl; ?>" target="_blank"><i class="fab fa-facebook-f"></i></a>
-                        <a href="<?php echo $youtubeUrl; ?>"  target="_blank"><i class="fab fa-youtube"></i></a>
+                        <a href="<?php echo $facebookUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a>
+                        <a href="<?php echo $youtubeUrl; ?>"  target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a>
                     </div>
 
                     <!-- सन्देश पठाउने बटन — modal खोल्छ -->
@@ -166,7 +166,7 @@ require_once 'includes/header.php';
                             </div>
                             <h5><?php echo isEnglish() ? 'Online Banking' : 'अनलाइन बैंकिङ'; ?></h5>
                             <p class="ct-muted small"><?php echo isEnglish() ? 'Access your account anytime, anywhere.' : 'जुनसुकै समय, जहाँबाट पनि खाता हेर्नुहोस्।'; ?></p>
-                            <a href="<?php echo getSetting('internet_banking_url','#'); ?>" target="_blank" class="btn btn-outline-primary btn-sm mt-auto">
+                            <a href="<?php echo getSetting('internet_banking_url','#'); ?>" target="_blank" class="btn btn-outline-primary btn-sm mt-auto" rel="noopener noreferrer">
                                 <?php echo isEnglish() ? 'Login' : 'लग-इन'; ?> <i class="fas fa-arrow-right ms-1"></i>
                             </a>
                         </div>

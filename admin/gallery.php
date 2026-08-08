@@ -494,7 +494,7 @@ foreach ($images as $img) {
                                 <span class="visually-hidden"><?php echo htmlspecialchars($albumLbl . ' ' . ($img['category'] ?? '')); ?></span>
                                 <div class="d-flex gap-1 justify-content-center flex-wrap">
                                     <a href="<?php echo htmlspecialchars($isVideo ? ($img['video_url'] ?? '#') : ('../' . $img['image'])); ?>"
-                                       target="_blank" class="btn btn-sm btn-info" title="हेर्नुहोस्">
+                                       target="_blank" class="btn btn-sm btn-info" title="हेर्नुहोस्" rel="noopener noreferrer">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     <button type="button"

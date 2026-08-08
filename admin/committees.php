@@ -790,7 +790,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <option value="<?php echo htmlspecialchars($__d['title_np']); ?>" data-en="<?php echo htmlspecialchars($__d['title_en']); ?>"><?php echo htmlspecialchars($__d['title_np']); ?><?php if ($__d['title_en']): ?> — <?php echo htmlspecialchars($__d['title_en']); ?><?php endif; ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <div class="small text-muted mt-1">नयाँ पद <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</div>
+                    <div class="small text-muted mt-1">नयाँ पद <a href="designations.php" target="_blank" rel="noopener noreferrer">पद मास्टर</a> मा थप्नुहोस्।</div>
                 </div>
                 <div class="col-md-6">
                     <label for="mem_position_en" class="form-label fw-semibold text-success">Position (English)</label>

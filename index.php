@@ -841,14 +841,14 @@ if ($ceoMember) {
                     <p class="app-tagline"><?php echo isEnglish() ? 'Download our Mobile Banking app!' : 'हाम्रो मोबाइल बैंकिङ एप डाउनलोड गर्नुहोस्!'; ?></p>
                     <p class="app-description"><?php echo isEnglish() ? 'Quick, Secure, and Convenient: Your all-in-one mobile banking app for seamless financial control.' : 'छिटो, सुरक्षित र सुविधाजनक: तपाईंको वित्तीय नियन्त्रणको लागि सबै-मा-एक मोबाइल बैंकिङ एप।'; ?></p>
                     <div class="app-buttons">
-                        <a href="<?php echo getSetting('play_store_url', '#'); ?>" target="_blank" class="app-btn google-play">
+                        <a href="<?php echo getSetting('play_store_url', '#'); ?>" target="_blank" class="app-btn google-play" rel="noopener noreferrer">
                             <i class="fab fa-google-play"></i>
                             <span>
                                 <small><?php echo isEnglish() ? 'GET IT ON' : 'यहाँबाट लिनुहोस्'; ?></small>
                                 Google Play
                             </span>
                         </a>
-                        <a href="<?php echo getSetting('app_store_url', '#'); ?>" target="_blank" class="app-btn app-store">
+                        <a href="<?php echo getSetting('app_store_url', '#'); ?>" target="_blank" class="app-btn app-store" rel="noopener noreferrer">
                             <i class="fab fa-apple"></i>
                             <span>
                                 <small><?php echo isEnglish() ? 'Download on the' : 'यहाँबाट लिनुहोस्'; ?></small>
