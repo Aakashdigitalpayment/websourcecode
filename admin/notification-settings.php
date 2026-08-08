@@ -387,7 +387,7 @@ require_once 'includes/admin-ui.php';
                             <label for="notify_sms_token" class="form-label">API Token / Key <span class="text-danger">*</span></label>
                             <input type="password" name="notify_sms_token" id="notify_sms_token" class="form-control"
                                    placeholder="Sparrow SMS API token यहाँ राख्नुहोस्"
-                                   value="<?php echo gs('notify_sms_token'); ?>">
+                                   value="<?php echo gs('notify_sms_token'); ?>" autocomplete="off">
                             <small class="text-muted">
                                 Sparrow SMS: <a href="https://sparrowsms.com" target="_blank" rel="noopener noreferrer">sparrowsms.com</a> मा account खोलेर token लिनुहोस्।
                             </small>
@@ -501,7 +501,8 @@ require_once 'includes/admin-ui.php';
                         <div class="input-group">
                             <input type="password" name="smtp_password" class="form-control"
                                    id="smtpPass"
-                                   placeholder="<?php echo getSetting('smtp_password','') ? '(सुरक्षित छ — बदल्न नयाँ password लेख्नुहोस्)' : 'Password यहाँ राख्नुहोस्'; ?>">
+                                   placeholder="<?php echo getSetting('smtp_password','') ? '(सुरक्षित छ — बदल्न नयाँ password लेख्नुहोस्)' : 'Password यहाँ राख्नुहोस्'; ?>"
+                                   autocomplete="off">
                             <button class="btn btn-outline-secondary" type="button"
                                     onclick="let f=document.getElementById('smtpPass');f.type=f.type=='password'?'text':'password';" aria-label="View" title="View">
                                 <i class="fas fa-eye"></i>

@@ -292,7 +292,7 @@ $rows = $db->query(
                 <div>
                     <label class="form-label small fw-semibold mb-1" for="cf_pass">Password</label>
                     <input class="field-coop" name="password" id="cf_pass" type="password"
-                           placeholder="Edit मा खाली = पुरानै रहन्छ">
+                           placeholder="Edit मा खाली = पुरानै रहन्छ" autocomplete="new-password">
                 </div>
                 <div class="cred-notes-span">
                     <label class="form-label small fw-semibold mb-1" for="cf_notes">Notes</label>

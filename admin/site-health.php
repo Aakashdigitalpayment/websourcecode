@@ -655,7 +655,7 @@ function htmlEsc(s) {
                           <div class="col-md-6">
                               <label class="form-label fw-semibold small" for="fp-pw-field">Password reveal</label>
                               <div class="input-group input-group-sm">
-                                  <input type="password" class="form-control" id="fp-pw-field" value="secret1234">
+                                  <input type="password" class="form-control" id="fp-pw-field" value="secret1234" autocomplete="off">
                                   <button class="btn btn-outline-secondary" type="button" id="fp-pw-toggle" title="Show/Hide">
                                       <i class="fas fa-eye" id="fp-pw-icon"></i>
                                   </button>

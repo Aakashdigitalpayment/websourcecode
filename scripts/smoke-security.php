@@ -129,6 +129,24 @@ assertFileContains('includes/footer.php', 'whatsapp-float" target="_blank" rel="
 
 assertFileContains('admin/help-guide.php', 'rel="noopener noreferrer"', 'admin help-guide links hardened');
 
+// Password autocomplete / secret fields
+assertFileContains('member/login.php', 'id="loginPw"', 'member login password field');
+assertFileContains('member/login.php', 'autocomplete="current-password"', 'member login autocomplete');
+assertFileContains('member/password-reset-request.php', 'id="pw1"', 'reset password field');
+assertFileContains('member/password-reset-request.php', 'autocomplete="new-password"', 'reset password autocomplete');
+assertFileContains('admin/change-password.php', 'autocomplete="current-password"', 'admin change-password autocomplete');
+assertFileContains('admin/settings.php', 'id="stg_google_client_secret"', 'google secret field');
+assertFileContains('admin/settings.php', 'autocomplete="off"', 'oauth secrets autocomplete off');
+assertFileContains('admin/notification-settings.php', 'id="notify_sms_token"', 'sms token field');
+assertFileContains('admin/notification-settings.php', 'autocomplete="off"', 'notify secrets autocomplete off');
+
+// Language switcher a11y
+assertFileContains('includes/header.php', 'class="skip-link"', 'skip link present');
+assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'English\'', 'EN lang aria-label');
+assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'Nepali\'', 'NP lang aria-label');
+assertFileContains('application-tracker.php', 'id="secCodeToggle"', 'security code toggle');
+assertFileContains('application-tracker.php', 'aria-label="<?php echo isEnglish() ? \'Show security code\'', 'security code toggle aria-label');
+
 // Syntax
 $lintFiles = array_merge(
     ['member/session-check.php', 'cron-cleanup.php'],
