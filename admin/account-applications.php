@@ -434,8 +434,8 @@ if ($viewApp):
                             <input type="hidden" name="id" value="<?php echo $viewApp['id']; ?>">
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i><?php echo $__t('अवस्था', 'Status'); ?></label>
-                                <select name="status" class="form-select">
+                                <label for="acc_status" class="form-label fw-semibold"><i class="fas fa-circle-dot me-1"></i><?php echo $__t('अवस्था', 'Status'); ?></label>
+                                <select name="status" id="acc_status" class="form-select">
                                     <?php foreach ($statusLabel as $v => $l): ?>
                                     <option value="<?php echo $v; ?>" <?php echo $viewApp['status']===$v?'selected':''; ?>><?php echo $l; ?></option>
                                     <?php endforeach; ?>
@@ -443,11 +443,11 @@ if ($viewApp):
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">
+                                <label for="acc_remarks" class="form-label fw-semibold">
                                     <i class="fas fa-reply me-1 text-success"></i><?php echo $__t('Admin कैफियत', 'Admin Remarks'); ?>
                                     <span class="text-muted fw-normal small">— <?php echo $__t('Member ले Tracker मा देख्छ', 'Visible in member tracker'); ?></span>
                                 </label>
-                                <textarea name="remarks" class="form-control" rows="4"
+                                <textarea name="remarks" id="acc_remarks" class="form-control" rows="4"
                                     placeholder="<?php echo $__t('स्वीकृति वा अस्वीकृतिको कारण, आवश्यक कागजात...', 'Reason for approval/rejection, required documents...'); ?>"
                                 ><?php echo htmlspecialchars($viewApp['remarks'] ?? ''); ?></textarea>
                             </div>
@@ -466,11 +466,11 @@ if ($viewApp):
 
                             <!-- Admin ले खाता खोलने पत्र वा rejection notice attach गर्न सक्छ -->
                             <div class="mb-4">
-                                <label class="form-label fw-semibold">
+                                <label for="acc_admin_attachment" class="form-label fw-semibold">
                                     <i class="fas fa-paperclip me-1 text-primary"></i><?php echo $__t('Document संलग्न गर्नुहोस्', 'Attach Document'); ?>
                                     <span class="text-muted fw-normal small">— PDF, Word, Image (max 5MB)</span>
                                 </label>
-                                <input type="file" name="admin_attachment" class="form-control"
+                                <input type="file" name="admin_attachment" id="acc_admin_attachment" class="form-control"
                                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
                                 <?php if (!empty($viewApp['admin_attachment'])): ?>
                                 <div class="form-text text-primary mt-1">

@@ -737,8 +737,8 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold"><?php echo $__t('अस्वीकृतिको कारण','Rejection Reason'); ?></label>
-                        <textarea name="rejection_reason" class="form-control" rows="3" placeholder="<?php echo $__t('उदा: केवाइएम रेकर्ड मेल खाएन, सदस्यता नम्बर गलत छ...', 'e.g., KYC record mismatch, incorrect membership number...'); ?>"></textarea>
+                        <label for="mop_rejection_reason" class="form-label fw-bold"><?php echo $__t('अस्वीकृतिको कारण','Rejection Reason'); ?></label>
+                        <textarea name="rejection_reason" id="mop_rejection_reason" class="form-control" rows="3" placeholder="<?php echo $__t('उदा: केवाइएम रेकर्ड मेल खाएन, सदस्यता नम्बर गलत छ...', 'e.g., KYC record mismatch, incorrect membership number...'); ?>"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -815,8 +815,8 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                                 <input type="hidden" name="request_id" value="<?php echo $rr['id']; ?>">
                                 <div class="modal-body">
                                     <div class="mb-3">
-                                        <label class="form-label fw-bold"><?php echo $__t('नयाँ अस्थायी पासवर्ड', 'New Temporary Password'); ?> <span class="text-danger">*</span></label>
-                                        <input type="text" name="new_password" class="form-control" required minlength="6" placeholder="<?php echo $__t('कम्तीमा ६ अक्षर', 'Minimum 6 characters'); ?>">
+                                        <label for="mop_new_password" class="form-label fw-bold"><?php echo $__t('नयाँ अस्थायी पासवर्ड', 'New Temporary Password'); ?> <span class="text-danger">*</span></label>
+                                        <input type="text" name="new_password" id="mop_new_password" class="form-control" required minlength="6" placeholder="<?php echo $__t('कम्तीमा ६ अक्षर', 'Minimum 6 characters'); ?>">
                                         <div class="form-text text-muted"><?php echo $__t('Member लाई यो पासवर्ड दिनुहोस् र login पछि बदल्न भन्नुहोस्।', 'Share this password with member and ask to change after login.'); ?></div>
                                     </div>
                                 </div>

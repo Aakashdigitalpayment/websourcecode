@@ -164,11 +164,11 @@ $resumeJobId = (int)($_GET['job'] ?? 0);
                 <form id="miUploadForm" enctype="multipart/form-data" class="mb-3">
                     <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">CSV फाइल</label>
+                        <label for="miFile" class="form-label small fw-semibold">CSV फाइल</label>
                         <input type="file" name="csv_file" id="miFile" class="form-control" accept=".csv,text/csv" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-semibold">Duplicate भएमा</label>
+                        <label for="miModeSkip" class="form-label small fw-semibold">Duplicate भएमा</label>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="mode" id="miModeSkip" value="skip" checked>
                             <label class="form-check-label" for="miModeSkip">Skip (सिफारिस) — नयाँ नबनाउने</label>

@@ -174,13 +174,13 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
                     <input type="hidden" name="membership_approve" value="1">
                     <input type="hidden" name="id" value="<?php echo (int)$viewApp['id']; ?>">
                     <div class="mb-2">
-                        <label class="form-label small fw-semibold">Member ID (सदस्यता नं.) <span class="text-danger">*</span></label>
-                        <input type="text" name="assigned_sadasyata" class="form-control" required
+                        <label for="msa_assigned_sadasyata" class="form-label small fw-semibold">Member ID (सदस्यता नं.) <span class="text-danger">*</span></label>
+                        <input type="text" name="assigned_sadasyata" id="msa_assigned_sadasyata" class="form-control" required
                                placeholder="उदा. 1234" autocomplete="off">
                     </div>
                     <div class="mb-2">
-                        <label class="form-label small fw-semibold">Admin कैफियत</label>
-                        <textarea name="admin_remarks" class="form-control" rows="2"></textarea>
+                        <label for="msa_admin_remarks" class="form-label small fw-semibold">Admin कैफियत</label>
+                        <textarea name="admin_remarks" id="msa_admin_remarks" class="form-control" rows="2"></textarea>
                     </div>
                     <button type="submit" class="btn btn-success btn-sm"
                             onclick="return confirm('Member ID दिएर members stub बनाउने?');">

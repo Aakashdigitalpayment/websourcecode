@@ -1027,7 +1027,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 </small>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
+                                <label for="grp_icon" class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
                                 <?php $_gIcon = trim((string)($editGroup['icon'] ?? '')) ?: 'fas fa-users-gear'; ?>
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
@@ -1292,7 +1292,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
+                                <label for="menu_icon_field" class="form-label fw-semibold"><?php echo $__t('आइकन', 'Icon'); ?></label>
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
                                         <span class="fa-ip-preview input-group-text" data-fa-preview>

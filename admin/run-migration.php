@@ -309,12 +309,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_migration'])) {
                 <?php echo csrfField(); ?>
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-8">
-                        <label class="form-label fw-semibold">
+                        <label for="mig_sql_file" class="form-label fw-semibold">
                             <i class="fas fa-file-code me-1 text-primary"></i>
                             .sql File छान्नुहोस्:
                         </label>
                         <input type="file"
-                               name="sql_file"
+                               name="sql_file" id="mig_sql_file"
                                accept=".sql"
                                class="form-control form-control-lg"
                                required>
@@ -457,8 +457,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_migration'])) {
                 <?php echo csrfField(); ?>
                 <div class="mb-3">
                     <!-- SQL लेख्ने textarea — यहाँ safe ALTER TABLE, CREATE TABLE etc. मात्र -->
-                    <label class="form-label fw-bold">SQL Statement:</label>
-                    <textarea name="custom_sql" class="form-control font-monospace" rows="8"
+                    <label for="mig_custom_sql" class="form-label fw-bold">SQL Statement:</label>
+                    <textarea name="custom_sql" id="mig_custom_sql" class="form-control font-monospace" rows="8"
                         placeholder="-- Example: ALTER TABLE grievances ADD COLUMN IF NOT EXISTS tracking_id VARCHAR(60);&#10;-- Multiple statements semicolon (;) बाट छुट्याउनुहोस्"
                     ><?php echo htmlspecialchars($_POST['custom_sql'] ?? ''); ?></textarea>
                 </div>
