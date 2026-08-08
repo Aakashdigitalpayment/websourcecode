@@ -19,6 +19,12 @@ try {
     $member = $st->fetch(PDO::FETCH_ASSOC);
 } catch (\Throwable $e) {}
 if (!$member) { header('Location: index.php'); exit; }
+if (function_exists('memberStripAuthSecrets')) {
+    $member = memberStripAuthSecrets($member);
+} else {
+    unset($member['twofa_secret'], $member['twofa_backup_codes']);
+}
+unset($member['password_hash']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {

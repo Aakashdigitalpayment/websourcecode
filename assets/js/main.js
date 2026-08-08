@@ -1,5 +1,22 @@
 // Main JavaScript File
 
+/* Global JS error visibility (audit Phase 3a) — log only, never break UX */
+(function () {
+    if (window.__coopJsErrorHooks) return;
+    window.__coopJsErrorHooks = true;
+    window.addEventListener('unhandledrejection', function (e) {
+        try {
+            console.error('[coop] Unhandled promise:', e && e.reason ? e.reason : e);
+        } catch (err) { /* ignore */ }
+    });
+    window.addEventListener('error', function (e) {
+        try {
+            if (!e) return;
+            console.error('[coop] JS error:', e.message || e.error || e);
+        } catch (err) { /* ignore */ }
+    });
+})();
+
 // Page Loader — early inline hide in header.php handles UX; this is a safe fallback only
 (function() {
     if (window.__pageLoaderHidden) return;

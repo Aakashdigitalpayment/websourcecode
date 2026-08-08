@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="hidden" name="csrf_token" value="<?php echo generateCSRFToken(); ?>">
 
                     <div class="pav-field">
-                        <label><i class="fas fa-calendar-check me-1"></i><?php echo isEnglish() ? 'Select Program' : 'कार्यक्रम छान्नुहोस्'; ?></label>
+                        <label for="pavProgramSelect"><i class="fas fa-calendar-check me-1"></i><?php echo isEnglish() ? 'Select Program' : 'कार्यक्रम छान्नुहोस्'; ?></label>
                         <select name="program_id" class="pav-field-input" id="pavProgramSelect" required>
                             <option value=""><?php echo isEnglish() ? '— Choose a program —' : '— कार्यक्रम छान्नुहोस् —'; ?></option>
                             <?php foreach ($programs as $pg): ?>
@@ -137,8 +137,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="row g-3">
                         <div class="col-sm-7">
                             <div class="pav-field" style="margin-bottom:0;">
-                                <label><i class="fas fa-id-card me-1"></i>Verification Code / Card No.</label>
-                                <input type="text" name="code" class="pav-field-input"
+                                <label for="pav_code"><i class="fas fa-id-card me-1"></i>Verification Code / Card No.</label>
+                                <input type="text" name="code" id="pav_code" class="pav-field-input"
                                        value="<?php echo htmlspecialchars($code); ?>"
                                        placeholder="AKS-XXXX-XXXX"
                                        autocomplete="off" required>
@@ -146,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="col-sm-5">
                             <div class="pav-field" style="margin-bottom:0;">
-                                <label><i class="fas fa-lock me-1"></i>CVV (4 digit)</label>
-                                <input type="text" name="cvv" class="pav-field-input"
+                                <label for="pav_cvv"><i class="fas fa-lock me-1"></i>CVV (4 digit)</label>
+                                <input type="text" name="cvv" id="pav_cvv" class="pav-field-input"
                                        maxlength="4" inputmode="numeric" pattern="[0-9]{4}"
                                        value="<?php echo htmlspecialchars($cvv); ?>"
                                        placeholder="••••" required>

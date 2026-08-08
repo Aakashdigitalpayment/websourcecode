@@ -15,6 +15,12 @@ try {
     $st->execute([$id]);
     $member = $st->fetch(PDO::FETCH_ASSOC);
     if (!$member) { header('Location: index.php'); exit; }
+    if (function_exists('memberStripAuthSecrets')) {
+        $member = memberStripAuthSecrets($member);
+    } else {
+        unset($member['twofa_secret'], $member['twofa_backup_codes']);
+    }
+    unset($member['password_hash']);
 
     // Notifications
     $ns = $pdo->prepare("SELECT * FROM member_notifications WHERE member_id=? ORDER BY created_at DESC LIMIT 30");
