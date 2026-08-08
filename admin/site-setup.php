@@ -242,18 +242,18 @@ try {
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold">
+                                <label for="ss_site_name" class="form-label fw-semibold">
                                     Cooperative / Site नाम
                                 </label>
-                                <input type="text" name="site_name" class="form-control"
+                                <input type="text" name="site_name" id="ss_site_name" class="form-control"
                                        value="<?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="जस्तै: बन्दना सहकारी संस्था लि.">
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold">Website / Domain URL</label>
+                                <label for="ss_site_url" class="form-label fw-semibold">Website / Domain URL</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-globe"></i></span>
-                                    <input type="url" name="site_url" class="form-control"
+                                    <input type="url" name="site_url" id="ss_site_url" class="form-control"
                                            value="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>"
                                            placeholder="https://yourdomain.com.np/">
                                 </div>
@@ -262,37 +262,37 @@ try {
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">इमेल</label>
+                                <label for="ss_site_email" class="form-label fw-semibold">इमेल</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" name="site_email" class="form-control"
+                                    <input type="email" name="site_email" id="ss_site_email" class="form-control"
                                            value="<?php echo htmlspecialchars($siteEmail, ENT_QUOTES, 'UTF-8'); ?>"
                                            placeholder="akashpame@gmail.com">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">फोन</label>
+                                <label for="ss_site_phone" class="form-label fw-semibold">फोन</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                    <input type="text" name="site_phone" class="form-control"
+                                    <input type="text" name="site_phone" id="ss_site_phone" class="form-control"
                                            value="<?php echo htmlspecialchars($sitePhone, ENT_QUOTES, 'UTF-8'); ?>"
                                            placeholder="०१-२३४५६७८">
                                 </div>
                             </div>
                             <div class="col-md-12">
-                                <label class="form-label fw-semibold">ठेगाना</label>
+                                <label for="ss_site_address" class="form-label fw-semibold">ठेगाना</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                    <input type="text" name="site_address" class="form-control"
+                                    <input type="text" name="site_address" id="ss_site_address" class="form-control"
                                            value="<?php echo htmlspecialchars($siteAddress, ENT_QUOTES, 'UTF-8'); ?>"
                                            placeholder="जस्तै: काठमाण्डौ, नेपाल">
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Card Prefix (Optional)</label>
+                                <label for="ss_card_prefix" class="form-label fw-semibold">Card Prefix (Optional)</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                    <input type="text" name="card_prefix" class="form-control"
+                                    <input type="text" name="card_prefix" id="ss_card_prefix" class="form-control"
                                            value="<?php echo htmlspecialchars($cardPrefix, ENT_QUOTES, 'UTF-8'); ?>"
                                            maxlength="10"
                                            placeholder="जस्तै: BAN (3 अक्षर)">

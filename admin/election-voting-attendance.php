@@ -190,7 +190,7 @@ try {
 
 <div class="card admin-table-card mb-3"><div class="card-body">
     <form method="get" class="row g-2 align-items-end">
-        <div class="col-md-6"><label class="form-label small">निर्वाचन चक्र</label><select name="cycle" class="form-select" onchange="this.form.submit()">
+        <div class="col-md-6"><label for="eva_cycle" class="form-label small">निर्वाचन चक्र</label><select name="cycle" id="eva_cycle" class="form-select" onchange="this.form.submit()">
             <?php foreach ($allCycles as $cy): ?><option value="<?php echo (int)$cy['id']; ?>" <?php echo (int)$cy['id']===$cycleId?'selected':''; ?>><?php echo htmlspecialchars((string)$cy['title_np']); ?></option><?php endforeach; ?>
         </select></div>
         <div class="col-md-6"><div class="alert <?php echo $manualVoteOpen ? 'alert-success' : 'alert-warning'; ?> mb-0 py-2">
@@ -208,16 +208,16 @@ try {
                 <form method="post" class="row g-2" onsubmit="return confirm('Confirm गर्ने? Attendance only ले Portal मत रोक्दैन; ballot (उम्मेदवार छानेपछि) ले रोक्छ।');">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="mark_manual_vote">
-                    <div class="col-md-6"><label class="form-label small">Member ID / सदस्य नं.</label><input name="member_key" class="form-control" placeholder="MEM-... / ID"></div>
-                    <div class="col-md-6"><label class="form-label small">Phone</label><input name="phone" class="form-control" placeholder="98XXXXXXXX"></div>
-                    <div class="col-md-6"><label class="form-label small">Proof type</label><select name="proof_type" class="form-select">
+                    <div class="col-md-6"><label for="eva_member_key" class="form-label small">Member ID / सदस्य नं.</label><input name="member_key" id="eva_member_key" class="form-control" placeholder="MEM-... / ID"></div>
+                    <div class="col-md-6"><label for="eva_phone" class="form-label small">Phone</label><input name="phone" id="eva_phone" class="form-control" placeholder="98XXXXXXXX"></div>
+                    <div class="col-md-6"><label for="eva_proof_type" class="form-label small">Proof type</label><select name="proof_type" id="eva_proof_type" class="form-select">
                         <option value="id_card">सदस्य ID Card</option>
                         <option value="license">License</option>
                         <option value="citizenship">नागरिकता</option>
                         <option value="passport">Passport</option>
                         <option value="other">Other</option>
                     </select></div>
-                    <div class="col-md-6"><label class="form-label small">Note</label><input name="note" class="form-control" placeholder="कर्मचारी नोट"></div>
+                    <div class="col-md-6"><label for="eva_note" class="form-label small">Note</label><input name="note" id="eva_note" class="form-control" placeholder="कर्मचारी नोट"></div>
                     <div class="col-12">
                         <div class="alert alert-info small py-2 mb-0">
                             <strong>Attendance only</strong> (उम्मेदवार खाली) = उपस्थिति मात्र; सदस्य Portal बाट अझै मत हाल्न सक्छ।

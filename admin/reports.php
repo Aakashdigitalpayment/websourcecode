@@ -185,7 +185,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <?php endif; ?>
 
                         <div class="mb-3">
-                            <label class="form-label"><?php echo $__t('प्रतिवेदन प्रकार', 'Report Type'); ?> *</label>
+                            <label for="reportType" class="form-label"><?php echo $__t('प्रतिवेदन प्रकार', 'Report Type'); ?> *</label>
                             <select name="report_type" id="reportType" class="form-select" required>
                                 <option value="">-- <?php echo $__t('छान्नुहोस्', 'Select'); ?> --</option>
                                 <option value="monthly" <?php echo ($editReport['report_type'] ?? '') === 'monthly' ? 'selected' : ''; ?>><?php echo $__t('मासिक प्रतिवेदन','Monthly Report'); ?></option>
@@ -201,8 +201,8 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 
                         <!-- Month selection (for monthly reports) -->
                         <div class="mb-3 <?php echo ($editReport['report_type'] ?? '') === 'monthly' ? '' : 'd-none'; ?>" id="monthField">
-                            <label class="form-label"><?php echo $__t('महिना', 'Month'); ?> *</label>
-                            <select name="report_month" class="form-select">
+                            <label for="rpt_month" class="form-label"><?php echo $__t('महिना', 'Month'); ?> *</label>
+                            <select name="report_month" id="rpt_month" class="form-select">
                                 <option value="">-- <?php echo $__t('महिना छान्नुहोस्', 'Select month'); ?> --</option>
                                 <?php foreach ($nepaliMonths as $key => $month): ?>
                                 <option value="<?php echo $key; ?>" <?php echo ($editReport['report_month'] ?? '') === $key ? 'selected' : ''; ?>>
@@ -214,8 +214,8 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 
                         <!-- Quarter selection (for quarterly reports) -->
                         <div class="mb-3 <?php echo ($editReport['report_type'] ?? '') === 'quarterly' ? '' : 'd-none'; ?>" id="quarterField">
-                            <label class="form-label"><?php echo $__t('त्रैमास', 'Quarter'); ?> *</label>
-                            <select name="report_quarter" class="form-select">
+                            <label for="rpt_quarter" class="form-label"><?php echo $__t('त्रैमास', 'Quarter'); ?> *</label>
+                            <select name="report_quarter" id="rpt_quarter" class="form-select">
                                 <option value="">-- <?php echo $__t('त्रैमास छान्नुहोस्', 'Select quarter'); ?> --</option>
                                 <?php foreach ($quarters as $key => $quarter): ?>
                                 <option value="<?php echo $key; ?>" <?php echo ($editReport['report_quarter'] ?? '') === $key ? 'selected' : ''; ?>>
@@ -226,32 +226,32 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Title (English)</label>
-                            <input type="text" name="title" class="form-control" required value="<?php echo $editReport['title'] ?? ''; ?>">
+                            <label for="rpt_title" class="form-label">Title (English)</label>
+                            <input type="text" name="title" id="rpt_title" class="form-control" required value="<?php echo $editReport['title'] ?? ''; ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?></label>
-                            <input type="text" name="title_np" class="form-control" value="<?php echo $editReport['title_np'] ?? ''; ?>">
+                            <label for="rpt_title_np" class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?></label>
+                            <input type="text" name="title_np" id="rpt_title_np" class="form-control" value="<?php echo $editReport['title_np'] ?? ''; ?>">
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo $__t('आर्थिक वर्ष', 'Fiscal Year'); ?> *</label>
-                                <select name="report_year" class="form-select" required>
+                                <label for="rpt_year" class="form-label"><?php echo $__t('आर्थिक वर्ष', 'Fiscal Year'); ?> *</label>
+                                <select name="report_year" id="rpt_year" class="form-select" required>
                           <option value="">-- <?php echo $__t('आर्थिक वर्ष छान्नुहोस्', 'Select fiscal year'); ?> --</option>
                           <?php echo getBSFiscalYears($editReport['report_year'] ?? ''); ?>
                       </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
-                                <input type="number" name="display_order" class="form-control" value="<?php echo $editReport['display_order'] ?? 0; ?>">
+                                <label for="rpt_order" class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="display_order" id="rpt_order" class="form-control" value="<?php echo $editReport['display_order'] ?? 0; ?>">
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label"><?php echo $__t('फाइल (PDF)', 'File (PDF)'); ?></label>
-                            <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx">
+                            <label for="rpt_file" class="form-label"><?php echo $__t('फाइल (PDF)', 'File (PDF)'); ?></label>
+                            <input type="file" name="file" id="rpt_file" class="form-control" accept=".pdf,.doc,.docx">
                             <?php if (!empty($editReport['file_path'])): ?>
                             <small class="text-muted"><?php echo $__t('हालको', 'Current'); ?>: <?php echo basename($editReport['file_path']); ?></small>
                             <?php endif; ?>

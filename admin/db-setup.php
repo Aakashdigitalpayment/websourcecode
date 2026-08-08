@@ -680,12 +680,12 @@ if ($bootstrapMode && !$bootstrapSetupUnlocked) {
         <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="bootstrap_unlock_superadmin">
         <div class="mb-2">
-          <label class="form-label small mb-0">Username</label>
-          <input type="text" name="su_username" class="form-control form-control-sm" required autocomplete="username">
+          <label for="db_su_username" class="form-label small mb-0">Username</label>
+          <input type="text" name="su_username" id="db_su_username" class="form-control form-control-sm" required autocomplete="username">
         </div>
         <div class="mb-3">
-          <label class="form-label small mb-0">Password</label>
-          <input type="password" name="su_password" class="form-control form-control-sm" required autocomplete="current-password">
+          <label for="db_su_password" class="form-label small mb-0">Password</label>
+          <input type="password" name="su_password" id="db_su_password" class="form-control form-control-sm" required autocomplete="current-password">
         </div>
         <button type="submit" class="btn btn-primary btn-sm w-100">Unlock गरी DB Setup खोल्नुहोस्</button>
       </form>
@@ -932,9 +932,9 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                     <form method="POST" onsubmit="return confirm('यो action irreversible छ। सबै data/table हटाएर fresh rebuild गर्ने?\n\nOK = जारी राख्नुहोस्')">
                         <input type="hidden" name="action" value="reset_rebuild_testing">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
-                        <label class="form-label small fw-semibold">Confirm text टाइप गर्नुहोस्: <code>RESET TEST DB</code></label>
+                        <label for="db_confirm_text" class="form-label small fw-semibold">Confirm text टाइप गर्नुहोस्: <code>RESET TEST DB</code></label>
                         <div class="input-group">
-                            <input type="text" name="confirm_text" class="form-control" placeholder="RESET TEST DB" required>
+                            <input type="text" name="confirm_text" id="db_confirm_text" class="form-control" placeholder="RESET TEST DB" required>
                             <button type="submit" class="btn btn-danger">
                                 <i class="fas fa-trash me-1"></i>Hard Reset + Rebuild
                             </button>
@@ -969,7 +969,7 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <input type="hidden" name="action"     value="upload_to_db_folder">
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <div class="flex-grow-1">
-                            <label class="form-label fw-semibold mb-1 small">
+                            <label for="newSqlFileInput" class="form-label fw-semibold mb-1 small">
                                 <i class="fas fa-file-arrow-up me-1 text-primary"></i>
                                 नयाँ SQL File upload गर्नुहोस् <span class="text-muted fw-normal">(database/ folder मा save हुन्छ)</span>
                             </label>
@@ -1083,10 +1083,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-8">
-                                <label class="form-label fw-semibold small">
+                                <label for="db_sql_file" class="form-label fw-semibold small">
                                     <i class="fas fa-file-code me-1 text-primary"></i>.sql File छान्नुहोस्:
                                 </label>
-                                <input type="file" name="sql_file" accept=".sql" class="form-control" required>
+                                <input type="file" name="sql_file" id="db_sql_file" accept=".sql" class="form-control" required>
                                 <div class="form-text">केवल .sql — max 25MB। File server मा save हुँदैन, directly execute हुन्छ।</div>
                             </div>
                             <div class="col-md-4">
@@ -1208,10 +1208,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                         <!-- DB Host -->
                         <div class="mb-2">
-                            <label class="form-label fw-semibold mb-1 dbs-form-label-sm">
+                            <label for="db_host" class="form-label fw-semibold mb-1 dbs-form-label-sm">
                                 <i class="fas fa-server me-1 text-muted"></i>DB Host
                             </label>
-                            <input type="text" name="db_host" class="form-control form-control-sm"
+                            <input type="text" name="db_host" id="db_host" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_HOST') ? DB_HOST : 'localhost'); ?>"
                                    placeholder="localhost" required>
                             <div class="form-text dbs-mini-help">Shared hosting मा सधैं <code>localhost</code></div>
@@ -1219,27 +1219,27 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                         <!-- DB Name -->
                         <div class="mb-2">
-                            <label class="form-label fw-semibold mb-1 dbs-form-label-sm">
+                            <label for="db_name" class="form-label fw-semibold mb-1 dbs-form-label-sm">
                                 <i class="fas fa-database me-1 text-muted"></i>Database Name
                             </label>
-                            <input type="text" name="db_name" class="form-control form-control-sm"
+                            <input type="text" name="db_name" id="db_name" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_NAME') ? DB_NAME : ''); ?>"
                                    placeholder="cpanelusername_dbname" required>
                         </div>
 
                         <!-- DB User -->
                         <div class="mb-2">
-                            <label class="form-label fw-semibold mb-1 dbs-form-label-sm">
+                            <label for="db_user" class="form-label fw-semibold mb-1 dbs-form-label-sm">
                                 <i class="fas fa-user me-1 text-muted"></i>DB Username
                             </label>
-                            <input type="text" name="db_user" class="form-control form-control-sm"
+                            <input type="text" name="db_user" id="db_user" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('DB_USER') ? DB_USER : ''); ?>"
                                    placeholder="cpanelusername_dbuser" required>
                         </div>
 
                         <!-- DB Password -->
                         <div class="mb-2">
-                            <label class="form-label fw-semibold mb-1 dbs-form-label-sm">
+                            <label for="dbPassInput" class="form-label fw-semibold mb-1 dbs-form-label-sm">
                                 <i class="fas fa-lock me-1 text-muted"></i>DB Password
                             </label>
                             <div class="input-group input-group-sm">
@@ -1256,10 +1256,10 @@ if (defined('BOOTSTRAP_MODE') && BOOTSTRAP_MODE):
 
                         <!-- Site URL -->
                         <div class="mb-3">
-                            <label class="form-label fw-semibold mb-1 dbs-form-label-sm">
+                            <label for="db_site_url" class="form-label fw-semibold mb-1 dbs-form-label-sm">
                                 <i class="fas fa-globe me-1 text-muted"></i>Site URL
                             </label>
-                            <input type="url" name="site_url" class="form-control form-control-sm"
+                            <input type="url" name="site_url" id="db_site_url" class="form-control form-control-sm"
                                    value="<?php echo htmlspecialchars(defined('SITE_URL') ? SITE_URL : ''); ?>"
                                    placeholder="https://yourdomain.com.np/">
                             <div class="form-text dbs-mini-help">Trailing slash (/) अनिवार्य — auto-add हुन्छ।</div>

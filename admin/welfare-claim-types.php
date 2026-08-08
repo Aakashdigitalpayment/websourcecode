@@ -196,29 +196,29 @@ if ($_flash) {
                     <input type="hidden" name="action" value="save_type">
                     <input type="hidden" name="type_id" value="<?php echo (int)($form['id'] ?? 0); ?>">
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
-                        <input type="text" name="name_np" class="form-control" required maxlength="160"
+                        <label for="wct_name_np" class="form-label"><?php echo $__t('नाम (नेपाली)', 'Name (Nepali)'); ?> *</label>
+                        <input type="text" name="name_np" id="wct_name_np" class="form-control" required maxlength="160"
                                value="<?php echo htmlspecialchars((string)$form['name_np']); ?>">
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                        <input type="text" name="name_en" class="form-control" maxlength="160"
+                        <label for="wct_name_en" class="form-label"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                        <input type="text" name="name_en" id="wct_name_en" class="form-control" maxlength="160"
                                value="<?php echo htmlspecialchars((string)$form['name_en']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
-                        <input type="text" name="icon" class="form-control" maxlength="80"
+                        <label for="wct_icon" class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
+                        <input type="text" name="icon" id="wct_icon" class="form-control" maxlength="80"
                                placeholder="fa-gift"
                                value="<?php echo htmlspecialchars((string)$form['icon']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('रङ', 'Color'); ?></label>
-                        <input type="text" name="color" class="form-control" maxlength="40"
+                        <label for="wct_color" class="form-label"><?php echo $__t('रङ', 'Color'); ?></label>
+                        <input type="text" name="color" id="wct_color" class="form-control" maxlength="40"
                                value="<?php echo htmlspecialchars((string)$form['color']); ?>">
                     </div>
                     <div class="col-12">
-                        <label class="form-label"><?php echo $__t('फारम प्रोफाइल', 'Form profile'); ?></label>
-                        <select name="form_profile" class="form-select">
+                        <label for="wct_form_profile" class="form-label"><?php echo $__t('फारम प्रोफाइल', 'Form profile'); ?></label>
+                        <select name="form_profile" id="wct_form_profile" class="form-select">
                             <?php foreach ($profiles as $p): ?>
                             <option value="<?php echo htmlspecialchars($p); ?>" <?php echo (($form['form_profile'] ?? 'other') === $p) ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($profileLabels[$p] ?? $p); ?>
@@ -228,8 +228,8 @@ if ($_flash) {
                         <div class="form-text"><?php echo $__t('कुन विशेष फिल्डहरू देखाउने भन्ने निर्धारण गर्छ।', 'Controls which special fields are shown.'); ?></div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
-                        <input type="number" name="display_order" class="form-control" value="<?php echo (int)($form['display_order'] ?? 0); ?>">
+                        <label for="wct_order" class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                        <input type="number" name="display_order" id="wct_order" class="form-control" value="<?php echo (int)($form['display_order'] ?? 0); ?>">
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
                         <div class="form-check mb-2">
