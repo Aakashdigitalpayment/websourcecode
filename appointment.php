@@ -511,27 +511,27 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6 js-appt-name-wrap">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="name" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
+                                    <label for="appt_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
+                                    <input type="text" name="name" id="appt_name" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
                                            value="<?php echo htmlspecialchars($postIsMember ? ($_POST['name'] ?? '') : '', ENT_QUOTES); ?>"
-                                           placeholder="<?php echo isEnglish() ? 'Your full name' : 'तपाईंको पूरा नाम'; ?>">
+                                           placeholder="<?php echo isEnglish() ? 'Your full name' : 'तपाईंको पूरा नाम'; ?>" autocomplete="name">
                                 </div>
                                 <div class="col-md-6 js-hide-if-appt-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
-                                    <input type="tel" name="phone" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
+                                    <label for="appt_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
+                                    <input type="tel" name="phone" id="appt_phone" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
                                            maxlength="10" pattern="[0-9]{10}" placeholder="98XXXXXXXX"
-                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['phone'] ?? '') : '', ENT_QUOTES); ?>">
+                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['phone'] ?? '') : '', ENT_QUOTES); ?>" autocomplete="tel">
                                 </div>
                                 <div class="col-md-6 js-hide-if-appt-coop-yes">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="req">*</span></label>
-                                    <input type="email" name="email" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
+                                    <label for="appt_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="req">*</span></label>
+                                    <input type="email" name="email" id="appt_email" class="form-control js-appt-personal" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
                                            placeholder="example@gmail.com"
-                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['email'] ?? '') : '', ENT_QUOTES); ?>">
+                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['email'] ?? '') : '', ENT_QUOTES); ?>" autocomplete="email">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-appt-mid-req" style="display:none;">*</span><span class="text-muted small js-appt-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                                    <input type="text" name="member_id" class="form-control js-appt-mid"
-                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['member_id'] ?? '') : '', ENT_QUOTES); ?>">
+                                    <label for="appt_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-appt-mid-req" style="display:none;">*</span><span class="text-muted small js-appt-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
+                                    <input type="text" name="member_id" id="appt_member_id" class="form-control js-appt-mid"
+                                           value="<?php echo htmlspecialchars($postIsMember ? ($_POST['member_id'] ?? '') : '', ENT_QUOTES); ?>" autocomplete="off">
                                 </div>
                             </div>
                             <script>
@@ -572,8 +572,8 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Purpose' : 'उद्देश्य'; ?> <span class="req">*</span></label>
-                                    <select name="purpose" class="form-select" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>>
+                                    <label for="appt_purpose" class="form-label"><?php echo isEnglish() ? 'Purpose' : 'उद्देश्य'; ?> <span class="req">*</span></label>
+                                    <select name="purpose" id="appt_purpose" class="form-select" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>>
                                         <?php
                                         $purposes = [
                                             'account_inquiry'  => isEnglish() ? 'Account Inquiry'  : 'खाता जानकारी',
