@@ -926,7 +926,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 </div>
 
 <?php if (!empty($topProgramLabels) || !empty($trendLabels)): ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script>
 (function(){
   var topLabels = <?php echo json_encode(array_values($topProgramLabels), JSON_UNESCAPED_UNICODE); ?>;

@@ -599,7 +599,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 </div>
                 <?php if ($admin2faSetupUri !== ''): ?>
                 <div class="field field-compact">
-                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($admin2faSetupUri); ?>" target="_blank" rel="noopener" class="link-primary-strong">QR खोल्नुहोस् (scan गर्न)</a>
+                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($admin2faSetupUri); ?>" target="_blank" rel="noopener noreferrer" class="link-primary-strong">QR खोल्नुहोस् (scan गर्न)</a>
                 </div>
                 <?php endif; ?>
             <?php endif; ?>

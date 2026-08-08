@@ -296,7 +296,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script>
 Chart.defaults.font.family = "'Inter','Noto Sans Devanagari','Plus Jakarta Sans',sans-serif";
 Chart.defaults.color = '#6b7280';

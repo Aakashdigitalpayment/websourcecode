@@ -402,6 +402,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                 <img id="galleryPhotoModalImage"
                      src=""
                      alt=""
+                     decoding="async"
                      class="gallery-photo-modal-image">
             </div>
         </div>
