@@ -191,8 +191,8 @@ if (count($allCycles) > 1):
 ?>
 <div class="card admin-table-card mb-3"><div class="card-body py-2">
     <form method="get" class="row g-2 align-items-center">
-        <div class="col-auto"><label class="form-label small mb-0">चक्र छान्नुहोस्:</label></div>
-        <div class="col-md-5"><select class="form-select form-select-sm" name="cycle" onchange="this.form.submit()">
+        <div class="col-auto"><label for="ec_cycle_sel" class="form-label small mb-0">चक्र छान्नुहोस्:</label></div>
+        <div class="col-md-5"><select class="form-select form-select-sm" name="cycle" id="ec_cycle_sel" onchange="this.form.submit()">
             <?php foreach ($allCycles as $oc): ?>
                 <option value="<?php echo (int)$oc['id']; ?>" <?php echo ((int)$oc['id'] === $cycleId) ? 'selected' : ''; ?>><?php echo htmlspecialchars($oc['title_np']); ?></option>
             <?php endforeach; ?>
@@ -229,7 +229,7 @@ if (count($allCycles) > 1):
 
                     <?php if (!empty($postsMaster)): ?>
                     <div class="col-12">
-                        <label class="form-label small fw-semibold">Master पदबाट छान्नुहोस् <small class="text-muted">(title, समिति, सिट auto-fill हुन्छ)</small></label>
+                        <label for="post_master_sel" class="form-label small fw-semibold">Master पदबाट छान्नुहोस् <small class="text-muted">(title, समिति, सिट auto-fill हुन्छ)</small></label>
                         <select class="form-select form-select-lg post-master-select" name="post_id" id="post_master_sel"
                                 style="background-color:#fff;border:1px solid #d1d5db;border-radius:10px;padding:10px 36px 10px 14px;font-size:14px;font-weight:600;color:#1f2937;box-shadow:0 1px 2px rgba(15,23,42,.04);width:100%;">
                             <option value="">— Master पद छान्नुहोस् —</option>
@@ -251,22 +251,22 @@ if (count($allCycles) > 1):
                     <div class="col-12"><div class="alert alert-info py-2 mb-1 small">पहिले <a href="election-posts.php">पद Master</a> मा पद बनाउनुहोस्, अनि यहाँ छनोट गर्न मिल्छ।</div></div>
                     <?php endif; ?>
 
-                    <div class="col-md-7"><label class="form-label small">पदको नाम (नेपाली) *</label>
+                    <div class="col-md-7"><label for="pos_title_np" class="form-label small">पदको नाम (नेपाली) *</label>
                         <input class="form-control" name="title_np" id="pos_title_np" required value="<?php echo htmlspecialchars($editPos['title_np'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-5"><label class="form-label small">Title (English)</label>
+                    <div class="col-md-5"><label for="pos_title_en" class="form-label small">Title (English)</label>
                         <input class="form-control" name="title_en" id="pos_title_en" value="<?php echo htmlspecialchars($editPos['title_en'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">सिट संख्या</label>
+                    <div class="col-md-4"><label for="pos_seats" class="form-label small">सिट संख्या</label>
                         <input type="number" min="1" class="form-control" name="seats" id="pos_seats" value="<?php echo (int)($editPos['seats'] ?? 1); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">प्रति-मतदाता मत</label>
+                    <div class="col-md-4"><label for="pos_maxv" class="form-label small">प्रति-मतदाता मत</label>
                         <input type="number" min="1" class="form-control" name="max_votes_per_voter" id="pos_maxv" value="<?php echo (int)($editPos['max_votes_per_voter'] ?? 1); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">क्रम</label>
-                        <input type="number" class="form-control" name="display_order" value="<?php echo (int)($editPos['display_order'] ?? 0); ?>">
+                    <div class="col-md-4"><label for="pos_order" class="form-label small">क्रम</label>
+                        <input type="number" class="form-control" name="display_order" id="pos_order" value="<?php echo (int)($editPos['display_order'] ?? 0); ?>">
                     </div>
-                    <div class="col-md-8"><label class="form-label small">समिति (नतिजापछि स्वतः थप्न)</label>
+                    <div class="col-md-8"><label for="pos_ctype" class="form-label small">समिति (नतिजापछि स्वतः थप्न)</label>
                         <select class="form-select" name="committee_type_id" id="pos_ctype">
                             <option value="">— छान्नुहोस् —</option>
                             <?php foreach ($committeeTypes as $ct): ?>
@@ -346,37 +346,37 @@ if (count($allCycles) > 1):
                     <input type="hidden" name="action" value="save_candidate">
                     <input type="hidden" name="candidate_id" value="<?php echo $editCand ? (int)$editCand['id'] : 0; ?>">
                     <input type="hidden" name="existing_photo" value="<?php echo htmlspecialchars($editCand['photo'] ?? ''); ?>">
-                    <div class="col-md-6"><label class="form-label small">पद *</label>
-                        <select class="form-select" name="position_id" required>
+                    <div class="col-md-6"><label for="cand_position_id" class="form-label small">पद *</label>
+                        <select class="form-select" name="position_id" id="cand_position_id" required>
                             <option value="">— छान्नुहोस् —</option>
                             <?php foreach ($positions as $p): ?>
                                 <option value="<?php echo (int)$p['id']; ?>" <?php echo ((int)($editCand['position_id'] ?? 0) === (int)$p['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($p['title_np']); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-3"><label class="form-label small">चिन्ह नं.</label>
-                        <input class="form-control" name="symbol_no" value="<?php echo htmlspecialchars($editCand['symbol_no'] ?? ''); ?>">
+                    <div class="col-md-3"><label for="cand_symbol" class="form-label small">चिन्ह नं.</label>
+                        <input class="form-control" name="symbol_no" id="cand_symbol" value="<?php echo htmlspecialchars($editCand['symbol_no'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-3"><label class="form-label small">क्रम</label>
-                        <input type="number" class="form-control" name="display_order" value="<?php echo (int)($editCand['display_order'] ?? 0); ?>">
+                    <div class="col-md-3"><label for="cand_order" class="form-label small">क्रम</label>
+                        <input type="number" class="form-control" name="display_order" id="cand_order" value="<?php echo (int)($editCand['display_order'] ?? 0); ?>">
                     </div>
-                    <div class="col-md-6"><label class="form-label small">पूरा नाम (नेपाली) *</label>
-                        <input class="form-control" name="name" required value="<?php echo htmlspecialchars($editCand['name'] ?? ''); ?>">
+                    <div class="col-md-6"><label for="cand_name" class="form-label small">पूरा नाम (नेपाली) *</label>
+                        <input class="form-control" name="name" id="cand_name" required value="<?php echo htmlspecialchars($editCand['name'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-6"><label class="form-label small">Name (English)</label>
-                        <input class="form-control" name="name_en" value="<?php echo htmlspecialchars($editCand['name_en'] ?? ''); ?>">
+                    <div class="col-md-6"><label for="cand_name_en" class="form-label small">Name (English)</label>
+                        <input class="form-control" name="name_en" id="cand_name_en" value="<?php echo htmlspecialchars($editCand['name_en'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">फोन</label>
-                        <input class="form-control" name="phone" value="<?php echo htmlspecialchars($editCand['phone'] ?? ''); ?>">
+                    <div class="col-md-4"><label for="cand_phone" class="form-label small">फोन</label>
+                        <input class="form-control" name="phone" id="cand_phone" value="<?php echo htmlspecialchars($editCand['phone'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">इमेल</label>
-                        <input class="form-control" name="email" value="<?php echo htmlspecialchars($editCand['email'] ?? ''); ?>">
+                    <div class="col-md-4"><label for="cand_email" class="form-label small">इमेल</label>
+                        <input class="form-control" name="email" id="cand_email" value="<?php echo htmlspecialchars($editCand['email'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">ठेगाना</label>
-                        <input class="form-control" name="address" value="<?php echo htmlspecialchars($editCand['address'] ?? ''); ?>">
+                    <div class="col-md-4"><label for="cand_address" class="form-label small">ठेगाना</label>
+                        <input class="form-control" name="address" id="cand_address" value="<?php echo htmlspecialchars($editCand['address'] ?? ''); ?>">
                     </div>
-                    <div class="col-md-6"><label class="form-label small">फोटो</label>
-                        <input type="file" class="form-control" name="photo" accept="image/*">
+                    <div class="col-md-6"><label for="cand_photo" class="form-label small">फोटो</label>
+                        <input type="file" class="form-control" name="photo" id="cand_photo" accept="image/*">
                         <?php if (!empty($editCand['photo'])): ?>
                             <div class="small mt-1"><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($editCand['photo'], '/')); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></div>
                         <?php endif; ?>
@@ -387,11 +387,11 @@ if (count($allCycles) > 1):
                             <label class="form-check-label" for="cact">सक्रिय</label>
                         </div>
                     </div>
-                    <div class="col-12"><label class="form-label small">परिचय / Bio (नेपाली)</label>
-                        <textarea class="form-control" name="bio_np" rows="3"><?php echo htmlspecialchars($editCand['bio_np'] ?? ''); ?></textarea>
+                    <div class="col-12"><label for="cand_bio_np" class="form-label small">परिचय / Bio (नेपाली)</label>
+                        <textarea class="form-control" name="bio_np" id="cand_bio_np" rows="3"><?php echo htmlspecialchars($editCand['bio_np'] ?? ''); ?></textarea>
                     </div>
-                    <div class="col-12"><label class="form-label small">Bio (English)</label>
-                        <textarea class="form-control" name="bio_en" rows="2"><?php echo htmlspecialchars($editCand['bio_en'] ?? ''); ?></textarea>
+                    <div class="col-12"><label for="cand_bio_en" class="form-label small">Bio (English)</label>
+                        <textarea class="form-control" name="bio_en" id="cand_bio_en" rows="2"><?php echo htmlspecialchars($editCand['bio_en'] ?? ''); ?></textarea>
                     </div>
                     <div class="col-12 d-flex gap-2"><button class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-candidates.php?cycle=<?php echo $cycleId; ?>&panel=candidates">नयाँ</a></div>
