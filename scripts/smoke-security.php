@@ -113,6 +113,15 @@ assertFileContains('includes/config.php', 'https://unpkg.com', 'CSP allows unpkg
 assertFileContains('includes/config.php', 'frame-src', 'CSP frame-src for maps/embeds');
 assertFileContains('includes/config.php', 'connect-src', 'CSP connect-src for XHR/fetch');
 assertFileContains('includes/config.php', 'worker-src', 'CSP worker-src for QR scanner');
+assertFileContains('includes/config.php', 'Permissions-Policy: geolocation=(self)', 'KYC map geolocation allowed same-origin');
+assertFileContains('includes/member-auth.php', 'Permissions-Policy: geolocation=(self)', 'member headers geolocation same-origin');
+// Ensure we did not leave a total geo deny that breaks KYC locate
+$ppConfig = (string) file_get_contents($root . '/includes/config.php');
+if (strpos($ppConfig, 'geolocation=(),') !== false) {
+    fail('includes/config.php: geolocation still fully denied');
+} else {
+    ok('includes/config.php: geolocation not fully denied');
+}
 
 // Tabnabbing — public high-traffic surfaces
 $noopenerFiles = [

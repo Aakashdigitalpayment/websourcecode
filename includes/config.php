@@ -1944,7 +1944,8 @@ if (!headers_sent()) {
     header('Referrer-Policy: strict-origin-when-cross-origin');
     /* KYC / QR scan / verify — camera must be allowed on same-origin
        Both old (allowlist) and new (structured) syntax sent for max compatibility */
-    header('Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(), usb=()');
+    /* KYC map locate + QR/camera — same-origin only (third-party embeds still denied) */
+    header('Permissions-Policy: geolocation=(self), microphone=(self), camera=(self), payment=(), usb=()');
     $_httpsOn = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0')
         || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
     if ($_httpsOn) {
