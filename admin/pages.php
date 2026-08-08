@@ -566,10 +566,12 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         </ul>
                                         <div class="tab-content">
                                             <div class="tab-pane fade show active" id="pgv2_st_np" role="tabpanel">
-                                                <textarea name="content_np" class="form-control editor" rows="14"><?php echo htmlspecialchars($staticNp, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                <label for="pgv2_static_content_np" class="visually-hidden">Static content Nepali</label>
+                                                <textarea name="content_np" id="pgv2_static_content_np" class="form-control editor" rows="14"><?php echo htmlspecialchars($staticNp, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                             </div>
                                             <div class="tab-pane fade" id="pgv2_st_en" role="tabpanel">
-                                                <textarea name="content_en" class="form-control editor" rows="14"><?php echo htmlspecialchars($staticEn, ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                                <label for="pgv2_static_content_en" class="visually-hidden">Static content English</label>
+                                                <textarea name="content_en" id="pgv2_static_content_en" class="form-control editor" rows="14"><?php echo htmlspecialchars($staticEn, ENT_QUOTES, 'UTF-8'); ?></textarea>
                                             </div>
                                         </div>
 
