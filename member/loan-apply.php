@@ -170,8 +170,8 @@ require __DIR__ . '/includes/chrome.php';
       <!-- Loan Details -->
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('ऋणको प्रकार', 'Loan Type'); ?> <span class="mem-form-required">*</span></label>
-          <select name="loan_type" class="mem-form-control" required>
+          <label class="mem-form-label" for="mla_loan_type"><?php echo $_t('ऋणको प्रकार', 'Loan Type'); ?> <span class="mem-form-required">*</span></label>
+          <select name="loan_type" class="mem-form-control" required id="mla_loan_type">
             <option value="">— <?php echo $_t('ऋण प्रकार छान्नुहोस्', 'Select loan type'); ?> —</option>
             <?php foreach ($loanRates as $lr): ?>
             <option value="<?= htmlspecialchars($lr['name_np'] ?: $lr['name']) ?>"><?= htmlspecialchars($lr['name_np'] ?: $lr['name']) ?> (<?= number_format($lr['rate'],2) ?>%)</option>
@@ -185,15 +185,15 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('ऋण रकम (रु.)', 'Loan Amount (Rs.)'); ?> <span class="mem-form-required">*</span></label>
-          <input type="number" name="loan_amount" class="mem-form-control" required min="1000" step="1000" placeholder="5,00,000" value="<?= htmlspecialchars($_POST['loan_amount'] ?? '') ?>">
+          <label class="mem-form-label" for="mla_loan_amount"><?php echo $_t('ऋण रकम (रु.)', 'Loan Amount (Rs.)'); ?> <span class="mem-form-required">*</span></label>
+          <input type="number" name="loan_amount" class="mem-form-control" required min="1000" step="1000" placeholder="5,00,000" value="<?= htmlspecialchars($_POST['loan_amount'] ?? '') ?>" id="mla_loan_amount">
         </div>
       </div>
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('ऋण अवधि (महिना)', 'Loan Tenure (Months)'); ?></label>
-          <select name="loan_tenure" class="mem-form-control">
+          <label class="mem-form-label" for="mla_loan_tenure"><?php echo $_t('ऋण अवधि (महिना)', 'Loan Tenure (Months)'); ?></label>
+          <select name="loan_tenure" class="mem-form-control" id="mla_loan_tenure">
             <option value="">— <?php echo $_t('छान्नुहोस्', 'Select'); ?> —</option>
             <?php foreach ([12,24,36,48,60,84,120] as $m): ?>
             <option value="<?= $m ?>" <?= ($_POST['loan_tenure'] ?? '') == $m ? 'selected' : '' ?>><?= $m ?> <?php echo $_t('महिना', 'Months'); ?></option>
@@ -201,8 +201,8 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('भुक्तानी विधि', 'Repayment Method'); ?></label>
-          <select name="repayment_method" class="mem-form-control">
+          <label class="mem-form-label" for="mla_repayment_method"><?php echo $_t('भुक्तानी विधि', 'Repayment Method'); ?></label>
+          <select name="repayment_method" class="mem-form-control" id="mla_repayment_method">
             <option value="">— <?php echo $_t('छान्नुहोस्', 'Select'); ?> —</option>
             <option value="emi" <?= ($_POST['repayment_method'] ?? '') === 'emi' ? 'selected' : '' ?>><?php echo $_t('ईएमआई (मासिक किस्ता)', 'EMI (Monthly)'); ?></option>
             <option value="quarterly" <?= ($_POST['repayment_method'] ?? '') === 'quarterly' ? 'selected' : '' ?>><?php echo $_t('त्रैमासिक', 'Quarterly'); ?></option>
@@ -212,15 +212,15 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('ऋणको उद्देश्य', 'Loan Purpose'); ?></label>
-        <textarea name="loan_purpose" class="mem-form-control" rows="2" placeholder="<?php echo $_t('ऋण किन चाहिएको छ...', 'Why do you need this loan...'); ?>"><?= htmlspecialchars($_POST['loan_purpose'] ?? '') ?></textarea>
+        <label class="mem-form-label" for="mla_loan_purpose"><?php echo $_t('ऋणको उद्देश्य', 'Loan Purpose'); ?></label>
+        <textarea name="loan_purpose" class="mem-form-control" rows="2" placeholder="<?php echo $_t('ऋण किन चाहिएको छ...', 'Why do you need this loan...'); ?>" id="mla_loan_purpose"><?= htmlspecialchars($_POST['loan_purpose'] ?? '') ?></textarea>
       </div>
 
       <!-- Income -->
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('पेशा', 'Occupation'); ?></label>
-          <select name="occupation" class="mem-form-control">
+          <label class="mem-form-label" for="mla_occupation"><?php echo $_t('पेशा', 'Occupation'); ?></label>
+          <select name="occupation" class="mem-form-control" id="mla_occupation">
             <option value="">— <?php echo $_t('छान्नुहोस्', 'Select'); ?> —</option>
             <?php foreach ([
                 ['government', $_t('सरकारी नोकरी', 'Government Job')],
@@ -235,16 +235,16 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('मासिक आय (रु.)', 'Monthly Income (Rs.)'); ?></label>
-          <input type="number" name="monthly_income" class="mem-form-control" min="0" value="<?= htmlspecialchars($_POST['monthly_income'] ?? '') ?>">
+          <label class="mem-form-label" for="mla_monthly_income"><?php echo $_t('मासिक आय (रु.)', 'Monthly Income (Rs.)'); ?></label>
+          <input type="number" name="monthly_income" class="mem-form-control" min="0" value="<?= htmlspecialchars($_POST['monthly_income'] ?? '') ?>" id="mla_monthly_income">
         </div>
       </div>
 
       <!-- Collateral -->
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('धितो प्रकार', 'Collateral Type'); ?></label>
-          <select name="collateral_type" class="mem-form-control">
+          <label class="mem-form-label" for="mla_collateral_type"><?php echo $_t('धितो प्रकार', 'Collateral Type'); ?></label>
+          <select name="collateral_type" class="mem-form-control" id="mla_collateral_type">
             <option value="">— <?php echo $_t('छान्नुहोस्', 'Select'); ?> —</option>
             <option value="land"><?php echo $_t('जग्गा', 'Land'); ?></option>
             <option value="building"><?php echo $_t('घर/भवन', 'Building'); ?></option>
@@ -255,8 +255,8 @@ require __DIR__ . '/includes/chrome.php';
           </select>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('धितो विवरण', 'Collateral Details'); ?></label>
-          <input type="text" name="collateral_desc" class="mem-form-control" value="<?= htmlspecialchars($_POST['collateral_desc'] ?? '') ?>" placeholder="<?php echo $_t('संक्षेपमा...', 'Brief description...'); ?>">
+          <label class="mem-form-label" for="mla_collateral_desc"><?php echo $_t('धितो विवरण', 'Collateral Details'); ?></label>
+          <input type="text" name="collateral_desc" class="mem-form-control" value="<?= htmlspecialchars($_POST['collateral_desc'] ?? '') ?>" placeholder="<?php echo $_t('संक्षेपमा...', 'Brief description...'); ?>" id="mla_collateral_desc">
         </div>
       </div>
 

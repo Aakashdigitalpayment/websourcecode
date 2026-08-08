@@ -61,6 +61,12 @@ $filesExpectZeroBare = [
     'honor-apply.php',
     'member-survey.php',
     'online-kyc.php',
+    'member/digital-service.php',
+    'member/loan-apply.php',
+    'member/account-apply.php',
+    'member/service-request.php',
+    'member/appointment.php',
+    'member/grievance.php',
 ];
 
 foreach ($filesExpectZeroBare as $f) {
@@ -108,6 +114,18 @@ $pairs = [
     ['online-kyc.php', 'id="kyc_full_name"', 'main full name id'],
     ['online-kyc.php', 'for="kyc_full_name"', 'main full name label'],
     ['online-kyc.php', 'id="dob_ad_picker"', 'dob picker preserved'],
+    ['member/digital-service.php', 'for="dsServiceType"', 'service type'],
+    ['member/digital-service.php', 'for="mds_account_number"', 'account number'],
+    ['member/loan-apply.php', 'for="mla_loan_type"', 'loan type'],
+    ['member/loan-apply.php', 'for="mla_loan_amount"', 'loan amount'],
+    ['member/account-apply.php', 'for="maa_account_type"', 'account type'],
+    ['member/account-apply.php', 'for="maa_nominee_name"', 'guarantor name'],
+    ['member/service-request.php', 'for="msr_service_type"', 'service type'],
+    ['member/service-request.php', 'for="msr_message"', 'message'],
+    ['member/appointment.php', 'for="mapt_purpose"', 'purpose'],
+    ['member/appointment.php', 'for="mapt_preferred_date"', 'preferred date'],
+    ['member/grievance.php', 'for="mgr_category"', 'category'],
+    ['member/grievance.php', 'for="mgr_subject"', 'subject'],
 ];
 
 foreach ($pairs as [$file, $needle, $why]) {

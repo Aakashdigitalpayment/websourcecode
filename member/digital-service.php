@@ -194,7 +194,7 @@ require __DIR__ . '/includes/chrome.php';
 
       <!-- Service Type -->
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('सेवा प्रकार', 'Service Type'); ?> <span class="mem-form-required">*</span></label>
+        <label class="mem-form-label" for="dsServiceType"><?php echo $_t('सेवा प्रकार', 'Service Type'); ?> <span class="mem-form-required">*</span></label>
         <select name="service_type" class="mem-form-control" required id="dsServiceType" onchange="dsToggleFields(this.value)">
           <option value="">— <?php echo $_t('सेवा छान्नुहोस्', 'Select a service'); ?> —</option>
           <?php foreach ($serviceTypes as $val => $st): ?>
@@ -209,20 +209,20 @@ require __DIR__ . '/includes/chrome.php';
 
       <!-- Account Number (always useful) -->
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('खाता नम्बर', 'Account Number'); ?></label>
-        <input type="text" name="account_number" class="mem-form-control" placeholder="<?php echo $_t('तपाईंको खाता नम्बर (यदि लागू छ भने)', 'Your account number (if applicable)'); ?>" value="<?= htmlspecialchars($_POST['account_number'] ?? '') ?>">
+        <label class="mem-form-label" for="mds_account_number"><?php echo $_t('खाता नम्बर', 'Account Number'); ?></label>
+        <input type="text" name="account_number" class="mem-form-control" placeholder="<?php echo $_t('तपाईंको खाता नम्बर (यदि लागू छ भने)', 'Your account number (if applicable)'); ?>" value="<?= htmlspecialchars($_POST['account_number'] ?? '') ?>" id="mds_account_number">
       </div>
 
       <!-- Statement date range — shown for statement_request -->
       <div id="ds-field-statement" style="display:none;">
         <div class="mem-form-row mem-form-row-2">
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('स्टेटमेन्ट मिति (देखि)', 'Statement From'); ?></label>
-            <input type="date" name="statement_from" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_from'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_statement_from"><?php echo $_t('स्टेटमेन्ट मिति (देखि)', 'Statement From'); ?></label>
+            <input type="date" name="statement_from" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_from'] ?? '') ?>" id="mds_statement_from">
           </div>
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('स्टेटमेन्ट मिति (सम्म)', 'Statement To'); ?></label>
-            <input type="date" name="statement_to" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_to'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_statement_to"><?php echo $_t('स्टेटमेन्ट मिति (सम्म)', 'Statement To'); ?></label>
+            <input type="date" name="statement_to" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_to'] ?? '') ?>" id="mds_statement_to">
           </div>
         </div>
       </div>
@@ -231,12 +231,12 @@ require __DIR__ . '/includes/chrome.php';
       <div id="ds-field-bill" style="display:none;">
         <div class="mem-form-row mem-form-row-2">
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('बिलर नाम', 'Biller Name'); ?></label>
-            <input type="text" name="biller_name" class="mem-form-control" placeholder="NEA, Nepal Telecom..." value="<?= htmlspecialchars($_POST['biller_name'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_biller_name"><?php echo $_t('बिलर नाम', 'Biller Name'); ?></label>
+            <input type="text" name="biller_name" class="mem-form-control" placeholder="NEA, Nepal Telecom..." value="<?= htmlspecialchars($_POST['biller_name'] ?? '') ?>" id="mds_biller_name">
           </div>
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('बिल Reference', 'Bill Reference'); ?></label>
-            <input type="text" name="bill_reference" class="mem-form-control" placeholder="<?php echo $_t('ग्राहक नम्बर / SC नम्बर', 'Customer / SC number'); ?>" value="<?= htmlspecialchars($_POST['bill_reference'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_bill_reference"><?php echo $_t('बिल Reference', 'Bill Reference'); ?></label>
+            <input type="text" name="bill_reference" class="mem-form-control" placeholder="<?php echo $_t('ग्राहक नम्बर / SC नम्बर', 'Customer / SC number'); ?>" value="<?= htmlspecialchars($_POST['bill_reference'] ?? '') ?>" id="mds_bill_reference">
           </div>
         </div>
       </div>
@@ -245,12 +245,12 @@ require __DIR__ . '/includes/chrome.php';
       <div id="ds-field-recharge" style="display:none;">
         <div class="mem-form-row mem-form-row-2">
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('मोबाइल नम्बर', 'Mobile Number'); ?></label>
-            <input type="tel" name="recharge_number" class="mem-form-control" maxlength="10" placeholder="98XXXXXXXX" value="<?= htmlspecialchars($_POST['recharge_number'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_recharge_number"><?php echo $_t('मोबाइल नम्बर', 'Mobile Number'); ?></label>
+            <input type="tel" name="recharge_number" class="mem-form-control" maxlength="10" placeholder="98XXXXXXXX" value="<?= htmlspecialchars($_POST['recharge_number'] ?? '') ?>" id="mds_recharge_number">
           </div>
           <div class="mem-form-group">
-            <label class="mem-form-label"><?php echo $_t('रिचार्ज रकम (रु.)', 'Recharge Amount (Rs.)'); ?></label>
-            <input type="number" name="recharge_amount" class="mem-form-control" min="10" value="<?= htmlspecialchars($_POST['recharge_amount'] ?? '') ?>">
+            <label class="mem-form-label" for="mds_recharge_amount"><?php echo $_t('रिचार्ज रकम (रु.)', 'Recharge Amount (Rs.)'); ?></label>
+            <input type="number" name="recharge_amount" class="mem-form-control" min="10" value="<?= htmlspecialchars($_POST['recharge_amount'] ?? '') ?>" id="mds_recharge_amount">
           </div>
         </div>
       </div>
@@ -258,21 +258,21 @@ require __DIR__ . '/includes/chrome.php';
       <!-- Share amount — shown for share_refund / share_increase -->
       <div id="ds-field-share" style="display:none;">
         <div class="mem-form-group">
-          <label class="mem-form-label"><?php echo $_t('रकम (रु.)', 'Amount (Rs.)'); ?></label>
-          <input type="number" name="service_amount" class="mem-form-control" min="0" value="<?= htmlspecialchars($_POST['service_amount'] ?? '') ?>">
+          <label class="mem-form-label" for="mds_service_amount"><?php echo $_t('रकम (रु.)', 'Amount (Rs.)'); ?></label>
+          <input type="number" name="service_amount" class="mem-form-control" min="0" value="<?= htmlspecialchars($_POST['service_amount'] ?? '') ?>" id="mds_service_amount">
         </div>
       </div>
 
       <!-- Details -->
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('अतिरिक्त विवरण', 'Additional Details'); ?></label>
-        <textarea name="request_details" class="mem-form-control" rows="3" placeholder="<?php echo $_t('थप जानकारी वा निर्देशन...', 'Additional info or instructions...'); ?>"><?= htmlspecialchars($_POST['request_details'] ?? '') ?></textarea>
+        <label class="mem-form-label" for="mds_request_details"><?php echo $_t('अतिरिक्त विवरण', 'Additional Details'); ?></label>
+        <textarea name="request_details" class="mem-form-control" rows="3" placeholder="<?php echo $_t('थप जानकारी वा निर्देशन...', 'Additional info or instructions...'); ?>" id="mds_request_details"><?= htmlspecialchars($_POST['request_details'] ?? '') ?></textarea>
       </div>
 
       <!-- Preferred Contact -->
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('सम्पर्क माध्यम', 'Preferred Contact'); ?></label>
-        <select name="preferred_contact" class="mem-form-control">
+        <label class="mem-form-label" for="mds_preferred_contact"><?php echo $_t('सम्पर्क माध्यम', 'Preferred Contact'); ?></label>
+        <select name="preferred_contact" class="mem-form-control" id="mds_preferred_contact">
           <option value="phone" <?= ($_POST['preferred_contact'] ?? 'phone') === 'phone' ? 'selected' : '' ?>><?php echo $_t('फोन', 'Phone'); ?></option>
           <option value="email" <?= ($_POST['preferred_contact'] ?? '') === 'email' ? 'selected' : '' ?>>Email</option>
           <option value="branch" <?= ($_POST['preferred_contact'] ?? '') === 'branch' ? 'selected' : '' ?>><?php echo $_t('सेवा कार्यालय भ्रमण', 'Service Office Visit'); ?></option>
@@ -281,7 +281,7 @@ require __DIR__ . '/includes/chrome.php';
 
       <!-- Attachment -->
       <div class="mem-form-group">
-        <label class="mem-form-label" id="dsAttachLabel">
+        <label class="mem-form-label" id="dsAttachLabel" for="dsAttachment">
           <i class="fas fa-paperclip ico-primary"></i>
           <span id="dsAttachTitle"><?php echo $_t('संलग्न फाइल', 'Attachment'); ?></span>
           <small class="text-muted" id="dsAttachHint">(<?php echo $_t('ऐच्छिक', 'Optional'); ?>)</small>

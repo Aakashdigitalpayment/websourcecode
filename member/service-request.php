@@ -211,8 +211,8 @@ HTML;
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('सेवा प्रकार छान्नुहोस्', 'Select Service Type'); ?> <span class="mem-form-required">*</span></label>
-        <select name="service_type" class="mem-form-control" required>
+        <label class="mem-form-label" for="msr_service_type"><?php echo $_t('सेवा प्रकार छान्नुहोस्', 'Select Service Type'); ?> <span class="mem-form-required">*</span></label>
+        <select name="service_type" class="mem-form-control" required id="msr_service_type">
           <option value="">— <?php echo $_t('सेवा छान्नुहोस्', 'Select service'); ?> —</option>
           <?php foreach ($serviceTypes as $key => $svc): ?>
           <option value="<?= $key ?>"><?= $svc['label'] ?></option>
@@ -222,13 +222,13 @@ HTML;
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति (Optional)', 'Preferred Date (Optional)'); ?></label>
-          <input type="date" name="preferred_date" class="mem-form-control" min="<?= date('Y-m-d') ?>">
+          <label class="mem-form-label" for="msr_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति (Optional)', 'Preferred Date (Optional)'); ?></label>
+          <input type="date" name="preferred_date" class="mem-form-control" min="<?= date('Y-m-d') ?>" id="msr_preferred_date">
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?></label>
+          <label class="mem-form-label" for="msr_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?></label>
           <?php $preferredTimeValue = trim((string)($_POST['preferred_time'] ?? '')); $preferredTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
-          <select name="preferred_time" class="mem-form-control">
+          <select name="preferred_time" class="mem-form-control" id="msr_preferred_time">
             <option value="">— <?php echo $_t('समय छान्नुहोस्', 'Select time'); ?> —</option>
             <?php foreach ($preferredTimeOptions as $optVal => $optLabel): ?>
             <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $preferredTimeValue === $optVal ? 'selected' : ''; ?>>
@@ -245,13 +245,13 @@ HTML;
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
-        <input type="text" name="branch" class="mem-form-control" value="<?= htmlspecialchars($rBranch) ?>" placeholder="<?php echo $_t('जस्तै: प्रधान कार्यालय', 'e.g., Head Office'); ?>">
+        <label class="mem-form-label" for="msr_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <input type="text" name="branch" class="mem-form-control" value="<?= htmlspecialchars($rBranch) ?>" placeholder="<?php echo $_t('जस्तै: प्रधान कार्यालय', 'e.g., Head Office'); ?>" id="msr_branch">
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('विस्तृत सन्देश', 'Detailed Message'); ?> <span class="mem-form-required">*</span></label>
-        <textarea name="message" class="mem-form-control" rows="4" required placeholder="<?php echo $_t('तपाईंको अनुरोधको पूरा विवरण लेख्नुहोस्...', 'Write full details of your request...'); ?>"></textarea>
+        <label class="mem-form-label" for="msr_message"><?php echo $_t('विस्तृत सन्देश', 'Detailed Message'); ?> <span class="mem-form-required">*</span></label>
+        <textarea name="message" class="mem-form-control" rows="4" required placeholder="<?php echo $_t('तपाईंको अनुरोधको पूरा विवरण लेख्नुहोस्...', 'Write full details of your request...'); ?>" id="msr_message"></textarea>
       </div>
 
       <button type="submit" class="mem-submit-btn">

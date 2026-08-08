@@ -168,8 +168,8 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('उद्देश्य', 'Purpose'); ?> <span class="mem-form-required">*</span></label>
-        <select name="purpose" class="mem-form-control" required>
+        <label class="mem-form-label" for="mapt_purpose"><?php echo $_t('उद्देश्य', 'Purpose'); ?> <span class="mem-form-required">*</span></label>
+        <select name="purpose" class="mem-form-control" required id="mapt_purpose">
           <option value="">— <?php echo $_t('उद्देश्य छान्नुहोस्', 'Select purpose'); ?> —</option>
           <?php foreach ($purposes as $val => $label): ?>
           <option value="<?= $val ?>" <?= ($_POST['purpose'] ?? '') === $val ? 'selected' : '' ?>><?= $label ?></option>
@@ -178,19 +178,19 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><?php echo $_t('उद्देश्य विवरण', 'Purpose Details'); ?></label>
-        <textarea name="purpose_detail" class="mem-form-control" rows="2" placeholder="<?php echo $_t('संक्षेपमा बताउनुहोस्...', 'Briefly describe...'); ?>"><?= htmlspecialchars($_POST['purpose_detail'] ?? '') ?></textarea>
+        <label class="mem-form-label" for="mapt_purpose_detail"><?php echo $_t('उद्देश्य विवरण', 'Purpose Details'); ?></label>
+        <textarea name="purpose_detail" class="mem-form-control" rows="2" placeholder="<?php echo $_t('संक्षेपमा बताउनुहोस्...', 'Briefly describe...'); ?>" id="mapt_purpose_detail"><?= htmlspecialchars($_POST['purpose_detail'] ?? '') ?></textarea>
       </div>
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?> <span class="mem-form-required">*</span></label>
-          <input type="date" name="preferred_date" class="mem-form-control" required min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($_POST['preferred_date'] ?? '') ?>">
+          <label class="mem-form-label" for="mapt_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?> <span class="mem-form-required">*</span></label>
+          <input type="date" name="preferred_date" class="mem-form-control" required min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($_POST['preferred_date'] ?? '') ?>" id="mapt_preferred_date">
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required">*</span></label>
+          <label class="mem-form-label" for="mapt_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required">*</span></label>
           <?php $selTime = trim((string)($_POST['preferred_time'] ?? '')); ?>
-          <select name="preferred_time" class="mem-form-control" required>
+          <select name="preferred_time" class="mem-form-control" required id="mapt_preferred_time">
             <option value="">— <?php echo $_t('समय छान्नुहोस्', 'Select time'); ?> —</option>
             <?php foreach ($timeOptions as $tv => $tl): ?>
             <option value="<?= htmlspecialchars($tv) ?>" <?= $selTime === $tv ? 'selected' : '' ?>><?= htmlspecialchars($tl) ?></option>
@@ -200,8 +200,8 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
-        <select name="branch" class="mem-form-control">
+        <label class="mem-form-label" for="mapt_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <select name="branch" class="mem-form-control" id="mapt_branch">
           <option value=""><?php echo $_t('सेवा कार्यालय छान्नुहोस्', 'Select branch'); ?></option>
           <?php foreach ($branches as $br): ?>
           <option value="<?= htmlspecialchars($br['name']) ?>"><?= htmlspecialchars($br['name']) ?></option>
