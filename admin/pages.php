@@ -28,7 +28,7 @@ function pages_admin_tinymce(): void {
     static $loaded = false;
     if ($loaded) return;
     $loaded = true;
-    echo '<script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" referrerpolicy="no-referrer"></script>';
+    echo '<script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.5/tinymce.min.js" integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM" crossorigin="anonymous" referrerpolicy="no-referrer"></script>';
     echo "<script>
         tinymce.init({
             selector: '.editor',

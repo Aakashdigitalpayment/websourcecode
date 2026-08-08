@@ -680,7 +680,7 @@ body {
             </div>
             <div class="nav-btns">
                 <span class="step-counter">Step 1 of 5</span>
-                <button class="btn-next" onclick="goStep(1)" <?= !$allChecksPass ? 'disabled' : '' ?>>
+                <button type="button" class="btn-next" onclick="goStep(1)" <?= !$allChecksPass ? 'disabled' : '' ?>>
                     अर्को <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
@@ -696,24 +696,24 @@ body {
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-server" style="color:var(--green);"></i> DB Host <span class="req">*</span></label>
+                        <label for="db_host" class="form-label"><i class="fas fa-server" style="color:var(--green);"></i> DB Host <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_host" value="localhost" placeholder="localhost">
                         <span class="form-hint">प्रायः <code>localhost</code> नै हुन्छ।</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-database" style="color:var(--green);"></i> Database Name <span class="req">*</span></label>
+                        <label for="db_name" class="form-label"><i class="fas fa-database" style="color:var(--green);"></i> Database Name <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_name" placeholder="cpanel_dbname">
                         <span class="form-hint">cPanel → MySQL Databases मा बनाएको नाम।</span>
                     </div>
                 </div>
                 <div class="db-test-row" style="gap:12px;display:grid;grid-template-columns:1fr 1fr;">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> DB Username <span class="req">*</span></label>
+                        <label for="db_user" class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> DB Username <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_user" placeholder="cpanel_dbuser">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-lock" style="color:var(--green);"></i> DB Password</label>
-                        <input type="password" class="form-control" id="db_pass" placeholder="••••••••">
+                        <label class="form-label" for="db_pass"><i class="fas fa-lock" style="color:var(--green);"></i> DB Password</label>
+                        <input type="password" class="form-control" id="db_pass" placeholder="••••••••" autocomplete="off">
                     </div>
                 </div>
                 <button type="button" class="btn-test" style="margin-top:6px;" onclick="testDb()">
@@ -723,9 +723,9 @@ body {
                 <div class="error-box" id="step1Err"></div>
             </div>
             <div class="nav-btns">
-                <button class="btn-back" onclick="goStep(0)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(0)"><i class="fas fa-arrow-left"></i> पछाडि</button>
                 <span class="step-counter">Step 2 of 5</span>
-                <button class="btn-next" onclick="validateDb()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateDb()">अर्को <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -739,46 +739,46 @@ body {
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> नाम (नेपालीमा) <span class="req">*</span></label>
+                        <label for="site_name" class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> नाम (नेपालीमा) <span class="req">*</span></label>
                         <input type="text" class="form-control" id="site_name" placeholder="जस्तै: सूर्योदय बचत तथा ऋण सहकारी">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> Name (English)</label>
+                        <label for="site_name_en" class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> Name (English)</label>
                         <input type="text" class="form-control" id="site_name_en" placeholder="Suryadaya S&C Cooperative">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-quote-left" style="color:var(--green);"></i> Slogan / नारा</label>
+                        <label for="site_slogan" class="form-label"><i class="fas fa-quote-left" style="color:var(--green);"></i> Slogan / नारा</label>
                         <input type="text" class="form-control" id="site_slogan" placeholder="जस्तै: समुदायको विश्वासिलो साथी">
                     </div>
                 </div>
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-phone" style="color:var(--green);"></i> फोन नम्बर</label>
+                        <label for="phone" class="form-label"><i class="fas fa-phone" style="color:var(--green);"></i> फोन नम्बर</label>
                         <input type="text" class="form-control" id="phone" placeholder="061-590067">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Email</label>
+                        <label for="email" class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Email</label>
                         <input type="email" class="form-control" id="email" placeholder="info@example.com">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-location-dot" style="color:var(--green);"></i> ठेगाना</label>
+                        <label for="address" class="form-label"><i class="fas fa-location-dot" style="color:var(--green);"></i> ठेगाना</label>
                         <input type="text" class="form-control" id="address" placeholder="जस्तै: पोखरा, कास्की, गण्डकी प्रदेश">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-globe" style="color:var(--green);"></i> Website URL</label>
+                        <label for="site_url" class="form-label"><i class="fas fa-globe" style="color:var(--green);"></i> Website URL</label>
                         <input type="url" class="form-control" id="site_url" value="<?= htmlspecialchars($guessUrl) ?>" placeholder="https://yourdomain.com/">
                         <span class="form-hint">पूरा URL domain सहित (https:// वा http://)।</span>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-palette" style="color:var(--green);"></i> Primary Color (मुख्य रंग)</label>
+                        <label for="admin_username" class="form-label"><i class="fas fa-palette" style="color:var(--green);"></i> Primary Color (मुख्य रंग)</label>
                         <div class="color-row">
                             <input type="color" id="primary_color" value="#1a5f2a" onchange="updateColorPreview()">
                             <div class="color-preview" id="colorPreview" style="background:#1a5f2a;">
@@ -792,9 +792,9 @@ body {
                 <div class="error-box" id="step2Err"></div>
             </div>
             <div class="nav-btns">
-                <button class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> पछाडि</button>
                 <span class="step-counter">Step 3 of 5</span>
-                <button class="btn-next" onclick="validateCoopInfo()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateCoopInfo()">अर्को <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -808,29 +808,29 @@ body {
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> Username <span class="req">*</span></label>
+                        <label for="admin_username" class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> Username <span class="req">*</span></label>
                         <input type="text" class="form-control" id="admin_username" value="admin" placeholder="admin">
                         <span class="form-hint">अंग्रेजी अक्षर, अंक, _ मात्र।</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-id-badge" style="color:var(--green);"></i> पूरा नाम</label>
+                        <label for="admin_fullname" class="form-label"><i class="fas fa-id-badge" style="color:var(--green);"></i> पूरा नाम</label>
                         <input type="text" class="form-control" id="admin_fullname" placeholder="जस्तै: रामप्रसाद शर्मा">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Admin Email</label>
+                        <label for="admin_email" class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Admin Email</label>
                         <input type="email" class="form-control" id="admin_email" placeholder="admin@example.com">
                     </div>
                 </div>
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-lock" style="color:var(--green);"></i> Password <span class="req">*</span></label>
-                        <input type="password" class="form-control" id="admin_password" placeholder="कम्तिमा 8 characters">
+                        <label class="form-label" for="admin_password"><i class="fas fa-lock" style="color:var(--green);"></i> Password <span class="req">*</span></label>
+                        <input type="password" class="form-control" id="admin_password" placeholder="कम्तिमा 8 characters" autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label class="form-label"><i class="fas fa-lock" style="color:var(--green);"></i> Password Confirm <span class="req">*</span></label>
-                        <input type="password" class="form-control" id="admin_password2" placeholder="फेरि भर्नुहोस्">
+                        <label class="form-label" for="admin_password2"><i class="fas fa-lock" style="color:var(--green);"></i> Password Confirm <span class="req">*</span></label>
+                        <input type="password" class="form-control" id="admin_password2" placeholder="फेरि भर्नुहोस्" autocomplete="new-password">
                     </div>
                 </div>
                 <div style="background:var(--green-lt);border:1px solid #c8e6c9;border-radius:10px;padding:12px 14px;font-size:.82rem;color:var(--green-dk);margin-top:6px;">
@@ -841,9 +841,9 @@ body {
                 <div class="error-box" id="step3Err"></div>
             </div>
             <div class="nav-btns">
-                <button class="btn-back" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> पछाडि</button>
                 <span class="step-counter">Step 4 of 5</span>
-                <button class="btn-next" onclick="validateAdmin()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateAdmin()">अर्को <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -903,9 +903,9 @@ body {
             </div>
 
             <div class="nav-btns" id="installNavBtns">
-                <button class="btn-back" onclick="goStep(3)" id="btnInstallBack"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(3)" id="btnInstallBack"><i class="fas fa-arrow-left"></i> पछाडि</button>
                 <span class="step-counter">Step 5 of 5</span>
-                <button class="btn-next" id="btnInstallRun" onclick="runInstall()">
+                <button type="button" class="btn-next" id="btnInstallRun" onclick="runInstall()">
                     <i class="fas fa-rocket"></i> Install गर्नुहोस्
                 </button>
             </div>

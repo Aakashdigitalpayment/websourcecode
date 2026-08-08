@@ -421,6 +421,8 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                     <iframe id="galleryVideoFrame"
                             src=""
                             title="<?php echo isEnglish() ? 'Gallery video player' : 'ग्यालरी भिडियो प्लेयर'; ?>"
+                            loading="lazy"
+                            referrerpolicy="strict-origin-when-cross-origin"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                 </div>

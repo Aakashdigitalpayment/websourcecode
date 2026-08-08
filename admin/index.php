@@ -607,7 +607,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 <label for="admin_twofa_code">2FA Code / Backup Code</label>
                 <div class="input-icon">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
-                    <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
+                    <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
                 </div>
             </div>
             <button type="submit" class="submit-btn">

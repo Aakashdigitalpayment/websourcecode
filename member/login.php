@@ -549,7 +549,7 @@ body {
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो setup गर्नुहोस्:</div>
                 <div class="field">
                     <label for="twofa_manual_secret">Manual Secret Key</label>
-                    <input type="text" id="twofa_manual_secret" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>">
+                    <input type="text" id="twofa_manual_secret" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>" autocomplete="off">
                 </div>
                 <?php if ($member2faSetupUri !== ''): ?>
                 <div class="twofa-qr-wrap">
@@ -561,7 +561,7 @@ body {
             <?php endif; ?>
             <div class="field">
                 <label for="twofa_code">2FA Code</label>
-                <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
+                <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
             </div>
             <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php if (!empty($_SESSION['member_2fa_backup_plain']) && is_array($_SESSION['member_2fa_backup_plain'])): ?>
@@ -575,10 +575,10 @@ body {
         <?php else: ?>
 
         <div class="tabs">
-                <button class="tab-btn <?php echo $tab==='login'?'active':''; ?>" onclick="switchTab('login')">
+                <button type="button" class="tab-btn <?php echo $tab==='login'?'active':''; ?>" onclick="switchTab('login')">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> <?php echo $_t('लगिन', 'Login'); ?>
-            </button>
-                <button class="tab-btn <?php echo $tab==='register'?'active':''; ?>" onclick="switchTab('register')">
+                </button>
+                <button type="button" class="tab-btn <?php echo $tab==='register'?'active':''; ?>" onclick="switchTab('register')">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i> <?php echo $_t('दर्ता', 'Register'); ?>
             </button>
         </div>

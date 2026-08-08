@@ -282,9 +282,9 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <div class="mb-4">
         <input type="text" name="otp" id="otpInput" class="form-control otp-input"
                placeholder="000000" maxlength="6" pattern="\d{6}"
-               inputmode="numeric" autofocus required>
+               inputmode="numeric" autocomplete="one-time-code" autofocus required>
       </div>
-      <button class="btn btn-g w-100 py-2 fw-semibold mb-2">
+      <button type="submit" class="btn btn-g w-100 py-2 fw-semibold mb-2">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="check-circle"></i>OTP Verify गर्नुहोस्
       </button>
     </form>

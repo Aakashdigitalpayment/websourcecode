@@ -202,9 +202,27 @@ assertFileContains('admin/analytics.php', $chartSri, 'Chart.js SRI analytics');
 assertFileContains('admin/program-attendance.php', $chartSri, 'Chart.js SRI program-attendance');
 assertFileContains('member/scan.php', 'integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"', 'html5-qrcode SRI');
 assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="', 'Leaflet JS SRI');
+assertFileContains('admin/pages.php', 'integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM"', 'TinyMCE SRI');
+assertFileContains('admin/includes/admin-footer.php', 'integrity="sha384-iRqAtUS5zaxUb29RlrazJxjB/+B6yhysd3tFSeMTcmvAgxeXTVWBk4OlbSJWpthT"', 'CKEditor SRI');
+assertFileContains('includes/config.php', 'https://cdn.ckeditor.com', 'CSP allows CKEditor CDN');
 assertFileContains('member/login.php', 'rel="noopener noreferrer" class="twofa-qr-link"', 'member 2FA QR noreferrer');
 assertFileContains('admin/index.php', 'rel="noopener noreferrer" class="link-primary-strong"', 'admin 2FA QR noreferrer');
-
+assertFileContains('member/login.php', 'id="twofa_code"', 'member 2FA code field');
+assertFileContains('member/login.php', 'autocomplete="one-time-code"', 'member 2FA OTP autocomplete');
+assertFileContains('admin/index.php', 'id="admin_twofa_code"', 'admin 2FA code field');
+assertFileContains('admin/index.php', 'autocomplete="one-time-code"', 'admin 2FA OTP autocomplete');
+assertFileContains('member/password-reset-request.php', 'id="otpInput"', 'password-reset OTP field');
+assertFileContains('member/password-reset-request.php', 'autocomplete="one-time-code"', 'password-reset OTP autocomplete');
+assertFileContains('install.php', 'id="admin_password"', 'install admin password field');
+assertFileContains('install.php', 'autocomplete="new-password"', 'install password autocomplete');
+assertFileContains('includes/auction-tables.php', 'title="Auction location map"', 'auction map iframe title');
+assertFileContains('includes/auction-tables.php', 'loading="lazy"', 'auction map iframe lazy');
+assertFileContains('gallery.php', 'id="galleryVideoFrame"', 'gallery video iframe');
+assertFileContains('gallery.php', 'loading="lazy"', 'gallery video iframe lazy');
+assertFileContains('404.php', 'type="button" onclick="history.back()"', '404 back button typed');
+assertFileContains('includes/footer.php', 'type="button" class="chatbot-close"', 'chatbot close typed');
+assertFileContains('includes/footer.php', 'type="button" class="search-modal-close"', 'search close typed');
+assertFileContains('member/login.php', 'type="button" class="tab-btn', 'member login tabs typed');
 // Syntax
 $lintFiles = array_merge(
     ['member/session-check.php', 'cron-cleanup.php'],
