@@ -122,6 +122,12 @@ if (strpos($ppConfig, 'geolocation=(),') !== false) {
 } else {
     ok('includes/config.php: geolocation not fully denied');
 }
+$boot = (string) file_get_contents($root . '/_bootstrap.php');
+if (preg_match('/header\s*\(\s*[\'"]X-XSS-Protection/i', $boot)) {
+    fail('_bootstrap.php: deprecated X-XSS-Protection still set');
+} else {
+    ok('_bootstrap.php: no deprecated X-XSS-Protection header');
+}
 
 // Tabnabbing — public high-traffic surfaces
 $noopenerFiles = [

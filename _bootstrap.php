@@ -49,7 +49,7 @@ mb_internal_encoding('UTF-8');
 // ─── 2. SECURITY HEADERS — sent once here, never repeat in individual pages ──
 header('X-Frame-Options: SAMEORIGIN');
 header('X-Content-Type-Options: nosniff');
-header('X-XSS-Protection: 1; mode=block');
+/* X-XSS-Protection omitted — deprecated; CSP Report-Only is the XSS path */
 header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // ─── 3. PATH CONSTANTS ────────────────────────────────────────────────────────
