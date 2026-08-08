@@ -644,7 +644,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($m['photo'])): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo">
+                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
                                     <?php endif; ?>
@@ -728,7 +728,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($m['photo'])): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo">
+                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
                                     <?php endif; ?>
@@ -1509,7 +1509,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             var prev = document.getElementById('tmf_photo_prev');
             prev.innerHTML = m.photo
-                ? '<img src="<?php echo SITE_URL; ?>' + m.photo + '" class="tm-photo-preview">'
+                ? '<img src="<?php echo SITE_URL; ?>' + m.photo + '" class="tm-photo-preview" alt="Preview">'
                 : '';
             document.getElementById('tmf_photo_note').textContent = m.photo ? teamI18n.keepPhoto : '';
             document.getElementById('tmf_submit').innerHTML = teamI18n.editBtn;

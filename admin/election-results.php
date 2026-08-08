@@ -205,7 +205,7 @@ if (count($allCycles) > 1):
                             <td><?php if ($isWin): ?><i class="fas fa-trophy text-warning"></i><?php endif; ?></td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <?php if (!empty($c['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($c['photo'], '/')); ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"><?php endif; ?>
+                                    <?php if (!empty($c['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($c['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($c['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"><?php endif; ?>
                                     <div><?php echo htmlspecialchars($c['name']); ?> <?php if (!empty($c['symbol_no'])): ?><small class="text-muted">#<?php echo htmlspecialchars($c['symbol_no']); ?></small><?php endif; ?></div>
                                 </div>
                                 <div class="progress mt-1" style="height:4px;"><div class="progress-bar" style="width:<?php echo round((int)$c['votes']/$maxVotes*100); ?>%"></div></div>

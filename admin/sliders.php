@@ -189,7 +189,7 @@ $slidersArch = $slPart['archived'];
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($sl['image'])): ?>
-                                    <img src="../<?php echo htmlspecialchars($sl['image']); ?>" class="sl-prev-img">
+                                    <img src="../<?php echo htmlspecialchars($sl['image']); ?>" class="sl-prev-img" alt="<?php echo htmlspecialchars($sl['title'] ?? 'Slider', ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="sl-prev-empty"><i class="fas fa-image text-muted"></i></div>
                                     <?php endif; ?>
@@ -251,7 +251,7 @@ $slidersArch = $slPart['archived'];
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($sl['image'])): ?>
-                                    <img src="../<?php echo htmlspecialchars($sl['image']); ?>" class="sl-prev-img">
+                                    <img src="../<?php echo htmlspecialchars($sl['image']); ?>" class="sl-prev-img" alt="<?php echo htmlspecialchars($sl['title'] ?? 'Slider', ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="sl-prev-empty"><i class="fas fa-image text-muted"></i></div>
                                     <?php endif; ?>
@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('slf_img_required').style.display = 'none';
             var prev = document.getElementById('slf_img_prev');
             prev.innerHTML = d.image
-                ? '<img src="../' + d.image + '" class="sl-edit-prev">'
+                ? '<img src="../' + d.image + '" class="sl-edit-prev" alt="Preview">'
                 : '';
             document.getElementById('slf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
             document.getElementById('slFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>स्लाइडर सम्पादन';
@@ -433,7 +433,7 @@ function previewSliderImg(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            prev.innerHTML = '<img src="' + e.target.result + '" class="sl-prev-upload">';
+            prev.innerHTML = '<img src="' + e.target.result + '" class="sl-prev-upload" alt="Preview">';
         };
         reader.readAsDataURL(input.files[0]);
     }

@@ -378,7 +378,7 @@ if (count($allCycles) > 1):
                     <div class="col-md-6"><label for="cand_photo" class="form-label small">फोटो</label>
                         <input type="file" class="form-control" name="photo" id="cand_photo" accept="image/*">
                         <?php if (!empty($editCand['photo'])): ?>
-                            <div class="small mt-1"><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($editCand['photo'], '/')); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></div>
+                            <div class="small mt-1"><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($editCand['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($editCand['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></div>
                         <?php endif; ?>
                     </div>
                     <div class="col-md-6 d-flex align-items-end">
@@ -409,7 +409,7 @@ if (count($allCycles) > 1):
                     <?php foreach ($cands as $cd):
                         $pos = $posMap[(int)$cd['position_id']] ?? null; ?>
                         <tr>
-                            <td><?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($cd['photo'], '/')); ?>" style="width:36px;height:36px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted small">—</span><?php endif; ?></td>
+                            <td><?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($cd['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:36px;height:36px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted small">—</span><?php endif; ?></td>
                             <td><?php echo htmlspecialchars($cd['name']); ?> <?php if (empty($cd['is_active'])): ?><span class="badge bg-secondary">निष्क्रिय</span><?php endif; ?></td>
                             <td class="small"><?php echo $pos ? htmlspecialchars($pos['title_np']) : '—'; ?></td>
                             <td><?php echo htmlspecialchars($cd['symbol_no'] ?? ''); ?></td>

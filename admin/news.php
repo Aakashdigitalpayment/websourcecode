@@ -164,7 +164,7 @@ $newsArch = $newsPart['archived'];
                                 <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>"></td>
                                 <td class="ps-3">
                                     <?php if ($n['image']): ?>
-                                    <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img">
+                                    <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="news-thumb-placeholder"><i class="fas fa-newspaper text-success"></i></div>
                                     <?php endif; ?>
@@ -229,7 +229,7 @@ $newsArch = $newsPart['archived'];
                                 <td class="text-center"><input type="checkbox" class="news-select" name="selected_ids[]" value="<?php echo (int)$n['id']; ?>"></td>
                                 <td class="ps-3">
                                     <?php if ($n['image']): ?>
-                                    <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img">
+                                    <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="news-thumb-placeholder"><i class="fas fa-newspaper text-success"></i></div>
                                     <?php endif; ?>
@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             var prev = document.getElementById('nf_img_preview');
             prev.innerHTML = d.image
-                ? '<img src="../' + d.image + '" class="news-preview-img">'
+                ? '<img src="../' + d.image + '" class="news-preview-img" alt="Preview">'
                 : '';
             document.getElementById('nf_img_note').textContent = d.image
                 ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ'
