@@ -594,16 +594,32 @@ function seo_document_title(?string $pageTitle = null, bool $english = false): s
     }
 
     if ($isHome) {
-        /* Brand-first: "Janautthan | जनउत्थान बचत…" style */
+        /* Brand-first + short location/services tag for SERP CTR (no "गृहपृष्ठ" prefix) */
+        $tagline = trim((string) getSetting($english ? 'seo_tagline_en' : 'seo_tagline', ''));
+        if ($tagline === '') {
+            $tagline = trim((string) getSetting($english ? 'seo_tagline' : 'seo_tagline_en', ''));
+        }
+        if ($tagline === '') {
+            $city = trim((string) getSetting($english ? 'site_city_en' : 'site_city', ''));
+            if ($city === '') {
+                $city = $english ? 'Pokhara' : 'पोखरा';
+            }
+            $tagline = $english
+                ? ('Savings & Loan Services, ' . $city)
+                : ('बचत, ऋण सेवा | ' . $city);
+        }
+        $homeTitle = $brand;
         if ($alt !== '' && $seoLower($alt) !== $seoLower($brand)) {
             if (!$english && $nameEn !== '' && $seoLen($nameEn) <= 40) {
-                return $nameEn . ' | ' . $nameNp;
-            }
-            if ($english && $nameNp !== '') {
-                return $nameEn . ' | ' . $nameNp;
+                $homeTitle = $nameEn . ' | ' . $nameNp;
+            } elseif ($english && $nameNp !== '') {
+                $homeTitle = $nameEn . ' | ' . $nameNp;
             }
         }
-        return $brand;
+        if ($tagline !== '' && $seoLen($homeTitle . ' | ' . $tagline) <= 70) {
+            return $homeTitle . ' | ' . $tagline;
+        }
+        return $homeTitle;
     }
 
     /* Inner pages: "About - Brand" */
@@ -1932,7 +1948,8 @@ if (!headers_sent()) {
     $_httpsOn = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0')
         || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
     if ($_httpsOn) {
-        header('Strict-Transport-Security: max-age=15552000; includeSubDomains');
+        /* 1 year HSTS — site already HTTPS; report-only CSP stays separate */
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
     unset($_httpsOn);
     /* CSP report-only — बिस्तारै enforce गर्न लग मोनिटर गर्न */
