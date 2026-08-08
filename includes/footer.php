@@ -269,7 +269,7 @@ try {
 
     <!-- WhatsApp Floating Button -->
     <?php if (!empty($whatsappNumber)): ?>
-    <a href="https://wa.me/<?php echo $whatsappNumber; ?>" class="whatsapp-float" target="_blank" title="WhatsApp मा सम्पर्क गर्नुहोस्">
+    <a href="https://wa.me/<?php echo $whatsappNumber; ?>" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="WhatsApp मा सम्पर्क गर्नुहोस्">
         <i class="fab fa-whatsapp"></i>
     </a>
     <?php endif; ?>
@@ -290,7 +290,7 @@ try {
                 <?php foreach ($usefulLinks as $link): ?>
                 <a href="<?php echo $link['url']; ?>"
                    class="useful-link-row"
-                   target="_blank">
+                   target="_blank" rel="noopener noreferrer">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="link"></i>
                     <span><?php echo isEnglish() ? ($link['title'] ?? $link['title_np']) : ($link['title_np'] ?? $link['title']); ?></span>
                     <i class="fas fa-external-link-alt link-arrow"></i>
@@ -339,7 +339,7 @@ try {
                         <?php echo isEnglish() ? 'File Grievance' : 'गुनासो दर्ता'; ?>
                     </a>
                     <!-- ट्र्याकर एप्लिकेसन button — अरू buttons जस्तै style -->
-                    <a href="<?php echo SITE_URL; ?>application-tracker.php" class="quick-action-btn" target="_blank">
+                    <a href="<?php echo SITE_URL; ?>application-tracker.php" class="quick-action-btn" target="_blank" rel="noopener noreferrer">
                         <i class="fas fa-magnifying-glass-chart"></i>
                         <?php echo isEnglish() ? 'Track Application' : 'ट्र्याकर एप्लिकेसन'; ?>
                     </a>
@@ -1199,7 +1199,7 @@ if ($__uiTestMode):
     <div class="qh-section-label">सहयोग</div>
 
     <?php if (!empty($whatsappNumber)): ?>
-    <a class="qh-item" role="menuitem" target="_blank"
+    <a class="qh-item" role="menuitem" target="_blank" rel="noopener noreferrer"
        href="https://wa.me/<?php echo htmlspecialchars($whatsappNumber, ENT_QUOTES); ?>">
       <span class="qh-ic wa"><i class="fab fa-whatsapp"></i></span>
       <span>WhatsApp सम्पर्क</span>

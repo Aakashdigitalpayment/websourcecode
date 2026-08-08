@@ -501,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="d-flex align-items-center gap-2 mt-2 text-muted small">
         <i class="fas fa-calculator text-primary"></i>
         <?php echo isEnglish() ? 'Estimate your monthly installment:' : 'मासिक किस्ता अनुमान गर्नुहोस्:'; ?>
-        <a href="emi-calculator.php" target="_blank" class="text-decoration-none fw-semibold" style="color:var(--primary-color);">EMI Calculator <i class="fas fa-arrow-up-right-from-square fa-xs"></i></a>
+        <a href="emi-calculator.php" target="_blank" class="text-decoration-none fw-semibold" style="color:var(--primary-color);" rel="noopener noreferrer">EMI Calculator <i class="fas fa-arrow-up-right-from-square fa-xs"></i></a>
     </div>
 </div><!-- /loanPane2 -->
 
