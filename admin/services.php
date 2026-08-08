@@ -389,19 +389,19 @@ $servicesArch = $svcPart['archived'];
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> <span class="text-danger">*</span></label>
+                            <label for="svcf_title" class="form-label fw-semibold text-success"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?> <span class="text-danger">*</span></label>
                             <input type="text" name="title" id="svcf_title" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सेवाको शीर्षक नेपालीमा', 'Service title in Nepali'); ?>" value="<?php echo htmlspecialchars($editService['title_np'] ?? ($editService['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Title (English)</label>
+                            <label for="svcf_title_en" class="form-label fw-semibold text-success">Title (English)</label>
                             <input type="text" name="title_en" id="svcf_title_en" class="form-control admin-fancy-input" placeholder="Service title in English" value="<?php echo htmlspecialchars($editService['title_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('विवरण', 'Description'); ?></label>
+                            <label for="svcf_desc" class="form-label fw-semibold text-success"><?php echo $__t('विवरण', 'Description'); ?></label>
                             <textarea name="description" id="svcf_desc" class="form-control admin-fancy-input" rows="3" placeholder="<?php echo $__t('सेवाको संक्षिप्त विवरण...', 'Short service description...'); ?>"><?php echo htmlspecialchars($editService['description_np'] ?? ($editService['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('आइकन', 'Icon'); ?> (Font Awesome)</label>
+                            <label for="svcf_icon" class="form-label fw-semibold text-success"><?php echo $__t('आइकन', 'Icon'); ?> (Font Awesome)</label>
                             <div class="js-fa-icon-picker fa-ip-wrap">
                                 <div class="fa-ip-row input-group">
                                     <span class="input-group-text bg-success text-white border-success" data-fa-preview id="svcIconPreview"><i class="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>"></i></span>
@@ -415,7 +415,7 @@ $servicesArch = $svcPart['archived'];
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('मेनु श्रेणी', 'Menu Category'); ?></label>
+                            <label for="svcf_cat" class="form-label fw-semibold text-success"><?php echo $__t('मेनु श्रेणी', 'Menu Category'); ?></label>
                             <?php $curCatId = (int)($editService['service_category_id'] ?? 0); ?>
                             <select name="service_category_id" id="svcf_cat" class="form-select admin-fancy-input">
                                 <option value=""><?php echo $__t('— श्रेणी छैन —', '— No Category —'); ?></option>
@@ -428,7 +428,7 @@ $servicesArch = $svcPart['archived'];
                             <small class="text-muted"><?php echo $__t('मेगामेनुको column', 'Mega-menu column'); ?> — <a href="?tab=cats" class="text-success"><?php echo $__t('श्रेणी थप्ने', 'Add categories'); ?></a></small>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold text-success"><?php echo $__t('क्रम', 'Order'); ?></label>
+                            <label for="svcf_order" class="form-label fw-semibold text-success"><?php echo $__t('क्रम', 'Order'); ?></label>
                             <input type="number" name="display_order" id="svcf_order" class="form-control admin-fancy-input" value="<?php echo (int)($editService['display_order'] ?? 0); ?>" min="0">
                         </div>
                         <div class="col-md-2 d-flex align-items-end pb-1">
@@ -468,7 +468,7 @@ $servicesArch = $svcPart['archived'];
                     <input type="hidden" name="product_id" id="sp_id" value="">
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">Service <span class="text-danger">*</span></label>
+                            <label for="sp_service_id" class="form-label fw-semibold text-success">Service <span class="text-danger">*</span></label>
                             <select name="product_service_id" id="sp_service_id" class="form-select admin-fancy-input" required>
                                 <option value="">सेवा छान्नुहोस्...</option>
                                 <?php foreach ($services as $s): ?>
@@ -477,23 +477,23 @@ $servicesArch = $svcPart['archived'];
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">Product (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="sp_title_np" class="form-label fw-semibold text-success">Product (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="product_title_np" id="sp_title_np" class="form-control admin-fancy-input" required>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">Product (English)</label>
+                            <label for="sp_title_en" class="form-label fw-semibold text-success">Product (English)</label>
                             <input type="text" name="product_title_en" id="sp_title_en" class="form-control admin-fancy-input">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
+                            <label for="sp_desc_np" class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
                             <textarea name="product_description_np" id="sp_desc_np" class="form-control admin-fancy-input" rows="2"></textarea>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">Description (English)</label>
+                            <label for="sp_desc_en" class="form-label fw-semibold text-success">Description (English)</label>
                             <textarea name="product_description_en" id="sp_desc_en" class="form-control admin-fancy-input" rows="2"></textarea>
                         </div>
                         <div class="col-md-1">
-                            <label class="form-label fw-semibold text-success">क्रम</label>
+                            <label for="sp_order" class="form-label fw-semibold text-success">क्रम</label>
                             <input type="number" name="product_display_order" id="sp_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-1 d-flex align-items-end pb-1">
@@ -583,20 +583,20 @@ $servicesArch = $svcPart['archived'];
                         <?php if ($editCat): ?><input type="hidden" name="cat_id" value="<?php echo $editCat['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
-                                <input type="text" name="cat_name_np" class="form-control" required value="<?php echo htmlspecialchars($editCat['name_np'] ?? $editCat['name'] ?? ''); ?>" placeholder="<?php echo $__t('जस्तै: सामाजिक कार्यक्रम', 'e.g. Social Programs'); ?>">
+                                <label for="svc_cat_name_np" class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
+                                <input type="text" name="cat_name_np" id="svc_cat_name_np" class="form-control" required value="<?php echo htmlspecialchars($editCat['name_np'] ?? $editCat['name'] ?? ''); ?>" placeholder="<?php echo $__t('जस्तै: सामाजिक कार्यक्रम', 'e.g. Social Programs'); ?>">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
-                                <input type="text" name="cat_name_en" class="form-control" value="<?php echo htmlspecialchars($editCat['name_en'] ?? ''); ?>" placeholder="e.g. Social Programs">
+                                <label for="svc_cat_name_en" class="form-label fw-semibold"><?php echo $__t('नाम (अंग्रेजी)', 'Name (English)'); ?></label>
+                                <input type="text" name="cat_name_en" id="svc_cat_name_en" class="form-control" value="<?php echo htmlspecialchars($editCat['name_en'] ?? ''); ?>" placeholder="e.g. Social Programs">
                                 <input type="hidden" name="cat_name" value=""><!-- filled by JS below -->
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label fw-semibold"><?php echo $__t('आइकन (Font Awesome)', 'Icon (Font Awesome)'); ?></label>
+                                <label for="svc_cat_icon" class="form-label fw-semibold"><?php echo $__t('आइकन (Font Awesome)', 'Icon (Font Awesome)'); ?></label>
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
                                         <span class="fa-ip-preview input-group-text" data-fa-preview><i class="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>"></i></span>
-                                        <input type="text" name="cat_icon" class="form-control" data-fa-input value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
+                                        <input type="text" name="cat_icon" id="svc_cat_icon" class="form-control" data-fa-input value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
                                             <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                         </button>
@@ -605,8 +605,8 @@ $servicesArch = $svcPart['archived'];
                                 </div>
                             </div>
                             <div class="col-md-1">
-                                <label class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
-                                <input type="number" name="cat_order" class="form-control" value="<?php echo (int)($editCat['display_order'] ?? 0); ?>" min="0">
+                                <label for="svc_cat_order" class="form-label fw-semibold"><?php echo $__t('क्रम', 'Order'); ?></label>
+                                <input type="number" name="cat_order" id="svc_cat_order" class="form-control" value="<?php echo (int)($editCat['display_order'] ?? 0); ?>" min="0">
                             </div>
                             <div class="col-md-2 d-flex align-items-end gap-2 pb-1">
                                 <div class="form-check form-switch">
