@@ -374,17 +374,17 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <input type="hidden" name="do_password" value="1">
                         <?php if ($hasPwd): ?>
                         <div class="mem-field">
-                            <label>हालको पासवर्ड</label>
-                            <input type="password" name="current_pw" required placeholder="••••••">
+                            <label for="mem_current_pw">हालको पासवर्ड</label>
+                            <input type="password" name="current_pw" id="mem_current_pw" required placeholder="••••••" autocomplete="current-password">
                         </div>
                         <?php endif; ?>
                         <div class="mem-field">
-                            <label>नयाँ पासवर्ड</label>
-                            <input type="password" name="new_pw" required placeholder="कम्तीमा ६ अक्षर" minlength="6">
+                            <label for="mem_new_pw">नयाँ पासवर्ड</label>
+                            <input type="password" name="new_pw" id="mem_new_pw" required placeholder="कम्तीमा ६ अक्षर" minlength="6" autocomplete="new-password">
                         </div>
                         <div class="mem-field">
-                            <label>पुनः नयाँ पासवर्ड</label>
-                            <input type="password" name="confirm_pw" required placeholder="माथिको जस्तै" minlength="6">
+                            <label for="mem_confirm_pw">पुनः नयाँ पासवर्ड</label>
+                            <input type="password" name="confirm_pw" id="mem_confirm_pw" required placeholder="माथिको जस्तै" minlength="6" autocomplete="new-password">
                         </div>
                         <button type="submit" class="mem-submit-btn" style="background:linear-gradient(135deg,#374151,#1f2937);">
                             <i class="fas fa-key me-2"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?>

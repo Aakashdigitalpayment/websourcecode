@@ -212,6 +212,13 @@ if ($viewId > 0) {
         $st = $db->prepare("SELECT * FROM members WHERE id=?");
         $st->execute([$viewId]);
         $viewMember = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($viewMember && function_exists('memberStripAuthSecrets')) {
+            $viewMember = memberStripAuthSecrets($viewMember);
+            if (!isset($viewMember['has_password'])) {
+                $viewMember['has_password'] = !empty($viewMember['password_hash']) ? 1 : 0;
+            }
+            unset($viewMember['password_hash']);
+        }
         if ($viewMember) {
             if (function_exists('getMemberApplications')) {
                 $viewApps = getMemberApplications($viewMember['email'] ?? '', $viewMember['phone'] ?? '', 30, $viewMember['id'] ?? null);
@@ -393,7 +400,9 @@ try {
     if ($hasAvatar) $selectCols[] = 'avatar_url';
     if ($hasGoogle) $selectCols[] = 'google_id';
     if ($hasFacebook) $selectCols[] = 'facebook_id';
-    if ($hasPassword) $selectCols[] = 'password_hash';
+    if ($hasPassword) {
+        $selectCols[] = "CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password";
+    }
     if ($hasKycId) $selectCols[] = 'kyc_application_id';
     if ($hasIsActive) $selectCols[] = 'is_active';
     if ($hasApproval) $selectCols[] = 'approval_status';
@@ -430,7 +439,10 @@ try {
             $offset = ($page - 1) * $limit;
         }
         $members = $db->query(
-            "SELECT * FROM members ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}"
+            "SELECT id, name, email, phone, sadasyata_number, avatar_url, google_id, facebook_id,
+                    kyc_application_id, is_active, approval_status, created_at, member_card_no,
+                    CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password
+             FROM members ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}"
         )->fetchAll(PDO::FETCH_ASSOC) ?: [];
         $listError = '';
         $listErrorDetail = '';
@@ -703,7 +715,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <div class="mt-2">
                     <?php if (!empty($viewMember['google_id'])): ?><span class="badge mem-badge-google"><i class="fa-brands fa-google me-1"></i>Google</span><?php endif; ?>
                     <?php if (!empty($viewMember['facebook_id'])): ?><span class="badge mem-badge-facebook"><i class="fa-brands fa-facebook-f me-1"></i>Facebook</span><?php endif; ?>
-                    <?php if (!empty($viewMember['password_hash'])): ?><span class="badge bg-success">Email</span><?php endif; ?>
+                    <?php if (!empty($viewMember['has_password']) || !empty($viewMember['password_hash'])): ?><span class="badge bg-success">Email</span><?php endif; ?>
                 </div>
                 <?php if (!$memEditMode): ?>
                 <div class="mt-3">
@@ -817,7 +829,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <a href="member-online-portal.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-success">
                         <i class="fas fa-globe me-1"></i>Portal unlock / approve
                     </a>
-                    <?php if (empty($viewMember['password_hash'])): ?>
+                    <?php if (empty($viewMember['has_password']) && empty($viewMember['password_hash'])): ?>
                     <div class="small text-muted">पासवर्ड छैन — सदस्यले register गरेर सेट गर्नुपर्छ, वा import temp password प्रयोग।</div>
                     <?php endif; ?>
                 </div>
@@ -1097,7 +1109,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <td>
                         <?php if ($m['google_id']): ?><span class="badge mem-badge-google mem-login-pill"><i class="fa-brands fa-google me-1"></i>G</span><?php endif; ?>
                         <?php if ($m['facebook_id']): ?><span class="badge mem-badge-facebook mem-login-pill"><i class="fa-brands fa-facebook-f me-1"></i>FB</span><?php endif; ?>
-                        <?php if ($m['password_hash']): ?><span class="badge bg-success mem-login-pill">Email</span><?php endif; ?>
+                        <?php if (!empty($m['has_password']) || !empty($m['password_hash'])): ?><span class="badge bg-success mem-login-pill">Email</span><?php endif; ?>
                     </td>
                     <td class="small text-muted"><?php echo formatNepaliDate($m['created_at']); ?></td>
                     <td>
