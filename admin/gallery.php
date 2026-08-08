@@ -343,20 +343,20 @@ foreach ($images as $img) {
                             <input type="hidden" name="id" value="<?php echo (int)$editAlbum['id']; ?>">
                             <?php endif; ?>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
-                                <input type="text" name="name_np" class="form-control admin-fancy-input" required
+                                <label for="gal_album_name_np" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                                <input type="text" name="name_np" id="gal_album_name_np" class="form-control admin-fancy-input" required
                                        value="<?php echo htmlspecialchars((string)($editAlbum['name_np'] ?? '')); ?>"
                                        placeholder="जस्तै: २५ औं साधारण सभा">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold">नाम (English)</label>
-                                <input type="text" name="name_en" class="form-control admin-fancy-input"
+                                <label for="gal_album_name_en" class="form-label fw-semibold">नाम (English)</label>
+                                <input type="text" name="name_en" id="gal_album_name_en" class="form-control admin-fancy-input"
                                        value="<?php echo htmlspecialchars((string)($editAlbum['name_en'] ?? '')); ?>"
                                        placeholder="Optional English name">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold text-success">वर्ग</label>
-                                <select name="category" class="form-select admin-fancy-input">
+                                <label for="gal_album_category" class="form-label fw-semibold text-success">वर्ग</label>
+                                <select name="category" id="gal_album_category" class="form-select admin-fancy-input">
                                     <?php foreach ($catOptions as $val => $lbl): ?>
                                     <option value="<?php echo htmlspecialchars($val); ?>" <?php echo (($editAlbum['category'] ?? 'general') === $val) ? 'selected' : ''; ?>>
                                         <?php echo htmlspecialchars($lbl); ?>
@@ -546,7 +546,7 @@ foreach ($images as $img) {
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-success">एल्बम <span class="text-danger">*</span></label>
+                            <label for="galEditAlbumId" class="form-label fw-semibold text-success">एल्बम <span class="text-danger">*</span></label>
                             <select name="album_id" id="galEditAlbumId" class="form-select" required>
                                 <option value="">— एल्बम छान्नुहोस् —</option>
                                 <?php foreach ($albums as $alb): ?>
@@ -558,11 +558,11 @@ foreach ($images as $img) {
                             <?php endif; ?>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">शीर्षक</label>
+                            <label for="galEditTitleInput" class="form-label fw-semibold">शीर्षक</label>
                             <input type="text" name="title" id="galEditTitleInput" class="form-control" placeholder="शीर्षक">
                         </div>
                         <div class="mb-3" id="galEditVideoUrlWrap">
-                            <label class="form-label fw-semibold">YouTube URL</label>
+                            <label for="galEditVideoUrl" class="form-label fw-semibold">YouTube URL</label>
                             <input type="url" name="video_url" id="galEditVideoUrl" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
                         </div>
                         <div class="form-check form-switch">
@@ -598,8 +598,8 @@ foreach ($images as $img) {
                     <input type="hidden" name="media_type" value="photo">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">एल्बम छान्नुहोस् <span class="text-danger">*</span></label>
-                            <select name="album_id" class="form-select admin-fancy-input" required>
+                            <label for="gal_photo_album" class="form-label fw-semibold text-success">एल्बम छान्नुहोस् <span class="text-danger">*</span></label>
+                            <select name="album_id" id="gal_photo_album" class="form-select admin-fancy-input" required>
                                 <option value="">— एल्बम छान्नुहोस् —</option>
                                 <?php foreach ($albums as $alb): ?>
                                 <option value="<?php echo (int)$alb['id']; ?>">
@@ -610,8 +610,8 @@ foreach ($images as $img) {
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">शीर्षक (वैकल्पिक — caption)</label>
-                            <input type="text" name="title" class="form-control admin-fancy-input" placeholder="फोटोको शीर्षक">
+                            <label for="gal_photo_title" class="form-label fw-semibold">शीर्षक (वैकल्पिक — caption)</label>
+                            <input type="text" name="title" id="gal_photo_title" class="form-control admin-fancy-input" placeholder="फोटोको शीर्षक">
                         </div>
                         <div class="col-md-6 d-flex align-items-end pb-1">
                             <div class="admin-toggle-wrap w-100">
@@ -622,7 +622,7 @@ foreach ($images as $img) {
                             </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-success"><i class="fas fa-images me-1"></i>तस्विरहरू छान्नुहोस् <span class="text-danger">*</span></label>
+                            <label for="gal_files" class="form-label fw-semibold text-success"><i class="fas fa-images me-1"></i>तस्विरहरू छान्नुहोस् <span class="text-danger">*</span></label>
                             <div class="upload-drop-zone p-4 text-center border-2 border-dashed gal-upload-drop"
                                  onclick="document.getElementById('gal_files').click()">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-success mb-2"></i>
@@ -664,8 +664,8 @@ foreach ($images as $img) {
                     <input type="hidden" name="media_type" value="video">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">एल्बम छान्नुहोस् <span class="text-danger">*</span></label>
-                            <select name="album_id" class="form-select admin-fancy-input" required>
+                            <label for="gal_video_album" class="form-label fw-semibold text-success">एल्बम छान्नुहोस् <span class="text-danger">*</span></label>
+                            <select name="album_id" id="gal_video_album" class="form-select admin-fancy-input" required>
                                 <option value="">— एल्बम छान्नुहोस् —</option>
                                 <?php foreach ($albums as $alb): ?>
                                 <option value="<?php echo (int)$alb['id']; ?>">
@@ -676,12 +676,12 @@ foreach ($images as $img) {
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">भिडियोको शीर्षक</label>
-                            <input type="text" name="title" class="form-control admin-fancy-input" placeholder="भिडियोको नाम">
+                            <label for="gal_video_title" class="form-label fw-semibold text-success">भिडियोको शीर्षक</label>
+                            <input type="text" name="title" id="gal_video_title" class="form-control admin-fancy-input" placeholder="भिडियोको नाम">
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold text-danger"><i class="fab fa-youtube me-1"></i>YouTube URL <span class="text-danger">*</span></label>
-                            <input type="url" name="video_url" class="form-control admin-fancy-input" required
+                            <label for="gal_video_url" class="form-label fw-semibold text-danger"><i class="fab fa-youtube me-1"></i>YouTube URL <span class="text-danger">*</span></label>
+                            <input type="url" name="video_url" id="gal_video_url" class="form-control admin-fancy-input" required
                                    placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
                             <small class="text-muted">Thumbnail स्वचालित रूपमा YouTube बाट लिइनेछ।</small>
                         </div>
