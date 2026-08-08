@@ -631,39 +631,40 @@ $L = getLangStrings();
                             <?php endif; ?>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Full Name':'पूरा नाम'; ?> <span class="auc2-req">*</span></label>
-                            <input type="text" name="bidder_name" class="form-control auc2-bid-input"
+                            <label for="auc_bidder_name" class="form-label auc2-bid-label"><?php echo isEnglish()?'Full Name':'पूरा नाम'; ?> <span class="auc2-req">*</span></label>
+                            <input type="text" name="bidder_name" id="auc_bidder_name" class="form-control auc2-bid-input"
                                    placeholder="<?php echo isEnglish()?'Enter your full name':'आफ्नो पूरा नाम लेख्नुहोस्'; ?>"
-                                   required minlength="2" maxlength="120">
+                                   required minlength="2" maxlength="120" autocomplete="name">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Mobile Number':'मोबाइल नम्बर'; ?> <span class="auc2-req">*</span></label>
+                            <label for="auc_bidder_phone" class="form-label auc2-bid-label"><?php echo isEnglish()?'Mobile Number':'मोबाइल नम्बर'; ?> <span class="auc2-req">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text auc2-bid-addon"><i class="fas fa-phone"></i></span>
-                                <input type="tel" name="bidder_phone" class="form-control auc2-bid-input"
+                                <input type="tel" name="bidder_phone" id="auc_bidder_phone" class="form-control auc2-bid-input"
                                        placeholder="98XXXXXXXX" pattern="[9][0-9]{9}"
                                        maxlength="10" minlength="10" inputmode="numeric" required
-                                       title="<?php echo isEnglish()?'10-digit Nepal mobile':'९ बाट शुरु हुने १० अंकको नम्बर'; ?>">
+                                       title="<?php echo isEnglish()?'10-digit Nepal mobile':'९ बाट शुरु हुने १० अंकको नम्बर'; ?>"
+                                       autocomplete="tel">
                             </div>
                             <div class="auc2-bid-help"><i class="fas fa-info-circle"></i> <?php echo isEnglish()?'10-digit Nepal mobile starting with 9':'९ बाट शुरु हुने १० अंकको नम्बर'; ?></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Email':'इमेल'; ?></label>
+                            <label for="auc_bidder_email" class="form-label auc2-bid-label"><?php echo isEnglish()?'Email':'इमेल'; ?></label>
                             <div class="input-group">
                                 <span class="input-group-text auc2-bid-addon"><i class="fas fa-envelope"></i></span>
-                                <input type="email" name="bidder_email" class="form-control auc2-bid-input" placeholder="name@email.com" maxlength="150">
+                                <input type="email" name="bidder_email" id="auc_bidder_email" class="form-control auc2-bid-input" placeholder="name@email.com" maxlength="150" autocomplete="email">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Address':'ठेगाना'; ?></label>
-                            <input type="text" name="bidder_address" class="form-control auc2-bid-input"
-                                   placeholder="<?php echo isEnglish()?'District, Municipality':'जिल्ला, गाउँपालिका/नगरपालिका'; ?>" maxlength="200">
+                            <label for="auc_bidder_address" class="form-label auc2-bid-label"><?php echo isEnglish()?'Address':'ठेगाना'; ?></label>
+                            <input type="text" name="bidder_address" id="auc_bidder_address" class="form-control auc2-bid-input"
+                                   placeholder="<?php echo isEnglish()?'District, Municipality':'जिल्ला, गाउँपालिका/नगरपालिका'; ?>" maxlength="200" autocomplete="street-address">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Bid Amount (Rs.)':'बोलपत्र रकम (रु.)'; ?> <span class="auc2-req">*</span></label>
+                            <label for="auc_bid_amount" class="form-label auc2-bid-label"><?php echo isEnglish()?'Bid Amount (Rs.)':'बोलपत्र रकम (रु.)'; ?> <span class="auc2-req">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text auc2-bid-addon">रु.</span>
-                                <input type="number" name="bid_amount" class="form-control auc2-bid-input"
+                                <input type="number" name="bid_amount" id="auc_bid_amount" class="form-control auc2-bid-input"
                                        min="<?php echo $auction['minimum_price']; ?>"
                                        step="1" inputmode="numeric"
                                        placeholder="<?php echo number_format($auction['minimum_price']); ?>" required>
@@ -671,8 +672,8 @@ $L = getLangStrings();
                             <div class="auc2-bid-help-warn"><i class="fas fa-exclamation-circle"></i> <?php echo isEnglish()?'Minimum bid: Rs.':'न्यूनतम रकम: रु.'; ?> <?php echo number_format($auction['minimum_price']); ?></div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label auc2-bid-label"><?php echo isEnglish()?'Message / Query':'सन्देश / जिज्ञासा'; ?></label>
-                            <textarea name="message" class="form-control auc2-bid-textarea" rows="3" maxlength="500"
+                            <label for="auc_bid_message" class="form-label auc2-bid-label"><?php echo isEnglish()?'Message / Query':'सन्देश / जिज्ञासा'; ?></label>
+                            <textarea name="message" id="auc_bid_message" class="form-control auc2-bid-textarea" rows="3" maxlength="500"
                                       placeholder="<?php echo isEnglish()?'Optional message...':'थप जानकारी वा जिज्ञासा...'; ?>"></textarea>
                         </div>
                     </div>

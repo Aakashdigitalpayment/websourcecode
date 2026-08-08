@@ -862,12 +862,12 @@ $__hasPartnerCol = !empty($partners);
         <input type="hidden" name="cvv" value="<?= htmlspecialchars($cvv, ENT_QUOTES, 'UTF-8') ?>">
 
         <div class="vp-field">
-            <label class="vp-label"><?= $_t('Desk code बाट छिटो','Quick by desk code') ?></label>
+            <label for="vpPartnerCodeQuick" class="vp-label"><?= $_t('Desk code बाट छिटो','Quick by desk code') ?></label>
             <input type="text" id="vpPartnerCodeQuick" class="vp-input" placeholder="PF-XXXXXX" autocomplete="off" spellcheck="false" style="letter-spacing:.04em;text-transform:uppercase;">
             <div class="vp-partner-code-hint"><?= $_t('Code टाइप गर्दा तलको सूची auto-select हुन्छ।', 'Typing a code auto-selects the partner below.') ?></div>
         </div>
         <div class="vp-field">
-            <label class="vp-label"><?= $_t('साझेदार संस्था','Partner organization') ?> <span class="req">*</span></label>
+            <label for="vpPartnerSelect" class="vp-label"><?= $_t('साझेदार संस्था','Partner organization') ?> <span class="req">*</span></label>
             <select name="partner_id" id="vpPartnerSelect" class="vp-input" required>
                 <option value=""><?= $_t('— छान्नुहोस् —','— Select —') ?></option>
                 <?php foreach ($partners as $p):
@@ -887,20 +887,20 @@ $__hasPartnerCol = !empty($partners);
             </select>
         </div>
         <div class="vp-field" id="vpPartnerPinWrap" style="display:none;">
-            <label class="vp-label"><?= $_t('Desk PIN','Desk PIN') ?> <span class="req">*</span></label>
+            <label for="vpPartnerPin" class="vp-label"><?= $_t('Desk PIN','Desk PIN') ?> <span class="req">*</span></label>
             <input type="password" name="partner_pin" id="vpPartnerPin" class="vp-input" autocomplete="off" placeholder="••••">
         </div>
         <div class="vp-field">
-            <label class="vp-label"><?= $_t('सेवा / वस्तु','Service / item') ?></label>
-            <input type="text" name="service_name" class="vp-input" maxlength="255" placeholder="<?= $_t('जस्तै: ल्याब टेस्ट, खाना','e.g. Lab test, meal') ?>" value="">
+            <label for="vp_service_name" class="vp-label"><?= $_t('सेवा / वस्तु','Service / item') ?></label>
+            <input type="text" name="service_name" id="vp_service_name" class="vp-input" maxlength="255" placeholder="<?= $_t('जस्तै: ल्याब टेस्ट, खाना','e.g. Lab test, meal') ?>" value="">
         </div>
         <div class="vp-field">
-            <label class="vp-label"><?= $_t('नोट','Note') ?></label>
-            <input type="text" name="service_note" class="vp-input" maxlength="500" placeholder="<?= $_t('ऐच्छिक','Optional') ?>">
+            <label for="vp_service_note" class="vp-label"><?= $_t('नोट','Note') ?></label>
+            <input type="text" name="service_note" id="vp_service_note" class="vp-input" maxlength="500" placeholder="<?= $_t('ऐच्छिक','Optional') ?>">
         </div>
         <div class="vp-field" style="margin-bottom:14px;">
-            <label class="vp-label"><?= $_t('सेवा लिइयो?','Service taken?') ?></label>
-            <select name="service_taken" class="vp-input">
+            <label for="vp_service_taken" class="vp-label"><?= $_t('सेवा लिइयो?','Service taken?') ?></label>
+            <select name="service_taken" id="vp_service_taken" class="vp-input">
                 <option value="yes" selected><?= $_t('हो — लिए','Yes — taken') ?></option>
                 <option value="no"><?= $_t('होइन — verify मात्र','No — verify only') ?></option>
             </select>
@@ -1102,7 +1102,7 @@ $__hasPartnerCol = !empty($partners);
 
             <div id="vpModeName">
                 <div class="vp-field">
-                    <label class="vp-label">
+                    <label for="vpMemberName" class="vp-label">
                         <i class="fas fa-user" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('सदस्यको नाम', 'Member Name') ?> <span class="req">*</span>
                     </label>
@@ -1112,7 +1112,7 @@ $__hasPartnerCol = !empty($partners);
                            autocomplete="name" required>
                 </div>
                 <div class="vp-field">
-                    <label class="vp-label">
+                    <label for="vpMemberId" class="vp-label">
                         <i class="fas fa-hashtag" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('सदस्यता नं. / Member ID', 'Member ID') ?> <span class="req">*</span>
                     </label>
@@ -1122,7 +1122,7 @@ $__hasPartnerCol = !empty($partners);
                            autocomplete="off" spellcheck="false" required>
                 </div>
                 <div class="vp-field">
-                    <label class="vp-label">
+                    <label for="vpMemberMobile" class="vp-label">
                         <i class="fas fa-mobile-screen-button" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('मोबाइल नम्बर', 'Mobile number') ?> <span class="req">*</span>
                     </label>
@@ -1135,7 +1135,7 @@ $__hasPartnerCol = !empty($partners);
                     </div>
                 </div>
                 <div class="vp-field" style="margin-bottom:22px;">
-                    <label class="vp-label">
+                    <label for="vpCvv" class="vp-label">
                         <i class="fas fa-lock" style="color:var(--primary-color,#1a5f2a);margin-right:4px;"></i>
                         <?= $_t('CVV (ऐच्छिक)', 'CVV (optional)') ?>
                     </label>
