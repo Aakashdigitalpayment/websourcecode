@@ -1255,12 +1255,12 @@ if ($__uiTestMode):
     <button type="button" class="pcp-x" onclick="document.getElementById('publicChatPanel').classList.remove('open')" aria-label="Close">×</button>
   </div>
   <form class="pcp-body" id="publicChatForm" novalidate>
-    <label>तपाईंको नाम *</label>
-    <input type="text" name="name" maxlength="80" required autocomplete="name">
-    <label>सम्पर्क (फोन/इमेल) — वैकल्पिक</label>
-    <input type="text" name="contact" maxlength="120" autocomplete="email">
-    <label>सन्देश *</label>
-    <textarea name="body" maxlength="2000" required placeholder="कसरी सहयोग गर्न सक्छौं?"></textarea>
+    <label for="pcp_name">तपाईंको नाम *</label>
+    <input type="text" name="name" id="pcp_name" maxlength="80" required autocomplete="name">
+    <label for="pcp_contact">सम्पर्क (फोन/इमेल) — वैकल्पिक</label>
+    <input type="text" name="contact" id="pcp_contact" maxlength="120" autocomplete="email">
+    <label for="pcp_body">सन्देश *</label>
+    <textarea name="body" id="pcp_body" maxlength="2000" required placeholder="कसरी सहयोग गर्न सक्छौं?"></textarea>
     <!-- honeypot — hidden from real users -->
     <input type="text" name="website" tabindex="-1" autocomplete="off"
            style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">

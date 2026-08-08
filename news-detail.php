@@ -8,7 +8,10 @@ $pageOgImage = '';
 // Get news item
 try {
     $db = getDB();
-    $stmt = $db->prepare("SELECT * FROM news WHERE id = ? AND is_active = 1");
+    $stmt = $db->prepare(
+        "SELECT id, title, title_np, content, content_np, image, is_active, created_at
+           FROM news WHERE id = ? AND is_active = 1 LIMIT 1"
+    );
     $stmt->execute([$newsId]);
     $news = $stmt->fetch();
 
@@ -48,7 +51,10 @@ try {
     }
 
     // Get related news (other news)
-    $relatedStmt = $db->prepare("SELECT * FROM news WHERE id != ? AND is_active = 1 ORDER BY created_at DESC LIMIT 3");
+    $relatedStmt = $db->prepare(
+        "SELECT id, title, title_np, image, created_at
+           FROM news WHERE id != ? AND is_active = 1 ORDER BY created_at DESC LIMIT 3"
+    );
     $relatedStmt->execute([$newsId]);
     $relatedNews = $relatedStmt->fetchAll();
 

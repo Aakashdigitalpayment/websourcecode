@@ -289,20 +289,20 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
       <form method="POST" id="manualForm" class="<?= $memberId ? 'manual-form-hide' : '' ?>">
         <?= $csrfField ?><input type="hidden" name="action" value="checkin_manual">
         <div class="form-group">
-          <label><i class="fas fa-user meta-icon-gap"></i><?php echo t('पूरा नाम', 'Full Name'); ?></label>
-          <input type="text" name="member_name" class="form-control" placeholder="<?php echo t('आफ्नो नाम लेख्नुहोस्', 'Enter your name'); ?>">
+          <label for="attend_member_name"><i class="fas fa-user meta-icon-gap"></i><?php echo t('पूरा नाम', 'Full Name'); ?></label>
+          <input type="text" name="member_name" id="attend_member_name" class="form-control" placeholder="<?php echo t('आफ्नो नाम लेख्नुहोस्', 'Enter your name'); ?>" autocomplete="name">
         </div>
         <div class="form-group">
-          <label><i class="fas fa-id-card meta-icon-gap"></i><?php echo t('सदस्यता नम्बर', 'Member Number'); ?></label>
-          <input type="text" name="member_card" class="form-control" placeholder="<?php echo t('जस्तै: A-001, SA-2025-001', 'e.g. A-001, SA-2025-001'); ?>">
+          <label for="attend_member_card"><i class="fas fa-id-card meta-icon-gap"></i><?php echo t('सदस्यता नम्बर', 'Member Number'); ?></label>
+          <input type="text" name="member_card" id="attend_member_card" class="form-control" placeholder="<?php echo t('जस्तै: A-001, SA-2025-001', 'e.g. A-001, SA-2025-001'); ?>">
         </div>
         <div class="form-group">
-          <label><i class="fas fa-phone meta-icon-gap"></i><?php echo t('फोन नम्बर', 'Phone Number'); ?></label>
-          <input type="text" name="phone" class="form-control" placeholder="9XXXXXXXXX">
+          <label for="attend_phone"><i class="fas fa-phone meta-icon-gap"></i><?php echo t('फोन नम्बर', 'Phone Number'); ?></label>
+          <input type="text" name="phone" id="attend_phone" class="form-control" placeholder="9XXXXXXXXX" autocomplete="tel" inputmode="numeric">
         </div>
         <div class="form-group">
-          <label><i class="fas fa-location-dot meta-icon-gap"></i><?php echo t('ठेगाना', 'Address'); ?></label>
-          <input type="text" name="member_address" class="form-control" placeholder="<?php echo t('वडा/टोल/ठेगाना', 'Ward/tole/address'); ?>">
+          <label for="attend_member_address"><i class="fas fa-location-dot meta-icon-gap"></i><?php echo t('ठेगाना', 'Address'); ?></label>
+          <input type="text" name="member_address" id="attend_member_address" class="form-control" placeholder="<?php echo t('वडा/टोल/ठेगाना', 'Ward/tole/address'); ?>" autocomplete="street-address">
         </div>
         <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> <?php echo t('उपस्थिति अनुरोध पठाउनुहोस्', 'Send Attendance Request'); ?></button>
       </form>

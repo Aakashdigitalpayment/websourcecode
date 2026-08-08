@@ -604,10 +604,10 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 <?php endif; ?>
             <?php endif; ?>
             <div class="field">
-                <label>2FA Code / Backup Code</label>
+                <label for="admin_twofa_code">2FA Code / Backup Code</label>
                 <div class="input-icon">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
-                    <input type="text" name="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
+                    <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus>
                 </div>
             </div>
             <button type="submit" class="submit-btn">
@@ -625,17 +625,17 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
         <form method="POST" action="">
             <?php echo csrfField(); ?>
             <div class="field">
-                <label>युजरनेम</label>
+                <label for="admin_username">युजरनेम</label>
                 <div class="input-icon">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="user"></i>
-                    <input type="text" name="username" placeholder="युजरनेम राख्नुहोस्" required autofocus>
+                    <input type="text" name="username" id="admin_username" placeholder="युजरनेम राख्नुहोस्" required autofocus autocomplete="username">
                 </div>
             </div>
             <div class="field">
-                <label>पासवर्ड</label>
+                <label for="admin_password">पासवर्ड</label>
                 <div class="input-icon">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i>
-                    <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                    <input type="password" name="password" id="admin_password" placeholder="••••••••" autocomplete="current-password" required>
                 </div>
             </div>
             <button type="submit" class="submit-btn">
