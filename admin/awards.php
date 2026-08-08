@@ -170,7 +170,7 @@ if ($flash = getFlash()):
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($a['image'])): ?>
-                                    <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img">
+                                    <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($a['title_np'] ?: ($a['title'] ?? 'Award'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="news-thumb-placeholder"><i class="lucide-icon text-success fa-lg" aria-hidden="true" data-lucide="trophy"></i></div>
                                     <?php endif; ?>
@@ -235,7 +235,7 @@ if ($flash = getFlash()):
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($a['image'])): ?>
-                                    <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img">
+                                    <img src="../<?php echo htmlspecialchars($a['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($a['title_np'] ?: ($a['title'] ?? 'Award'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
                                     <div class="news-thumb-placeholder"><i class="lucide-icon text-success fa-lg" aria-hidden="true" data-lucide="trophy"></i></div>
                                     <?php endif; ?>
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('awf_active').checked    = d.active === '1';
             var prev = document.getElementById('awf_img_prev');
             prev.innerHTML = d.image
-                ? '<img src="../' + d.image + '" class="news-preview-img">'
+                ? '<img src="../' + d.image + '" class="news-preview-img" alt="Preview">'
                 : '';
             document.getElementById('awf_img_note').textContent = d.image ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ' : '';
             document.getElementById('awf_submit').innerHTML = '<i class="lucide-icon me-2" aria-hidden="true" data-lucide="save"></i>अपडेट गर्नुहोस्';

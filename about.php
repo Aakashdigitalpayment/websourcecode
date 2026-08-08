@@ -35,7 +35,7 @@ try {
     $boardMembers = [];
 }
 
-// Get about page image from settings (admin controlled) — missing file = no broken <img>
+// Get about page image from settings (admin controlled) — missing file = no broken image tag
 $aboutImageSetting = trim((string) getSetting('about_page_image', ''));
 $aboutImageDefault = 'assets/images/about-image.jpg';
 $aboutResolved = '';

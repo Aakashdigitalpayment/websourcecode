@@ -429,7 +429,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
         <div class="card border-0 shadow-sm">
             <div class="card-body text-center py-4">
                 <?php if ($vmPhoto): ?>
-                <img src="<?php echo htmlspecialchars($vmPhotoSrc); ?>" class="rounded-circle mb-3 portal-avatar-lg">
+                <img src="<?php echo htmlspecialchars($vmPhotoSrc); ?>" class="rounded-circle mb-3 portal-avatar-lg" alt="<?php echo htmlspecialchars($vmName, ENT_QUOTES, 'UTF-8'); ?>">
                 <?php else: ?>
                 <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center mx-auto mb-3 portal-avatar-fallback-lg"><?php echo mb_substr($vmName,0,1); ?></div>
                 <?php endif; ?>
@@ -898,7 +898,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <td>
                         <div class="d-flex align-items-center gap-2">
                             <?php if ($mDisplayAvatar): ?>
-                            <img src="<?php echo htmlspecialchars($mDisplayAvatar); ?>" class="rounded-circle portal-avatar-sm">
+                            <img src="<?php echo htmlspecialchars($mDisplayAvatar); ?>" class="rounded-circle portal-avatar-sm" alt="<?php echo htmlspecialchars((string)$mDisplayName, ENT_QUOTES, 'UTF-8'); ?>">
                             <?php else: ?>
                             <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold portal-avatar-fallback-sm"><?php echo mb_substr((string)$mDisplayName,0,1); ?></div>
                             <?php endif; ?>

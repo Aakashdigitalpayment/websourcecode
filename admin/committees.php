@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="ps-3">
                             <?php if ($m['photo']): ?>
                             <img src="../<?php echo htmlspecialchars($m['photo']); ?>"
-                                 class="cmt-mem-avatar">
+                                 class="cmt-mem-avatar" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             <?php else: ?>
                             <div class="cmt-mem-avatar-fallback">
                                 <i class="fas fa-user text-secondary"></i>
@@ -888,7 +888,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('mem_existing_photo').value   = m.photo || '';
             document.getElementById('mem_photo_note').textContent = m.photo ? ' — नयाँ नचुने भने पुरानै रहन्छ' : '';
             document.getElementById('mem_photo_prev').innerHTML   = m.photo
-                ? '<img src="../' + m.photo + '" class="cmt-preview-img cmt-preview-img-cyan">'
+                ? '<img src="../' + m.photo + '" class="cmt-preview-img cmt-preview-img-cyan" alt="Preview">'
                 : '';
             document.getElementById('mem_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
             document.getElementById('memFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>सदस्य सम्पादन';
@@ -901,7 +901,7 @@ function previewMemPhoto(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            prev.innerHTML = '<img src="' + e.target.result + '" class="cmt-preview-img cmt-preview-img-green">';
+            prev.innerHTML = '<img src="' + e.target.result + '" class="cmt-preview-img cmt-preview-img-green" alt="Preview">';
         };
         reader.readAsDataURL(input.files[0]);
     }

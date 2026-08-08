@@ -203,7 +203,7 @@ $flash = getFlash();
                             <tr class="<?php echo $isCurrentYear ? 'table-warning' : ''; ?>">
                                 <td class="ps-3">
                                     <?php if ($hasPhoto): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
+                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" alt="<?php echo htmlspecialchars($r['name'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
                                     <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
                                     <?php endif; ?>
@@ -276,7 +276,7 @@ $flash = getFlash();
                             <tr class="<?php echo $isCurrentYear ? 'table-warning' : ''; ?>">
                                 <td class="ps-3">
                                     <?php if ($hasPhoto): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
+                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" alt="<?php echo htmlspecialchars($r['name'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
                                     <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
                                     <?php endif; ?>
@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('motf_photo_note').textContent = r.photo ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ' : '';
             var prev = document.getElementById('motf_photo_prev');
             prev.innerHTML = r.photo
-                ? '<img src="<?php echo SITE_URL; ?>' + r.photo + '" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">'
+                ? '<img src="<?php echo SITE_URL; ?>' + r.photo + '" alt="Preview" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">'
                 : '';
             document.getElementById('motf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
             document.getElementById('motFormTitle').innerHTML = '<i class="fas fa-pen me-2"></i>Spotlight Record सम्पादन';
@@ -489,7 +489,7 @@ function previewPhotoMot(input) {
     if (input.files && input.files[0]) {
         var reader = new FileReader();
         reader.onload = function(e) {
-            prev.innerHTML = '<img src="' + e.target.result + '" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-light);">';
+            prev.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-light);">';
         };
         reader.readAsDataURL(input.files[0]);
     }

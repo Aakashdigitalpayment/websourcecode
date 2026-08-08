@@ -373,7 +373,7 @@ require __DIR__ . '/includes/chrome.php';
                     <div class="card-body">
                         <?php $i=0; foreach ($list as $cd): $i++; $cnt=$tally[(int)$cd['id']]??0; $isLead = $i <= (int)$pos['seats']; ?>
                             <div class="d-flex align-items-center gap-3 py-2 border-bottom">
-                                <?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" style="width:42px;height:42px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted"><i class="fas fa-user-circle fa-2x"></i></span><?php endif; ?>
+                                <?php if (!empty($cd['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" alt="<?php echo htmlspecialchars((string)$cd['name'], ENT_QUOTES, 'UTF-8'); ?>" style="width:42px;height:42px;object-fit:cover;border-radius:50%;"><?php else: ?><span class="text-muted"><i class="fas fa-user-circle fa-2x"></i></span><?php endif; ?>
                                 <div class="flex-grow-1">
                                     <div><?php if ($isLead): ?><i class="fas fa-trophy text-warning me-1"></i><?php endif; ?><strong><?php echo htmlspecialchars($cd['name']); ?></strong>
                                         <?php if (!empty($cd['symbol_no'])): ?> <span class="badge bg-secondary">#<?php echo htmlspecialchars($cd['symbol_no']); ?></span><?php endif; ?>
