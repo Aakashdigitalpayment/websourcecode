@@ -79,8 +79,8 @@ if ($flash) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger',
     <div class="card-body">
         <form method="GET" class="row g-2 align-items-end mb-3">
             <div class="col-md-3">
-                <label class="form-label">Filter</label>
-                <select name="filter" class="form-select">
+                <label for="kyc_rr_filter" class="form-label">Filter</label>
+                <select name="filter" id="kyc_rr_filter" class="form-select">
                     <option value="due" <?php echo $filter==='due'?'selected':''; ?>>Due Review only</option>
                     <option value="high" <?php echo $filter==='high'?'selected':''; ?>>High Risk only</option>
                     <option value="all" <?php echo $filter==='all'?'selected':''; ?>>All approved</option>
