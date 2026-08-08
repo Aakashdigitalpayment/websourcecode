@@ -565,17 +565,17 @@ echo adminPageHeader(
         <?php echo adminSectionCard('आर्थिक वर्ष र महिना', 'fa-calendar', 'primary', '
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">आर्थिक वर्ष <span class="text-danger">*</span></label>
+              <label for="fieldFiscalYear" class="form-label">आर्थिक वर्ष <span class="text-danger">*</span></label>
               ' . str_replace('<select ', '<select data-testid="institutional-profile-fiscal-year-select" ', adminFiscalYearSelect('fiscal_year', (string)$v('fiscal_year'), true, 'fieldFiscalYear')) . '
               <small class="text-muted">उदाहरण: 2081/82</small>
             </div>
             <div class="col-md-3">
-              <label class="form-label">रिपोर्ट महिना (बि.सं.) <span class="text-danger">*</span></label>
+              <label for="fieldReportMonth" class="form-label">रिपोर्ट महिना (बि.सं.) <span class="text-danger">*</span></label>
               ' . ipAdminMonthSelectHtml($editMonth) . '
               <small class="text-muted">यो महिनाको तथ्याङ्क हो भनी स्पष्ट छान्नुहोस्</small>
             </div>
             <div class="col-md-3">
-              <label class="form-label">मिति (बि.सं.) <small class="text-muted">(optional)</small></label>
+              <label for="fieldDateBs" class="form-label">मिति (बि.सं.) <small class="text-muted">(optional)</small></label>
               <div class="input-group">
                 <input type="text" name="report_date_bs" id="fieldDateBs"
                        class="form-control nepali-datepicker"
@@ -589,7 +589,7 @@ echo adminPageHeader(
               <small class="text-muted">BS मिति — महिना खाली छ भने यसबाट auto</small>
             </div>
             <div class="col-md-3">
-              <label class="form-label">मिति (A.D.) <small class="text-muted">(optional)</small></label>
+              <label for="fieldDateAd" class="form-label">मिति (A.D.) <small class="text-muted">(optional)</small></label>
               <input type="date" name="report_date_ad" id="fieldDateAd"
                      class="form-control"
                      data-testid="institutional-profile-report-date-ad-input"
@@ -607,18 +607,18 @@ echo adminPageHeader(
         <?php echo adminSectionCard('सदस्य र कुल सम्पत्ति', 'fa-users', 'success', '
           <div class="row g-3">
             <div class="col-md-4">
-              <label class="form-label">कुल सदस्य संख्या</label>
-              <input type="number" name="total_members" class="form-control" data-testid="institutional-profile-total-members-input"
+              <label for="fieldTotalMembers" class="form-label">कुल सदस्य संख्या</label>
+              <input type="number" name="total_members" id="fieldTotalMembers" class="form-control" data-testid="institutional-profile-total-members-input"
                      min="0" value="' . (int)$v('total_members', 0) . '">
             </div>
             <div class="col-md-4">
-              <label class="form-label">शेष सदस्य संख्या</label>
-              <input type="number" name="total_balance_member" class="form-control" data-testid="institutional-profile-total-balance-member-input"
+              <label for="fieldBalanceMembers" class="form-label">शेष सदस्य संख्या</label>
+              <input type="number" name="total_balance_member" id="fieldBalanceMembers" class="form-control" data-testid="institutional-profile-total-balance-member-input"
                      min="0" value="' . (int)$v('total_balance_member', 0) . '">
             </div>
             <div class="col-md-4">
-              <label class="form-label">कुल सम्पत्ति (रू.)</label>
-              <input type="number" name="total_assets" class="form-control" data-testid="institutional-profile-total-assets-input"
+              <label for="fieldTotalAssets" class="form-label">कुल सम्पत्ति (रू.)</label>
+              <input type="number" name="total_assets" id="fieldTotalAssets" class="form-control" data-testid="institutional-profile-total-assets-input"
                      step="0.01" min="0" value="' . (float)$v('total_assets', 0) . '">
             </div>
           </div>
@@ -628,44 +628,44 @@ echo adminPageHeader(
         <?php echo adminSectionCard('शेयर पूँजी, कोष र सम्पत्ति', 'fa-coins', 'warning', '
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">शेयर पूँजी (रू.)</label>
-              <input type="number" name="share_capital" class="form-control" data-testid="institutional-profile-share-capital-input"
+              <label for="fieldShareCapital" class="form-label">शेयर पूँजी (रू.)</label>
+              <input type="number" name="share_capital" id="fieldShareCapital" class="form-control" data-testid="institutional-profile-share-capital-input"
                      step="0.01" min="0" value="' . (float)$v('share_capital', 0) . '">
             </div>
             <div class="col-md-3">
-              <label class="form-label">शेयर पूँजी % वृद्धि</label>
+              <label for="fieldShareCapitalPct" class="form-label">शेयर पूँजी % वृद्धि</label>
               <div class="input-group">
-                <input type="number" name="share_capital_percent" class="form-control" data-testid="institutional-profile-share-capital-percent-input"
+                <input type="number" name="share_capital_percent" id="fieldShareCapitalPct" class="form-control" data-testid="institutional-profile-share-capital-percent-input"
                        step="0.01" value="' . (float)$v('share_capital_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-3">
-              <label class="form-label">जगेडा कोष (रू.)</label>
-              <input type="number" name="reserved_fund" class="form-control" data-testid="institutional-profile-reserved-fund-input"
+              <label for="fieldReservedFund" class="form-label">जगेडा कोष (रू.)</label>
+              <input type="number" name="reserved_fund" id="fieldReservedFund" class="form-control" data-testid="institutional-profile-reserved-fund-input"
                      step="0.01" min="0" value="' . (float)$v('reserved_fund', 0) . '">
             </div>
             <div class="col-md-3">
-              <label class="form-label">जगेडा कोष % वृद्धि</label>
+              <label for="fieldReservedFundPct" class="form-label">जगेडा कोष % वृद्धि</label>
               <div class="input-group">
-                <input type="number" name="reserved_fund_percent" class="form-control" data-testid="institutional-profile-reserved-fund-percent-input"
+                <input type="number" name="reserved_fund_percent" id="fieldReservedFundPct" class="form-control" data-testid="institutional-profile-reserved-fund-percent-input"
                        step="0.01" value="' . (float)$v('reserved_fund_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-4">
-              <label class="form-label">अन्य कोष (रू.)</label>
-              <input type="number" name="other_fund" class="form-control" data-testid="institutional-profile-other-fund-input"
+              <label for="fieldOtherFund" class="form-label">अन्य कोष (रू.)</label>
+              <input type="number" name="other_fund" id="fieldOtherFund" class="form-control" data-testid="institutional-profile-other-fund-input"
                      step="0.01" min="0" value="' . (float)$v('other_fund', 0) . '">
             </div>
             <div class="col-md-4">
-              <label class="form-label">बैंक तथा नगद मौज्दात (रू.)</label>
-              <input type="number" name="bank_cash_balance" class="form-control" data-testid="institutional-profile-bank-cash-balance-input"
+              <label for="fieldBankCash" class="form-label">बैंक तथा नगद मौज्दात (रू.)</label>
+              <input type="number" name="bank_cash_balance" id="fieldBankCash" class="form-control" data-testid="institutional-profile-bank-cash-balance-input"
                      step="0.01" min="0" value="' . (float)$v('bank_cash_balance', 0) . '">
             </div>
             <div class="col-md-4">
-              <label class="form-label">स्थिर सम्पत्ति (रू.)</label>
-              <input type="number" name="fixed_assets" class="form-control" data-testid="institutional-profile-fixed-assets-input"
+              <label for="fieldFixedAssets" class="form-label">स्थिर सम्पत्ति (रू.)</label>
+              <input type="number" name="fixed_assets" id="fieldFixedAssets" class="form-control" data-testid="institutional-profile-fixed-assets-input"
                      step="0.01" min="0" value="' . (float)$v('fixed_assets', 0) . '">
             </div>
           </div>
@@ -675,34 +675,34 @@ echo adminPageHeader(
         <?php echo adminSectionCard('बचत र ऋण', 'fa-piggy-bank', 'info', '
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">कुल बचत (रू.)</label>
-              <input type="number" name="deposit" class="form-control" data-testid="institutional-profile-deposit-input"
+              <label for="fieldDeposit" class="form-label">कुल बचत (रू.)</label>
+              <input type="number" name="deposit" id="fieldDeposit" class="form-control" data-testid="institutional-profile-deposit-input"
                      step="0.01" min="0" value="' . (float)$v('deposit', 0) . '">
             </div>
             <div class="col-md-3">
-              <label class="form-label">बचत % वृद्धि</label>
+              <label for="fieldDepositPct" class="form-label">बचत % वृद्धि</label>
               <div class="input-group">
-                <input type="number" name="deposit_percent" class="form-control" data-testid="institutional-profile-deposit-percent-input"
+                <input type="number" name="deposit_percent" id="fieldDepositPct" class="form-control" data-testid="institutional-profile-deposit-percent-input"
                        step="0.01" value="' . (float)$v('deposit_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-3">
-              <label class="form-label">कुल ऋण लगानी (रू.)</label>
-              <input type="number" name="loan" class="form-control" data-testid="institutional-profile-loan-input"
+              <label for="fieldLoan" class="form-label">कुल ऋण लगानी (रू.)</label>
+              <input type="number" name="loan" id="fieldLoan" class="form-control" data-testid="institutional-profile-loan-input"
                      step="0.01" min="0" value="' . (float)$v('loan', 0) . '">
             </div>
             <div class="col-md-3">
-              <label class="form-label">ऋण % वृद्धि</label>
+              <label for="fieldLoanPct" class="form-label">ऋण % वृद्धि</label>
               <div class="input-group">
-                <input type="number" name="loan_percent" class="form-control" data-testid="institutional-profile-loan-percent-input"
+                <input type="number" name="loan_percent" id="fieldLoanPct" class="form-control" data-testid="institutional-profile-loan-percent-input"
                        step="0.01" value="' . (float)$v('loan_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-3">
-              <label class="form-label">कुल ऋणी सदस्य</label>
-              <input type="number" name="total_loan_members" class="form-control" data-testid="institutional-profile-total-loan-members-input"
+              <label for="fieldLoanMembers" class="form-label">कुल ऋणी सदस्य</label>
+              <input type="number" name="total_loan_members" id="fieldLoanMembers" class="form-control" data-testid="institutional-profile-total-loan-members-input"
                      min="0" value="' . (int)$v('total_loan_members', 0) . '">
             </div>
           </div>
@@ -712,42 +712,42 @@ echo adminPageHeader(
         <?php echo adminSectionCard('ऋण जोखिम कोष र गुणस्तर सूचकाङ्क', 'fa-chart-line', 'danger', '
           <div class="row g-3">
             <div class="col-md-4">
-              <label class="form-label">ऋण जोखिम कोष (रू.)</label>
-              <input type="number" name="total_loan_reserve_fund" class="form-control" data-testid="institutional-profile-loan-reserve-fund-input"
+              <label for="fieldLoanReserve" class="form-label">ऋण जोखिम कोष (रू.)</label>
+              <input type="number" name="total_loan_reserve_fund" id="fieldLoanReserve" class="form-control" data-testid="institutional-profile-loan-reserve-fund-input"
                      step="0.01" min="0" value="' . (float)$v('total_loan_reserve_fund', 0) . '">
             </div>
             <div class="col-md-2">
-              <label class="form-label">Loan Reserve %</label>
+              <label for="fieldLoanReservePct" class="form-label">Loan Reserve %</label>
               <div class="input-group">
-                <input type="number" name="total_loan_reserve_percent" class="form-control" data-testid="institutional-profile-loan-reserve-percent-input"
+                <input type="number" name="total_loan_reserve_percent" id="fieldLoanReservePct" class="form-control" data-testid="institutional-profile-loan-reserve-percent-input"
                        step="0.01" value="' . (float)$v('total_loan_reserve_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-2">
-              <label class="form-label">NPA %
+              <label for="fieldNpaPct" class="form-label">NPA %
                 <i class="fas fa-circle-info ms-1 text-muted" data-bs-toggle="tooltip"
                    title="Non-Performing Assets — कम राम्रो (अधिकतम 5%)"></i>
               </label>
               <div class="input-group">
-                <input type="number" name="npa_percent" class="form-control" data-testid="institutional-profile-npa-percent-input"
+                <input type="number" name="npa_percent" id="fieldNpaPct" class="form-control" data-testid="institutional-profile-npa-percent-input"
                        step="0.01" min="0" max="100" value="' . (float)$v('npa_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
               <small class="text-muted">5% भन्दा कम राम्रो</small>
             </div>
             <div class="col-md-2">
-              <label class="form-label">Liquidity %</label>
+              <label for="fieldLiquidityPct" class="form-label">Liquidity %</label>
               <div class="input-group">
-                <input type="number" name="liquidity_percent" class="form-control" data-testid="institutional-profile-liquidity-percent-input"
+                <input type="number" name="liquidity_percent" id="fieldLiquidityPct" class="form-control" data-testid="institutional-profile-liquidity-percent-input"
                        step="0.01" min="0" max="100" value="' . (float)$v('liquidity_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
             </div>
             <div class="col-md-2">
-              <label class="form-label">NPL %</label>
+              <label for="fieldNplPct" class="form-label">NPL %</label>
               <div class="input-group">
-                <input type="number" name="npl_percent" class="form-control" data-testid="institutional-profile-npl-percent-input"
+                <input type="number" name="npl_percent" id="fieldNplPct" class="form-control" data-testid="institutional-profile-npl-percent-input"
                        step="0.01" min="0" max="100" value="' . (float)$v('npl_percent', 0) . '">
                 <span class="input-group-text">%</span>
               </div>
@@ -784,11 +784,11 @@ echo adminPageHeader(
         echo adminSectionCard('संलग्न कागजात', 'fa-file-arrow-up', 'info',
             $_existAttachHtml
             . ($_existAttachPreview
-                ? '<div class="mb-3"><label class="form-label fw-semibold text-dark">अहिलेको कागजात</label>' . $_existAttachPreview . '</div><hr class="my-3">'
+                ? '<div class="mb-3"><div class="form-label fw-semibold text-dark">अहिलेको कागजात</div>' . $_existAttachPreview . '</div><hr class="my-3">'
                 : '')
             . '<div class="row g-3">
                 <div class="col-md-8">
-                  <label class="form-label">नयाँ कागजात अपलोड गर्नुहोस् <span class="text-muted fw-normal">(optional)</span></label>
+                  <label for="fieldAttachment" class="form-label">नयाँ कागजात अपलोड गर्नुहोस् <span class="text-muted fw-normal">(optional)</span></label>
                   <input type="file" name="attachment_file" id="fieldAttachment"
                          class="form-control" accept=".pdf,.jpg,.jpeg" data-testid="institutional-profile-attachment-file-input"
                          onchange="(function(i){var w=document.getElementById(\'ipFpWrap\'),n=document.getElementById(\'ipFpName\');if(i.files.length){w.style.display=\'\';n.textContent=i.files[0].name;}else{w.style.display=\'none\';}})(this)">
@@ -810,12 +810,12 @@ echo adminPageHeader(
         <?php echo adminSectionCard('थप टिप्पणी र स्थिति', 'fa-note-sticky', 'secondary', '
           <div class="row g-3">
             <div class="col-md-8">
-              <label class="form-label">थप टिप्पणी <small class="text-muted">(optional)</small></label>
-              <textarea name="report_note" class="form-control" rows="3" data-testid="institutional-profile-report-note-textarea"
+              <label for="fieldReportNote" class="form-label">थप टिप्पणी <small class="text-muted">(optional)</small></label>
+              <textarea name="report_note" id="fieldReportNote" class="form-control" rows="3" data-testid="institutional-profile-report-note-textarea"
                         placeholder="रिपोर्टको बारेमा कुनै विशेष टिप्पणी...">'. htmlspecialchars((string)$v('report_note')) .'</textarea>
             </div>
             <div class="col-md-4">
-              <label class="form-label">Website मा देखाउने?</label>
+              <div class="form-label">Website मा देखाउने?</div>
               <div class="form-check form-switch mt-2">
                 <input class="form-check-input" type="checkbox" name="is_active" id="fieldIsActive" data-testid="institutional-profile-is-active-switch"
                        ' . ((int)$v('is_active', 1) ? 'checked' : '') . '>
