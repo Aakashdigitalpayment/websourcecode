@@ -74,16 +74,16 @@ $departments = hrmListDepartments($db);
   <form method="get" class="card p-3 mb-3 shadow-sm border-0" style="background:var(--card-bg,#fff);">
     <div class="row g-2 align-items-end">
       <div class="col-md-5">
-        <label class="form-label small text-muted mb-1">खोज</label>
+        <label for="hrm_dir_q" class="form-label small text-muted mb-1">खोज</label>
         <div class="input-group">
           <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
-          <input type="search" class="form-control" name="q" value="<?= htmlspecialchars($q) ?>"
+          <input type="search" class="form-control" name="q" id="hrm_dir_q" value="<?= htmlspecialchars($q) ?>"
                  placeholder="नाम / पद / मोबाइल / इमेल / कोड">
         </div>
       </div>
       <div class="col-md-3">
-        <label class="form-label small text-muted mb-1">विभाग</label>
-        <select class="form-select" name="dept">
+        <label for="hrm_dir_dept" class="form-label small text-muted mb-1">विभाग</label>
+        <select class="form-select" name="dept" id="hrm_dir_dept">
           <option value="">— सबै विभाग —</option>
           <?php foreach ($departments as $d): ?>
             <option value="<?= (int)$d['id'] ?>" <?= $dept===(int)$d['id']?'selected':'' ?>><?= htmlspecialchars($d['name_np']) ?></option>
@@ -91,8 +91,8 @@ $departments = hrmListDepartments($db);
         </select>
       </div>
       <div class="col-md-2">
-        <label class="form-label small text-muted mb-1">स्थिति</label>
-        <select class="form-select" name="status">
+        <label for="hrm_dir_status" class="form-label small text-muted mb-1">स्थिति</label>
+        <select class="form-select" name="status" id="hrm_dir_status">
           <option value="">— सबै —</option>
           <?php foreach (['active'=>'सक्रिय','probation'=>'परीक्षणकाल','on_leave'=>'बिदामा','suspended'=>'निलम्बित','resigned'=>'राजीनामा'] as $k=>$v): ?>
             <option value="<?= $k ?>" <?= $status===$k?'selected':'' ?>><?= $v ?></option>
@@ -187,12 +187,12 @@ $departments = hrmListDepartments($db);
       <div class="modal-body">
         <p class="small text-muted mb-3">प्राप्तकर्ता: <strong id="msg_name">—</strong></p>
         <div class="mb-3">
-          <label class="form-label small">विषय</label>
-          <input type="text" name="subject" class="form-control" maxlength="200" placeholder="वैकल्पिक">
+          <label for="hrm_dir_subject" class="form-label small">विषय</label>
+          <input type="text" name="subject" id="hrm_dir_subject" class="form-control" maxlength="200" placeholder="वैकल्पिक">
         </div>
         <div class="mb-2">
-          <label class="form-label small">सन्देश *</label>
-          <textarea name="body" class="form-control" rows="5" required placeholder="यहाँ सन्देश लेख्नुहोस् ..."></textarea>
+          <label for="hrm_dir_body" class="form-label small">सन्देश *</label>
+          <textarea name="body" id="hrm_dir_body" class="form-control" rows="5" required placeholder="यहाँ सन्देश लेख्नुहोस् ..."></textarea>
         </div>
       </div>
       <div class="modal-footer">

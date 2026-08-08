@@ -410,10 +410,10 @@ function attachmentName($path) {
 
                                 <!-- Status dropdown -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">
+                                    <label for="fb_status" class="form-label fw-semibold">
                                         <i class="fas fa-circle-dot me-1"></i>अवस्था (Status)
                                     </label>
-                                    <select name="status" class="form-select">
+                                    <select name="status" id="fb_status" class="form-select">
                                         <option value="pending"
                                             <?php echo $viewFeedback['status'] === 'pending'  ? 'selected' : ''; ?>>
                                             ⏳ Pending — समीक्षाधीन
@@ -431,14 +431,14 @@ function attachmentName($path) {
 
                                 <!-- Admin Reply — member ले application-tracker मा देख्छ -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">
+                                    <label for="fb_admin_reply" class="form-label fw-semibold">
                                         <i class="fas fa-reply me-1 text-success"></i>
                                         Admin जवाफ
                                         <span class="text-muted fw-normal small">
                                             — Member ले Application Tracker मा देख्छ
                                         </span>
                                     </label>
-                                    <textarea name="admin_reply" class="form-control" rows="3"
+                                    <textarea name="admin_reply" id="fb_admin_reply" class="form-control" rows="3"
                                         placeholder="सदस्यलाई जवाफ लेख्नुहोस् (optional)..."
                                     ><?php echo htmlspecialchars($viewFeedback['admin_reply'] ?? ''); ?></textarea>
                                 </div>
@@ -457,14 +457,14 @@ function attachmentName($path) {
 
                                 <!-- Admin Internal Note — केवल admin को लागि -->
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold">
+                                    <label for="fb_admin_note" class="form-label fw-semibold">
                                         <i class="fas fa-sticky-note me-1" style="color:#d4900a;"></i>
                                         Admin आन्तरिक टिप्पणी (Note)
                                         <span class="text-muted fw-normal small">
                                             — Member ले देख्दैन, admin को internal memo मात्र
                                         </span>
                                     </label>
-                                    <textarea name="admin_note" class="form-control" rows="3"
+                                    <textarea name="admin_note" id="fb_admin_note" class="form-control" rows="3"
                                         placeholder="Admin को आन्तरिक टिप्पणी — member देख्दैन..."
                                         style="border-color:#ffc107;background:#fffdf0;"
                                     ><?php echo htmlspecialchars($viewFeedback['admin_note'] ?? ''); ?></textarea>
@@ -472,14 +472,14 @@ function attachmentName($path) {
 
                                 <!-- Document Upload — admin ले attach गर्छ -->
                                 <div class="mb-4">
-                                    <label class="form-label fw-semibold">
+                                    <label for="fb_admin_attachment" class="form-label fw-semibold">
                                         <i class="fas fa-paperclip me-1 text-primary"></i>
                                         Document संलग्न गर्नुहोस्
                                         <span class="text-muted fw-normal small">
                                             — PDF, Word, Image (max 5MB)
                                         </span>
                                     </label>
-                                    <input type="file" name="admin_attachment"
+                                    <input type="file" name="admin_attachment" id="fb_admin_attachment"
                                            class="form-control"
                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
                                     <?php if (!empty($viewFeedback['admin_attachment'])): ?>
