@@ -155,7 +155,7 @@ echo adminPageHeader(
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="small text-muted mt-1">नयाँ पद चाहियो भने <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</div>
+                        <div class="small text-muted mt-1">नयाँ पद चाहियो भने <a href="designations.php" target="_blank" rel="noopener noreferrer">पद मास्टर</a> मा थप्नुहोस्।</div>
                     </div>
                     <div class="col-12"><label for="ep_committee_type_id" class="form-label small">समिति</label>
                         <select class="form-select" name="committee_type_id" id="ep_committee_type_id">

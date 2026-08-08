@@ -97,7 +97,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
     <code>fas fa-headset</code> &nbsp;
     <code>fas fa-award</code>
     &nbsp;—&nbsp;
-    <a href="https://fontawesome.com/icons" target="_blank" class="alert-link">सबै icon हेर्नुस् <i class="fas fa-external-link-alt"></i></a>
+    <a href="https://fontawesome.com/icons" target="_blank" class="alert-link" rel="noopener noreferrer">सबै icon हेर्नुस् <i class="fas fa-external-link-alt"></i></a>
 </div>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">

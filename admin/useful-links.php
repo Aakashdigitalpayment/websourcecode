@@ -153,7 +153,7 @@ $linksArch = $lnkPart['archived'];
                                     <div class="fw-semibold"><?php echo htmlspecialchars($l['title_np'] ?: $l['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($l['title']); ?></small>
                                 </td>
-                                <td><a href="<?php echo htmlspecialchars($l['url']); ?>" target="_blank" class="text-truncate d-inline-block ul-link-clamp"><?php echo htmlspecialchars($l['url']); ?></a></td>
+                                <td><a href="<?php echo htmlspecialchars($l['url']); ?>" target="_blank" class="text-truncate d-inline-block ul-link-clamp" rel="noopener noreferrer"><?php echo htmlspecialchars($l['url']); ?></a></td>
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $l['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
@@ -212,7 +212,7 @@ $linksArch = $lnkPart['archived'];
                                     <div class="fw-semibold"><?php echo htmlspecialchars($l['title_np'] ?: $l['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($l['title']); ?></small>
                                 </td>
-                                <td><a href="<?php echo htmlspecialchars($l['url']); ?>" target="_blank" class="text-truncate d-inline-block ul-link-clamp"><?php echo htmlspecialchars($l['url']); ?></a></td>
+                                <td><a href="<?php echo htmlspecialchars($l['url']); ?>" target="_blank" class="text-truncate d-inline-block ul-link-clamp" rel="noopener noreferrer"><?php echo htmlspecialchars($l['url']); ?></a></td>
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $l['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>

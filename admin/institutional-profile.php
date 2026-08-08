@@ -772,7 +772,7 @@ echo adminPageHeader(
                   . '<div class="text-muted" style="font-size:.75rem;">' . htmlspecialchars(basename($r['attachment_path'])) . '</div></div></div>';
             $_existAttachPreview = $_thumb
                 . '<div class="d-flex align-items-center gap-2 flex-wrap">'
-                . '<a href="' . $_attachUrl . '" target="_blank" class="btn btn-sm btn-outline-success">'
+                . '<a href="' . $_attachUrl . '" target="_blank" class="btn btn-sm btn-outline-success" rel="noopener noreferrer">'
                 . '<i class="fas fa-eye me-1"></i>हेर्नुहोस् / डाउनलोड</a>'
                 . '<div class="form-check mb-0 ms-2">'
                 . '<input type="checkbox" class="form-check-input" name="remove_attachment" id="removeAttachment" value="1" data-testid="institutional-profile-remove-attachment-checkbox">'

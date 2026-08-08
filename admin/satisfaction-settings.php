@@ -242,7 +242,7 @@ require_once 'includes/admin-ui.php';
                                     <td>
                                         <a href="<?php echo htmlspecialchars($link['url']); ?>" target="_blank"
                                            class="text-truncate d-inline-block" style="max-width:150px;"
-                                           title="<?php echo htmlspecialchars($link['url']); ?>">
+                                           title="<?php echo htmlspecialchars($link['url']); ?>" rel="noopener noreferrer">
                                             <?php echo htmlspecialchars($link['url']); ?>
                                         </a>
                                     </td>

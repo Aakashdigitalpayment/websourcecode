@@ -1837,12 +1837,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>">NP</a>
                         </li>
                         <li class="internet-banking-btn">
-                            <a href="<?php echo getSetting('internet_banking_url', '#'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>">
+                            <a href="<?php echo getSetting('internet_banking_url', '#'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">
                                 <i class="fas fa-laptop"></i>
                             </a>
                         </li>
-                        <li><a href="<?php echo $facebookUrl; ?>" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
-                        <li><a href="<?php echo $youtubeUrl; ?>" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                        <li><a href="<?php echo $facebookUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
+                        <li><a href="<?php echo $youtubeUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
                         <li><a href="mailto:<?php echo $email; ?>"><i class="fas fa-envelope"></i></a></li>
                             <li class="topbar-search-btn d-none d-lg-inline-block">
                                 <a href="javascript:void(0);" id="topbarSearchBtn"

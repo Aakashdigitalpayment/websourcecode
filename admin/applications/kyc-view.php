@@ -158,7 +158,7 @@ if ($docs):
     ?>
     <div style="text-align:center;">
       <div style="font-size:12px;font-weight:600;color:#374151;margin-bottom:6px;"><?php echo $labels[$col] ?? $col; ?></div>
-      <a href="../../<?php echo htmlspecialchars($path); ?>" target="_blank">
+      <a href="../../<?php echo htmlspecialchars($path); ?>" target="_blank" rel="noopener noreferrer">
         <img src="../../<?php echo htmlspecialchars($path); ?>"
              style="max-width:180px;max-height:140px;border-radius:8px;border:1px solid #e5e7eb;object-fit:contain;"
              onerror="this.style.display='none';this.nextElementSibling.style.display='block';"

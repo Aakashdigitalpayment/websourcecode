@@ -109,13 +109,13 @@ $L = getLangStrings();
 
                     <div class="news-share">
                         <span><?php echo isEnglish() ? 'Share:' : 'सेयर गर्नुहोस्:'; ?></span>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(SITE_URL . 'news-detail.php?id=' . $news['id']); ?>" target="_blank" class="share-btn facebook">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(SITE_URL . 'news-detail.php?id=' . $news['id']); ?>" target="_blank" class="share-btn facebook" rel="noopener noreferrer">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(SITE_URL . 'news-detail.php?id=' . $news['id']); ?>&text=<?php echo urlencode(getLangField($news, 'title')); ?>" target="_blank" class="share-btn twitter">
+                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(SITE_URL . 'news-detail.php?id=' . $news['id']); ?>&text=<?php echo urlencode(getLangField($news, 'title')); ?>" target="_blank" class="share-btn twitter" rel="noopener noreferrer">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="https://wa.me/?text=<?php echo urlencode(getLangField($news, 'title') . ' ' . SITE_URL . 'news-detail.php?id=' . $news['id']); ?>" target="_blank" class="share-btn whatsapp">
+                        <a href="https://wa.me/?text=<?php echo urlencode(getLangField($news, 'title') . ' ' . SITE_URL . 'news-detail.php?id=' . $news['id']); ?>" target="_blank" class="share-btn whatsapp" rel="noopener noreferrer">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     </div>

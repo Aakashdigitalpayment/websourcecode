@@ -378,7 +378,7 @@ if ($viewApp):
                     <?php foreach ($docs as $col => $label): ?>
                     <?php if (!empty($viewApp[$col])): ?>
                     <div class="col-6 col-md-3 text-center">
-                        <a href="<?php echo htmlspecialchars(SITE_URL . $viewApp[$col]); ?>" target="_blank">
+                        <a href="<?php echo htmlspecialchars(SITE_URL . $viewApp[$col]); ?>" target="_blank" rel="noopener noreferrer">
                             <img src="<?php echo htmlspecialchars(SITE_URL . $viewApp[$col]); ?>"
                                  class="img-thumbnail mb-1 acc-doc-thumb" alt="<?php echo $label; ?>">
                             <div class="small text-muted"><?php echo $label; ?></div>
@@ -396,7 +396,7 @@ if ($viewApp):
                         <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
                         <div class="flex-grow-1 fw-semibold small"><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApp['admin_attachment'], '/')); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i><?php echo $__t('डाउनलोड', 'Download'); ?>
                         </a>
                     </div>

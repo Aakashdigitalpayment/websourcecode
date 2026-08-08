@@ -314,7 +314,7 @@ $flash = getFlash();
                                 <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png">
                                 <div id="ntf_att_link" class="mt-1 d-none">
                                     <small class="ntc-muted"><?php echo $__t('हालको फाइल', 'Current file'); ?>:
-                                        <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link">
+                                        <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link" rel="noopener noreferrer">
                                             <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                         </a>
                                     </small>
@@ -356,7 +356,7 @@ $flash = getFlash();
                                            accept=".jpg,.jpeg,.png,.webp">
                                     <div id="ntf_popup_img_link" class="mt-1 d-none">
                                         <small><?php echo $__t('हालको फोटो', 'Current image'); ?>:
-                                            <a id="ntf_popup_img_href" href="#" target="_blank" class="fw-semibold">
+                                            <a id="ntf_popup_img_href" href="#" target="_blank" class="fw-semibold" rel="noopener noreferrer">
                                                 <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                             </a>
                                         </small>

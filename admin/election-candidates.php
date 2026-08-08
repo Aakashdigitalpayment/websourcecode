@@ -245,7 +245,7 @@ if (count($allCycles) > 1):
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <div class="form-text"><a href="election-posts.php" target="_blank">+ नयाँ Master पद थप्नुहोस्</a></div>
+                        <div class="form-text"><a href="election-posts.php" target="_blank" rel="noopener noreferrer">+ नयाँ Master पद थप्नुहोस्</a></div>
                     </div>
                     <?php else: ?>
                     <div class="col-12"><div class="alert alert-info py-2 mb-1 small">पहिले <a href="election-posts.php">पद Master</a> मा पद बनाउनुहोस्, अनि यहाँ छनोट गर्न मिल्छ।</div></div>

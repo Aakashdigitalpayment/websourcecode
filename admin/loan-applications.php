@@ -359,7 +359,7 @@ if ($viewApp):
                     <div class="adm-info-group-header"><i class="fas fa-file-alt"></i>पेश गरिएका कागजातहरू</div>
                     <div class="p-3 d-flex flex-wrap gap-2">
                         <?php foreach (explode(',', $viewApp['documents']) as $doc): $doc = trim($doc); if (!$doc) continue; ?>
-                        <a href="../<?php echo htmlspecialchars($doc); ?>" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <a href="../<?php echo htmlspecialchars($doc); ?>" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer">
                             <i class="fas fa-file-pdf me-1"></i><?php echo htmlspecialchars(basename($doc)); ?>
                         </a>
                         <?php endforeach; ?>
@@ -374,7 +374,7 @@ if ($viewApp):
                         <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
                         <div class="flex-grow-1 fw-semibold small"><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApp['admin_attachment'], '/')); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                     </div>

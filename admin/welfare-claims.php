@@ -262,7 +262,7 @@ if (!$claim) {
                         <div class="col-md-6">
                             <p><strong>मृत्यु मिति:</strong> <?php echo $claim['death_date'] ? formatDate($claim['death_date']) : 'N/A'; ?></p>
                             <?php if ($claim['death_certificate']): ?>
-                            <p><strong>प्रमाणपत्र:</strong> <a href="<?php echo SITE_URL . $claim['death_certificate']; ?>" target="_blank" class="btn btn-sm btn-outline-primary"><i class="fas fa-file"></i> हेर्नुहोस्</a></p>
+                            <p><strong>प्रमाणपत्र:</strong> <a href="<?php echo SITE_URL . $claim['death_certificate']; ?>" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer"><i class="fas fa-file"></i> हेर्नुहोस्</a></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -350,7 +350,7 @@ if (!$claim) {
                     <div class="documents-list">
                         <?php foreach (explode(',', $claim['supporting_documents']) as $doc): ?>
                         <?php if (trim($doc)): ?>
-                        <a href="<?php echo SITE_URL . trim($doc); ?>" target="_blank" class="btn btn-sm btn-outline-secondary me-2 mb-2">
+                        <a href="<?php echo SITE_URL . trim($doc); ?>" target="_blank" class="btn btn-sm btn-outline-secondary me-2 mb-2" rel="noopener noreferrer">
                             <i class="fas fa-file"></i> <?php echo basename(trim($doc)); ?>
                         </a>
                         <?php endif; ?>

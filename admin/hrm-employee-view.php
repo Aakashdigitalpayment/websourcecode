@@ -200,7 +200,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
       </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-      <a class="btn-coop" target="_blank" href="hrm-employee-id-card.php?id=<?= (int)$emp['id'] ?>"><i class="fas fa-id-card"></i> Digital ID Card</a>
+      <a class="btn-coop" target="_blank" href="hrm-employee-id-card.php?id=<?= (int)$emp['id'] ?>" rel="noopener noreferrer"><i class="fas fa-id-card"></i> Digital ID Card</a>
       <a class="btn-coop btn-outline" href="hrm-employees.php"><i class="fas fa-arrow-left"></i> सूचीमा फर्क</a>
     </div>
   </div>
@@ -288,7 +288,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
               <td><?= e($c['start_date_ad']) ?></td>
               <td><?= e($c['end_date_ad'] ?: '—') ?></td>
               <td class="text-end">रू <?= number_format((float)$c['basic_salary'], 2) ?></td>
-              <td><?php if ($c['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($c['file_path']) ?>"><i class="fas fa-file-pdf"></i></a><?php endif; ?></td>
+              <td><?php if ($c['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($c['file_path']) ?>" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i></a><?php endif; ?></td>
               <td class="text-end">
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
@@ -345,7 +345,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                   <span class="badge bg-<?= $expSoon?'warning text-dark':'light text-dark' ?>"><?= e($exp) ?></span>
                 <?php else: ?><small class="text-muted">—</small><?php endif; ?>
               </td>
-              <td><?php if ($d['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($d['file_path']) ?>"><i class="fas fa-file"></i></a><?php endif; ?></td>
+              <td><?php if ($d['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($d['file_path']) ?>" rel="noopener noreferrer"><i class="fas fa-file"></i></a><?php endif; ?></td>
               <td class="text-end">
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
@@ -544,7 +544,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
               </div>
               <div class="small text-muted mt-1"><?= e($h['description']) ?>
                 <?php if ($h['reference_no']): ?> · पत्र नं: <code><?= e($h['reference_no']) ?></code><?php endif; ?>
-                <?php if ($h['file_path']): ?> · <a target="_blank" href="../<?= e($h['file_path']) ?>"><i class="fas fa-paperclip"></i> फाइल</a><?php endif; ?>
+                <?php if ($h['file_path']): ?> · <a target="_blank" href="../<?= e($h['file_path']) ?>" rel="noopener noreferrer"><i class="fas fa-paperclip"></i> फाइल</a><?php endif; ?>
               </div>
               <form method="post" class="stf-inline-form mt-1" onsubmit="return confirm('हटाउने?');">
                 <?= csrfField() ?><input type="hidden" name="action" value="delete_child">

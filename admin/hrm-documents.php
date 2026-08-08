@@ -77,7 +77,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php else: ?><span class="badge bg-light text-dark"><?= e($exp) ?></span>
             <?php endif; ?>
           </td>
-          <td><?php if ($r['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($r['file_path']) ?>"><i class="fas fa-file"></i></a><?php endif; ?></td>
+          <td><?php if ($r['file_path']): ?><a class="btn btn-sm btn-outline-primary" target="_blank" href="../<?= e($r['file_path']) ?>" rel="noopener noreferrer"><i class="fas fa-file"></i></a><?php endif; ?></td>
         </tr>
       <?php endforeach; ?>
       </tbody>

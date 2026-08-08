@@ -403,7 +403,7 @@ if ($viewApt):
                             <div class="fw-semibold small"><?php echo htmlspecialchars(basename($viewApt['admin_attachment'])); ?></div>
                         </div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApt['admin_attachment'], '/')); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                     </div>

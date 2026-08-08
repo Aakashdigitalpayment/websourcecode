@@ -371,7 +371,7 @@ function attachmentName($path) {
                             </div>
                         </div>
                         <a href="<?php echo htmlspecialchars(attachmentUrl($viewFeedback['admin_attachment'])); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                         <!-- Document हटाउने -->

@@ -617,8 +617,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <hr><h6 class="stg-title-accent fw-bold mt-3"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="key"></i><?php echo $__t('Member Portal — Social Login (OAuth)', 'Member Portal — Social Login (OAuth)'); ?></h6>
                     <div class="alert alert-info py-2 px-3 stg-help-compact">
                         <i class="fas fa-info-circle me-1"></i>
-                        <?php echo $__t('Google OAuth', 'Google OAuth'); ?>: <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a> <?php echo $__t('बाट Client ID र Secret लिनुहोस्।', 'to get Client ID and Secret.'); ?><br>
-                        Facebook: <a href="https://developers.facebook.com/apps" target="_blank">Meta Developers</a> <?php echo $__t('बाट App ID र Secret लिनुहोस्।', 'to get App ID and Secret.'); ?><br>
+                        <?php echo $__t('Google OAuth', 'Google OAuth'); ?>: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> <?php echo $__t('बाट Client ID र Secret लिनुहोस्।', 'to get Client ID and Secret.'); ?><br>
+                        Facebook: <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer">Meta Developers</a> <?php echo $__t('बाट App ID र Secret लिनुहोस्।', 'to get App ID and Secret.'); ?><br>
                         <strong>Redirect URI:</strong> <code><?php echo SITE_URL; ?>member/oauth.php?provider=google</code>
                     </div>
                     <div class="row g-3">

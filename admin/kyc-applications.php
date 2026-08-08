@@ -1005,7 +1005,7 @@ if ($viewApp):
                     <div class="row g-3">
                         <?php if (!empty($viewApp['citizenship_front'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['citizenship_front']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['citizenship_front']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['citizenship_front']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="नागरिकता अगाडि">
                                 <div class="small text-muted fw-semibold">अगाडि</div>
@@ -1014,7 +1014,7 @@ if ($viewApp):
                         <?php endif; ?>
                         <?php if (!empty($viewApp['citizenship_back'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['citizenship_back']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['citizenship_back']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['citizenship_back']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="नागरिकता पछाडि">
                                 <div class="small text-muted fw-semibold">पछाडि</div>
@@ -1023,7 +1023,7 @@ if ($viewApp):
                         <?php endif; ?>
                         <?php if (!empty($viewApp['national_id_card'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['national_id_card']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['national_id_card']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['national_id_card']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="National ID Card">
                                 <div class="small text-muted fw-semibold">National ID</div>
@@ -1032,7 +1032,7 @@ if ($viewApp):
                         <?php endif; ?>
                         <?php if (!empty($viewApp['signature'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['signature']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['signature']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['signature']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="Signature">
                                 <div class="small text-muted fw-semibold">दस्तखत</div>
@@ -1041,7 +1041,7 @@ if ($viewApp):
                         <?php endif; ?>
                         <?php if (!empty($viewApp['left_thumb'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['left_thumb']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="Left Thumb">
                                 <div class="small text-muted fw-semibold">बायाँ औंठाछाप</div>
@@ -1050,7 +1050,7 @@ if ($viewApp):
                         <?php endif; ?>
                         <?php if (!empty($viewApp['right_thumb'])): ?>
                         <div class="col-6 text-center">
-                            <a href="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>" target="_blank">
+                            <a href="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>" target="_blank" rel="noopener noreferrer">
                                 <img src="../<?php echo htmlspecialchars($viewApp['right_thumb']); ?>"
                                      class="img-thumbnail mb-1 kyc-doc-thumb" alt="Right Thumb">
                                 <div class="small text-muted fw-semibold">दायाँ औंठाछाप</div>
@@ -1217,7 +1217,7 @@ if ($viewApp):
                         <i class="fas fa-file-alt fa-2x text-primary opacity-75"></i>
                         <div class="flex-grow-1 fw-semibold small"><?php echo htmlspecialchars(basename($viewApp['admin_attachment'])); ?></div>
                         <a href="<?php echo htmlspecialchars(SITE_URL . ltrim($viewApp['admin_attachment'], '/')); ?>"
-                           class="btn btn-sm btn-outline-primary" target="_blank" download>
+                           class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
                             <i class="fas fa-download me-1"></i>Download
                         </a>
                     </div>

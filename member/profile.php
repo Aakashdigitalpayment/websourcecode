@@ -426,7 +426,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                 <div class="mem-card-header">
                     <div class="mem-card-title"><i class="fas fa-id-card"></i>KYC जानकारी</div>
                     <?php if ($kycRow && !empty($kycRow['id'])): ?>
-                    <a href="<?php echo SITE_URL; ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;">
+                    <a href="<?php echo SITE_URL; ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;" rel="noopener noreferrer">
                         <i class="fas fa-print me-1"></i>Print KYC
                     </a>
                     <?php endif; ?>

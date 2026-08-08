@@ -404,7 +404,7 @@ require __DIR__ . '/includes/chrome.php';
                         </a>
                         <?php if ($app['tracking_id']): ?>
                         <a href="<?php echo $siteUrl; ?>application-tracker.php?tracking_id=<?php echo urlencode($app['tracking_id']); ?>"
-                           target="_blank" style="padding:7px 14px;background:var(--bg-soft);color:var(--mem-primary);border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;border:1px solid var(--mem-primary);">
+                           target="_blank" style="padding:7px 14px;background:var(--bg-soft);color:var(--mem-primary);border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;border:1px solid var(--mem-primary);" rel="noopener noreferrer">
                             <i class="fas fa-search-location me-1"></i><?php echo $_t('पब्लिक ट्र्याकर', 'Public Tracker'); ?>
                         </a>
                         <?php endif; ?>
