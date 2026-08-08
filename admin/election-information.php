@@ -268,7 +268,7 @@ echo adminPageHeader(
     'निर्वाचन जानकारी',
     'fa-check-to-slot',
     'चक्र → पद/उम्मेदवार → मतदान समय (वि.सं.) → सदस्य मत → नतिजा। मतदान खुला = समय भित्र + मतदान सक्रिय।',
-    '<a class="btn btn-outline-primary btn-sm" href="' . SITE_URL . 'election-information.php" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>सार्वजनिक पृष्ठ</a>'
+    '<a class="btn btn-outline-primary btn-sm" href="' . SITE_URL . 'election-information.php" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>सार्वजनिक पृष्ठ</a>'
 );
 ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
@@ -550,7 +550,7 @@ echo adminPageHeader(
                         if (!empty($mr['attachment'])) {
                             $__p = (string)$mr['attachment'];
                             $__u = (strpos($__p, 'http://') === 0 || strpos($__p, 'https://') === 0) ? $__p : (SITE_URL . ltrim($__p, '/'));
-                            echo '<a target="_blank" rel="noopener" href="' . htmlspecialchars($__u, ENT_QUOTES, 'UTF-8') . '">फाइल</a>';
+                            echo '<a target="_blank" rel="noopener noreferrer" href="' . htmlspecialchars($__u, ENT_QUOTES, 'UTF-8') . '">फाइल</a>';
                         } else {
                             echo '—';
                         }

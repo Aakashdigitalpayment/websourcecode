@@ -389,7 +389,7 @@ try {
         <a href="<?php echo $_siteUrl; ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="fas fa-comment-dots"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="fas fa-certificate"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="fas fa-user-circle"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>" class="mem-nav-item" target="_blank" rel="noopener"><i class="fas fa-globe"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
+        <a href="<?php echo $_siteUrl; ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
     </nav>
 
 <script>

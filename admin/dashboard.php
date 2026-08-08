@@ -300,7 +300,7 @@ try {
               <i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?= htmlspecialchars($c['username']) ?>
             </div>
             <div class="cred-actions">
-              <a href="<?= htmlspecialchars($c['site_url']) ?>" target="_blank" rel="noopener" class="cred-btn">
+              <a href="<?= htmlspecialchars($c['site_url']) ?>" target="_blank" rel="noopener noreferrer" class="cred-btn">
                 <i class="fas fa-up-right-from-square"></i> <?php echo $__t('खोल्नुहोस्', 'Open'); ?>
               </a>
               <a href="credentials.php#cred-<?= (int)$c['id'] ?>" class="cred-btn">

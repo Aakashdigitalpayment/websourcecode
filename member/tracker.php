@@ -257,7 +257,7 @@ require __DIR__ . '/includes/chrome.php';
                 <?php endif; ?>
                 <?php if ($hasAttach): ?>
                 <div style="margin-top:10px;">
-                    <a href="<?php echo htmlspecialchars($siteUrl . ltrim($viewApp['admin_attachment'],'/')); ?>" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--primary-dark,#144a21);border:1px solid var(--primary-light,#2e8b4a);padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none;">
+                    <a href="<?php echo htmlspecialchars($siteUrl . ltrim($viewApp['admin_attachment'],'/')); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--primary-dark,#144a21);border:1px solid var(--primary-light,#2e8b4a);padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none;">
                         <i class="fas fa-paperclip"></i> <?php echo $_t('संलग्न फाइल हेर्नुहोस्', 'View Attachment'); ?>
                     </a>
                 </div>

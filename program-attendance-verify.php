@@ -238,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             '<img class="pav-program-qr-img" src="' + qrSrc + '" alt="Program QR">' +
             '<div class="pav-program-qr-meta">' +
             '<div class="pav-program-qr-title"><?php echo isEnglish() ? 'Selected program QR' : 'छानिएको कार्यक्रमको QR'; ?></div>' +
-            '<a class="pav-program-qr-link" target="_blank" rel="noopener" href="' + url + '"><i class="fas fa-up-right-from-square me-1"></i><?php echo isEnglish() ? 'Open attendance link' : 'Attendance link खोल्नुहोस्'; ?></a>' +
+            '<a class="pav-program-qr-link" target="_blank" rel="noopener noreferrer" href="' + url + '"><i class="fas fa-up-right-from-square me-1"></i><?php echo isEnglish() ? 'Open attendance link' : 'Attendance link खोल्नुहोस्'; ?></a>' +
             '</div>';
         programQrBox.classList.add('is-visible');
         if (programQrEmpty) programQrEmpty.style.display = 'none';

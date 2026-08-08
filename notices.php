@@ -143,7 +143,7 @@ require_once 'includes/header.php';
                     </div>
                     <?php if ($singleNotice['attachment']): ?>
                     <div class="notice-attachment">
-                        <a href="<?php echo e(safe_media_src($singleNotice['attachment'])); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener">
+                        <a href="<?php echo e(safe_media_src($singleNotice['attachment'])); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-download"></i> फाइल डाउनलोड गर्नुहोस्
                         </a>
                     </div>
@@ -179,7 +179,7 @@ require_once 'includes/header.php';
                         </div>
                         <?php if ($notice['attachment']): ?>
                         <div class="notice-attachment-icon">
-                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener" title="फाइल डाउनलोड">
+                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="फाइल डाउनलोड">
                                 <i class="fas fa-paperclip"></i>
                             </a>
                         </div>

@@ -1319,7 +1319,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <ul class="pfl-login-menu" role="menu">
                         <?php $ibUrl = getSetting('internet_banking_url',''); if($ibUrl): ?>
                         <li>
-                            <a href="<?php echo $ibUrl; ?>" target="_blank" rel="noopener">
+                            <a href="<?php echo $ibUrl; ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-web"><i class="lucide-icon" aria-hidden="true" data-lucide="globe"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'E‑banking login' : 'इ‑बैंकिङ लगिन'; ?></strong>
@@ -1330,7 +1330,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <?php endif; ?>
                         <?php $psUrl = getSetting('play_store_url',''); if($psUrl): ?>
                         <li>
-                            <a href="<?php echo $psUrl; ?>" target="_blank" rel="noopener">
+                            <a href="<?php echo $psUrl; ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-android"><i class="fab fa-google-play"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'Mobile app (Android)' : 'मोबाइल एप (एन्ड्रोइड)'; ?></strong>
@@ -1341,7 +1341,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <?php endif; ?>
                         <?php $asUrl = getSetting('app_store_url',''); if($asUrl): ?>
                         <li>
-                            <a href="<?php echo $asUrl; ?>" target="_blank" rel="noopener">
+                            <a href="<?php echo $asUrl; ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-ios"><i class="fab fa-apple"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'Mobile app (iOS)' : 'मोबाइल एप (आइओएस)'; ?></strong>

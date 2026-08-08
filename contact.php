@@ -360,7 +360,7 @@ if ($_mapEmbedUrl === '') {
                 ? 'Map preview needs an Embed URL. Open location in Google Maps:'
                 : 'नक्सा देखाउन Embed URL चाहिन्छ। Google Maps मा स्थान खोल्नुहोस्:'; ?>
         </p>
-        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars($_mapShareUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener">
+        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars($_mapShareUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">
             <i class="fas fa-map-marker-alt me-1"></i><?php echo isEnglish() ? 'Open in Google Maps' : 'Google Maps मा खोल्नुहोस्'; ?>
         </a>
     </div>

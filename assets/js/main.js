@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (attachment && !photoOnly) {
                 const siteUrl = window.SITE_URL || '/';
-                docActions.innerHTML = `<a href="${siteUrl}${attachment}" target="_blank" class="popup-doc-btn" title="View PDF"><i class="fas fa-file-pdf"></i></a>`;
+                docActions.innerHTML = `<a href="${siteUrl}${attachment}" target="_blank" rel="noopener noreferrer" class="popup-doc-btn" title="View PDF"><i class="fas fa-file-pdf"></i></a>`;
             } else {
                 docActions.innerHTML = '';
             }

@@ -187,7 +187,7 @@ $rows = $db->query(
             ?>
             <div class="card-coop cred-card">
                 <div class="cred-head">
-                    <a href="<?= e($r['site_url']) ?>" target="_blank" rel="noopener"
+                    <a href="<?= e($r['site_url']) ?>" target="_blank" rel="noopener noreferrer"
                        onclick="logAction(<?= (int)$r['id'] ?>, 'open')"
                        title="Site खोल्नुहोस्">
                         <img src="<?= e($favicon) ?>" alt="" class="cred-favicon">
@@ -223,7 +223,7 @@ $rows = $db->query(
                     </button>
                 </div>
 
-                <a href="<?= e($r['site_url']) ?>" target="_blank" rel="noopener"
+                <a href="<?= e($r['site_url']) ?>" target="_blank" rel="noopener noreferrer"
                    class="btn-coop cred-open-btn"
                    onclick="logAction(<?= (int)$r['id'] ?>, 'open')">
                     <i class="fas fa-external-link-alt"></i> Site खोल्नुहोस्

@@ -505,16 +505,16 @@ $L = getLangStrings();
                 <div class="sidebar-card">
                     <h4><?php echo isEnglish() ? 'Share This Job' : 'यो जागिर साझा गर्नुहोस्'; ?></h4>
                     <div class="share-buttons">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener" class="share-btn facebook">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn facebook">
                             <i class="fab fa-facebook-f"></i>
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>&text=<?php echo urlencode(getLangField($job, 'title')); ?>" target="_blank" rel="noopener" class="share-btn twitter">
+                        <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>&text=<?php echo urlencode(getLangField($job, 'title')); ?>" target="_blank" rel="noopener noreferrer" class="share-btn twitter">
                             <i class="fab fa-twitter"></i>
                         </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener" class="share-btn linkedin">
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=<?php echo urlencode(rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn linkedin">
                             <i class="fab fa-linkedin-in"></i>
                         </a>
-                        <a href="https://api.whatsapp.com/send?text=<?php echo urlencode(getLangField($job, 'title') . ' - ' . rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener" class="share-btn whatsapp">
+                        <a href="https://api.whatsapp.com/send?text=<?php echo urlencode(getLangField($job, 'title') . ' - ' . rtrim(SITE_URL, '/') . '/career-detail.php?id=' . $jobId); ?>" target="_blank" rel="noopener noreferrer" class="share-btn whatsapp">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                     </div>

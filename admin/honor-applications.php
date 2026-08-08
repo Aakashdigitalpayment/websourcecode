@@ -244,7 +244,7 @@ try {
                 <p><strong><?php echo $__t('विवरण', 'Description'); ?>:</strong><br><?php echo nl2br(e($app['description'] ?: '—')); ?></p>
                 <?php if (!empty($app['attachment'])): ?>
                 <p><strong><?php echo $__t('संलग्नक', 'Attachment'); ?>:</strong>
-                    <a href="<?php echo SITE_URL . ltrim((string)$app['attachment'], '/'); ?>" target="_blank" rel="noopener"><?php echo $__t('हेर्नुहोस्', 'View'); ?></a>
+                    <a href="<?php echo SITE_URL . ltrim((string)$app['attachment'], '/'); ?>" target="_blank" rel="noopener noreferrer"><?php echo $__t('हेर्नुहोस्', 'View'); ?></a>
                 </p>
                 <?php endif; ?>
                 <?php if (!empty($history)): ?>

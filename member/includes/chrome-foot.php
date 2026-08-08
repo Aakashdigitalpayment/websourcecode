@@ -129,7 +129,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
         ?>
         <a href="<?php echo htmlspecialchars($_fnSec['href']); ?>"
            class="mp-more-item<?php echo $_fnIsActive ? ' active' : ''; ?>"
-           <?php if (!empty($_fnSec['target'])): ?>target="<?php echo htmlspecialchars($_fnSec['target']); ?>" rel="noopener"<?php endif; ?>
+           <?php if (!empty($_fnSec['target'])): ?>target="<?php echo htmlspecialchars($_fnSec['target']); ?>" rel="noopener noreferrer"<?php endif; ?>
            aria-label="<?php echo htmlspecialchars($_fnSec['label']); ?>">
             <span class="mp-mi-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo htmlspecialchars($_fnSec['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i></span>
             <span><?php echo htmlspecialchars($_fnSec['label']); ?></span>

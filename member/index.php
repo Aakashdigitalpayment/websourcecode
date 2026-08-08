@@ -327,7 +327,7 @@ require __DIR__ . '/includes/chrome.php';
                 <?php
                 foreach ($digitalServices as $ds): ?>
                 <a href="<?php echo htmlspecialchars($ds['href']); ?>"
-                   <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener"<?php endif; ?>
+                   <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener noreferrer"<?php endif; ?>
                    class="midx-ds-card midx-ds-card-bg" style="--midx-ds-bg:<?php echo htmlspecialchars($ds['bg'], ENT_QUOTES, 'UTF-8'); ?>;">
                     <div class="midx-ds-icon-wrap midx-ds-icon-bg" style="--midx-ds-color:<?php echo htmlspecialchars($ds['color'], ENT_QUOTES, 'UTF-8'); ?>;">
                         <i class="<?php echo $ds['iconLib'] ?? 'fas'; ?> <?php echo $ds['icon']; ?> midx-ds-icon"></i>
@@ -438,7 +438,7 @@ require __DIR__ . '/includes/chrome.php';
                 </div>
                 <div class="mt-3 d-flex flex-wrap gap-2 justify-content-center">
                     <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars($siteUrl); ?>partner-facilities.php"><i class="fas fa-list me-1"></i><?php echo $_t('साझेदार सूची', 'Browse partners'); ?></a>
-                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($siteUrl); ?>verify.php" target="_blank" rel="noopener"><i class="fas fa-id-card me-1"></i><?php echo $_t('Verify पेज', 'Verify page'); ?></a>
+                    <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($siteUrl); ?>verify.php" target="_blank" rel="noopener noreferrer"><i class="fas fa-id-card me-1"></i><?php echo $_t('Verify पेज', 'Verify page'); ?></a>
                 </div>
             </div>
             <?php else:
@@ -561,7 +561,7 @@ require __DIR__ . '/includes/chrome.php';
             <div class="midx-ds-grid">
                 <?php foreach ($digitalServices as $ds): ?>
                 <a href="<?php echo htmlspecialchars($ds['href']); ?>"
-                   <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener"<?php endif; ?>
+                   <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener noreferrer"<?php endif; ?>
                    class="midx-ds-card midx-ds-card-bg" style="--midx-ds-bg:<?php echo htmlspecialchars($ds['bg'], ENT_QUOTES, 'UTF-8'); ?>;">
                     <div class="midx-ds-icon-wrap midx-ds-icon-bg" style="--midx-ds-color:<?php echo htmlspecialchars($ds['color'], ENT_QUOTES, 'UTF-8'); ?>;">
                         <i class="<?php echo $ds['iconLib'] ?? 'fas'; ?> <?php echo $ds['icon']; ?> midx-ds-icon"></i>

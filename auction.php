@@ -409,7 +409,7 @@ $L = getLangStrings();
                             <?php echo htmlspecialchars($auction['location']); ?>
                             <?php if ($mapLinkSafe !== ''): ?>
                             <a href="<?php echo e($mapLinkSafe); ?>"
-                               target="_blank" rel="noopener"
+                               target="_blank" rel="noopener noreferrer"
                                class="badge bg-danger text-decoration-none ms-2" style="font-size:.68rem;vertical-align:middle;">
                                 <i class="fas fa-map me-1"></i><?php echo isEnglish()?'Map':'नक्सा'; ?>
                             </a>
@@ -557,7 +557,7 @@ $L = getLangStrings();
                             <div class="auc2-doc-desc"><?php echo isEnglish()?'Click to download or view the official document.':'सरकारी कागजात डाउनलोड गर्न वा हेर्न क्लिक गर्नुहोस्।'; ?></div>
                         </div>
                         <a href="<?php echo SITE_URL.htmlspecialchars($auction['document']); ?>"
-                           target="_blank" rel="noopener"
+                           target="_blank" rel="noopener noreferrer"
                            class="btn btn-danger btn-sm" style="white-space:nowrap;">
                             <i class="fas fa-download me-1"></i><?php echo isEnglish()?'Download':'डाउनलोड'; ?>
                         </a>
@@ -577,7 +577,7 @@ $L = getLangStrings();
                 <?php if ($mapLinkSafe !== ''): ?>
                 <div class="auc2-map-link-wrap">
                     <a href="<?php echo e($mapLinkSafe); ?>"
-                       target="_blank" rel="noopener"
+                       target="_blank" rel="noopener noreferrer"
                        class="btn btn-outline-danger btn-sm">
                         <i class="fas fa-external-link-alt me-1"></i>
                         <?php echo isEnglish()?'Open in Google Maps':'Google Maps मा खोल्नुहोस्'; ?>

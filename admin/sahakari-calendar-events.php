@@ -224,7 +224,7 @@ if ($_sceFlash) {
                         </select>
                     </div>
                     <div class="col-auto">
-                        <a href="../sahakari-patro.php?tab=patro&cal_year=<?php echo (int)$filterYear; ?>" class="btn btn-sm btn-outline-success" target="_blank" rel="noopener">
+                        <a href="../sahakari-patro.php?tab=patro&cal_year=<?php echo (int)$filterYear; ?>" class="btn btn-sm btn-outline-success" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-external-link-alt me-1"></i>पात्रोमा हेर्नुहोस्
                         </a>
                     </div>

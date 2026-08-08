@@ -231,7 +231,7 @@ if (!function_exists('arvDocsGrid')) {
             $url   = (string)($d['url']   ?? '#');
             $label = (string)($d['label'] ?? 'Document');
             $icon  = (string)($d['icon']  ?? 'fa-file');
-            $out  .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="arv-doc" target="_blank" rel="noopener">'
+            $out  .= '<a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" class="arv-doc" target="_blank" rel="noopener noreferrer">'
                    . '<i class="fas ' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '"></i> '
                    . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</a>';
         }

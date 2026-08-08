@@ -207,7 +207,7 @@ if (!function_exists('adminPrintFormLink')) {
         $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
         $cls  = htmlspecialchars($class, ENT_QUOTES, 'UTF-8');
         $lab  = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
-        return '<a href="' . $href . '" target="_blank" rel="noopener" class="' . $cls . '">'
+        return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" class="' . $cls . '">'
             . '<i class="fas fa-print me-1"></i>' . $lab . '</a>';
     }
 }
@@ -225,7 +225,7 @@ if (!function_exists('adminPrintFormIcon')) {
             return '';
         }
         $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
-        return '<a href="' . $href . '" target="_blank" rel="noopener" class="adm-icon-btn adm-icon-btn--print" title="Print" aria-label="Print">'
+        return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" class="adm-icon-btn adm-icon-btn--print" title="Print" aria-label="Print">'
             . '<i class="fas fa-print"></i></a>';
     }
 }

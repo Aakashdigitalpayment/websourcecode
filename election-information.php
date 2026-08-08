@@ -309,7 +309,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                             ? $__att
                                             : (SITE_URL . ltrim($__att, '/'));
                                         ?>
-                                        <a href="<?php echo htmlspecialchars($__attUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener">
+                                        <a href="<?php echo htmlspecialchars($__attUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener noreferrer">
                                             <i class="fas fa-file-arrow-down me-1"></i><?php echo htmlspecialchars($L['download'] ?? 'डाउनलोड'); ?>
                                         </a>
                                     <?php endif; ?>

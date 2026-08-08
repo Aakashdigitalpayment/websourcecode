@@ -203,7 +203,7 @@ foreach ($rows as $_r) {
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। QR scan = स्थल उपस्थिति अनुरोध — Admin approve पछि सूची/इतिहासमा थपिन्छ। Staff Verify बाट तत्काल पनि राख्न सकिन्छ।',
       '<div class="d-flex gap-2 flex-wrap">'
-      . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
+      . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
       . '<a href="../program-attendance-verify.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-check me-1"></i>Staff Verify</a>'
       . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>उपस्थिति रिपोर्ट</a>'
       . '</div>'); ?>
