@@ -800,7 +800,7 @@ function getAppTypeLabel($type) {
                             <div class="row g-3">
                                 <!-- Search Type — expands to col-12 when phone/email (no separate search value) -->
                                 <div id="colSearchType" class="col-md-4">
-                                    <label class="form-label"><i class="fas fa-filter"></i> <?php echo isEnglish() ? 'Search By' : 'खोज्ने तरिका'; ?></label>
+                                    <label for="searchType" class="form-label"><i class="fas fa-filter"></i> <?php echo isEnglish() ? 'Search By' : 'खोज्ने तरिका'; ?></label>
                                     <select name="search_type" class="form-select" id="searchType">
                                         <option value="tracking_id" <?php echo ($_POST['search_type'] ?? 'tracking_id') === 'tracking_id' ? 'selected' : ''; ?>>
                                             <?php echo isEnglish() ? 'Tracking ID / Reference No.' : 'ट्र्याकिङ ID / सन्दर्भ नं.'; ?>
@@ -822,7 +822,7 @@ function getAppTypeLabel($type) {
 
                                 <!-- Search Value — only for Tracking ID; hidden when phone/email -->
                                 <div id="colSearchValue" class="col-md-8">
-                                    <label class="form-label" id="searchLabel"><i class="fas fa-hashtag"></i> <?php echo isEnglish() ? 'Enter Tracking ID' : 'ट्र्याकिङ ID प्रविष्ट गर्नुहोस्'; ?></label>
+                                    <label for="searchValue" class="form-label" id="searchLabel"><i class="fas fa-hashtag"></i> <?php echo isEnglish() ? 'Enter Tracking ID' : 'ट्र्याकिङ ID प्रविष्ट गर्नुहोस्'; ?></label>
                                     <input type="text" name="search_value" id="searchValue" class="form-control"
                                            placeholder="<?php echo isEnglish() ? 'e.g. JOB-20240101-XXXX / APT-…' : 'जस्तै: JOB-20240101-XXXX / APT-…'; ?>"
                                            value="<?php echo htmlspecialchars($_POST['search_value'] ?? ($prefillTrackingId ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
