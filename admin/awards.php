@@ -301,45 +301,45 @@ if ($flash = getFlash()):
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="awf_title_np" class="form-label fw-semibold text-success">नाम (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="title_np" id="awf_title_np" class="form-control admin-fancy-input" required placeholder="पुरस्कारको नाम नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Name (English)</label>
+                            <label for="awf_title" class="form-label fw-semibold text-success">Name (English)</label>
                             <input type="text" name="title" id="awf_title" class="form-control admin-fancy-input" placeholder="Award name in English">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">प्रदान गर्ने (नेपाली)</label>
+                            <label for="awf_awarded_by_np" class="form-label fw-semibold text-success">प्रदान गर्ने (नेपाली)</label>
                             <input type="text" name="awarded_by_np" id="awf_awarded_by_np" class="form-control admin-fancy-input" placeholder="संस्थाको नाम नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Awarded By</label>
+                            <label for="awf_awarded_by" class="form-label fw-semibold text-success">Awarded By</label>
                             <input type="text" name="awarded_by" id="awf_awarded_by" class="form-control admin-fancy-input" placeholder="Organization name">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
+                            <label for="awf_desc_np" class="form-label fw-semibold text-success">विवरण (नेपाली)</label>
                             <textarea name="description_np" id="awf_desc_np" class="form-control admin-fancy-input" rows="3" placeholder="पुरस्कारको विवरण..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Description</label>
+                            <label for="awf_desc" class="form-label fw-semibold text-success">Description</label>
                             <textarea name="description" id="awf_desc" class="form-control admin-fancy-input" rows="3" placeholder="Award description..."></textarea>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">मिति (बि.सं.)</label>
+                            <label for="awf_date" class="form-label fw-semibold text-success">मिति (बि.सं.)</label>
                             <div class="input-group">
                                 <input type="text" name="award_date" id="awf_date" class="form-control admin-fancy-input nepali-datepicker" placeholder="२०७८-०१-१५">
                                 <span class="input-group-text bg-success text-white"><i class="fas fa-calendar-alt"></i></span>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">फोटो
+                            <label for="awf_image" class="form-label fw-semibold text-success">फोटो
                                 <small class="text-muted fw-normal" id="awf_img_note"></small>
                             </label>
-                            <input type="file" name="image" class="form-control admin-fancy-input" accept="image/*">
+                            <input type="file" name="image" id="awf_image" class="form-control admin-fancy-input" accept="image/*">
                             <div id="awf_img_prev" class="mt-2"></div>
                         </div>
                         <div class="col-md-2">
-                            <label class="form-label fw-semibold text-success">क्रम</label>
+                            <label for="awf_order" class="form-label fw-semibold text-success">क्रम</label>
                             <input type="number" name="display_order" id="awf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-2 d-flex align-items-end pb-1">
