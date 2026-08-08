@@ -340,29 +340,29 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('साइट नाम (नेपाली)', 'Site Name (Nepali)'); ?></label>
-                                <input type="text" name="site_name" class="form-control"
+                                <label for="stg_site_name" class="form-label"><?php echo $__t('साइट नाम (नेपाली)', 'Site Name (Nepali)'); ?></label>
+                                <input type="text" name="site_name" id="stg_site_name" class="form-control"
                                        value="<?php echo $settings['site_name'] ?? ''; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Site Name (English)</label>
-                                <input type="text" name="site_name_en" class="form-control"
+                                <label for="stg_site_name_en" class="form-label">Site Name (English)</label>
+                                <input type="text" name="site_name_en" id="stg_site_name_en" class="form-control"
                                        value="<?php echo $settings['site_name_en'] ?? ''; ?>">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('साइट स्लोगन', 'Site Slogan'); ?></label>
-                        <input type="text" name="site_slogan" class="form-control"
+                        <label for="stg_site_slogan" class="form-label"><?php echo $__t('साइट स्लोगन', 'Site Slogan'); ?></label>
+                        <input type="text" name="site_slogan" id="stg_site_slogan" class="form-control"
                                value="<?php echo htmlspecialchars($settings['site_slogan'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Site slogan (English)</label>
-                        <input type="text" name="site_slogan_en" class="form-control"
+                        <label for="stg_site_slogan_en" class="form-label">Site slogan (English)</label>
+                        <input type="text" name="site_slogan_en" id="stg_site_slogan_en" class="form-control"
                                value="<?php echo htmlspecialchars($settings['site_slogan_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="Short tagline for English UI / SEO fallback">
                     </div>
@@ -373,8 +373,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('PWA App नाम (पूरा)', 'PWA App Name (Full)'); ?></label>
-                                <input type="text" name="pwa_app_name" class="form-control"
+                                <label for="stg_pwa_app_name" class="form-label"><?php echo $__t('PWA App नाम (पूरा)', 'PWA App Name (Full)'); ?></label>
+                                <input type="text" name="pwa_app_name" id="stg_pwa_app_name" class="form-control"
                                        value="<?php echo htmlspecialchars($settings['pwa_app_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="<?php echo htmlspecialchars($settings['site_name'] ?? 'सहकारी HRM & CMS System', ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="form-text"><?php echo $__t('Install prompt र splash screen मा देखिन्छ।', 'Shown on install prompt and splash screen.'); ?></div>
@@ -382,8 +382,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('PWA Short Name (छोटो नाम)', 'PWA Short Name'); ?></label>
-                                <input type="text" name="pwa_short_name" class="form-control" maxlength="12"
+                                <label for="stg_pwa_short_name" class="form-label"><?php echo $__t('PWA Short Name (छोटो नाम)', 'PWA Short Name'); ?></label>
+                                <input type="text" name="pwa_short_name" id="stg_pwa_short_name" class="form-control" maxlength="12"
                                        value="<?php echo htmlspecialchars($settings['pwa_short_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                        placeholder="<?php echo htmlspecialchars($settings['site_name_en'] ?? 'HRM System', ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="form-text"><?php echo $__t('Home screen icon मुनि देखिन्छ — अधिकतम १२ अक्षर।', 'Shown under home screen icon — max 12 characters.'); ?></div>
@@ -409,15 +409,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
                     <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-heading me-2"></i><?php echo $__t('Google खोज शीर्षक (Homepage)', 'Google Search Title (Homepage)'); ?></h6>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('SEO शीर्षक (नेपाली)', 'SEO Title (Nepali)'); ?> — &lt;title&gt;</label>
-                        <input type="text" name="seo_title" class="form-control" maxlength="70"
+                        <label for="stg_seo_title" class="form-label"><?php echo $__t('SEO शीर्षक (नेपाली)', 'SEO Title (Nepali)'); ?> — &lt;title&gt;</label>
+                        <input type="text" name="seo_title" id="stg_seo_title" class="form-control" maxlength="70"
                                value="<?php echo htmlspecialchars($settings['seo_title'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="<?php echo $__t('उदा.: जनउत्थान | बचत तथा ऋण सहकारी संस्था लि.', 'e.g. Janautthan | Saving & Credit Cooperative Ltd.'); ?>">
                         <div class="form-text"><?php echo $__t('खाली छोड्नुभयो भने: English छोटो नाम + | + नेपाली पूरा नाम। अधिकतम ~६०–७० अक्षर राम्रो।', 'If empty: short English name + | + full Nepali name. Aim for ~60–70 characters.'); ?></div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">SEO title (English)</label>
-                        <input type="text" name="seo_title_en" class="form-control" maxlength="70"
+                        <label for="stg_seo_title_en" class="form-label">SEO title (English)</label>
+                        <input type="text" name="seo_title_en" id="stg_seo_title_en" class="form-control" maxlength="70"
                                value="<?php echo htmlspecialchars($settings['seo_title_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="e.g. Janautthan SACCOS | Saving & Credit Cooperative Ltd.">
                     </div>
@@ -432,18 +432,18 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <hr>
                     <p class="stg-muted small mb-3"><?php echo $__t('मेटा विवरण ~१५०–१६० अक्षर राख्नुहोस् — लामो इतिहास लेख नराख्नुहोस्। पहिलो वाक्यमा संस्थाको नाम + बचत/ऋण/स्थान लेख्नुहोस्।', 'Keep meta description ~150–160 characters — not a long history essay. Lead with coop name + savings/loans/location.'); ?></p>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('मेटा विवरण (नेपाली)', 'Meta Description (Nepali)'); ?> — &lt;meta name=&quot;description&quot;&gt;</label>
-                        <textarea name="meta_description" class="form-control" rows="3" maxlength="400"
+                        <label for="stg_meta_description" class="form-label"><?php echo $__t('मेटा विवरण (नेपाली)', 'Meta Description (Nepali)'); ?> — &lt;meta name=&quot;description&quot;&gt;</label>
+                        <textarea name="meta_description" id="stg_meta_description" class="form-control" rows="3" maxlength="400"
                                   placeholder="<?php echo $__t('उदा.: जनउत्थान SACCOS — तिलोत्तमा, रुपन्देही। सुरक्षित बचत, सहज ऋण र सदस्य सेवा।', 'e.g. Janautthan SACCOS — Tilottama, Rupandehi. Safe savings, easy loans and member services.'); ?>"><?php echo htmlspecialchars($settings['meta_description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Meta description (English)</label>
-                        <textarea name="meta_description_en" class="form-control" rows="3" maxlength="400"
+                        <label for="stg_meta_description_en" class="form-label">Meta description (English)</label>
+                        <textarea name="meta_description_en" id="stg_meta_description_en" class="form-control" rows="3" maxlength="400"
                                   placeholder="Short summary for English UI / search snippets"><?php echo htmlspecialchars($settings['meta_description_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('मेटा कीवर्ड (अल्पविरामले छुट्याउनुहोस्)', 'Meta Keywords (comma separated)'); ?></label>
-                        <textarea name="meta_keywords" class="form-control" rows="2" maxlength="500"
+                        <label for="stg_meta_keywords" class="form-label"><?php echo $__t('मेटा कीवर्ड (अल्पविरामले छुट्याउनुहोस्)', 'Meta Keywords (comma separated)'); ?></label>
+                        <textarea name="meta_keywords" id="stg_meta_keywords" class="form-control" rows="2" maxlength="500"
                                   placeholder="<?php echo $__t('जनउत्थान, Janautthan SACCOS, बचत, ऋण, रुपन्देही, सहकारी', 'Janautthan, SACCOS, savings, loan, Rupandehi, cooperative'); ?>"><?php echo htmlspecialchars($settings['meta_keywords'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
 
@@ -470,8 +470,8 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <li class="mb-0"><?php echo $__t('“Request indexing” optional हो — homepage छिटो चाहियो भने मात्र। हरेक पेजको लागि दिनदिनै गर्नु पर्दैन।', '“Request indexing” is optional — only if you want the homepage faster. You do not need to do it for every page daily.'); ?></li>
                     </ol>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('Google site verification code', 'Google site verification code'); ?></label>
-                        <input type="text" name="google_site_verification" class="form-control font-monospace" maxlength="100"
+                        <label for="stg_google_site_verification" class="form-label"><?php echo $__t('Google site verification code', 'Google site verification code'); ?></label>
+                        <input type="text" name="google_site_verification" id="stg_google_site_verification" class="form-control font-monospace" maxlength="100"
                                value="<?php echo htmlspecialchars($settings['google_site_verification'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="ex: AbCdEfGhIjKlMnOpQrStUvWxYz1234567890">
                         <div class="form-text"><?php echo $__t('पूरा &lt;meta ...&gt; टाँसे पनि हुन्छ — हामी content मात्र राख्छौं। खाली = verification meta नदेखिने।', 'You may paste the full &lt;meta&gt; tag — we store only the content value. Empty = no verification meta.'); ?></div>
@@ -515,27 +515,27 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('फोन नम्बर', 'Phone Number'); ?></label>
-                                <input type="text" name="phone" class="form-control"
+                                <label for="stg_phone" class="form-label"><?php echo $__t('फोन नम्बर', 'Phone Number'); ?></label>
+                                <input type="text" name="phone" id="stg_phone" class="form-control"
                                        value="<?php echo $settings['phone'] ?? ''; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><?php echo $__t('मोबाइल नम्बर', 'Mobile Number'); ?></label>
-                                <input type="text" name="mobile" class="form-control"
+                                <label for="stg_mobile" class="form-label"><?php echo $__t('मोबाइल नम्बर', 'Mobile Number'); ?></label>
+                                <input type="text" name="mobile" id="stg_mobile" class="form-control"
                                        value="<?php echo $settings['mobile'] ?? ''; ?>">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('इमेल', 'Email'); ?></label>
-                        <input type="email" name="email" class="form-control"
+                        <label for="stg_email" class="form-label"><?php echo $__t('इमेल', 'Email'); ?></label>
+                        <input type="email" name="email" id="stg_email" class="form-control"
                                value="<?php echo $settings['email'] ?? ''; ?>">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('ठेगाना', 'Address'); ?></label>
-                        <input type="text" name="address" class="form-control"
+                        <label for="stg_address" class="form-label"><?php echo $__t('ठेगाना', 'Address'); ?></label>
+                        <input type="text" name="address" id="stg_address" class="form-control"
                                value="<?php echo $settings['address'] ?? ''; ?>">
                     </div>
 
@@ -544,15 +544,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><i class="fab fa-facebook stg-ico-primary"></i> Facebook URL</label>
-                                <input type="url" name="facebook_url" class="form-control"
+                                <label for="stg_facebook_url" class="form-label"><i class="fab fa-facebook stg-ico-primary"></i> Facebook URL</label>
+                                <input type="url" name="facebook_url" id="stg_facebook_url" class="form-control"
                                        value="<?php echo $settings['facebook_url'] ?? ''; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><i class="fab fa-youtube stg-ico-danger"></i> YouTube URL</label>
-                                <input type="url" name="youtube_url" class="form-control"
+                                <label for="stg_youtube_url" class="form-label"><i class="fab fa-youtube stg-ico-danger"></i> YouTube URL</label>
+                                <input type="url" name="youtube_url" id="stg_youtube_url" class="form-control"
                                        value="<?php echo $settings['youtube_url'] ?? ''; ?>">
                             </div>
                         </div>
@@ -560,15 +560,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><i class="fab fa-twitter stg-ico-info"></i> Twitter URL</label>
-                                <input type="url" name="twitter_url" class="form-control"
+                                <label for="stg_twitter_url" class="form-label"><i class="fab fa-twitter stg-ico-info"></i> Twitter URL</label>
+                                <input type="url" name="twitter_url" id="stg_twitter_url" class="form-control"
                                        value="<?php echo $settings['twitter_url'] ?? ''; ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label"><i class="fab fa-instagram stg-ico-danger"></i> Instagram URL</label>
-                                <input type="url" name="instagram_url" class="form-control"
+                                <label for="stg_instagram_url" class="form-label"><i class="fab fa-instagram stg-ico-danger"></i> Instagram URL</label>
+                                <input type="url" name="instagram_url" id="stg_instagram_url" class="form-control"
                                        value="<?php echo $settings['instagram_url'] ?? ''; ?>">
                             </div>
                         </div>
