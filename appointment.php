@@ -496,8 +496,8 @@ $L = getLangStrings();
                                 require ROOT_PATH . 'includes/member-prefill-block.php';
                             else: ?>
                             <div class="border rounded-3 p-3 mb-3 bg-light">
-                                <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
-                                <div class="d-flex flex-wrap gap-3">
+                                <label id="appt_coop_member_label" class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Cooperative member?' : 'सहकारी सदस्य?'; ?></label>
+                                <div class="d-flex flex-wrap gap-3" role="group" aria-labelledby="appt_coop_member_label">
                                     <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-appt-coop" <?php echo (($postIsMember ? ($_POST['is_coop_member'] ?? 'no') : 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No' : 'होइन'; ?></label>
                                     <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-appt-coop" <?php echo ($postIsMember && (($_POST['is_coop_member'] ?? '') === 'yes')) ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes (Member ID based KYM)' : 'हो (Member ID आधारित KYM)'; ?></label>
                                 </div>
@@ -592,8 +592,8 @@ $L = getLangStrings();
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></label>
-                                    <select name="branch" class="form-select">
+                                    <label for="appt_branch" class="form-label"><?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></label>
+                                    <select name="branch" id="appt_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $br): ?>
                                         <option value="<?php echo htmlspecialchars($br['name']); ?>"><?php echo htmlspecialchars($br['name']); ?></option>
@@ -602,8 +602,8 @@ $L = getLangStrings();
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Purpose Details' : 'उद्देश्य विवरण'; ?></label>
-                                    <textarea name="purpose_detail" class="form-control" rows="2"
+                                    <label for="appt_purpose_detail" class="form-label"><?php echo isEnglish() ? 'Purpose Details' : 'उद्देश्य विवरण'; ?></label>
+                                    <textarea name="purpose_detail" id="appt_purpose_detail" class="form-control" rows="2"
                                               placeholder="<?php echo isEnglish() ? 'Briefly describe your purpose...' : 'आफ्नो उद्देश्य संक्षेपमा लेख्नुहोस्...'; ?>"><?php echo htmlspecialchars($postIsMember ? ($_POST['purpose_detail'] ?? '') : '', ENT_QUOTES); ?></textarea>
                                 </div>
                             </div>
@@ -614,7 +614,7 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
+                                    <label for="apptDate" class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
                                     <div class="input-group">
                                         <input type="text" name="preferred_date" id="apptDate"
                                                class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
@@ -625,8 +625,8 @@ $L = getLangStrings();
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
-                                    <select name="preferred_time" class="form-select" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>>
+                                    <label for="appt_preferred_time" class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
+                                    <select name="preferred_time" id="appt_preferred_time" class="form-select" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>>
                                         <option value=""><?php echo isEnglish() ? 'Select time' : 'समय छान्नुहोस्'; ?></option>
                                         <?php foreach ($apptTimeOptions as $optVal => $optLabel): ?>
                                         <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $apptTimeValueMember === $optVal ? 'selected' : ''; ?>>
@@ -671,44 +671,44 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Cooperative Name' : 'सहकारीको नाम'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="organization_name" class="form-control" required
+                                    <label for="appt_org_name" class="form-label"><?php echo isEnglish() ? 'Cooperative Name' : 'सहकारीको नाम'; ?> <span class="req">*</span></label>
+                                    <input type="text" name="organization_name" id="appt_org_name" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_name'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Cooperative / institution name' : 'सहकारी / संस्थाको नाम'; ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Contact Person' : 'सम्पर्क व्यक्ति'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="contact_person" class="form-control" required
+                                    <label for="appt_contact_person" class="form-label"><?php echo isEnglish() ? 'Contact Person' : 'सम्पर्क व्यक्ति'; ?> <span class="req">*</span></label>
+                                    <input type="text" name="contact_person" id="appt_contact_person" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['contact_person'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Full name of contact person' : 'सम्पर्क व्यक्तिको पूरा नाम'; ?>">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
-                                    <input type="tel" name="phone" class="form-control" required
+                                    <label for="appt_coop_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
+                                    <input type="tel" name="phone" id="appt_coop_phone" class="form-control" required
                                            maxlength="10" inputmode="numeric" pattern="[0-9]{10}" placeholder="98XXXXXXXX"
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['phone'] ?? '') : '', ENT_QUOTES); ?>">
                                     <div class="invalid-feedback"><?php echo isEnglish() ? 'Enter a valid 10-digit mobile number.' : '१० अंकको मोबाइल नम्बर राख्नुहोस्।'; ?></div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?> <span class="text-muted small">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                                    <input type="text" name="organization_website" class="form-control" inputmode="url" autocomplete="url"
+                                    <label for="appt_org_website" class="form-label"><?php echo isEnglish() ? 'Website' : 'वेबसाइट'; ?> <span class="text-muted small">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
+                                    <input type="text" name="organization_website" id="appt_org_website" class="form-control" inputmode="url" autocomplete="url"
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_website'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="https://example.coop.np">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="req">*</span></label>
-                                    <input type="text" name="organization_address" class="form-control" required
+                                    <label for="appt_org_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?> <span class="req">*</span></label>
+                                    <input type="text" name="organization_address" id="appt_org_address" class="form-control" required
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['organization_address'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="<?php echo isEnglish() ? 'Full address of the cooperative' : 'सहकारीको पूरा ठेगाना'; ?>">
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Visit Details' : 'भ्रमण विवरण'; ?> <span class="req">*</span></label>
-                                    <textarea name="purpose_detail" class="form-control" rows="3" required
+                                    <label for="appt_coop_purpose_detail" class="form-label"><?php echo isEnglish() ? 'Visit Details' : 'भ्रमण विवरण'; ?> <span class="req">*</span></label>
+                                    <textarea name="purpose_detail" id="appt_coop_purpose_detail" class="form-control" rows="3" required
                                               placeholder="<?php echo isEnglish() ? 'Purpose of the visit, agenda, number of visitors...' : 'भ्रमणको उद्देश्य, एजेन्डा, आउने व्यक्ति संख्या...'; ?>"><?php echo htmlspecialchars(!$postIsMember ? ($_POST['purpose_detail'] ?? '') : '', ENT_QUOTES); ?></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
-                                    <select name="branch" class="form-select">
+                                    <label for="appt_coop_branch" class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
+                                    <select name="branch" id="appt_coop_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $br): ?>
                                         <option value="<?php echo htmlspecialchars($br['name']); ?>"><?php echo htmlspecialchars($br['name']); ?></option>
@@ -717,8 +717,8 @@ $L = getLangStrings();
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-muted small">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                                    <input type="email" name="email" class="form-control"
+                                    <label for="appt_coop_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-muted small">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
+                                    <input type="email" name="email" id="appt_coop_email" class="form-control"
                                            value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['email'] ?? '') : '', ENT_QUOTES); ?>"
                                            placeholder="example@gmail.com">
                                 </div>
@@ -730,7 +730,7 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
+                                    <label for="apptDateCoop" class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
                                     <div class="input-group">
                                         <input type="text" name="preferred_date" id="apptDateCoop"
                                                class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" required
@@ -741,8 +741,8 @@ $L = getLangStrings();
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
-                                    <select name="preferred_time" class="form-select" required>
+                                    <label for="appt_coop_preferred_time" class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
+                                    <select name="preferred_time" id="appt_coop_preferred_time" class="form-select" required>
                                         <option value=""><?php echo isEnglish() ? 'Select time' : 'समय छान्नुहोस्'; ?></option>
                                         <?php foreach ($apptTimeOptions as $optVal => $optLabel): ?>
                                         <option value="<?php echo htmlspecialchars($optVal, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $apptTimeValueCoop === $optVal ? 'selected' : ''; ?>>

@@ -280,8 +280,8 @@ try {
                         ?>
                         <?php else: ?>
                         <div class="border rounded-3 p-3 mb-3 bg-light">
-                            <label class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you already a KYC-registered member?' : 'पहिले नै केवाइएम दर्ता भएको सदस्य?'; ?></label>
-                            <div class="d-flex flex-wrap gap-3">
+                            <label id="acc_coop_member_label" class="form-label fw-semibold d-block mb-2"><?php echo isEnglish() ? 'Are you already a KYC-registered member?' : 'पहिले नै केवाइएम दर्ता भएको सदस्य?'; ?></label>
+                            <div role="group" aria-labelledby="acc_coop_member_label" class="d-flex flex-wrap gap-3">
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="no" class="form-check-input me-1 js-acc-coop" <?php echo (($_POST['is_coop_member'] ?? 'no') === 'yes') ? '' : 'checked'; ?>> <?php echo isEnglish() ? 'No (new applicant)' : 'होइन'; ?></label>
                                 <label class="form-check-label"><input type="radio" name="is_coop_member" value="yes" class="form-check-input me-1 js-acc-coop" <?php echo (($_POST['is_coop_member'] ?? '') === 'yes') ? 'checked' : ''; ?>> <?php echo isEnglish() ? 'Yes — Member ID + email + mobile (same as KYM)' : 'हो — सदस्यता + इमेल + मोबाइल (KYM जस्तै)'; ?></label>
                             </div>
@@ -481,8 +481,8 @@ try {
                             <h5><i class="fas fa-building"></i> <?php echo isEnglish() ? 'Service Office' : 'सेवा कार्यालय'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
-                                    <select name="branch" class="form-select">
+                                    <label for="acc_branch" class="form-label"><?php echo isEnglish() ? 'Preferred Service Office' : 'रुचाइएको सेवा कार्यालय'; ?></label>
+                                    <select name="branch" id="acc_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select Service Office' : 'सेवा कार्यालय छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
                                         <option value="<?php echo $branch['name']; ?>"><?php echo $branch['name']; ?></option>
@@ -503,20 +503,20 @@ try {
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट फोटो'; ?></label>
-                                    <input type="file" name="photo" class="form-control" accept="image/*" capture="environment">
+                                    <label for="acc_photo" class="form-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट फोटो'; ?></label>
+                                    <input type="file" name="photo" id="acc_photo" class="form-control" accept="image/*" capture="environment">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Signature' : 'हस्ताक्षर'; ?></label>
-                                    <input type="file" name="signature" class="form-control" accept="image/*" capture="environment">
+                                    <label for="acc_signature" class="form-label"><?php echo isEnglish() ? 'Signature' : 'हस्ताक्षर'; ?></label>
+                                    <input type="file" name="signature" id="acc_signature" class="form-control" accept="image/*" capture="environment">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship Front' : 'नागरिकता अगाडि'; ?></label>
-                                    <input type="file" name="citizenship_front" class="form-control" accept="image/*" capture="environment">
+                                    <label for="acc_citizenship_front" class="form-label"><?php echo isEnglish() ? 'Citizenship Front' : 'नागरिकता अगाडि'; ?></label>
+                                    <input type="file" name="citizenship_front" id="acc_citizenship_front" class="form-control" accept="image/*" capture="environment">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label"><?php echo isEnglish() ? 'Citizenship Back' : 'नागरिकता पछाडि'; ?></label>
-                                    <input type="file" name="citizenship_back" class="form-control" accept="image/*" capture="environment">
+                                    <label for="acc_citizenship_back" class="form-label"><?php echo isEnglish() ? 'Citizenship Back' : 'नागरिकता पछाडि'; ?></label>
+                                    <input type="file" name="citizenship_back" id="acc_citizenship_back" class="form-control" accept="image/*" capture="environment">
                                 </div>
                             </div>
                         </div>

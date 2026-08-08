@@ -213,16 +213,16 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="send_otp">
       <div class="mb-3">
-        <label class="form-label fw-semibold small"><?php echo $_t('Email वा Sadasyata Number', 'Email or Member Number'); ?> <span class="text-danger">*</span></label>
-        <input type="text" name="identifier" class="form-control"
+        <label for="mpr_identifier" class="form-label fw-semibold small"><?php echo $_t('Email वा Sadasyata Number', 'Email or Member Number'); ?> <span class="text-danger">*</span></label>
+        <input type="text" name="identifier" id="mpr_identifier" class="form-control"
                placeholder="example@email.com वा MEM-2081-001"
                value="<?php echo htmlspecialchars($_POST['identifier'] ?? ''); ?>" required autofocus>
         <div class="form-text"><?php echo $_t('Register गर्दा प्रयोग गरेको email वा सदस्यता नम्बर।', 'Use the email or member number used during registration.'); ?></div>
       </div>
       <?php if ($smsEnabled): ?>
       <div class="mb-4">
-        <label class="form-label fw-semibold small"><?php echo $_t('OTP कहाँ पठाउने?', 'Where to send OTP?'); ?></label>
-        <div class="d-flex gap-2">
+        <label id="mpr_channel_label" class="form-label fw-semibold small"><?php echo $_t('OTP कहाँ पठाउने?', 'Where to send OTP?'); ?></label>
+        <div class="d-flex gap-2" role="group" aria-labelledby="mpr_channel_label">
           <div class="flex-1 channel-opt" style="flex:1">
             <input type="radio" name="channel" id="ch_sms" value="sms" checked>
             <label for="ch_sms" class="w-100 justify-content-center">
@@ -311,7 +311,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="set_password">
       <div class="mb-3">
-        <label class="form-label fw-semibold small"><?php echo $_t('नयाँ पासवर्ड', 'New Password'); ?> <span class="text-danger">*</span></label>
+        <label for="pw1" class="form-label fw-semibold small"><?php echo $_t('नयाँ पासवर्ड', 'New Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password" id="pw1" class="form-control"
                  placeholder="<?php echo $_t('कम्तिमा 6 अक्षर', 'At least 6 characters'); ?>" minlength="6" required autofocus>
@@ -321,7 +321,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
         </div>
       </div>
       <div class="mb-4">
-        <label class="form-label fw-semibold small"><?php echo $_t('पासवर्ड पुष्टि गर्नुहोस्', 'Confirm Password'); ?> <span class="text-danger">*</span></label>
+        <label for="pw2" class="form-label fw-semibold small"><?php echo $_t('पासवर्ड पुष्टि गर्नुहोस्', 'Confirm Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password_confirm" id="pw2" class="form-control"
                  placeholder="<?php echo $_t('फेरि लेख्नुहोस्', 'Enter again'); ?>" minlength="6" required>

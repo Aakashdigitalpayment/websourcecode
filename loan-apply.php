@@ -490,8 +490,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             <div class="col-12">
-                <label class="form-label"><?php echo isEnglish() ? 'Loan Purpose' : 'ऋणको उद्देश्य'; ?></label>
-                <textarea name="loan_purpose" class="form-control" rows="3"
+                <label for="loan_purpose" class="form-label"><?php echo isEnglish() ? 'Loan Purpose' : 'ऋणको उद्देश्य'; ?></label>
+                <textarea name="loan_purpose" id="loan_purpose" class="form-control" rows="3"
                     placeholder="<?php echo isEnglish() ? 'Briefly describe the purpose of the loan...' : 'ऋण किन चाहिएको छ संक्षिप्तमा बताउनुहोस्...'; ?>"><?php echo htmlspecialchars($_POST['loan_purpose'] ?? ''); ?></textarea>
             </div>
         </div>
@@ -516,8 +516,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="row g-3">
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
-                <select name="occupation" class="form-select">
+                <label for="loan_occupation" class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
+                <select name="occupation" id="loan_occupation" class="form-select">
                     <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                     <?php foreach ([
                         ['government', isEnglish() ? 'Government Job' : 'सरकारी नोकरी'],
@@ -532,22 +532,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Organization / Business Name' : 'संस्था / व्यवसायको नाम'; ?></label>
-                <input type="text" name="organization_name" class="form-control"
+                <label for="loan_organization_name" class="form-label"><?php echo isEnglish() ? 'Organization / Business Name' : 'संस्था / व्यवसायको नाम'; ?></label>
+                <input type="text" name="organization_name" id="loan_organization_name" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['organization_name'] ?? ''); ?>"
                     placeholder="<?php echo isEnglish() ? 'Name of employer or business' : 'संस्था वा व्यापारको नाम'; ?>">
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Monthly Income (Rs.)' : 'मासिक आय (रु.)'; ?></label>
+                <label for="loan_monthly_income" class="form-label"><?php echo isEnglish() ? 'Monthly Income (Rs.)' : 'मासिक आय (रु.)'; ?></label>
                 <div class="input-group">
                     <span class="input-group-text">रु.</span>
-                    <input type="number" name="monthly_income" class="form-control" min="0"
+                    <input type="number" name="monthly_income" id="loan_monthly_income" class="form-control" min="0"
                         value="<?php echo htmlspecialchars($_POST['monthly_income'] ?? ''); ?>">
                 </div>
             </div>
             <div class="col-12">
-                <label class="form-label"><?php echo isEnglish() ? 'Other Income Sources' : 'अन्य आयको स्रोत'; ?></label>
-                <textarea name="other_income" class="form-control" rows="2"
+                <label for="loan_other_income" class="form-label"><?php echo isEnglish() ? 'Other Income Sources' : 'अन्य आयको स्रोत'; ?></label>
+                <textarea name="other_income" id="loan_other_income" class="form-control" rows="2"
                     placeholder="<?php echo isEnglish() ? 'Rental income, remittance, etc.' : 'भाडा, रेमिट्यान्स, कृषि आदि'; ?>"><?php echo htmlspecialchars($_POST['other_income'] ?? ''); ?></textarea>
             </div>
         </div>
@@ -561,8 +561,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="row g-3">
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Collateral Type' : 'धितोको प्रकार'; ?></label>
-                <select name="collateral_type" class="form-select">
+                <label for="loan_collateral_type" class="form-label"><?php echo isEnglish() ? 'Collateral Type' : 'धितोको प्रकार'; ?></label>
+                <select name="collateral_type" id="loan_collateral_type" class="form-select">
                     <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                     <?php foreach ([
                         ['land',      isEnglish() ? 'Land'               : 'जग्गा'],
@@ -578,16 +578,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Estimated Value (Rs.)' : 'अनुमानित मूल्य (रु.)'; ?></label>
+                <label for="loan_collateral_value" class="form-label"><?php echo isEnglish() ? 'Estimated Value (Rs.)' : 'अनुमानित मूल्य (रु.)'; ?></label>
                 <div class="input-group">
                     <span class="input-group-text">रु.</span>
-                    <input type="number" name="collateral_value" class="form-control" min="0"
+                    <input type="number" name="collateral_value" id="loan_collateral_value" class="form-control" min="0"
                         value="<?php echo htmlspecialchars($_POST['collateral_value'] ?? ''); ?>">
                 </div>
             </div>
             <div class="col-md-4">
-                <label class="form-label"><?php echo isEnglish() ? 'Description / Location' : 'विवरण / स्थान'; ?></label>
-                <input type="text" name="collateral_description" class="form-control"
+                <label for="loan_collateral_description" class="form-label"><?php echo isEnglish() ? 'Description / Location' : 'विवरण / स्थान'; ?></label>
+                <input type="text" name="collateral_description" id="loan_collateral_description" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['collateral_description'] ?? ''); ?>"
                     placeholder="<?php echo isEnglish() ? 'e.g., Plot no, address' : 'जस्तै: कित्ता नं, ठेगाना'; ?>">
             </div>
@@ -603,25 +603,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धनजमानीको नाम'; ?></label>
-                <input type="text" name="guarantor_name" class="form-control"
+                <label for="loan_guarantor_name" class="form-label"><?php echo isEnglish() ? 'Guarantor Name' : 'धनजमानीको नाम'; ?></label>
+                <input type="text" name="guarantor_name" id="loan_guarantor_name" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['guarantor_name'] ?? ''); ?>">
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Relationship' : 'सम्बन्ध'; ?></label>
-                <input type="text" name="guarantor_relation" class="form-control"
+                <label for="loan_guarantor_relation" class="form-label"><?php echo isEnglish() ? 'Relationship' : 'सम्बन्ध'; ?></label>
+                <input type="text" name="guarantor_relation" id="loan_guarantor_relation" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['guarantor_relation'] ?? ''); ?>"
                     placeholder="<?php echo isEnglish() ? 'e.g. Father, Spouse, Friend' : 'जस्तै: बाबा, श्रीमान/श्रीमती'; ?>">
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?></label>
-                <input type="tel" name="guarantor_phone" class="form-control"
+                <label for="loan_guarantor_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?></label>
+                <input type="tel" name="guarantor_phone" id="loan_guarantor_phone" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['guarantor_phone'] ?? ''); ?>"
                     placeholder="98XXXXXXXX">
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
-                <input type="text" name="guarantor_address" class="form-control"
+                <label for="loan_guarantor_address" class="form-label"><?php echo isEnglish() ? 'Address' : 'ठेगाना'; ?></label>
+                <input type="text" name="guarantor_address" id="loan_guarantor_address" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['guarantor_address'] ?? ''); ?>">
             </div>
         </div>
