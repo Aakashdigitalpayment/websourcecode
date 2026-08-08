@@ -382,42 +382,42 @@ echo adminPageHeader(
                     <input type="hidden" name="action" value="save_cycle">
                     <input type="hidden" name="cycle_id" value="<?php echo $editRow ? (int)$editRow['id'] : 0; ?>">
                     <div class="col-md-6">
-                        <label class="form-label small">शीर्षक (नेपाली) *</label>
-                        <input class="form-control" name="title_np" required value="<?php echo htmlspecialchars($editRow['title_np'] ?? ''); ?>">
+                        <label for="ec_title_np" class="form-label small">शीर्षक (नेपाली) *</label>
+                        <input class="form-control" name="title_np" id="ec_title_np" required value="<?php echo htmlspecialchars($editRow['title_np'] ?? ''); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small">Title (English)</label>
-                        <input class="form-control" name="title_en" value="<?php echo htmlspecialchars($editRow['title_en'] ?? ''); ?>">
+                        <label for="ec_title_en" class="form-label small">Title (English)</label>
+                        <input class="form-control" name="title_en" id="ec_title_en" value="<?php echo htmlspecialchars($editRow['title_en'] ?? ''); ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small">अवधि लेबल</label>
-                        <input class="form-control" name="period_label" placeholder="उदा. २०८१/८२" value="<?php echo htmlspecialchars($editRow['period_label'] ?? ''); ?>">
+                        <label for="ec_period_label" class="form-label small">अवधि लेबल</label>
+                        <input class="form-control" name="period_label" id="ec_period_label" placeholder="उदा. २०८१/८२" value="<?php echo htmlspecialchars($editRow['period_label'] ?? ''); ?>">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small">मिति देखि <span class="text-muted">(वि.सं.)</span></label>
+                        <label for="ec_date_from" class="form-label small">मिति देखि <span class="text-muted">(वि.सं.)</span></label>
                         <div class="input-group">
                             <input type="text" class="form-control nepali-datepicker" name="date_from" id="ec_date_from" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($editRow['date_from'] ?? ''); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small">मिति सम्म <span class="text-muted">(वि.सं.)</span></label>
+                        <label for="ec_date_to" class="form-label small">मिति सम्म <span class="text-muted">(वि.सं.)</span></label>
                         <div class="input-group">
                             <input type="text" class="form-control nepali-datepicker" name="date_to" id="ec_date_to" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($editRow['date_to'] ?? ''); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small">परिचय (नेपाली)</label>
-                        <textarea class="form-control" name="intro_np" rows="3"><?php echo htmlspecialchars($editRow['intro_np'] ?? ''); ?></textarea>
+                        <label for="ec_intro_np" class="form-label small">परिचय (नेपाली)</label>
+                        <textarea class="form-control" name="intro_np" id="ec_intro_np" rows="3"><?php echo htmlspecialchars($editRow['intro_np'] ?? ''); ?></textarea>
                     </div>
                     <div class="col-12">
-                        <label class="form-label small">Intro (English)</label>
-                        <textarea class="form-control" name="intro_en" rows="2"><?php echo htmlspecialchars($editRow['intro_en'] ?? ''); ?></textarea>
+                        <label for="ec_intro_en" class="form-label small">Intro (English)</label>
+                        <textarea class="form-control" name="intro_en" id="ec_intro_en" rows="2"><?php echo htmlspecialchars($editRow['intro_en'] ?? ''); ?></textarea>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small">क्रम (sort)</label>
-                        <input type="number" class="form-control" name="sort_order" value="<?php echo (int)($editRow['sort_order'] ?? 0); ?>">
+                        <label for="ec_sort_order" class="form-label small">क्रम (sort)</label>
+                        <input type="number" class="form-control" name="sort_order" id="ec_sort_order" value="<?php echo (int)($editRow['sort_order'] ?? 0); ?>">
                     </div>
                     <div class="col-md-4 d-flex align-items-end">
                         <div class="form-check">
@@ -433,12 +433,12 @@ echo adminPageHeader(
                     </div>
                     <div class="col-12"><hr class="my-2"><h6 class="small text-muted mb-2"><i class="fas fa-clock me-1"></i>मतदान समय (नेपाल समय) — सञ्चालक/लेखा समिति निर्वाचन</h6></div>
                     <div class="col-md-5">
-                        <label class="form-label small">मतदान सुरु मिति (वि.सं.) + समय NPT</label>
+                        <label for="ec_vote_start_date" class="form-label small">मतदान सुरु मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
-                            <input type="text" class="form-control nepali-datepicker" name="vote_start_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteStartDateVal); ?>">
+                            <input type="text" class="form-control nepali-datepicker" name="vote_start_date" id="ec_vote_start_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteStartDateVal); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
-                        <select class="form-select form-select-sm" name="vote_start_time">
+                        <select class="form-select form-select-sm" name="vote_start_time" id="ec_vote_start_time" aria-label="मतदान सुरु समय">
                             <option value="">समय छान्नुहोस्</option>
                             <?php foreach ($voteTimeOptions as $tv => $tl): ?>
                             <option value="<?php echo htmlspecialchars($tv, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $voteStartTimeVal === $tv ? 'selected' : ''; ?>><?php echo htmlspecialchars($tl, ENT_QUOTES, 'UTF-8'); ?></option>
@@ -446,12 +446,12 @@ echo adminPageHeader(
                         </select>
                     </div>
                     <div class="col-md-5">
-                        <label class="form-label small">मतदान समाप्ति मिति (वि.सं.) + समय NPT</label>
+                        <label for="ec_vote_end_date" class="form-label small">मतदान समाप्ति मिति (वि.सं.) + समय NPT</label>
                         <div class="input-group mb-1">
-                            <input type="text" class="form-control nepali-datepicker" name="vote_end_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteEndDateVal); ?>">
+                            <input type="text" class="form-control nepali-datepicker" name="vote_end_date" id="ec_vote_end_date" autocomplete="off" placeholder="वि.सं. YYYY-MM-DD" value="<?php echo htmlspecialchars($voteEndDateVal); ?>">
                             <span class="input-group-text cursor-pointer" role="button" tabindex="0" title="पात्रो"><i class="fas fa-calendar-alt"></i></span>
                         </div>
-                        <select class="form-select form-select-sm" name="vote_end_time">
+                        <select class="form-select form-select-sm" name="vote_end_time" id="ec_vote_end_time" aria-label="मतदान समाप्ति समय">
                             <option value="">समय छान्नुहोस्</option>
                             <?php foreach ($voteTimeOptions as $tv => $tl): ?>
                             <option value="<?php echo htmlspecialchars($tv, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $voteEndTimeVal === $tv ? 'selected' : ''; ?>><?php echo htmlspecialchars($tl, ENT_QUOTES, 'UTF-8'); ?></option>
@@ -518,19 +518,19 @@ echo adminPageHeader(
                 <input type="hidden" name="cycle_id" value="<?php echo $milestonesFor; ?>">
                 <input type="hidden" name="milestone_id" value="0">
                 <div class="col-md-3">
-                    <label class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
+                    <label for="em_event_new" class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
                     <div class="input-group input-group-sm">
                         <input type="text" class="form-control nepali-datepicker" name="m_event_date" id="em_event_new" autocomplete="off" placeholder="YYYY-MM-DD">
                         <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="fas fa-calendar-alt"></i></span>
                     </div>
                 </div>
-                <div class="col-md-2"><label class="form-label small">शीर्षक (NP) *</label><input class="form-control" name="m_title_np" required></div>
-                <div class="col-md-2"><label class="form-label small">Title (EN)</label><input class="form-control" name="m_title_en"></div>
-                <div class="col-md-2"><label class="form-label small">क्रम</label><input type="number" class="form-control" name="m_display_order" value="0"></div>
-                <div class="col-md-2"><label class="form-label small d-block">सक्रिय</label><input type="checkbox" class="form-check-input" name="m_is_active" value="1" checked></div>
-                <div class="col-md-6"><label class="form-label small">विवरण (NP)</label><textarea class="form-control" name="m_detail_np" rows="2"></textarea></div>
-                <div class="col-md-6"><label class="form-label small">Detail (EN)</label><textarea class="form-control" name="m_detail_en" rows="2"></textarea></div>
-                <div class="col-md-8"><label class="form-label small">PDF / फाइल</label><input type="file" class="form-control" name="m_attachment" accept=".pdf,.doc,.docx,image/*"></div>
+                <div class="col-md-2"><label for="em_title_np_new" class="form-label small">शीर्षक (NP) *</label><input class="form-control" name="m_title_np" id="em_title_np_new" required></div>
+                <div class="col-md-2"><label for="em_title_en_new" class="form-label small">Title (EN)</label><input class="form-control" name="m_title_en" id="em_title_en_new"></div>
+                <div class="col-md-2"><label for="em_order_new" class="form-label small">क्रम</label><input type="number" class="form-control" name="m_display_order" id="em_order_new" value="0"></div>
+                <div class="col-md-2"><label for="em_active_new" class="form-label small d-block">सक्रिय</label><input type="checkbox" class="form-check-input" name="m_is_active" id="em_active_new" value="1" checked></div>
+                <div class="col-md-6"><label for="em_detail_np_new" class="form-label small">विवरण (NP)</label><textarea class="form-control" name="m_detail_np" id="em_detail_np_new" rows="2"></textarea></div>
+                <div class="col-md-6"><label for="em_detail_en_new" class="form-label small">Detail (EN)</label><textarea class="form-control" name="m_detail_en" id="em_detail_en_new" rows="2"></textarea></div>
+                <div class="col-md-8"><label for="em_attachment_new" class="form-label small">PDF / फाइल</label><input type="file" class="form-control" name="m_attachment" id="em_attachment_new" accept=".pdf,.doc,.docx,image/*"></div>
                 <div class="col-md-4"><button type="submit" class="btn btn-primary w-100 mt-4"><i class="fas fa-plus me-1"></i>थप्नुहोस्</button></div>
             </form>
         </div>
@@ -573,7 +573,7 @@ echo adminPageHeader(
                                 <input type="hidden" name="cycle_id" value="<?php echo $milestonesFor; ?>">
                                 <input type="hidden" name="milestone_id" value="<?php echo (int)$mr['id']; ?>">
                                 <div class="col-md-3">
-                                    <label class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
+                                    <label for="em_ev_<?php echo (int)$mr['id']; ?>" class="form-label small">मिति <span class="text-muted">(वि.सं.)</span></label>
                                     <div class="input-group input-group-sm">
                                         <input type="text" class="form-control nepali-datepicker" name="m_event_date" id="em_ev_<?php echo (int)$mr['id']; ?>" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($mr['event_date'] ?? ''); ?>">
                                         <span class="input-group-text cursor-pointer" role="button" tabindex="0"><i class="fas fa-calendar-alt"></i></span>

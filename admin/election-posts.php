@@ -145,8 +145,8 @@ echo adminPageHeader(
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="save_post">
                     <input type="hidden" name="post_id" value="<?php echo $editPost ? (int)$editPost['id'] : 0; ?>">
-                    <div class="col-12"><label class="form-label small">पद मास्टरबाट पद छान्नुहोस् *</label>
-                        <select class="form-select" name="designation_id" required>
+                    <div class="col-12"><label for="ep_designation_id" class="form-label small">पद मास्टरबाट पद छान्नुहोस् *</label>
+                        <select class="form-select" name="designation_id" id="ep_designation_id" required>
                             <option value="">— पद छान्नुहोस् —</option>
                             <?php foreach ($designations as $d): ?>
                                 <?php $dt = trim((string)($d['title_np'] ?? '')); if ($dt === '') continue; ?>
@@ -157,22 +157,22 @@ echo adminPageHeader(
                         </select>
                         <div class="small text-muted mt-1">नयाँ पद चाहियो भने <a href="designations.php" target="_blank">पद मास्टर</a> मा थप्नुहोस्।</div>
                     </div>
-                    <div class="col-12"><label class="form-label small">समिति</label>
-                        <select class="form-select" name="committee_type_id">
+                    <div class="col-12"><label for="ep_committee_type_id" class="form-label small">समिति</label>
+                        <select class="form-select" name="committee_type_id" id="ep_committee_type_id">
                             <option value="">— छान्नुहोस् —</option>
                             <?php foreach ($committeeTypes as $ct): ?>
                                 <option value="<?php echo (int)$ct['id']; ?>" <?php echo ((int)($editPost['committee_type_id'] ?? 0) === (int)$ct['id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($ct['name_np']); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="col-md-4"><label class="form-label small">default सिट</label>
-                        <input type="number" min="1" class="form-control" name="default_seats" value="<?php echo (int)($editPost['default_seats'] ?? 1); ?>">
+                    <div class="col-md-4"><label for="ep_default_seats" class="form-label small">default सिट</label>
+                        <input type="number" min="1" class="form-control" name="default_seats" id="ep_default_seats" value="<?php echo (int)($editPost['default_seats'] ?? 1); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">default मत/मतदाता</label>
-                        <input type="number" min="1" class="form-control" name="default_max_votes" value="<?php echo (int)($editPost['default_max_votes'] ?? 1); ?>">
+                    <div class="col-md-4"><label for="ep_default_max_votes" class="form-label small">default मत/मतदाता</label>
+                        <input type="number" min="1" class="form-control" name="default_max_votes" id="ep_default_max_votes" value="<?php echo (int)($editPost['default_max_votes'] ?? 1); ?>">
                     </div>
-                    <div class="col-md-4"><label class="form-label small">क्रम</label>
-                        <input type="number" class="form-control" name="display_order" value="<?php echo (int)($editPost['display_order'] ?? 0); ?>">
+                    <div class="col-md-4"><label for="ep_order" class="form-label small">क्रम</label>
+                        <input type="number" class="form-control" name="display_order" id="ep_order" value="<?php echo (int)($editPost['display_order'] ?? 0); ?>">
                     </div>
                     <div class="col-12">
                         <div class="form-check">

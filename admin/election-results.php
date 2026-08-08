@@ -177,8 +177,8 @@ if (count($allCycles) > 1):
 ?>
 <div class="card admin-table-card mb-3"><div class="card-body py-2">
     <form method="get" class="row g-2 align-items-center">
-        <div class="col-auto"><label class="form-label small mb-0">चक्र छान्नुहोस्:</label></div>
-        <div class="col-md-5"><select class="form-select form-select-sm" name="cycle" onchange="this.form.submit()">
+        <div class="col-auto"><label for="er_cycle_sel" class="form-label small mb-0">चक्र छान्नुहोस्:</label></div>
+        <div class="col-md-5"><select class="form-select form-select-sm" name="cycle" id="er_cycle_sel" onchange="this.form.submit()">
             <?php foreach ($allCycles as $oc): ?>
                 <option value="<?php echo (int)$oc['id']; ?>" <?php echo ((int)$oc['id'] === $cycleId) ? 'selected' : ''; ?>><?php echo htmlspecialchars($oc['title_np']); ?></option>
             <?php endforeach; ?>
@@ -244,12 +244,12 @@ if (count($allCycles) > 1):
         <form method="post" class="row g-2" onsubmit="return confirm('विजेताहरू समितिमा थप्ने र मतदान बन्द गर्ने?');">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="convert_winners">
-            <div class="col-md-4"><label class="form-label small">कार्यकाल नाम</label>
-                <input class="form-control" name="tenure_name_np" value="कार्यकाल <?php echo date('Y'); ?>" required></div>
-            <div class="col-md-3"><label class="form-label small">सुरु मिति (वि.सं.)</label>
-                <input type="text" class="form-control nepali-datepicker" name="start_date" value="<?php echo htmlspecialchars($tenureStartBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
-            <div class="col-md-3"><label class="form-label small">अन्त्य मिति (वि.सं.)</label>
-                <input type="text" class="form-control nepali-datepicker" name="end_date" value="<?php echo htmlspecialchars($tenureEndBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
+            <div class="col-md-4"><label for="er_tenure_name" class="form-label small">कार्यकाल नाम</label>
+                <input class="form-control" name="tenure_name_np" id="er_tenure_name" value="कार्यकाल <?php echo date('Y'); ?>" required></div>
+            <div class="col-md-3"><label for="er_start_date" class="form-label small">सुरु मिति (वि.सं.)</label>
+                <input type="text" class="form-control nepali-datepicker" name="start_date" id="er_start_date" value="<?php echo htmlspecialchars($tenureStartBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
+            <div class="col-md-3"><label for="er_end_date" class="form-label small">अन्त्य मिति (वि.सं.)</label>
+                <input type="text" class="form-control nepali-datepicker" name="end_date" id="er_end_date" value="<?php echo htmlspecialchars($tenureEndBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
             <div class="col-md-2 d-flex align-items-end">
                 <button class="btn btn-success w-100"><i class="fas fa-check me-1"></i>रूपान्तरण</button>
             </div>
