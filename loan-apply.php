@@ -370,43 +370,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="row g-3">
             <div class="col-md-6 js-loan-fullname-wrap">
-                <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
-                <input type="text" name="full_name" class="form-control js-loan-personal" required
+                <label for="loan_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
+                <input type="text" name="full_name" id="loan_full_name" class="form-control js-loan-personal" required
                     value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>"
-                    placeholder="<?php echo isEnglish() ? 'Your full name' : 'पूरा नाम लेख्नुहोस्'; ?>">
+                    placeholder="<?php echo isEnglish() ? 'Your full name' : 'पूरा नाम लेख्नुहोस्'; ?>" autocomplete="name">
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Full name is required.' : 'पूरा नाम अनिवार्य छ।'; ?></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">
+                <label for="loan_member_id" class="form-label">
                     <?php echo isEnglish() ? 'Member ID' : 'सदस्यता नम्बर'; ?>
                     <span class="text-danger js-mid-req" style="display:none;">*</span>
                 </label>
-                <input type="text" name="member_id" class="form-control js-loan-mid"
+                <input type="text" name="member_id" id="loan_member_id" class="form-control js-loan-mid"
                     value="<?php echo htmlspecialchars($_POST['member_id'] ?? ''); ?>"
-                    placeholder="MEM-XXXX">
+                    placeholder="MEM-XXXX" autocomplete="off">
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Member ID is required for verification.' : 'सदस्यता नम्बर अनिवार्य छ।'; ?></div>
             </div>
             <div class="col-md-4 js-hide-if-coop-yes">
-                <label class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
-                <input type="tel" name="mobile" class="form-control js-loan-personal" maxlength="15" required
-                    placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>">
+                <label for="loan_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
+                <input type="tel" name="mobile" id="loan_mobile" class="form-control js-loan-personal" maxlength="15" required
+                    placeholder="98XXXXXXXX" value="<?php echo htmlspecialchars($_POST['mobile'] ?? ''); ?>" autocomplete="tel">
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Valid 10-digit mobile required.' : '१० अंकको मोबाइल नम्बर अनिवार्य।'; ?></div>
             </div>
             <div class="col-md-4 js-hide-if-coop-yes">
-                <label class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="text-danger">*</span></label>
-                <input type="email" name="email" class="form-control js-loan-personal" required
-                    placeholder="you@example.com" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
+                <label for="loan_email" class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="text-danger">*</span></label>
+                <input type="email" name="email" id="loan_email" class="form-control js-loan-personal" required
+                    placeholder="you@example.com" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" autocomplete="email">
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Valid email address required.' : 'सही इमेल ठेगाना अनिवार्य।'; ?></div>
             </div>
             <div class="col-md-4 js-hide-if-coop-yes">
-                <label class="form-label"><?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नम्बर'; ?></label>
-                <input type="text" name="citizenship_no" class="form-control"
+                <label for="loan_citizenship" class="form-label"><?php echo isEnglish() ? 'Citizenship No.' : 'नागरिकता नम्बर'; ?></label>
+                <input type="text" name="citizenship_no" id="loan_citizenship" class="form-control"
                     value="<?php echo htmlspecialchars($_POST['citizenship_no'] ?? ''); ?>"
                     placeholder="XX-XX-XXXXX">
             </div>
             <div class="col-12 js-hide-if-coop-yes">
-                <label class="form-label"><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?></label>
-                <textarea name="address" class="form-control js-loan-personal" rows="2"
+                <label for="loan_address" class="form-label"><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?></label>
+                <textarea name="address" id="loan_address" class="form-control js-loan-personal" rows="2"
                     placeholder="<?php echo isEnglish() ? 'District / VDC / Ward' : 'जिल्ला / गाउँपालिका / वडा'; ?>"><?php echo htmlspecialchars($_POST['address'] ?? ''); ?></textarea>
             </div>
         </div>
@@ -446,8 +446,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="row g-3">
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Loan Type' : 'ऋणको प्रकार'; ?> <span class="text-danger">*</span></label>
-                <select name="loan_type" class="form-select" required>
+                <label for="loan_type" class="form-label"><?php echo isEnglish() ? 'Loan Type' : 'ऋणको प्रकार'; ?> <span class="text-danger">*</span></label>
+                <select name="loan_type" id="loan_type" class="form-select" required>
                     <option value=""><?php echo isEnglish() ? 'Select Loan Type' : 'ऋणको प्रकार छान्नुहोस्'; ?></option>
                     <?php foreach ($loanRates as $lr): ?>
                     <option value="<?php echo htmlspecialchars($lr['name_np'] ?: $lr['name']); ?>"><?php echo htmlspecialchars($lr['name_np'] ?: $lr['name']); ?> (<?php echo number_format($lr['rate'],2); ?>%)</option>
@@ -462,18 +462,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Please select a loan type.' : 'ऋणको प्रकार छान्नुहोस्।'; ?></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Loan Amount (Rs.)' : 'ऋण रकम (रु.)'; ?> <span class="text-danger">*</span></label>
+                <label for="loan_amount" class="form-label"><?php echo isEnglish() ? 'Loan Amount (Rs.)' : 'ऋण रकम (रु.)'; ?> <span class="text-danger">*</span></label>
                 <div class="input-group">
                     <span class="input-group-text fw-semibold">रु.</span>
-                    <input type="number" name="loan_amount" class="form-control" required min="1000" step="1000"
+                    <input type="number" name="loan_amount" id="loan_amount" class="form-control" required min="1000" step="1000"
                         value="<?php echo htmlspecialchars($_POST['loan_amount'] ?? ''); ?>"
                         placeholder="5,00,000">
                 </div>
                 <div class="invalid-feedback"><?php echo isEnglish() ? 'Please enter the loan amount.' : 'ऋण रकम अनिवार्य छ।'; ?></div>
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Loan Tenure (Months)' : 'ऋण अवधि (महिना)'; ?></label>
-                <select name="loan_tenure" class="form-select">
+                <label for="loan_tenure" class="form-label"><?php echo isEnglish() ? 'Loan Tenure (Months)' : 'ऋण अवधि (महिना)'; ?></label>
+                <select name="loan_tenure" id="loan_tenure" class="form-select">
                     <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                     <?php foreach ([12,24,36,48,60,84,120] as $m): ?>
                     <option value="<?php echo $m; ?>" <?php echo ($_POST['loan_tenure'] ?? '') == $m ? 'selected' : ''; ?>><?php echo $m; ?> <?php echo isEnglish() ? 'Months' : 'महिना'; ?></option>
@@ -481,8 +481,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </select>
             </div>
             <div class="col-md-6">
-                <label class="form-label"><?php echo isEnglish() ? 'Repayment Method' : 'भुक्तानी विधि'; ?></label>
-                <select name="repayment_method" class="form-select">
+                <label for="loan_repayment" class="form-label"><?php echo isEnglish() ? 'Repayment Method' : 'भुक्तानी विधि'; ?></label>
+                <select name="repayment_method" id="loan_repayment" class="form-select">
                     <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                     <option value="emi" <?php echo ($_POST['repayment_method'] ?? '') === 'emi' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'EMI (Monthly Installment)' : 'ईएमआई (मासिक किस्ता)'; ?></option>
                     <option value="quarterly" <?php echo ($_POST['repayment_method'] ?? '') === 'quarterly' ? 'selected' : ''; ?>><?php echo isEnglish() ? 'Quarterly' : 'त्रैमासिक'; ?></option>

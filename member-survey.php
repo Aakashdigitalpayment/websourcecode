@@ -269,36 +269,36 @@ require_once 'includes/header.php';
                     <div class="row g-3">
                         <!-- नाम -->
                         <div class="col-md-6 js-svy-name-wrap">
-                            <label class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
-                            <input type="text" name="name" class="form-control js-svy-nameonly" required
+                            <label for="svy_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="req">*</span></label>
+                            <input type="text" name="name" id="svy_name" class="form-control js-svy-nameonly" required
                                    value="<?php echo htmlspecialchars($_POST['name'] ?? ($loggedMember['name'] ?? ''), ENT_QUOTES); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Enter your name' : 'आफ्नो नाम लेख्नुहोस्'; ?>" <?php echo $lockedMemberFields; ?>>
+                                   placeholder="<?php echo isEnglish() ? 'Enter your name' : 'आफ्नो नाम लेख्नुहोस्'; ?>" autocomplete="name" <?php echo $lockedMemberFields; ?>>
                         </div>
                         <!-- सदस्य नं. -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-svy-mid-req" style="display:none;">*</span><span class="text-muted small js-svy-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
-                            <input type="text" name="member_id" class="form-control js-svy-mid"
+                            <label for="svy_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्य नं.'; ?> <span class="text-danger js-svy-mid-req" style="display:none;">*</span><span class="text-muted small js-svy-mid-opt">(<?php echo isEnglish() ? 'optional' : 'ऐच्छिक'; ?>)</span></label>
+                            <input type="text" name="member_id" id="svy_member_id" class="form-control js-svy-mid"
                                    value="<?php echo htmlspecialchars($_POST['member_id'] ?? ($loggedMember['sadasyata_number'] ?? ''), ENT_QUOTES); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'If you are a member' : 'यदि सदस्य हुनुहुन्छ भने'; ?>" <?php echo $lockedMemberFields; ?>>
+                                   placeholder="<?php echo isEnglish() ? 'If you are a member' : 'यदि सदस्य हुनुहुन्छ भने'; ?>" autocomplete="off" <?php echo $lockedMemberFields; ?>>
                         </div>
                         <!-- फोन -->
                         <div class="col-md-6 js-hide-if-svy-coop-yes">
-                            <label class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
-                            <input type="tel" name="phone" class="form-control js-svy-triple" required maxlength="15"
+                            <label for="svy_phone" class="form-label"><?php echo isEnglish() ? 'Phone Number' : 'फोन नम्बर'; ?> <span class="req">*</span></label>
+                            <input type="tel" name="phone" id="svy_phone" class="form-control js-svy-triple" required maxlength="15"
                                    value="<?php echo htmlspecialchars($_POST['phone'] ?? ($loggedMember['phone'] ?? ''), ENT_QUOTES); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your phone number' : 'तपाईंको फोन नम्बर'; ?>" <?php echo $lockedMemberFields; ?>>
+                                   placeholder="<?php echo isEnglish() ? 'Your phone number' : 'तपाईंको फोन नम्बर'; ?>" autocomplete="tel" <?php echo $lockedMemberFields; ?>>
                         </div>
                         <!-- इमेल -->
                         <div class="col-md-6 js-hide-if-svy-coop-yes">
-                            <label class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger js-svy-email-req" style="display:none;">*</span></label>
-                            <input type="email" name="email" class="form-control js-svy-triple"
+                            <label for="svy_email" class="form-label"><?php echo isEnglish() ? 'Email' : 'इमेल'; ?> <span class="text-danger js-svy-email-req" style="display:none;">*</span></label>
+                            <input type="email" name="email" id="svy_email" class="form-control js-svy-triple"
                                    value="<?php echo htmlspecialchars($_POST['email'] ?? ($loggedMember['email'] ?? ''), ENT_QUOTES); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your email address' : 'तपाईंको इमेल ठेगाना'; ?>" <?php echo $lockedMemberFields; ?>>
+                                   placeholder="<?php echo isEnglish() ? 'Your email address' : 'तपाईंको इमेल ठेगाना'; ?>" autocomplete="email" <?php echo $lockedMemberFields; ?>>
                         </div>
                         <!-- प्रकार -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Feedback Type' : 'प्रतिक्रियाको प्रकार'; ?></label>
-                            <select name="type" class="form-select">
+                            <label for="svy_type" class="form-label"><?php echo isEnglish() ? 'Feedback Type' : 'प्रतिक्रियाको प्रकार'; ?></label>
+                            <select name="type" id="svy_type" class="form-select">
                                 <option value="feedback"   <?php selected($_POST['type'] ?? '', 'feedback');   ?>><?php echo isEnglish() ? 'General Feedback' : 'सामान्य प्रतिक्रिया'; ?></option>
                                 <option value="suggestion" <?php selected($_POST['type'] ?? '', 'suggestion'); ?>><?php echo isEnglish() ? 'Suggestion' : 'सुझाव'; ?></option>
                                 <option value="complaint"  <?php selected($_POST['type'] ?? '', 'complaint');  ?>><?php echo isEnglish() ? 'Issue / Complaint' : 'सेवा समस्या / उजुरी'; ?></option>
@@ -307,15 +307,15 @@ require_once 'includes/header.php';
                         </div>
                         <!-- विषय -->
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?></label>
-                            <input type="text" name="subject" class="form-control"
+                            <label for="svy_subject" class="form-label"><?php echo isEnglish() ? 'Subject' : 'विषय'; ?></label>
+                            <input type="text" name="subject" id="svy_subject" class="form-control"
                                    value="<?php echo htmlspecialchars($_POST['subject'] ?? '', ENT_QUOTES); ?>"
                                    placeholder="<?php echo isEnglish() ? 'Brief subject' : 'संक्षिप्त विषय'; ?>">
                         </div>
                         <!-- सन्देश -->
                         <div class="col-12">
-                            <label class="form-label"><?php echo isEnglish() ? 'Your Message' : 'तपाईंको सन्देश'; ?> <span class="req">*</span></label>
-                            <textarea name="message" class="form-control" rows="4" required
+                            <label for="svy_message" class="form-label"><?php echo isEnglish() ? 'Your Message' : 'तपाईंको सन्देश'; ?> <span class="req">*</span></label>
+                            <textarea name="message" id="svy_message" class="form-control" rows="4" required
                                       placeholder="<?php echo isEnglish() ? 'Write your message in detail...' : 'आफ्नो सन्देश विस्तृतमा लेख्नुहोस्...'; ?>"><?php echo htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES); ?></textarea>
                         </div>
                     </div>
