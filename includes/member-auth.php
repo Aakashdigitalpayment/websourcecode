@@ -301,8 +301,8 @@ function memberSecurityHeaders() {
     header('X-Content-Type-Options: nosniff');
     /* X-XSS-Protection removed — deprecated; prefer CSP */
     header('Referrer-Policy: strict-origin-when-cross-origin');
-    /* member KYC / profile photo — same-origin camera/mic (public config.php सँग मेल) */
-    header('Permissions-Policy: geolocation=(), microphone=(self), camera=(self), payment=(), usb=()');
+    /* member KYC / profile photo / map locate — same-origin camera/mic/geo (public config.php सँग मेल) */
+    header('Permissions-Policy: geolocation=(self), microphone=(self), camera=(self), payment=(), usb=()');
 }
 
 /* ─── Safe redirect (open redirect prevention) ─── */
