@@ -873,10 +873,11 @@ function getAppTypeLabel($type) {
                                                                maxlength="12" autocomplete="off">
                                                         <button class="btn btn-outline-secondary" type="button"
                                                                 id="secCodeToggle"
-                                                                onclick="(function(){var f=document.getElementById('securityCode'),b=document.getElementById('secCodeToggle'),i=b.querySelector('i');if(!f)return;var show=f.type==='password';f.type=show?'text':'password';i.classList.toggle('fa-eye',!show);i.classList.toggle('fa-eye-slash',show);b.setAttribute('title',show?'<?php echo isEnglish()?"Hide":"लुकाउनुहोस्"; ?>':'<?php echo isEnglish()?"Show":"देखाउनुहोस्"; ?>');})();"
+                                                                onclick="(function(){var f=document.getElementById('securityCode'),b=document.getElementById('secCodeToggle'),i=b.querySelector('i');if(!f)return;var show=f.type==='password';f.type=show?'text':'password';i.classList.toggle('fa-eye',!show);i.classList.toggle('fa-eye-slash',show);b.setAttribute('title',show?'<?php echo isEnglish()?"Hide":"लुकाउनुहोस्"; ?>':'<?php echo isEnglish()?"Show":"देखाउनुहोस्"; ?>');b.setAttribute('aria-label',show?'<?php echo isEnglish()?"Hide security code":"सुरक्षा कोड लुकाउनुहोस्"; ?>':'<?php echo isEnglish()?"Show security code":"सुरक्षा कोड देखाउनुहोस्"; ?>');})();"
                                                                 title="<?php echo isEnglish() ? 'Show security code' : 'सुरक्षा कोड देखाउनुहोस्'; ?>"
+                                                                aria-label="<?php echo isEnglish() ? 'Show security code' : 'सुरक्षा कोड देखाउनुहोस्'; ?>"
                                                                 style="border-left:0;color:#6b7280;">
-                                                            <i class="fas fa-eye"></i>
+                                                            <i class="fas fa-eye" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
                                                 </div>

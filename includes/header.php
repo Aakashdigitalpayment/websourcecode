@@ -1447,9 +1447,9 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     </div>
                 </li>
                 <li class="pfl-lang-wrap notranslate" translate="no">
-                    <a href="?lang=en" class="pfl-lang-link <?php echo $currentLang === 'en' ? 'active' : ''; ?>"><span class="pfl-lang-dot" aria-hidden="true"></span><span>EN</span></a>
+                    <a href="?lang=en" class="pfl-lang-link <?php echo $currentLang === 'en' ? 'active' : ''; ?>" lang="en" hreflang="en" aria-label="<?php echo isEnglish() ? 'English' : 'अङ्ग्रेजी'; ?>"<?php echo $currentLang === 'en' ? ' aria-current="true"' : ''; ?>><span class="pfl-lang-dot" aria-hidden="true"></span><span>EN</span></a>
                     <span class="pfl-lang-divider">|</span>
-                    <a href="?lang=np" class="pfl-lang-link <?php echo $currentLang === 'np' ? 'active' : ''; ?>"><span class="pfl-lang-dot" aria-hidden="true"></span><span>NP</span></a>
+                    <a href="?lang=np" class="pfl-lang-link <?php echo $currentLang === 'np' ? 'active' : ''; ?>" lang="ne" hreflang="ne" aria-label="<?php echo isEnglish() ? 'Nepali' : 'नेपाली'; ?>"<?php echo $currentLang === 'np' ? ' aria-current="true"' : ''; ?>><span class="pfl-lang-dot" aria-hidden="true"></span><span>NP</span></a>
                 </li>
                 <li>
                     <a href="javascript:void(0);" id="topbarSearchBtn"
@@ -1832,9 +1832,9 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 <div class="col-lg-4 col-md-12 text-lg-end">
                     <ul class="social-links">
                         <li class="lang-switch notranslate" translate="no">
-                            <a href="?lang=en" class="lang-btn <?php echo $currentLang === 'en' ? 'active' : ''; ?>">EN</a>
+                            <a href="?lang=en" class="lang-btn <?php echo $currentLang === 'en' ? 'active' : ''; ?>" lang="en" hreflang="en" aria-label="<?php echo isEnglish() ? 'English' : 'अङ्ग्रेजी'; ?>"<?php echo $currentLang === 'en' ? ' aria-current="true"' : ''; ?>>EN</a>
                             <span class="lang-divider">|</span>
-                            <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>">NP</a>
+                            <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>" lang="ne" hreflang="ne" aria-label="<?php echo isEnglish() ? 'Nepali' : 'नेपाली'; ?>"<?php echo $currentLang === 'np' ? ' aria-current="true"' : ''; ?>>NP</a>
                         </li>
                         <li class="internet-banking-btn">
                             <a href="<?php echo getSetting('internet_banking_url', '#'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">

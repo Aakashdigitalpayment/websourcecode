@@ -632,7 +632,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <label for="stg_google_client_secret" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client Secret</label>
                             <input type="password" name="google_client_secret" id="stg_google_client_secret" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['google_client_secret'] ?? ''); ?>"
-                                   placeholder="GOCSPX-...">
+                                   placeholder="GOCSPX-..." autocomplete="off">
                         </div>
                         <div class="col-md-6">
                             <label for="stg_facebook_app_id" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App ID</label>
@@ -644,7 +644,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <label for="stg_facebook_app_secret" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App Secret</label>
                             <input type="password" name="facebook_app_secret" id="stg_facebook_app_secret" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['facebook_app_secret'] ?? ''); ?>"
-                                   placeholder="abcdef1234...">
+                                   placeholder="abcdef1234..." autocomplete="off">
                         </div>
                     </div>
                     <?php if (!empty($_SESSION['is_superadmin'])): ?>

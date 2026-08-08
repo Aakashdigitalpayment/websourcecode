@@ -314,7 +314,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
         <label for="pw1" class="form-label fw-semibold small"><?php echo $_t('नयाँ पासवर्ड', 'New Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password" id="pw1" class="form-control"
-                 placeholder="<?php echo $_t('कम्तिमा 6 अक्षर', 'At least 6 characters'); ?>" minlength="6" required autofocus>
+                 placeholder="<?php echo $_t('कम्तिमा 6 अक्षर', 'At least 6 characters'); ?>" minlength="6" required autofocus autocomplete="new-password">
           <button type="button" class="btn btn-outline-secondary" onclick="tpw('pw1', this)" aria-label="Show password" aria-pressed="false" title="Show password">
             <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
           </button>
@@ -324,7 +324,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
         <label for="pw2" class="form-label fw-semibold small"><?php echo $_t('पासवर्ड पुष्टि गर्नुहोस्', 'Confirm Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password_confirm" id="pw2" class="form-control"
-                 placeholder="<?php echo $_t('फेरि लेख्नुहोस्', 'Enter again'); ?>" minlength="6" required>
+                 placeholder="<?php echo $_t('फेरि लेख्नुहोस्', 'Enter again'); ?>" minlength="6" required autocomplete="new-password">
           <button type="button" class="btn btn-outline-secondary" onclick="tpw('pw2', this)" aria-label="Show password" aria-pressed="false" title="Show password">
             <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
           </button>

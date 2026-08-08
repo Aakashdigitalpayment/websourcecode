@@ -441,9 +441,10 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                                autocomplete="new-password">
                                                         <button type="button"
                                                                 class="btn btn-outline-secondary"
-                                                                onclick="togglePwd('rp_new_<?php echo $adm['id']; ?>','rp_eye1_<?php echo $adm['id']; ?>')">
+                                                                onclick="togglePwd('rp_new_<?php echo $adm['id']; ?>','rp_eye1_<?php echo $adm['id']; ?>')"
+                                                                aria-label="Show password" title="Show password">
                                                             <i class="fas fa-eye"
-                                                               id="rp_eye1_<?php echo $adm['id']; ?>"></i>
+                                                               id="rp_eye1_<?php echo $adm['id']; ?>" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
                                                 </div>
@@ -466,9 +467,10 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                                autocomplete="new-password">
                                                         <button type="button"
                                                                 class="btn btn-outline-secondary"
-                                                                onclick="togglePwd('rp_confirm_<?php echo $adm['id']; ?>','rp_eye2_<?php echo $adm['id']; ?>')">
+                                                                onclick="togglePwd('rp_confirm_<?php echo $adm['id']; ?>','rp_eye2_<?php echo $adm['id']; ?>')"
+                                                                aria-label="Show password" title="Show password">
                                                             <i class="fas fa-eye"
-                                                               id="rp_eye2_<?php echo $adm['id']; ?>"></i>
+                                                               id="rp_eye2_<?php echo $adm['id']; ?>" aria-hidden="true"></i>
                                                         </button>
                                                     </div>
                                                     <div id="rp_match_<?php echo $adm['id']; ?>"
