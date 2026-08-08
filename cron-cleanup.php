@@ -16,6 +16,11 @@
  *   - 90 दिन भन्दा पुरानो activity_log delete
  *   - Expired login_attempts (1 दिन भन्दा पुरानो) delete
  *   - Expired/used member OTP tokens delete
+ *
+ * Daily DB backup (ops — अलग cron):
+ *   cPanel → mysqldump | gzip → private folder (web-root बाहिर)
+ *   वा Admin → Backup/Restore बाट manual download
+ *   यो cleanup script ले database dump गर्दैन (disk/timeout risk)
  * =====================================================
  */
 

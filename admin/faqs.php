@@ -279,23 +279,23 @@ $faqsArch = $faqPart['archived'];
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="faqf_question" class="form-label fw-semibold text-success">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
                             <input type="text" name="question_np" id="faqf_question" class="form-control admin-fancy-input" required placeholder="प्रश्न नेपालीमा">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Question (English)</label>
+                            <label for="faqf_question_en" class="form-label fw-semibold text-success">Question (English)</label>
                             <input type="text" name="question" id="faqf_question_en" class="form-control admin-fancy-input" placeholder="Question in English">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">उत्तर (नेपाली) <span class="text-danger">*</span></label>
+                            <label for="faqf_answer" class="form-label fw-semibold text-success">उत्तर (नेपाली) <span class="text-danger">*</span></label>
                             <textarea name="answer_np" id="faqf_answer" class="form-control admin-fancy-input" rows="4" required placeholder="उत्तर नेपालीमा..."></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-success">Answer (English)</label>
+                            <label for="faqf_answer_en" class="form-label fw-semibold text-success">Answer (English)</label>
                             <textarea name="answer" id="faqf_answer_en" class="form-control admin-fancy-input" rows="4" placeholder="Answer in English..."></textarea>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">वर्ग</label>
+                            <label for="faqf_category" class="form-label fw-semibold text-success">वर्ग</label>
                             <select name="category" id="faqf_category" class="form-select admin-fancy-input">
                                 <option value="general">General</option>
                                 <option value="saving">Saving / बचत</option>
@@ -305,7 +305,7 @@ $faqsArch = $faqPart['archived'];
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
+                            <label for="faqf_order" class="form-label fw-semibold text-success">प्रदर्शन क्रम</label>
                             <input type="number" name="display_order" id="faqf_order" class="form-control admin-fancy-input" value="0" min="0">
                         </div>
                         <div class="col-md-4 d-flex align-items-end pb-1">
