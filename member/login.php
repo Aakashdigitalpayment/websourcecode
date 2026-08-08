@@ -553,7 +553,7 @@ body {
                 </div>
                 <?php if ($member2faSetupUri !== ''): ?>
                 <div class="twofa-qr-wrap">
-                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($member2faSetupUri); ?>" target="_blank" rel="noopener" class="twofa-qr-link">QR खोल्नुहोस् (scan गर्न)</a>
+                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($member2faSetupUri); ?>" target="_blank" rel="noopener noreferrer" class="twofa-qr-link">QR खोल्नुहोस् (scan गर्न)</a>
                 </div>
                 <?php endif; ?>
             <?php else: ?>

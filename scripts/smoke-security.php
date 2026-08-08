@@ -147,6 +147,16 @@ assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? 
 assertFileContains('application-tracker.php', 'id="secCodeToggle"', 'security code toggle');
 assertFileContains('application-tracker.php', 'aria-label="<?php echo isEnglish() ? \'Show security code\'', 'security code toggle aria-label');
 
+// CDN Subresource Integrity (pinned versions)
+$chartSri = 'integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"';
+assertFileContains('institutional-profile.php', $chartSri, 'Chart.js SRI public');
+assertFileContains('admin/analytics.php', $chartSri, 'Chart.js SRI analytics');
+assertFileContains('admin/program-attendance.php', $chartSri, 'Chart.js SRI program-attendance');
+assertFileContains('member/scan.php', 'integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"', 'html5-qrcode SRI');
+assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="', 'Leaflet JS SRI');
+assertFileContains('member/login.php', 'rel="noopener noreferrer" class="twofa-qr-link"', 'member 2FA QR noreferrer');
+assertFileContains('admin/index.php', 'rel="noopener noreferrer" class="link-primary-strong"', 'admin 2FA QR noreferrer');
+
 // Syntax
 $lintFiles = array_merge(
     ['member/session-check.php', 'cron-cleanup.php'],
