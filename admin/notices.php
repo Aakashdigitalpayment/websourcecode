@@ -142,13 +142,13 @@ $flash = getFlash();
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="noticeTabs">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-list" id="tab-list-btn">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-list" id="tab-list-btn">
             <i class="fas fa-list me-2"></i><?php echo $__t('सूचना सूची', 'Notice List'); ?>
             <span class="badge ntc-count-badge ms-1"><?php echo count($notices); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-form" id="tab-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-form" id="tab-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="noticeFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>

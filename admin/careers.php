@@ -155,7 +155,7 @@ function careers_admin_render_rows(array $list): void
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-career"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-career"
                                             data-id="<?php echo $c['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($c['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -190,7 +190,7 @@ function careers_admin_render_rows(array $list): void
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -214,13 +214,13 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#career-list" id="career-list-btn" title="<?php echo $__t('सक्रिय पद / जम्मा पद', 'Active positions / total positions'); ?>">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#career-list" id="career-list-btn" title="<?php echo $__t('सक्रिय पद / जम्मा पद', 'Active positions / total positions'); ?>">
             <i class="fas fa-list me-2"></i><?php echo $__t('रोजगारी सूची', 'Career List'); ?>
             <span class="badge bg-success ms-1"><?php echo count($careers); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#career-form" id="career-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#career-form" id="career-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="careerFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>

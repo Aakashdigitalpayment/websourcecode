@@ -230,14 +230,14 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="deactivate">
                 <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button class="btn btn-sm btn-outline-secondary" title="निष्क्रिय"><i class="fas fa-archive"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" title="निष्क्रिय"><i class="fas fa-archive"></i></button>
             </form>
             <?php endif; ?>
             <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $usage > 0 ? 'लग भएकाले निष्क्रिय मात्र हुन्छ। जारी?' : 'मेट्ने निश्चित?'; ?>');">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
             </form>
         </td>
     </tr>
@@ -321,13 +321,13 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="pfTabs">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pf-list" id="pf-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#pf-list" id="pf-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>सुविधा सूची
             <span class="badge bg-success ms-1"><?php echo count($facilities); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pf-form" id="pf-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#pf-form" id="pf-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="pfFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>

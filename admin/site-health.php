@@ -238,7 +238,7 @@ echo adminPageHeader(
                                 <?php if (!empty($check['folder_key'])): ?>
                                     <span id="health-fix-<?php echo $idx; ?>">
                                         <?php echo htmlspecialchars($check['fix']); ?>
-                                        <button
+                                        <button type="button"
                                             class="btn btn-sm btn-outline-primary ms-2"
                                             onclick="createFolder('<?php echo htmlspecialchars($check['folder_key']); ?>', <?php echo $idx; ?>, this)"
                                         ><i class="fas fa-folder-plus me-1"></i>Create</button>
@@ -669,7 +669,7 @@ function htmlEsc(s) {
 
           <div class="card-footer bg-light border-top small text-muted d-flex justify-content-between align-items-center py-2">
               <span><i class="fas fa-circle-info me-1"></i>यो section केवल visual reference हो — कुनै पनि data submit हुँदैन।</span>
-              <button class="btn btn-sm btn-outline-secondary" id="fp-reset-btn"><i class="fas fa-rotate-left me-1"></i>Reset Fields</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="fp-reset-btn"><i class="fas fa-rotate-left me-1"></i>Reset Fields</button>
           </div>
       </div><!-- /.card form field preview -->
 

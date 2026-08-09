@@ -135,7 +135,7 @@ if (function_exists('coopThemeHeadAssets')) {
 <body class="admin-shell">
 
 <header class="hp-header">
-  <button class="hp-burger" onclick="document.getElementById('adminSidebar').classList.toggle('open')" aria-label="Menu">
+  <button type="button" class="hp-burger" onclick="document.getElementById('adminSidebar').classList.toggle('open')" aria-label="Menu">
     <?php if (function_exists('icon')) { echo icon('menu', 18); } else { ?><i class="fas fa-bars"></i><?php } ?>
   </button>
 

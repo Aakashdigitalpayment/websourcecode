@@ -272,7 +272,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-2"><label class="small">भत्ता</label><input class="field-coop" type="number" step="0.01" name="allowance"></div>
           <div class="col-md-3"><label class="small">फाइल</label><input class="field-coop" type="file" name="file" accept=".pdf,.jpg,.png"></div>
           <div class="col-md-3"><label class="small">कैफियत</label><input class="field-coop" name="notes"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-plus"></i> थप्नुहोस्</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-plus"></i> थप्नुहोस्</button></div>
         </form>
       </div>
       <div class="card-coop">
@@ -294,7 +294,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_contracts">
                   <input type="hidden" name="child_id" value="<?= (int)$c['id'] ?>">
-                  <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </form>
               </td>
             </tr>
@@ -325,7 +325,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-1"><label class="small">म्याद</label><input class="field-coop" type="date" name="expiry_date_ad"></div>
           <div class="col-md-3"><label class="small">फाइल</label><input class="field-coop" type="file" name="file"></div>
           <div class="col-md-9"><label class="small">कैफियत</label><input class="field-coop" name="notes"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-cloud-arrow-up"></i> अपलोड</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-cloud-arrow-up"></i> अपलोड</button></div>
         </form>
       </div>
       <div class="card-coop">
@@ -350,7 +350,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_documents"><input type="hidden" name="child_id" value="<?= (int)$d['id'] ?>">
-                  <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </form>
               </td>
             </tr>
@@ -371,7 +371,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-2"><label class="small">मुख्य विषय</label><input class="field-coop" name="major"></div>
           <div class="col-md-1"><label class="small">वर्ष</label><input class="field-coop" name="passed_year"></div>
           <div class="col-md-1"><label class="small">श्रेणी</label><input class="field-coop" name="division_grade"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
         </form>
       </div>
       <div class="card-coop">
@@ -390,7 +390,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_education"><input type="hidden" name="child_id" value="<?= (int)$ed['id'] ?>">
-                  <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </form>
               </td>
             </tr>
@@ -410,7 +410,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-2"><label class="small">देखि</label><input class="field-coop" type="date" name="from_date_ad"></div>
           <div class="col-md-2"><label class="small">सम्म</label><input class="field-coop" type="date" name="to_date_ad"></div>
           <div class="col-md-12"><label class="small">जिम्मेवारी</label><textarea class="field-coop" name="responsibilities" rows="2"></textarea></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
         </form>
       </div>
       <div class="card-coop">
@@ -427,7 +427,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_experience"><input type="hidden" name="child_id" value="<?= (int)$ex['id'] ?>">
-                  <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </form>
               </td>
             </tr>
@@ -450,7 +450,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
             <select class="field-coop" name="is_nominee"><option value="0">होइन</option><option value="1">हो</option></select>
           </div>
           <div class="col-md-2"><label class="small">हिस्सा (%)</label><input class="field-coop" type="number" step="0.01" name="nominee_share"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
         </form>
       </div>
       <div class="card-coop">
@@ -468,7 +468,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_family"><input type="hidden" name="child_id" value="<?= (int)$fm['id'] ?>">
-                  <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </form>
               </td>
             </tr>
@@ -492,7 +492,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-3"><label class="small">SSF नं.</label><input class="field-coop" name="ssf_no" value="<?= e($bank['ssf_no'] ?? '') ?>"></div>
           <div class="col-md-3"><label class="small">बीमा नं.</label><input class="field-coop" name="insurance_no" value="<?= e($bank['insurance_no'] ?? '') ?>"></div>
           <div class="col-md-12"><label class="small">कैफियत</label><input class="field-coop" name="notes" value="<?= e($bank['notes'] ?? '') ?>"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-save"></i> सुरक्षित</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-save"></i> सुरक्षित</button></div>
         </form>
       </div>
     </div>
@@ -526,7 +526,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
           <div class="col-md-3"><label class="small">पत्र नं.</label><input class="field-coop" name="reference_no"></div>
           <div class="col-md-6"><label class="small">विवरण</label><input class="field-coop" name="description"></div>
           <div class="col-md-3"><label class="small">फाइल</label><input class="field-coop" type="file" name="file"></div>
-          <div class="col-12 text-end"><button class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
+          <div class="col-12 text-end"><button type="submit" class="btn-coop"><i class="fas fa-plus"></i> थप</button></div>
         </form>
       </div>
       <div class="card-coop p-3">
@@ -549,7 +549,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
               <form method="post" class="stf-inline-form mt-1" onsubmit="return confirm('हटाउने?');">
                 <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                 <input type="hidden" name="tbl" value="hrm_employee_history"><input type="hidden" name="child_id" value="<?= (int)$h['id'] ?>">
-                <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
               </form>
             </li>
           <?php endforeach; ?>

@@ -91,13 +91,13 @@ $linksArch = $lnkPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#link-list" id="link-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#link-list" id="link-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>लिंक सूची
             <span class="badge bg-success ms-1"><?php echo count($links); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#link-form" id="link-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#link-form" id="link-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="linkFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -158,7 +158,7 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-link"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-link"
                                             data-id="<?php echo $l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -175,7 +175,7 @@ $linksArch = $lnkPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -217,7 +217,7 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-link"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-link"
                                             data-id="<?php echo $l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -234,7 +234,7 @@ $linksArch = $lnkPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -112,13 +112,13 @@ if ($flash = getFlash()):
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#aw-list" id="aw-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#aw-list" id="aw-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>पुरस्कार सूची
             <span class="badge bg-success ms-1"><?php echo count($awards); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#aw-form" id="aw-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#aw-form" id="aw-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="awFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -183,7 +183,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><small><?php echo $a['award_date'] ? date('Y', strtotime($a['award_date'])) : '—'; ?></small></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-aw"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-aw"
                                             data-id="<?php echo $a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -202,7 +202,7 @@ if ($flash = getFlash()):
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -248,7 +248,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><small><?php echo $a['award_date'] ? date('Y', strtotime($a['award_date'])) : '—'; ?></small></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-aw"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-aw"
                                             data-id="<?php echo $a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -267,7 +267,7 @@ if ($flash = getFlash()):
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

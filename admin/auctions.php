@@ -667,7 +667,7 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                                 </a>
                                 <!-- Quick Status -->
                                 <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-label="Swap" title="Swap">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-label="Swap" title="Swap">
                                         <i class="fas fa-exchange-alt"></i>
                                     </button>
                                     <ul class="dropdown-menu">

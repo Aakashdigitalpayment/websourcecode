@@ -362,7 +362,7 @@ body {
 <body>
 
 <div class="toolbar">
-  <button class="btn-print" onclick="window.print()">🖨&nbsp; Print / PDF</button>
+  <button type="button" class="btn-print" onclick="window.print()">🖨&nbsp; Print / PDF</button>
   <a href="hrm-employee-view.php?id=<?= (int)$emp['id'] ?>">← View Profile</a>
 </div>
 

@@ -513,13 +513,13 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="approve">
                     <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
-                    <button class="btn btn-success btn-sm w-100" onclick="return confirm('<?php echo $__t('स्वीकृत गर्ने?', 'Approve this member?'); ?>')">
+                    <button type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm('<?php echo $__t('स्वीकृत गर्ने?', 'Approve this member?'); ?>')">
                         <i class="fas fa-check me-1"></i><?php echo $__t('स्वीकृत गर्नुहोस्','Approve'); ?>
                     </button>
                 </form>
                 <?php endif; ?>
                 <?php if ($as !== 'rejected'): ?>
-                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal">
                     <i class="fas fa-times me-1"></i><?php echo $__t('अस्वीकृत गर्नुहोस्','Reject'); ?>
                 </button>
                 <?php endif; ?>
@@ -527,7 +527,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="toggle_active">
                     <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
-                    <button class="btn btn-outline-<?php echo $viewMember['is_active'] ? 'warning' : 'success'; ?> btn-sm w-100"
+                    <button type="submit" class="btn btn-outline-<?php echo $viewMember['is_active'] ? 'warning' : 'success'; ?> btn-sm w-100"
                             onclick="return confirm('<?php echo $__t('अवस्था बदल्ने?', 'Change status?'); ?>')">
                         <i class="fas fa-<?php echo $viewMember['is_active'] ? 'ban' : 'check'; ?> me-1"></i>
                         <?php echo $viewMember['is_active'] ? $__t('निष्क्रिय गर्नुहोस्','Deactivate') : $__t('सक्रिय गर्नुहोस्','Activate'); ?>
@@ -538,7 +538,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="generate_id_card">
                     <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
-                    <button class="btn btn-outline-primary btn-sm w-100" onclick="return confirm('<?php echo $__t('🪪 ID Card Generate गर्ने?', 'Generate ID card?'); ?>')">
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100" onclick="return confirm('<?php echo $__t('🪪 ID Card Generate गर्ने?', 'Generate ID card?'); ?>')">
                         <i class="fas fa-id-card me-1"></i><?php echo $__t('ID कार्ड Generate गर्नुहोस्','Generate ID Card'); ?>
                     </button>
                 </form>
@@ -572,7 +572,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                             </select>
                         </div>
                         <div class="col-12"><textarea name="notif_message" class="form-control" rows="2" placeholder="सन्देश (ऐच्छिक)"></textarea></div>
-                        <div class="col-12"><button class="btn btn-success btn-sm"><i class="fas fa-paper-plane me-1"></i>पठाउनुहोस्</button></div>
+                        <div class="col-12"><button type="submit" class="btn btn-success btn-sm"><i class="fas fa-paper-plane me-1"></i>पठाउनुहोस्</button></div>
                     </div>
                 </form>
             </div>
@@ -790,14 +790,14 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                     <td class="small"><?php echo htmlspecialchars($rr['phone'] ?? $rr['email'] ?? '—'); ?></td>
                     <td class="small text-muted"><?php echo formatNepaliDate($rr['requested_at']); ?></td>
                     <td>
-                        <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal<?php echo $rr['id']; ?>">
+                        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#resetModal<?php echo $rr['id']; ?>">
                             <i class="fas fa-check me-1"></i>स्वीकृत
                         </button>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="action" value="reject_reset">
                             <input type="hidden" name="request_id" value="<?php echo $rr['id']; ?>">
-                            <button class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo $__t('Reset अस्वीकृत गर्ने?', 'Reject reset request?'); ?>')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('<?php echo $__t('Reset अस्वीकृत गर्ने?', 'Reject reset request?'); ?>')">
                                 <i class="fas fa-times"></i>
                             </button>
                         </form>
@@ -851,7 +851,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                 <option value="approved" <?php echo $filterStatus==='approved' ? 'selected' : ''; ?>>✅ स्वीकृत</option>
                 <option value="rejected" <?php echo $filterStatus==='rejected' ? 'selected' : ''; ?>>❌ अस्वीकृत</option>
             </select>
-            <button class="btn btn-success btn-sm"><i class="fas fa-search me-1"></i><?php echo $__t('खोज्नुहोस्','Search'); ?></button>
+            <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-search me-1"></i><?php echo $__t('खोज्नुहोस्','Search'); ?></button>
             <?php if ($search || $filterStatus): ?><a href="?tab=members" class="btn btn-outline-secondary btn-sm">Clear</a><?php endif; ?>
         </form>
     </div>
@@ -936,7 +936,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="action" value="approve">
                             <input type="hidden" name="member_id" value="<?php echo $m['id']; ?>">
-                            <button class="btn btn-sm btn-success" title="स्वीकृत गर्नुहोस्" onclick="return confirm('स्वीकृत गर्ने?')"><i class="fas fa-check"></i></button>
+                            <button type="submit" class="btn btn-sm btn-success" title="स्वीकृत गर्नुहोस्" onclick="return confirm('स्वीकृत गर्ने?')"><i class="fas fa-check"></i></button>
                         </form>
                         <?php endif; ?>
                     </td>

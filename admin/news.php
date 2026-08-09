@@ -94,13 +94,13 @@ $newsArch = $newsPart['archived'];
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="newsTabs">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#news-list" id="tab-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#news-list" id="tab-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>समाचार सूची
             <span class="badge bg-success ms-1"><?php echo count($news); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#news-form" id="tab-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#news-form" id="tab-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="newsFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -180,7 +180,7 @@ $newsArch = $newsPart['archived'];
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-news"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-news"
                                             data-id="<?php echo $n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -195,7 +195,7 @@ $newsArch = $newsPart['archived'];
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -245,7 +245,7 @@ $newsArch = $newsPart['archived'];
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-news"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-news"
                                             data-id="<?php echo $n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -260,7 +260,7 @@ $newsArch = $newsPart['archived'];
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

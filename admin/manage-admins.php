@@ -208,14 +208,14 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 ════════════════════════════════════════════════ -->
 <ul class="nav nav-tabs admin-nav-tabs mb-3" id="adminTabs">
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab==='list'?'active':''; ?>"
+        <button type="button" class="nav-link <?php echo $activeTab==='list'?'active':''; ?>"
                 data-bs-toggle="tab" data-bs-target="#tab-list" id="tabListBtn">
             <i class="fas fa-list me-2"></i>Admin सूची
             <span class="badge bg-success ms-1"><?php echo count($admins); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab==='add'?'active':''; ?>"
+        <button type="button" class="nav-link <?php echo $activeTab==='add'?'active':''; ?>"
                 data-bs-toggle="tab" data-bs-target="#tab-add" id="tabAddBtn">
             <i class="fas fa-user-plus me-2"></i>नयाँ Admin बनाउनुहोस्
         </button>

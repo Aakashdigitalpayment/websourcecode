@@ -433,7 +433,7 @@ echo adminPageHeader(
             <i class="fas fa-search fa-2x text-muted mb-2 d-block"></i>
             <span class="text-muted">खोजी अनुसार कुनै record भेटिएन।</span>
             <br>
-            <button class="btn btn-sm btn-outline-success mt-2" onclick="clearIPFilter()">
+            <button type="button" class="btn btn-sm btn-outline-success mt-2" onclick="clearIPFilter()">
               <i class="fas fa-times me-1"></i>Filter हटाउनुहोस्
             </button>
           </td>

@@ -153,7 +153,7 @@ $rows = $db->query(
             </p>
         </div>
         <?php if (is_admin_or_above()): ?>
-        <button class="btn-coop" onclick="openCredModal()">
+        <button type="button" class="btn-coop" onclick="openCredModal()">
             <i class="fas fa-plus"></i> नयाँ Credential
         </button>
         <?php endif; ?>
@@ -204,7 +204,7 @@ $rows = $db->query(
                     <code class="cred-code">
                         <?= e($r['username']) ?>
                     </code>
-                    <button class="btn btn-sm btn-outline-secondary" title="Username copy"
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Username copy"
                             onclick="copyText(<?= (int)$r['id'] ?>, 'user', '<?= e($r['username']) ?>')">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i>
                     </button>
@@ -213,11 +213,11 @@ $rows = $db->query(
                 <div class="cred-row">
                     <code class="cred-code pw"
                           id="pw-<?= (int)$r['id'] ?>">••••••••</code>
-                    <button class="btn btn-sm btn-outline-secondary" title="देखाउनुहोस्"
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="देखाउनुहोस्"
                             onclick="revealPw(<?= (int)$r['id'] ?>)">
                         <i class="far fa-eye" id="eye-<?= (int)$r['id'] ?>"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-secondary" title="Password copy"
+                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Password copy"
                             onclick="copyPw(<?= (int)$r['id'] ?>)">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i>
                     </button>
@@ -231,7 +231,7 @@ $rows = $db->query(
 
                 <?php if (is_admin_or_above()): ?>
                 <div class="cred-actions-top">
-                    <button class="btn btn-sm btn-link cred-icon-btn"
+                    <button type="button" class="btn btn-sm btn-link cred-icon-btn"
                             onclick='editCred(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'>
                         <i class="fas fa-edit"></i>
                     </button>

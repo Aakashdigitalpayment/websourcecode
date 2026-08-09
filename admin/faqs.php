@@ -97,13 +97,13 @@ $faqsArch = $faqPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#faq-list" id="faq-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#faq-list" id="faq-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>प्रश्नोत्तर सूची
             <span class="badge bg-success ms-1"><?php echo count($faqs); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#faq-form" id="faq-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#faq-form" id="faq-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="faqFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -173,7 +173,7 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-info text-white"><?php echo htmlspecialchars($f['category']); ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-faq"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-faq"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
@@ -189,7 +189,7 @@ $faqsArch = $faqPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -229,7 +229,7 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-info text-white"><?php echo htmlspecialchars($f['category']); ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-faq"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-faq"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
@@ -245,7 +245,7 @@ $faqsArch = $faqPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

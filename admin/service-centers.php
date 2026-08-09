@@ -79,13 +79,13 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sc-list" id="sc-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#sc-list" id="sc-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>सेवा कार्यालय सूची
             <span class="badge bg-success ms-1"><?php echo count($centers); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sc-form" id="sc-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#sc-form" id="sc-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="scFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -151,7 +151,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $provinces[$c['province']] ?? $c['province']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-sc"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sc"
                                             data-id="<?php echo $c['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($c['name_np'] ?? '', ENT_QUOTES); ?>"
@@ -171,7 +171,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -218,7 +218,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $provinces[$c['province']] ?? $c['province']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-sc"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sc"
                                             data-id="<?php echo $c['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($c['name_np'] ?? '', ENT_QUOTES); ?>"
@@ -238,7 +238,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

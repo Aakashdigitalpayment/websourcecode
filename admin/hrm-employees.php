@@ -210,7 +210,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
           </select>
         </div>
-        <button class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
+        <button type="submit" class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
         <?php if (empty($branches)): ?>
         <div class="w-100">
           <small class="text-warning">
@@ -266,7 +266,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-                            <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                         </form>
                         <?php endif; ?>
                     </td>

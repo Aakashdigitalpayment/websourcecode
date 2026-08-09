@@ -55,7 +55,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <option value="expired"  <?= $expFilter==='expired'?'selected':'' ?>>सकिएका</option>
       </select>
     </div>
-    <button class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
+    <button type="submit" class="btn-coop"><i class="fas fa-filter"></i> फिल्टर</button>
   </form>
 
   <div class="card-coop">

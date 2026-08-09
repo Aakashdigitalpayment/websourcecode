@@ -568,19 +568,19 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0" data-team-section="<?php echo htmlspecialchars($teamListSection, ENT_QUOTES, 'UTF-8'); ?>">
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTeamTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-list" id="team-list-btn" title="<?php echo $__t('सक्रिय / जम्मा', 'Active / Total'); ?>">
+        <button type="button" class="nav-link <?php echo $activeTeamTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-list" id="team-list-btn" title="<?php echo $__t('सक्रिय / जम्मा', 'Active / Total'); ?>">
             <i class="fas fa-list me-2"></i><?php echo $__t('सदस्य सूची', 'Member List'); ?>
             <span class="badge tm-tab-count ms-1"><?php echo count($team); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTeamTab === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-form" id="team-form-btn">
+        <button type="button" class="nav-link <?php echo $activeTeamTab === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-form" id="team-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="teamFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
     <?php if ($teamListSection === 'governance' || $teamListSection === 'karmachari'): ?>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTeamTab === 'groups' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-groups" id="team-groups-btn">
+        <button type="button" class="nav-link <?php echo $activeTeamTab === 'groups' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-groups" id="team-groups-btn">
             <i class="fas fa-layer-group me-2"></i><?php echo $teamListSection === 'karmachari'
                 ? $__t('वर्ग / समूह', 'Category / Groups')
                 : $__t('समिति समूह', 'Committee Groups'); ?>
@@ -589,7 +589,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
     </li>
     <?php endif; ?>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTeamTab === 'menu' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-menu" id="team-menu-btn">
+        <button type="button" class="nav-link <?php echo $activeTeamTab === 'menu' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#team-menu" id="team-menu-btn">
             <i class="fas fa-sitemap me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
             <span class="badge tm-tab-count ms-1"><?php echo count($allMenuCategories); ?></span>
         </button>
@@ -678,13 +678,13 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
+                                        <button type="button" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
+                                    <button type="button" class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
                                         <i class="fas fa-edit"></i>
@@ -693,7 +693,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button class="btn btn-sm tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -762,13 +762,13 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
+                                        <button type="button" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
+                                    <button type="button" class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
                                         <i class="fas fa-edit"></i>
@@ -777,7 +777,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button class="btn btn-sm tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm tm-btn-del" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -102,13 +102,13 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#wc-list" id="wc-list-btn">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#wc-list" id="wc-list-btn">
             <i class="fas fa-list me-2"></i>कारणहरूको सूची
             <span class="badge bg-success ms-1"><?php echo count($features); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#wc-form" id="wc-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#wc-form" id="wc-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="wcFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -162,7 +162,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                             </form>
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-primary wc-edit-btn"
+                            <button type="button" class="btn btn-sm btn-outline-primary wc-edit-btn"
                                     data-id="<?php echo $f['id']; ?>"
                                     data-icon="<?php echo e($f['icon']); ?>"
                                     data-title_np="<?php echo e($f['title_np']); ?>"

@@ -143,13 +143,13 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#mot-list" id="mot-list-btn" title="देखिने / जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#mot-list" id="mot-list-btn" title="देखिने / जम्मा">
             <i class="fas fa-list me-2"></i>Spotlight Records
             <span class="badge bg-success ms-1"><?php echo count($records); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#mot-form" id="mot-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#mot-form" id="mot-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="motFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -225,14 +225,14 @@ $flash = getFlash();
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
-                                        <button class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
+                                        <button type="button" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
                                             <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-mot"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
                                         <i class="fas fa-pen"></i> सम्पादन
@@ -241,7 +241,7 @@ $flash = getFlash();
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -298,14 +298,14 @@ $flash = getFlash();
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
-                                        <button class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
+                                        <button type="button" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
                                             <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-mot"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
                                         <i class="fas fa-pen"></i> सम्पादन
@@ -314,7 +314,7 @@ $flash = getFlash();
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

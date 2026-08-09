@@ -72,13 +72,13 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#feat-list" id="feat-list-btn">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#feat-list" id="feat-list-btn">
             <i class="fas fa-list me-2"></i><?php echo $__t('सुविधा सूची', 'Feature List'); ?>
             <span class="badge appfeat-count-badge ms-1"><?php echo count($features); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#feat-form" id="feat-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#feat-form" id="feat-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="featFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
@@ -128,14 +128,14 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_new">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button class="badge border-0 appfeat-toggle-badge <?php echo $f['is_new'] ? 'appfeat-toggle-on' : 'appfeat-toggle-off'; ?>" title="<?php echo $__t('टगल गर्नुहोस्', 'Toggle'); ?>">
+                                        <button type="button" class="badge border-0 appfeat-toggle-badge <?php echo $f['is_new'] ? 'appfeat-toggle-on' : 'appfeat-toggle-off'; ?>" title="<?php echo $__t('टगल गर्नुहोस्', 'Toggle'); ?>">
                                             <?php echo $f['is_new'] ? ('✓ ' . $__t('नयाँ', 'NEW')) : $__t('छैन', 'No'); ?>
                                         </button>
                                     </form>
                                 </td>
                                 <td class="text-center"><span class="badge <?php echo $f['is_active'] ? 'appfeat-status-on' : 'appfeat-status-off'; ?>"><?php echo $f['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm appfeat-btn-edit me-1 btn-edit-feat"
+                                    <button type="button" class="btn btn-sm appfeat-btn-edit me-1 btn-edit-feat"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($f['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($f['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -152,7 +152,7 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button class="btn btn-sm appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -121,7 +121,7 @@ echo adminPageHeader(
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_post">
                                     <input type="hidden" name="post_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -181,7 +181,7 @@ echo adminPageHeader(
                         </div>
                     </div>
                     <div class="col-12 d-flex gap-2">
-                        <button class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-posts.php?panel=form">नयाँ</a>
                     </div>
                 </form>

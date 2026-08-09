@@ -236,7 +236,7 @@ $statusLabel = ['pending' => 'पेन्डिङ', 'approved' => 'स्व�
                        placeholder="नाम, मोबाइल, tracking, Member ID...">
             </div>
             <div class="col-md-4">
-                <button class="btn btn-sm btn-success"><i class="fas fa-search me-1"></i>खोज</button>
+                <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-search me-1"></i>खोज</button>
             </div>
         </form>
     </div>

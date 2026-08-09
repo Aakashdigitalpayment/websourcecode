@@ -280,7 +280,7 @@ if (count($allCycles) > 1):
                             <label class="form-check-label" for="pact">सक्रिय</label>
                         </div>
                     </div>
-                    <div class="col-12 d-flex gap-2"><button class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-candidates.php?cycle=<?php echo $cycleId; ?>&panel=positions">नयाँ</a></div>
                 </form>
                 <script>
@@ -322,7 +322,7 @@ if (count($allCycles) > 1):
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_position">
                                     <input type="hidden" name="position_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -393,7 +393,7 @@ if (count($allCycles) > 1):
                     <div class="col-12"><label for="cand_bio_en" class="form-label small">Bio (English)</label>
                         <textarea class="form-control" name="bio_en" id="cand_bio_en" rows="2"><?php echo htmlspecialchars($editCand['bio_en'] ?? ''); ?></textarea>
                     </div>
-                    <div class="col-12 d-flex gap-2"><button class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                    <div class="col-12 d-flex gap-2"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-candidates.php?cycle=<?php echo $cycleId; ?>&panel=candidates">नयाँ</a></div>
                 </form>
                 <?php endif; ?>
@@ -419,7 +419,7 @@ if (count($allCycles) > 1):
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_candidate">
                                     <input type="hidden" name="candidate_id" value="<?php echo (int)$cd['id']; ?>">
-                                    <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                                 </form>
                             </td>
                         </tr>

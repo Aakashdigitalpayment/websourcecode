@@ -91,7 +91,7 @@ include __DIR__ . '/../_partials/header.php';
     </select>
     <input type="search" name="q" value="<?= htmlspecialchars($q, ENT_QUOTES, 'UTF-8') ?>"
            placeholder="नाम, मोबाइल, Tracking ID..." class="admin-input" style="max-width:300px;">
-    <button class="admin-btn admin-btn-primary"><i class="fas fa-search"></i> खोज</button>
+    <button type="submit" class="admin-btn admin-btn-primary"><i class="fas fa-search"></i> खोज</button>
   </form>
 </div>
 

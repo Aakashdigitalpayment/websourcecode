@@ -325,7 +325,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                         <?php echo csrfField(); ?>
                                                                         <input type="hidden" name="action" value="delete">
                                                                         <input type="hidden" name="id" value="<?php echo (int)$pg['id']; ?>">
-                                                                        <button class="btn btn-sm btn-outline-danger" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="fas fa-trash"></i></button>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="fas fa-trash"></i></button>
                                                                     </form>
                                                                 </td>
                                                             </tr>
