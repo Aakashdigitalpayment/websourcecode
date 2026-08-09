@@ -2703,6 +2703,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var visitedSteps  = {}; /* { "stepIndex": true } — persisted in localStorage */
     var isEn = <?php echo json_encode(isEnglish()); ?>;
     var kymWizardBusy = false; /* guard rapid Next double-clicks */
+    var kymFocusOnStep = false; /* focus section heading only after user navigates */
 
     /* ── section title helpers ─────────────────────── */
     function getSectionTitle(sec, idx) {
@@ -2815,6 +2816,7 @@ document.addEventListener('DOMContentLoaded', function () {
             b.appendChild(numSpan);
             b.appendChild(labelSpan);
             b.addEventListener('click', function () {
+                kymFocusOnStep = true;
                 if (idx !== currentStep) markVisited(currentStep);
                 saveDraft();
                 setStep(idx);
@@ -2835,19 +2837,22 @@ document.addEventListener('DOMContentLoaded', function () {
         renderNav();
         updateProgress();
         window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
-        /* Soft a11y: move focus to the visible section heading */
-        try {
-            var focusH = sections[currentStep] && sections[currentStep].querySelector('h5');
-            if (focusH) {
-                if (!focusH.hasAttribute('tabindex')) focusH.setAttribute('tabindex', '-1');
-                focusH.focus({ preventScroll: true });
-            }
-        } catch (e) {}
+        /* Soft a11y: focus visible section heading only after user Next/Prev/step click (not on first paint) */
+        if (kymFocusOnStep) {
+            try {
+                var focusH = sections[currentStep] && sections[currentStep].querySelector('h5');
+                if (focusH) {
+                    if (!focusH.hasAttribute('tabindex')) focusH.setAttribute('tabindex', '-1');
+                    focusH.focus({ preventScroll: true });
+                }
+            } catch (e) {}
+        }
     }
 
     if (nextBtn) nextBtn.addEventListener('click', function () {
         if (kymWizardBusy) return;
         kymWizardBusy = true;
+        kymFocusOnStep = true;
         if (nextBtn) nextBtn.setAttribute('aria-busy', 'true');
         markVisited(currentStep); /* mark section done when advancing */
         saveDraft();
@@ -2860,6 +2865,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (prevBtn) prevBtn.addEventListener('click', function () {
         if (kymWizardBusy) return;
         kymWizardBusy = true;
+        kymFocusOnStep = true;
         saveDraft();
         setStep(currentStep - 1);
         window.setTimeout(function () { kymWizardBusy = false; }, 280);
