@@ -205,7 +205,7 @@ require __DIR__ . '/includes/chrome.php';
     errEl.innerHTML = '<i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>' +
       msg.replace(/\n/g, '<br>') +
       (extraHtml ? '<br>' + extraHtml : '') +
-      '<br><button class="scan-err-retry" style="margin-top:10px;" onclick="retryCamera()">' +
+      '<br><button type="button" class="scan-err-retry" style="margin-top:10px;" onclick="retryCamera()">' +
       '<i class="fas fa-rotate-right" style="margin-right:5px;"></i>' + msgRetry + '</button>';
     errEl.style.display = 'block';
     successEl.style.display = 'none';

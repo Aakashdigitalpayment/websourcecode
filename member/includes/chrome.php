@@ -258,7 +258,7 @@ try {
     </svg>
     अफलाइन मोड — Cached data हेर्दै हुनुहुन्छ
   </span>
-  <button onclick="window.location.reload()"
+  <button type="button" onclick="window.location.reload()"
           style="background:rgba(255,255,255,.18);border:none;color:#fff;
                  border-radius:6px;padding:4px 10px;font-size:.78rem;
                  font-weight:700;cursor:pointer;">फेरि प्रयास</button>
@@ -300,7 +300,7 @@ try {
             <a class="mem-bell-btn mem-lang-btn" href="<?php echo htmlspecialchars($_langToggleUrl, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo $_t('भाषा परिवर्तन', 'Switch Language'); ?>">
                 <small class="mem-lang-code"><?php echo htmlspecialchars($_langBadge); ?></small>
             </a>
-            <button class="mem-bell-btn" id="bellBtn" title="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" type="button">
+            <button type="button" class="mem-bell-btn" id="bellBtn" title="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" type="button">
                 <i class="fas fa-bell"></i>
                 <?php if ($_unread > 0): ?><span class="mem-notif-dot"><?php echo $_unread > 9 ? '9+' : $_unread; ?></span><?php endif; ?>
             </button>

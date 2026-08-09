@@ -1080,10 +1080,10 @@ body {
     <div class="pf-topbar">
         <span class="pf-topbar-id"><i class="fas fa-file-alt" style="margin-right:5px;"></i><?php echo pf_e($trackId); ?> &mdash; <?php echo pf_e($formTitle); ?></span>
         <div class="pf-btn-row">
-            <a href="javascript:history.back()" class="pf-btn pf-btn-ghost">
+            <button type="button" onclick="history.back()" class="pf-btn pf-btn-ghost">
                 <i class="fas fa-arrow-left"></i> फिर्ता
-            </a>
-            <button onclick="window.print()" class="pf-btn pf-btn-green">
+            </button>
+            <button type="button" onclick="window.print()" class="pf-btn pf-btn-green">
                 <i class="fas fa-print"></i> Print / PDF डाउनलोड
             </button>
         </div>

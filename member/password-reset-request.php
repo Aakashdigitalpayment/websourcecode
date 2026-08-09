@@ -242,7 +242,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <?php else: ?>
       <input type="hidden" name="channel" value="email">
       <?php endif; ?>
-      <button class="btn btn-g w-100 py-2 fw-semibold">
+      <button type="submit" class="btn btn-g w-100 py-2 fw-semibold">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="send"></i><?php echo $_t('OTP पठाउनुहोस्', 'Send OTP'); ?>
       </button>
     </form>
@@ -292,14 +292,14 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <form method="POST" novalidate class="needs-validation" class="flex-1">
       <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="resend_otp">
-        <button class="btn btn-outline-secondary btn-sm w-100">
+        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
           <i class="fas fa-redo me-1"></i>फेरि पठाउनुहोस्
         </button>
       </form>
       <form method="POST" novalidate class="needs-validation" class="flex-1">
       <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="cancel">
-        <button class="btn btn-outline-danger btn-sm w-100"><?php echo $_t('रद्द गर्नुहोस्', 'Cancel'); ?></button>
+        <button type="submit" class="btn btn-outline-danger btn-sm w-100"><?php echo $_t('रद्द गर्नुहोस्', 'Cancel'); ?></button>
       </form>
     </div>
 
@@ -330,7 +330,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
           </button>
         </div>
       </div>
-      <button class="btn btn-g w-100 py-2 fw-semibold">
+      <button type="submit" class="btn btn-g w-100 py-2 fw-semibold">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="save"></i>पासवर्ड परिवर्तन गर्नुहोस्
       </button>
     </form>

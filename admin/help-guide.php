@@ -18,7 +18,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 ?>
 <div id="hg-read-progress"></div>
 
-<button class="btn btn-outline-success btn-sm hg-mobile-toggle" onclick="document.querySelector('.hg-sidebar').classList.toggle('mobile-hidden');">
+<button type="button" class="btn btn-outline-success btn-sm hg-mobile-toggle" onclick="document.querySelector('.hg-sidebar').classList.toggle('mobile-hidden');">
   <i class="fas fa-list me-1"></i> विषयसूची देखाउनुहोस् / लुकाउनुहोस्
 </button>
 
@@ -28,7 +28,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
   <aside class="hg-sidebar">
     <div class="hg-search-wrap">
       <i class="fas fa-search"></i>
-      <input type="text" id="hgSearch" placeholder="खोज्नुहोस्...">
+      <input type="search" id="hgSearch" placeholder="खोज्नुहोस्..." autocomplete="off" aria-label="Search guide">
     </div>
 
     <div class="grp">सुरुवात</div>

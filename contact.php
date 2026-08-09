@@ -146,7 +146,7 @@ require_once 'includes/header.php';
 
                     <!-- सन्देश पठाउने बटन — modal खोल्छ -->
                     <div class="mt-4">
-                        <button class="btn ct-btn-primary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#contactModal">
+                        <button type="button" class="btn ct-btn-primary btn-lg w-100" data-bs-toggle="modal" data-bs-target="#contactModal">
                             <i class="fas fa-envelope me-2"></i>
                             <?php echo isEnglish() ? 'Send Message' : 'सन्देश पठाउनुहोस्'; ?>
                         </button>
@@ -251,7 +251,7 @@ require_once 'includes/header.php';
                             ? 'Thank you for contacting us. We will get back to you shortly.'
                             : 'धन्यवाद! तपाईंको सन्देश प्राप्त भयो। हामी चाँडै सम्पर्क गर्नेछौं।'; ?>
                     </p>
-                    <button class="btn ct-btn-primary mt-2" data-bs-dismiss="modal">
+                    <button type="button" class="btn ct-btn-primary mt-2" data-bs-dismiss="modal">
                         <?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>
                     </button>
                 </div>

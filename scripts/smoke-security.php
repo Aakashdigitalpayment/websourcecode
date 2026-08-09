@@ -223,6 +223,57 @@ assertFileContains('404.php', 'type="button" onclick="history.back()"', '404 bac
 assertFileContains('includes/footer.php', 'type="button" class="chatbot-close"', 'chatbot close typed');
 assertFileContains('includes/footer.php', 'type="button" class="search-modal-close"', 'search close typed');
 assertFileContains('member/login.php', 'type="button" class="tab-btn', 'member login tabs typed');
+assertFileContains('includes/header.php', 'type="button" class="pfl-bell-btn"', 'header bell typed');
+assertFileContains('includes/header.php', 'type="button" class="mobile-menu-toggle', 'legacy mobile menu typed');
+assertFileContains('contact.php', 'type="button" class="btn ct-btn-primary btn-lg w-100" data-bs-toggle="modal"', 'contact modal open typed');
+assertFileContains('application-tracker.php', 'type="button" class="tracker-tab-btn active"', 'tracker tabs typed');
+assertFileContains('member/password-reset-request.php', 'type="submit" class="btn btn-outline-danger btn-sm w-100"', 'password-reset cancel typed submit');
+assertFileContains('cooperative-programs.php', 'type="submit" class="btn btn-sm btn-primary"', 'program prereg submit typed');
+assertFileContains('admin/help-guide.php', 'id="hgSearch"', 'help-guide search field');
+assertFileContains('admin/help-guide.php', 'autocomplete="off"', 'help-guide search autocomplete off');
+assertFileContains('admin/print-form.php', 'type="button" onclick="history.back()"', 'print-form back typed');
+assertFileContains('includes/satisfaction-widget.php', 'type="button" class="satisfaction-toggle"', 'satisfaction toggle typed');
+assertFileContains('includes/footer.php', 'type="button" id="uiTestClose"', 'ui-test panel buttons typed');
+assertFileContains('auction.php', 'type="button" class="auc2-fchip active"', 'auction filter chips typed');
+
+// Ensure high-traffic interactive buttons declare an explicit type=
+$typedButtonFiles = [
+    'contact.php',
+    'application-tracker.php',
+    'includes/header.php',
+    'includes/satisfaction-widget.php',
+    'member/password-reset-request.php',
+    'member/attend.php',
+    'offline.php',
+];
+foreach ($typedButtonFiles as $f) {
+    $path = $root . '/' . $f;
+    if (!is_file($path)) {
+        fail("{$f}: missing (button type sweep)");
+        continue;
+    }
+    $t = (string) file_get_contents($path);
+    $phpClose = '?' . '>';
+    $t = preg_replace('/<\?(?:php|=)?[\s\S]*?' . preg_quote($phpClose, '/') . '/i', ' PHP ', $t);
+    if (!is_string($t)) {
+        fail("{$f}: php-mask failed (button type)");
+        continue;
+    }
+    $bad = 0;
+    if (preg_match_all('/<button\b([^>]*)>/i', $t, $m)) {
+        foreach ($m[1] as $attrs) {
+            if (!preg_match('/\btype\s*=/i', $attrs)) {
+                $bad++;
+            }
+        }
+    }
+    if ($bad > 0) {
+        fail("{$f}: {$bad} button(s) missing type=");
+    } else {
+        ok("{$f}: all buttons have explicit type");
+    }
+}
+
 // Syntax
 $lintFiles = array_merge(
     ['member/session-check.php', 'cron-cleanup.php'],

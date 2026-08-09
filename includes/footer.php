@@ -1122,13 +1122,13 @@ if ($__uiTestMode):
         panel.id = 'uiTestPanel';
         panel.style.cssText = 'position:fixed;right:10px;bottom:84px;z-index:2147483647;width:min(92vw,320px);background:#0f172a;color:#e5e7eb;border:1px solid #334155;border-radius:12px;box-shadow:0 12px 26px rgba(2,6,23,.45);font:12px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;';
         panel.innerHTML = '' +
-            '<div style="padding:8px 10px;border-bottom:1px solid #334155;font-weight:700;display:flex;justify-content:space-between;align-items:center;">UI Test Mode <button id="uiTestClose" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:8px;padding:2px 8px;">hide</button></div>' +
+            '<div style="padding:8px 10px;border-bottom:1px solid #334155;font-weight:700;display:flex;justify-content:space-between;align-items:center;">UI Test Mode <button type="button" id="uiTestClose" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:8px;padding:2px 8px;">hide</button></div>' +
             '<div style="padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">' +
-            '<button id="uiChkState" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#111827;color:#e5e7eb;">Check State</button>' +
-            '<button id="uiChkSizes" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#111827;color:#e5e7eb;">Check Sizes</button>' +
-            '<button id="uiOpenMenu" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#0b5;color:#f8fffb;">Open Menu</button>' +
-            '<button id="uiReset" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#7f1d1d;color:#fee2e2;">Force Reset</button>' +
-            '<button id="uiInspectX" style="grid-column:1/3;padding:7px;border-radius:8px;border:1px solid #334155;background:#1f2937;color:#d1d5db;">Inspect Visible X</button>' +
+            '<button type="button" id="uiChkState" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#111827;color:#e5e7eb;">Check State</button>' +
+            '<button type="button" id="uiChkSizes" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#111827;color:#e5e7eb;">Check Sizes</button>' +
+            '<button type="button" id="uiOpenMenu" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#0b5;color:#f8fffb;">Open Menu</button>' +
+            '<button type="button" id="uiReset" style="padding:7px;border-radius:8px;border:1px solid #334155;background:#7f1d1d;color:#fee2e2;">Force Reset</button>' +
+            '<button type="button" id="uiInspectX" style="grid-column:1/3;padding:7px;border-radius:8px;border:1px solid #334155;background:#1f2937;color:#d1d5db;">Inspect Visible X</button>' +
             '</div>' +
             '<pre id="uiTestOut" style="margin:0;padding:8px;max-height:170px;overflow:auto;background:#020617;border-top:1px solid #334155;white-space:pre-wrap;"></pre>';
         document.body.appendChild(panel);

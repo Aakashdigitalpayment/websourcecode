@@ -190,7 +190,7 @@ h1{font-size:1.3rem;font-weight:800;color:#1a2e1d;margin-bottom:6px;letter-spaci
       </ul>
 
       <div class="btn-row">
-        <button class="btn-retry" onclick="retryNow()" id="retryBtn">
+        <button type="button" class="btn-retry" onclick="retryNow()" id="retryBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/>

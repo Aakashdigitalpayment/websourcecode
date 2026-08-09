@@ -138,10 +138,10 @@ require __DIR__ . '/includes/chrome.php';
   <?php endif; ?>
 
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-new')" id="apptTabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-new')" id="apptTabNew">
       <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ बुकिङ', 'New Booking'); ?>
     </button>
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-history')" id="apptTabHistory">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-history')" id="apptTabHistory">
       <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा भेटघाटहरू', 'My Appointments'); ?> (<?= count($recentAppts) ?>)
     </button>
   </div>

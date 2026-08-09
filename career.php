@@ -321,7 +321,7 @@ $totalDepts = count($deptSet);
             <p class="cr-muted small" id="crNoResultsHint"><?php echo isEnglish()
                 ? 'No open positions match. Try All or Closed, or clear search.'
                 : 'खुला पद भेटिएन। सबै वा बन्द फिल्टर हेर्नुहोस्, वा खोज हटाउनुहोस्।'; ?></p>
-            <button class="btn btn-outline-secondary btn-sm mt-2" onclick="crReset()">
+            <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="crReset()">
                 <i class="fas fa-redo me-1"></i><?php echo isEnglish() ? 'Reset' : 'रिसेट'; ?>
             </button>
         </div>
@@ -349,7 +349,7 @@ $totalDepts = count($deptSet);
 <!-- ── Sidebar ── -->
 <div class="col-lg-4 cr-sidebar">
 
-    <button class="cr-sidebar-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
+    <button type="button" class="cr-sidebar-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
         <i class="fas fa-info-circle"></i>
         <?php echo isEnglish() ? 'Career Resources & Info' : 'क्यारियर सहायता र जानकारी'; ?>
         <i class="fas fa-chevron-down ms-auto"></i>

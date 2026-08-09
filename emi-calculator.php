@@ -270,7 +270,7 @@ $loanTypes = [
                             </label>
                         </div>
                         <!-- Print button -->
-                        <button class="btn btn-sm btn-outline-secondary" onclick="printSchedule()">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="printSchedule()">
                             <i class="fas fa-print me-1"></i><?php echo isEnglish() ? 'Print' : 'प्रिन्ट'; ?>
                         </button>
                     </div>

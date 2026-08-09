@@ -367,7 +367,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                                    value="<?php echo htmlspecialchars($preregProgramId === (int)$pg['id'] ? $preregNoteInput : ''); ?>">
                                         </div>
                                         <div class="col-12">
-                                            <button class="btn btn-sm btn-primary">
+                                            <button type="submit" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-check-circle me-1"></i><?php echo $_t('Registration Confirm', 'Confirm Registration'); ?>
                                             </button>
                                         </div>
