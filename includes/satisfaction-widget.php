@@ -20,7 +20,7 @@ if (empty($satisfactionLinks)) {
 
 <!-- Mobile-only floating fallback (desktop uses top header) -->
 <div class="satisfaction-widget" id="satisfactionWidget" role="complementary" aria-label="<?php echo isEnglish() ? 'Member Feedback' : 'सदस्य सन्तुष्टि'; ?>">
-    <button class="satisfaction-toggle" id="satisfactionToggle"
+    <button type="button" class="satisfaction-toggle" id="satisfactionToggle"
             aria-expanded="false"
             aria-controls="satisfactionPopup"
             title="<?php echo isEnglish() ? 'Member Feedback' : 'सदस्य सन्तुष्टि'; ?>">
@@ -35,7 +35,7 @@ if (empty($satisfactionLinks)) {
             <span><i class="fas fa-heart" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'Your Feedback' : 'तपाईंको प्रतिक्रिया'; ?>
             </span>
-            <button class="satisfaction-close-btn" id="satisfactionClose"
+            <button type="button" class="satisfaction-close-btn" id="satisfactionClose"
                     aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द'; ?>" title="<?php echo isEnglish() ? 'Close' : 'बन्द'; ?>">
                 <i class="fas fa-times" aria-hidden="true"></i>
             </button>

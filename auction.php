@@ -176,37 +176,37 @@ $L = getLangStrings();
             <input type="search" id="aucSearchInput" class="auc2-search-input"
                    placeholder="<?php echo isEnglish() ? 'Search by title, location, property type...' : 'शीर्षक, स्थान, सम्पत्ति प्रकारले खोज्नुहोस्...'; ?>"
                    oninput="aucApplyFilters()" autocomplete="off">
-            <button class="auc2-search-clear" id="aucSearchClear" onclick="aucClearSearch()" title="<?php echo isEnglish()?'Clear':'खाली गर्नुहोस्'; ?>" style="display:none;">
+            <button type="button" class="auc2-search-clear" id="aucSearchClear" onclick="aucClearSearch()" title="<?php echo isEnglish()?'Clear':'खाली गर्नुहोस्'; ?>" style="display:none;">
                 <i class="fas fa-times"></i>
             </button>
         </div>
         <!-- Status chips -->
         <span class="auc2-fbar-label"><i class="fas fa-filter"></i> <?php echo isEnglish() ? 'Filter:' : 'छान्नुहोस्:'; ?></span>
         <div class="auc2-fchips">
-            <button class="auc2-fchip active" data-auc-filter="all" onclick="aucFilter(this,'all')">
+            <button type="button" class="auc2-fchip active" data-auc-filter="all" onclick="aucFilter(this,'all')">
                 <i class="fas fa-th-large"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['all']; ?></span>
             </button>
             <?php if ($statusCounts['ongoing'] > 0): ?>
-            <button class="auc2-fchip" data-auc-filter="ongoing" onclick="aucFilter(this,'ongoing')">
+            <button type="button" class="auc2-fchip" data-auc-filter="ongoing" onclick="aucFilter(this,'ongoing')">
                 <i class="fas fa-circle" style="font-size:.55em;color:#198754;"></i> <?php echo isEnglish() ? 'Ongoing' : 'जारी'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['ongoing']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['upcoming'] > 0): ?>
-            <button class="auc2-fchip" data-auc-filter="upcoming" onclick="aucFilter(this,'upcoming')">
+            <button type="button" class="auc2-fchip" data-auc-filter="upcoming" onclick="aucFilter(this,'upcoming')">
                 <i class="fas fa-clock"></i> <?php echo isEnglish() ? 'Upcoming' : 'आगामी'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['upcoming']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['completed'] > 0): ?>
-            <button class="auc2-fchip" data-auc-filter="completed" onclick="aucFilter(this,'completed')">
+            <button type="button" class="auc2-fchip" data-auc-filter="completed" onclick="aucFilter(this,'completed')">
                 <i class="fas fa-check-circle"></i> <?php echo isEnglish() ? 'Completed' : 'सम्पन्न'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['completed']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['cancelled'] > 0): ?>
-            <button class="auc2-fchip" data-auc-filter="cancelled" onclick="aucFilter(this,'cancelled')">
+            <button type="button" class="auc2-fchip" data-auc-filter="cancelled" onclick="aucFilter(this,'cancelled')">
                 <i class="fas fa-ban"></i> <?php echo isEnglish() ? 'Cancelled' : 'रद्द'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['cancelled']; ?></span>
             </button>
@@ -438,7 +438,7 @@ $L = getLangStrings();
                 <!-- CTA -->
                 <div class="auc2-cta">
                     <?php if ($hasBid): ?>
-                    <button class="auc2-bid-btn" data-bs-toggle="modal" data-bs-target="#bidModal<?php echo $aId; ?>">
+                    <button type="button" class="auc2-bid-btn" data-bs-toggle="modal" data-bs-target="#bidModal<?php echo $aId; ?>">
                         <i class="fas fa-gavel"></i>
                         <span><?php echo isEnglish() ? 'Place Bid' : 'बोलपत्र पेश गर्नुहोस्'; ?></span>
                     </button>
@@ -464,13 +464,13 @@ $L = getLangStrings();
         <!-- ── Tabs ── -->
         <div class="auc2-tabs-wrap">
             <div class="auc2-nav" role="tablist">
-                <button class="auc2-tab-btn active"
+                <button type="button" class="auc2-tab-btn active"
                         data-auc2-tab="overview-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'overview-<?php echo $aId; ?>')">
                     <i class="fas fa-info-circle"></i> <?php echo isEnglish()?'Overview':'सारांश'; ?>
                 </button>
                 <?php if ($hasPhotos): ?>
-                <button class="auc2-tab-btn"
+                <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="photos-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'photos-<?php echo $aId; ?>')">
                     <i class="fas fa-images"></i> <?php echo isEnglish()?'Photos':'तस्बिरहरू'; ?>
@@ -478,14 +478,14 @@ $L = getLangStrings();
                 </button>
                 <?php endif; ?>
                 <?php if ($hasDoc): ?>
-                <button class="auc2-tab-btn"
+                <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="docs-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'docs-<?php echo $aId; ?>')">
                     <i class="fas fa-file-alt"></i> <?php echo isEnglish()?'Document':'कागजपत्र'; ?>
                 </button>
                 <?php endif; ?>
                 <?php if ($hasMap): ?>
-                <button class="auc2-tab-btn"
+                <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="map-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'map-<?php echo $aId; ?>')">
                     <i class="fas fa-map-marked-alt"></i> <?php echo isEnglish()?'Map':'नक्सा'; ?>
@@ -697,7 +697,7 @@ $L = getLangStrings();
     <div class="auc2-no-filter" id="aucNoResults">
         <i class="fas fa-search fa-2x text-muted mb-3 d-block"></i>
         <h5 id="aucNoResultsMsg"><?php echo isEnglish() ? 'No auctions match your search.' : 'तपाईंको खोजमा कुनै लिलामी भेटिएन।'; ?></h5>
-        <button class="btn btn-outline-secondary btn-sm mt-2" onclick="aucResetAll()">
+        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="aucResetAll()">
             <i class="fas fa-redo me-1"></i><?php echo isEnglish() ? 'Clear Filters' : 'फिल्टर हटाउनुहोस्'; ?>
         </button>
     </div>
@@ -813,7 +813,7 @@ document.addEventListener('keydown', function(e) {
 
 <!-- Lightbox Overlay -->
 <div id="auc2-lightbox" onclick="if(event.target===this)this.classList.remove('open')">
-    <button id="auc2-lightbox-close" onclick="document.getElementById('auc2-lightbox').classList.remove('open')" aria-label="Close" title="Close">
+    <button type="button" id="auc2-lightbox-close" onclick="document.getElementById('auc2-lightbox').classList.remove('open')" aria-label="Close" title="Close">
         <i class="fas fa-times"></i>
     </button>
     <img id="auc2-lightbox-img" src="" alt="Photo" onclick="event.stopPropagation()">

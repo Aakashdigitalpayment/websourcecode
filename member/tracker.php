@@ -202,7 +202,7 @@ require __DIR__ . '/includes/chrome.php';
                 <div style="font-size:0.75rem;color:var(--text-muted);font-weight:700;margin-bottom:4px;">TRACKING ID</div>
                 <div style="display:flex;align-items:center;gap:10px;">
                     <span class="mem-tracking-id" id="trkId"><?php echo htmlspecialchars($viewApp['tracking_id']); ?></span>
-                    <button onclick="copyTrk('trkId',this)" class="mem-topbar-btn" style="background:var(--primary-color);border:none;font-size:0.72rem;padding:5px 12px;cursor:pointer;">
+                    <button type="button" onclick="copyTrk('trkId',this)" class="mem-topbar-btn" style="background:var(--primary-color);border:none;font-size:0.72rem;padding:5px 12px;cursor:pointer;">
                         <i class="lucide-icon me-1" aria-hidden="true" data-lucide="copy"></i><?php echo $_t('कपी', 'Copy'); ?>
                     </button>
                 </div>

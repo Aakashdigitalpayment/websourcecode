@@ -138,10 +138,10 @@ require __DIR__ . '/includes/chrome.php';
   <?php endif; ?>
 
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-new')" id="loanTabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-new')" id="loanTabNew">
       <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
     </button>
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-history')" id="loanTabHistory">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-history')" id="loanTabHistory">
       <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentLoans) ?>)
     </button>
   </div>

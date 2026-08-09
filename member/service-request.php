@@ -181,10 +181,10 @@ HTML;
 
   <!-- ── Tabs ── -->
   <div class="wf-tabs">
-    <button class="wf-tab <?= $srActiveTab==='new'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-new')" id="srTabNew">
+    <button type="button" class="wf-tab <?= $srActiveTab==='new'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-new')" id="srTabNew">
       <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ अनुरोध', 'New Request'); ?>
     </button>
-    <button class="wf-tab <?= $srActiveTab==='history'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-history')" id="srTabHistory">
+    <button type="button" class="wf-tab <?= $srActiveTab==='history'?'active':'' ?>" onclick="srShowTab(this,'sr-pane-history')" id="srTabHistory">
       <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा अनुरोधहरू', 'My Requests'); ?> (<?= count($recentReqs) ?>)
     </button>
   </div>

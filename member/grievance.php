@@ -136,10 +136,10 @@ require __DIR__ . '/includes/chrome.php';
   <?php endif; ?>
 
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-new')" id="grvTabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-new')" id="grvTabNew">
       <i class="fas fa-plus-circle"></i><?php echo $_t('नयाँ गुनासो', 'New Grievance'); ?>
     </button>
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-history')" id="grvTabHistory">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-history')" id="grvTabHistory">
       <i class="fas fa-clock-rotate-left"></i><?php echo $_t('मेरा गुनासोहरू', 'My Grievances'); ?> (<?= count($recentGrievances) ?>)
     </button>
   </div>

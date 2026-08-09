@@ -281,10 +281,10 @@ HTML;
 
   <!-- Tabs -->
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="showTab(this,'history')">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="showTab(this,'history')">
       <i class="fas fa-list wf-icon-gap-sm"></i><?php echo $_t('मेरा दाबीहरू', 'My Claims'); ?> (<?= count($myClaims) ?>)
     </button>
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="showTab(this,'new')" id="tabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="showTab(this,'new')" id="tabNew">
       <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ दाबी', 'New Claim'); ?>
     </button>
   </div>

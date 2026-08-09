@@ -690,7 +690,7 @@ if ($ipChartSeries['count'] >= 2):
            data-testid="institutional-profile-document-download-link">
           <i class="fas fa-download" style="font-size:.85rem;"></i>
         </a>
-        <button onclick="ipCloseDoc()"
+        <button type="button" onclick="ipCloseDoc()"
                 style="width:36px;height:36px;border-radius:8px;border:none;background:#f3f4f6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b7280;"
                 title="<?php echo $isEn ? 'Close' : 'बन्द'; ?>"
                 data-testid="institutional-profile-document-close-button">

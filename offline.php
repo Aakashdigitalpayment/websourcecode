@@ -95,7 +95,7 @@ h1{font-size:1.35rem;font-weight:800;color:#1a2e1d;margin-bottom:8px;letter-spac
     <li>Router / Hotspot Restart गर्ने प्रयास गर्नुहोस्</li>
   </ul>
 
-  <button class="retry-btn" onclick="retryNow()" id="retryBtn">
+  <button type="button" class="retry-btn" onclick="retryNow()" id="retryBtn">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
          stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="23 4 23 10 17 10"/>

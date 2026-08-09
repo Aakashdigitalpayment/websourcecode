@@ -959,12 +959,12 @@ function getAppTypeLabel($type) {
                 ?>
                 <!-- Tab Navigation -->
                 <div class="tracker-tabs-nav mb-3">
-                    <button class="tracker-tab-btn active" data-tab="active">
+                    <button type="button" class="tracker-tab-btn active" data-tab="active">
                         <i class="fas fa-clock-rotate-left"></i>
                         <?php echo isEnglish() ? 'Active / New' : 'नयाँ / सक्रिय'; ?>
                         <?php if ($activeCount > 0): ?><span class="tab-count-badge tab-badge-active"><?php echo $activeCount; ?></span><?php endif; ?>
                     </button>
-                    <button class="tracker-tab-btn" data-tab="done">
+                    <button type="button" class="tracker-tab-btn" data-tab="done">
                         <i class="fas fa-check-circle"></i>
                         <?php echo isEnglish() ? 'Completed / Old' : 'पुरानो / सम्पन्न'; ?>
                         <?php if ($doneCount > 0): ?><span class="tab-count-badge tab-badge-done"><?php echo $doneCount; ?></span><?php endif; ?>

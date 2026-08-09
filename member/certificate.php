@@ -153,7 +153,7 @@ HTML;
       <i class="fas fa-certificate cert-inline-icon-lg"></i><?php echo $_t('सदस्यता प्रमाणपत्र', 'Membership Certificate'); ?>
     </h1>
     <div class="cert-btn-row">
-      <button onclick="window.print()" class="cert-btn primary">
+      <button type="button" onclick="window.print()" class="cert-btn primary">
         <i class="fas fa-print"></i> Print / PDF
       </button>
       <a href="id-card.php" class="cert-btn outline">

@@ -166,10 +166,10 @@ require __DIR__ . '/includes/chrome.php';
   <?php endif; ?>
 
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-new')" id="accTabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-new')" id="accTabNew">
       <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
     </button>
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-history')" id="accTabHistory">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-history')" id="accTabHistory">
       <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentAccounts) ?>)
     </button>
   </div>

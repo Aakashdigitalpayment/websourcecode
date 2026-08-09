@@ -556,10 +556,10 @@ HTML;
 
   <!-- Tabs -->
   <div class="tabs-row">
-    <button class="tab-btn active" onclick="showAtTab('upcoming',this)"><i class="fas fa-calendar-star" style="margin-right:5px;"></i>आगामी कार्यक्रम</button>
-    <button class="tab-btn" onclick="showAtTab('history',this)"><i class="fas fa-history" style="margin-right:5px;"></i>उपस्थिति इतिहास</button>
+    <button type="button" class="tab-btn active" onclick="showAtTab('upcoming',this)"><i class="fas fa-calendar-star" style="margin-right:5px;"></i>आगामी कार्यक्रम</button>
+    <button type="button" class="tab-btn" onclick="showAtTab('history',this)"><i class="fas fa-history" style="margin-right:5px;"></i>उपस्थिति इतिहास</button>
     <?php if (!empty($myPreregs)): ?>
-    <button class="tab-btn" onclick="showAtTab('prereg',this)"><i class="fas fa-clipboard-list" style="margin-right:5px;"></i>Pre-reg</button>
+    <button type="button" class="tab-btn" onclick="showAtTab('prereg',this)"><i class="fas fa-clipboard-list" style="margin-right:5px;"></i>Pre-reg</button>
     <?php endif; ?>
   </div>
 

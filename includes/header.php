@@ -1393,7 +1393,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 </li>
                 <!-- Bell Notification Dropdown -->
                 <li class="pfl-bell-wrap" id="pflBellWrap">
-                    <button class="pfl-bell-btn" id="pflBellBtn"
+                    <button type="button" class="pfl-bell-btn" id="pflBellBtn"
                             aria-label="<?php echo isEnglish() ? 'Notifications' : 'सूचनाहरू'; ?>"
                             aria-expanded="false">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i>
@@ -1884,13 +1884,13 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 </div>
                 <div class="col-lg-8 col-md-7 col-4">
                     <!-- Mobile Menu Toggle -->
-                    <button class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="<?php echo isEnglish() ? 'Open Menu' : 'मेनु खोल्नुहोस्'; ?>">
+                    <button type="button" class="mobile-menu-toggle d-lg-none" id="mobileMenuToggle" aria-label="<?php echo isEnglish() ? 'Open Menu' : 'मेनु खोल्नुहोस्'; ?>">
                         <i class="fas fa-bars"></i>
                     </button>
 
                     <!-- Navigation -->
                     <nav class="main-nav" id="mainNav">
-                        <button class="close-menu d-lg-none" id="closeMenu" aria-label="Close" title="Close">
+                        <button type="button" class="close-menu d-lg-none" id="closeMenu" aria-label="Close" title="Close">
                             <i class="fas fa-times"></i>
                         </button>
                         <ul class="nav-menu">

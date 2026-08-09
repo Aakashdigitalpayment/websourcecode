@@ -163,10 +163,10 @@ require __DIR__ . '/includes/chrome.php';
   <?php endif; ?>
 
   <div class="wf-tabs">
-    <button class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="dsShowTab(this,'ds-pane-new')" id="dsTabNew">
+    <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="dsShowTab(this,'ds-pane-new')" id="dsTabNew">
       <i class="fas fa-plus-circle"></i><?php echo $_t('नयाँ अनुरोध', 'New Request'); ?>
     </button>
-    <button class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="dsShowTab(this,'ds-pane-history')" id="dsTabHistory">
+    <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="dsShowTab(this,'ds-pane-history')" id="dsTabHistory">
       <i class="fas fa-clock-rotate-left"></i><?php echo $_t('मेरा अनुरोधहरू', 'My Requests'); ?> (<?= count($recentRequests) ?>)
     </button>
   </div>
