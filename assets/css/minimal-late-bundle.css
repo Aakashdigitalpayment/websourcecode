@@ -1,0 +1,5580 @@
+/* AUTO-GENERATED: minimal-late-bundle.css — do not edit by hand.
+ * Source order (preserved cascade):
+ *  - public-shell-polish.css
+ *  - minimal-pages-patch.css
+ *  - ui-readability-safe-patch.css
+ *  - final-ui-polish.css
+ * Regenerate locally: python3 scripts/build-css-late-bundles.py
+ */
+
+
+/* ===== BEGIN public-shell-polish.css ===== */
+/**
+ * Public shell polish — loaded last for public pages.
+ * Unifies forms, content cards, bottom nav, chrome icons, and fonts
+ * without rewriting every public PHP page.
+ */
+
+:root {
+  --pub-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --pub-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --pub-radius: 12px;
+  --pub-radius-sm: 9px;
+  --pub-border: #d7e0db;
+  --pub-border-focus: var(--primary-color, #1a5f2a);
+  --pub-surface: #ffffff;
+  --pub-surface-soft: #f6f9f7;
+  --pub-text: #0f1a15;
+  --pub-muted: #5b6b62;
+  --pub-bottom-nav-h: 64px;
+  --pub-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
+  --pub-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
+  --pub-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.10);
+}
+
+/* ── Fonts ─────────────────────────────────────────────────────────── */
+body {
+  font-family: var(--pub-font-body) !important;
+  color: var(--pub-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6,
+.page-title-modern,
+.section-header h2,
+.section-header-unified h2,
+.section-header h3,
+.main-footer .footer-widget h4,
+.pfl-brand-text {
+  font-family: var(--pub-font-head) !important;
+  letter-spacing: -0.015em;
+}
+
+.form-label,
+.form-control,
+.form-select,
+.btn,
+.table,
+.nav-link,
+.mob-bottomnav,
+.main-footer,
+.qh-item {
+  font-family: var(--pub-font-body) !important;
+}
+
+/* ── Section / page chrome ─────────────────────────────────────────── */
+.section-header-unified {
+  margin-bottom: 1.75rem;
+}
+
+.section-header-unified .section-badge,
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
+.page-banner,
+.page-banner-modern {
+  border-radius: 0 0 18px 18px;
+}
+
+.page-title-modern {
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* ── Content cards ─────────────────────────────────────────────────── */
+.service-card,
+.service-detail-card,
+.notice-card,
+.notice-detail-card,
+.team-card,
+.team-card-circular,
+.officer-card,
+.rates-box,
+.notices-box,
+.ct-quick-card,
+.form-success-card,
+.news-card,
+.download-card,
+.faq-accordion .accordion-item {
+  border-radius: var(--pub-radius) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb) !important;
+  box-shadow: var(--pub-shadow) !important;
+  background: var(--pub-surface);
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+
+.service-card:hover,
+.service-detail-card:hover,
+.notice-card:hover,
+.team-card:hover,
+.team-card-circular:hover,
+.news-card:hover,
+.download-card:hover {
+  box-shadow: var(--pub-shadow-hover) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
+}
+
+.faq-accordion .accordion-button {
+  font-family: var(--pub-font-head) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+}
+
+.faq-accordion .accordion-button:not(.collapsed) {
+  color: var(--primary-color, #1a5f2a) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #fff) !important;
+}
+
+/* Bootstrap cards used on content pages */
+.card:not(.stat-card):not(.pfl-card) {
+  border-radius: var(--pub-radius);
+}
+
+/* ── Tables ────────────────────────────────────────────────────────── */
+.rates-table,
+.rate-card .table,
+.coop-table,
+.table.table-bordered {
+  font-size: 0.92rem;
+}
+
+.rates-table thead th,
+.rate-card .table thead th,
+.coop-table thead th {
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.02em;
+  background: var(--pub-surface-soft) !important;
+  color: #33453c !important;
+  border-color: #e2ebe5 !important;
+  padding: 0.75rem 0.9rem !important;
+}
+
+.rates-table tbody td,
+.rate-card .table tbody td,
+.coop-table tbody td {
+  padding: 0.72rem 0.9rem !important;
+  vertical-align: middle;
+  border-color: #eef3f0 !important;
+}
+
+/* ── Forms ─────────────────────────────────────────────────────────── */
+.form-label {
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  color: var(--pub-text) !important;
+  margin-bottom: 0.4rem !important;
+}
+
+.form-control,
+.form-select,
+.team-filter-select,
+.contact-form-modern .form-control,
+.contact-form-modern .form-select,
+#contactModal .form-control,
+#contactModal .form-select,
+#surveyModal .form-control,
+#surveyModal .form-select,
+.modal .form-control,
+.modal .form-select {
+  border: 1.5px solid var(--pub-border) !important;
+  border-radius: var(--pub-radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-size: 0.94rem !important;
+  line-height: 1.4 !important;
+  background-color: var(--pub-surface) !important;
+  color: var(--pub-text) !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.form-control:hover,
+.form-select:hover,
+.team-filter-select:hover {
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--pub-border)) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.team-filter-select:focus,
+.modal .form-control:focus,
+.modal .form-select:focus {
+  border-color: var(--pub-border-focus) !important;
+  box-shadow: var(--pub-focus-ring) !important;
+  outline: none !important;
+}
+
+.form-control::placeholder {
+  color: #9aa8a0 !important;
+}
+
+textarea.form-control {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.input-group-text {
+  border: 1.5px solid var(--pub-border) !important;
+  border-radius: var(--pub-radius-sm) !important;
+  background: var(--pub-surface-soft) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+#publicChatPanel label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 0.3rem;
+  color: var(--pub-text);
+}
+
+#publicChatPanel input,
+#publicChatPanel textarea,
+#publicChatPanel select {
+  width: 100%;
+  border: 1.5px solid var(--pub-border);
+  border-radius: var(--pub-radius-sm);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: var(--pub-font-body);
+  background: #fff;
+}
+
+#publicChatPanel input:focus,
+#publicChatPanel textarea:focus {
+  border-color: var(--pub-border-focus);
+  box-shadow: var(--pub-focus-ring);
+  outline: none;
+}
+
+#publicChatPanel button[type="submit"],
+#publicChatPanel .btn {
+  border-radius: var(--pub-radius-sm);
+  font-weight: 600;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────── */
+.btn,
+.ct-btn-primary,
+.ct-btn-success,
+.nts-btn-primary,
+.read-more {
+  border-radius: var(--pub-radius-sm) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease !important;
+}
+
+.btn:not(.btn-sm):not(.btn-lg) {
+  padding: 0.52rem 1.05rem !important;
+}
+
+.btn .lucide-icon,
+.btn svg.lucide {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+  vertical-align: -0.15em;
+}
+
+/* ── Alerts / empty ────────────────────────────────────────────────── */
+.alert {
+  border-radius: var(--pub-radius-sm) !important;
+  border-width: 0 0 0 3px !important;
+  font-size: 0.92rem !important;
+}
+
+.empty-state,
+.nts-empty-icon {
+  color: var(--pub-muted);
+}
+
+/* ── Chrome icons (header / footer / nav) ──────────────────────────── */
+.pfl-top-bar .lucide-icon,
+.pfl-top-bar svg.lucide,
+.main-nav .lucide-icon,
+.main-nav svg.lucide,
+.mnav-main-icon,
+.footer-widget .lucide-icon,
+.footer-widget svg.lucide,
+.footer-policy-links .lucide-icon,
+.footer-policy-links svg.lucide,
+.footer-contact .lucide-icon,
+.footer-contact svg.lucide {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 1.9 !important;
+  flex-shrink: 0;
+}
+
+.section-badge .lucide-icon,
+.section-badge svg.lucide {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* ── Footer polish ─────────────────────────────────────────────────── */
+.main-footer {
+  font-size: 0.92rem;
+}
+
+.main-footer .footer-widget h4 {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.85rem !important;
+}
+
+.main-footer .footer-links a,
+.main-footer .footer-contact li,
+.main-footer .footer-policy-links a {
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.main-footer .footer-policy-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem 0.55rem;
+}
+
+.main-footer .footer-policy-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.main-footer .footer-metrics-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Mobile bottom nav + quick FAB ─────────────────────────────────── */
+.mob-bottomnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: stretch;
+  height: calc(var(--pub-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: color-mix(in srgb, var(--bg-card, #fff) 96%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb));
+  box-shadow: 0 -8px 28px rgba(15, 23, 42, 0.08);
+  z-index: 8999;
+  border-radius: 14px 14px 0 0;
+}
+
+.mob-bottomnav a.mob-bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
+  color: var(--text-muted, #6b7280);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  border-right: 1px solid var(--border-soft, #f1f4f2);
+  transition: color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.mob-bottomnav a.mob-bn-item:last-child {
+  border-right: none;
+}
+
+.mob-bottomnav a.mob-bn-item .lucide-icon,
+.mob-bottomnav a.mob-bn-item svg,
+.mob-bottomnav a.mob-bn-item i.fas,
+.mob-bottomnav a.mob-bn-item i.far {
+  width: 18px !important;
+  height: 18px !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  stroke-width: 2 !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mob-bottomnav a.mob-bn-item span {
+  font-size: 9.5px;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mob-bottomnav a.mob-bn-item.active,
+.mob-bottomnav a.mob-bn-item:hover {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, var(--bg-card, #fff));
+}
+
+.mob-bottomnav a.mob-bn-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18%;
+  right: 18%;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: var(--primary-ink, var(--primary-color, #1a5f2a));
+}
+
+body.has-bottomnav {
+  padding-bottom: calc(var(--pub-bottom-nav-h) + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.qh-launcher,
+.qh-fab,
+.public-fab-help,
+.whatsapp-float {
+  bottom: calc(var(--pub-bottom-nav-h) + 18px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.qh-fab {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16) !important;
+}
+
+.qh-fab i,
+.qh-fab .fa-bolt,
+.qh-fab .fa-times {
+  font-size: 16px !important;
+}
+
+.qh-menu {
+  border-radius: 12px !important;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb) !important;
+  padding: 6px !important;
+  gap: 4px !important;
+  min-width: 200px !important;
+}
+
+.qh-section-label {
+  font-size: 0.62rem !important;
+  padding: 2px 10px 1px !important;
+}
+
+.qh-item {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  gap: 0.5rem !important;
+  padding: 6px 9px !important;
+  border-radius: 8px !important;
+  line-height: 1.25 !important;
+}
+
+.qh-ic {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 7px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px !important;
+}
+
+.qh-ic .lucide-icon,
+.qh-ic svg,
+.qh-ic i {
+  width: 13px !important;
+  height: 13px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  stroke-width: 2 !important;
+}
+
+@media (min-width: 900px) {
+  .mob-bottomnav {
+    display: none !important;
+  }
+
+  body.has-bottomnav {
+    padding-bottom: 0 !important;
+  }
+
+  .qh-launcher,
+  .qh-fab,
+  .public-fab-help,
+  .whatsapp-float {
+    bottom: 24px !important;
+  }
+}
+
+/* ── Mobile content breathing room ─────────────────────────────────── */
+@media (max-width: 899.98px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .section-header-unified {
+    margin-bottom: 1.25rem;
+  }
+
+  .service-card,
+  .notice-card,
+  .team-card-circular,
+  .news-card {
+    margin-bottom: 0.85rem;
+  }
+}
+
+/* Prefer readable filter controls on team page */
+.team-filter-select {
+  min-height: 42px;
+  font-weight: 500;
+}
+
+/* ── Mobile compat: keep bottom nav through tablet portrait band ───── */
+@media (max-width: 899.98px) {
+  .mob-bottomnav {
+    display: flex !important;
+  }
+
+  body.has-bottomnav .main-footer {
+    padding-bottom: 0 !important;
+  }
+
+  /* Chat / FAQ panels clear bottom nav + FAB */
+  #publicChatPanel,
+  .chatbot-widget .chatbot-box {
+    bottom: calc(var(--pub-bottom-nav-h, 64px) + 72px + env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100dvh - var(--pub-bottom-nav-h, 64px) - 100px) !important;
+    z-index: 9100 !important;
+  }
+
+  .qh-item {
+    min-height: 40px;
+  }
+
+  .mob-bn-item {
+    min-height: 44px;
+  }
+}
+
+/* Footer logo stack (moved out of footer.php inline styles) */
+.footer-logo.footer-logo-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.footer-logo.footer-logo-stacked img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(280px, 100%);
+  max-height: 56px;
+  object-fit: contain;
+}
+
+.footer-logo.footer-logo-stacked .footer-sahakari-name {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.useful-links-close {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE — site-wide readable contrast (beats late UX !important)
+   ═══════════════════════════════════════════════════════════════════ */
+body.dark-mode {
+  --pub-surface: var(--bg-card, #1a2535);
+  --pub-surface-soft: var(--bg-soft, #1f2a3a);
+  --pub-border: var(--border-color, #2a3a50);
+  --pub-text: #e8eef2;
+  --pub-muted: #8a96a0;
+  --primary-on-dark: color-mix(in srgb, var(--primary-color, #1a5f2a) 42%, #ffffff);
+  --primary-ink: var(--primary-on-dark);
+  color: var(--text-primary, #e8eef2) !important;
+  background: var(--bg-page, #111825) !important;
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.mob-bn-item) {
+  color: var(--primary-on-dark, #86efac);
+}
+body.dark-mode a:not(.btn):not(.nav-link):not(.mob-bn-item):hover {
+  color: #bbf7d0;
+}
+
+/* Forms — beat white/dark-hex !important from UX polish */
+body.dark-mode .form-label,
+body.dark-mode label.form-label,
+body.dark-mode .form-check-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .form-control,
+body.dark-mode .form-select,
+body.dark-mode textarea.form-control,
+body.dark-mode input.form-control {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: var(--text-primary, #e8eef2) !important;
+  border-color: var(--border-color, #2a3a50) !important;
+}
+body.dark-mode .form-control::placeholder,
+body.dark-mode textarea::placeholder {
+  color: var(--text-muted, #8a96a0) !important;
+}
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus,
+body.dark-mode textarea.form-control:focus {
+  background: #243041 !important;
+  color: #fff !important;
+  border-color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Generic Bootstrap / content cards */
+body.dark-mode .card,
+body.dark-mode .form-card,
+body.dark-mode .notice-card,
+body.dark-mode .news-card,
+body.dark-mode .download-card,
+body.dark-mode .team-card,
+body.dark-mode .rate-card-enhanced,
+body.dark-mode .rates-box-enhanced,
+body.dark-mode .notices-box-enhanced,
+body.dark-mode .tools-category-card,
+body.dark-mode .tools-mini-link,
+body.dark-mode .loan-card,
+body.dark-mode .product-card,
+body.dark-mode .branch-card,
+body.dark-mode .faq-accordion .accordion-item {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .card-header,
+body.dark-mode .card-footer {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .card-title,
+body.dark-mode .form-card-title,
+body.dark-mode .form-section-title {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .service-card,
+body.dark-mode .service-card-modern,
+body.dark-mode .feature-box,
+body.dark-mode .quick-service-card,
+body.dark-mode .app-feature-item,
+body.dark-mode .app-feature-item:hover,
+body.dark-mode .app-feature-item.has-new-badge {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
+}
+
+body.dark-mode .services-section,
+body.dark-mode .app-features-section,
+body.dark-mode .features-section,
+body.dark-mode .why-choose-section,
+body.dark-mode .rates-notices-section,
+body.dark-mode .tools-widget-section,
+body.dark-mode .notices-section,
+body.dark-mode .section-padding {
+  background-color: var(--bg-page, #111825) !important;
+}
+
+/* Service card titles + body */
+body.dark-mode .service-title-modern,
+body.dark-mode .service-card h4,
+body.dark-mode .service-card h5,
+body.dark-mode .service-card-modern h4 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .service-description-modern,
+body.dark-mode .service-card p,
+body.dark-mode .service-card-modern p,
+body.dark-mode .feature-box p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .feature-box h5 {
+  color: #f3f6f9 !important;
+}
+
+/* Brand links / learn-more — light green on dark, not dark primary */
+body.dark-mode .service-link,
+body.dark-mode .service-link-modern,
+body.dark-mode .service-link-modern:hover,
+body.dark-mode .quick-service-card .btn-link,
+body.dark-mode .read-more,
+body.dark-mode .read-more-link,
+body.dark-mode a.service-link-modern .link-text,
+body.dark-mode .news-content .read-more,
+body.dark-mode .profile-btn:hover {
+  color: var(--primary-on-dark, var(--primary-ink, #86efac)) !important;
+}
+
+/* Service / feature icons — visible wells + bright glyph */
+body.dark-mode .service-icon,
+body.dark-mode .service-icon-modern,
+body.dark-mode .quick-service-card .service-icon,
+body.dark-mode .feature-icon {
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+body.dark-mode .service-icon i,
+body.dark-mode .service-icon-modern i,
+body.dark-mode .service-icon .lucide-icon,
+body.dark-mode .service-icon-modern .lucide-icon,
+body.dark-mode .quick-service-card .service-icon i,
+body.dark-mode .feature-icon i,
+body.dark-mode .feature-icon .lucide-icon {
+  color: var(--primary-on-dark, #86efac) !important;
+  opacity: 1 !important;
+  stroke: currentColor;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern,
+body.dark-mode .quick-service-card:hover .service-icon,
+body.dark-mode .feature-box:hover .feature-icon {
+  background: var(--primary-color) !important;
+}
+
+body.dark-mode .service-card-modern:hover .service-icon-modern i,
+body.dark-mode .quick-service-card:hover .service-icon i,
+body.dark-mode .feature-box:hover .feature-icon i {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* App features — unify cards; fix dark-label-on-dark (has-new-badge) */
+body.dark-mode .app-feature-item h5 {
+  color: #f3f6f9 !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.28) !important;
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+  box-shadow: 0 6px 18px rgba(var(--primary-rgb, 26, 95, 42), 0.35);
+}
+
+body.dark-mode .app-feature-item .feature-icon-wrap i,
+body.dark-mode .app-feature-item .feature-icon-wrap .lucide-icon {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .app-feature-item.has-new-badge {
+  background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-card, #1a2535)) !important;
+  border-color: color-mix(in srgb, var(--primary-color) 45%, transparent) !important;
+}
+
+body.dark-mode .new-badge,
+body.dark-mode .new-badge-modern {
+  color: var(--text-on-secondary, #fff) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* Section headers (beat #111827 !important) */
+body.dark-mode .section-header h2,
+body.dark-mode .section-header h3,
+body.dark-mode .section-header-unified h2,
+body.dark-mode .ip-section-intro h2,
+body.dark-mode .notices-section .section-header h2,
+body.dark-mode .notices-section .section-header h3 {
+  color: #f3f6f9 !important;
+}
+
+body.dark-mode .section-header p,
+body.dark-mode .section-header-unified p,
+body.dark-mode .ip-section-intro p,
+body.dark-mode .notices-section .section-header p {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .section-badge {
+  color: var(--primary-on-dark, #86efac) !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.22) !important;
+}
+
+body.dark-mode .notices-section .section-header,
+body.dark-mode .notices-section .section-header-unified {
+  background: transparent !important;
+}
+
+/* Rates + notices homepage strip */
+body.dark-mode .rate-card-enhanced h5,
+body.dark-mode .rates-box-enhanced h5,
+body.dark-mode .mvv-card h4,
+body.dark-mode .form-card-title,
+body.dark-mode .form-section-title,
+body.dark-mode .tools-category-card h5 {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+body.dark-mode .rate-name {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+body.dark-mode .notice-content h6,
+body.dark-mode .notice-content h6 a,
+body.dark-mode .notice-card h5,
+body.dark-mode .notice-card h5 a,
+body.dark-mode .news-content h4,
+body.dark-mode .news-content h5,
+body.dark-mode .profile-info h4,
+body.dark-mode .team-info h5,
+body.dark-mode .download-info h5 {
+  color: #f3f6f9 !important;
+}
+
+/* Tools widget */
+body.dark-mode .tools-category-card h5 {
+  color: var(--primary-on-dark, #86efac) !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.18) !important;
+}
+body.dark-mode .tools-mini-link {
+  background: var(--bg-soft, #1f2a3a) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+body.dark-mode .tools-mini-link span {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .tools-mini-link:hover span {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Tables */
+body.dark-mode .table,
+body.dark-mode .table td,
+body.dark-mode .table th,
+body.dark-mode .interest-rates-table,
+body.dark-mode .rates-table {
+  color: var(--text-secondary, #b0bcc6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+body.dark-mode .table thead th,
+body.dark-mode .interest-rates-table thead th,
+body.dark-mode .rates-table thead th {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: #f3f6f9 !important;
+}
+
+/* FAQ */
+body.dark-mode .faq-question,
+body.dark-mode .accordion-button,
+body.dark-mode .faq-accordion .accordion-button {
+  background: var(--bg-card, #1a2535) !important;
+  color: #f3f6f9 !important;
+}
+body.dark-mode .faq-accordion .accordion-button:not(.collapsed) {
+  background: color-mix(in srgb, var(--primary-color) 16%, var(--bg-card, #1a2535)) !important;
+  color: #f3f6f9 !important;
+}
+body.dark-mode .faq-answer,
+body.dark-mode .accordion-body {
+  background: var(--bg-soft, #1f2a3a) !important;
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+/* Institutional profile + career + auction leftovers */
+body.dark-mode .ip-month-grid {
+  background: var(--bg-soft, #1f2a3a) !important;
+}
+body.dark-mode .ip-month-tile,
+body.dark-mode .ip-profile-card,
+body.dark-mode .ip-filter-wrap,
+body.dark-mode .ip-featured-card {
+  background: var(--bg-card, #1a2535) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .ip-month-tile-head strong,
+body.dark-mode .ip-month-value strong,
+body.dark-mode .ip-featured-title,
+body.dark-mode .ip-stat-value {
+  color: #f3f6f9 !important;
+}
+body.dark-mode .ip-month-title,
+body.dark-mode .ip-month-tile-head span,
+body.dark-mode .ip-featured-sub {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+body.dark-mode .ip-month-value em,
+body.dark-mode .ip-mini-chip,
+body.dark-mode .ip-month-badge,
+body.dark-mode .ip-row-doc-btn {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+body.dark-mode .ip-stat-members-icon,
+body.dark-mode .ip-stat-share-icon,
+body.dark-mode .ip-stat-deposit-icon,
+body.dark-mode .ip-stat-loan-icon,
+body.dark-mode .ip-stat-assets-icon {
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.22) !important;
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+body.dark-mode .cr-job-title,
+body.dark-mode .cr-cv-card h4,
+body.dark-mode .cr-why-card h4,
+body.dark-mode .auc2-title,
+body.dark-mode .auc2-info-value,
+body.dark-mode .cp-section-sub h3,
+body.dark-mode .cp-prereg-title,
+body.dark-mode .ds-title-ok,
+body.dark-mode .ct-success-title {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+body.dark-mode .institutional-profile-bar {
+  background: var(--bg-card, #1a2535) !important;
+}
+body.dark-mode .institutional-profile-bar .profile-title,
+body.dark-mode .institutional-profile-bar .profile-title-link {
+  color: #f3f6f9 !important;
+}
+
+/* Wrong token used as text in older dark-mode rules */
+body.dark-mode .form-control,
+body.dark-mode .table,
+body.dark-mode .modal-body,
+body.dark-mode .faq-question,
+body.dark-mode .tool-widget-card {
+  /* ensure readable if an older rule set color: var(--border-color) */
+  color: var(--text-primary, #e8eef2);
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .bg-light {
+  background-color: var(--bg-card, #1a2535) !important;
+  color: var(--text-primary, #e8eef2) !important;
+}
+
+body.dark-mode .text-dark,
+body.dark-mode .text-muted {
+  color: var(--text-secondary, #b0bcc6) !important;
+}
+
+body.dark-mode .text-primary {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* ── Safe theme: light card-headers keep dark text (no white-on-white) ── */
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header),
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h1,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h2,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h3,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h4,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h5,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) h6,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) .card-title,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) .btn-link,
+.card-header:not([class*="bg-primary"]):not([class*="bg-success"]):not([class*="bg-danger"]):not([class*="bg-warning"]):not([class*="bg-info"]):not([class*="bg-dark"]):not(.bg-gradient-primary):not(.gradient-card-header) a:not(.btn):not(.badge) {
+  color: var(--text-primary, #1f2937) !important;
+}
+
+/* Soft badges: keep dark/readable text (solid brand badges set their own) */
+.badge.bg-primary-soft,
+.badge.bg-secondary-soft,
+.badge.bg-success-soft,
+.badge.bg-danger-soft,
+.badge.bg-warning-soft,
+.badge.bg-info-soft {
+  color: var(--text-primary, #1f2937) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Contrast fixes — bell dropdown / login icons / quick-help FAB
+   Topbar once forced ALL nested <a> to white → invisible panel text.
+   ════════════════════════════════════════════════════════════ */
+
+/* Bell notices panel: dark text on white */
+.pfl-top-bar .pfl-bell-drop,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item a,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-body,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-title {
+  color: var(--text-color, #1f2937) !important;
+  -webkit-text-fill-color: var(--text-color, #1f2937) !important;
+  opacity: 1 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-date {
+  color: #6b7280 !important;
+  -webkit-text-fill-color: #6b7280 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-footer a {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  font-weight: 700 !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-footer a:hover {
+  color: var(--primary-dark, #14532d) !important;
+  -webkit-text-fill-color: var(--primary-dark, #14532d) !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-new-dot {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: #e74c3c !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item-icon {
+  background: #e8f5e9 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item--new .pfl-bell-item-icon,
+.pfl-top-bar .pfl-bell-drop .pfl-bell-item--new .pfl-bell-item-icon i {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.pfl-top-bar .pfl-bell-header {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Login menu: soft icon tiles (match e-banking / app rows) */
+.pfl-login-menu .pfl-lm-member,
+.pfl-login-menu .pfl-lm-verify {
+  background: #e8f5e9 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+.pfl-login-menu .pfl-lm-member i,
+.pfl-login-menu .pfl-lm-verify i,
+.pfl-login-menu .pfl-lm-member svg,
+.pfl-login-menu .pfl-lm-verify svg,
+.pfl-login-menu .pfl-lm-member .lucide-icon,
+.pfl-login-menu .pfl-lm-verify .lucide-icon {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
+/* Quick-help FAB: white glyph on brand green */
+.qh-fab,
+.qh-fab i,
+.qh-fab svg,
+.qh-fab .lucide-icon,
+.qh-fab .fa-bolt,
+.qh-fab .fa-times,
+.qh-fab .fa-comments {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+.qh-fab {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   English header density — longer EN labels collide with
+   absolute SINCE badge + wide banner logo. NP stays unchanged.
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 992px) {
+  html[lang="en"] .pfl-brand-area {
+    max-width: min(420px, 38vw) !important;
+    padding-right: 14px !important;
+    gap: 8px !important;
+  }
+
+  html[lang="en"] .pfl-brand-logo {
+    max-height: 50px !important;
+    max-width: min(320px, 100%) !important;
+  }
+
+  /* Keep SINCE inside brand flow — stop half-badge overlapping Home */
+  html[lang="en"] .pfl-brand-content.has-logo {
+    padding-right: 0 !important;
+    gap: 8px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 42px !important;
+    height: 42px !important;
+    margin-left: 2px !important;
+    flex-shrink: 0 !important;
+    z-index: 2 !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-text {
+    font-size: 6px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-year {
+    font-size: 11px !important;
+  }
+
+  html[lang="en"] .pfl-nav-area {
+    padding-left: 8px !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li {
+    margin: 0 !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a {
+    font-size: 12px !important;
+    padding: 6px 7px !important;
+    gap: 3px !important;
+    min-height: 34px !important;
+    letter-spacing: 0 !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon.lucide-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a svg.mnav-main-icon {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  /* Top utility bar: slightly tighter EN labels */
+  html[lang="en"] .pfl-top-bar .pfl-quick-links > li > a {
+    font-size: 11.5px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* Mid desktop EN — hide nav icons, tighten further */
+@media (min-width: 992px) and (max-width: 1280px) {
+  html[lang="en"] .pfl-brand-area {
+    max-width: min(360px, 34vw) !important;
+  }
+
+  html[lang="en"] .pfl-brand-logo {
+    max-height: 46px !important;
+    max-width: min(280px, 100%) !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .mnav-main-icon,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a svg.mnav-main-icon {
+    display: none !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a {
+    font-size: 11.5px !important;
+    padding: 6px 6px !important;
+  }
+
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .fa-chevron-down,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a [data-lucide="chevron-down"] {
+    margin-left: 1px !important;
+  }
+}
+
+/* Narrow desktop EN — if still cramped, tuck SINCE (NP unchanged) */
+@media (min-width: 992px) and (max-width: 1100px) {
+  html[lang="en"] .pfl-since-badge {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  html[lang="en"] .pfl-since-badge .since-year {
+    font-size: 10px !important;
+  }
+}
+
+/* Contact left panel: brand green + white text (never white-on-white) */
+.contact-info-box {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-dark, #14532d)) !important;
+  border: none !important;
+  border-radius: var(--pub-radius, 12px) !important;
+  box-shadow: var(--pub-shadow, 0 4px 18px rgba(15, 31, 23, 0.06)) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.contact-info-box h4,
+.contact-info-box > p,
+.contact-info-box .contact-details,
+.contact-info-box .contact-details h6,
+.contact-info-box .contact-details p,
+.contact-info-box .contact-details p a,
+.contact-info-box .contact-social h6,
+.contact-info-box .contact-social a,
+.contact-info-box .ct-link-dark,
+.contact-info-box .contact-icon,
+.contact-info-box .contact-icon i {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  opacity: 1 !important;
+}
+.contact-info-box > p,
+.contact-info-box .contact-details h6 {
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+}
+.contact-info-box .contact-icon {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.contact-info-box .contact-icon i {
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+}
+.contact-info-box .contact-details p a:hover,
+.contact-info-box .ct-link-dark:hover {
+  color: #fef3c7 !important;
+  -webkit-text-fill-color: #fef3c7 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Application tracker — compact hero + forced white text
+   (ui-ux-enhancements sets all h1–h6 to dark #0f1a15)
+   ════════════════════════════════════════════════════════════ */
+.tracker-hero-section {
+  padding: 1.25rem 0 1rem !important;
+  background: linear-gradient(135deg, var(--primary-dark, #14532d) 0%, var(--primary-color, #1a5f2a) 55%, var(--primary-light, #2d6b3a) 100%) !important;
+  color: #fff !important;
+  overflow: hidden;
+}
+.tracker-hero-section .tracker-hero-title,
+.tracker-hero-section h1.tracker-hero-title,
+.tracker-hero-section .tracker-hero-icon-ring,
+.tracker-hero-section .tracker-hero-icon-ring i,
+.tracker-hero-section .tracker-breadcrumb .breadcrumb-item,
+.tracker-hero-section .tracker-breadcrumb .breadcrumb-item a,
+.tracker-hero-section .tracker-breadcrumb .breadcrumb-item.active,
+.tracker-hero-section .tracker-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.tracker-hero-section .tracker-hero-title {
+  font-size: clamp(1.2rem, 2.4vw, 1.55rem) !important;
+  font-weight: 800 !important;
+  margin: 0 0 0.3rem !important;
+  line-height: 1.25 !important;
+}
+.tracker-hero-section .tracker-hero-sub,
+.tracker-hero-section p.tracker-hero-sub {
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  font-size: 0.9rem !important;
+  margin: 0 auto 0.45rem !important;
+  max-width: 34rem;
+  line-height: 1.4 !important;
+}
+.tracker-hero-icon-wrap {
+  margin: 0 auto 0.45rem !important;
+  width: 42px !important;
+  height: 42px !important;
+}
+.tracker-hero-icon-ring {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 1.05rem !important;
+  box-shadow: none !important;
+  border-width: 1.5px !important;
+}
+.tracker-hero-ping {
+  display: none !important;
+}
+.tracker-breadcrumb {
+  background: rgba(255, 255, 255, 0.12) !important;
+  padding: 0.2rem 0.7rem !important;
+  margin: 0 !important;
+  font-size: 0.78rem !important;
+}
+.tracker-main-section {
+  padding-top: 1rem !important;
+  padding-bottom: 1.5rem !important;
+}
+.tracker-types-strip {
+  margin-bottom: 0.85rem !important;
+}
+.tracker-types-label {
+  margin-bottom: 0.5rem !important;
+  font-size: 0.75rem !important;
+}
+.tracker-search-header {
+  padding: 0.85rem 1.1rem !important;
+  gap: 0.75rem !important;
+  color: #fff !important;
+}
+.tracker-search-header .tracker-search-title,
+.tracker-search-header h5,
+.tracker-search-header .tracker-search-sub,
+.tracker-search-header p,
+.tracker-search-header i,
+.tracker-search-header-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.tracker-search-header .tracker-search-sub,
+.tracker-search-header p.tracker-search-sub {
+  color: rgba(255, 255, 255, 0.88) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.88) !important;
+  font-size: 0.8rem !important;
+  margin-top: 0.15rem !important;
+}
+.tracker-search-header-icon {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 1.05rem !important;
+  border-radius: 10px !important;
+}
+.tracker-search-card .card-body {
+  padding: 1rem 1.15rem !important;
+}
+.tracker-search-card .form-control-lg,
+.tracker-search-card .form-select-lg {
+  font-size: 0.95rem !important;
+  padding: 0.55rem 0.8rem !important;
+  min-height: 42px !important;
+}
+.tracker-hint {
+  font-size: 0.75rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Icon / text contrast pass (about, stats, service centers,
+   survey modal, brand icon wells). Lucide replaces <i> with
+   <svg>; rules that only target `i` leave dark 1rem smudges.
+   ════════════════════════════════════════════════════════════ */
+
+/* Brand-green icon wells → white, readable glyphs */
+.vision-icon-v2,
+.value-icon,
+.center-icon,
+.history-icon-float,
+.counter-icon,
+.team-placeholder-circular {
+  color: #fff !important;
+}
+.vision-icon-v2 i,
+.vision-icon-v2 svg,
+.vision-icon-v2 .lucide-icon,
+.value-icon i,
+.value-icon svg,
+.value-icon .lucide-icon,
+.center-icon i,
+.center-icon svg,
+.center-icon .lucide-icon,
+.history-icon-float i,
+.history-icon-float svg,
+.history-icon-float .lucide-icon,
+.counter-icon i,
+.counter-icon svg,
+.counter-icon .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
+/*
+ * Service icons: app-public uses a pale well + primary glyph, but an older
+ * polish pass forced white glyphs → faint/invisible until hover (green well).
+ * Keep solid brand well + white icon in default AND hover.
+ */
+.service-icon,
+.service-icon-modern,
+.service-icon-lg,
+.quick-service-card .service-icon,
+.feature-icon {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px rgba(26, 95, 42, 0.22) !important;
+}
+.service-icon i,
+.service-icon svg,
+.service-icon .lucide-icon,
+.service-icon-modern i,
+.service-icon-modern svg,
+.service-icon-modern .lucide-icon,
+.service-icon-lg i,
+.service-icon-lg svg,
+.service-icon-lg .lucide-icon,
+.quick-service-card .service-icon i,
+.quick-service-card .service-icon svg,
+.quick-service-card .service-icon .lucide-icon,
+.feature-icon i,
+.feature-icon svg,
+.feature-icon .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+.service-card:hover .service-icon,
+.service-card-modern:hover .service-icon-modern,
+.service-detail-card:hover .service-icon-lg,
+.quick-service-card:hover .service-icon,
+.feature-box:hover .feature-icon {
+  background: linear-gradient(135deg, var(--primary-dark, #145021), var(--primary-color, #1a5f2a)) !important;
+  color: #fff !important;
+}
+.service-card:hover .service-icon i,
+.service-card:hover .service-icon svg,
+.service-card:hover .service-icon .lucide-icon,
+.service-card-modern:hover .service-icon-modern i,
+.service-card-modern:hover .service-icon-modern svg,
+.service-card-modern:hover .service-icon-modern .lucide-icon,
+.service-detail-card:hover .service-icon-lg i,
+.service-detail-card:hover .service-icon-lg svg,
+.quick-service-card:hover .service-icon i,
+.quick-service-card:hover .service-icon svg,
+.feature-box:hover .feature-icon i,
+.feature-box:hover .feature-icon svg,
+.feature-box:hover .feature-icon .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+}
+
+/* Override global 1rem lucide size inside large brand tiles */
+.vision-icon-v2 .lucide-icon,
+.vision-icon-v2 svg.lucide {
+  width: 2rem !important;
+  height: 2rem !important;
+  min-width: 2rem !important;
+  min-height: 2rem !important;
+  stroke-width: 2 !important;
+}
+.value-icon .lucide-icon,
+.value-icon svg.lucide,
+.center-icon .lucide-icon,
+.center-icon svg.lucide {
+  width: 1.65rem !important;
+  height: 1.65rem !important;
+  min-width: 1.65rem !important;
+  min-height: 1.65rem !important;
+  stroke-width: 2 !important;
+}
+.section-badge .lucide-icon,
+.section-badge svg.lucide {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+/* About / home stats strip — labels were muted grey on green */
+.stats-section,
+.stats-section .stat-box,
+.stats-section .stat-number,
+.stats-section .stat-label,
+.stats-section .stat-icon,
+.counter-section,
+.counter-section .counter-box,
+.counter-section .counter-number,
+.counter-section .counter-label {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.stats-section .stat-label,
+.counter-section .counter-label {
+  color: rgba(255, 255, 255, 0.95) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+.stats-section .stat-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff !important;
+}
+.stats-section .stat-icon i,
+.stats-section .stat-icon svg,
+.stats-section .stat-icon .lucide-icon {
+  color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+  min-width: 1.45rem !important;
+  min-height: 1.45rem !important;
+  font-size: 1.25rem !important;
+  opacity: 1 !important;
+}
+
+/* Service center cards — body text was #9ca3af on white */
+.service-center-card .center-info li {
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
+}
+.service-center-card .center-info li i,
+.service-center-card .center-info li svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+}
+
+/* Survey / brand modal headers — h5 global dark beat inline white */
+#surveyModal .modal-header,
+#surveyModal .modal-header .modal-title,
+#surveyModal .modal-header .modal-title i,
+#surveyModal .modal-header h5,
+.modal-header.bg-primary,
+.modal-header.bg-primary .modal-title,
+.modal-header.bg-primary h5,
+.modal-header.bg-primary i,
+.ct-modal-head,
+.ct-modal-head h5,
+.ct-modal-head .modal-title,
+.ct-modal-head i {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+#surveyModal .modal-header .modal-title i,
+#surveyModal .modal-header .modal-title svg {
+  color: #fff !important;
+  stroke: #fff !important;
+  opacity: 1 !important;
+}
+
+/* Consistent radio pills in survey member toggle */
+#surveyModal .js-svy-coop.form-check-input {
+  width: 1.1em !important;
+  height: 1.1em !important;
+  margin-top: 0.15em !important;
+  border-radius: 50% !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 2px solid var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  vertical-align: middle;
+}
+#surveyModal .js-svy-coop.form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  background-image: none !important;
+  box-shadow: inset 0 0 0 3px #fff !important;
+}
+
+/* Login menu verify tile — ensure glyph always paints */
+.pfl-login-menu .pfl-lm-verify i.fas,
+.pfl-login-menu .pfl-lm-verify .fa-shield-halved {
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 1.05rem !important;
+  opacity: 1 !important;
+}
+
+/* Home tools mini-links — Lucide <svg> must match FA icon-well styling */
+.tools-mini-link > svg.lucide {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 0.7rem !important;
+  box-sizing: border-box !important;
+  border-radius: 14px !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.10) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  fill: none !important;
+  flex: 0 0 auto !important;
+  opacity: 1 !important;
+}
+.tools-mini-link:hover > svg.lucide {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  stroke: #fff !important;
+}
+.tools-mini-link .tools-mini-more {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   Safe Lucide follow-up — rates / forms / contact / tracker / appt
+   (CSS that only targeted `i` left blank or tiny after SVG replace)
+   ════════════════════════════════════════════════════════════ */
+
+/* Rates header chip on green */
+.rates-header h3,
+.rates-box-enhanced .rates-header h3 {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.rates-header h3 i,
+.rates-header h3 svg,
+.rates-header h3 .lucide-icon,
+.rates-box-enhanced .rates-header h3 i,
+.rates-box-enhanced .rates-header h3 svg,
+.rates-box-enhanced .rates-header h3 .lucide-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  box-sizing: border-box !important;
+  padding: 0.35rem !important;
+}
+
+/* Form header icon wells (online-account, appointment, kyc, etc.) */
+.form-header .form-icon,
+.form-success-icon {
+  color: #fff !important;
+}
+.form-header .form-icon i,
+.form-header .form-icon svg,
+.form-header .form-icon .lucide-icon,
+.form-success-icon i,
+.form-success-icon svg,
+.form-success-icon .lucide-icon,
+.grievance-form-box .form-header .form-icon i,
+.grievance-form-box .form-header .form-icon svg,
+.appointment-form-box .form-header .form-icon i,
+.appointment-form-box .form-header .form-icon svg,
+.account-form-box .form-header .form-icon i,
+.account-form-box .form-header .form-icon svg,
+.digital-form-card .form-header .form-icon i,
+.digital-form-card .form-header .form-icon svg,
+.kyc-form-box .form-header .form-icon i,
+.kyc-form-box .form-header .form-icon svg,
+.loan-form-box .form-header .form-icon i,
+.loan-form-box .form-header .form-icon svg,
+.claim-form-card .form-header .form-icon i,
+.claim-form-card .form-header .form-icon svg,
+.vendor-form-card .form-header .form-icon i,
+.vendor-form-card .form-header .form-icon svg,
+.contact-form-box .form-header .form-icon i,
+.contact-form-box .form-header .form-icon svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 2.1rem !important;
+  height: 2.1rem !important;
+  min-width: 2.1rem !important;
+  min-height: 2.1rem !important;
+  font-size: 2.1rem !important;
+}
+
+/* Contact green panel icons — Lucide-safe */
+.contact-info-box .contact-icon svg,
+.contact-info-box .contact-icon .lucide-icon {
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+  stroke: #fde68a !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 1.35rem !important;
+  height: 1.35rem !important;
+}
+
+/* Tracker hero icon ring — Lucide-safe */
+.tracker-hero-section .tracker-hero-icon-ring svg,
+.tracker-hero-section .tracker-hero-icon-ring .lucide-icon {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+}
+
+/* Appointment form green header — Lucide-safe */
+.card.appt-form-card > .card-header.appt-form-card-head,
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.appt-form-card-head i,
+.card.appt-form-card > .card-header.appt-form-card-head svg,
+.card.appt-form-card > .card-header.appt-form-card-head .lucide-icon,
+.card.appt-form-card > .card-header.bg-primary,
+.card.appt-form-card > .card-header.bg-primary h5,
+.card.appt-form-card > .card-header.bg-primary i,
+.card.appt-form-card > .card-header.bg-primary svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.card.appt-form-card > .card-header.appt-form-card-head svg,
+.card.appt-form-card > .card-header.bg-primary svg {
+  stroke: #fff !important;
+  fill: none !important;
+}
+
+/* Widget / feature icon wells — white glyphs on brand-green circles */
+.widget-icon,
+.feature-icon-wrap {
+  color: #fff !important;
+}
+.widget-icon i,
+.widget-icon svg,
+.widget-icon .lucide-icon,
+.feature-icon-wrap i,
+.feature-icon-wrap svg,
+.feature-icon-wrap .lucide-icon,
+.app-feature-item .feature-icon-wrap i,
+.app-feature-item .feature-icon-wrap svg,
+.app-feature-item .feature-icon-wrap .fas,
+.app-feature-item .feature-icon-wrap .far,
+.app-feature-item .feature-icon-wrap .fa {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  font-size: 1.35rem !important;
+  line-height: 1 !important;
+}
+.feature-icon-wrap svg.lucide,
+.feature-icon-wrap .lucide-icon {
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+  min-width: 1.4rem !important;
+  min-height: 1.4rem !important;
+  stroke-width: 2.2 !important;
+}
+.tools-category-card h5 i,
+.tools-category-card h5 svg,
+.tools-category-card h5 .lucide-icon {
+  color: inherit;
+}
+
+/* Restore FA font after premium Inter !important (prevents tofu/X boxes) */
+.fas,.fa-solid,.far,.fa-regular,.fab,.fa-brands,.fa,i.fas,i.far,i.fab,i.fa{
+  font-family:"Font Awesome 6 Free" !important;
+  font-style:normal !important;
+  font-variant:normal !important;
+  text-rendering:auto !important;
+}
+.fas,.fa-solid,i.fas{font-weight:900 !important;}
+.far,.fa-regular,i.far{font-weight:400 !important;}
+.fab,.fa-brands,i.fab{font-family:"Font Awesome 6 Brands" !important;font-weight:400 !important;}
+
+/* ════════════════════════════════════════════════════════════
+   Service center cards — team-card-circular style (safe polish)
+   ════════════════════════════════════════════════════════════ */
+.service-center-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  height: 100% !important;
+  padding: 1.5rem 1.15rem 1.25rem !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  background: #fff !important;
+  text-align: center !important;
+  overflow: visible !important;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease !important;
+}
+.service-center-card:hover {
+  transform: translateY(-8px) !important;
+  box-shadow: 0 15px 40px rgba(26, 95, 42, 0.18) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
+}
+.service-center-card.main-branch {
+  border: 2px solid var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 8px 30px rgba(26, 95, 42, 0.15) !important;
+  background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%) !important;
+}
+.service-center-card .branch-badge {
+  display: none !important; /* replaced by .center-role-badge */
+}
+
+/* Green ring icon — mirrors .team-photo-circular */
+.service-center-card .center-icon-ring {
+  width: 88px !important;
+  height: 88px !important;
+  margin: 0 auto 0.9rem !important;
+  padding: 4px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
+  box-shadow: 0 8px 22px rgba(26, 95, 42, 0.22) !important;
+  transition: transform 0.35s ease, box-shadow 0.35s ease !important;
+}
+.service-center-card:hover .center-icon-ring {
+  transform: scale(1.05) !important;
+  box-shadow: 0 12px 30px rgba(26, 95, 42, 0.32) !important;
+}
+.service-center-card .center-icon {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  border: 3px solid #fff !important;
+  background: linear-gradient(145deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.service-center-card .center-icon i,
+.service-center-card .center-icon svg {
+  font-size: 1.45rem !important;
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.service-center-card .center-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  flex: 1 !important;
+}
+.service-center-card h4 {
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  margin: 0 0 0.2rem !important;
+  line-height: 1.4 !important;
+  color: var(--text-color, #1f2937) !important;
+  -webkit-text-fill-color: var(--text-color, #1f2937) !important;
+}
+.service-center-card .center-name-sub {
+  margin: 0 0 0.45rem !important;
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+  color: var(--text-light, #6b7280) !important;
+  -webkit-text-fill-color: var(--text-light, #6b7280) !important;
+}
+
+/* Pill badge — mirrors .team-position-badge */
+.service-center-card .center-role-badge {
+  display: inline-block !important;
+  margin: 0.2rem 0 0.75rem !important;
+  padding: 6px 16px !important;
+  border-radius: 20px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  background: linear-gradient(135deg, rgba(26, 95, 42, 0.1), rgba(26, 95, 42, 0.18)) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+}
+.service-center-card.main-branch .center-role-badge {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.service-center-card .center-info {
+  width: 100% !important;
+  margin: 0 0 0.85rem !important;
+  padding: 0 !important;
+  list-style: none !important;
+  text-align: left !important;
+}
+.service-center-card .center-info li {
+  padding: 0.4rem 0 !important;
+  font-size: 0.84rem !important;
+  line-height: 1.4 !important;
+  color: #374151 !important;
+  -webkit-text-fill-color: #374151 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}
+.service-center-card .center-info li:last-child {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+}
+.service-center-card .center-info li i,
+.service-center-card .center-info li svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
+  width: 0.95rem !important;
+  min-width: 0.95rem !important;
+  margin-top: 0.15rem !important;
+  margin-right: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Circular actions — mirrors .team-contact-circular */
+.service-center-card .center-contact {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-top: auto !important;
+  padding-top: 0.85rem !important;
+  width: 100% !important;
+  border-top: 1px solid #f0f0f0 !important;
+}
+.service-center-card .center-contact a,
+.service-center-card .center-contact .center-contact-disabled {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, rgba(26, 95, 42, 0.1), rgba(26, 95, 42, 0.18)) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease !important;
+}
+.service-center-card .center-contact a:hover {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 5px 15px rgba(26, 95, 42, 0.3) !important;
+}
+.service-center-card .center-contact a i,
+.service-center-card .center-contact a svg,
+.service-center-card .center-contact .center-contact-disabled i {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+.service-center-card .center-contact .center-contact-disabled {
+  opacity: 0.4 !important;
+  cursor: default !important;
+  pointer-events: none !important;
+}
+
+@media (max-width: 575px) {
+  .service-center-card .center-icon-ring {
+    width: 76px !important;
+    height: 76px !important;
+  }
+  .service-center-card h4 {
+    font-size: 0.98rem !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Nav dropdown / submenu — slightly tighter item height (desktop)
+   Keep mobile touch targets unchanged.
+   ════════════════════════════════════════════════════════════ */
+@media (min-width: 992px) {
+  .nav-menu .dropdown,
+  .nav-menu .sub-menu,
+  body.header-v2 .pfl-nav-area .nav-menu .dropdown,
+  body.header-v2 #mainNavV2 .nav-menu .dropdown,
+  body.header-v2 #mainNavV2 .nav-menu .dropdown > li.has-sub > .sub-menu {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .nav-menu .dropdown li a,
+  .nav-menu .sub-menu li a,
+  body.header-v2 .pfl-nav-area .nav-menu .dropdown li a,
+  body.header-v2 #mainNavV2 .nav-menu .dropdown li a,
+  body.header-v2 #mainNavV2 .nav-menu .dropdown > li.has-sub > .sub-menu > li > a {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+    min-height: 32px !important;
+    line-height: 1.3 !important;
+    gap: 7px !important;
+  }
+
+  body.header-v2 .pfl-nav-area .nav-menu .dropdown li a:hover,
+  body.header-v2 #mainNavV2 .nav-menu .dropdown li a:hover,
+  .nav-menu .dropdown > li.has-sub > .sub-menu > li > a:hover {
+    padding-left: 18px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   About — history text + Why Choose icons (readable contrast)
+   ════════════════════════════════════════════════════════════ */
+.history-content-v2 .history-text,
+.history-content-v2 .history-text.coop-prose,
+.history-content-v2 .history-text p,
+.history-content-v2 .history-text.coop-prose p {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  opacity: 1 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.85 !important;
+  font-weight: 450 !important;
+}
+.history-content-v2 h2 {
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+/* History card badge / empty-state icons stay crisp */
+.history-badge,
+.history-badge i,
+.history-badge svg,
+.history-badge .lucide-icon,
+.history-content-v2 .section-tag i,
+.history-content-v2 .section-tag svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  opacity: 1 !important;
+}
+.history-empty-photo-icon,
+.history-empty-photo .fas,
+.history-empty-photo i {
+  color: rgba(255, 255, 255, 0.92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  opacity: 1 !important;
+}
+.history-empty-photo-note {
+  color: rgba(255, 255, 255, 0.88) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.88) !important;
+  opacity: 1 !important;
+}
+
+/* Why Choose Us — body copy a bit darker; icons already solid green above */
+.feature-box p {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  opacity: 1 !important;
+}
+.feature-box h5 {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+.feature-icon {
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 16px !important;
+}
+.feature-icon i,
+.feature-icon svg,
+.feature-icon .lucide-icon {
+  font-size: 1.45rem !important;
+  width: 1.45rem !important;
+  height: 1.45rem !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE POLISH — floating action buttons + footer spacing
+   Loaded last for public shell. Wrapped in mobile breakpoints,
+   so desktop layout stays exactly as-is.
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 575.98px) {
+  /* Quick-help "bolt" FAB — smaller round on phones */
+  .qh-fab {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  .qh-fab i,
+  .qh-fab .fa-bolt,
+  .qh-fab .fa-times {
+    font-size: 15px !important;
+  }
+
+  /* Accessibility toggle (JS-injected) — match FAB scale */
+  #scrollAccessibilityPanel .sa-toggle-btn,
+  .sa-toggle-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 1rem !important;
+  }
+
+  /* WhatsApp float — keep in line with the smaller FABs */
+  .whatsapp-float {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  .whatsapp-float i,
+  .whatsapp-float svg {
+    font-size: 24px !important;
+  }
+}
+
+/* Footer: remove the oversized empty gap under the content on mobile.
+   The footer's own bottom padding already clears the fixed bottom nav,
+   so the extra body padding-bottom is what created the big blank strip. */
+@media (max-width: 899.98px) {
+  body.has-bottomnav {
+    padding-bottom: 0 !important;
+  }
+  body.has-bottomnav .main-footer,
+  body.has-bottomnav footer.main-footer,
+  body.has-bottomnav .site-footer,
+  body.has-bottomnav .footer {
+    margin-bottom: 0 !important;
+    padding-bottom: calc(var(--mobile-bottom-nav-h, 64px) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .main-footer .footer-bottom {
+    padding-bottom: 8px !important;
+  }
+  .main-footer .footer-bottom .container {
+    padding-bottom: 6px !important;
+  }
+}
+/* ===== END public-shell-polish.css ===== */
+
+/* ===== BEGIN minimal-pages-patch.css ===== */
+/**
+ * Minimal panel patch — attend.php, tracker-id-card.php (additive only).
+ * Fixes ui-ux-enhancements dark headings on green QR card headers.
+ */
+
+body:has(.card > .card-top) {
+  font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+}
+
+.card-top,
+.card-top h1,
+.card-top h2,
+.card-top .meta,
+.card-top .prog-icon,
+.card-top .prog-icon i {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+.card:has(.card-top) .card-body .btn,
+.card:has(.card-top) button[type="submit"] {
+  min-height: 44px;
+}
+
+.card:has(.card-top) input.form-control,
+.card:has(.card-top) select.form-select {
+  min-height: 44px;
+  font-size: 16px;
+}
+/* ===== END minimal-pages-patch.css ===== */
+
+/* ===== BEGIN ui-readability-safe-patch.css ===== */
+/**
+ * UI Readability Safe Patch v7 — additive only, loads LAST on all panels.
+ * Live-safe: no legacy file deletion; overrides tiny mobile text + touch targets.
+ * v3: dark-mode gradient sections + expanded brand-fill hero text.
+ * v4: supplemental gradients, card-header dark-mode fix, labels, skip-link, attend QR.
+ * v5: dark-mode check/radio, HRM shell nav, copy buttons, form unify.
+ * v6: Quick Help + AI chat widget layout/icon fixes.
+ * v7: WCAG touch targets (44px), focus rings on icon controls, modal focus outline.
+ */
+
+:root {
+  --font-primary: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --coop-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
+}
+
+body,
+.mem-wrapper,
+.admin-shell,
+.main-content,
+.auth-portal-page {
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+html[lang="ne"] body,
+html[lang="ne"] .mem-wrapper,
+html[lang="ne"] .main-content {
+  line-height: 1.65;
+}
+
+h1, h2, h3, h4, h5, h6,
+.card-title,
+.mem-card-title,
+.section-title {
+  font-family: var(--font-heading);
+  line-height: 1.3;
+}
+
+/* Keyboard focus — visible ring (does not remove existing hover styles) */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 55%, #fff) !important;
+  outline-offset: 2px;
+  box-shadow: var(--coop-focus-ring);
+}
+
+/* ── Brand-fill / gradient sections — light text (beats ui-ux-enhancements dark h1–h6) ── */
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success
+) {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  p, span, li, label, small, div,
+  .hero-title-modern, .hero-subtitle-modern,
+  .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
+  .tracker-hero-title, .tracker-hero-sub,
+  .tracker-search-title, .tracker-search-sub,
+  .auc2-h, .auc2-sub, .page-title-modern
+) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+:is(
+  .page-banner,
+  .page-banner-modern,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .auc2-hero-txt,
+  .cta-section,
+  .cta-block,
+  .form-header,
+  .gradient-card-header
+) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+:is(
+  .page-banner,
+  .page-banner-modern
+) .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Subtitles on brand panels — slightly softer white */
+.hero-subtitle-modern,
+.tracker-hero-sub,
+.tracker-search-sub,
+.cr-hero-text p,
+.cp-hero-text p,
+.auc2-sub,
+.page-banner p,
+.cta-content p {
+  color: rgba(255, 255, 255, 0.9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* ── Dark mode — beat public-shell-polish global h1–h6 / p / link overrides ── */
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success,
+  .sp-selday-hero,
+  .scan-hero
+) {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .inner-banner,
+  .page-header-banner,
+  .hero-slider,
+  .hero-slide-modern,
+  .slider-content,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .slider-section,
+  .hero-section,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .page-hero,
+  .auc2-hero-section,
+  .auc2-hero,
+  .auc2-hero-txt,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .cta-section,
+  .cta-block,
+  .cta-area,
+  .call-to-action,
+  .mobile-app-section,
+  .app-download-section,
+  .form-header,
+  .home-ip-preview-head,
+  .card-header.appt-form-card-head,
+  .card > .card-header.bg-primary,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .modal-header.bg-primary,
+  .stat-card.bg-primary,
+  .stat-card.bg-success,
+  .sp-selday-hero,
+  .scan-hero
+) :is(
+  h1, h2, h3, h4, h5, h6,
+  p, span, li, label, small, div, i, svg,
+  .hero-title-modern, .hero-subtitle-modern,
+  .breadcrumb-item, .breadcrumb-item a, .breadcrumb-item.active,
+  .tracker-hero-title, .tracker-hero-sub,
+  .tracker-search-title, .tracker-search-sub,
+  .auc2-h, .auc2-sub, .auc2-title, .auc2-info-value,
+  .page-title-modern, .lucide-icon
+) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .hero-content-modern,
+  .hero-text-wrapper,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .auc2-hero-txt,
+  .cta-section,
+  .cta-block,
+  .form-header,
+  .gradient-card-header,
+  .mobile-app-section
+) a:not(.btn):not(.hero-btn-modern):not(.btn-coop):not(.badge) {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .tracker-hero-section
+) .breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Keep brand gradient backgrounds visible in dark mode (not flattened to page bg) */
+body.dark-mode :is(
+  .page-banner,
+  .page-banner-modern,
+  .tracker-hero-section,
+  .tracker-search-header,
+  .cr-hero,
+  .cp-hero,
+  .auc2-hero-section,
+  .rates-header,
+  .rates-header-modern,
+  .rates-box-enhanced .rates-header,
+  .form-header,
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card > .card-header.bg-primary
+) {
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+}
+
+/* Hero slider keeps photo overlay — only fix text, not bg image */
+body.dark-mode .hero-slide-modern .slider-bg,
+body.dark-mode .hero-bg-modern {
+  background-color: transparent !important;
+}
+
+/* v4 — supplemental gradient sections (cp cards, modals, admin headers) */
+:is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header,
+  .card-top
+) {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+:is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header,
+  .card-top
+) :is(h1, h2, h3, h4, h5, h6, p, span, small, i, svg, .lucide-icon) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode :is(
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ir-head-primary,
+  .ct-modal-head,
+  .card-header.svc-form-header-grad,
+  .card-header.sl-form-header
+) {
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Beat public-shell body.dark-mode .card-header flattening gradient headers */
+body.dark-mode :is(
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card-header.bg-primary:not(.bg-light):not(.bg-white),
+  .card-header.appt-form-card-head,
+  .ir-head-primary,
+  .svc-form-header-grad,
+  .sl-form-header,
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ct-modal-head,
+  .form-header
+) {
+  background-color: transparent !important;
+  background-image: linear-gradient(
+    135deg,
+    var(--primary-dark, #14532d) 0%,
+    var(--primary-color, #1a5f2a) 55%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode :is(
+  .gradient-card-header,
+  .card-header.bg-gradient-primary,
+  .card-header.bg-primary:not(.bg-light):not(.bg-white),
+  .card-header.appt-form-card-head,
+  .ir-head-primary,
+  .svc-form-header-grad,
+  .sl-form-header,
+  .cp-card-head,
+  .cr-sidebar-header,
+  .ct-modal-head,
+  .form-header
+) :is(h1, h2, h3, h4, h5, h6, p, span, small, a:not(.btn), i, svg) {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* Dark mode — form labels readable (patch v2 set light-mode color only) */
+body.dark-mode .form-label,
+body.dark-mode label.form-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+
+/* Partner facilities intro title on dark page bg */
+body.dark-mode .pf-hero-title {
+  color: var(--primary-on-dark, #86efac) !important;
+}
+
+/* Skip link — visible above fixed header when focused */
+.skip-link {
+  z-index: 1000001;
+}
+.skip-link:focus {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000001;
+}
+
+/* ── Mobile: consistent rem base (app-core has 14px then 16px conflict) ── */
+@media (max-width: 991px) {
+  html {
+    font-size: 16px;
+  }
+
+  /* Public header — EN/slogan was ~11px */
+  .pfl-brand-name-en,
+  .pfl-brand-slogan {
+    font-size: 0.72rem !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Top utility — compact width OK, touch height 44px */
+  .pfl-top-right > li > a,
+  .pfl-bell-btn,
+  .pfl-dark-wrap > a,
+  .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-height: 44px !important;
+    font-size: 12px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap a {
+    min-width: 36px !important;
+    width: auto !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  /* Admin forms — touch-friendly controls */
+  .admin-shell .form-control,
+  .admin-shell .form-select,
+  .admin-shell textarea.form-control,
+  .admin-shell .btn:not(.btn-sm):not(.btn-xs) {
+    min-height: 44px;
+  }
+
+  .admin-shell .btn-sm {
+    min-height: 40px;
+  }
+}
+
+/* Admin / public bottom nav labels */
+.mob-bottomnav a.mob-bn-item {
+  font-size: 11px;
+  padding: 8px 4px;
+}
+.mob-bottomnav a.mob-bn-item span {
+  font-size: 10.5px;
+  line-height: 1.2;
+}
+
+/* Member portal chrome */
+.mem-lang-code {
+  font-size: 12px !important;
+}
+.bell-dd-time {
+  font-size: 0.72rem !important;
+}
+.bell-dd-msg {
+  font-size: 0.78rem !important;
+}
+.bell-dd-title {
+  font-size: 0.86rem !important;
+}
+
+/* Footer / PWA install chip */
+.pub-footer-pwa span,
+.mem-footer-pwa span {
+  font-size: 11px !important;
+}
+
+/* Helper / muted text floor */
+.form-text,
+.help-block,
+small.text-muted,
+.text-muted.small,
+.form-label small {
+  font-size: max(0.8125rem, 12px);
+}
+
+.form-label,
+label.form-label {
+  font-weight: 600;
+  color: var(--text-primary, #1a2e1f);
+}
+
+/* Tables — readable cell text on mobile */
+@media (max-width: 767px) {
+  .table td,
+  .table th,
+  .admin-table-card .table td,
+  .admin-table-card .table th {
+    font-size: 0.875rem;
+    vertical-align: middle;
+  }
+}
+
+/* Auth cards — placeholder readability */
+.auth-card input::placeholder,
+.auth-card textarea::placeholder {
+  opacity: 0.72;
+}
+
+/* Links — clearer default underline on hover/focus */
+.main-content a:not(.btn):not(.nav-link):not(.dropdown-item):hover,
+.mem-container a:not(.btn):not(.mem-nav-link):hover {
+  text-decoration-thickness: 1px;
+}
+
+/* ── v5: Dark mode — checkbox / radio / switch readable ── */
+body.dark-mode .form-check-input {
+  background-color: var(--bg-soft, #1f2a3a);
+  border-color: var(--border-color, #2a3a50);
+}
+body.dark-mode .form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a);
+  border-color: var(--primary-color, #1a5f2a);
+}
+body.dark-mode .form-check-input:focus {
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+body.dark-mode .form-check-label,
+body.dark-mode .form-check-inline .form-check-label {
+  color: var(--text-primary, #e8eef2) !important;
+}
+body.dark-mode .form-switch .form-check-input {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+/* Auth password-reset channel radios */
+body.dark-mode .channel-opt label {
+  color: var(--text-primary, #e8eef2);
+  border-color: var(--border-color, #2a3a50);
+  background: var(--bg-soft, #1f2a3a);
+}
+body.dark-mode .channel-opt input:checked + label {
+  border-color: var(--primary-on-dark, #86efac);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #1f2a3a);
+  color: var(--text-primary, #e8eef2);
+}
+
+/* HRM legacy partial shell — fonts + bottom nav touch targets */
+.hp-search input {
+  font-family: var(--font-primary) !important;
+}
+.admin-bottom-nav .admin-nav-item {
+  font-size: max(0.75rem, 12px) !important;
+  min-height: 44px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Tracking ID copy buttons — readable + tappable */
+button[onclick*="copyTrk"],
+.btn[onclick*="copyTrk"],
+.mem-topbar-btn[onclick*="copyTrk"] {
+  font-size: max(12px, 0.75rem) !important;
+  min-height: 40px;
+  min-width: 40px;
+}
+
+/* Public / member / admin forms — unified control sizing on mobile */
+@media (max-width: 991px) {
+  .main-content .form-control,
+  .main-content .form-select,
+  .mem-container .form-control,
+  .mem-container .form-select,
+  .auth-portal-page .form-control,
+  .auth-portal-page .form-select {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .main-content .form-check-input,
+  .mem-container .form-check-input,
+  .auth-portal-page .form-check-input {
+    width: 1.15em;
+    height: 1.15em;
+    margin-top: 0.15em;
+  }
+}
+
+/* Respect reduced-motion (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── v6: Quick Help + chat widgets — icon visibility & layout ── */
+
+/* Uniform menu rows — ONLY when launcher is open (never force always-visible) */
+.qh-menu {
+  display: none !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 3px !important;
+}
+
+.qh-launcher.open .qh-menu {
+  display: flex !important;
+}
+
+.qh-item,
+button.qh-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 7px 10px !important;
+  gap: 0.55rem !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  line-height: 1.25 !important;
+}
+
+.qh-item > span:last-child,
+.qh-item > span:not(.qh-ic) {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Icon wells — white glyphs on colored backgrounds (Lucide + FA) */
+.qh-ic {
+  flex: 0 0 26px !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.qh-ic i,
+.qh-ic .lucide-icon,
+.qh-ic svg,
+.qh-ic svg.lucide {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
+  width: 13px !important;
+  height: 13px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  flex-shrink: 0 !important;
+  opacity: 1 !important;
+}
+
+.qh-item:hover .qh-ic i,
+.qh-item:hover .qh-ic svg,
+.qh-item:hover .qh-ic .lucide-icon {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.qh-section-label {
+  padding: 4px 10px 2px !important;
+  margin: 0 !important;
+}
+
+.qh-divider {
+  margin: 4px 8px !important;
+}
+
+/* AI chat — give messages more room; compact ready-question chips */
+#aiChatPanel {
+  display: none;
+  flex-direction: column !important;
+  max-height: min(680px, calc(100dvh - 96px)) !important;
+}
+
+#aiChatPanel.open {
+  display: flex !important;
+}
+
+#aiChatPanel .acp-messages {
+  flex: 1 1 auto !important;
+  min-height: min(280px, 42vh) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+}
+
+#aiChatPanel .acp-foot {
+  flex: 0 0 auto !important;
+  max-height: 38% !important;
+  overflow: hidden !important;
+  padding: 8px 10px 0 !important;
+}
+
+#aiChatPanel .acp-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  max-height: 72px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0 0 6px !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+#aiChatPanel .acp-chip {
+  flex: 0 1 auto !important;
+  min-height: 32px !important;
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  line-height: 1.25 !important;
+}
+
+#aiChatPanel .acp-escalate {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  padding: 0 0 8px !important;
+}
+
+#aiChatPanel .acp-escalate button {
+  flex: 1 1 calc(50% - 6px) !important;
+  min-height: 36px !important;
+  padding: 7px 8px !important;
+  font-size: 11px !important;
+  gap: 5px !important;
+}
+
+#aiChatPanel .acp-escalate button i {
+  color: var(--primary-color, #1a5f2a) !important;
+  font-size: 12px !important;
+  opacity: 1 !important;
+}
+
+#aiChatPanel .acp-form {
+  flex-shrink: 0 !important;
+  padding: 10px 12px !important;
+}
+
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]) {
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+#aiChatPanel .acp-form input[type="text"]:not([name="website"]):focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, transparent) !important;
+}
+
+/* Support center modal — single border, taller message area */
+#publicChatPanel {
+  display: none;
+  flex-direction: column !important;
+  max-height: min(560px, calc(100dvh - 100px)) !important;
+}
+
+#publicChatPanel.open {
+  display: flex !important;
+}
+
+#publicChatPanel .pcp-h .lucide-icon,
+#publicChatPanel .pcp-h svg.lucide,
+#publicChatPanel .pcp-h > i {
+  color: #fff !important;
+  stroke: #fff !important;
+  width: 18px !important;
+  height: 18px !important;
+  flex-shrink: 0 !important;
+}
+
+#publicChatPanel .pcp-body {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 14px 14px 16px !important;
+  overflow-y: auto !important;
+  max-height: none !important;
+}
+
+#publicChatPanel .pcp-body label {
+  margin-bottom: 0.35rem !important;
+}
+
+#publicChatPanel .pcp-body input,
+#publicChatPanel .pcp-body textarea {
+  width: 100% !important;
+  border: 1px solid #d7e0db !important;
+  border-radius: 10px !important;
+  padding: 0.55rem 0.75rem !important;
+  margin-bottom: 0.75rem !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: #fff !important;
+}
+
+#publicChatPanel .pcp-body input:focus,
+#publicChatPanel .pcp-body textarea:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color, #1a5f2a) 20%, transparent) !important;
+}
+
+#publicChatPanel .pcp-body textarea {
+  min-height: 112px !important;
+  resize: vertical !important;
+  margin-bottom: 0.85rem !important;
+}
+
+#publicChatPanel .pcp-body button[type="submit"] {
+  margin-top: 0.25rem !important;
+  min-height: 44px !important;
+}
+
+@media (max-width: 576px) {
+  #aiChatPanel .acp-messages {
+    min-height: min(220px, 36vh) !important;
+  }
+
+  #aiChatPanel .acp-foot {
+    max-height: 34% !important;
+  }
+
+  #aiChatPanel .acp-chips {
+    max-height: 64px !important;
+  }
+}
+
+/* ── v7: Enterprise a11y — 44px touch targets + focus visibility ── */
+
+.qh-fab,
+.qh-item,
+button.qh-item {
+  min-height: 44px !important;
+}
+
+#aiChatPanel .acp-chip {
+  min-height: 44px !important;
+  padding: 8px 12px !important;
+}
+
+#aiChatPanel .acp-escalate button {
+  min-height: 44px !important;
+}
+
+/* Top utility: 44px touch targets on mobile/tablet only — desktop stays compact */
+@media (max-width: 991.98px) {
+  .pfl-top-right a,
+  .pfl-top-right button {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+#publicChatPanel .pcp-x,
+#aiChatPanel .acp-x,
+.qh-fab {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+
+#publicChatPanel :focus-visible,
+#aiChatPanel :focus-visible,
+#searchModal :focus-visible,
+#noticePopup :focus-visible,
+.qh-launcher :focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── v8: Team org chart — photo row on chart (board / committee) ── */
+
+.team-org-chart-wrap {
+  margin-top: 0.5rem;
+}
+
+.team-org-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.team-org-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-org-connector {
+  width: 2px;
+  height: 22px;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #c5d4c8);
+  margin: 4px auto 6px;
+  border-radius: 2px;
+}
+
+.team-org-row-inner {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.25rem;
+  width: fit-content;
+  max-width: min(1100px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+.team-org-cell {
+  flex: 0 1 280px;
+  width: 280px;
+  max-width: 280px;
+  min-width: 0;
+}
+
+/* Each row shrink-wraps to its cards, then centers as a group under the connector */
+.team-org-row-1 .team-org-row-inner,
+.team-org-row-2 .team-org-row-inner,
+.team-org-row-3 .team-org-row-inner,
+.team-org-row-4 .team-org-row-inner,
+.team-org-row-5 .team-org-row-inner {
+  justify-content: center;
+}
+
+/* ── v9: Uniform team photo stat cards (team / org-chart / committees) ── */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-uniform-photo: 140px;
+  --team-uniform-pad-y: 26px;
+  --team-uniform-pad-x: 18px;
+}
+
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0;
+}
+
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin-bottom: 16px !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular,
+.team-org-chart .team-card-circular,
+.committees-section .team-card-circular {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+}
+
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+}
+
+/* Hover zoom off — keeps all photos visually uniform */
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+.team-section .team-info-circular h5,
+.team-section .team-info-circular h6,
+.team-org-chart .team-info-circular h5,
+.team-org-chart .team-info-circular h6,
+.committees-section .team-info-circular h5,
+.committees-section .team-info-circular h6 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  margin-bottom: 5px !important;
+}
+
+.team-section .team-position-badge,
+.team-section .team-position-badge.small,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge,
+.committees-section .team-position-badge.small {
+  font-size: 0.78rem !important;
+  padding: 6px 14px !important;
+}
+
+.team-section .team-placeholder-circular i,
+.team-org-chart .team-placeholder-circular i,
+.committees-section .team-placeholder-circular i,
+.team-section .team-placeholder-circular .lucide-icon,
+.team-org-chart .team-placeholder-circular .lucide-icon {
+  font-size: 42px !important;
+  width: 42px !important;
+  height: 42px !important;
+}
+
+@media (max-width: 991px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 128px;
+  }
+
+  .team-org-cell {
+    flex: 0 1 250px;
+    width: 250px;
+    max-width: 250px;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-uniform-photo: 108px;
+    --team-uniform-pad-y: 20px;
+    --team-uniform-pad-x: 14px;
+  }
+
+  .team-org-row-inner {
+    width: 100%;
+    max-width: 100%;
+    gap: 0.85rem;
+    padding: 0 0.35rem;
+  }
+
+  .team-org-cell {
+    flex: 0 1 calc(50% - 0.5rem);
+    width: auto;
+    max-width: none;
+  }
+}
+
+/* ── v10: Uniform team card height (org-chart + grid rows) ───────── */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-card-min-h: 336px;
+  --team-badge-min-h: 2.75em;
+  --team-name-min-h: 2.9em;
+  --team-contact-min-h: 52px;
+}
+
+.team-org-cell {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.team-org-cell > .team-card-circular {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: var(--team-card-min-h) !important;
+}
+
+.team-section .row > [class*="col-"],
+.committees-section .row > [class*="col-"] {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.team-section .row > [class*="col-"] > .team-card-circular,
+.committees-section .row > [class*="col-"] > .team-card-circular {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: var(--team-card-min-h) !important;
+}
+
+.team-section .team-info-circular,
+.team-org-chart .team-info-circular,
+.committees-section .team-info-circular {
+  flex: 1 1 auto !important;
+  justify-content: flex-start !important;
+  align-self: stretch !important;
+  width: 100% !important;
+}
+
+.team-section .team-info-circular h5,
+.team-org-chart .team-info-circular h5,
+.committees-section .team-info-circular h5 {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 2 !important;
+  overflow: hidden !important;
+  min-height: var(--team-name-min-h) !important;
+  width: 100% !important;
+}
+
+.team-section .team-info-circular .team-name-en,
+.team-org-chart .team-info-circular .team-name-en,
+.committees-section .team-info-circular .team-name-en {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 1 !important;
+  overflow: hidden !important;
+  min-height: 1.35em !important;
+  width: 100% !important;
+  margin-bottom: 6px !important;
+}
+
+.team-section .team-position-badge,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  min-height: var(--team-badge-min-h) !important;
+  max-width: 100% !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+
+.team-section .team-contact-circular,
+.team-org-chart .team-contact-circular,
+.committees-section .team-contact-circular {
+  margin-top: auto !important;
+  min-height: var(--team-contact-min-h) !important;
+  width: 100% !important;
+  flex-shrink: 0 !important;
+}
+
+/* Reserve footer space when phone/email icons are absent */
+.team-section .team-info-circular:not(:has(.team-contact-circular))::after,
+.team-org-chart .team-info-circular:not(:has(.team-contact-circular))::after,
+.committees-section .team-info-circular:not(:has(.team-contact-circular))::after {
+  content: '';
+  display: block;
+  margin-top: auto;
+  min-height: var(--team-contact-min-h);
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Featured card: same footprint as others (border only difference) */
+.team-org-chart .team-card-circular.featured,
+.team-section .team-card-circular.featured,
+.committees-section .team-card-circular.featured {
+  min-height: var(--team-card-min-h) !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+}
+
+@media (max-width: 991px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-min-h: 300px;
+    --team-badge-min-h: 2.65em;
+  }
+}
+
+@media (max-width: 575px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-min-h: 288px;
+    --team-name-min-h: 2.75em;
+    --team-badge-min-h: 2.55em;
+  }
+}
+
+.admin-shell .tm-chart-pre {
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #fff);
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+}
+
+.admin-shell .tm-chart-hint {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #f8faf9);
+}
+
+/* ── Mobile home: kill giant green hero disc + center profile + lang/logo ── */
+@media (max-width: 767.98px) {
+  .hero-slider .carousel-indicators button,
+  .hero-slider .hero-indicator-btn,
+  .carousel-indicators [data-bs-target] {
+    min-width: 8px !important;
+    min-height: 8px !important;
+    width: 8px !important;
+    height: 8px !important;
+    max-width: 18px !important;
+    max-height: 10px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .hero-slider .hero-indicator-btn.active,
+  .hero-slider .carousel-indicators button.active {
+    width: 18px !important;
+    max-width: 18px !important;
+    height: 8px !important;
+    border-radius: 999px !important;
+    background: #fff !important;
+    border-color: #fff !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-control-prev,
+  .hero-slider .carousel-control-next {
+    display: none !important;
+  }
+
+  .institutional-profile-bar {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .institutional-profile-bar .profile-title-link,
+  .institutional-profile-bar .profile-title {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+  }
+
+  .institutional-profile-bar .report-quick-links,
+  .institutional-profile-bar .profile-reports {
+    justify-content: center !important;
+    width: 100%;
+  }
+
+  .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-width: 34px !important;
+    min-height: 26px !important;
+    width: auto !important;
+    height: 26px !important;
+    padding: 0 0.5rem !important;
+    color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap a.active,
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link.active {
+    background: #fff !important;
+    color: #14532d !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot) {
+    color: inherit !important;
+    opacity: 1 !important;
+    display: inline !important;
+  }
+
+  .pfl-brand-content.has-logo .pfl-brand-logo,
+  .pfl-brand-logo {
+    max-height: 46px !important;
+    height: 44px !important;
+    max-width: min(78vw, 280px) !important;
+    object-fit: contain !important;
+  }
+
+  #scrollAccessibilityPanel.sa-panel {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Position the launcher shell only — FAB is inside it */
+  .qh-launcher {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  /* Keep report chips as readable pills (not icon-only circles) */
+  .institutional-profile-bar .report-quick-link {
+    border-radius: 999px !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 36px !important;
+    padding: 0.4rem 0.7rem !important;
+  }
+
+  .institutional-profile-bar .report-quick-link > span {
+    display: inline !important;
+    font-size: 0.72rem !important;
+  }
+}
+/* ===== END ui-readability-safe-patch.css ===== */
+
+/* ===== BEGIN final-ui-polish.css ===== */
+/**
+ * Final UI Polish — additive only, loads ABSOLUTE LAST (public + admin).
+ * Cross-cutting rhythm: spacing, cards, tables, forms, nav, dark mode.
+ * Does not modify legacy app-public.css / app-admin.css.
+ */
+
+:root {
+  --final-radius: 12px;
+  --final-radius-lg: 16px;
+  --final-border: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e2e8e4);
+  --final-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
+  --final-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.1);
+  --final-muted: #5b6b62;
+}
+
+/* ── Shared typography & focus ───────────────────────────────────── */
+
+::selection {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, transparent);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* ── PUBLIC: section rhythm & headers ──────────────────────────── */
+
+.section-padding {
+  padding-top: clamp(2.25rem, 4.5vw, 3.75rem) !important;
+  padding-bottom: clamp(2.25rem, 4.5vw, 3.75rem) !important;
+}
+
+.section-header-unified {
+  margin-bottom: clamp(1.25rem, 3vw, 1.85rem) !important;
+}
+
+.section-header-unified h2,
+.section-header h2 {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 0.45rem !important;
+}
+
+.section-header-unified p,
+.section-header p {
+  color: var(--final-muted) !important;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55 !important;
+}
+
+.section-divider {
+  width: 56px !important;
+  height: 3px !important;
+  margin: 0.65rem auto 0.85rem !important;
+  border-radius: 999px !important;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary-color, #1a5f2a),
+    transparent
+  ) !important;
+}
+
+.breadcrumb {
+  font-size: 0.875rem !important;
+  margin-bottom: 0 !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  opacity: 0.55;
+}
+
+/* ── PUBLIC: cards & content blocks ────────────────────────────── */
+
+.news-card,
+.notice-card,
+.team-card-circular,
+.service-card,
+.stat-box,
+.contact-card,
+.download-card {
+  border-radius: var(--final-radius-lg) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  transition: box-shadow 0.2s ease, transform 0.2s ease !important;
+}
+
+.news-card:hover,
+.notice-card:hover,
+.service-card:hover {
+  box-shadow: var(--final-shadow-hover) !important;
+}
+
+.read-more,
+.nts-read-more {
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+.pagination .page-link {
+  border-radius: 8px !important;
+  margin: 0 2px;
+  border-color: var(--final-border) !important;
+}
+
+.pagination .page-item.active .page-link {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.empty-state {
+  padding: 2.5rem 1rem !important;
+  color: var(--final-muted) !important;
+}
+
+/* ── PUBLIC: forms & buttons ─────────────────────────────────────── */
+
+.form-control,
+.form-select,
+textarea.form-control {
+  border-radius: 10px !important;
+  border-color: #d7e0db !important;
+  min-height: 44px;
+}
+
+textarea.form-control {
+  min-height: 120px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, transparent) !important;
+}
+
+.btn,
+.btn-primary,
+.btn-outline-primary,
+.nts-btn-primary {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+}
+
+/* ── PUBLIC: compact top utility bar (desktop) ─────────────────── */
+/* Slightly tighter than 13px — readable but less heavy. */
+
+@media (min-width: 992px) {
+  .pfl-top-bar .container {
+    min-height: 36px !important;
+    align-items: center !important;
+  }
+
+  .pfl-quick-links > li > a {
+    padding: 5px 11px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+  }
+
+  .pfl-quick-links > li > a .lucide-icon,
+  .pfl-quick-links > li > a svg.lucide,
+  .pfl-quick-links > li > a i {
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 13px !important;
+  }
+
+  /* दर्खास्त "नयाँ" badge — top bar मात्र सानो */
+  .pfl-top-bar .nav-new-badge,
+  .pfl-top-bar .nav-new-badge--top {
+    font-size: 9px !important;
+    line-height: 1 !important;
+    padding: 1px 4px !important;
+    margin-left: 4px !important;
+    border-radius: 3px !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .pfl-top-right {
+    gap: 1px !important;
+    padding-left: 6px !important;
+  }
+
+  .pfl-top-right > li > a,
+  .pfl-top-right .pfl-bell-btn,
+  .pfl-top-right .pfl-dark-wrap > a {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 3px 7px !important;
+    border-radius: 5px !important;
+    font-size: 11.5px !important;
+  }
+
+  .pfl-top-right .pfl-login-toggle {
+    min-height: 28px !important;
+    min-width: 0 !important;
+    padding: 3px 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+    gap: 5px !important;
+  }
+
+  .pfl-top-right .pfl-login-caret {
+    font-size: 9px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap {
+    gap: 3px !important;
+    padding-left: 8px !important;
+    margin-left: 2px !important;
+    border-left-color: rgba(255, 255, 255, 0.22) !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 2px 6px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+    border-radius: 5px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-dot {
+    width: 7px !important;
+    height: 7px !important;
+    border-width: 1.3px !important;
+  }
+
+  .pfl-top-right .pfl-lang-wrap .pfl-lang-divider {
+    font-size: 10px !important;
+    opacity: 0.55;
+  }
+
+  .pfl-top-right .pfl-bell-btn {
+    padding: 3px 7px !important;
+  }
+
+  .pfl-top-right .pfl-bell-badge {
+    font-size: 9px !important;
+    padding: 0 4px !important;
+    line-height: 1.3 !important;
+    top: 0 !important;
+    right: 0 !important;
+  }
+}
+
+/* ── PUBLIC: org chart final centering ─────────────────────────── */
+
+.team-org-chart-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.team-org-chart {
+  width: 100%;
+  max-width: 1100px;
+}
+
+.team-org-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-org-connector {
+  flex-shrink: 0;
+}
+
+/* ── PUBLIC: footer & mobile chrome ────────────────────────────── */
+
+.main-footer {
+  border-top: 1px solid var(--final-border) !important;
+}
+
+.main-footer .footer-widget h4 {
+  font-weight: 700 !important;
+  margin-bottom: 0.85rem !important;
+}
+
+.mob-bottomnav {
+  border-top: 1px solid var(--final-border) !important;
+  box-shadow: 0 -6px 24px rgba(15, 31, 23, 0.08) !important;
+  backdrop-filter: blur(10px);
+}
+
+.mob-bottomnav a.active,
+.mob-bottomnav a[aria-current="page"] {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ── ADMIN: shell, alerts, tables ──────────────────────────────── */
+
+body[class*="admin-page-"] .main-content {
+  background: linear-gradient(180deg, #f8fbf9 0%, #f4f7f5 120px, #f4f7f5 100%) !important;
+}
+
+body[class*="admin-page-"] .alert {
+  border: none !important;
+  border-radius: var(--final-radius) !important;
+  box-shadow: 0 2px 10px rgba(15, 31, 23, 0.06) !important;
+  font-size: 0.9rem !important;
+}
+
+body[class*="admin-page-"] .main-content .table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  border-radius: var(--final-radius) !important;
+  overflow: hidden;
+}
+
+body[class*="admin-page-"] .main-content .table thead th {
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  color: #3d4f44 !important;
+  background: #f0f6f2 !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #dde5e0) !important;
+  padding: 0.7rem 0.75rem !important;
+  white-space: nowrap;
+}
+
+body[class*="admin-page-"] .main-content .table tbody td {
+  padding: 0.65rem 0.75rem !important;
+  vertical-align: middle !important;
+  border-color: #ecf1ed !important;
+}
+
+body[class*="admin-page-"] .main-content .table tbody tr:hover {
+  background: #f8fcfa !important;
+}
+
+body[class*="admin-page-"] .main-content .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+}
+
+body[class*="admin-page-"] .badge {
+  font-weight: 600 !important;
+  border-radius: 6px !important;
+  padding: 0.35em 0.62em !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs {
+  border-bottom: 2px solid #e5ebe7 !important;
+  gap: 0.25rem;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link {
+  font-weight: 600 !important;
+  color: #5b6b62 !important;
+  border-radius: 10px 10px 0 0 !important;
+  padding: 0.55rem 1rem !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link.active {
+  color: var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  border-color: #e5ebe7 #e5ebe7 #fff !important;
+}
+
+body[class*="admin-page-"] .modal-content {
+  border: none !important;
+  border-radius: var(--final-radius-lg) !important;
+  box-shadow: 0 24px 64px rgba(15, 31, 23, 0.18) !important;
+}
+
+body[class*="admin-page-"] .modal-header {
+  border-bottom: 1px solid #ecf1ed !important;
+  padding: 1rem 1.15rem !important;
+}
+
+body[class*="admin-page-"] .modal-footer {
+  border-top: 1px solid #ecf1ed !important;
+  padding: 0.85rem 1.15rem !important;
+  background: #fafcfb !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_info,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_length label,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter label {
+  font-size: 0.85rem !important;
+  color: var(--final-muted) !important;
+}
+
+body[class*="admin-page-"] .admin-bottom-nav,
+body[class*="admin-page-"] .bottom-nav-admin {
+  border-top: 1px solid var(--final-border) !important;
+  box-shadow: 0 -6px 24px rgba(15, 31, 23, 0.08) !important;
+}
+
+/* ── ADMIN AUTH (login) ────────────────────────────────────────── */
+
+body.admin-auth-page .auth-portal-card,
+body.admin-auth-page .login-card,
+body.admin-auth-page .card {
+  border-radius: var(--final-radius-lg) !important;
+  box-shadow: 0 16px 48px rgba(15, 31, 23, 0.12) !important;
+  border: 1px solid var(--final-border) !important;
+}
+
+body.admin-auth-page .auth-portal-page {
+  background: linear-gradient(160deg, #f0f7f2 0%, #e8f2eb 45%, #f5f8f6 100%) !important;
+}
+
+/* ── DARK MODE (gentle, additive) ──────────────────────────────── */
+
+body.dark-mode .news-card,
+body.dark-mode .notice-card,
+body.dark-mode .team-card-circular,
+body.dark-mode .service-card {
+  background: #1a2420 !important;
+  border-color: #2d3d35 !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25) !important;
+}
+
+body.dark-mode .section-header-unified p,
+body.dark-mode .empty-state {
+  color: #a8b5ad !important;
+}
+
+body.dark-mode[class*="admin-page-"] .main-content {
+  background: linear-gradient(180deg, #141a17 0%, #121816 120px, #121816 100%) !important;
+}
+
+body.dark-mode[class*="admin-page-"] .main-content .table thead th {
+  background: #1e2823 !important;
+  color: #c5d4c8 !important;
+  border-bottom-color: #2d3d35 !important;
+}
+
+body.dark-mode[class*="admin-page-"] .main-content .table tbody td {
+  border-color: #2a3530 !important;
+}
+
+body.dark-mode[class*="admin-page-"] .main-content .table tbody tr:hover {
+  background: #1e2823 !important;
+}
+
+@media (max-width: 575px) {
+  body[class*="admin-page-"] .main-content .table thead th {
+    font-size: 0.72rem !important;
+  }
+
+  .section-header-unified h2 {
+    font-size: clamp(1.2rem, 5vw, 1.5rem) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-card,
+  .notice-card,
+  .service-card,
+  body[class*="admin-page-"] .main-content .card:not(.stat-card) {
+    transition: none !important;
+  }
+}
+
+/* ── MEMBER PORTAL ─────────────────────────────────────────────── */
+
+body.mem-wrapper .mem-card,
+body.mem-wrapper .mp-card {
+  border-radius: var(--final-radius-lg) !important;
+  border-color: var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  transition: box-shadow 0.2s ease !important;
+}
+
+body.mem-wrapper .mem-card:hover,
+body.mem-wrapper .mp-card:hover {
+  box-shadow: var(--final-shadow-hover) !important;
+}
+
+body.mem-wrapper .mem-card-header {
+  background: linear-gradient(180deg, #fafcfb 0%, #fff 100%) !important;
+}
+
+body.mem-wrapper .mp-page-head .mem-page-title {
+  letter-spacing: -0.02em !important;
+}
+
+body.mem-wrapper .mem-container .btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 78%, #0e9b53)
+  ) !important;
+  border: none !important;
+  box-shadow: 0 3px 12px rgba(var(--primary-rgb, 26, 95, 42), 0.22);
+}
+
+body.mem-wrapper .mem-container .table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+/* ── AUTH + VERIFY PORTALS ─────────────────────────────────────── */
+
+body.auth-portal-page .auth-card,
+body.verify-auth-page .vp-main-card,
+body.verify-auth-page .vp-result-card,
+body.verify-auth-page .vp-rate-card,
+body.verify-auth-page .vp-programs-card {
+  border-radius: var(--final-radius-lg) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+}
+
+body.auth-portal-page .card-title {
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+body.verify-auth-page .vp-site-name {
+  letter-spacing: -0.015em !important;
+}
+
+body.verify-auth-page .vp-input {
+  border-radius: 10px !important;
+  min-height: 46px;
+  font-size: max(16px, 0.95rem) !important;
+}
+
+body.verify-auth-page .vp-alert-error {
+  border-left: 3px solid #dc2626 !important;
+  border-radius: var(--final-radius) !important;
+}
+
+/* ── MINIMAL PANEL (attend, tracker-id-card) ───────────────────── */
+
+body:has(.card > .card-top) .card {
+  border-radius: var(--final-radius-lg) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  overflow: hidden;
+}
+
+body:has(.card > .card-top) .card-top {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 72%, #0e9b53)
+  ) !important;
+}
+
+/* ── PUBLIC footer trust strip (subtle) ──────────────────────────── */
+
+.site-footer,
+.footer-main {
+  border-top: 1px solid var(--final-border) !important;
+}
+
+.site-footer a:hover,
+.footer-main a:hover {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ── NOTICE POPUP — photo-only lightbox polish ─────────────────── */
+
+.notice-popup-enhanced .popup-overlay {
+  background: rgba(8, 18, 12, 0.72) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+.notice-popup-enhanced .popup-dialog.popup-v3.popup-dialog--photo-only {
+  max-width: min(700px, 94vw) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 28px 72px rgba(15, 31, 23, 0.32) !important;
+  background: #fff !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-top-accent {
+  display: none !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-actions-top {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  z-index: 12 !important;
+  justify-content: flex-end !important;
+  pointer-events: none;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-close-btn {
+  pointer-events: auto;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #334155 !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.16) !important;
+  font-size: 17px !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-close-btn:hover {
+  background: #fff !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  transform: rotate(90deg) scale(1.04) !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-carousel {
+  min-height: 0 !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-photo-only-wrap {
+  padding: 0 !important;
+  min-height: 0 !important;
+  background: #fff !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-photo-only-img,
+.notice-popup-enhanced .popup-dialog--photo-only .popup-photo-only-wrap img {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  max-height: min(82vh, 760px) !important;
+  height: auto !important;
+  border-radius: 14px !important;
+  object-fit: contain !important;
+  box-shadow: none !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-nav {
+  padding: 10px 14px 12px !important;
+  background: linear-gradient(180deg, #fff 0%, #f8fbf9 100%) !important;
+  border-top: 1px solid #ecf1ed !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-progress {
+  height: 3px !important;
+  background: #ecf1ed !important;
+}
+
+.notice-popup-enhanced .popup-dialog--photo-only .popup-progress-bar {
+  background: var(--primary-color, #1a5f2a) !important;
+}
+
+@media (max-width: 575px) {
+  .notice-popup-enhanced {
+    padding: 12px !important;
+  }
+
+  .notice-popup-enhanced .popup-dialog.popup-v3.popup-dialog--photo-only {
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+  }
+
+  .notice-popup-enhanced .popup-dialog--photo-only .popup-actions-top {
+    top: 8px !important;
+    right: 8px !important;
+  }
+
+  .notice-popup-enhanced .popup-dialog--photo-only .popup-photo-only-img,
+  .notice-popup-enhanced .popup-dialog--photo-only .popup-photo-only-wrap img {
+    max-height: 78vh !important;
+    border-radius: 12px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-popup-enhanced .popup-dialog--photo-only .popup-close-btn:hover {
+    transform: none !important;
+  }
+}
+
+/* ── PUBLIC: CTA band — KYC button readable on white ───────────── */
+
+.cta-section .cta-content .btn-light {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  font-weight: 700 !important;
+}
+
+.cta-section .cta-content .btn-light .lucide-icon,
+.cta-section .cta-content .btn-light i,
+.cta-section .cta-content .btn-light svg {
+  color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  background: transparent !important;
+  border: 0 !important;
+  stroke: currentColor;
+}
+
+.cta-section .cta-content .btn-light:hover {
+  background: #f0fdf4 !important;
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+.cta-section .cta-content .btn-light:hover .lucide-icon,
+.cta-section .cta-content .btn-light:hover i,
+.cta-section .cta-content .btn-light:hover svg {
+  color: var(--primary-dark, #145021) !important;
+  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+}
+
+.cta-section .cta-content .btn-outline-light {
+  border-width: 2px !important;
+  font-weight: 600 !important;
+}
+
+/* ── PUBLIC: Quick-help FAB icon contrast ──────────────────────── */
+
+.qh-fab,
+.qh-fab i,
+.qh-fab .fas,
+.qh-fab .fa-bolt,
+.qh-fab .fa-times {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.qh-fab {
+  background: var(--primary-color, #1a5f2a) !important;
+  border: 2px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 8px 22px rgba(15, 31, 23, 0.22) !important;
+}
+
+.qh-fab i {
+  font-size: 18px !important;
+  font-weight: 900 !important;
+}
+
+/* ── Admin: search filtered count — thin border, clearer (same size) ─ */
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:empty,
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:empty {
+  display: none !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .search-count:not(:empty),
+body[class*="admin-page-"] .main-content .tm-search-wrap .search-count:not(:empty) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.15rem 0.55rem !important;
+  border: 1px solid #c9d5ce !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  color: #1f2d26 !important;
+  -webkit-text-fill-color: #1f2d26 !important;
+  font-weight: 700 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap;
+}
+
+/* ── Institutional profile — homepage snapshot + charts page ───── */
+
+.ip-home-snapshot {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--final-border);
+  background: linear-gradient(180deg, #fafcfb 0%, #fff 100%);
+  box-shadow: var(--final-shadow);
+}
+
+.ip-home-snapshot-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  font-weight: 700;
+  color: var(--primary-color, #1a5f2a);
+  font-size: 0.92rem;
+}
+
+.ip-home-snapshot-head small {
+  font-weight: 600;
+  color: var(--final-muted);
+  font-size: 0.78rem;
+}
+
+.ip-home-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.ip-home-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--final-border);
+  background: #fff;
+  text-decoration: none !important;
+  transition: box-shadow 0.15s ease, transform 0.12s ease, border-color 0.12s ease;
+}
+
+.ip-home-stat:hover {
+  box-shadow: var(--final-shadow-hover);
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #e5e7eb);
+  transform: translateY(-1px);
+}
+
+.ip-home-stat strong {
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  font-weight: 800;
+  color: var(--primary-color, #1a5f2a);
+  line-height: 1.2;
+}
+
+.ip-home-stat span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--final-muted);
+}
+
+.ip-home-snapshot-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary-color, #1a5f2a);
+  text-decoration: none !important;
+}
+
+.ip-home-snapshot-link:hover {
+  text-decoration: underline !important;
+}
+
+@media (max-width: 767px) {
+  .ip-home-snapshot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 379px) {
+  .ip-home-stat strong {
+    font-size: 0.88rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE DEEP PASS (safe, additive, last-loaded)
+   iOS zoom, table scroll, touch targets, safe-area, sticky bars
+   ═══════════════════════════════════════════════════════════════ */
+
+/* P0: iOS input zoom — reassert 16px after shell polish 0.94rem */
+@media (max-width: 991.98px) {
+  .form-control,
+  .form-select,
+  textarea.form-control,
+  .afb-input,
+  .afb-select,
+  .team-filter-select,
+  .field-coop,
+  .mem-container .form-control,
+  .mem-container .form-select,
+  .mem-container textarea,
+  .auth-portal-page .form-control,
+  .auth-portal-page .form-select,
+  .auth-card input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]),
+  .auth-card select,
+  .auth-card textarea,
+  .vp-input,
+  .vp-select,
+  .admin-search-wrap .form-control,
+  .admin-search-wrap input[type="search"],
+  .admin-search-wrap input[type="text"] {
+    font-size: 16px !important;
+  }
+}
+
+/* P0: wide tables must scroll horizontally on mobile */
+.v9-table-scroll,
+.table-responsive,
+.admin-table-card .table-responsive,
+.stf-card-table-wrap .table-responsive {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+/* P1: sticky form submit above bottom nav */
+body.has-bottomnav .coop-sticky-submit-bar,
+body:has(.mob-bottomnav) .coop-sticky-submit-bar,
+body:has(.mp-bottom-nav) .coop-sticky-submit-bar,
+body:has(.mem-bottom-nav) .coop-sticky-submit-bar {
+  bottom: calc(var(--mobile-bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 9200 !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.coop-sticky-submit-bar .btn,
+.coop-sticky-submit-bar button[type="submit"] {
+  min-height: 44px !important;
+}
+
+/* P1: sticky header safe-area (notch phones) */
+.pfl-header-wrapper,
+.mem-topbar,
+.admin-header,
+.main-header {
+  top: env(safe-area-inset-top, 0px) !important;
+}
+
+html {
+  scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+}
+
+/* P1: notice popup + hero carousel touch targets */
+@media (max-width: 899.98px) {
+  .notice-popup-enhanced .popup-nav-btn,
+  #noticePopup .popup-nav-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+
+  .notice-popup-enhanced .popup-dot,
+  #noticePopup .popup-dot {
+    width: 10px !important;
+    height: 10px !important;
+    padding: 14px !important;
+    background-clip: content-box !important;
+    box-sizing: content-box !important;
+  }
+
+  /* Keep touch area via min size — NEVER use content-box+padding
+     (that paints a huge green disc when clip/bg cascade breaks). */
+  .hero-slider .carousel-indicators [data-bs-target],
+  .hero-slider .carousel-indicators button,
+  .hero-indicators-modern .hero-indicator-btn {
+    width: 10px !important;
+    height: 10px !important;
+    min-width: 10px !important;
+    min-height: 10px !important;
+    padding: 0 !important;
+    margin: 0 4px !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
+  }
+
+  .notice-popup-enhanced .popup-dialog.popup-v3,
+  #noticePopup .popup-dialog {
+    max-width: min(100%, calc(100vw - 16px)) !important;
+    margin: 8px !important;
+  }
+
+  .ip-home-stat span {
+    font-size: max(0.75rem, 12px) !important;
+  }
+
+  .ip-chart-canvas-wrap,
+  .ip-charts-grid {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mob-bottomnav span,
+  .mp-bottom-nav span,
+  .mem-bottom-nav span {
+    font-size: max(10px, 0.625rem) !important;
+  }
+}
+
+/* P1: compact phones — stack & prevent horizontal bleed */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100% - 1rem) !important;
+  }
+
+  .modal-dialog.modal-fullscreen-sm-down,
+  .modal.show .modal-dialog {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .hero-slider .hero-content-modern,
+  .hero-slider .slider-content {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+
+  .section-padding {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+
+  .container,
+  .container-fluid {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 379px) {
+  .ip-home-snapshot-grid {
+    gap: 0.5rem;
+  }
+
+  .mob-bottomnav span,
+  .mp-bottom-nav span,
+  .mem-bottom-nav span {
+    font-size: 10px !important;
+  }
+}
+
+/* ── Fast first paint: don't hide above-fold behind AOS opacity:0 ── */
+.hero-slider [data-aos],
+.institutional-profile-section [data-aos],
+.page-banner [data-aos],
+.pfl-header-wrapper [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Soften AOS delays so content feels present sooner */
+[data-aos][data-aos-delay] {
+  transition-delay: 0ms !important;
+}
+
+/* AOS fail-safe — never leave sections permanently invisible if JS fails/slow */
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+body.aos-safe [data-aos] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Loader should never block interaction after early hide */
+.page-loader.loaded,
+body.page-loaded .page-loader {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Theme final safe polish (additive) — gallery / banner / pagination
+   Do not edit app-public.css / app-admin.css for these.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Page banner — tighter first paint, keep brand gradient from core */
+.page-banner {
+  padding-block: clamp(1.35rem, 3.2vw, 2.35rem) !important;
+}
+
+.page-banner h1 {
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.page-banner .breadcrumb {
+  opacity: 0.92;
+}
+
+/* Gallery tabs + cards — match final radius / brand */
+.gallery-tabs-wrapper {
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  border-radius: var(--final-radius-lg) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.gallery-tab {
+  border-radius: 10px !important;
+  min-height: 44px;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease !important;
+}
+
+.gallery-tab:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+.gallery-tab.active {
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+
+.gallery-category-filter .form-select {
+  min-height: 44px;
+  border-radius: 10px !important;
+}
+
+.gallery-card {
+  border-radius: var(--final-radius) !important;
+  border: 1px solid var(--final-border) !important;
+  box-shadow: var(--final-shadow) !important;
+  background: #fff;
+  overflow: hidden;
+}
+
+.gallery-card img {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  height: auto !important;
+  object-fit: cover;
+  background: #eef3ef;
+}
+
+.gallery-caption {
+  padding: 0.55rem 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: var(--final-muted) !important;
+  line-height: 1.35;
+}
+
+/* Pagination — notices / news / gallery share the same rhythm */
+.pagination-nav {
+  margin-top: 1.75rem !important;
+}
+
+.pagination-nav .pagination {
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.pagination .page-link {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600 !important;
+  color: var(--text-color, #1f2a24) !important;
+}
+
+.pagination .page-link:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+.pagination .page-item.disabled .page-link {
+  opacity: 0.45;
+}
+
+/* Notice / news list cards — slightly calmer hover on touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .gallery-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--final-shadow-hover) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-card,
+  .gallery-tab,
+  .news-card,
+  .notice-card,
+  .service-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Content pages — avoid accidental horizontal scroll from wide media */
+.notices-section img,
+.news-section img,
+.gallery-section img,
+.team-section img,
+.awards-section img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Dark mode — gallery / pagination / banner crumbs */
+body.dark-mode .gallery-tabs-wrapper {
+  background: color-mix(in srgb, #1a2420 92%, var(--primary-color, #1a5f2a)) !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-tab {
+  background: #1e2823 !important;
+  color: #d5e0d8 !important;
+}
+
+body.dark-mode .gallery-tab.active {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body.dark-mode .gallery-card {
+  background: #1a2420 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .gallery-caption {
+  color: #a8b5ad !important;
+}
+
+body.dark-mode .pagination .page-link {
+  background: #1a2420 !important;
+  color: #d5e0d8 !important;
+  border-color: #2d3d35 !important;
+}
+
+body.dark-mode .pagination .page-item.active .page-link {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Mobile gallery — full-width tabs, larger tap targets */
+@media (max-width: 767.98px) {
+  .gallery-tabs {
+    width: 100%;
+  }
+
+  .gallery-tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .gallery-card img {
+    aspect-ratio: 1 / 1;
+  }
+
+  .pagination .page-link {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* Print: keep banners readable, hide chrome noise */
+@media print {
+  .page-loader,
+  .mob-bottomnav,
+  .mp-bottom-nav,
+  .mem-bottom-nav,
+  .pagination-nav,
+  .gallery-tabs-wrapper {
+    display: none !important;
+  }
+
+  .page-banner {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0.5rem 0 !important;
+    box-shadow: none !important;
+  }
+
+  .page-banner h1,
+  .page-banner .breadcrumb,
+  .page-banner .breadcrumb-item,
+  .page-banner .breadcrumb-item a {
+    color: #000 !important;
+  }
+
+  .gallery-card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Team photo cards — board/samiti = management size (uniform)
+   Org-chart cells were ~220px while management col-lg-3 is ~280–320px.
+   Force one shared card/photo footprint everywhere.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.team-section,
+.team-org-chart-wrap,
+.committees-section {
+  --team-card-w: 280px;
+  --team-uniform-photo: 140px;
+  --team-uniform-pad-y: 26px;
+  --team-uniform-pad-x: 18px;
+  --team-card-min-h: 336px;
+  --team-badge-min-h: 2.75em;
+  --team-name-min-h: 2.9em;
+  --team-contact-min-h: 52px;
+}
+
+/* Org-chart cells (board / samiti) — same width as management cards */
+.team-org-cell {
+  flex: 0 1 var(--team-card-w) !important;
+  width: var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+}
+
+.team-org-row-inner {
+  gap: 1.25rem !important;
+  justify-content: center !important;
+}
+
+/* Management / committee Bootstrap cols — don't let cards grow past shared width */
+.team-section .row > [class*="col-"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-"]:has(> .team-card-circular) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+.committees-section .row > [class*="col-md-4"]:has(> .team-card-circular) {
+  flex: 0 1 var(--team-card-w) !important;
+  max-width: var(--team-card-w) !important;
+  width: 100% !important;
+}
+
+.team-section .row > [class*="col-"] > .team-card-circular,
+.committees-section .row > [class*="col-"] > .team-card-circular,
+.team-org-cell > .team-card-circular {
+  width: 100% !important;
+  max-width: var(--team-card-w) !important;
+  min-height: var(--team-card-min-h) !important;
+  height: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* Officer cards stay full column width (do not shrink like team photo cards) */
+.team-section .row > [class*="col-"] > .officer-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+}
+
+/* Same photo ring size for board, management, committees, featured, small */
+.team-section .team-photo-circular,
+.team-org-chart .team-photo-circular,
+.committees-section .team-photo-circular,
+.team-section .team-photo-circular.small,
+.team-org-chart .team-photo-circular.small,
+.committees-section .team-photo-circular.small,
+.team-section .team-card-circular.featured .team-photo-circular,
+.team-org-chart .team-card-circular.featured .team-photo-circular,
+.committees-section .team-card-circular.featured .team-photo-circular,
+#board.team-section .team-photo-circular {
+  width: var(--team-uniform-photo) !important;
+  height: var(--team-uniform-photo) !important;
+  min-width: var(--team-uniform-photo) !important;
+  min-height: var(--team-uniform-photo) !important;
+  margin: 0 auto 16px !important;
+  padding: 4px !important;
+  flex-shrink: 0 !important;
+  transform: none !important;
+}
+
+.team-section .team-photo-circular img,
+.team-org-chart .team-photo-circular img,
+.committees-section .team-photo-circular img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.team-section .team-card-circular:hover .team-photo-circular,
+.team-org-chart .team-card-circular:hover .team-photo-circular,
+.committees-section .team-card-circular:hover .team-photo-circular {
+  transform: none !important;
+}
+
+/* Featured = border accent only, same footprint */
+.team-section .team-card-circular.featured,
+.team-org-chart .team-card-circular.featured,
+.committees-section .team-card-circular.featured,
+.team-section .team-card-circular.small,
+.team-org-chart .team-card-circular.small,
+.committees-section .team-card-circular.small {
+  min-height: var(--team-card-min-h) !important;
+  padding: var(--team-uniform-pad-y) var(--team-uniform-pad-x) 20px !important;
+  max-width: var(--team-card-w) !important;
+}
+
+.team-section .team-info-circular h5,
+.team-org-chart .team-info-circular h5,
+.committees-section .team-info-circular h5 {
+  font-size: 1.05rem !important;
+  line-height: 1.45 !important;
+  min-height: var(--team-name-min-h) !important;
+}
+
+.team-section .team-position-badge,
+.team-org-chart .team-position-badge,
+.committees-section .team-position-badge {
+  min-height: var(--team-badge-min-h) !important;
+  font-size: 0.78rem !important;
+}
+
+.team-section .team-contact-circular,
+.team-org-chart .team-contact-circular,
+.committees-section .team-contact-circular {
+  min-height: var(--team-contact-min-h) !important;
+  margin-top: auto !important;
+}
+
+@media (max-width: 991.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: 250px;
+    --team-uniform-photo: 128px;
+    --team-card-min-h: 320px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .team-section,
+  .team-org-chart-wrap,
+  .committees-section {
+    --team-card-w: min(100%, 280px);
+    --team-uniform-photo: 120px;
+    --team-uniform-pad-y: 22px;
+    --team-uniform-pad-x: 14px;
+    --team-card-min-h: 300px;
+  }
+
+  .team-org-cell,
+  .team-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .team-section .row > [class*="col-sm-6"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-lg-3"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-md-4"]:has(> .team-card-circular),
+  .committees-section .row > [class*="col-sm-6"]:has(> .team-card-circular) {
+    flex: 0 1 var(--team-card-w) !important;
+    max-width: var(--team-card-w) !important;
+    width: 100% !important;
+  }
+}
+
+/* ── Meta date / action grey strips (same bug family) ───────────────
+ * Theme “Date pill” paints .notice-date with a tinted background, but
+ * display:flex made the span stretch full card width → grey bar.
+ * Same look showed up on footer dates, news-detail meta, and single-CTA
+ * attachment/footer slabs. Keep compact pills only where intended.
+ */
+
+/* Notices list + detail: compact pill (not a full-width bar) */
+.notice-date {
+  display: inline-flex !important;
+  width: fit-content !important;
+  max-width: 100%;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.7rem !important;
+  border-radius: 999px !important;
+}
+
+/* Footer notice dates: never a tinted bar/pill over the light footer */
+.main-footer .notice-date,
+.footer-notices .notice-date {
+  display: block !important;
+  width: auto !important;
+  padding: 0 !important;
+  margin-top: 0.25rem !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+}
+
+/* Notice detail: drop full-width light slab behind download CTA */
+.notice-detail-card .notice-attachment {
+  background: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 1.25rem !important;
+}
+
+body.dark-mode .notice-detail-card .notice-attachment {
+  background: transparent !important;
+}
+
+/* News detail: .news-date is the homepage absolute badge — reset for meta line */
+.news-meta .news-date,
+.news-detail-header .news-date {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  width: fit-content !important;
+  max-width: 100%;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  color: var(--final-muted, #5b6b62) !important;
+  border-radius: 0 !important;
+  text-align: left !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+}
+
+.news-meta .news-date i,
+.news-detail-header .news-date i {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* Career detail: soft full-width slab behind action buttons → border only */
+.job-detail-footer {
+  background: transparent !important;
+  border-top: 1px solid var(--final-border, #e2e8e4) !important;
+  padding-top: 1.1rem !important;
+}
+
+body.dark-mode .job-detail-footer {
+  background: transparent !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* =========================================================
+   MOBILE HOME: hero / lang / logo / institutional profile
+   Safe additive polish for phone viewport (screenshot fixes)
+   ========================================================= */
+
+@media (max-width: 767.98px) {
+  /* 1) Kill oversized green carousel circles on hero */
+  .hero-slider .carousel-control-prev,
+  .hero-slider .carousel-control-next,
+  #heroCarousel .carousel-control-prev,
+  #heroCarousel .carousel-control-next {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+  }
+
+  .hero-slider .carousel-indicators,
+  #heroCarousel .carousel-indicators {
+    bottom: 0.55rem !important;
+    margin: 0 !important;
+    gap: 0.35rem !important;
+    z-index: 5 !important;
+  }
+
+  .hero-slider .carousel-indicators [data-bs-target],
+  .hero-slider .hero-indicator-btn,
+  #heroCarousel .carousel-indicators [data-bs-target] {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    min-height: 8px !important;
+    max-width: 8px !important;
+    max-height: 8px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+    background-clip: border-box !important;
+    border: 0 !important;
+    opacity: 0.55 !important;
+    flex: 0 0 auto !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-indicators .active,
+  .hero-slider .hero-indicator-btn.active,
+  #heroCarousel .carousel-indicators .active {
+    width: 18px !important;
+    max-width: 18px !important;
+    min-width: 18px !important;
+    height: 8px !important;
+    max-height: 8px !important;
+    min-height: 8px !important;
+    border-radius: 999px !important;
+    opacity: 1 !important;
+    background: #fff !important;
+    border-color: #fff !important;
+    transform: none !important;
+  }
+
+  .hero-slider .carousel-caption,
+  #heroCarousel .carousel-caption {
+    bottom: 1.35rem !important;
+    padding-left: 0.85rem !important;
+    padding-right: 0.85rem !important;
+  }
+
+  .hero-slider .hero-btn-modern,
+  #heroCarousel .hero-btn-modern {
+    position: relative;
+    z-index: 6;
+    margin-top: 0.35rem !important;
+  }
+
+  /* 2) Institutional profile + reports: center on mobile */
+  .institutional-profile-bar {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .institutional-profile-bar .profile-title-link,
+  .institutional-profile-bar .profile-title {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: fit-content !important;
+    max-width: 100%;
+  }
+
+  .institutional-profile-bar .report-quick-links {
+    justify-content: center !important;
+    width: 100%;
+  }
+
+  /* 3) EN | NP language control — readable segmented pill (not empty circles) */
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap,
+  .pfl-top-bar .pfl-lang-wrap {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 2px !important;
+    border-radius: 999px !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    min-height: 30px !important;
+    height: auto !important;
+    width: auto !important;
+    overflow: hidden;
+  }
+
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap a,
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap .pfl-lang-link,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 34px !important;
+    width: auto !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 0.55rem !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.04em !important;
+    line-height: 1 !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+  }
+
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap a.active,
+  .pfl-top-bar .pfl-top-right .pfl-lang-wrap .pfl-lang-link.active,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link.active {
+    background: #fff !important;
+    color: #14532d !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12) !important;
+  }
+
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-divider,
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-dot {
+    display: none !important;
+  }
+
+  .pfl-top-bar .pfl-lang-wrap .pfl-lang-link span:not(.pfl-lang-dot),
+  .pfl-top-bar .pfl-lang-wrap a span:not(.pfl-lang-dot) {
+    display: inline !important;
+    font-size: 0.68rem !important;
+    line-height: 1 !important;
+    color: inherit !important;
+    opacity: 1 !important;
+  }
+
+  /* 4) Logo: sharper, fuller banner on phone */
+  .pfl-main-header .pfl-brand-area {
+    padding: 0.35rem 0.55rem !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  .pfl-main-header .pfl-brand-content.has-logo {
+    max-width: calc(100vw - 4.75rem) !important;
+  }
+
+  .pfl-main-header .pfl-brand-content.has-logo .pfl-brand-logo {
+    height: 46px !important;
+    max-height: 50px !important;
+    width: auto !important;
+    max-width: min(78vw, 280px) !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    image-rendering: -webkit-optimize-contrast;
+  }
+
+  .pfl-main-header .pfl-brand-content.no-logo .pfl-brand-logo-fallback {
+    height: 40px !important;
+    width: 40px !important;
+  }
+
+  /* Keep a11y FAB clear of profile/report chips + bottom nav */
+  #scrollAccessibilityPanel.sa-panel {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+    left: 10px !important;
+    z-index: 1040 !important;
+  }
+
+  #scrollAccessibilityPanel .sa-toggle-btn {
+    width: 42px !important;
+    height: 42px !important;
+  }
+
+  .qh-launcher {
+    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .pfl-main-header .pfl-brand-content.has-logo .pfl-brand-logo {
+    height: 42px !important;
+    max-height: 46px !important;
+    max-width: min(72vw, 240px) !important;
+  }
+
+  .institutional-profile-bar .profile-title-link {
+    font-size: 0.82rem !important;
+    padding: 0.45rem 0.85rem !important;
+  }
+
+  /* Do not force report chips into circles — keep readable pills */
+  .institutional-profile-bar .report-quick-link {
+    border-radius: 999px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 36px !important;
+    padding: 0.4rem 0.7rem !important;
+  }
+
+  .institutional-profile-bar .report-quick-link .report-label,
+  .institutional-profile-bar .report-quick-link > span {
+    display: inline !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+/* =========================================================
+   Gallery album-first covers + heading
+   ========================================================= */
+.gallery-album-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 0 0 1.1rem;
+  padding: 0.35rem 0.15rem;
+}
+
+.gallery-album-all-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-color, #1a5f2a);
+  text-decoration: none;
+}
+
+.gallery-album-all-link:hover {
+  text-decoration: underline;
+}
+
+.gallery-album-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: #fff;
+  border: 1px solid rgba(var(--primary-rgb, 26, 95, 42), 0.14);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  height: 100%;
+}
+
+.gallery-album-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(var(--primary-rgb, 26, 95, 42), 0.14);
+  border-color: rgba(var(--primary-rgb, 26, 95, 42), 0.35);
+  color: inherit;
+}
+
+.gallery-album-cover {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #e8eee9;
+  overflow: hidden;
+}
+
+.gallery-album-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-album-cover-empty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: rgba(var(--primary-rgb, 26, 95, 42), 0.35);
+  font-size: 2rem;
+}
+
+.gallery-album-count {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  min-width: 1.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(26, 95, 42, 0.92);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.gallery-album-media-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.7rem;
+  height: 2.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.92);
+  color: #dc2626;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.gallery-video-album-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.24), transparent 55%);
+  pointer-events: none;
+}
+
+.gallery-video-album-cover .gallery-album-media-icon,
+.gallery-video-album-cover .gallery-album-count {
+  z-index: 1;
+}
+
+.gallery-video-popup {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.gallery-photo-popup {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: zoom-in;
+}
+
+.gallery-photo-popup:focus-visible,
+.gallery-video-popup:focus-visible {
+  outline: 3px solid var(--primary-color, #1a5f2a);
+  outline-offset: 3px;
+}
+
+.gallery-photo-modal .modal-content,
+.gallery-video-modal .modal-content {
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  background: #000;
+}
+
+.gallery-photo-modal .modal-header,
+.gallery-video-modal .modal-header {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.gallery-photo-modal-image {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  max-height: min(82vh, 900px);
+  margin: 0 auto;
+  object-fit: contain;
+  background: #060807;
+}
+
+.gallery-video-modal iframe {
+  border: 0;
+}
+
+body.dark-mode .gallery-photo-modal .modal-header,
+body.dark-mode .gallery-video-modal .modal-header {
+  background: #17201d;
+  color: #f3f7f4;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.gallery-album-title {
+  padding: 0.7rem 0.85rem 0.85rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+  line-height: 1.35;
+  color: #1f2937;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.gallery-album-filter .form-select {
+  min-width: min(100%, 220px);
+}
+
+body.dark-mode .gallery-album-card {
+  background: #1a2220;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .gallery-album-title {
+  color: #e8efe9;
+}
+
+body.dark-mode .gallery-album-cover {
+  background: #121816;
+}
+
+@media (max-width: 575.98px) {
+  .gallery-album-heading {
+    margin-bottom: 0.85rem;
+  }
+
+  .gallery-album-title {
+    font-size: 0.86rem;
+    padding: 0.6rem 0.7rem 0.75rem;
+  }
+
+  .gallery-album-grid .col-sm-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+/* Admin gallery album filter */
+.gal-album-filter-select {
+  max-width: 220px;
+  min-width: 160px;
+}
+
+.admin-shell .gal-album-lbl {
+  font-size: 0.72rem;
+}
+/* ===== END final-ui-polish.css ===== */

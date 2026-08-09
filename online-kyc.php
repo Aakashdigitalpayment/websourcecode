@@ -2702,6 +2702,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var hasOldInput   = <?php echo !empty($oldInput)     ? 'true' : 'false'; ?>;
     var visitedSteps  = {}; /* { "stepIndex": true } — persisted in localStorage */
     var isEn = <?php echo json_encode(isEnglish()); ?>;
+    var kymWizardBusy = false; /* guard rapid Next double-clicks */
 
     /* ── section title helpers ─────────────────────── */
     function getSectionTitle(sec, idx) {
@@ -2834,21 +2835,43 @@ document.addEventListener('DOMContentLoaded', function () {
         renderNav();
         updateProgress();
         window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+        /* Soft a11y: move focus to the visible section heading */
+        try {
+            var focusH = sections[currentStep] && sections[currentStep].querySelector('h5');
+            if (focusH) {
+                if (!focusH.hasAttribute('tabindex')) focusH.setAttribute('tabindex', '-1');
+                focusH.focus({ preventScroll: true });
+            }
+        } catch (e) {}
     }
 
     if (nextBtn) nextBtn.addEventListener('click', function () {
+        if (kymWizardBusy) return;
+        kymWizardBusy = true;
+        if (nextBtn) nextBtn.setAttribute('aria-busy', 'true');
         markVisited(currentStep); /* mark section done when advancing */
         saveDraft();
         setStep(currentStep + 1);
+        window.setTimeout(function () {
+            kymWizardBusy = false;
+            if (nextBtn) nextBtn.removeAttribute('aria-busy');
+        }, 280);
     });
     if (prevBtn) prevBtn.addEventListener('click', function () {
+        if (kymWizardBusy) return;
+        kymWizardBusy = true;
         saveDraft();
         setStep(currentStep - 1);
+        window.setTimeout(function () { kymWizardBusy = false; }, 280);
     });
 
     form.addEventListener('input',  saveDraft, true);
     form.addEventListener('change', saveDraft, true);
     form.addEventListener('submit', function (e) {
+        if (form.getAttribute('data-kym-submitting') === '1') {
+            e.preventDefault();
+            return;
+        }
         var decl = document.getElementById('declaration');
         if (decl && !decl.checked) {
             e.preventDefault();
@@ -2857,6 +2880,7 @@ document.addEventListener('DOMContentLoaded', function () {
             decl.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
+        form.setAttribute('data-kym-submitting', '1');
         try {
             localStorage.removeItem(draftKey);
             localStorage.removeItem(stepKey);
@@ -2864,6 +2888,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (e) {}
         if (submitBtn) {
             submitBtn.disabled = true;
+            submitBtn.setAttribute('aria-busy', 'true');
             var spin = submitBtn.querySelector('.spinner-border');
             if (spin) spin.classList.remove('d-none');
         }
