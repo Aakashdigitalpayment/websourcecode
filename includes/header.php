@@ -1258,7 +1258,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 </li>
                 <?php else: ?>
                 <li class="has-drop">
-                    <a href="javascript:void(0);">
+                    <a href="#" onclick="event.preventDefault();">
                         <i class="fas fa-smile"></i>
                         <?php echo isEnglish() ? 'Member Feedback' : 'सदस्य सन्तुष्टि'; ?>
                         <?php if ($__satNew): ?>
@@ -1289,7 +1289,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 endif;
                 ?>
                 <li class="has-drop">
-                    <a href="javascript:void(0);">
+                    <a href="#" onclick="event.preventDefault();">
                         <i class="fas fa-th"></i>
                         <?php echo isEnglish() ? 'Quick Links' : 'छिटो लिंक'; ?>
                         <i class="fas fa-caret-down ms-1" style="font-size:10px;"></i>
@@ -1311,7 +1311,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <ul class="pfl-top-right">
                 <!-- Login Dropdown -->
                 <li class="pfl-login-btn pfl-login-drop-wrap">
-                    <a href="javascript:void(0);" class="pfl-login-toggle" aria-haspopup="true" aria-expanded="false">
+                    <a href="#" class="pfl-login-toggle" aria-haspopup="true" aria-expanded="false" onclick="event.preventDefault();">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="user-circle"></i>
                         <?php echo isEnglish() ? 'Login' : 'लगिन'; ?>
                         <i class="fas fa-caret-down pfl-login-caret"></i>
@@ -1452,21 +1452,21 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <a href="?lang=np" class="pfl-lang-link <?php echo $currentLang === 'np' ? 'active' : ''; ?>" lang="ne" hreflang="ne" aria-label="<?php echo isEnglish() ? 'Nepali' : 'नेपाली'; ?>"<?php echo $currentLang === 'np' ? ' aria-current="true"' : ''; ?>><span class="pfl-lang-dot" aria-hidden="true"></span><span>NP</span></a>
                 </li>
                 <li>
-                    <a href="javascript:void(0);" id="topbarSearchBtn"
+                    <a href="#" id="topbarSearchBtn"
                        aria-label="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>"
-                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
+                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>" onclick="event.preventDefault();">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
                     </a>
                 </li>
                 <li class="pfl-dark-wrap">
-                    <a href="javascript:void(0);" id="topbarDarkModeToggle"
+                    <a href="#" id="topbarDarkModeToggle"
                        aria-label="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>"
-                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
+                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>" onclick="event.preventDefault();">
                         <i class="fas fa-moon"></i>
                     </a>
                 </li>
                 <li class="pfl-pwa-wrap">
-                    <a href="javascript:void(0);" onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
+                    <a href="#" onclick="event.preventDefault();if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
                        class="pwa-install-btn pfl-pwa-btn"
                        aria-label="<?php echo isEnglish() ? 'Install App' : 'App Install गर्नुहोस्'; ?>"
                        title="<?php echo isEnglish() ? 'Install App' : 'App Install गर्नुहोस्'; ?>">
@@ -1706,7 +1706,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         </ul>
                     </li>
                     <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
-                        <a href="javascript:void(0);"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                        <a href="#" onclick="event.preventDefault();"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
@@ -1775,6 +1775,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             var toggle = document.querySelector('.pfl-login-toggle');
             if (!wrap || !toggle) return;
             toggle.addEventListener('click', function(e) {
+                e.preventDefault();
                 e.stopPropagation();
                 /* Mobile: login open गर्दा drawer/menu side effects बन्द */
                 if (typeof window.__pflMobileMenuClose === 'function') {
@@ -1845,21 +1846,21 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <li><a href="<?php echo $youtubeUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
                         <li><a href="mailto:<?php echo $email; ?>"><i class="fas fa-envelope"></i></a></li>
                             <li class="topbar-search-btn d-none d-lg-inline-block">
-                                <a href="javascript:void(0);" id="topbarSearchBtn"
+                                <a href="#" id="topbarSearchBtn"
                        aria-label="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>"
-                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
+                       title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>" onclick="event.preventDefault();">
                                 <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
                             </a>
                         </li>
                             <li class="topbar-darkmode-btn d-none d-lg-inline-block">
-                                <a href="javascript:void(0);" id="topbarDarkModeToggle"
+                                <a href="#" id="topbarDarkModeToggle"
                        aria-label="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>"
-                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>">
+                       title="<?php echo isEnglish() ? 'Dark Mode' : 'डार्क मोड'; ?>" onclick="event.preventDefault();">
                                 <i class="fas fa-moon"></i>
                             </a>
                         </li>
                         <li class="topbar-pwa-btn d-none d-lg-inline-block">
-                            <a href="javascript:void(0);" onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
+                            <a href="#" onclick="event.preventDefault();if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
                                class="pwa-install-btn topbar-pwa-icon"
                                title="<?php echo isEnglish() ? 'Install App' : 'App Install गर्नुहोस्'; ?>">
                                 <i class="fas fa-mobile-screen-button"></i>
@@ -2021,7 +2022,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
-                                <a href="javascript:void(0);"><?php echo isEnglish() ? 'More' : 'थप'; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
+                                <a href="#" onclick="event.preventDefault();"><?php echo isEnglish() ? 'More' : 'थप'; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>career.php"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i> <?php echo isEnglish() ? 'Career' : 'बिज्ञापन'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['career_open']); ?></a></li>
