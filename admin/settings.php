@@ -267,6 +267,13 @@ checkCSRF();
 
         $updateSuccess = true;
         writeAuditLog('settings_update', 'Site settings updated', 'settings');
+        /* Public homepage/nav file cache — so logo/colors/hero text show without waiting TTL */
+        if (!function_exists('clearHomepageCache')) {
+            require_once dirname(__DIR__) . '/includes/simple-cache.php';
+        }
+        if (function_exists('clearHomepageCache')) {
+            clearHomepageCache();
+        }
         setFlash('success', $__t('सेटिङ्स सफलतापूर्वक अपडेट भयो।', 'Settings updated successfully.'));
 
         // Use JavaScript redirect to ensure session is saved

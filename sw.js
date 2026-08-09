@@ -1,6 +1,10 @@
 /*
   ══════════════════════════════════════════════════════════════════════
-  SERVICE WORKER — Aakash Cooperative CMS  v6
+  SERVICE WORKER — Aakash Cooperative CMS  v7
+  New in v7:
+    • Navigations + "/" use network-first (was cache-first) so admin
+      slider/settings updates show without hard refresh
+    • cache-first only for real static asset extensions
   New in v6:
     • Cache bump for real PNG PWA icons (was JPEG mislabeled as PNG)
     • Maskable 512 icon included for installability
@@ -20,10 +24,13 @@
   ══════════════════════════════════════════════════════════════════════
 */
 
-const STATIC_CACHE = 'coop-static-v6';
-const PAGES_CACHE  = 'coop-pages-v6';
-const API_CACHE    = 'coop-api-v6';
+const STATIC_CACHE = 'coop-static-v7';
+const PAGES_CACHE  = 'coop-pages-v7';
+const API_CACHE    = 'coop-api-v7';
 const ALL_CACHES   = [STATIC_CACHE, PAGES_CACHE, API_CACHE];
+
+/* Only these get cache-first — never HTML documents or "/" */
+const STATIC_EXT_RE = /\.(?:css|js|mjs|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|eot|mp4|webm|mp3|pdf)$/i;
 
 /* Pre-cache at install — must be publicly accessible (no auth required) */
 const PRECACHE_REQUIRED = [
@@ -93,6 +100,17 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   if (!url.protocol.startsWith('http')) return;
 
+  /* HTML navigations (including "/") — always network-first online.
+     v6 treated non-.php paths as static → "/" stayed stale until hard refresh. */
+  if (request.mode === 'navigate') {
+    if (url.pathname.startsWith('/member/')) {
+      event.respondWith(memberPageStrategy(request));
+      return;
+    }
+    event.respondWith(networkFirst(request, PAGES_CACHE, '/offline.php'));
+    return;
+  }
+
   /* Member portal PHP pages — stale-while-revalidate */
   if (url.pathname.startsWith('/member/') && url.pathname.endsWith('.php')) {
     event.respondWith(memberPageStrategy(request));
@@ -105,8 +123,14 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  /* Static assets — cache-first */
-  event.respondWith(cacheFirst(request, STATIC_CACHE));
+  /* Real static files only — cache-first */
+  if (STATIC_EXT_RE.test(url.pathname)) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
+  }
+
+  /* "/", pretty URLs, etc. — network-first (never poison STATIC_CACHE with HTML) */
+  event.respondWith(networkFirst(request, PAGES_CACHE, '/offline.php'));
 });
 
 /* ────────────────────────────────────────────────────────────────────
