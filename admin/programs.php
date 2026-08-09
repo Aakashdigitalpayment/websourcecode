@@ -280,7 +280,7 @@ foreach ($rows as $_r) {
           <div class="form-text">खाली मिति = कार्यक्रम मिति + १ दिन</div>
         </div>
         <div class="col-12 d-flex gap-2">
-          <button class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button>
           <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
         </div>
       </form>

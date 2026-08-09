@@ -305,22 +305,22 @@ foreach ($images as $img) {
 
 <ul class="nav nav-tabs admin-nav-tabs mb-3">
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab === 'albums' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-albums">
+        <button type="button" class="nav-link <?php echo $activeTab === 'albums' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-albums">
             <i class="fas fa-folder me-2"></i>एल्बमहरू <span class="badge bg-success ms-1"><?php echo count($albums); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-list">
+        <button type="button" class="nav-link <?php echo $activeTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-list">
             <i class="fas fa-images me-2"></i>ग्यालरी <span class="badge bg-primary ms-1"><?php echo count($images); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab === 'upload' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-photo" id="gal-photo-tab">
+        <button type="button" class="nav-link <?php echo $activeTab === 'upload' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-photo" id="gal-photo-tab">
             <i class="fas fa-camera me-2"></i>फोटो अपलोड
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab === 'video' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-video">
+        <button type="button" class="nav-link <?php echo $activeTab === 'video' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-video">
             <i class="fab fa-youtube me-2 gal-yt-icon"></i>भिडियो थप्नुहोस्
         </button>
     </li>

@@ -90,13 +90,13 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dl-list" id="dl-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#dl-list" id="dl-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>डाउनलोड सूची
             <span class="badge bg-success ms-1"><?php echo count($downloads); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#dl-form" id="dl-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#dl-form" id="dl-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="dlFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -177,7 +177,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $d['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $d['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-dl"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-dl"
                                             data-id="<?php echo $d['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($d['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($d['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -191,7 +191,7 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $d['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -242,7 +242,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $d['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $d['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-dl"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-dl"
                                             data-id="<?php echo $d['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($d['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($d['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -256,7 +256,7 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $d['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

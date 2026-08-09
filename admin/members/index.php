@@ -29,7 +29,7 @@ include __DIR__ . '/../_partials/header.php';
 <div class="admin-card">
   <form method="get" class="admin-flex" style="flex-wrap:wrap;">
     <input type="search" name="q" value="<?= htmlspecialchars($q) ?>" placeholder="नाम, Member ID, मोबाइल..." class="admin-input" style="max-width:340px;">
-    <button class="admin-btn admin-btn-primary"><i class="fas fa-search"></i> खोज</button>
+    <button type="submit" class="admin-btn admin-btn-primary"><i class="fas fa-search"></i> खोज</button>
     <?php if ($q): ?><a href="?" class="admin-btn admin-btn-ghost">Clear</a><?php endif; ?>
   </form>
 </div>

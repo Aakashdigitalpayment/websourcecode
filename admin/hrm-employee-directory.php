@@ -100,7 +100,7 @@ $departments = hrmListDepartments($db);
         </select>
       </div>
       <div class="col-md-2 d-grid">
-        <button class="btn btn-primary"><i class="fas fa-filter me-1"></i> लागू</button>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-filter me-1"></i> लागू</button>
       </div>
     </div>
   </form>

@@ -331,7 +331,7 @@ echo adminPageHeader(
                     <div class="col-6"><input type="text" class="form-control form-control-sm nepali-datepicker" name="from" value="<?php echo htmlspecialchars($qFrom); ?>" title="मिति देखि" placeholder="YYYY-MM-DD" autocomplete="off"></div>
                     <div class="col-6"><input type="text" class="form-control form-control-sm nepali-datepicker" name="to" value="<?php echo htmlspecialchars($qTo); ?>" title="मिति सम्म" placeholder="YYYY-MM-DD" autocomplete="off"></div>
                     <div class="col-12 d-flex gap-1">
-                        <button class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-filter me-1"></i>फिल्टर</button>
+                        <button type="submit" class="btn btn-sm btn-primary flex-grow-1"><i class="fas fa-filter me-1"></i>फिल्टर</button>
                         <a class="btn btn-sm btn-outline-secondary" href="election-information.php" title="रिसेट"><i class="fas fa-undo"></i></a>
                     </div>
                 </form>

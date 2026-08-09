@@ -131,13 +131,13 @@ $slidersArch = $slPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#sl-list" id="sl-list-btn" title="जम्मा">
+        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#sl-list" id="sl-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i>स्लाइडर सूची
             <span class="badge bg-success ms-1"><?php echo count($sliders); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sl-form" id="sl-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#sl-form" id="sl-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="slFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -202,7 +202,7 @@ $slidersArch = $slPart['archived'];
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $sl['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $sl['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $sl['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-sl"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sl"
                                             data-id="<?php echo $sl['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($sl['title'] ?? '', ENT_QUOTES); ?>"
                                             data-subtitle="<?php echo htmlspecialchars($sl['subtitle'] ?? '', ENT_QUOTES); ?>"
@@ -218,7 +218,7 @@ $slidersArch = $slPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $sl['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -264,7 +264,7 @@ $slidersArch = $slPart['archived'];
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $sl['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $sl['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $sl['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-sl"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sl"
                                             data-id="<?php echo $sl['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($sl['title'] ?? '', ENT_QUOTES); ?>"
                                             data-subtitle="<?php echo htmlspecialchars($sl['subtitle'] ?? '', ENT_QUOTES); ?>"
@@ -280,7 +280,7 @@ $slidersArch = $slPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $sl['id']; ?>">
-                                        <button class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

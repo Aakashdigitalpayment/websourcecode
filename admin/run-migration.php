@@ -429,7 +429,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['run_migration'])) {
                                 </button>
                             </form>
                             <?php else: ?>
-                            <button class="btn btn-secondary" disabled>
+                            <button type="button" class="btn btn-secondary" disabled>
                                 <i class="fas fa-ban me-1"></i> File छैन
                             </button>
                             <?php endif; ?>

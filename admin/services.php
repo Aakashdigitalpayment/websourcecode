@@ -202,23 +202,23 @@ $servicesArch = $svcPart['archived'];
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="जम्मा">
+        <button type="button" class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="जम्मा">
             <i class="fas fa-list me-2"></i><?php echo $__t('सेवा सूची', 'Service List'); ?>
             <span class="badge bg-success ms-1"><?php echo count($services); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $openServiceForm ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-form" id="svc-form-btn">
+        <button type="button" class="nav-link <?php echo $openServiceForm ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-form" id="svc-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="svcFormTabLabel"><?php echo $openServiceForm ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#svc-products" id="svc-products-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#svc-products" id="svc-products-btn">
             <i class="fas fa-list-check me-2"></i><span id="svcProductsTabLabel">Service Products</span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $activeTab === 'cats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-cats" id="svc-cats-btn">
+        <button type="button" class="nav-link <?php echo $activeTab === 'cats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-cats" id="svc-cats-btn">
             <i class="fas fa-layer-group me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
             <span class="badge bg-secondary ms-1"><?php echo count($serviceCategories); ?></span>
         </button>

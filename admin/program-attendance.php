@@ -842,7 +842,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
       </div>
       <div class="col-md-3 d-grid gap-1">
         <button type="submit" name="action" value="bulk_notify_prereg_test" class="btn btn-sm btn-outline-secondary"><i class="fas fa-vial-circle-check me-1"></i>Test Send</button>
-        <button class="btn btn-sm btn-primary"><i class="fas fa-paper-plane me-1"></i>Selected लाई पठाउनुहोस्</button>
+        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane me-1"></i>Selected लाई पठाउनुहोस्</button>
       </div>
       <div class="col-12">
         <div class="small text-muted">तल list बाट सदस्यहरू select गरेर bulk सन्देश पठाउनुहोस्। SMS gateway / email settings admin notification settings बाट controlled हुन्छ।</div>
@@ -889,7 +889,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="mark_prereg_attended">
               <input type="hidden" name="prereg_id" value="<?php echo (int)$r['id']; ?>">
-              <button class="btn btn-sm btn-primary"><i class="fas fa-user-check me-1"></i>Mark Attended</button>
+              <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-user-check me-1"></i>Mark Attended</button>
             </form>
           <?php endif; ?>
         </td>

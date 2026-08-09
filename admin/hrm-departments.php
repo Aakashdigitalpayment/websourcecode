@@ -49,8 +49,8 @@ $rows = $db->query("SELECT * FROM hrm_departments ORDER BY sort_order, id LIMIT 
           <td><code><?= e($r['code']) ?></code></td>
           <td><?= $r['is_active']?'<span class="badge bg-success">सक्रिय</span>':'<span class="badge bg-secondary">निष्क्रिय</span>' ?></td>
           <td class="text-end">
-            <button class="btn btn-sm btn-outline-secondary" onclick='editD(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'><i class="fas fa-pen"></i></button>
-            <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');"><?= csrfField() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button></form>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick='editD(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'><i class="fas fa-pen"></i></button>
+            <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');"><?= csrfField() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>"><button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button></form>
           </td>
         </tr>
       <?php endforeach; ?>

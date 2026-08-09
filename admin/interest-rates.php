@@ -84,19 +84,19 @@ $flash = getFlash();
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="rateTabs">
     <li class="nav-item">
-        <button class="nav-link <?php echo $category !== 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-saving" id="tab-saving-btn">
+        <button type="button" class="nav-link <?php echo $category !== 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-saving" id="tab-saving-btn">
             <i class="fas fa-piggy-bank me-2 text-success"></i>बचत ब्याज दर
             <span class="badge bg-success ms-1"><?php echo count($savingRates); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link <?php echo $category === 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-loan" id="tab-loan-btn">
+        <button type="button" class="nav-link <?php echo $category === 'loan' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#panel-loan" id="tab-loan-btn">
             <i class="fas fa-hand-holding-usd me-2 text-primary"></i>ऋण ब्याज दर
             <span class="badge bg-primary ms-1"><?php echo count($loanRates); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-rate-form" id="tab-form-btn">
+        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#panel-rate-form" id="tab-form-btn">
             <i class="fas fa-plus-circle me-2"></i><span id="rateFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
@@ -109,7 +109,7 @@ $flash = getFlash();
         <div class="card admin-table-card ir-flat-top">
             <div class="card-header gradient-card-header d-flex align-items-center justify-content-between ir-head-primary">
                 <h5 class="mb-0 text-white fw-bold"><i class="fas fa-piggy-bank me-2"></i>बचत ब्याज दर</h5>
-                <button class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="saving">
+                <button type="button" class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="saving">
                     <i class="fas fa-plus me-1"></i>बचत दर थप्नुहोस्
                 </button>
             </div>
@@ -141,7 +141,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-rate"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-rate"
                                             data-id="<?php echo $item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"
@@ -176,7 +176,7 @@ $flash = getFlash();
         <div class="card admin-table-card ir-flat-top">
             <div class="card-header d-flex align-items-center justify-content-between ir-head-loan ir-head-theme">
                 <h5 class="mb-0 text-white fw-bold"><i class="fas fa-hand-holding-usd me-2"></i>ऋण ब्याज दर</h5>
-                <button class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="loan">
+                <button type="button" class="btn btn-outline-light btn-sm px-3 fw-semibold add-rate-btn" data-category="loan">
                     <i class="fas fa-plus me-1"></i>ऋण दर थप्नुहोस्
                 </button>
             </div>
@@ -208,7 +208,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button class="btn btn-sm btn-primary me-1 btn-edit-rate"
+                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-rate"
                                             data-id="<?php echo $item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"

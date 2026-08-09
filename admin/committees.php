@@ -185,7 +185,7 @@ $_flash = getFlash();
 ?>
 
 <?php
-$headerBtns = '<button class="btn btn-primary btn-sm" id="btnAddCmt"><i class="fas fa-plus me-1"></i>नयाँ थप्नुहोस्</button>';
+$headerBtns = '<button type="button" class="btn btn-primary btn-sm" id="btnAddCmt"><i class="fas fa-plus me-1"></i>नयाँ थप्नुहोस्</button>';
 echo adminPageHeader('समिति/उपसमिति व्यवस्थापन', 'fa-users-gear', 'संचालक समिति र उपसमिति सदस्य व्यवस्थापन', $headerBtns);
 if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger', $_flash['message']);
 ?>
@@ -219,7 +219,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-green">
         <h5 class="mb-0 fw-bold"><i class="fas fa-layer-group me-2"></i>समिति प्रकारहरू</h5>
-        <button class="btn btn-outline-light btn-sm" id="btnAddType"><i class="fas fa-plus me-1"></i>नयाँ प्रकार</button>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddType"><i class="fas fa-plus me-1"></i>नयाँ प्रकार</button>
     </div>
 
             <!-- खोज बक्स -->
@@ -292,7 +292,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $t['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $t['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary me-1 btn-edit-type"
+                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-type"
                                     data-id="<?php echo $t['id']; ?>"
                                     data-name="<?php echo htmlspecialchars($t['name'], ENT_QUOTES); ?>"
                                     data-name-np="<?php echo htmlspecialchars($t['name_np'], ENT_QUOTES); ?>"
@@ -308,7 +308,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_type">
                                 <input type="hidden" name="delete_id" value="<?php echo $t['id']; ?>">
-                                <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-blue">
         <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-alt me-2"></i>कार्यकालहरू</h5>
-        <button class="btn btn-outline-light btn-sm" id="btnAddTenure"><i class="fas fa-plus me-1"></i>नयाँ कार्यकाल</button>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddTenure"><i class="fas fa-plus me-1"></i>नयाँ कार्यकाल</button>
     </div>
 
             <!-- खोज बक्स -->
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $tn['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $tn['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary me-1 btn-edit-tenure"
+                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-tenure"
                                     data-id="<?php echo $tn['id']; ?>"
                                     data-type-id="<?php echo $tn['committee_type_id']; ?>"
                                     data-name="<?php echo htmlspecialchars($tn['tenure_name'], ENT_QUOTES); ?>"
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_tenure">
                                 <input type="hidden" name="delete_id" value="<?php echo $tn['id']; ?>">
-                                <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -668,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-cyan">
         <h5 class="mb-0 fw-bold"><i class="fas fa-user-friends me-2"></i>समिति सदस्यहरू</h5>
-        <button class="btn btn-outline-light btn-sm" id="btnAddMember"><i class="fas fa-plus me-1"></i>नयाँ सदस्य</button>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddMember"><i class="fas fa-plus me-1"></i>नयाँ सदस्य</button>
     </div>
 
             <!-- खोज बक्स -->
@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $m['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $m['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary me-1 btn-edit-member"
+                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-member"
                                     data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                     title="सम्पादन">
                                 <i class="fas fa-edit"></i>
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_member">
                                 <input type="hidden" name="delete_id" value="<?php echo $m['id']; ?>">
-                                <button class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
                             </form>
                         </td>
                     </tr>

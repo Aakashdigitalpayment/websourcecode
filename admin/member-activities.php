@@ -269,7 +269,7 @@ echo adminPageHeader('Member Activities Search', 'fa-magnifying-glass-chart', '�
                             </select>
                         </div>
                         <div class="col-lg-2">
-                            <button class="btn btn-success w-100"><i class="fas fa-search me-1"></i> खोज्नुहोस्</button>
+                            <button type="submit" class="btn btn-success w-100"><i class="fas fa-search me-1"></i> खोज्नुहोस्</button>
                         </div>
                         <div class="col-lg-12 text-end">
                             <a href="member-activities.php" class="btn btn-outline-secondary btn-sm">Clear</a>

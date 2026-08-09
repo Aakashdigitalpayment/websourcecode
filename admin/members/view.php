@@ -91,7 +91,7 @@ include __DIR__ . '/../_partials/header.php';
           <option value="rejected" <?php echo $s==='rejected'?'selected':''; ?>>अस्वीकृत</option>
           <option value="suspended" <?php echo $s==='suspended'?'selected':''; ?>>निलम्बित</option>
         </select>
-        <button class="admin-btn admin-btn-primary" onclick="return confirm('स्थिति बदल्ने?')">
+        <button type="submit" class="admin-btn admin-btn-primary" onclick="return confirm('स्थिति बदल्ने?')">
           <i class="fas fa-check"></i> अपडेट
         </button>
       </div>

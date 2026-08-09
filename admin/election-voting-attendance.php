@@ -241,7 +241,7 @@ try {
                     <?php endforeach; ?>
                     <?php endif; ?>
                     <?php endif; ?>
-                    <div class="col-12"><button class="btn btn-primary w-100"><i class="fas fa-check me-1"></i>Confirm Manual Attendance</button></div>
+                    <div class="col-12"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-check me-1"></i>Confirm Manual Attendance</button></div>
                 </form>
             </div>
         </div>
