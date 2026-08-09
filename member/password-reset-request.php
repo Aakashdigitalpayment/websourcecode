@@ -289,14 +289,14 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       </button>
     </form>
     <div class="d-flex gap-2">
-      <form method="POST" novalidate class="needs-validation" class="flex-1">
+      <form method="POST" novalidate class="needs-validation flex-1">
       <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="resend_otp">
         <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
           <i class="fas fa-redo me-1"></i>फेरि पठाउनुहोस्
         </button>
       </form>
-      <form method="POST" novalidate class="needs-validation" class="flex-1">
+      <form method="POST" novalidate class="needs-validation flex-1">
       <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="cancel">
         <button type="submit" class="btn btn-outline-danger btn-sm w-100"><?php echo $_t('रद्द गर्नुहोस्', 'Cancel'); ?></button>

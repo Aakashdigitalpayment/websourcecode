@@ -142,6 +142,7 @@ assertContains('online-kyc.php', "b.setAttribute('aria-current', 'step')", 'wiza
 assertContains('online-kyc.php', 'id="kymNextBtn" aria-label=', 'next button aria-label');
 assertContains('online-kyc.php', 'kymWizardBusy', 'wizard busy / double-advance guard');
 assertContains('online-kyc.php', "submitBtn.setAttribute('aria-busy', 'true')", 'submit aria-busy on submit');
+assertContains('online-kyc.php', 'kymFocusOnStep', 'wizard focus only after user navigation');
 
 foreach (['includes/theme-assets.php', 'online-kyc.php', 'member/profile.php', 'scripts/build-css-late-bundles.py'] as $f) {
     if (str_ends_with($f, '.py')) {
