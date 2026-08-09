@@ -538,6 +538,44 @@ function seo_absolute_asset_url(string $path): string
 }
 
 /**
+ * Append ?v=filemtime so long-cached images (htaccess 1y + SW cache-first) refresh after replace.
+ * Leaves absolute/data URLs unchanged. Preserves relative path style used in DB.
+ */
+function coop_versioned_asset_url(string $path): string
+{
+    $path = trim($path);
+    if ($path === '' || preg_match('#^(https?:|data:|//)#i', $path)) {
+        return $path;
+    }
+    $hash = '';
+    $qpos = strpos($path, '#');
+    if ($qpos !== false) {
+        $hash = substr($path, $qpos);
+        $path = substr($path, 0, $qpos);
+    }
+    $query = '';
+    $qpos = strpos($path, '?');
+    if ($qpos !== false) {
+        $query = substr($path, $qpos + 1);
+        $path = substr($path, 0, $qpos);
+    }
+    $rel = ltrim(str_replace('\\', '/', $path), '/');
+    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . DIRECTORY_SEPARATOR);
+    $fs = rtrim($root, "/\\") . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $rel);
+    $ver = is_file($fs) ? (string) @filemtime($fs) : (string) time();
+    if ($query !== '') {
+        parse_str($query, $params);
+        unset($params['v']);
+        $query = http_build_query($params);
+    }
+    $out = $rel . '?v=' . rawurlencode($ver);
+    if ($query !== '') {
+        $out .= '&' . $query;
+    }
+    return $out . $hash;
+}
+
+/**
  * Meta description को लागि सुरक्षित छोटो पाठ (HTML strip)
  */
 function seo_meta_description_from_html(?string $html, int $maxLen = 158): string

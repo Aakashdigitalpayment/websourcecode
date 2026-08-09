@@ -471,7 +471,14 @@ $__hrefLangNe = $__seoCanon . $__hrefLangSep . 'lang=np';
 $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
 
 $__faviconRel = function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/icon-192x192.png';
-$__faviconUrl = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url($__faviconRel) : (rtrim(SITE_URL, '/') . '/' . ltrim($__faviconRel, '/'));
+$__faviconRelVer = function_exists('coop_versioned_asset_url') ? coop_versioned_asset_url($__faviconRel) : $__faviconRel;
+$__faviconUrl = function_exists('seo_absolute_asset_url')
+    ? seo_absolute_asset_url($__faviconRelVer)
+    : (rtrim(SITE_URL, '/') . '/' . ltrim($__faviconRelVer, '/'));
+/* seo_absolute_asset_url strips nothing from ?v= — keep query on absolute URL */
+if (strpos($__faviconRelVer, '?') !== false && strpos($__faviconUrl, '?') === false) {
+    $__faviconUrl .= substr($__faviconRelVer, strpos($__faviconRelVer, '?'));
+}
 $__faviconMime = function_exists('getSiteFaviconMime') ? getSiteFaviconMime($__faviconRel) : 'image/png';
 $__appleIconUrl = function_exists('seo_absolute_asset_url')
     ? seo_absolute_asset_url('assets/images/icon-192x192.png')

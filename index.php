@@ -141,15 +141,18 @@ $appFeaturesCached = $homepageData['appFeatures'] ?? [];
 $awards = $homepageData['awards'] ?? [];
 $totalAwards = (int)($homepageData['totalAwards'] ?? 0);
 
-/* First hero image — preload in <head> for faster LCP */
+/* First hero image — preload in <head> for faster LCP (?v= busts long image cache) */
 $__preloadLcpImage = '';
 if (!empty($sliders[0]['image'])) {
     $__heroImg = trim((string)$sliders[0]['image']);
     if ($__heroImg !== '') {
-        if (preg_match('#^https?://#i', $__heroImg)) {
-            $__preloadLcpImage = $__heroImg;
+        $__heroImgVer = function_exists('coop_versioned_asset_url')
+            ? coop_versioned_asset_url($__heroImg)
+            : $__heroImg;
+        if (preg_match('#^https?://#i', $__heroImgVer)) {
+            $__preloadLcpImage = $__heroImgVer;
         } else {
-            $__preloadLcpImage = rtrim(SITE_URL, '/') . '/' . ltrim($__heroImg, '/');
+            $__preloadLcpImage = rtrim(SITE_URL, '/') . '/' . ltrim($__heroImgVer, '/');
         }
     }
 }
@@ -190,11 +193,17 @@ $L = getLangStrings();
         <div class="carousel-inner hero-inner-modern">
             <?php if (!empty($sliders)): ?>
                 <?php foreach ($sliders as $index => $slider): ?>
+                <?php
+                    $__slideImg = trim((string)($slider['image'] ?? ''));
+                    $__slideImgUrl = ($__slideImg !== '' && function_exists('coop_versioned_asset_url'))
+                        ? coop_versioned_asset_url($__slideImg)
+                        : $__slideImg;
+                ?>
                 <div class="carousel-item hero-slide-modern <?php echo $index === 0 ? 'active' : ''; ?>">
                     <?php if ($index === 0): ?>
-                    <div class="slider-bg hero-bg-modern" style="background-image: url('<?php echo e($slider['image']); ?>');">
+                    <div class="slider-bg hero-bg-modern" style="background-image: url('<?php echo e($__slideImgUrl); ?>');">
                     <?php else: ?>
-                    <div class="slider-bg hero-bg-modern" data-bg="<?php echo e($slider['image']); ?>" style="background-color: var(--primary-dark, #0b3d2e);">
+                    <div class="slider-bg hero-bg-modern" data-bg="<?php echo e($__slideImgUrl); ?>" style="background-color: var(--primary-dark, #0b3d2e);">
                     <?php endif; ?>
                         <div class="slider-overlay hero-overlay-modern"></div>
                         <div class="container">
