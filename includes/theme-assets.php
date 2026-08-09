@@ -223,10 +223,12 @@ if (!function_exists('coopThemeCssUrl')) {
             $panel = coopThemeDetectPanel();
         }
 
-        /* Load order (do not merge sheets here):
-         * panel base → global/forms → enhancements → shell polish →
-         * ui-readability-safe-patch → admin-ux-deep-patch (admin) → final-ui-polish LAST.
-         * Patches stay separate so live cascade fixes remain reversible. */
+        /* Load order:
+         * panel base → global/forms → enhancements → mid admin patches →
+         * panel LATE BUNDLE LAST (concat of previous polish/patch sheets).
+         * Source sheets remain in assets/css; regenerate via:
+         *   python3 scripts/build-css-late-bundles.py
+         */
         if (empty($options['skip_fonts'])) {
             coopThemeGoogleFonts();
         }
@@ -271,8 +273,6 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/admin-ui-unified.css');
         }
 
-        /* ── 1.6. (admin-serious-form.css removed — replaced by admin-shell-polish.css at end) ── */
-
         /* ── 1.7. Load Admin Auth Login Page UI/UX Fixes (Form labels, inputs, buttons, alerts) ── */
         if (in_array($panel, ['admin-auth'], true)) {
             coopThemeLink('assets/css/admin-auth-login-fixes.css');
@@ -296,12 +296,12 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink($rel);
         }
 
-        /* ── 4.5. BOOTSTRAP ADMIN OVERRIDES (LAST) - Override ALL Bootstrap defaults ── */
+        /* ── 4.5. BOOTSTRAP ADMIN OVERRIDES - Override ALL Bootstrap defaults ── */
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
             coopThemeLink('assets/css/bootstrap-admin-overrides.css');
         }
 
-        /* ── 4.6. PRIORITY ICON COLOR FIX - Load AFTER all other CSS for maximum priority ── */
+        /* ── 4.6. PRIORITY ICON COLOR FIX - AFTER other mid CSS ── */
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
             coopThemeLink('assets/css/admin-icon-colors-priority.css');
         }
@@ -309,58 +309,21 @@ if (!function_exists('coopThemeCssUrl')) {
         /* ── 5. DB-computed brand colors AFTER static CSS so !important wins ── */
         coopThemeRequireGlobal();
 
-        /* ── 6. PREMIUM UI — skip on QR/minimal shells (attend, tracker) ── */
-        if ($panel !== 'minimal') {
-            coopThemeLinkDeferred('assets/css/premium-ui.css');
-        }
-
-        /* ── 7. Universal UI/UX polish utilities — opt-in classes, all panels ── */
-        coopThemeLinkDeferred('assets/css/ui-ux-polish.css');
-
-        /* ── 8. Mobile premium polish — homepage/public shell; skip minimal ── */
-        if ($panel !== 'minimal') {
-            coopThemeLinkDeferred('assets/css/mobile-premium-polish.css');
-        }
-
-        /* ── 9. Admin shell polish — forms/tables/bottom-nav/icons/fonts (LAST) ── */
-        if (in_array($panel, ['admin', 'admin-auth'], true)
-            || ($panel === 'shell' && $isAdminShell)) {
-            coopThemeLink('assets/css/admin-shell-polish.css');
-        }
-
-        /* ── 9.5. Admin bootstrap unify — theme vars over hardcoded hex (additive) ── */
-        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
-            coopThemeLink('assets/css/admin-bootstrap-unified-patch.css');
-        }
-
-        /* ── 10. Member / auth / verify shell polish (LAST for those panels) ── */
-        if (in_array($panel, ['member', 'auth', 'verify'], true)
-            || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'))) {
-            coopThemeLink('assets/css/member-shell-polish.css');
-        }
-
-        /* ── 11. Public shell polish — cards/forms/bottom-nav/icons/fonts (LAST) ── */
-        if (in_array($panel, ['public', 'minimal'], true)
-            || ($panel === 'shell' && !$isAdminShell && !str_contains($script, '/member/'))) {
-            coopThemeLinkDeferred('assets/css/public-shell-polish.css');
-        }
-
-        /* ── 11.5. Minimal QR / standalone pages — attend, tracker-id-card ── */
+        /* ── 6. Panel late polish BUNDLE (absolute last) — order preserved inside file ── */
+        $isMemberShell = in_array($panel, ['member', 'auth', 'verify'], true)
+            || ($panel === 'shell' && !$isAdminShell && str_contains($script, '/member/'));
+        $isAdminPanel = in_array($panel, ['admin', 'admin-auth'], true)
+            || ($panel === 'shell' && $isAdminShell);
         if ($panel === 'minimal') {
-            coopThemeLink('assets/css/minimal-pages-patch.css');
+            coopThemeLink('assets/css/minimal-late-bundle.css');
+        } elseif ($isAdminPanel) {
+            coopThemeLink('assets/css/admin-late-bundle.css');
+        } elseif ($isMemberShell) {
+            coopThemeLink('assets/css/member-late-bundle.css');
+        } else {
+            /* public + default shell */
+            coopThemeLink('assets/css/public-late-bundle.css');
         }
-
-        /* ── 12. Readability safe patch — fonts/touch/mobile text ── */
-        coopThemeLinkDeferred('assets/css/ui-readability-safe-patch.css');
-
-        /* ── 12.5. Admin deep UX — forms/tables/nav/layout (admin absolute last) ── */
-        if (in_array($panel, ['admin', 'admin-auth'], true)
-            || ($panel === 'shell' && $isAdminShell)) {
-            coopThemeLink('assets/css/admin-ux-deep-patch.css');
-        }
-
-        /* ── 13. Final UI polish — absolute last on all panels (public + admin) ── */
-        coopThemeLink('assets/css/final-ui-polish.css');
     }
 
     /** @deprecated Use coopThemeHeadAssets('auth') — kept for existing login/password pages */
