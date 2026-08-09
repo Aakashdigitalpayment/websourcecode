@@ -280,7 +280,7 @@ try {
     <div class="mem-topbar-right">
 
         <!-- PWA Install -->
-        <a href="javascript:void(0);" onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
+        <a href="#" onclick="event.preventDefault();if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
            class="pwa-install-btn mem-pwa-btn"
            title="<?php echo $_t('App Install गर्नुहोस्', 'Install App'); ?>">
             <i class="fas fa-mobile-screen-button"></i>

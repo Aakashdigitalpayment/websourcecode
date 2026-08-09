@@ -98,18 +98,12 @@ assertFileContains('includes/config.php', "header('X-Frame-Options: SAMEORIGIN')
 assertFileContains('includes/config.php', "header('X-Content-Type-Options: nosniff')", 'nosniff');
 assertFileContains('includes/config.php', "header('Referrer-Policy: strict-origin-when-cross-origin')", 'Referrer-Policy');
 
-// CSP stays report-only (must NOT flip to enforce in this safe pass)
+// CSP — enforce by default (kill-switch: CSP_ENFORCE false or csp_enforce=0)
 $configSecurity = (string) file_get_contents($root . '/includes/config.php');
-if (strpos($configSecurity, 'Content-Security-Policy-Report-Only:') === false) {
-    fail('includes/config.php: missing CSP Report-Only header');
-} else {
-    ok('includes/config.php: CSP Report-Only present');
-}
-if (preg_match('/header\s*\(\s*[\'"]Content-Security-Policy:/', $configSecurity)) {
-    fail('includes/config.php: enforcing CSP header found (unsafe for this pass)');
-} else {
-    ok('includes/config.php: no enforcing CSP header');
-}
+assertFileContains('includes/config.php', "header('Content-Security-Policy: ' . \$_cspPolicy)", 'CSP enforce path');
+assertFileContains('includes/config.php', "header('Content-Security-Policy-Report-Only: ' . \$_cspPolicy)", 'CSP Report-Only kill-switch path');
+assertFileContains('includes/config.php', "getSetting('csp_enforce', '1')", 'csp_enforce setting kill-switch');
+assertFileContains('includes/config.php', 'defined(\'CSP_ENFORCE\')', 'CSP_ENFORCE constant kill-switch');
 assertFileContains('includes/config.php', 'https://unpkg.com', 'CSP allows unpkg (Leaflet)');
 assertFileContains('includes/config.php', 'frame-src', 'CSP frame-src for maps/embeds');
 assertFileContains('includes/config.php', 'connect-src', 'CSP connect-src for XHR/fetch');
@@ -129,6 +123,18 @@ if (preg_match('/header\s*\(\s*[\'"]X-XSS-Protection/i', $boot)) {
 } else {
     ok('_bootstrap.php: no deprecated X-XSS-Protection header');
 }
+
+// javascript: URLs break under enforcing CSP — must be gone from chrome
+foreach (['includes/header.php', 'member/includes/chrome.php', 'admin/includes/admin-header.php'] as $f) {
+    $t = (string) file_get_contents($root . '/' . $f);
+    if (preg_match('/href\s*=\s*[\'"]javascript:/i', $t)) {
+        fail("{$f}: still has javascript: href (CSP unsafe)");
+    } else {
+        ok("{$f}: no javascript: href");
+    }
+}
+assertFileContains('includes/header.php', 'href="#" id="topbarSearchBtn"', 'search control uses hash href');
+assertFileContains('includes/header.php', 'onclick="event.preventDefault();"', 'hash controls preventDefault');
 
 // Tabnabbing — public/member/admin surfaces (noopener + noreferrer)
 $noopenerFiles = [

@@ -954,7 +954,7 @@ set_exception_handler(function (\Throwable $ex) {
 
                             <!-- ── PWA Install App ── -->
                             <li id="pwa-nav-install-li">
-                                <a href="javascript:void(0)" onclick="if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
+                                <a href="#" onclick="event.preventDefault();if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
                                    class="pwa-admin-install-link"
                                    title="<?php echo $adminT('App Install गर्नुहोस्', 'Install App'); ?>">
                                     <span class="nav-icon-wrap">

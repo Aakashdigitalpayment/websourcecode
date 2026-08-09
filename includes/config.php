@@ -1953,11 +1953,9 @@ if (!headers_sent()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
     unset($_httpsOn);
-    /* CSP report-only — still NOT enforcing. Broaden allowlists to match
-       live assets (Leaflet/unpkg, maps/youtube frames, CDN CSS, workers)
-       so future enforce can be staged without surprise blocks. */
-    header(
-        "Content-Security-Policy-Report-Only: default-src 'self'; "
+    /* CSP policy — enforce by default; kill-switch: define('CSP_ENFORCE', false)
+       before this file, or site setting csp_enforce=0 (emergency rollback). */
+    $_cspPolicy = "default-src 'self'; "
         . "img-src 'self' data: blob: https:; "
         . "media-src 'self' blob: https:; "
         . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; "
@@ -1965,10 +1963,21 @@ if (!headers_sent()) {
         . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.ckeditor.com; "
         . "connect-src 'self' https:; "
         . "frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com https://www.youtube-nocookie.com https://www.facebook.com; "
-        . "worker-src 'self' blob:; "
+        . "worker-src 'self' blob: https://cdn.ckeditor.com https://cdn.jsdelivr.net; "
         . "child-src 'self' blob:; "
-        . "frame-ancestors 'self'; base-uri 'self'; form-action 'self';"
-    );
+        . "frame-ancestors 'self'; base-uri 'self'; form-action 'self';";
+    $_cspEnforce = true;
+    if (defined('CSP_ENFORCE')) {
+        $_cspEnforce = (bool) CSP_ENFORCE;
+    } elseif (function_exists('getSetting')) {
+        $_cspEnforce = (string) getSetting('csp_enforce', '1') !== '0';
+    }
+    if ($_cspEnforce) {
+        header('Content-Security-Policy: ' . $_cspPolicy);
+    } else {
+        header('Content-Security-Policy-Report-Only: ' . $_cspPolicy);
+    }
+    unset($_cspPolicy, $_cspEnforce);
 }
 
 /**

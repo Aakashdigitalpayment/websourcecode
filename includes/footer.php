@@ -603,7 +603,7 @@ try {
 
         // Topbar search button
         if (topbarSearchBtn) {
-            topbarSearchBtn.addEventListener('click', openSearchModal);
+            topbarSearchBtn.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); openSearchModal(); });
         }
 
         if (searchClose) {
@@ -656,7 +656,7 @@ try {
         }
 
         if (topbarDarkModeToggle) {
-            topbarDarkModeToggle.addEventListener('click', toggleDarkMode);
+            topbarDarkModeToggle.addEventListener('click', function(e){ if(e&&e.preventDefault)e.preventDefault(); toggleDarkMode(); });
         }
     })();
     </script>
