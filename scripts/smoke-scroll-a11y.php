@@ -13,15 +13,15 @@ function bad(string $m): void { global $fail; $fail++; echo "FAIL $m\n"; }
 
 $js = (string) file_get_contents($root . '/assets/js/scroll-accessibility.js');
 
-if (strpos($js, 'v3.2') !== false || strpos($js, 'v3.1') !== false) {
+if (strpos($js, 'v3.3') !== false || strpos($js, 'v3.2') !== false || strpos($js, 'v3.1') !== false) {
     ok('version banner present (v3.1+)');
 } else {
     bad('expected v3.1+ banner');
 }
-if (strpos($js, 'v3.2') !== false) {
-    ok('version banner v3.2');
+if (strpos($js, 'v3.3') !== false) {
+    ok('version banner v3.3');
 } else {
-    bad('expected v3.2');
+    bad('expected v3.3');
 }
 
 foreach (["'color'", "'dollar'", "'mathew'", "'marty'"] as $badWord) {
@@ -86,6 +86,22 @@ if (strpos($js, "getElementById('scrollAccessibilityPanel')") !== false
     ok('duplicate panel init guard present');
 } else {
     bad('duplicate panel init guard missing');
+}
+
+if (strpos($js, 'pauseMediaForHiddenTab') !== false) {
+    ok('tab-hide pauses camera/mic');
+} else {
+    bad('tab-hide media pause missing');
+}
+if (strpos($js, '_eyeCentYSmooth') !== false && strpos($js, 'mean * 0.88') !== false) {
+    ok('adaptive eye luminance + EMA present');
+} else {
+    bad('adaptive eye tracking missing');
+}
+if (strpos($js, 'VOICE_DEBOUNCE_MS') !== false && strpos($js, 'bestConf') !== false) {
+    ok('voice confidence + debounce present');
+} else {
+    bad('voice harden missing');
 }
 
 /* Mirror phrase match for regression cases */
