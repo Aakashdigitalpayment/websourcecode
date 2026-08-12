@@ -12844,6 +12844,38 @@ body.admin-shell { padding-bottom: 70px; }
 .filter-buttons .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,.15); }
 @media (max-width: 768px) { .filter-buttons { width: 100%; justify-content: center; } .filter-buttons .btn { font-size: .8rem; padding: .25rem .6rem; } }
 
+/* Card-header filters must not inherit 30×30 icon-btn + white-on-light header */
+.main-content .admin-table-card .card-header .filter-buttons,
+.admin-table-card .card-header .filter-buttons {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 0.45rem !important;
+    align-items: center !important;
+    max-width: 100% !important;
+}
+.main-content .admin-table-card .card-header .filter-buttons .btn,
+.admin-table-card .card-header .filter-buttons .btn {
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 34px !important;
+    padding: 0.35rem 0.9rem !important;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+    background: #fff !important;
+    color: #1f2937 !important;
+    border: 1.5px solid #c5d0c9 !important;
+}
+.main-content .admin-table-card .card-header .filter-buttons .btn.btn-primary,
+.admin-table-card .card-header .filter-buttons .btn.btn-primary {
+    background: #111827 !important;
+    color: #fff !important;
+    border-color: #111827 !important;
+}
+
 /* ═══════════════════════════════════════════════════
    59. ADMIN WELFARE CLAIMS (admin/welfare-claims.php)
    ═══════════════════════════════════════════════════ */
@@ -17441,13 +17473,14 @@ html.pwa-installed  .mem-pwa-btn { display: none !important; }
     color: #fff !important;
 }
 
-/* ── DECORATE: action buttons pill/square ────────────────────── */
-.admin-table-card .btn-sm.btn-primary,
-.admin-table-card .btn-sm.btn-outline-primary,
-.admin-table-card .btn-sm.btn-danger,
-.admin-table-card .btn-sm.btn-outline-danger,
-.admin-table-card .btn-sm.btn-secondary,
-.admin-table-card .btn-sm.btn-outline-secondary {
+/* ── DECORATE: table-cell icon actions only (not card-header filters) ── */
+.admin-table-card td .btn-sm.btn-primary,
+.admin-table-card td .btn-sm.btn-outline-primary,
+.admin-table-card td .btn-sm.btn-danger,
+.admin-table-card td .btn-sm.btn-outline-danger,
+.admin-table-card td .btn-sm.btn-secondary,
+.admin-table-card td .btn-sm.btn-outline-secondary,
+.admin-table-card td .btn-sm.btn-success {
     width: 30px !important;
     height: 30px !important;
     padding: 0 !important;

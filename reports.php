@@ -36,8 +36,8 @@ $filterType = $_GET['type'] ?? 'all';
 if (!in_array($filterType, $allowedReportTypes, true)) {
     $filterType = 'all';
 }
-$filterYear = isset($_GET['year']) ? (int) $_GET['year'] : 0;
-$filterYear = $filterYear > 1900 && $filterYear < 2100 ? $filterYear : null;
+$filterYearRaw = isset($_GET['year']) ? trim((string) $_GET['year']) : '';
+$filterYear = ($filterYearRaw !== '' && preg_match('/^\d{4}\/\d{2}$/', $filterYearRaw)) ? $filterYearRaw : null;
 $filterMonth = isset($_GET['month']) ? trim((string) $_GET['month']) : '';
 $nepaliMonthKeys = array_keys($nepaliMonths);
 $filterMonth = ($filterMonth !== '' && in_array($filterMonth, $nepaliMonthKeys, true)) ? $filterMonth : null;
@@ -131,6 +131,51 @@ function getTypeLabel($type) {
     ];
     return $labels[$type] ?? $type;
 }
+
+/** Public report file URL — relative uploads + absolute SITE_URL. */
+function coop_public_report_file_url(?string $path): string {
+    if ($path === null) {
+        return '';
+    }
+    $path = str_replace('\\', '/', trim($path));
+    if ($path === '' || str_contains($path, '..')) {
+        return '';
+    }
+    if (function_exists('safe_media_src')) {
+        $u = safe_media_src($path);
+        if ($u !== '') {
+            return $u;
+        }
+    }
+    if (preg_match('#^https?://#i', $path)) {
+        return function_exists('safe_http_url') ? (string) safe_http_url($path) : '';
+    }
+    $path = ltrim($path, '/');
+    if ($path === '') {
+        return '';
+    }
+    return function_exists('getAssetUrl') ? getAssetUrl($path) : (rtrim((string) SITE_URL, '/') . '/' . $path);
+}
+
+/** View + Download on every report card (annual/financial/all types). */
+function render_report_actions(array $report): void {
+    $url = coop_public_report_file_url((string) ($report['file_path'] ?? ''));
+    $viewLabel = isEnglish() ? 'View' : 'हेर्नुहोस्';
+    $dlLabel = isEnglish() ? 'Download' : 'डाउनलोड';
+    echo '<div class="report-actions">';
+    if ($url !== '') {
+        $safe = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
+        echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">'
+            . '<i class="fas fa-eye"></i> ' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '</a>';
+        echo '<a href="' . $safe . '" download class="btn btn-sm btn-outline-primary">'
+            . '<i class="fas fa-download"></i> ' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '</a>';
+    } else {
+        echo '<span class="text-muted small">'
+            . htmlspecialchars(isEnglish() ? 'File not available' : 'फाइल उपलब्ध छैन', ENT_QUOTES, 'UTF-8')
+            . '</span>';
+    }
+    echo '</div>';
+}
 ?>
 
 <!-- Page Banner -->
@@ -185,8 +230,8 @@ function getTypeLabel($type) {
                         <select class="form-select" onchange="updateFilters();" id="yearFilter">
                             <option value=""><?php echo isEnglish() ? 'All Years' : 'सबै आ.व.'; ?></option>
                             <?php foreach ($years as $year): ?>
-                            <option value="<?php echo $year; ?>" <?php echo $filterYear === $year ? 'selected' : ''; ?>>
-                                <?php echo isEnglish() ? 'FY ' : 'आ.व. '; ?><?php echo $year; ?>
+                            <option value="<?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $filterYear === (string) $year ? 'selected' : ''; ?>>
+                                <?php echo isEnglish() ? 'FY ' : 'आ.व. '; ?><?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -210,7 +255,7 @@ function getTypeLabel($type) {
                     var year = document.getElementById('yearFilter')?.value || '';
                     var month = document.getElementById('monthFilter')?.value || '';
                     var url = '?type=<?php echo $filterType; ?>';
-                    if (year) url += '&year=' + year;
+                    if (year) url += '&year=' + encodeURIComponent(year);
                     if (month) url += '&month=' + month;
                     window.location.href = url;
                 }
@@ -257,16 +302,7 @@ function getTypeLabel($type) {
                                     <?php echo $nepaliMonths[$report['report_month']] ?? $report['report_month']; ?>
                                 </span>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -299,16 +335,7 @@ function getTypeLabel($type) {
                                     <?php echo $quarters[$report['report_quarter']] ?? $report['report_quarter']; ?>
                                 </span>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-warning" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-warning">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -338,16 +365,7 @@ function getTypeLabel($type) {
                             <div class="report-info">
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-info" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-info">
-                                    <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download' : 'डाउनलोड'; ?>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -378,16 +396,7 @@ function getTypeLabel($type) {
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                                 <span class="report-type-badge"><?php echo getTypeLabel($report['report_type']); ?></span>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-success" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-success">
-                                    <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download' : 'डाउनलोड'; ?>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -417,16 +426,7 @@ function getTypeLabel($type) {
                             <div class="report-info">
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-primary" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-primary">
-                                    <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download' : 'डाउनलोड'; ?>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -456,16 +456,7 @@ function getTypeLabel($type) {
                             <div class="report-info">
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-danger" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download' : 'डाउनलोड'; ?>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -495,16 +486,7 @@ function getTypeLabel($type) {
                             <div class="report-info">
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-purple" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i> <?php echo isEnglish() ? 'View' : 'हेर्नुहोस्'; ?>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-purple">
-                                    <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download' : 'डाउनलोड'; ?>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
@@ -515,7 +497,7 @@ function getTypeLabel($type) {
         <?php endif; ?>
 
         <!-- Other Reports -->
-        <?php if ($filterType === 'all' && !empty($otherReports)): ?>
+        <?php if (($filterType === 'all' || $filterType === 'other') && !empty($otherReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
                 <h3><i class="fas fa-folder-open"></i> <?php echo isEnglish() ? 'Other Reports' : 'अन्य प्रतिवेदनहरू'; ?></h3>
@@ -534,16 +516,7 @@ function getTypeLabel($type) {
                             <div class="report-info">
                                 <h5><?php echo getLangField($report, 'title'); ?></h5>
                             </div>
-                            <?php if ($report['file_path']): ?>
-                            <div class="report-actions">
-                                <a href="<?php echo $report['file_path']; ?>" target="_blank" class="btn btn-sm btn-secondary" rel="noopener noreferrer">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="<?php echo $report['file_path']; ?>" download class="btn btn-sm btn-outline-secondary">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </div>
-                            <?php endif; ?>
+                            <?php render_report_actions($report); ?>
                         </div>
                     </div>
                     <?php endforeach; ?>
