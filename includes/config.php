@@ -77,7 +77,8 @@ if (file_exists(__DIR__ . '/theme-assets.php')) {
 
 // File Upload Settings
 define('UPLOAD_PATH', ROOT_PATH . 'assets/uploads/');
-define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB - increased for high-resolution logos/images
+define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB - images / general uploads
+define('MAX_REPORT_FILE_SIZE', 50 * 1024 * 1024); // 50MB — annual/audit PDFs
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'webp']);
 define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']); // Image-only extensions
 
@@ -1345,7 +1346,7 @@ if (!function_exists('generateSlug')) {
 }
 
 // Upload file with auto-resize for images
-function uploadFile($file, $folder = 'general') {
+function uploadFile($file, $folder = 'general', $maxSize = null) {
     if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
         return ['success' => false, 'message' => 'Upload error'];
     }
@@ -1354,10 +1355,16 @@ function uploadFile($file, $folder = 'general') {
     $fileSize = $file['size'];
     $fileTmp = $file['tmp_name'];
     $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    $limit = ($maxSize !== null && (int) $maxSize > 0) ? (int) $maxSize : MAX_FILE_SIZE;
+
+    if ($fileTmp === '' || !is_uploaded_file($fileTmp)) {
+        return ['success' => false, 'message' => 'Invalid upload.'];
+    }
 
     // Check file size
-    if ($fileSize > MAX_FILE_SIZE) {
-        return ['success' => false, 'message' => 'File too large. Maximum size is 10MB.'];
+    if ($fileSize > $limit) {
+        $mb = max(1, (int) round($limit / (1024 * 1024)));
+        return ['success' => false, 'message' => 'File too large. Maximum size is ' . $mb . 'MB.'];
     }
 
     // Check extension
@@ -1365,19 +1372,27 @@ function uploadFile($file, $folder = 'general') {
         return ['success' => false, 'message' => 'Invalid file type.'];
     }
 
-    /* Extension-only अपलोड रोक्न — MIME (विशेष गरी PDF/DOC) जाँच */
-    if (class_exists('finfo')) {
+    /* Extension-only अपलोड रोक्न — MIME + magic bytes (scanned PDFs often octet-stream) */
+    if ($fileExt === 'pdf') {
+        $head = (string) @file_get_contents($fileTmp, false, null, 0, 8);
+        if (strpos($head, '%PDF') !== 0) {
+            return ['success' => false, 'message' => 'Invalid file content.'];
+        }
+    } elseif (class_exists('finfo')) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime  = $finfo->file($fileTmp);
+        $mime  = (string) $finfo->file($fileTmp);
         $mimeByExt = [
             'jpg'   => ['image/jpeg', 'image/pjpeg'],
             'jpeg'  => ['image/jpeg', 'image/pjpeg'],
             'png'   => ['image/png'],
             'gif'   => ['image/gif'],
             'webp'  => ['image/webp'],
-            'pdf'   => ['application/pdf'],
-            'doc'   => ['application/msword'],
-            'docx'  => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'doc'   => ['application/msword', 'application/octet-stream'],
+            'docx'  => [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/zip',
+                'application/octet-stream',
+            ],
         ];
         if (isset($mimeByExt[$fileExt]) && !in_array($mime, $mimeByExt[$fileExt], true)) {
             return ['success' => false, 'message' => 'Invalid file content.'];
@@ -1771,7 +1786,77 @@ function verifyCSRFToken($token = null) {
     if ($token === null) {
         $token = $_POST['csrf_token'] ?? '';
     }
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], (string) $token);
+}
+
+/** php.ini size like "8M" / "25M" → bytes */
+function coop_ini_bytes(string $val): int
+{
+    $val = trim($val);
+    if ($val === '' || $val === '0') {
+        return 0;
+    }
+    if (!preg_match('/^([0-9.]+)\s*([KMG])?$/i', $val, $m)) {
+        return (int) $val;
+    }
+    $n = (float) $m[1];
+    $u = strtoupper($m[2] ?? '');
+    if ($u === 'G') {
+        return (int) round($n * 1073741824);
+    }
+    if ($u === 'M') {
+        return (int) round($n * 1048576);
+    }
+    if ($u === 'K') {
+        return (int) round($n * 1024);
+    }
+    return (int) round($n);
+}
+
+/**
+ * Large file upload exceeded post_max_size → PHP discards $_POST/$_FILES.
+ * That looks like a CSRF failure; detect it separately.
+ */
+function coop_post_exceeded_php_limit(): bool
+{
+    if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? '')) !== 'POST') {
+        return false;
+    }
+    $len = (int) ($_SERVER['CONTENT_LENGTH'] ?? 0);
+    if ($len <= 0) {
+        return false;
+    }
+    $postMax = coop_ini_bytes((string) ini_get('post_max_size'));
+    if ($postMax <= 0) {
+        return false;
+    }
+    $emptyBody = empty($_POST) && empty($_FILES);
+    return $emptyBody && $len > $postMax;
+}
+
+function coop_upload_error_text(int $code): string
+{
+    $up = (string) (ini_get('upload_max_filesize') ?: '?');
+    $pm = (string) (ini_get('post_max_size') ?: '?');
+    if ($code === UPLOAD_ERR_INI_SIZE) {
+        return 'फाइल server limit भन्दा ठूलो छ (upload_max_filesize=' . $up . ', post_max_size=' . $pm . ')। सानो PDF राख्नुहोस्।';
+    }
+    if ($code === UPLOAD_ERR_FORM_SIZE) {
+        return 'फाइल form को अधिकतम साइज नाघ्यो।';
+    }
+    if ($code === UPLOAD_ERR_PARTIAL) {
+        return 'फाइल पूरा अपलोड भएन। पुनः प्रयास गर्नुहोस्।';
+    }
+    if ($code === UPLOAD_ERR_NO_TMP_DIR) {
+        return 'सर्भर temporary folder उपलब्ध छैन।';
+    }
+    if ($code === UPLOAD_ERR_CANT_WRITE) {
+        return 'सर्भरले फाइल लेख्न सकेन (permission)।';
+    }
+    if ($code === UPLOAD_ERR_EXTENSION) {
+        return 'Server extension ले upload रोक्यो।';
+    }
+    return 'फाइल अपलोड असफल (code ' . $code . ')।';
 }
 
 // Check CSRF and redirect if invalid
