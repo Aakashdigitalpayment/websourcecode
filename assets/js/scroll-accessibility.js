@@ -1,5 +1,5 @@
 /**
- * Scroll Accessibility Controller  — v3.2
+ * Scroll Accessibility Controller  — v3.3
  * File: assets/js/scroll-accessibility.js
  *
  * Features:
@@ -10,6 +10,10 @@
  *   2. Camera Gesture Scroll — हात माथि/तल हल्लाउँदा scroll
  *   3. Mobile Tilt Scroll    — phone झुकाउँदा scroll
  *
+ * v3.3 safe harden:
+ *   • Eye: adaptive luminance + EMA (less light flicker)
+ *   • Voice: confidence pick, debounce, less ambient toast noise
+ *   • Camera/Eye/Mic: pause tracks when tab hidden; full stop only on user Off
  * v3.2: fix touch+mouse double-hold scroll; guard voice sort; single init.
  * v3.1 safe harden:
  *   • Word-boundary voice match (stops "group"→up, "download"→down)
@@ -56,10 +60,15 @@
     /* Camera / Tilt */
     var TILT_DEADZONE    = 7;
     var TILT_MAX         = 28;
-    var CAMERA_FPS       = 14;   /* 8→14: faster frame analysis */
-    var EYE_FPS_RATE     = 14;   /* override EYE_FPS below */
-    var CAMERA_THRESHOLD = 15;   /* 22→15: more sensitive motion detect */
+    var CAMERA_FPS       = 10;   /* was 14 — lower CPU/battery while camera on */
+    var EYE_FPS_RATE     = 10;
+    var CAMERA_THRESHOLD = 18;   /* slightly less noise from tiny light flicker */
     var TOAST_DURATION   = 1900;
+    var VOICE_DEBOUNCE_MS = 450;
+    var _lastVoiceAction = '';
+    var _lastVoiceAt = 0;
+    var _mediaPausedByHide = false;
+    var _eyeCentYSmooth = null; /* EMA for light-stable face Y */
 
     /* ─────────────────────────────────────────────────────────
        VOICE_MAP — Nepali + Hindi + English + phonetic variants
@@ -354,25 +363,41 @@
             for (var i = e.resultIndex; i < e.results.length; i++) {
                 if (!e.results[i].isFinal) continue;
 
+                /* Prefer higher-confidence alternatives that match a command */
                 var matched = null;
-                var allHeard = [];
+                var bestConf = -1;
+                var bestHeard = '';
                 for (var a = 0; a < e.results[i].length; a++) {
-                    var t = e.results[i][a].transcript;
-                    allHeard.push('"' + t + '"');
-                    if (!matched) matched = matchVoiceAction(t);
+                    var alt = e.results[i][a];
+                    var t = String(alt.transcript || '').trim();
+                    if (!t) continue;
+                    var conf = (typeof alt.confidence === 'number' && !isNaN(alt.confidence))
+                        ? alt.confidence
+                        : (a === 0 ? 0.55 : 0.35);
+                    if (conf < 0.25) continue;
+                    if (t.length > 48 && !matchVoiceAction(t)) continue;
+                    var hit = matchVoiceAction(t);
+                    if (hit && conf >= bestConf) {
+                        matched = hit;
+                        bestConf = conf;
+                        bestHeard = t;
+                    }
+                    if (!bestHeard && a === 0) bestHeard = t;
                 }
 
                 if (matched) {
+                    var nowV = Date.now();
+                    if (matched.action === _lastVoiceAction && (nowV - _lastVoiceAt) < VOICE_DEBOUNCE_MS) {
+                        continue;
+                    }
+                    _lastVoiceAction = matched.action;
+                    _lastVoiceAt = nowV;
                     doScroll(matched.action);
-                    /* Speed/continuous actions को toast doScroll() भित्रबाटै देखाइन्छ */
                     if (['up','down','top','bottom','stop'].indexOf(matched.action) !== -1) {
                         showToast('🎤 ' + matched.label, 'success');
                     }
-                } else {
-                    var heard = e.results[i][0].transcript;
-                    if (heard && heard.length < 50) {
-                        showToast('🎤 "' + heard + '" — "माथि"/"तला"/"छिटो" भन्नुहोस्', 'info');
-                    }
+                } else if (bestHeard && bestHeard.length >= 2 && bestHeard.length < 18 && bestConf >= 0.55) {
+                    showToast('🎤 "' + bestHeard + '" — "माथि"/"तला" भन्नुहोस्', 'info');
                 }
             }
         };
@@ -380,20 +405,26 @@
         r.onerror = function (e) {
             if (e.error === 'no-speech') return;
             if (e.error === 'aborted')   return;
+            if (e.error === 'audio-capture') {
+                showToast('🎤 Microphone फेला परेन / प्रयोगमा छ।', 'error');
+                return;
+            }
             if (e.error === 'not-allowed' || e.error === 'permission-denied') {
                 showToast('🎤 Microphone permission दिनुहोस् — Browser Settings मा Allow', 'error');
                 state.voice = false; updateButtons(); return;
             }
-            if (!_voiceStopped) _tryNextLang('Error: ' + e.error);
+            if (e.error === 'network' || e.error === 'language-not-supported') {
+                if (!_voiceStopped) _tryNextLang('Error: ' + e.error);
+            }
         };
 
         r.onend = function () {
-            if (!_voiceStopped && state.voice) {
+            if (!_voiceStopped && state.voice && !document.hidden) {
                 setTimeout(function () {
-                    if (!_voiceStopped && state.voice && recognition === r) {
+                    if (!_voiceStopped && state.voice && recognition === r && !document.hidden) {
                         try { r.start(); } catch (ex) { _tryNextLang('restart failed'); }
                     }
-                }, 120);  /* faster restart — was 150ms */
+                }, 180);
             }
         };
 
@@ -430,10 +461,10 @@
         _langIdx      = 0;
         recognition   = _buildRecognition(LANG_SEQ[0]);
 
-        /* 5s without result → try hi-IN */
+        /* 8s without usable result → try next lang (was 5s — less ambient thrash) */
         var _noResultTimer = setTimeout(function () {
-            if (state.voice && _langIdx === 0) _tryNextLang('no results in 5s');
-        }, 5000);
+            if (state.voice && _langIdx === 0 && !document.hidden) _tryNextLang('no results in 8s');
+        }, 8000);
 
         var _orig = recognition.onresult;
         recognition.onresult = function (e) { clearTimeout(_noResultTimer); _orig(e); };
@@ -473,7 +504,7 @@
     /* Eye tracking vars */
     var eyeStream = null, eyeVideo = null, eyeCanvas = null, eyeCtx = null;
     var eyeInterval = null, eyePipEl = null, lastEyeScroll = 0;
-    var EYE_FPS = 14; /* 10→14: faster eye frame analysis */
+    var EYE_FPS = EYE_FPS_RATE; /* keep in sync with battery-friendly rate */
 
     function startCamera() {
         if (camStream) return true;
@@ -520,7 +551,7 @@
             camPipEl.querySelector('video').srcObject = stream;
 
             camInterval = setInterval(analyzeFrame, 1000 / CAMERA_FPS);
-            showToast('📷 Camera active — हात माथि/तल हल्लाउनुहोस्', 'success');
+            showToast('📷 Camera On — हात माथि/तल (Off गर्दा पूर्ण बन्द / battery)', 'success');
         }).catch(function (err) {
             var msg = err.name === 'NotAllowedError'
                 ? 'Camera permission दिनुहोस्'
@@ -532,6 +563,7 @@
     }
 
     function analyzeFrame() {
+        if (document.hidden || _mediaPausedByHide) return;
         if (isTypingInForm()) return;
         if (!camVideo || !camCtx || camVideo.readyState < 3) return;
         camCtx.drawImage(camVideo, 0, 0, 160, 120);
@@ -580,43 +612,71 @@
 
     function stopCamera() {
         clearInterval(camInterval); camInterval = null; prevFrame = null;
-        if (camStream) { camStream.getTracks().forEach(function (t) { t.stop(); }); camStream = null; }
-        if (camVideo)  { camVideo.remove();  camVideo  = null; }
+        if (camStream) {
+            camStream.getTracks().forEach(function (t) { try { t.stop(); } catch (ex) {} });
+            camStream = null;
+        }
+        if (camVideo) {
+            try { camVideo.pause(); camVideo.srcObject = null; } catch (ex) {}
+            camVideo.remove(); camVideo = null;
+        }
+        camCanvas = null; camCtx = null;
         if (camPipEl)  { camPipEl.remove();  camPipEl  = null; }
         showToast('📷 Camera बन्द भयो', 'info');
     }
 
     /* ─────────────────────────────────────────
        Eye Tracking Scroll (face position)
-       अनुहार माथि zone = scroll up
-       अनुहार तला zone  = scroll down
+       Adaptive luminance + EMA — bright/dark rooms मा कम flicker
     ───────────────────────────────────────── */
     function analyzeEyeFrame() {
+        if (document.hidden || _mediaPausedByHide) return;
         if (isTypingInForm()) return;
         if (!eyeVideo || !eyeCtx || eyeVideo.readyState < 3) return;
         eyeCtx.drawImage(eyeVideo, 0, 0, 160, 120);
         var data = eyeCtx.getImageData(0, 0, 160, 120).data;
 
-        /* Brightness centroid — अनुहारको Y position खोज्ने */
-        var sumY = 0, cnt = 0;
-        for (var y = 0; y < 120; y++) {
-            for (var x = 20; x < 140; x++) { /* edges skip */
-                var i = (y * 160 + x) * 4;
-                var lum = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-                if (lum > 120) { sumY += y; cnt++; }
+        /* Pass 1: mean luminance (center crop) — absolute thr=120 fails in bright rooms */
+        var sumLum = 0, nLum = 0;
+        for (var y0 = 0; y0 < 120; y0++) {
+            for (var x0 = 20; x0 < 140; x0++) {
+                var i0 = (y0 * 160 + x0) * 4;
+                sumLum += 0.299 * data[i0] + 0.587 * data[i0 + 1] + 0.114 * data[i0 + 2];
+                nLum++;
             }
         }
-        if (cnt < 120) { updateEyeUI('...', null, null); return; } /* 200→120: detect face easier */
+        var mean = nLum ? (sumLum / nLum) : 100;
+        var thr = mean * 0.88 + 18;
+        if (thr < 50) thr = 50;
+        if (thr > 175) thr = 175;
 
-        var centY = sumY / cnt;        /* 0–119 */
-        var ratio = centY / 120;       /* 0.0–1.0 */
+        /* Pass 2: centroid of pixels above adaptive threshold */
+        var sumY = 0, cnt = 0;
+        for (var y = 0; y < 120; y++) {
+            for (var x = 20; x < 140; x++) {
+                var i = (y * 160 + x) * 4;
+                var lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                if (lum >= thr) { sumY += y; cnt++; }
+            }
+        }
+        if (cnt < 90) {
+            _eyeCentYSmooth = null;
+            updateEyeUI('...', null, null);
+            return;
+        }
+
+        var centY = sumY / cnt;
+        if (_eyeCentYSmooth === null) _eyeCentYSmooth = centY;
+        else _eyeCentYSmooth = _eyeCentYSmooth * 0.72 + centY * 0.28; /* EMA */
+
+        var ratio = _eyeCentYSmooth / 120;
         var now   = Date.now();
-        var cooldown = { slow: 420, normal: 175, fast: 90 }[currentSpeed] || 175; /* 350→175 normal */
+        var cooldown = { slow: 420, normal: 200, fast: 110 }[currentSpeed] || 200;
 
-        if (ratio < 0.43) {            /* 0.40→0.43: bigger up zone */
+        if (ratio < 0.40) {
             updateEyeUI('⬆ माथि', true, false);
             if (now - lastEyeScroll > cooldown) { lastEyeScroll = now; gestureScroll('up'); }
-        } else if (ratio > 0.57) {     /* 0.60→0.57: bigger down zone */
+        } else if (ratio > 0.60) {
             updateEyeUI('⬇ तला', false, true);
             if (now - lastEyeScroll > cooldown) { lastEyeScroll = now; gestureScroll('down'); }
         } else {
@@ -675,7 +735,8 @@
             eyePipEl.querySelector('video').srcObject = stream;
 
             eyeInterval = setInterval(analyzeEyeFrame, 1000 / EYE_FPS);
-            showToast('👁 Eye mode — अनुहार माथि/तल सार्नुहोस्', 'success');
+            _eyeCentYSmooth = null;
+            showToast('👁 Eye mode — अनुहार माथि/तल सार्नुहोस् (On हुँदा मात्र camera)', 'success');
         }).catch(function (err) {
             var msg = err.name === 'NotAllowedError' ? 'Camera permission दिनुहोस्' : 'Camera खोल्न सकिएन';
             showToast('👁 ' + msg, 'error');
@@ -686,10 +747,53 @@
 
     function stopEye() {
         clearInterval(eyeInterval); eyeInterval = null;
-        if (eyeStream) { eyeStream.getTracks().forEach(function(t){ t.stop(); }); eyeStream = null; }
-        if (eyeVideo)  { eyeVideo.remove();  eyeVideo  = null; }
+        _eyeCentYSmooth = null;
+        if (eyeStream) {
+            eyeStream.getTracks().forEach(function (t) { try { t.stop(); } catch (ex) {} });
+            eyeStream = null;
+        }
+        if (eyeVideo) {
+            try { eyeVideo.pause(); eyeVideo.srcObject = null; } catch (ex) {}
+            eyeVideo.remove(); eyeVideo = null;
+        }
+        eyeCanvas = null; eyeCtx = null;
         if (eyePipEl)  { eyePipEl.remove();  eyePipEl  = null; }
         showToast('👁 Eye tracking बन्द भयो', 'info');
+    }
+
+    /* Tab hidden → pause camera tracks + mic (battery/privacy); Off button still full stop */
+    function pauseMediaForHiddenTab() {
+        stopContinuous();
+        _mediaPausedByHide = true;
+        if (camInterval) { clearInterval(camInterval); camInterval = null; }
+        if (eyeInterval) { clearInterval(eyeInterval); eyeInterval = null; }
+        if (camStream) {
+            camStream.getTracks().forEach(function (t) { try { t.enabled = false; } catch (ex) {} });
+        }
+        if (eyeStream) {
+            eyeStream.getTracks().forEach(function (t) { try { t.enabled = false; } catch (ex) {} });
+        }
+        if (state.voice && recognition) {
+            try { recognition.abort(); } catch (ex) {}
+            recognition = null;
+        }
+    }
+
+    function resumeMediaAfterVisibleTab() {
+        if (!_mediaPausedByHide) return;
+        _mediaPausedByHide = false;
+        if (state.camera && camStream) {
+            camStream.getTracks().forEach(function (t) { try { t.enabled = true; } catch (ex) {} });
+            if (!camInterval) camInterval = setInterval(analyzeFrame, 1000 / CAMERA_FPS);
+        }
+        if (state.eye && eyeStream) {
+            eyeStream.getTracks().forEach(function (t) { try { t.enabled = true; } catch (ex) {} });
+            if (!eyeInterval) eyeInterval = setInterval(analyzeEyeFrame, 1000 / EYE_FPS);
+        }
+        if (state.voice && !_voiceStopped && !recognition) {
+            recognition = _buildRecognition(LANG_SEQ[_langIdx] || LANG_SEQ[0]);
+            try { recognition.start(); } catch (ex) {}
+        }
     }
 
     /* ─────────────────────────────────────────────────────────
@@ -1089,7 +1193,7 @@
                 '</div>' +
 
                 /* Help row */
-                '<div class="sa-hint"><i class="fas fa-circle-info me-1" aria-hidden="true"></i>आवाज · हात · आँखा · झुकाव</div>' +
+                '<div class="sa-hint"><i class="fas fa-circle-info me-1" aria-hidden="true"></i>On हुँदा मात्र mic/camera</div>' +
 
             '</div>';
 
@@ -1174,7 +1278,9 @@
         });
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
-                stopContinuous();
+                pauseMediaForHiddenTab();
+            } else {
+                resumeMediaAfterVisibleTab();
             }
         });
     }
