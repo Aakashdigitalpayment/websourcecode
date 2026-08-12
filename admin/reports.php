@@ -66,7 +66,7 @@ checkCSRF();
 
             // Handle file upload (annual PDFs often > 10MB)
             $file_path = $_POST['existing_file'] ?? '';
-            $reportMax = defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : (25 * 1024 * 1024);
+            $reportMax = defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : (50 * 1024 * 1024);
             $ferr = (int) ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE);
             if ($ferr !== UPLOAD_ERR_NO_FILE && $ferr !== UPLOAD_ERR_OK) {
                 setFlash('error', function_exists('coop_upload_error_text')
@@ -79,7 +79,7 @@ checkCSRF();
                 if (!empty($upload['success'])) {
                     $file_path = $upload['path'];
                 } else {
-                    setFlash('error', (string) ($upload['message'] ?? 'फाइल अपलोड असफल। PDF/DOC मात्र, अधिकतम २५ MB।'));
+                    setFlash('error', (string) ($upload['message'] ?? 'फाइल अपलोड असफल। PDF/DOC मात्र, अधिकतम ५० MB।'));
                     redirect('reports.php?panel=form' . (!empty($id) ? '&edit=' . (int) $id : ''));
                 }
             }
@@ -267,7 +267,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <div class="mb-3">
                             <label for="rpt_file" class="form-label"><?php echo $__t('फाइल (PDF)', 'File (PDF)'); ?><?php echo $editReport ? '' : ' *'; ?></label>
                             <input type="file" name="file" id="rpt_file" class="form-control" accept=".pdf,.doc,.docx" <?php echo $editReport ? '' : 'required'; ?>>
-                            <div class="form-text"><?php echo $__t('PDF / Word — अधिकतम २५ MB (server limit सानो भए त्यही लागू)। ठूलो फाइलमा “सुरक्षा जाँच असफल” होइन, साइज घटाउनुहोस्।', 'PDF / Word — max 25 MB (or smaller server limit). Oversized files are not a CSRF error — compress the PDF.'); ?></div>
+                            <div class="form-text"><?php echo $__t('PDF / Word — अधिकतम ५० MB (server limit सानो भए त्यही लागू)। ठूलो फाइलमा “सुरक्षा जाँच असफल” होइन, साइज घटाउनुहोस्।', 'PDF / Word — max 50 MB (or smaller server limit). Oversized files are not a CSRF error — compress the PDF.'); ?></div>
                             <?php if (!empty($editReport['file_path'])): ?>
                             <small class="text-muted"><?php echo $__t('हालको', 'Current'); ?>: <?php echo htmlspecialchars(basename((string)$editReport['file_path']), ENT_QUOTES, 'UTF-8'); ?></small>
                             <?php endif; ?>
@@ -412,12 +412,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     var fileInp = document.getElementById('rpt_file');
-    var maxBytes = <?php echo (int)(defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : 25 * 1024 * 1024); ?>;
+    var maxBytes = <?php echo (int)(defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : 50 * 1024 * 1024); ?>;
     if (fileInp) {
         fileInp.addEventListener('change', function () {
             if (!this.files || !this.files[0]) return;
             if (this.files[0].size > maxBytes) {
-                alert(<?php echo json_encode($__t('फाइल २५ MB भन्दा ठूलो छ। PDF compress गरेर पुनः अपलोड गर्नुहोस्।', 'File is larger than 25 MB. Compress the PDF and try again.')); ?>);
+                alert(<?php echo json_encode($__t('फाइल ५० MB भन्दा ठूलो छ। PDF compress गरेर पुनः अपलोड गर्नुहोस्।', 'File is larger than 50 MB. Compress the PDF and try again.')); ?>);
                 this.value = '';
             }
         });

@@ -64,10 +64,21 @@ $iniBytes = static function (string $val): int {
     if ($u === 'K') return (int) round($n * 1024);
     return (int) round($n);
 };
-if ($iniBytes('8M') === 8 * 1048576 && $iniBytes('25M') === 25 * 1048576) {
-    ok('ini size parse 8M/25M');
+if ($iniBytes('8M') === 8 * 1048576 && $iniBytes('50M') === 50 * 1048576) {
+    ok('ini size parse 8M/50M');
 } else {
     bad('ini size parse wrong');
+}
+if (preg_match('/MAX_REPORT_FILE_SIZE\',\s*50\s*\*\s*1024\s*\*\s*1024/', $cfg)) {
+    ok('report max is 50MB');
+} else {
+    bad('report max not 50MB');
+}
+$userIni = (string) @file_get_contents($root . '/.user.ini');
+if (strpos($userIni, 'upload_max_filesize = 50M') !== false && strpos($userIni, 'post_max_size = 55M') !== false) {
+    ok('.user.ini raises PHP upload/post limits');
+} else {
+    bad('.user.ini upload limits missing');
 }
 
 echo "\n$pass passed, $fail failed\n";

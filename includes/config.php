@@ -78,7 +78,7 @@ if (file_exists(__DIR__ . '/theme-assets.php')) {
 // File Upload Settings
 define('UPLOAD_PATH', ROOT_PATH . 'assets/uploads/');
 define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB - images / general uploads
-define('MAX_REPORT_FILE_SIZE', 25 * 1024 * 1024); // 25MB — annual/audit PDFs
+define('MAX_REPORT_FILE_SIZE', 50 * 1024 * 1024); // 50MB — annual/audit PDFs
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'webp']);
 define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']); // Image-only extensions
 
