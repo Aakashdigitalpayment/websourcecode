@@ -14,10 +14,10 @@ function bad(string $m): void { global $fail; $fail++; echo "FAIL $m\n"; }
 $js = (string) file_get_contents($root . '/assets/js/pull-to-refresh.js');
 $hdr = (string) file_get_contents($root . '/includes/header.php');
 
-if (strpos($js, 'v1.3') !== false) {
-    ok('pull-to-refresh.js is v1.3');
+if (strpos($js, 'v1.4') !== false) {
+    ok('pull-to-refresh.js is v1.4');
 } else {
-    bad('expected v1.3 banner');
+    bad('expected v1.4 banner');
 }
 
 if (preg_match('/\bvar armed\b|\barmed\s*=/', $js)) {
@@ -47,10 +47,15 @@ if (preg_match('/touchmove[\s\S]{0,200}if \(!armed/', $js)
     bad('touchmove may still run unarmed');
 }
 
-if (strpos($hdr, 'pull-to-refresh.js?v=1.3') !== false) {
-    ok('header cache-busts PTR to v=1.3');
+if (strpos($hdr, 'pull-to-refresh.js?v=1.4') !== false) {
+    ok('header cache-busts PTR to v=1.4');
 } else {
     bad('header still on old PTR ?v=');
+}
+if (strpos($js, 'coopPtrInit') !== false && strpos($js, 'DOMContentLoaded') !== false) {
+    ok('PTR waits for DOM before init');
+} else {
+    bad('PTR DOM boot missing');
 }
 
 /* Simulate old bug vs fix logic in PHP (mirrors intent) */

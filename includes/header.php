@@ -1095,7 +1095,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
     </style>
     <?php endif; ?>
 <script src="<?= SITE_URL ?>assets/js/pwa-register.js?v=3.2" defer></script>
-<script src="<?= SITE_URL ?>assets/js/pull-to-refresh.js?v=1.3" defer></script>
+<script src="<?= SITE_URL ?>assets/js/pull-to-refresh.js?v=1.4" defer></script>
 </head>
 <?php $useHeaderV2 = true; ?>
 <body class="<?php echo $useHeaderV2 ? 'header-v2' : ''; ?><?php echo !empty($__embed_frame) ? ' embed-in-member-portal' : ''; ?>">

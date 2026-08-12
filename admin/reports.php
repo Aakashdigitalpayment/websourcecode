@@ -64,8 +64,14 @@ checkCSRF();
             $is_active = isset($_POST['is_active']) ? 1 : 0;
             $display_order = (int)($_POST['display_order'] ?? 0);
 
-            // Handle file upload (annual PDFs often > 10MB)
-            $file_path = $_POST['existing_file'] ?? '';
+            // Keep existing file from DB only (never trust POST path)
+            $file_path = '';
+            if ($action === 'edit' && !empty($id)) {
+                $oldStmt = $db->prepare('SELECT file_path FROM reports WHERE id = ? LIMIT 1');
+                $oldStmt->execute([(int) $id]);
+                $oldRow = $oldStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+                $file_path = (string) ($oldRow['file_path'] ?? '');
+            }
             $reportMax = defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : (50 * 1024 * 1024);
             $ferr = (int) ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE);
             if ($ferr !== UPLOAD_ERR_NO_FILE && $ferr !== UPLOAD_ERR_OK) {
@@ -196,7 +202,6 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                       <input type="hidden" name="action" value="<?php echo $editReport ? 'edit' : 'add'; ?>">
                         <?php if ($editReport): ?>
                         <input type="hidden" name="id" value="<?php echo $editReport['id']; ?>">
-                        <input type="hidden" name="existing_file" value="<?php echo $editReport['file_path']; ?>">
                         <?php endif; ?>
 
                         <div class="mb-3">

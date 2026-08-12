@@ -1357,6 +1357,10 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
     $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
     $limit = ($maxSize !== null && (int) $maxSize > 0) ? (int) $maxSize : MAX_FILE_SIZE;
 
+    if ($fileTmp === '' || !is_uploaded_file($fileTmp)) {
+        return ['success' => false, 'message' => 'Invalid upload.'];
+    }
+
     // Check file size
     if ($fileSize > $limit) {
         $mb = max(1, (int) round($limit / (1024 * 1024)));
@@ -1368,19 +1372,27 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
         return ['success' => false, 'message' => 'Invalid file type.'];
     }
 
-    /* Extension-only अपलोड रोक्न — MIME (विशेष गरी PDF/DOC) जाँच */
-    if (class_exists('finfo')) {
+    /* Extension-only अपलोड रोक्न — MIME + magic bytes (scanned PDFs often octet-stream) */
+    if ($fileExt === 'pdf') {
+        $head = (string) @file_get_contents($fileTmp, false, null, 0, 8);
+        if (strpos($head, '%PDF') !== 0) {
+            return ['success' => false, 'message' => 'Invalid file content.'];
+        }
+    } elseif (class_exists('finfo')) {
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime  = $finfo->file($fileTmp);
+        $mime  = (string) $finfo->file($fileTmp);
         $mimeByExt = [
             'jpg'   => ['image/jpeg', 'image/pjpeg'],
             'jpeg'  => ['image/jpeg', 'image/pjpeg'],
             'png'   => ['image/png'],
             'gif'   => ['image/gif'],
             'webp'  => ['image/webp'],
-            'pdf'   => ['application/pdf'],
-            'doc'   => ['application/msword'],
-            'docx'  => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            'doc'   => ['application/msword', 'application/octet-stream'],
+            'docx'  => [
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/zip',
+                'application/octet-stream',
+            ],
         ];
         if (isset($mimeByExt[$fileExt]) && !in_array($mime, $mimeByExt[$fileExt], true)) {
             return ['success' => false, 'message' => 'Invalid file content.'];

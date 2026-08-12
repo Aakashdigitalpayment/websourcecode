@@ -1,7 +1,8 @@
 /* ══════════════════════════════════════════════════════════
-   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.3
+   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.4
    Touch-only. Fires window.location.reload() after threshold.
    Does NOT activate inside member portal embed frames.
+   v1.4: wait for body (defer-safe) before init.
    v1.3: safer form-focus check (don't block PTR after button focus).
    v1.2: arm only at document top — fixes mid-page false reload
          (stale startY=0 made scroll feel like auto page load).
@@ -10,9 +11,21 @@
 (function () {
     'use strict';
 
-    /* Skip inside iframe embeds (member portal) */
-    if (!document.body || document.body.classList.contains('embed-in-member-portal')) return;
-    /* Skip on non-touch devices */
+    function bootPtr() {
+        if (!document.body) return;
+        if (document.body.classList.contains('embed-in-member-portal')) return;
+        if (!('ontouchstart' in window)) return;
+        coopPtrInit();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootPtr, { once: true });
+    } else {
+        bootPtr();
+    }
+
+    function coopPtrInit() {
+    /* Skip on non-touch devices (also checked in bootPtr) */
     if (!('ontouchstart' in window)) return;
 
     /* Long public/member forms — pull-to-refresh wipes in-progress input */
@@ -271,4 +284,5 @@
         if (armed || pulling) cancelGesture();
     }, { passive: true });
 
+    } /* coopPtrInit */
 })();

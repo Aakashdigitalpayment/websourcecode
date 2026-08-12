@@ -80,6 +80,16 @@ if (strpos($userIni, 'upload_max_filesize = 50M') !== false && strpos($userIni, 
 } else {
     bad('.user.ini upload limits missing');
 }
+if (strpos($cfg, '%PDF') !== false && strpos($cfg, 'is_uploaded_file') !== false) {
+    ok('PDF magic-byte + is_uploaded_file checks');
+} else {
+    bad('PDF/upload validation harden missing');
+}
+if (strpos($rpt, 'SELECT file_path FROM reports') !== false) {
+    ok('edit keeps file_path from DB not POST');
+} else {
+    bad('existing_file POST still trusted');
+}
 
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);
