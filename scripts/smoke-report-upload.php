@@ -98,8 +98,8 @@ if (strpos($pub, 'function render_report_actions') !== false
 } else {
     bad('public report actions not unified');
 }
-if (strpos($rpt, 'filter-buttons') !== false && strpos($rpt, 'btn-group-action') !== false) {
-    ok('admin report filters + action row layout');
+if (strpos($rpt, 'rpt-filter-bar') !== false && strpos($rpt, 'rpt-row-actions') !== false && strpos($rpt, 'rpt-act-form') !== false) {
+    ok('admin report filters + uniform action row');
 } else {
     bad('admin report filter/action layout missing');
 }

@@ -298,21 +298,122 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
     <?php else: ?>
 
         <!-- List Section -->
+    <style>
+    /* Page-scoped: escape global .btn / card-header icon-button CSS */
+    body.admin-page-reports .rpt-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 12px 16px;
+        background: #f8faf9;
+        border-bottom: 1px solid #e6eee9;
+    }
+    body.admin-page-reports .rpt-chip {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: auto !important;
+        min-width: unset !important;
+        height: auto !important;
+        min-height: 34px !important;
+        padding: 6px 14px !important;
+        margin: 0 !important;
+        border-radius: 999px !important;
+        border: 1.5px solid #c5d0c9 !important;
+        background: #fff !important;
+        color: #1f2937 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+    }
+    body.admin-page-reports .rpt-chip.is-active {
+        background: #111827 !important;
+        color: #fff !important;
+        border-color: #111827 !important;
+    }
+    body.admin-page-reports .rpt-actions-cell {
+        width: 132px !important;
+        min-width: 132px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+    }
+    body.admin-page-reports .rpt-row-actions {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin: 0 auto;
+    }
+    body.admin-page-reports .rpt-act-form {
+        display: inline-flex !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 34px !important;
+        height: 34px !important;
+        flex: 0 0 34px !important;
+    }
+    body.admin-page-reports .rpt-act {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: 0 0 34px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        line-height: 1 !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+    }
+    body.admin-page-reports .rpt-act-view { background: #0f766e !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-edit { background: #1f2937 !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-del { background: #dc2626 !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-placeholder {
+        visibility: hidden;
+        pointer-events: none;
+        background: transparent !important;
+    }
+    body.admin-page-reports .rpt-act i,
+    body.admin-page-reports .rpt-act svg {
+        width: 15px !important;
+        height: 15px !important;
+        color: #fff !important;
+        stroke: #fff !important;
+    }
+    </style>
     <div class="row">
         <div class="col-12">
-            <div class="card admin-table-card">
-                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-                    <h5 class="mb-0 flex-shrink-0"><?php echo $__t('प्रतिवेदन सूची', 'Report List'); ?></h5>
-                    <div class="filter-buttons d-flex flex-wrap gap-2">
-                        <a href="?type=all" class="btn btn-sm <?php echo $filterType === 'all' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('सबै', 'All'); ?></a>
-                        <a href="?type=monthly" class="btn btn-sm <?php echo $filterType === 'monthly' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('मासिक', 'Monthly'); ?></a>
-                        <a href="?type=quarterly" class="btn btn-sm <?php echo $filterType === 'quarterly' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('त्रैमासिक', 'Quarterly'); ?></a>
-                        <a href="?type=progress" class="btn btn-sm <?php echo $filterType === 'progress' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('प्रगति', 'Progress'); ?></a>
-                        <a href="?type=annual" class="btn btn-sm <?php echo $filterType === 'annual' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('वार्षिक', 'Annual'); ?></a>
-                        <a href="?type=financial" class="btn btn-sm <?php echo $filterType === 'financial' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('वित्तीय', 'Financial'); ?></a>
-                        <a href="?type=audit" class="btn btn-sm <?php echo $filterType === 'audit' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('लेखापरीक्षण', 'Audit'); ?></a>
-                        <a href="?type=agm" class="btn btn-sm <?php echo $filterType === 'agm' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('साधारण सभा', 'AGM'); ?></a>
-                    </div>
+            <div class="card admin-table-card rpt-list-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><?php echo $__t('प्रतिवेदन सूची', 'Report List'); ?></h5>
+                </div>
+                <div class="rpt-filter-bar">
+                    <?php
+                    $rptFilters = [
+                        'all' => $__t('सबै', 'All'),
+                        'monthly' => $__t('मासिक', 'Monthly'),
+                        'quarterly' => $__t('त्रैमासिक', 'Quarterly'),
+                        'progress' => $__t('प्रगति', 'Progress'),
+                        'annual' => $__t('वार्षिक', 'Annual'),
+                        'financial' => $__t('वित्तीय', 'Financial'),
+                        'audit' => $__t('लेखापरीक्षण', 'Audit'),
+                        'agm' => $__t('साधारण सभा', 'AGM'),
+                    ];
+                    foreach ($rptFilters as $ft => $flabel):
+                    ?>
+                    <a href="?type=<?php echo urlencode($ft); ?>" class="rpt-chip<?php echo $filterType === $ft ? ' is-active' : ''; ?>"><?php echo $flabel; ?></a>
+                    <?php endforeach; ?>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -323,7 +424,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                     <th class="border-0"><?php echo $__t('प्रकार','Type'); ?></th>
                                     <th class="border-0"><?php echo $__t('अवधि','Period'); ?></th>
                                     <th class="border-0"><?php echo $__t('स्थिति','Status'); ?></th>
-                                    <th class="border-0 text-center"><?php echo $__t('कार्य','Actions'); ?></th>
+                                    <th class="border-0 text-center rpt-actions-cell"><?php echo $__t('कार्य','Actions'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -361,8 +462,8 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                             <?php echo $report['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?>
                                         </span>
                                     </td>
-                                    <td class="align-middle">
-                                        <div class="btn-group-action d-inline-flex align-items-center flex-nowrap gap-1">
+                                    <td class="align-middle rpt-actions-cell">
+                                        <div class="rpt-row-actions">
                                             <?php
                                             $adminFileHref = '';
                                             $rawPath = trim((string) ($report['file_path'] ?? ''));
@@ -376,19 +477,21 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                             }
                                             if ($adminFileHref !== ''):
                                             ?>
-                                            <a href="<?php echo htmlspecialchars($adminFileHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-success" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer">
+                                            <a href="<?php echo htmlspecialchars($adminFileHref, ENT_QUOTES, 'UTF-8'); ?>" class="rpt-act rpt-act-view" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer" aria-label="<?php echo $__t('हेर्नुहोस्','View'); ?>">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
                                             </a>
+                                            <?php else: ?>
+                                            <span class="rpt-act rpt-act-placeholder" aria-hidden="true"></span>
                                             <?php endif; ?>
-                                            <a href="?edit=<?php echo (int) $report['id']; ?>" class="btn btn-sm btn-primary" title="<?php echo $__t('सम्पादन','Edit'); ?>">
-                                                <i class="fas fa-edit"></i>
+                                            <a href="?edit=<?php echo (int) $report['id']; ?>" class="rpt-act rpt-act-edit" title="<?php echo $__t('सम्पादन','Edit'); ?>" aria-label="<?php echo $__t('सम्पादन','Edit'); ?>">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
                                             </a>
-                                            <form method="POST" class="svc-inline-form m-0" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
+                                            <form method="POST" class="rpt-act-form" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?php echo (int) $report['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-danger" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
-                                                    <i class="fas fa-trash"></i>
+                                                <button type="submit" class="rpt-act rpt-act-del" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
+                                                    <i class="fas fa-trash" aria-hidden="true"></i>
                                                 </button>
                                             </form>
                                         </div>
