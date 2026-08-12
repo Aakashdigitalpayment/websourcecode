@@ -1,6 +1,9 @@
 <?php
 require_once 'includes/config.php';
 $pageTitle = isEnglish() ? 'Date Converter' : 'मिति रूपान्तरण';
+$pageDescription = isEnglish()
+    ? 'Convert dates between Bikram Sambat (BS) and Gregorian (AD) calendars.'
+    : 'विक्रम संवत् (वि.सं.) र ईस्वी संवत् (ई.सं.) बीच मिति रूपान्तरण गर्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 ?>

@@ -10,6 +10,9 @@ if (is_file($kycPublicFormFile)) {
     error_log('loan-apply: missing include file includes/kyc-public-form.php');
 }
 $pageTitle = isEnglish() ? 'Online Loan Application' : 'अनलाइन ऋण आवेदन';
+$pageDescription = isEnglish()
+    ? 'Apply online for savings-backed and other loans from our cooperative.'
+    : 'हाम्रो सहकारीबाट बचत धितो तथा अन्य ऋणका लागि अनलाइन आवेदन दिनुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

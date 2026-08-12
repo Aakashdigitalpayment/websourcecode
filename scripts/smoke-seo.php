@@ -80,11 +80,32 @@ assertFileContains('includes/header.php', 'name="twitter:card"', 'twitter card')
 assertFileContains('includes/header.php', 'class="skip-link"', 'skip link');
 assertFileContains('includes/header.php', 'id="main-content"', 'main landmark id');
 
+// Multi-coop SEO: no hardcoded city; settings-driven tagline/city; richer schema
+assertFileContains('includes/config.php', 'seo_tagline', 'title uses seo_tagline setting');
+assertFileContains('includes/config.php', 'site_city', 'title/schema use site_city');
+assertFileContains('includes/config.php', 'CreditUnion', 'Organization schema includes CreditUnion');
+assertFileContains('includes/config.php', 'openingHoursSpecification', 'hours in Organization schema when set');
+assertFileContains('includes/config.php', 'hasMap', 'map URL in Organization schema when set');
+$cfg = (string) file_get_contents($root . '/includes/config.php');
+if (strpos($cfg, "'Pokhara'") === false && strpos($cfg, '"Pokhara"') === false && strpos($cfg, 'पोखरा') === false) {
+    ok('includes/config.php: no hardcoded Pokhara/पोखरा in SEO title path');
+} else {
+    fail('includes/config.php: still hardcodes Pokhara/पोखरा');
+}
+assertFileContains('admin/settings.php', 'seo_tagline', 'admin can save seo_tagline');
+assertFileContains('admin/settings.php', 'site_city', 'admin can save site_city');
+assertFileContains('admin/settings.php', 'sitemap.xml', 'GSC tip uses sitemap.xml');
+assertFileContains('sitemap.php', 'filemtime', 'static sitemap lastmod from filemtime');
+assertFileContains('committees.php', '$pageDescription', 'committees unique meta description');
+assertFileContains('loan-apply.php', '$pageDescription', 'loan-apply unique meta description');
+assertFileContains('emi-calculator.php', '$pageDescription', 'emi-calculator unique meta description');
+assertFileContains('institutional-profile.php', '$pageDescription', 'institutional-profile unique meta description');
+
 // Print control should be a button (not href="#")
 assertFileContains('member/kyc-print.php', 'onclick="window.print();"', 'kyc print action');
 assertFileContains('member/kyc-print.php', '<button type="button" class="btn"', 'kyc print is button');
 
-$lint = ['robots.php', 'sitemap.php', 'includes/header.php', 'member/kyc-print.php'];
+$lint = ['robots.php', 'sitemap.php', 'includes/header.php', 'member/kyc-print.php', 'admin/settings.php'];
 foreach ($lint as $f) {
     $cmd = 'php -l ' . escapeshellarg($root . '/' . $f) . ' 2>&1';
     $out = [];

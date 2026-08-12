@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Committees' : 'समिति/उपसमिति';
+$pageDescription = isEnglish()
+    ? 'Board, audit and sub-committees — roles and members of our cooperative.'
+    : 'संचालक, लेखा सुपरिवेक्षण र उपसमितिहरू — हाम्रो सहकारीका भूमिका तथा सदस्यहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

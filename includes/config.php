@@ -632,7 +632,7 @@ function seo_document_title(?string $pageTitle = null, bool $english = false): s
     }
 
     if ($isHome) {
-        /* Brand-first + short location/services tag for SERP CTR (no "गृहपृष्ठ" prefix) */
+        /* Brand-first + optional location/services tag — NEVER hardcode another city's name */
         $tagline = trim((string) getSetting($english ? 'seo_tagline_en' : 'seo_tagline', ''));
         if ($tagline === '') {
             $tagline = trim((string) getSetting($english ? 'seo_tagline' : 'seo_tagline_en', ''));
@@ -640,11 +640,30 @@ function seo_document_title(?string $pageTitle = null, bool $english = false): s
         if ($tagline === '') {
             $city = trim((string) getSetting($english ? 'site_city_en' : 'site_city', ''));
             if ($city === '') {
-                $city = $english ? 'Pokhara' : 'पोखरा';
+                $city = trim((string) getSetting($english ? 'site_city' : 'site_city_en', ''));
             }
-            $tagline = $english
-                ? ('Savings & Loan Services, ' . $city)
-                : ('बचत, ऋण सेवा | ' . $city);
+            if ($city === '') {
+                /* Soft infer from address (first comma segment) — coop-specific only */
+                $addrGuess = trim((string) getSetting($english ? 'address_en' : 'address', getSetting('address', '')));
+                if ($addrGuess !== '') {
+                    $parts = preg_split('/[,،|]/u', $addrGuess) ?: [];
+                    $city = trim((string) ($parts[0] ?? ''));
+                    if (function_exists('mb_strlen') && mb_strlen($city, 'UTF-8') > 28) {
+                        $city = '';
+                    } elseif (strlen($city) > 40) {
+                        $city = '';
+                    }
+                }
+            }
+            if ($city !== '') {
+                $tagline = $english
+                    ? ('Savings & Credit Cooperative, ' . $city)
+                    : ('बचत तथा ऋण सहकारी | ' . $city);
+            } else {
+                $tagline = $english
+                    ? 'Savings & Credit Cooperative'
+                    : 'बचत तथा ऋण सहकारी संस्था';
+            }
         }
         $homeTitle = $brand;
         if ($alt !== '' && $seoLower($alt) !== $seoLower($brand)) {
@@ -707,7 +726,34 @@ function seo_resolve_meta_description(?string $pageDescription = null, bool $eng
 }
 
 /**
- * Build Organization / FinancialService JSON-LD from site settings.
+ * Normalize "10:00" / "10:00 AM" → HH:MM for schema.org (empty if unparsable).
+ */
+function seo_normalize_clock(string $raw): string
+{
+    $t = trim($raw);
+    if ($t === '') {
+        return '';
+    }
+    if (preg_match('/^(\d{1,2}):(\d{2})\s*(am|pm)?$/i', $t, $m)) {
+        $h = (int) $m[1];
+        $min = (int) $m[2];
+        $ap = strtolower((string) ($m[3] ?? ''));
+        if ($ap === 'pm' && $h < 12) {
+            $h += 12;
+        }
+        if ($ap === 'am' && $h === 12) {
+            $h = 0;
+        }
+        if ($h > 23 || $min > 59) {
+            return '';
+        }
+        return sprintf('%02d:%02d', $h, $min);
+    }
+    return '';
+}
+
+/**
+ * Build Organization / CreditUnion JSON-LD from site settings (per-coop).
  *
  * @return array<string, mixed>
  */
@@ -721,12 +767,14 @@ function seo_organization_json_ld(bool $english = false): array
         $logo = trim((string) getSetting('logo', ''));
     }
     $desc = seo_resolve_meta_description(null, $english);
+    $base = rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/';
 
     $org = [
         '@context' => 'https://schema.org',
-        '@type' => ['FinancialService', 'Organization'],
+        '@type' => ['CreditUnion', 'FinancialService', 'Organization'],
+        '@id' => $base . '#organization',
         'name' => $brand,
-        'url' => rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/',
+        'url' => $base,
         'logo' => seo_absolute_asset_url($logo),
         'image' => seo_absolute_asset_url($logo),
         'description' => $desc,
@@ -745,6 +793,7 @@ function seo_organization_json_ld(bool $english = false): array
     $mobile = trim((string) getSetting('mobile', ''));
     $email = trim((string) getSetting('email', getSetting('contact_email', '')));
     $addr = trim((string) getSetting($english ? 'address_en' : 'address', getSetting('address', '')));
+    $city = trim((string) getSetting($english ? 'site_city_en' : 'site_city', getSetting('site_city', '')));
     if ($phone !== '') {
         $org['telephone'] = $phone;
     } elseif ($mobile !== '') {
@@ -753,17 +802,48 @@ function seo_organization_json_ld(bool $english = false): array
     if ($email !== '') {
         $org['email'] = $email;
     }
-    if ($addr !== '') {
-        $org['address'] = [
+    if ($addr !== '' || $city !== '') {
+        $postal = [
             '@type' => 'PostalAddress',
-            'streetAddress' => $addr,
             'addressCountry' => 'NP',
         ];
-        $org['areaServed'] = [
-            '@type' => 'Country',
-            'name' => 'Nepal',
+        if ($addr !== '') {
+            $postal['streetAddress'] = $addr;
+        }
+        if ($city !== '') {
+            $postal['addressLocality'] = $city;
+        }
+        $org['address'] = $postal;
+        $org['areaServed'] = $city !== ''
+            ? ['@type' => 'City', 'name' => $city]
+            : ['@type' => 'Country', 'name' => 'Nepal'];
+    }
+
+    $map = trim((string) getSetting('google_map_url', ''));
+    if ($map !== '' && preg_match('#^https?://#i', $map)) {
+        $org['hasMap'] = $map;
+    }
+
+    $opens = seo_normalize_clock((string) getSetting('office_time_start', ''));
+    $closes = seo_normalize_clock((string) getSetting('office_time_end', ''));
+    if ($opens !== '' && $closes !== '') {
+        $org['openingHoursSpecification'] = [
+            [
+                '@type' => 'OpeningHoursSpecification',
+                'dayOfWeek' => [
+                    'https://schema.org/Sunday',
+                    'https://schema.org/Monday',
+                    'https://schema.org/Tuesday',
+                    'https://schema.org/Wednesday',
+                    'https://schema.org/Thursday',
+                    'https://schema.org/Friday',
+                ],
+                'opens' => $opens,
+                'closes' => $closes,
+            ],
         ];
     }
+
     $est = trim((string) getSetting('established_year', ''));
     if ($est !== '') {
         $org['foundingDate'] = $est;

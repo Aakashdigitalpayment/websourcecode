@@ -3,6 +3,9 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/kyc-public-form.php';
 $pageTitle = isEnglish() ? 'File Grievance' : 'गुनासो दर्ता गर्नुहोस्';
+$pageDescription = isEnglish()
+    ? 'Submit and track a grievance with our cooperative grievance officer.'
+    : 'हाम्रो सहकारीका गुनासो अधिकृतसमक्ष गुनासो दर्ता र ट्र्याक गर्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

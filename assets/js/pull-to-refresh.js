@@ -1,14 +1,17 @@
 /* ══════════════════════════════════════════════════════════
-   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.1
+   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.3
    Touch-only. Fires window.location.reload() after threshold.
    Does NOT activate inside member portal embed frames.
+   v1.3: safer form-focus check (don't block PTR after button focus).
+   v1.2: arm only at document top — fixes mid-page false reload
+         (stale startY=0 made scroll feel like auto page load).
    v1.1: disabled on long forms + while editing inputs.
    ══════════════════════════════════════════════════════════ */
 (function () {
     'use strict';
 
     /* Skip inside iframe embeds (member portal) */
-    if (document.body.classList.contains('embed-in-member-portal')) return;
+    if (!document.body || document.body.classList.contains('embed-in-member-portal')) return;
     /* Skip on non-touch devices */
     if (!('ontouchstart' in window)) return;
 
@@ -28,18 +31,43 @@
 
     function isFormInteraction() {
         var el = document.activeElement;
-        if (!el) return false;
+        if (!el || el === document.body || el === document.documentElement) return false;
         var tag = (el.tagName || '').toLowerCase();
-        if (tag === 'input' || tag === 'textarea' || tag === 'select' || tag === 'button') return true;
+        /* Only real text entry — not every button/form focus (blocked PTR after SA clicks) */
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
         if (el.isContentEditable) return true;
-        if (el.closest && el.closest('form')) return true;
+        return false;
+    }
+
+    function pageScrollY() {
+        return window.scrollY || document.documentElement.scrollTop || 0;
+    }
+
+    /* Nested scrollers (carousel, tables) — don't steal their gestures */
+    function isInsideScrollable(el) {
+        var n = el;
+        while (n && n !== document.body && n !== document.documentElement) {
+            if (n.nodeType === 1) {
+                var st = window.getComputedStyle(n);
+                var oy = st.overflowY;
+                if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && n.scrollHeight > n.clientHeight + 4) {
+                    return true;
+                }
+                var ox = st.overflowX;
+                if ((ox === 'auto' || ox === 'scroll' || ox === 'overlay') && n.scrollWidth > n.clientWidth + 4) {
+                    return true;
+                }
+            }
+            n = n.parentElement;
+        }
         return false;
     }
 
     /* ── Config ─────────────────────────────────────── */
-    var THRESHOLD = 72;   /* px of pull needed to trigger */
+    var THRESHOLD = 88;   /* px of pull needed to trigger (was 72 — less accidental) */
     var MAX_PULL  = 110;  /* max visual travel */
     var DAMPEN    = 0.52; /* how much to dampen finger movement */
+    var TOP_MAX   = 2;    /* must stay at document top for PTR */
 
     /* ── Prevent browser native PTR conflicting ─────── */
     document.documentElement.style.overscrollBehaviorY = 'contain';
@@ -47,6 +75,7 @@
     /* ── Build indicator DOM ─────────────────────────── */
     var indicator = document.createElement('div');
     indicator.id  = 'coop-ptr';
+    indicator.setAttribute('aria-hidden', 'true');
     indicator.innerHTML =
         '<div class="coop-ptr-ring">' +
             '<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/></svg>' +
@@ -122,6 +151,8 @@
 
     /* ── State ───────────────────────────────────────── */
     var startY    = 0;
+    var startX    = 0;
+    var armed     = false; /* true only after a valid top-of-page touchstart */
     var pulling   = false;
     var triggered = false;
     var circle    = null;
@@ -156,25 +187,50 @@
         }, 350);
     }
 
+    function cancelGesture() {
+        armed = false;
+        if (pulling) {
+            pulling = false;
+            snapBack();
+        }
+    }
+
     /* ── Touch handlers ──────────────────────────────── */
     document.addEventListener('touchstart', function (e) {
-        if (window.scrollY > 4)      return;
-        if (e.touches.length !== 1)  return;
-        if (isFormInteraction())     return;
-        startY    = e.touches[0].clientY;
+        armed     = false;
         pulling   = false;
         triggered = false;
+        if (pageScrollY() > TOP_MAX) return;
+        if (e.touches.length !== 1) return;
+        if (isFormInteraction()) return;
+        if (e.target && isInsideScrollable(e.target)) return;
+
+        startY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        armed  = true;
     }, { passive: true });
 
     document.addEventListener('touchmove', function (e) {
-        if (triggered) return;
-        if (isFormInteraction()) return;
+        if (!armed || triggered) return;
+        if (isFormInteraction()) {
+            cancelGesture();
+            return;
+        }
+        /* Left the top while dragging — this is normal scroll, not PTR */
+        if (pageScrollY() > TOP_MAX) {
+            cancelGesture();
+            return;
+        }
+
         var dy = e.touches[0].clientY - startY;
-        if (dy < 6) return;
+        if (dy < 8) return;
 
         /* Ignore mostly-horizontal swipes */
-        var dx = Math.abs(e.touches[0].clientX - (window._ptrStartX || e.touches[0].clientX));
-        if (dx > dy * 1.4) return;
+        var dx = Math.abs(e.touches[0].clientX - startX);
+        if (dx > dy * 1.2) {
+            cancelGesture();
+            return;
+        }
 
         pulling = true;
         var pull  = Math.min(dy * DAMPEN, MAX_PULL);
@@ -196,15 +252,13 @@
         }
     }, { passive: true });
 
-    document.addEventListener('touchstart', function (e) {
-        window._ptrStartX = e.touches[0].clientX;
-    }, { passive: true });
-
     document.addEventListener('touchend', function () {
+        if (!armed) return;
+        armed = false;
         if (!pulling) return;
         pulling = false;
 
-        if (indicator.classList.contains('ptr-ready') && !triggered) {
+        if (indicator.classList.contains('ptr-ready') && !triggered && pageScrollY() <= TOP_MAX) {
             triggered = true;
             showLoading();
             setTimeout(function () { window.location.reload(); }, 420);
@@ -214,7 +268,7 @@
     }, { passive: true });
 
     document.addEventListener('touchcancel', function () {
-        if (pulling) { pulling = false; snapBack(); }
+        if (armed || pulling) cancelGesture();
     }, { passive: true });
 
 })();

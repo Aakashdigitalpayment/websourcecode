@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Important Links' : 'महत्त्वपूर्ण लिंकहरू';
+$pageDescription = isEnglish()
+    ? 'Useful official and partner links curated by our cooperative.'
+    : 'हाम्रो सहकारीले सङ्कलन गरेका उपयोगी आधिकारिक तथा साझेदार लिंकहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 ?>

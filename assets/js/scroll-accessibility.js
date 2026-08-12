@@ -1,5 +1,5 @@
 /**
- * Scroll Accessibility Controller  — v3.0
+ * Scroll Accessibility Controller  — v3.2
  * File: assets/js/scroll-accessibility.js
  *
  * Features:
@@ -9,6 +9,14 @@
  *      • Panel मा 🐢 / 🚶 / 🚀 speed toggle
  *   2. Camera Gesture Scroll — हात माथि/तल हल्लाउँदा scroll
  *   3. Mobile Tilt Scroll    — phone झुकाउँदा scroll
+ *
+ * v3.2: fix touch+mouse double-hold scroll; guard voice sort; single init.
+ * v3.1 safe harden:
+ *   • Word-boundary voice match (stops "group"→up, "download"→down)
+ *   • Drop noisy phonetics (color/dollar/mathew)
+ *   • Pause gestures while typing in forms
+ *   • Camera ↔ Eye mutually exclusive
+ *   • Hold scroll uses instant steps; bottom-nav clearance; Escape closes
  *
  * Voice Commands (नेपाली + Hindi + English):
  *   माथि / ऊपर / up         → scroll up
@@ -80,7 +88,7 @@
         /* ── SPEED CONTROL: Normal ── */
         {
             words: [
-                'सामान्य', 'ठीक', 'मध्यम', 'normal', 'medium', 'reset speed', 'default'
+                'सामान्य', 'मध्यम', 'normal', 'medium', 'reset speed', 'default speed'
             ],
             action: 'speed-normal', label: '🚶 Normal Speed'
         },
@@ -108,10 +116,9 @@
         /* ── UP ── */
         {
             words: [
-                /* Nepali */  'माथि', 'मथि', 'उपर', 'उमाथि', 'माते', 'माती', 'मथ',
+                /* Nepali */  'माथि', 'मथि', 'उपर', 'उमाथि',
                 /* Hindi */   'ऊपर', 'ऊपर जाओ', 'ऊपर जा',
-                /* English */ 'up', 'scroll up', 'go up', 'move up', 'above', 'mathi',
-                /* phonetic */ 'marty', 'matty', 'mati', 'mata', 'mathe', 'mathew', 'math i'
+                /* English */ 'up', 'scroll up', 'go up', 'move up', 'mathi'
             ],
             action: 'up', label: '⬆ माथि'
         },
@@ -121,8 +128,8 @@
             words: [
                 /* Nepali */  'तला', 'तल', 'तल्लो', 'तल्ला', 'तला जाऊ',
                 /* Hindi */   'नीचे', 'नीचे जाओ', 'नीचे जा', 'नीचे चलो',
-                /* English */ 'down', 'scroll down', 'go down', 'move down', 'below',
-                /* phonetic */ 'tala', 'tal', 'tulla', 'tla', 'color', 'dollar', 'talar'
+                /* English */ 'down', 'scroll down', 'go down', 'move down',
+                /* phonetic */ 'tala'
             ],
             action: 'down', label: '⬇ तला'
         },
@@ -132,7 +139,7 @@
             words: [
                 'धेरै माथि', 'शुरु', 'सुरु', 'सुरुवात', 'शिर्ष', 'शीर्ष', 'सबैभन्दा माथि',
                 'शुरू', 'सबसे ऊपर', 'शुरुआत',
-                'top', 'go to top', 'beginning', 'start', 'home'
+                'top', 'go to top', 'beginning', 'page top'
             ],
             action: 'top', label: '⏫ शीर्षमा'
         },
@@ -142,7 +149,7 @@
             words: [
                 'धेरै तला', 'अन्त', 'अन्तिम', 'सबैभन्दा तला',
                 'अंत', 'सबसे नीचे', 'आखिर',
-                'bottom', 'end', 'go to bottom', 'last', 'talla'
+                'bottom', 'go to bottom', 'page bottom', 'talla'
             ],
             action: 'bottom', label: '⏬ अन्तमा'
         },
@@ -174,15 +181,38 @@
     function getStep() { return SPEEDS[currentSpeed].step; }
     function getBig()  { return SPEEDS[currentSpeed].big;  }
 
+    function prefersReducedMotion() {
+        try {
+            return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        } catch (ex) {
+            return false;
+        }
+    }
+
+    function scrollBehavior() {
+        return prefersReducedMotion() ? 'auto' : 'smooth';
+    }
+
+    /* Typing / form focus — don't steal scroll with tilt/camera/eye */
+    function isTypingInForm() {
+        var el = document.activeElement;
+        if (!el) return false;
+        var tag = (el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+        if (el.isContentEditable) return true;
+        return false;
+    }
+
     /* Single scroll command */
     function doScroll(action) {
         stopContinuous(); /* नयाँ command आउँदा continuous रोक्ने */
 
         var s = getStep();
-        if (action === 'up')     window.scrollBy({ top: -s, behavior: 'smooth' });
-        if (action === 'down')   window.scrollBy({ top:  s, behavior: 'smooth' });
-        if (action === 'top')    window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (action === 'bottom') window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+        var beh = scrollBehavior();
+        if (action === 'up')     window.scrollBy({ top: -s, behavior: beh });
+        if (action === 'down')   window.scrollBy({ top:  s, behavior: beh });
+        if (action === 'top')    window.scrollTo({ top: 0, behavior: beh });
+        if (action === 'bottom') window.scrollTo({ top: document.documentElement.scrollHeight, behavior: beh });
         if (action === 'stop')   { /* already stopped above */ }
 
         if (action === 'speed-fast')   setSpeed('fast');
@@ -195,7 +225,8 @@
 
     /* Gesture scroll — instant (behavior:'auto') for camera/eye/tilt
        doScroll() uses 'smooth' for voice/buttons; gesture needs immediate response */
-    function gestureScroll(dir) {
+    function gestureScroll(dir, force) {
+        if (!force && isTypingInForm()) return;
         var s = getStep();
         if (dir === 'up')   window.scrollBy({ top: -s, behavior: 'auto' });
         if (dir === 'down') window.scrollBy({ top:  s, behavior: 'auto' });
@@ -214,10 +245,10 @@
         continuousDir = dir;
         var s = getStep();
         /* First fire immediately */
-        window.scrollBy({ top: dir === 'up' ? -s : s, behavior: 'smooth' });
+        window.scrollBy({ top: dir === 'up' ? -s : s, behavior: scrollBehavior() });
         continuousTimer = setInterval(function () {
             var step = getStep(); /* live speed updates पनि reflect हुन्छ */
-            window.scrollBy({ top: dir === 'up' ? -step : step, behavior: 'smooth' });
+            window.scrollBy({ top: dir === 'up' ? -step : step, behavior: 'auto' });
         }, CONTINUOUS_INTERVAL_MS);
         showToast((dir === 'up' ? '⬆⬆' : '⬇⬇') + ' जारी — "रोक" भन्नुहोस् बन्द गर्न', 'success');
         updateContIndicator(dir);
@@ -263,16 +294,48 @@
     };
 
     function matchVoiceAction(transcript) {
-        var t = transcript.trim().toLowerCase();
+        var t = String(transcript || '').trim().toLowerCase();
+        if (!t) return null;
+
         /* Longer / more-specific phrases पहिले match गर्ने (continuous, speed, etc.) */
         var sorted = VOICE_MAP.slice().sort(function (a, b) {
-            return Math.max.apply(null, b.words.map(function (w) { return w.length; }))
-                 - Math.max.apply(null, a.words.map(function (w) { return w.length; }));
+            function maxLen(entry) {
+                var words = (entry && entry.words) ? entry.words : [];
+                if (!words.length) return 0;
+                var m = 0;
+                for (var i = 0; i < words.length; i++) {
+                    var L = String(words[i] || '').length;
+                    if (L > m) m = L;
+                }
+                return m;
+            }
+            return maxLen(b) - maxLen(a);
         });
+
+        function escapeRe(s) {
+            return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        /* ASCII short words use boundaries — prevents "group"→up, "download"→down */
+        function phraseInTranscript(phrase) {
+            var p = String(phrase || '').toLowerCase().trim();
+            if (!p) return false;
+            if (p.indexOf(' ') !== -1) {
+                return t.indexOf(p) !== -1;
+            }
+            if (/^[a-z0-9']+$/i.test(p)) {
+                return new RegExp('(?:^|[^a-z0-9])' + escapeRe(p) + '(?:$|[^a-z0-9])', 'i').test(t);
+            }
+            /* Nepali / Hindi — whitespace or punctuation bounded when possible */
+            return new RegExp('(?:^|[\\s,۔।.!?؛;:"\'()])' + escapeRe(p) + '(?:$|[\\s,۔।.!?؛;:"\'()])').test(t)
+                || t === p;
+        }
+
         for (var i = 0; i < sorted.length; i++) {
             var entry = sorted[i];
-            for (var j = 0; j < entry.words.length; j++) {
-                if (t.indexOf(entry.words[j].toLowerCase()) !== -1) {
+            var words = (entry && entry.words) ? entry.words : [];
+            for (var j = 0; j < words.length; j++) {
+                if (phraseInTranscript(words[j])) {
                     return entry;
                 }
             }
@@ -413,6 +476,7 @@
     var EYE_FPS = 14; /* 10→14: faster eye frame analysis */
 
     function startCamera() {
+        if (camStream) return true;
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             showToast('📷 Camera यो browser मा उपलब्ध छैन।', 'error');
             return false;
@@ -468,6 +532,7 @@
     }
 
     function analyzeFrame() {
+        if (isTypingInForm()) return;
         if (!camVideo || !camCtx || camVideo.readyState < 3) return;
         camCtx.drawImage(camVideo, 0, 0, 160, 120);
         var current = camCtx.getImageData(0, 0, 160, 120).data;
@@ -527,6 +592,7 @@
        अनुहार तला zone  = scroll down
     ───────────────────────────────────────── */
     function analyzeEyeFrame() {
+        if (isTypingInForm()) return;
         if (!eyeVideo || !eyeCtx || eyeVideo.readyState < 3) return;
         eyeCtx.drawImage(eyeVideo, 0, 0, 160, 120);
         var data = eyeCtx.getImageData(0, 0, 160, 120).data;
@@ -568,6 +634,7 @@
     }
 
     function startEye() {
+        if (eyeStream) return true;
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             showToast('👁 Eye tracking यो browser मा उपलब्ध छैन।', 'error');
             return false;
@@ -741,6 +808,7 @@
         if (!state.eye) {
             showPermissionGuide('eye',
                 function () { /* Allow clicked */
+                    if (state.camera) { state.camera = false; stopCamera(); }
                     var ok = startEye();
                     if (ok) { state.eye = true; } else { state.eye = false; }
                     updateButtons();
@@ -760,6 +828,7 @@
         if (!state.camera) {
             showPermissionGuide('camera',
                 function () { /* Allow clicked */
+                    if (state.eye) { state.eye = false; stopEye(); }
                     var ok = startCamera();
                     if (ok) { state.camera = true; } else { state.camera = false; }
                     updateButtons();
@@ -781,6 +850,7 @@
     var tiltBase = null, lastTiltScroll = 0;
 
     function handleOrientation(e) {
+        if (isTypingInForm()) return;
         var beta = e.beta;
         if (beta === null) return;
         if (tiltBase === null) {
@@ -930,6 +1000,7 @@
     }
 
     function buildUI() {
+        if (document.getElementById('scrollAccessibilityPanel')) return;
         var panel = document.createElement('div');
         panel.id        = 'scrollAccessibilityPanel';
         panel.className = 'sa-panel sa-collapsed';
@@ -938,8 +1009,9 @@
 
         panel.innerHTML =
             /* ── Toggle handle (always visible) ── */
-            '<button id="saPanelToggle" class="sa-toggle-btn" aria-expanded="false" title="Accessibility Scroll Controls&#10;आवाज / क्यामेरा / छिटो / बिस्तारै">' +
-                '<i class="fas fa-universal-access sa-toggle-icon"></i>' +
+            '<button type="button" id="saPanelToggle" class="sa-toggle-btn" aria-expanded="false" aria-controls="saPanelControls" title="Accessibility Scroll Controls&#10;आवाज / क्यामेरा / छिटो / बिस्तारै">' +
+                '<i class="fas fa-universal-access sa-toggle-icon" aria-hidden="true"></i>' +
+                '<span class="visually-hidden">Scroll accessibility</span>' +
             '</button>' +
 
             /* ── Expandable section ── */
@@ -950,12 +1022,12 @@
 
                 /* ── UP / DOWN scroll buttons ── */
                 '<div class="sa-scroll-row">' +
-                    '<button id="saBtnUp"   class="sa-scroll-btn" title="माथि जानुहोस् (Scroll Up)">' +
-                        '<i class="fas fa-chevron-up"></i>' +
+                    '<button type="button" id="saBtnUp"   class="sa-scroll-btn" title="माथि जानुहोस् (Scroll Up)">' +
+                        '<i class="fas fa-chevron-up" aria-hidden="true"></i>' +
                         '<span class="sa-scroll-label">माथि</span>' +
                     '</button>' +
-                    '<button id="saBtnDown" class="sa-scroll-btn" title="तला जानुहोस् (Scroll Down)">' +
-                        '<i class="fas fa-chevron-down"></i>' +
+                    '<button type="button" id="saBtnDown" class="sa-scroll-btn" title="तला जानुहोस् (Scroll Down)">' +
+                        '<i class="fas fa-chevron-down" aria-hidden="true"></i>' +
                         '<span class="sa-scroll-label">तला</span>' +
                     '</button>' +
                 '</div>' +
@@ -968,14 +1040,14 @@
 
                 /* Speed control row — 3 pills */
                 '<div class="sa-speed-row">' +
-                    '<button id="saSpeed-slow"   class="sa-speed" data-speed="slow"   title="बिस्तारै (slow)">' +
-                        '<i class="fas fa-gauge-simple-low"></i>' +
+                    '<button type="button" id="saSpeed-slow"   class="sa-speed" data-speed="slow"   title="बिस्तारै (slow)" aria-label="बिस्तारै">' +
+                        '<i class="fas fa-gauge-simple-low" aria-hidden="true"></i>' +
                     '</button>' +
-                    '<button id="saSpeed-normal" class="sa-speed sa-speed--active" data-speed="normal" title="सामान्य (normal)">' +
-                        '<i class="fas fa-gauge"></i>' +
+                    '<button type="button" id="saSpeed-normal" class="sa-speed sa-speed--active" data-speed="normal" title="सामान्य (normal)" aria-label="सामान्य">' +
+                        '<i class="fas fa-gauge" aria-hidden="true"></i>' +
                     '</button>' +
-                    '<button id="saSpeed-fast"   class="sa-speed" data-speed="fast"   title="छिटो (fast)">' +
-                        '<i class="fas fa-bolt"></i>' +
+                    '<button type="button" id="saSpeed-fast"   class="sa-speed" data-speed="fast"   title="छिटो (fast)" aria-label="छिटो">' +
+                        '<i class="fas fa-bolt" aria-hidden="true"></i>' +
                     '</button>' +
                 '</div>' +
 
@@ -986,38 +1058,38 @@
                 '<div class="sa-section-label">नियन्त्रण</div>' +
 
                 /* Continuous indicator (hidden by default) */
-                '<div id="saContInd" class="sa-cont-ind" style="display:none;"></div>' +
+                '<div id="saContInd" class="sa-cont-ind" style="display:none;" aria-live="polite"></div>' +
 
                 /* Voice + Camera — top row */
                 '<div class="sa-btn-row">' +
-                    '<button id="saBtnVoice" class="sa-btn" aria-pressed="false" ' +
+                    '<button type="button" id="saBtnVoice" class="sa-btn" aria-pressed="false" ' +
                         'title="नेपाली Voice Scroll&#10;माथि / तला / छिटो / बिस्तारै / जारी माथि / रोक">' +
-                        '<i class="fas fa-microphone sa-btn-icon"></i>' +
+                        '<i class="fas fa-microphone sa-btn-icon" aria-hidden="true"></i>' +
                         '<span class="sa-btn-label">आवाज</span>' +
                     '</button>' +
-                    '<button id="saBtnCamera" class="sa-btn" aria-pressed="false" ' +
+                    '<button type="button" id="saBtnCamera" class="sa-btn" aria-pressed="false" ' +
                         'title="हात Gesture Scroll&#10;हात माथि = scroll up&#10;हात तला = scroll down">' +
-                        '<i class="fas fa-hand sa-btn-icon"></i>' +
+                        '<i class="fas fa-hand sa-btn-icon" aria-hidden="true"></i>' +
                         '<span class="sa-btn-label">हात</span>' +
                     '</button>' +
                 '</div>' +
 
                 /* Eye + Tilt — bottom row */
                 '<div class="sa-btn-row">' +
-                    '<button id="saBtnEye" class="sa-btn" aria-pressed="false" ' +
+                    '<button type="button" id="saBtnEye" class="sa-btn" aria-pressed="false" ' +
                         'title="अनुहार Tracking Scroll&#10;अनुहार माथि = scroll up&#10;अनुहार तला = scroll down">' +
-                        '<i class="fas fa-eye sa-btn-icon"></i>' +
+                        '<i class="fas fa-eye sa-btn-icon" aria-hidden="true"></i>' +
                         '<span class="sa-btn-label">आँखा</span>' +
                     '</button>' +
-                    '<button id="saBtnTilt" class="sa-btn" aria-pressed="false" ' +
+                    '<button type="button" id="saBtnTilt" class="sa-btn" aria-pressed="false" ' +
                         'title="Mobile Tilt Scroll&#10;फोन अगाडि झुकाउनुस् = scroll down&#10;फोन पछाडि = scroll up">' +
-                        '<i class="fas fa-mobile-screen-button sa-btn-icon"></i>' +
+                        '<i class="fas fa-mobile-screen-button sa-btn-icon" aria-hidden="true"></i>' +
                         '<span class="sa-btn-label">झुकाव</span>' +
                     '</button>' +
                 '</div>' +
 
                 /* Help row */
-                '<div class="sa-hint"><i class="fas fa-circle-info me-1"></i>आवाज · हात · आँखा · झुकाव</div>' +
+                '<div class="sa-hint"><i class="fas fa-circle-info me-1" aria-hidden="true"></i>आवाज · हात · आँखा · झुकाव</div>' +
 
             '</div>';
 
@@ -1032,12 +1104,14 @@
         /* Panel toggle */
         var panelToggle   = document.getElementById('saPanelToggle');
         var panelControls = document.getElementById('saPanelControls');
+        function setPanelOpen(open) {
+            panel.classList.toggle('sa-collapsed', !open);
+            panel.classList.toggle('sa-expanded', open);
+            panelToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            panelControls.setAttribute('aria-hidden', open ? 'false' : 'true');
+        }
         panelToggle.addEventListener('click', function () {
-            var collapsed = panel.classList.contains('sa-collapsed');
-            panel.classList.toggle('sa-collapsed',  !collapsed);
-            panel.classList.toggle('sa-expanded',    collapsed);
-            panelToggle.setAttribute('aria-expanded', collapsed ? 'true' : 'false');
-            panelControls.setAttribute('aria-hidden',  collapsed ? 'false' : 'true');
+            setPanelOpen(panel.classList.contains('sa-collapsed'));
         });
 
         /* Speed pills */
@@ -1048,15 +1122,17 @@
             });
         });
 
-        /* ── माथि / तला scroll buttons — click + hold ── */
+        /* ── माथि / तला scroll buttons — click + hold (instant steps, not stacked smooth) ── */
         (function () {
             var holdTimer = null;
             var holdInterval = null;
+            var lastTouchAt = 0;
             function startHold(dir) {
-                doScroll(dir);
+                stopHold();
+                gestureScroll(dir, true);
                 holdTimer = setTimeout(function () {
-                    holdInterval = setInterval(function () { doScroll(dir); }, 180);
-                }, 400);
+                    holdInterval = setInterval(function () { gestureScroll(dir, true); }, 160);
+                }, 380);
             }
             function stopHold() {
                 clearTimeout(holdTimer);
@@ -1066,12 +1142,21 @@
             ['Up','Down'].forEach(function (d) {
                 var btn = document.getElementById('saBtn' + d);
                 var dir = d.toLowerCase();
-                /* mousedown/touchstart handles scroll (removed redundant click to prevent double-scroll) */
-                btn.addEventListener('mousedown',  function () { startHold(dir); });
-                btn.addEventListener('touchstart', function (e) { e.preventDefault(); startHold(dir); }, { passive: false });
+                /* Mobile fires touchstart then a synthetic mousedown — ignore the ghost */
+                btn.addEventListener('touchstart', function (e) {
+                    lastTouchAt = Date.now();
+                    e.preventDefault();
+                    startHold(dir);
+                }, { passive: false });
+                btn.addEventListener('mousedown', function (e) {
+                    if (e.button !== 0) return;
+                    if (Date.now() - lastTouchAt < 700) return;
+                    startHold(dir);
+                });
                 btn.addEventListener('mouseup',   stopHold);
                 btn.addEventListener('mouseleave', stopHold);
                 btn.addEventListener('touchend',  stopHold);
+                btn.addEventListener('touchcancel', stopHold);
             });
         })();
 
@@ -1081,9 +1166,16 @@
         document.getElementById('saBtnEye').addEventListener('click',    toggleEye);
         document.getElementById('saBtnTilt').addEventListener('click',   toggleTilt);
 
-        /* Keyboard */
-        panel.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' || e.key === ' ') e.target.click();
+        /* Escape closes panel; tab-away continuous pause when page hidden */
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && panel.classList.contains('sa-expanded')) {
+                setPanelOpen(false);
+            }
+        });
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopContinuous();
+            }
         });
     }
 
@@ -1091,6 +1183,7 @@
        INLINE STYLES — full design
     ───────────────────────────────────────── */
     function injectStyles() {
+        if (document.getElementById('sa-styles')) return;
         var css = [
             /* Panel wrapper */
             '#scrollAccessibilityPanel.sa-panel {',
@@ -1348,9 +1441,16 @@
             '.sa-cam-zone--down { border-bottom:none; }',
             '.sa-cam-motion { background:rgba(26,95,42,0.9); color:#fff; text-align:center; font-size:0.7rem; padding:3px 4px; font-weight:700; }',
 
-            /* ── Mobile responsive ── */
+            /* ── Mobile responsive + bottom-nav clearance ── */
+            'body.has-bottomnav #scrollAccessibilityPanel.sa-panel {',
+            '  bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));',
+            '}',
             '@media (max-width: 576px) {',
             '  #scrollAccessibilityPanel.sa-panel { bottom: 18px; left: 6px; }',
+            '  body.has-bottomnav #scrollAccessibilityPanel.sa-panel {',
+            '    bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px));',
+            '    left: 6px;',
+            '  }',
             '  .sa-toggle-btn { width: 40px; height: 40px; font-size: 1.05rem; }',
             '  .sa-controls { min-width: 104px; padding: 7px 5px; }',
             '  .sa-btn { min-width: 34px; padding: 7px 3px; }',
@@ -1360,7 +1460,12 @@
             '  .sa-cam-pip { width: 100px; top: 60px; right: 8px; }',
             '  .sa-eye-pip { top: 210px; width: 100px; }',
             '  .sa-speed { height: 28px; font-size: 0.82rem; }',
-            '}'
+            '}',
+            '@media (prefers-reduced-motion: reduce) {',
+            '  .sa-toggle-btn--live, .sa-cont-ind { animation: none !important; }',
+            '  .sa-controls { transition: none !important; }',
+            '}',
+            '.visually-hidden { position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important; }'
         ].join('\n');
 
         var s    = document.createElement('style');

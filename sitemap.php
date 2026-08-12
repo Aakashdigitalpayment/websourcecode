@@ -1,7 +1,7 @@
 <?php
 /**
  * Dynamic XML sitemap — SITE_URL अनुसार <loc> (live domain मिल्छ)
- * robots.txt / Search Console: sitemap.php
+ * Search Console: submit /sitemap.xml (rewrites to this file)
  */
 declare(strict_types=1);
 
@@ -22,9 +22,17 @@ $rows = [];
 $add = static function (string $path, string $priority, string $changefreq) use (&$rows, $base, $today): void {
     $path = ltrim($path, '/');
     $loc = $path === '' ? $base . '/' : $base . '/' . $path;
+    $lm = $today;
+    $fs = $path === '' ? (__DIR__ . '/index.php') : (__DIR__ . '/' . $path);
+    if (is_file($fs)) {
+        $mt = @filemtime($fs);
+        if ($mt) {
+            $lm = date('Y-m-d', $mt);
+        }
+    }
     $rows[] = [
         'loc' => $loc,
-        'lastmod' => $today,
+        'lastmod' => $lm,
         'changefreq' => $changefreq,
         'priority' => $priority,
     ];
@@ -51,6 +59,8 @@ $staticPhp = [
     ['service-centers.php', '0.8', 'monthly'],
     ['election-information.php', '0.75', 'weekly'],
     ['institutional-profile.php', '0.75', 'monthly'],
+    ['appointment.php', '0.7', 'monthly'],
+    ['grievance.php', '0.65', 'monthly'],
 
     /* ── Organisation info ──────────────────────────────────────────────── */
     ['team.php', '0.8', 'monthly'],

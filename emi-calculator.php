@@ -14,6 +14,9 @@
  */
 require_once 'includes/config.php';
 $pageTitle = isEnglish() ? 'EMI Loan Calculator' : 'EMI ऋण क्याल्कुलेटर';
+$pageDescription = isEnglish()
+    ? 'Estimate monthly EMI, interest and repayment schedule for cooperative loans.'
+    : 'सहकारी ऋणका लागि मासिक EMI, ब्याज र भुक्तानी तालिका अनुमान गर्नुहोस्।';
 require_once 'includes/header.php';
 
 /* Cooperative ले दिने ऋण प्रकार र उनीहरूको default ब्याज दर */

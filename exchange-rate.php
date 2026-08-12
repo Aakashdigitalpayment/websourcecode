@@ -8,6 +8,9 @@ require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/nrb-forex-fetch.php';
 
 $pageTitle = isEnglish() ? 'Foreign Exchange Rate' : 'विदेशी विनिमय दर';
+$pageDescription = isEnglish()
+    ? 'Nepal Rastra Bank foreign exchange rates — updated for members and visitors.'
+    : 'नेपाल राष्ट्र बैंकको विदेशी विनिमय दर — सदस्य तथा आगन्तुकका लागि अद्यावधिक।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

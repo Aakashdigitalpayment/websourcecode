@@ -21,7 +21,7 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -48,8 +48,9 @@ checkCSRF();
                     $value = function_exists('clean_text') ? clean_text((string) $value, 400) : trim((string) $value);
                 } elseif ($key === 'meta_keywords') {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 500) : trim((string) $value);
-                } elseif (in_array($key, ['seo_title', 'seo_title_en'], true)) {
-                    $value = function_exists('clean_text') ? clean_text((string) $value, 70) : trim((string) $value);
+                } elseif (in_array($key, ['seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en'], true)) {
+                    $maxLen = in_array($key, ['seo_title', 'seo_title_en'], true) ? 70 : 120;
+                    $value = function_exists('clean_text') ? clean_text((string) $value, $maxLen) : trim((string) $value);
                 } elseif ($key === 'google_site_verification') {
                     /* Meta tag content only — strip HTML / full meta tag if pasted */
                     $value = trim((string) $value);
@@ -428,6 +429,43 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                value="<?php echo htmlspecialchars($settings['seo_title_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="e.g. Janautthan SACCOS | Saving & Credit Cooperative Ltd.">
                     </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stg_seo_tagline" class="form-label"><?php echo $__t('SEO tagline (नेपाली)', 'SEO tagline (Nepali)'); ?></label>
+                                <input type="text" name="seo_tagline" id="stg_seo_tagline" class="form-control" maxlength="80"
+                                       value="<?php echo htmlspecialchars($settings['seo_tagline'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="<?php echo $__t('उदा.: बचत तथा ऋण सेवा | तिलोत्तमा, रुपन्देही', 'e.g. Savings & loans | Tilottama, Rupandehi'); ?>">
+                                <div class="form-text"><?php echo $__t('खाली छोड्दा city/ठेगानाबाट बन्छ। गलत शहर (जस्तै पोखरा) कहिल्यै hardcode हुँदैन।', 'If empty, built from city/address. Never hardcodes another city (e.g. Pokhara).'); ?></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stg_seo_tagline_en" class="form-label">SEO tagline (English)</label>
+                                <input type="text" name="seo_tagline_en" id="stg_seo_tagline_en" class="form-control" maxlength="80"
+                                       value="<?php echo htmlspecialchars($settings['seo_tagline_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="e.g. Savings & Credit Cooperative, Tilottama">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stg_site_city" class="form-label"><?php echo $__t('शहर / स्थान (SEO)', 'City / locality (SEO)'); ?></label>
+                                <input type="text" name="site_city" id="stg_site_city" class="form-control" maxlength="80"
+                                       value="<?php echo htmlspecialchars($settings['site_city'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="<?php echo $__t('उदा.: तिलोत्तमा', 'e.g. Tilottama'); ?>">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="stg_site_city_en" class="form-label">City (English)</label>
+                                <input type="text" name="site_city_en" id="stg_site_city_en" class="form-control" maxlength="80"
+                                       value="<?php echo htmlspecialchars($settings['site_city_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                       placeholder="e.g. Tilottama">
+                            </div>
+                        </div>
+                    </div>
 
                     <hr>
                     <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-bullseye me-2"></i>Search / Share Content</h6>
@@ -471,8 +509,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </li>
                         <li class="mb-1"><?php echo $__t('Verification: “HTML tag” छान्नुहोस् → Google ले दिएको code को content=“...” भित्रको कोड तल टाँस्नुहोस् → Save → Google मा Verify।', 'Verification: choose “HTML tag” → paste the content=“...” value below → Save → click Verify in Google.'); ?></li>
                         <li class="mb-1"><?php echo $__t('Sitemaps मेनु → नयाँ sitemap:', 'Sitemaps menu → new sitemap:'); ?>
-                            <code>sitemap.php</code>
-                            <?php echo $__t(' Submit गर्नुहोस् (एकपटक)। त्यसपछि Google आफैं पृष्ठहरू खोज्दै जान्छ।', ' Submit once. After that Google crawls pages automatically.'); ?>
+                            <code>sitemap.xml</code>
+                            <?php echo $__t(' Submit गर्नुहोस् (एकपटक)।', ' Submit once.'); ?>
+                            <span class="text-muted"><?php echo $__t('(robots.txt सँग मिल्ने URL — sitemap.php पनि काम गर्छ)', '(matches robots.txt — sitemap.php also works)'); ?></span>
                         </li>
                         <li class="mb-0"><?php echo $__t('“Request indexing” optional हो — homepage छिटो चाहियो भने मात्र। हरेक पेजको लागि दिनदिनै गर्नु पर्दैन।', '“Request indexing” is optional — only if you want the homepage faster. You do not need to do it for every page daily.'); ?></li>
                     </ol>
@@ -486,12 +525,12 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="alert alert-warning py-2 small mb-0">
                         <strong><?php echo $__t('के आफैं हुन्छ?', 'What is automatic?'); ?></strong>
                         <?php echo $__t(
-                            ' Website मा SEO tags + sitemap.php + robots.txt आफैं छन्। Google खाता verify + sitemap Submit भएपछि बाँकी crawl प्रायः आफैं हुन्छ। Ranking तुरुन्त top मा आउँदैन।',
-                            ' SEO tags + sitemap.php + robots.txt are automatic on the site. After you verify the Google account and submit the sitemap once, crawling is mostly automatic. Ranking will not jump to #1 instantly.'
+                            ' Website मा SEO tags + sitemap.xml + robots.txt आफैं छन्। Google खाता verify + sitemap Submit भएपछि बाँकी crawl प्रायः आफैं हुन्छ। Ranking तुरुन्त top मा आउँदैन — सही नाम/ठेगाना/meta + News/About सामग्री चाहिन्छ।',
+                            ' SEO tags + sitemap.xml + robots.txt are automatic on the site. After you verify the Google account and submit the sitemap once, crawling is mostly automatic. Ranking will not jump to #1 instantly — you still need correct name/address/meta + About/News content.'
                         ); ?>
                         <br>
-                        <span class="text-muted"><?php echo $__t('Sitemap URL:', 'Sitemap URL:'); ?></span>
-                        <code><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/sitemap.php', ENT_QUOTES, 'UTF-8'); ?></code>
+                        <span class="text-muted"><?php echo $__t('Sitemap URL (Submit गर्नुहोस्):', 'Sitemap URL (submit this):'); ?></span>
+                        <code><?php echo htmlspecialchars(rtrim(defined('SITE_URL') ? SITE_URL : '', '/') . '/sitemap.xml', ENT_QUOTES, 'UTF-8'); ?></code>
                     </div>
                     <?php
                     /* Live preview — यस सहकारीको DB settings बाट (Google-facing tags) */
@@ -544,6 +583,13 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <label for="stg_address" class="form-label"><?php echo $__t('ठेगाना', 'Address'); ?></label>
                         <input type="text" name="address" id="stg_address" class="form-control"
                                value="<?php echo $settings['address'] ?? ''; ?>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="stg_address_en" class="form-label"><?php echo $__t('ठेगाना (English)', 'Address (English)'); ?></label>
+                        <input type="text" name="address_en" id="stg_address_en" class="form-control"
+                               value="<?php echo htmlspecialchars($settings['address_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="e.g. Tilottama-5, Rupandehi, Nepal">
+                        <div class="form-text"><?php echo $__t('English UI / schema मा प्रयोग। खाली भए नेपाली ठेगाना प्रयोग हुन्छ।', 'Used for English UI / schema. Falls back to Nepali address if empty.'); ?></div>
                     </div>
 
                     <hr>

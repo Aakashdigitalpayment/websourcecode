@@ -3,6 +3,9 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/auction-tables.php';
 $pageTitle = isEnglish() ? 'Auction Notices' : 'लिलामी सूचना';
+$pageDescription = isEnglish()
+    ? 'Current and past auction notices published by our cooperative.'
+    : 'हाम्रो सहकारीले प्रकाशित गरेका हालका तथा विगतका लिलामी सूचनाहरू।';
 
 $bidSuccess = false;
 $bidError = '';

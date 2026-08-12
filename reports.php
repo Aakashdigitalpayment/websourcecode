@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Reports' : 'प्रतिवेदनहरू';
+$pageDescription = isEnglish()
+    ? 'Monthly and annual reports published for members and the public.'
+    : 'सदस्य तथा सर्वसाधारणका लागि प्रकाशित मासिक तथा वार्षिक प्रतिवेदनहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 
