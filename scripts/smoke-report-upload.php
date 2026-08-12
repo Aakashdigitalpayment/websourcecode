@@ -110,6 +110,16 @@ if (strpos($adminCss, '.admin-table-card td .btn-sm.btn-primary') !== false
 } else {
     bad('admin filter CSS still squashes header buttons');
 }
+if (strpos($rpt, 'return_type') !== false && strpos($rpt, 'adminReportsListUrl') !== false) {
+    ok('admin preserves list filter on save/delete');
+} else {
+    bad('admin list filter not preserved on POST');
+}
+if (strpos($pub, 'filterYearRaw') !== false && strpos($pub, 'encodeURIComponent(year)') !== false) {
+    ok('public FY year filter uses BS fiscal strings');
+} else {
+    bad('public year filter still broken for 2082/83');
+}
 
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);

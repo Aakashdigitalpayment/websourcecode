@@ -36,8 +36,8 @@ $filterType = $_GET['type'] ?? 'all';
 if (!in_array($filterType, $allowedReportTypes, true)) {
     $filterType = 'all';
 }
-$filterYear = isset($_GET['year']) ? (int) $_GET['year'] : 0;
-$filterYear = $filterYear > 1900 && $filterYear < 2100 ? $filterYear : null;
+$filterYearRaw = isset($_GET['year']) ? trim((string) $_GET['year']) : '';
+$filterYear = ($filterYearRaw !== '' && preg_match('/^\d{4}\/\d{2}$/', $filterYearRaw)) ? $filterYearRaw : null;
 $filterMonth = isset($_GET['month']) ? trim((string) $_GET['month']) : '';
 $nepaliMonthKeys = array_keys($nepaliMonths);
 $filterMonth = ($filterMonth !== '' && in_array($filterMonth, $nepaliMonthKeys, true)) ? $filterMonth : null;
@@ -230,8 +230,8 @@ function render_report_actions(array $report): void {
                         <select class="form-select" onchange="updateFilters();" id="yearFilter">
                             <option value=""><?php echo isEnglish() ? 'All Years' : 'सबै आ.व.'; ?></option>
                             <?php foreach ($years as $year): ?>
-                            <option value="<?php echo $year; ?>" <?php echo $filterYear === $year ? 'selected' : ''; ?>>
-                                <?php echo isEnglish() ? 'FY ' : 'आ.व. '; ?><?php echo $year; ?>
+                            <option value="<?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $filterYear === (string) $year ? 'selected' : ''; ?>>
+                                <?php echo isEnglish() ? 'FY ' : 'आ.व. '; ?><?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?>
                             </option>
                             <?php endforeach; ?>
                         </select>
@@ -255,7 +255,7 @@ function render_report_actions(array $report): void {
                     var year = document.getElementById('yearFilter')?.value || '';
                     var month = document.getElementById('monthFilter')?.value || '';
                     var url = '?type=<?php echo $filterType; ?>';
-                    if (year) url += '&year=' + year;
+                    if (year) url += '&year=' + encodeURIComponent(year);
                     if (month) url += '&month=' + month;
                     window.location.href = url;
                 }

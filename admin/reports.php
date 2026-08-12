@@ -44,9 +44,46 @@ $quarters = [
     'Q4' => 'चौथो त्रैमासिक (माघ-चैत्र)'
 ];
 
+$allowedReportTypes = ['all', 'monthly', 'quarterly', 'progress', 'annual', 'financial', 'audit', 'agm', 'other'];
+$filterType = $_GET['type'] ?? 'all';
+if (!in_array($filterType, $allowedReportTypes, true)) {
+    $filterType = 'all';
+}
+
+$adminReportsListUrl = static function (?string $type = null) use ($allowedReportTypes): string {
+    $t = $type ?? 'all';
+    if (!in_array($t, $allowedReportTypes, true)) {
+        $t = 'all';
+    }
+    $q = ['panel' => 'list'];
+    if ($t !== 'all') {
+        $q['type'] = $t;
+    }
+    return 'reports.php?' . http_build_query($q);
+};
+
+$adminReportsFormUrl = static function (?int $editId = null, ?string $type = null) use ($adminReportsListUrl, $allowedReportTypes): string {
+    $t = $type ?? 'all';
+    if (!in_array($t, $allowedReportTypes, true)) {
+        $t = 'all';
+    }
+    $q = ['panel' => 'form'];
+    if ($editId) {
+        $q['edit'] = $editId;
+    }
+    if ($t !== 'all') {
+        $q['type'] = $t;
+    }
+    return 'reports.php?' . http_build_query($q);
+};
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
+    $returnType = (string) ($_POST['return_type'] ?? $_GET['type'] ?? 'all');
+    if (!in_array($returnType, $allowedReportTypes, true)) {
+        $returnType = 'all';
+    }
     $db = getDB();
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
@@ -78,7 +115,7 @@ checkCSRF();
                 setFlash('error', function_exists('coop_upload_error_text')
                     ? coop_upload_error_text($ferr)
                     : 'फाइल अपलोड असफल।');
-                redirect('reports.php?panel=form' . (!empty($id) ? '&edit=' . (int) $id : ''));
+                redirect($adminReportsFormUrl(!empty($id) ? (int) $id : null, $returnType));
             }
             if ($ferr === UPLOAD_ERR_OK) {
                 $upload = uploadFile($_FILES['file'], 'reports', $reportMax);
@@ -86,12 +123,12 @@ checkCSRF();
                     $file_path = $upload['path'];
                 } else {
                     setFlash('error', (string) ($upload['message'] ?? 'फाइल अपलोड असफल। PDF/DOC मात्र, अधिकतम ५० MB।'));
-                    redirect('reports.php?panel=form' . (!empty($id) ? '&edit=' . (int) $id : ''));
+                    redirect($adminReportsFormUrl(!empty($id) ? (int) $id : null, $returnType));
                 }
             }
             if ($action === 'add' && trim((string) $file_path) === '') {
                 setFlash('error', 'PDF फाइल आवश्यक छ।');
-                redirect('reports.php?panel=form');
+                redirect($adminReportsFormUrl(null, $returnType));
             }
 
             if ($action === 'add') {
@@ -112,18 +149,11 @@ checkCSRF();
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');
     }
 
-    redirect('reports.php');
+    redirect($adminReportsListUrl($returnType));
 }
 
 // Get database connection
 $db = getDB();
-
-// Get filter
-$allowedReportTypes = ['all', 'monthly', 'quarterly', 'progress', 'annual', 'financial', 'audit', 'agm', 'other'];
-$filterType = $_GET['type'] ?? 'all';
-if (!in_array($filterType, $allowedReportTypes, true)) {
-    $filterType = 'all';
-}
 
 // Get all reports
 try {
@@ -199,6 +229,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" id="reportForm" class="needs-validation" novalidate>
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                        <input type="hidden" name="return_type" value="<?php echo htmlspecialchars($filterType, ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="action" value="<?php echo $editReport ? 'edit' : 'add'; ?>">
                         <?php if ($editReport): ?>
                         <input type="hidden" name="id" value="<?php echo $editReport['id']; ?>">
@@ -288,7 +319,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                             <i class="lucide-icon" aria-hidden="true" data-lucide="save"></i> <?php echo $editReport ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                         </button>
                         <?php if ($editReport): ?>
-                        <a href="reports.php" class="btn btn-secondary"><?php echo $__t('रद्द गर्नुहोस्', 'Cancel'); ?></a>
+                        <a href="<?php echo htmlspecialchars($adminReportsListUrl($filterType), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-secondary"><?php echo $__t('रद्द गर्नुहोस्', 'Cancel'); ?></a>
                         <?php endif; ?>
                     </form>
                 </div>
@@ -375,6 +406,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
         line-height: 1 !important;
         text-decoration: none !important;
         box-shadow: none !important;
+        cursor: pointer !important;
     }
     body.admin-page-reports .rpt-act-view { background: #0f766e !important; color: #fff !important; }
     body.admin-page-reports .rpt-act-edit { background: #1f2937 !important; color: #fff !important; }
@@ -412,7 +444,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                     ];
                     foreach ($rptFilters as $ft => $flabel):
                     ?>
-                    <a href="?type=<?php echo urlencode($ft); ?>" class="rpt-chip<?php echo $filterType === $ft ? ' is-active' : ''; ?>"><?php echo $flabel; ?></a>
+                    <a href="?type=<?php echo urlencode($ft); ?>&panel=list" class="rpt-chip<?php echo $filterType === $ft ? ' is-active' : ''; ?>"><?php echo $flabel; ?></a>
                     <?php endforeach; ?>
                 </div>
                 <div class="card-body p-0">
@@ -478,16 +510,17 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                             if ($adminFileHref !== ''):
                                             ?>
                                             <a href="<?php echo htmlspecialchars($adminFileHref, ENT_QUOTES, 'UTF-8'); ?>" class="rpt-act rpt-act-view" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer" aria-label="<?php echo $__t('हेर्नुहोस्','View'); ?>">
-                                                <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
                                             </a>
                                             <?php else: ?>
                                             <span class="rpt-act rpt-act-placeholder" aria-hidden="true"></span>
                                             <?php endif; ?>
-                                            <a href="?edit=<?php echo (int) $report['id']; ?>" class="rpt-act rpt-act-edit" title="<?php echo $__t('सम्पादन','Edit'); ?>" aria-label="<?php echo $__t('सम्पादन','Edit'); ?>">
+                                            <a href="<?php echo htmlspecialchars($adminReportsFormUrl((int) $report['id'], $filterType), ENT_QUOTES, 'UTF-8'); ?>" class="rpt-act rpt-act-edit" title="<?php echo $__t('सम्पादन','Edit'); ?>" aria-label="<?php echo $__t('सम्पादन','Edit'); ?>">
                                                 <i class="fas fa-edit" aria-hidden="true"></i>
                                             </a>
                                             <form method="POST" class="rpt-act-form" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                                                <input type="hidden" name="return_type" value="<?php echo htmlspecialchars($filterType, ENT_QUOTES, 'UTF-8'); ?>">
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?php echo (int) $report['id']; ?>">
                                                 <button type="submit" class="rpt-act rpt-act-del" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
