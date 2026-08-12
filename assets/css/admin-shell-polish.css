@@ -943,3 +943,34 @@ body.has-bottomnav {
     height: 46px;
   }
 }
+
+/* Reports / list card-header type filters — do not squish into icon buttons */
+.main-content .admin-table-card .card-header .filter-buttons,
+.main-content .card.admin-table-card > .card-header .filter-buttons {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.45rem !important;
+  align-items: center !important;
+  max-width: 100%;
+}
+.main-content .admin-table-card .card-header .filter-buttons .btn,
+.main-content .card.admin-table-card > .card-header .filter-buttons a.btn {
+  width: auto !important;
+  min-width: unset !important;
+  height: auto !important;
+  min-height: 34px !important;
+  padding: 0.35rem 0.9rem !important;
+  border-radius: 999px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  background: #ffffff !important;
+  color: #1f2937 !important;
+  border: 1.5px solid #c5d0c9 !important;
+}
+.main-content .admin-table-card .card-header .filter-buttons .btn.btn-primary,
+.main-content .card.admin-table-card > .card-header .filter-buttons a.btn.btn-primary {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #111827 !important;
+}

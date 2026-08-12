@@ -309,6 +309,9 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <a href="?type=quarterly" class="btn btn-sm <?php echo $filterType === 'quarterly' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('त्रैमासिक', 'Quarterly'); ?></a>
                         <a href="?type=progress" class="btn btn-sm <?php echo $filterType === 'progress' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('प्रगति', 'Progress'); ?></a>
                         <a href="?type=annual" class="btn btn-sm <?php echo $filterType === 'annual' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('वार्षिक', 'Annual'); ?></a>
+                        <a href="?type=financial" class="btn btn-sm <?php echo $filterType === 'financial' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('वित्तीय', 'Financial'); ?></a>
+                        <a href="?type=audit" class="btn btn-sm <?php echo $filterType === 'audit' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('लेखापरीक्षण', 'Audit'); ?></a>
+                        <a href="?type=agm" class="btn btn-sm <?php echo $filterType === 'agm' ? 'btn-primary' : 'btn-outline-primary'; ?>"><?php echo $__t('साधारण सभा', 'AGM'); ?></a>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -359,19 +362,31 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                         </span>
                                     </td>
                                     <td class="align-middle">
-                                        <div class="btn-group" role="group">
-                                            <?php if ($report['file_path']): ?>
-                                            <a href="../<?php echo $report['file_path']; ?>" class="btn btn-sm btn-success" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer">
+                                        <div class="btn-group-action d-inline-flex align-items-center flex-nowrap gap-1">
+                                            <?php
+                                            $adminFileHref = '';
+                                            $rawPath = trim((string) ($report['file_path'] ?? ''));
+                                            if ($rawPath !== '' && !str_contains($rawPath, '..')) {
+                                                if (function_exists('safe_media_src')) {
+                                                    $adminFileHref = safe_media_src($rawPath);
+                                                }
+                                                if ($adminFileHref === '' && function_exists('getAssetUrl')) {
+                                                    $adminFileHref = getAssetUrl(ltrim(str_replace('\\', '/', $rawPath), '/'));
+                                                }
+                                            }
+                                            if ($adminFileHref !== ''):
+                                            ?>
+                                            <a href="<?php echo htmlspecialchars($adminFileHref, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-success" target="_blank" title="<?php echo $__t('हेर्नुहोस्','View'); ?>" rel="noopener noreferrer">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
                                             </a>
                                             <?php endif; ?>
-                                            <a href="?edit=<?php echo $report['id']; ?>" class="btn btn-sm btn-primary" title="<?php echo $__t('सम्पादन','Edit'); ?>">
+                                            <a href="?edit=<?php echo (int) $report['id']; ?>" class="btn btn-sm btn-primary" title="<?php echo $__t('सम्पादन','Edit'); ?>">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
+                                            <form method="POST" class="svc-inline-form m-0" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
                                                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-    <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?php echo $report['id']; ?>">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="id" value="<?php echo (int) $report['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
                                                     <i class="fas fa-trash"></i>
                                                 </button>

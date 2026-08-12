@@ -2154,6 +2154,34 @@ body.dark-mode .text-primary {
     padding-bottom: 6px !important;
   }
 }
+
+/* Public reports — View/Download always visible on every type (incl. annual) */
+.report-card .report-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.report-card .report-actions .btn {
+  flex: 1 1 auto;
+  min-height: 38px;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.report-card .report-actions .btn-primary {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+.report-card .report-actions .btn-outline-primary {
+  background: #fff !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  border: 1.5px solid var(--primary-color, #1a5f2a) !important;
+}
 /* ===== END public-shell-polish.css ===== */
 
 /* ===== BEGIN minimal-pages-patch.css ===== */

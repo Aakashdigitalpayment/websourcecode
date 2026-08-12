@@ -91,5 +91,25 @@ if (strpos($rpt, 'SELECT file_path FROM reports') !== false) {
     bad('existing_file POST still trusted');
 }
 
+$pub = (string) file_get_contents($root . '/reports.php');
+if (strpos($pub, 'function render_report_actions') !== false
+    && substr_count($pub, 'render_report_actions($report)') >= 7) {
+    ok('public reports View/Download helper on all types');
+} else {
+    bad('public report actions not unified');
+}
+if (strpos($rpt, 'filter-buttons') !== false && strpos($rpt, 'btn-group-action') !== false) {
+    ok('admin report filters + action row layout');
+} else {
+    bad('admin report filter/action layout missing');
+}
+$adminCss = (string) file_get_contents($root . '/assets/css/app-admin.css');
+if (strpos($adminCss, '.admin-table-card td .btn-sm.btn-primary') !== false
+    && strpos($adminCss, '.card-header .filter-buttons .btn') !== false) {
+    ok('admin filter buttons not forced to 30px icons');
+} else {
+    bad('admin filter CSS still squashes header buttons');
+}
+
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);
