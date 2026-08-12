@@ -4,6 +4,9 @@ require_once 'includes/ensure-tables.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्';
+$pageDescription = isEnglish()
+    ? 'Book an in-person visit with our cooperative staff online.'
+    : 'हाम्रो सहकारीका कर्मचारीसँग भेटघाट अनलाइन बुक गर्नुहोस्।';
 
 $success        = false;
 $error          = '';

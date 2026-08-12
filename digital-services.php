@@ -13,6 +13,9 @@ if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
 }
 $pageTitle = isEnglish() ? 'Digital Service Request' : 'डिजिटल सेवा अनुरोध';
+$pageDescription = isEnglish()
+    ? 'Request digital banking and member services from our cooperative online.'
+    : 'हाम्रो सहकारीबाट डिजिटल बैंकिङ तथा सदस्य सेवा अनलाइन अनुरोध गर्नुहोस्।';
 
 $success    = false;
 $error      = '';

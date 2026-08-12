@@ -96,6 +96,10 @@ assertFileContains('admin/settings.php', 'seo_tagline', 'admin can save seo_tagl
 assertFileContains('admin/settings.php', 'site_city', 'admin can save site_city');
 assertFileContains('admin/settings.php', 'sitemap.xml', 'GSC tip uses sitemap.xml');
 assertFileContains('sitemap.php', 'filemtime', 'static sitemap lastmod from filemtime');
+assertFileContains('committees.php', '$pageDescription', 'committees unique meta description');
+assertFileContains('loan-apply.php', '$pageDescription', 'loan-apply unique meta description');
+assertFileContains('emi-calculator.php', '$pageDescription', 'emi-calculator unique meta description');
+assertFileContains('institutional-profile.php', '$pageDescription', 'institutional-profile unique meta description');
 
 // Print control should be a button (not href="#")
 assertFileContains('member/kyc-print.php', 'onclick="window.print();"', 'kyc print action');

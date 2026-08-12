@@ -2,6 +2,9 @@
 require_once 'includes/config.php';
 require_once 'includes/program-tables.php';
 $pageTitle = isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम';
+$pageDescription = isEnglish()
+    ? 'Training, awareness and member programs organized by our cooperative.'
+    : 'हाम्रो सहकारीले आयोजना गर्ने तालिम, सचेतना तथा सदस्य कार्यक्रमहरू।';
 $_t = static function (string $np, string $en): string {
     return isEnglish() ? $en : $np;
 };

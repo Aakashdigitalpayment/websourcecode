@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 $pageTitle = isEnglish() ? 'Awards & Recognition' : 'सम्मान तथा पुरस्कार';
+$pageDescription = isEnglish()
+    ? 'Awards and recognition received by our cooperative and members.'
+    : 'हाम्रो सहकारी र सदस्यहरूले प्राप्त गरेका सम्मान तथा पुरस्कार।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

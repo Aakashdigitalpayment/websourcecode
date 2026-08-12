@@ -3,6 +3,9 @@ require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/election-tables.php';
 
 $pageTitle = lang('election_information');
+$pageDescription = isEnglish()
+    ? 'Election schedule, milestones and information for our cooperative members.'
+    : 'हाम्रो सहकारीका सदस्यका लागि निर्वाचन तालिका, माइलस्टोन तथा जानकारी।';
 require_once 'includes/header.php';
 
 $L = getLangStrings();

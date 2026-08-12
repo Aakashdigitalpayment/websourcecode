@@ -12,6 +12,9 @@ if (is_file(__DIR__ . '/includes/nepali-bs-convert.php')) {
     require_once __DIR__ . '/includes/nepali-bs-convert.php';
 }
 $pageTitle = isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल';
+$pageDescription = isEnglish()
+    ? 'Key institutional indicators and financial profile of our cooperative.'
+    : 'हाम्रो सहकारीको संस्थागत सूचक तथा वित्तीय प्रोफाइल।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

@@ -4,6 +4,9 @@ require_once 'includes/ensure-tables.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Online Account Opening' : 'अनलाइन खाता खोल्नुहोस्';
+$pageDescription = isEnglish()
+    ? 'Open a savings or share account with our cooperative online.'
+    : 'हाम्रो सहकारीमा बचत वा शेयर खाता अनलाइन खोल्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

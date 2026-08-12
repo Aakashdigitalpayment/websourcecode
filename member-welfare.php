@@ -13,6 +13,9 @@ if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
 }
 $pageTitle = isEnglish() ? 'Member Welfare Claims' : 'सदस्य कल्याण दाबी';
+$pageDescription = isEnglish()
+    ? 'Apply for maternity, medical, insurance and other member welfare claims.'
+    : 'सुत्केरी, उपचार, बीमा तथा अन्य सदस्य कल्याण दाबी अनलाइन दर्ता गर्नुहोस्।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 

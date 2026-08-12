@@ -7,6 +7,9 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/partner-facilities-tables.php';
 $pageTitle = isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधाहरू';
+$pageDescription = isEnglish()
+    ? 'Partner facilities and discounts available to our cooperative members.'
+    : 'हाम्रो सहकारीका सदस्यका लागि उपलब्ध साझेदार सुविधा तथा छुटहरू।';
 require_once 'includes/header.php';
 $L = getLangStrings();
 
