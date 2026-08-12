@@ -64,13 +64,28 @@ checkCSRF();
             $is_active = isset($_POST['is_active']) ? 1 : 0;
             $display_order = (int)($_POST['display_order'] ?? 0);
 
-            // Handle file upload
+            // Handle file upload (annual PDFs often > 10MB)
             $file_path = $_POST['existing_file'] ?? '';
-            if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
-                $upload = uploadFile($_FILES['file'], 'reports');
-                if ($upload['success']) {
+            $reportMax = defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : (25 * 1024 * 1024);
+            $ferr = (int) ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE);
+            if ($ferr !== UPLOAD_ERR_NO_FILE && $ferr !== UPLOAD_ERR_OK) {
+                setFlash('error', function_exists('coop_upload_error_text')
+                    ? coop_upload_error_text($ferr)
+                    : 'फाइल अपलोड असफल।');
+                redirect('reports.php?panel=form' . (!empty($id) ? '&edit=' . (int) $id : ''));
+            }
+            if ($ferr === UPLOAD_ERR_OK) {
+                $upload = uploadFile($_FILES['file'], 'reports', $reportMax);
+                if (!empty($upload['success'])) {
                     $file_path = $upload['path'];
+                } else {
+                    setFlash('error', (string) ($upload['message'] ?? 'फाइल अपलोड असफल। PDF/DOC मात्र, अधिकतम २५ MB।'));
+                    redirect('reports.php?panel=form' . (!empty($id) ? '&edit=' . (int) $id : ''));
                 }
+            }
+            if ($action === 'add' && trim((string) $file_path) === '') {
+                setFlash('error', 'PDF फाइल आवश्यक छ।');
+                redirect('reports.php?panel=form');
             }
 
             if ($action === 'add') {
@@ -177,7 +192,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                 </div>
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data" id="reportForm" class="needs-validation" novalidate>
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                       <input type="hidden" name="action" value="<?php echo $editReport ? 'edit' : 'add'; ?>">
                         <?php if ($editReport): ?>
                         <input type="hidden" name="id" value="<?php echo $editReport['id']; ?>">
@@ -250,10 +265,11 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         </div>
 
                         <div class="mb-3">
-                            <label for="rpt_file" class="form-label"><?php echo $__t('फाइल (PDF)', 'File (PDF)'); ?></label>
-                            <input type="file" name="file" id="rpt_file" class="form-control" accept=".pdf,.doc,.docx">
+                            <label for="rpt_file" class="form-label"><?php echo $__t('फाइल (PDF)', 'File (PDF)'); ?><?php echo $editReport ? '' : ' *'; ?></label>
+                            <input type="file" name="file" id="rpt_file" class="form-control" accept=".pdf,.doc,.docx" <?php echo $editReport ? '' : 'required'; ?>>
+                            <div class="form-text"><?php echo $__t('PDF / Word — अधिकतम २५ MB (server limit सानो भए त्यही लागू)। ठूलो फाइलमा “सुरक्षा जाँच असफल” होइन, साइज घटाउनुहोस्।', 'PDF / Word — max 25 MB (or smaller server limit). Oversized files are not a CSRF error — compress the PDF.'); ?></div>
                             <?php if (!empty($editReport['file_path'])): ?>
-                            <small class="text-muted"><?php echo $__t('हालको', 'Current'); ?>: <?php echo basename($editReport['file_path']); ?></small>
+                            <small class="text-muted"><?php echo $__t('हालको', 'Current'); ?>: <?php echo htmlspecialchars(basename((string)$editReport['file_path']), ENT_QUOTES, 'UTF-8'); ?></small>
                             <?php endif; ?>
                         </div>
 
@@ -348,7 +364,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>')">
-                                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
     <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="id" value="<?php echo $report['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger" title="<?php echo $__t('मेटाउनुहोस्','Delete'); ?>">
@@ -385,16 +401,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const reportType = document.getElementById('reportType');
     const monthField = document.getElementById('monthField');
     const quarterField = document.getElementById('quarterField');
-    if (!reportType || !monthField || !quarterField) return;
-
-    function toggleFields() {
-        const type = reportType.value;
-        monthField.classList.toggle('d-none', type !== 'monthly');
-        quarterField.classList.toggle('d-none', type !== 'quarterly');
+    if (reportType && monthField && quarterField) {
+        function toggleFields() {
+            const type = reportType.value;
+            monthField.classList.toggle('d-none', type !== 'monthly');
+            quarterField.classList.toggle('d-none', type !== 'quarterly');
+        }
+        reportType.addEventListener('change', toggleFields);
+        toggleFields();
     }
 
-    reportType.addEventListener('change', toggleFields);
-    toggleFields();
+    var fileInp = document.getElementById('rpt_file');
+    var maxBytes = <?php echo (int)(defined('MAX_REPORT_FILE_SIZE') ? MAX_REPORT_FILE_SIZE : 25 * 1024 * 1024); ?>;
+    if (fileInp) {
+        fileInp.addEventListener('change', function () {
+            if (!this.files || !this.files[0]) return;
+            if (this.files[0].size > maxBytes) {
+                alert(<?php echo json_encode($__t('फाइल २५ MB भन्दा ठूलो छ। PDF compress गरेर पुनः अपलोड गर्नुहोस्।', 'File is larger than 25 MB. Compress the PDF and try again.')); ?>);
+                this.value = '';
+            }
+        });
+    }
 });
 </script>
 

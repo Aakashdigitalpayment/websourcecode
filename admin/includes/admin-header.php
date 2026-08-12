@@ -87,6 +87,17 @@ if (!$__licExempt && function_exists('site_license_expired') && site_license_exp
 
 // Global CSRF protection for all admin POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    /* Oversized body (annual PDF etc.) empties $_POST → looks like CSRF fail */
+    if (function_exists('coop_post_exceeded_php_limit') && coop_post_exceeded_php_limit()) {
+        $up = (string) (ini_get('upload_max_filesize') ?: '?');
+        $pm = (string) (ini_get('post_max_size') ?: '?');
+        setFlash(
+            'error',
+            'अपलोड फाइल धेरै ठूलो छ — सुरक्षा जाँच होइन। अधिकतम करिब ' . $up
+            . ' (post_max_size=' . $pm . ')। सानो PDF राख्नुहोस् वा hosting मा upload limit बढाउनुहोस्।'
+        );
+        redirect(function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'));
+    }
     if (!verifyCSRFToken()) {
         setFlash('error', 'सुरक्षा जाँच असफल। कृपया पुनः प्रयास गर्नुहोस्।');
         redirect(function_exists('adminSelfUrl') ? adminSelfUrl() : (ADMIN_URL . 'dashboard.php'));
