@@ -57,10 +57,10 @@ if (strpos($pages, 'type="submit"') !== false && strpos($pages, 'यो पृ�
 } else {
     bad('delete still broken type=button');
 }
-if (strpos($cache, 'nav_cms_pages_v2') !== false) {
-    ok('homepage cache clear also clears nav_cms_pages_v2');
+if (strpos($hdr, 'rawurlencode($slug)') !== false && strpos($hdr, "str_contains(\$slug, '..')") !== false) {
+    ok('CMS nav keeps unicode slugs and blocks URL/path injection');
 } else {
-    bad('cache clear missing v2 key');
+    bad('CMS nav slug hardening missing');
 }
 
 echo "\n$pass passed, $fail failed\n";

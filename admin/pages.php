@@ -439,7 +439,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             <div class="col-md-8">
                                                 <label for="pgv2_slug" class="form-label fw-semibold">Slug (URL) <span class="text-danger">*</span></label>
                                                 <input type="text" name="slug" id="pgv2_slug" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['slug'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                                <div class="form-text">URL: <code><?php echo SITE_URL; ?>page.php?slug=[slug]</code></div>
+                                                <div class="form-text">URL: <code><?php echo SITE_URL; ?>page.php?slug=[slug]</code> — अंग्रेजी slug राम्रो (जस्तै <code>objectives</code>); नेपाली slug पनि चल्छ।</div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="pgv2_isActive" class="form-label fw-semibold">स्थिति</label>

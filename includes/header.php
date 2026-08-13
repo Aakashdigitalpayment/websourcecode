@@ -421,8 +421,15 @@ try {
 if (!function_exists('coop_nav_cms_page_li')) {
     function coop_nav_cms_page_li(array $mp): string
     {
-        $slug = preg_replace('/[^a-zA-Z0-9\-_]/', '', (string)($mp['slug'] ?? ''));
-        if ($slug === '') {
+        $slug = trim(str_replace('\\', '/', (string)($mp['slug'] ?? '')));
+        /* Reject empty, traversal, absolute URLs, and path-like slugs */
+        if ($slug === ''
+            || str_contains($slug, '..')
+            || str_contains($slug, '/')
+            || str_contains($slug, '?')
+            || str_contains($slug, '#')
+            || preg_match('#^(https?:)?//#i', $slug)
+        ) {
             return '';
         }
         $title = isEnglish()
@@ -439,7 +446,7 @@ if (!function_exists('coop_nav_cms_page_li')) {
         $badge = $isNew
             ? '<span class="nav-new-badge">' . (isEnglish() ? 'New' : 'नयाँ') . '</span>'
             : '';
-        $href = SITE_URL . 'page.php?slug=' . rawurlencode($slug);
+        $href = rtrim((string) SITE_URL, '/') . '/page.php?slug=' . rawurlencode($slug);
         return '<li><a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
             . '<i class="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i> '
             . htmlspecialchars($title, ENT_QUOTES, 'UTF-8')
