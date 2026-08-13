@@ -377,21 +377,24 @@ try {
             if (!function_exists('getCachedData')) {
                 require_once __DIR__ . '/simple-cache.php';
             }
-            $__cmsRows = getCachedData('nav_cms_pages_v1', 90, function () use ($db) {
+            $__cmsHasIcon = function_exists('dbColumnExists') && dbColumnExists('pages', 'menu_icon');
+            $__cmsRows = getCachedData('nav_cms_pages_v2', 90, function () use ($db, $__cmsHasIcon) {
                 try {
                     if (function_exists('dbColumnExists') && !dbColumnExists('pages', 'show_in_menu')) {
                         return [];
                     }
+                    $iconSel = $__cmsHasIcon ? ", COALESCE(menu_icon, '') AS menu_icon" : ", '' AS menu_icon";
                     $stmt = $db->query(
                         "SELECT id, slug, title,
                                 COALESCE(title_en, '') AS title_en,
                                 COALESCE(is_new, 0) AS is_new,
                                 new_until, menu_position
+                                {$iconSel}
                          FROM pages
                          WHERE is_active = 1 AND show_in_menu = 1
                            AND menu_position IN ('about','services','more')
                          ORDER BY menu_order ASC, id ASC
-                         LIMIT 30"
+                         LIMIT 40"
                     );
                     return $stmt ? ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
                 } catch (Throwable $e) {
@@ -403,7 +406,7 @@ try {
             }
             foreach ($__cmsRows as $__cmsRow) {
                 $pos = (string)($__cmsRow['menu_position'] ?? '');
-                if (!isset($navCmsPages[$pos]) || count($navCmsPages[$pos]) >= 5) {
+                if (!isset($navCmsPages[$pos]) || count($navCmsPages[$pos]) >= 12) {
                     continue;
                 }
                 $navCmsPages[$pos][] = $__cmsRow;
@@ -412,6 +415,37 @@ try {
     }
 } catch (Throwable $e) {
     $navCmsPages = ['about' => [], 'services' => [], 'more' => []];
+}
+
+/** Render one CMS page <li> for about/services/more dropdowns. */
+if (!function_exists('coop_nav_cms_page_li')) {
+    function coop_nav_cms_page_li(array $mp): string
+    {
+        $slug = preg_replace('/[^a-zA-Z0-9\-_]/', '', (string)($mp['slug'] ?? ''));
+        if ($slug === '') {
+            return '';
+        }
+        $title = isEnglish()
+            ? ((string)($mp['title_en'] ?? '') !== '' ? (string)$mp['title_en'] : (string)($mp['title'] ?? ''))
+            : ((string)($mp['title'] ?? '') !== '' ? (string)$mp['title'] : (string)($mp['title_en'] ?? ''));
+        if ($title === '') {
+            $title = $slug;
+        }
+        $icon = trim((string)($mp['menu_icon'] ?? ''));
+        if ($icon === '' || !preg_match('/^(fa[srlb]?|fas|far|fal|fab)\s+fa-[\w-]+$/i', $icon)) {
+            $icon = 'fas fa-file-lines';
+        }
+        $isNew = !empty($mp['is_new']) && (empty($mp['new_until']) || strtotime((string)$mp['new_until']) >= time());
+        $badge = $isNew
+            ? '<span class="nav-new-badge">' . (isEnglish() ? 'New' : 'नयाँ') . '</span>'
+            : '';
+        $href = SITE_URL . 'page.php?slug=' . rawurlencode($slug);
+        return '<li><a href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i> '
+            . htmlspecialchars($title, ENT_QUOTES, 'UTF-8')
+            . $badge
+            . '</a></li>';
+    }
 }
 
 $currentPage = getCurrentPage();
@@ -1544,6 +1578,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li><a href="<?php echo SITE_URL; ?>about.php#chairman"><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
+                            <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
                         </ul>
                     </li>
                     <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
@@ -1572,6 +1607,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                 </ul>
                             </li>
                             <?php endforeach; ?>
+                            <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                             <li>
                                 <a href="<?php echo SITE_URL; ?>services.php">
                                     <i class="fas fa-th-list"></i>
@@ -1590,6 +1626,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                 <li><a href="<?php echo SITE_URL; ?>services.php#loan"><i class="fas fa-hand-holding-usd"></i> <?php echo $L['loan']; ?></a></li>
                                 <li><a href="<?php echo SITE_URL; ?>services.php#remittance"><i class="fas fa-money-bill-wave"></i> <?php echo $L['remittance']; ?></a></li>
                             <?php endif; ?>
+                            <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                         </ul>
                         <?php endif; ?>
                     </li>
@@ -1725,6 +1762,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
+                            <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                         </ul>
                     </li>
                     <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">
@@ -1915,12 +1953,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo SITE_URL; ?>about.php#chairman"><i class="fas fa-user-tie"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>institutional-profile.php"><i class="fas fa-building-columns"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
-                                    <?php foreach ($navCmsPages['about'] as $mp):
-                                        $mpTitle = isEnglish() ? ($mp['title_en'] ?: $mp['title']) : ($mp['title'] ?: $mp['title_en']);
-                                        $isNewPage = !empty($mp['is_new']) && (empty($mp['new_until']) || strtotime((string)$mp['new_until']) >= time());
-                                    ?>
-                                    <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mp['slug']); ?>"><?php echo htmlspecialchars($mpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; ?>
+                                    <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
@@ -1935,12 +1968,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         <li><a href="<?php echo SITE_URL; ?>services.php#loan"><i class="fas fa-hand-holding-usd"></i> <?php echo $L['loan']; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>services.php#remittance"><i class="fas fa-money-bill-wave"></i> <?php echo $L['remittance']; ?></a></li>
                                     <?php endif; ?>
-                                    <?php foreach ($navCmsPages['services'] as $sp):
-                                        $spTitle = isEnglish() ? ($sp['title_en'] ?: $sp['title']) : ($sp['title'] ?: $sp['title_en']);
-                                        $isNewPage = !empty($sp['is_new']) && (empty($sp['new_until']) || strtotime((string)$sp['new_until']) >= time());
-                                    ?>
-                                    <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($sp['slug']); ?>"><?php echo htmlspecialchars($spTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; ?>
+                                    <?php foreach ($navCmsPages['services'] as $sp) { echo coop_nav_cms_page_li($sp); } ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'interest-rates' ? 'active' : ''; ?>">
@@ -2041,12 +2069,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
-                                    <?php foreach ($navCmsPages['more'] as $mmp):
-                                        $mmpTitle = isEnglish() ? ($mmp['title_en'] ?: $mmp['title']) : ($mmp['title'] ?: $mmp['title_en']);
-                                        $isNewPage = !empty($mmp['is_new']) && (empty($mmp['new_until']) || strtotime((string)$mmp['new_until']) >= time());
-                                    ?>
-                                    <li><a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars($mmp['slug']); ?>"><?php echo htmlspecialchars($mmpTitle); ?><?php if ($isNewPage): ?><span class="nav-new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span><?php endif; ?></a></li>
-                                    <?php endforeach; ?>
+                                    <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                                 </ul>
                             </li>
                             <li class="<?php echo $currentPage == 'contact' ? 'active' : ''; ?>">

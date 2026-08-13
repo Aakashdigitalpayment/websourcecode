@@ -14,6 +14,15 @@ require_once __DIR__ . '/../includes/simple-cache.php';
 $db = getDB();
 checkCSRF();
 
+/* menu_icon for public nav (FA class; same picker as team/services) */
+try {
+    if (function_exists('dbColumnExists') && !dbColumnExists('pages', 'menu_icon')) {
+        $db->exec("ALTER TABLE pages ADD COLUMN menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+    }
+} catch (Throwable $e) {
+    /* older hosts may lack ALTER rights — form still works without icon column */
+}
+
 $tab = (string) ($_GET['tab'] ?? $_POST['tab'] ?? 'dynamic');
 if (!in_array($tab, ['dynamic', 'static'], true)) $tab = 'dynamic';
 
@@ -96,10 +105,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_dynamic_page']))
     $showInMenu = isset($_POST['show_in_menu']) ? 1 : 0;
     $menuPosition = clean_text($_POST['menu_position'] ?? 'about');
     $menuOrder = (int) ($_POST['menu_order'] ?? 0);
+    $menuIcon = clean_text($_POST['menu_icon'] ?? 'fas fa-file-lines', 80);
+    if ($menuIcon === '' || !preg_match('/^(fa[srlb]?|fas|far|fal|fab)\s+fa-[\w-]+$/i', $menuIcon)) {
+        $menuIcon = 'fas fa-file-lines';
+    }
     $isActive = isset($_POST['is_active']) ? 1 : 0;
 
     $allowedMenuPositions = ['about','services','more','footer'];
     if (!in_array($menuPosition, $allowedMenuPositions, true)) $menuPosition = 'about';
+    /* Footer is not wired into public nav yet — keep pages visible in About if they tick show_in_menu */
+    if ($showInMenu === 1 && $menuPosition === 'footer') {
+        $menuPosition = 'about';
+    }
 
     if ($slug === '' && ($titleEn !== '' || $titleNp !== '')) {
         $slugSource = $titleEn !== '' ? $titleEn : $titleNp;
@@ -126,14 +143,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_dynamic_page']))
             redirect('pages.php?tab=dynamic&action=edit' . ($pageId > 0 ? '&id=' . $pageId : '') . '&panel=form');
         }
 
+        $hasIconCol = function_exists('dbColumnExists') && dbColumnExists('pages', 'menu_icon');
         if ($pageId > 0) {
-            $stmt = $db->prepare("UPDATE pages SET slug = ?, title = ?, title_np = ?, title_en = ?, content = ?, content_np = ?, show_in_menu = ?, menu_position = ?, menu_order = ?, is_active = ? WHERE id = ?");
-            $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $isActive, $pageId]);
-            setFlash('success', 'पृष्ठ सफलतापूर्वक अपडेट भयो।');
+            if ($hasIconCol) {
+                $stmt = $db->prepare("UPDATE pages SET slug = ?, title = ?, title_np = ?, title_en = ?, content = ?, content_np = ?, show_in_menu = ?, menu_position = ?, menu_order = ?, menu_icon = ?, is_active = ? WHERE id = ?");
+                $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $menuIcon, $isActive, $pageId]);
+            } else {
+                $stmt = $db->prepare("UPDATE pages SET slug = ?, title = ?, title_np = ?, title_en = ?, content = ?, content_np = ?, show_in_menu = ?, menu_position = ?, menu_order = ?, is_active = ? WHERE id = ?");
+                $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $isActive, $pageId]);
+            }
+            setFlash('success', 'पृष्ठ सफलतापूर्वक अपडेट भयो।' . ($showInMenu ? ' मेनुमा देखिने छ।' : ' (मेनुमा देखाउन “मेनुमा देखाउनुहोस्” टिक गर्नुहोस्।)'));
         } else {
-            $stmt = $db->prepare("INSERT INTO pages (slug, title, title_np, title_en, content, content_np, show_in_menu, menu_position, menu_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $isActive]);
-            setFlash('success', 'नयाँ पृष्ठ सफलतापूर्वक थपियो।');
+            if ($hasIconCol) {
+                $stmt = $db->prepare("INSERT INTO pages (slug, title, title_np, title_en, content, content_np, show_in_menu, menu_position, menu_order, menu_icon, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $menuIcon, $isActive]);
+            } else {
+                $stmt = $db->prepare("INSERT INTO pages (slug, title, title_np, title_en, content, content_np, show_in_menu, menu_position, menu_order, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$slug, $titleNp, $titleNp, $titleEn, $contentEn, $contentNp, $showInMenu, $menuPosition, $menuOrder, $isActive]);
+            }
+            setFlash('success', 'नयाँ पृष्ठ सफलतापूर्वक थपियो।' . ($showInMenu ? ' मेनुमा देखिने छ।' : ' (मेनुमा देखाउन सम्पादन गरी “मेनुमा देखाउनुहोस्” टिक गर्नुहोस्।)'));
         }
     } catch (Throwable $e) {
         setFlash('error', 'त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।');
@@ -316,17 +344,31 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                 </td>
                                                                 <td><?php echo htmlspecialchars((string)($pg['title_np'] ?? $pg['title'] ?? '')); ?></td>
                                                                 <td><?php echo htmlspecialchars((string)($pg['title_en'] ?? '—')); ?></td>
-                                                                <td><?php echo !empty($pg['show_in_menu']) ? '<span class="badge bg-info">' . htmlspecialchars((string)($pg['menu_position'] ?? '')) . '</span>' : '<span class="text-muted">—</span>'; ?></td>
+                                                                <td><?php
+                                                                    if (!empty($pg['show_in_menu'])) {
+                                                                        $posLabels = ['about' => 'हाम्रो बारेमा', 'services' => 'सेवाहरू', 'more' => 'थप', 'footer' => 'फुटर'];
+                                                                        $pos = (string)($pg['menu_position'] ?? 'about');
+                                                                        echo '<span class="badge bg-info">' . htmlspecialchars($posLabels[$pos] ?? $pos, ENT_QUOTES, 'UTF-8') . '</span>';
+                                                                        $ico = trim((string)($pg['menu_icon'] ?? ''));
+                                                                        if ($ico !== '') {
+                                                                            echo ' <i class="' . htmlspecialchars($ico, ENT_QUOTES, 'UTF-8') . ' text-muted ms-1" aria-hidden="true"></i>';
+                                                                        }
+                                                                    } else {
+                                                                        echo '<span class="text-muted" title="मेनुमा देखाउन सम्पादन गरी टिक गर्नुहोस्">—</span>';
+                                                                    }
+                                                                ?></td>
                                                                 <td class="text-center"><?php echo !empty($pg['is_active']) ? '<span class="badge bg-success">सक्रिय</span>' : '<span class="badge bg-secondary">निष्क्रिय</span>'; ?></td>
                                                                 <td class="text-center">
+                                                                    <div class="d-inline-flex align-items-center gap-1 flex-nowrap">
                                                                     <a class="btn btn-sm btn-primary" href="pages.php?tab=dynamic&action=edit&id=<?php echo (int)$pg['id']; ?>&panel=form" title="सम्पादन"><i class="fas fa-edit"></i></a>
                                                                     <?php $isProtected = in_array((string)($pg['slug'] ?? ''), ['privacy-policy','terms-of-service','cookie-policy'], true); ?>
-                                                                    <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो पृष्ठ मेटाउने हो?')" style="display:inline;">
+                                                                    <form method="POST" class="svc-inline-form m-0" onsubmit="return confirm('यो पृष्ठ मेटाउने हो?')">
                                                                         <?php echo csrfField(); ?>
                                                                         <input type="hidden" name="action" value="delete">
                                                                         <input type="hidden" name="id" value="<?php echo (int)$pg['id']; ?>">
-                                                                        <button type="button" class="btn btn-sm btn-outline-danger" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="fas fa-trash"></i></button>
+                                                                        <button type="submit" class="btn btn-sm btn-outline-danger" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="fas fa-trash"></i></button>
                                                                     </form>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                             <?php endforeach; ?>
@@ -416,24 +458,51 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 <input type="text" name="title_en" id="pgv2_title_en" class="form-control" value="<?php echo htmlspecialchars((string)($dynEditRow['title_en'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                             </div>
 
-                                            <div class="col-md-4">
-                                                <div class="form-check mt-4">
-                                                    <input class="form-check-input" type="checkbox" name="show_in_menu" id="pgv2_showInMenu" <?php echo !empty($dynEditRow['show_in_menu']) ? 'checked' : ''; ?>>
-                                                    <label class="form-check-label" for="pgv2_showInMenu">मेनुमा देखाउनुहोस्</label>
+                                            <div class="col-12">
+                                                <div class="alert alert-light border mb-0 py-2 small">
+                                                    <strong>मेनुमा देखाउन:</strong> तल “मेनुमा देखाउनुहोस्” टिक गर्नुहोस् र मेनु छान्नुहोस्
+                                                    (हाम्रो बारेमा / सेवाहरू / थप)। टिक नभए सार्वजनिक ड्रपडाउनमा देखिँदैन।
                                                 </div>
                                             </div>
                                             <div class="col-md-4">
-                                                <label for="pgv2_menu_position" class="form-label fw-semibold">मेनु</label>
-                                                <select name="menu_position" id="pgv2_menu_position" class="form-select form-select-sm">
-                                                    <option value="about" <?php echo (($dynEditRow['menu_position'] ?? '') === 'about') ? 'selected' : ''; ?>>हाम्रो बारेमा</option>
+                                                <div class="form-check form-switch mt-4">
+                                                    <input class="form-check-input" type="checkbox" name="show_in_menu" id="pgv2_showInMenu" <?php
+                                                        $showMenuChecked = $dynEditRow
+                                                            ? !empty($dynEditRow['show_in_menu'])
+                                                            : true; /* new page: default ON so About menu works */
+                                                        echo $showMenuChecked ? 'checked' : '';
+                                                    ?>>
+                                                    <label class="form-check-label fw-semibold" for="pgv2_showInMenu">मेनुमा देखाउनुहोस्</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="pgv2_menu_position" class="form-label fw-semibold">मेनु स्थान</label>
+                                                <select name="menu_position" id="pgv2_menu_position" class="form-select">
+                                                    <option value="about" <?php echo (($dynEditRow['menu_position'] ?? 'about') === 'about') ? 'selected' : ''; ?>>हाम्रो बारेमा</option>
                                                     <option value="services" <?php echo (($dynEditRow['menu_position'] ?? '') === 'services') ? 'selected' : ''; ?>>सेवाहरू</option>
                                                     <option value="more" <?php echo (($dynEditRow['menu_position'] ?? '') === 'more') ? 'selected' : ''; ?>>थप</option>
-                                                    <option value="footer" <?php echo (($dynEditRow['menu_position'] ?? '') === 'footer') ? 'selected' : ''; ?>>फुटर</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-4">
-                                                <label for="pgv2_menu_order" class="form-label fw-semibold">क्रम</label>
-                                                <input type="number" name="menu_order" id="pgv2_menu_order" class="form-control form-control-sm" value="<?php echo (int)($dynEditRow['menu_order'] ?? 0); ?>">
+                                                <label for="pgv2_menu_order" class="form-label fw-semibold">क्रम (साना संख्या पहिले)</label>
+                                                <input type="number" name="menu_order" id="pgv2_menu_order" class="form-control" value="<?php echo (int)($dynEditRow['menu_order'] ?? 10); ?>">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <label for="pgv2_menu_icon" class="form-label fw-semibold">मेनु आइकन</label>
+                                                <div class="js-fa-icon-picker fa-ip-wrap">
+                                                    <div class="fa-ip-row input-group">
+                                                        <span class="fa-ip-preview input-group-text" data-fa-preview>
+                                                            <i class="<?php echo htmlspecialchars((string)($dynEditRow['menu_icon'] ?? 'fas fa-file-lines'), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                                        </span>
+                                                        <input type="text" name="menu_icon" id="pgv2_menu_icon" class="form-control" data-fa-input
+                                                               value="<?php echo htmlspecialchars((string)($dynEditRow['menu_icon'] ?? 'fas fa-file-lines'), ENT_QUOTES, 'UTF-8'); ?>"
+                                                               placeholder="fas fa-file-lines">
+                                                        <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="आइकन छान्नुहोस्">
+                                                            <i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>
+                                                        </button>
+                                                    </div>
+                                                    <small class="fa-ip-hint">सार्वजनिक मेनु ड्रपडाउनमा यही आइकन देखिन्छ (Font Awesome / Lucide-compatible classes)।</small>
+                                                </div>
                                             </div>
 
                                             <div class="col-12">
