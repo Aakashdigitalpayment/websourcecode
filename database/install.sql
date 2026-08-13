@@ -260,6 +260,7 @@ CREATE TABLE IF NOT EXISTS pages (
     show_in_menu TINYINT(1) DEFAULT 0,
     menu_position VARCHAR(50) DEFAULT 'about',
     menu_order INT DEFAULT 0,
+    menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines',
     is_new TINYINT(1) DEFAULT 0,
     new_until DATE,
     is_active TINYINT(1) DEFAULT 1,

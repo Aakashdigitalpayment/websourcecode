@@ -136,11 +136,15 @@ function ensureAdminTables(): bool {
             show_in_menu TINYINT(1) DEFAULT 0,
             menu_position VARCHAR(50) DEFAULT 'about',
             menu_order INT DEFAULT 0,
+            menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines',
             is_new TINYINT(1) DEFAULT 0,
             new_until DATE,
             is_active TINYINT(1) DEFAULT 1,
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+        try {
+            $db->exec("ALTER TABLE pages ADD COLUMN menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+        } catch (\Throwable $e) { /* already exists */ }
 
         /* ── 8. DOWNLOADS ───────────────────────────────── */
         $db->exec("CREATE TABLE IF NOT EXISTS downloads (
@@ -589,7 +593,7 @@ function ensureAdminTables(): bool {
 
 /* Admin header / login include — `.admin-schema.lock` बाट guard
  * सफल भए मात्र lock लेख्ने (खाली DB मा false lock नहोस्) */
-$_adminSchemaVersion = 'v9-honor-darkhasta-2026';
+$_adminSchemaVersion = 'v10-pages-menu-icon-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {
