@@ -62,6 +62,11 @@ if (strpos($hdr, 'rawurlencode($slug)') !== false && strpos($hdr, "str_contains(
 } else {
     bad('CMS nav slug hardening missing');
 }
+if (strpos($cache, 'nav_cms_pages_v2') !== false) {
+    ok('homepage cache clear also clears nav_cms_pages_v2');
+} else {
+    bad('cache clear missing v2 key');
+}
 
 echo "\n$pass passed, $fail failed\n";
 exit($fail > 0 ? 1 : 0);
