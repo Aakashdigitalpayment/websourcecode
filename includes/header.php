@@ -1756,7 +1756,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             </li>
                         </ul>
                     </li>
-                    <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
+                    <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro', 'member-marketplace', 'member-skills'], true) ? 'active' : ''; ?>">
                         <a href="#" onclick="event.preventDefault();"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="newspaper"></i><span class="mnav-main-label"><?php echo isEnglish() ? 'More' : 'थप'; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
@@ -1769,6 +1769,8 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                             <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>member-marketplace.php"><i class="fas fa-basket-shopping"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
+                            <li><a href="<?php echo SITE_URL; ?>member-skills.php"><i class="fas fa-screwdriver-wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
                             <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                         </ul>
                     </li>
@@ -2063,7 +2065,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <?php endforeach; ?>
                                 </ul>
                             </li>
-                            <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro'], true) ? 'active' : ''; ?>">
+                            <li class="has-dropdown <?php echo in_array($currentPage, ['news', 'career', 'reports', 'downloads', 'service-centers', 'faqs', 'member-survey', 'partner-facilities', 'application-tracker', 'sahakari-patro', 'member-marketplace', 'member-skills'], true) ? 'active' : ''; ?>">
                                 <a href="#" onclick="event.preventDefault();"><?php echo isEnglish() ? 'More' : 'थप'; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <li><a href="<?php echo SITE_URL; ?>news.php"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i> <?php echo isEnglish() ? 'News & Activities' : 'समाचार'; ?></a></li>
@@ -2076,6 +2078,8 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo SITE_URL; ?>partner-facilities.php"><i class="lucide-icon" aria-hidden="true" data-lucide="handshake"></i> <?php echo isEnglish() ? 'Partner Facilities' : 'साझेदार सुविधा'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>application-tracker.php"><i class="lucide-icon" aria-hidden="true" data-lucide="search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a></li>
                                     <li><a href="<?php echo SITE_URL; ?>sahakari-patro.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i> <?php echo isEnglish() ? 'Sahakari Patro' : 'सहकारी पात्रो'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>member-marketplace.php"><i class="fas fa-basket-shopping"></i> <?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_products'] ?? 0); ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>member-skills.php"><i class="fas fa-screwdriver-wrench"></i> <?php echo isEnglish() ? 'Skill Members / Workers' : 'सीप सदस्य / कामदार'; ?><?php echo nav_submenu_count_badge_html($navMenuBadges['marketplace_skills'] ?? 0); ?></a></li>
                                     <?php foreach ($navCmsPages['more'] as $mmp) { echo coop_nav_cms_page_li($mmp); } ?>
                                 </ul>
                             </li>

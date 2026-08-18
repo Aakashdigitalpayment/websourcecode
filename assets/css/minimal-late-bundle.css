@@ -5605,4 +5605,42 @@ body.dark-mode .gallery-album-cover {
 .admin-shell .gal-album-lbl {
   font-size: 0.72rem;
 }
+
+/* ── Member marketplace / skill workers (public) ── */
+.mkt-wrap { padding-top: 1.5rem; }
+.mkt-intro { text-align: center; margin-bottom: 1.5rem; }
+.mkt-lead { max-width: 46rem; margin: 0 auto 1rem; color: var(--text-light, #4b5563); line-height: 1.65; }
+.mkt-cta-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.mkt-filter { display: grid; grid-template-columns: 1fr minmax(160px, 220px) auto; gap: 10px; margin-bottom: 1.25rem; }
+@media (max-width: 640px) { .mkt-filter { grid-template-columns: 1fr; } }
+.mkt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 16px; }
+.mkt-card { background: #fff; border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.mkt-card-media { display: block; height: 160px; background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #f8fafc); }
+.mkt-card-media img { width: 100%; height: 160px; object-fit: cover; }
+.mkt-card-fallback { display: flex; align-items: center; justify-content: center; height: 160px; font-size: 2.2rem; color: var(--primary-color, #1a5f2a); }
+.mkt-card-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.mkt-chip { align-self: flex-start; font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #fff); color: var(--primary-color, #1a5f2a); }
+.mkt-card-title { font-size: 1.02rem; margin: 0; line-height: 1.4; }
+.mkt-card-title a { color: inherit; text-decoration: none; }
+.mkt-card-title a:hover { color: var(--primary-color, #1a5f2a); }
+.mkt-price { font-weight: 800; color: var(--primary-color, #1a5f2a); margin: 0; }
+.mkt-price-lg { font-size: 1.2rem; }
+.mkt-meta, .mkt-until { margin: 0; font-size: .82rem; color: #6b7280; }
+.mkt-dot { margin: 0 4px; }
+.mkt-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 8px; }
+.mkt-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: .8rem; font-weight: 700; text-decoration: none; }
+.mkt-btn-call { background: var(--primary-color, #1a5f2a); color: #fff; }
+.mkt-btn-wa { background: #128c7e; color: #fff; }
+.mkt-btn-more { background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff); color: var(--primary-color, #1a5f2a); }
+.mkt-empty { text-align: center; padding: 3rem 1rem; color: #6b7280; }
+.mkt-empty i { font-size: 2.4rem; display: block; margin-bottom: 12px; color: var(--primary-color, #1a5f2a); }
+.mkt-detail { display: grid; grid-template-columns: minmax(220px, 360px) 1fr; gap: 24px; background: #fff; border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb); border-radius: 16px; padding: 18px; }
+@media (max-width: 768px) { .mkt-detail { grid-template-columns: 1fr; } }
+.mkt-detail-media img, .mkt-detail-fallback { width: 100%; border-radius: 12px; max-height: 320px; object-fit: cover; }
+.mkt-facts { list-style: none; padding: 0; margin: 12px 0; }
+.mkt-facts li { margin: 6px 0; }
+.mkt-inq-form { margin-top: 18px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+.mkt-desc { white-space: pre-wrap; }
+body.dark-mode .mkt-card, body.dark-mode .mkt-detail { background: #1a2220; border-color: rgba(255,255,255,.1); }
+body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; }
 /* ===== END final-ui-polish.css ===== */

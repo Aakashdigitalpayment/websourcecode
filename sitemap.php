@@ -79,6 +79,8 @@ $staticPhp = [
     ['faqs.php', '0.8', 'monthly'],
     ['reports.php', '0.65', 'monthly'],
     ['auction.php', '0.65', 'weekly'],
+    ['member-marketplace.php', '0.7', 'daily'],
+    ['member-skills.php', '0.7', 'daily'],
     ['member-welfare.php', '0.65', 'monthly'],
     ['awards.php', '0.65', 'monthly'],
     ['important-links.php', '0.55', 'monthly'],

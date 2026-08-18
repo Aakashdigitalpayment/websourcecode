@@ -118,6 +118,7 @@ $_activeMap = [
     'scan.php'           => 'scan',
     'attend.php'         => 'attend',
     'service-request.php'=> 'service',
+    'marketplace.php'    => 'marketplace',
     'appointment.php'    => 'apply-appointment',
     'loan-apply.php'     => 'apply-loan',
     'account-apply.php'  => 'apply-account',
@@ -381,6 +382,7 @@ try {
         <?php endif; ?>
         <a href="<?php echo $_siteUrl; ?>member/scan.php" class="mem-nav-item <?php echo $_active==='scan'?'active':''; ?>"><i class="fas fa-qrcode"></i><?php echo $_t('QR स्क्यान', 'QR Scan'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/attend.php" class="mem-nav-item <?php echo $_active==='attend'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('उपस्थिति', 'Attendance'); ?></a>
+        <a href="<?php echo $_siteUrl; ?>member/marketplace.php" class="mem-nav-item <?php echo $_active==='marketplace'?'active':''; ?>"><i class="fas fa-store"></i><?php echo $_t('बजार / सीप', 'Market / Skills'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/service-request.php" class="mem-nav-item <?php echo $_active==='service'?'active':''; ?>"><i class="fas fa-concierge-bell"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/appointment.php" class="mem-nav-item <?php echo $_active==='apply-appointment'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('भेटघाट', 'Appointment'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/loan-apply.php" class="mem-nav-item <?php echo $_active==='apply-loan'?'active':''; ?>"><i class="fas fa-hand-holding-dollar"></i><?php echo $_t('ऋण आवेदन', 'Loan Apply'); ?></a>

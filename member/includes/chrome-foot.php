@@ -79,6 +79,7 @@ if ($_fnElection === 'voting') {
 }
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/scan.php',           'icon'=>'qr-code',            'label'=>$_footT('QR स्क्यान','QR Scan'),        'active'=>'scan'];
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/attend.php',         'icon'=>'calendar-check',    'label'=>$_footT('उपस्थिति','Attendance'),       'active'=>'attend'];
+$_fnSecondary[] = ['href'=>$_fnUrl.'member/marketplace.php',    'icon'=>'store',              'label'=>$_footT('बजार / सीप','Market / Skills'), 'active'=>'marketplace'];
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/service-request.php','icon'=>'bell-ring',    'label'=>$_footT('सेवा अनुरोध','Service Req.'),  'active'=>'service'];
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/appointment.php',    'icon'=>'calendar-plus',     'label'=>$_footT('भेटघाट','Appointment'),        'active'=>'apply-appointment'];
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/loan-apply.php',     'icon'=>'hand-coins','label'=>$_footT('ऋण आवेदन','Loan Apply'),      'active'=>'apply-loan'];

@@ -1440,6 +1440,10 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
                 $maxWidth = 800;
                 $maxHeight = 600;
                 break;
+            case 'marketplace':
+                $maxWidth = 900;
+                $maxHeight = 700;
+                break;
             case 'welfare_claims':
                 $maxWidth = 1200;
                 $maxHeight = 1200;
