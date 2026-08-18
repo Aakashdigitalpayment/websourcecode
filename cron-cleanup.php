@@ -51,6 +51,14 @@ if (!function_exists('purgeOldRecords')) {
 }
 
 $result = purgeOldRecords(90);
+try {
+    require_once __DIR__ . '/includes/member-marketplace-tables.php';
+    $dbCron = getDB();
+    $expiredMp = mpExpireStaleListings($dbCron);
+    $result['marketplace_expired'] = $expiredMp;
+} catch (Throwable $e) {
+    $result['marketplace_expired'] = 0;
+}
 $logLine = '[' . date('Y-m-d H:i:s') . '] Cleanup: ' . json_encode($result) . "\n";
 @file_put_contents(__DIR__ . '/logs/cron-cleanup.log', $logLine, FILE_APPEND);
 echo $logLine;

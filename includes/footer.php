@@ -162,6 +162,8 @@ try {
                                         <li><a href="<?php echo SITE_URL; ?>reports.php"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>faqs.php"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
                                         <li><a href="<?php echo SITE_URL; ?>member-survey.php"><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
+                                        <li><a href="<?php echo SITE_URL; ?>member-marketplace.php"><?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?></a></li>
+                                        <li><a href="<?php echo SITE_URL; ?>member-skills.php"><?php echo isEnglish() ? 'Skill Workers' : 'सीप कामदार'; ?></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -677,6 +679,7 @@ try {
         'service-centers.php', 'interest-rates.php', 'election-information.php', 'cooperative-programs.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
         'committees.php', 'career.php', 'auction.php', 'partner-facilities.php', 'member-of-year.php',
+        'member-marketplace.php', 'member-skills.php',
         'application-tracker.php', 'election-information.php',
     ];
     /* Content-only pages — no phone/email forms (separate from datepicker skip) */
@@ -687,6 +690,7 @@ try {
         'service-centers.php', 'interest-rates.php', 'election-information.php', 'cooperative-programs.php',
         'chairman-message.php', 'ceo-message.php', 'vision-mission.php', 'why-choose.php',
         'committees.php', 'career.php', 'partner-facilities.php', 'member-of-year.php',
+        'member-marketplace.php', 'member-skills.php',
         'election-information.php',
     ];
     $__needsDatepicker = !empty($__forceNepaliDatepicker);

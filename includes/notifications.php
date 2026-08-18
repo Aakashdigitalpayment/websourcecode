@@ -800,6 +800,7 @@ function _legacyNotificationConfig(): array {
         'account_application' => ['subject'=>'नयाँ खाता खोल्ने आवेदन',      'sms_tpl'=>'New Account Application by {name}. ID: {tracking}'],
         'job_application'     => ['subject'=>'नयाँ जागिर आवेदन',            'sms_tpl'=>'New Job Application by {name}. ID: {tracking}'],
         'contact_message'     => ['subject'=>'नयाँ सम्पर्क सन्देश',          'sms_tpl'=>'New Contact Message from {name}'],
+        'member_marketplace'  => ['subject'=>'नयाँ सदस्य बजार / सीप सूची', 'sms_tpl'=>'New member marketplace listing by {name}'],
     ];
 }
 

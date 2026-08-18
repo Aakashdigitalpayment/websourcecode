@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         /* Per-event toggles — email */
         $events = ['loan_application','grievance','digital_service','honor_application','kyc_application',
-                   'appointment','account_application','job_application','contact_message'];
+                   'appointment','account_application','job_application','contact_message','member_marketplace'];
         foreach ($events as $ev) {
             updateSetting('notify_email_' . $ev, isset($_POST['notify_email_' . $ev]) ? '1' : '0');
             updateSetting('notify_sms_'   . $ev, isset($_POST['notify_sms_'   . $ev]) ? '1' : '0');
@@ -136,6 +136,7 @@ $events = [
     'account_application'=> ['label' => 'खाता आवेदन',         'icon' => 'fa-user-plus'],
     'job_application'    => ['label' => 'जागिर आवेदन',        'icon' => 'fa-briefcase'],
     'contact_message'    => ['label' => 'सम्पर्क सन्देश',     'icon' => 'fa-envelope'],
+    'member_marketplace' => ['label' => 'सदस्य बजार / सीप',   'icon' => 'fa-store'],
 ];
 
 function gs($key, $default = '') {

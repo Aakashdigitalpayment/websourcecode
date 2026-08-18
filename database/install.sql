@@ -2296,7 +2296,53 @@ CREATE TABLE IF NOT EXISTS hrm_internal_messages (
 -- Do NOT re-add those ALTER/UPDATE statements on live DBs.
 
 -- Re-enable foreign key checks
+-- ═══════════════════════════════════════════════════════════════
+-- MEMBER MARKETPLACE / SKILL WORKERS
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS member_marketplace_listings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    listing_type ENUM('product','skill') NOT NULL,
+    category VARCHAR(80) NOT NULL DEFAULT '',
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    unit VARCHAR(40) NOT NULL DEFAULT '',
+    price DECIMAL(12,2) NULL DEFAULT NULL,
+    price_note VARCHAR(120) NOT NULL DEFAULT '',
+    quantity VARCHAR(80) NOT NULL DEFAULT '',
+    experience_years TINYINT UNSIGNED NULL DEFAULT NULL,
+    location VARCHAR(200) NOT NULL DEFAULT '',
+    contact_name VARCHAR(120) NOT NULL DEFAULT '',
+    contact_phone VARCHAR(20) NOT NULL DEFAULT '',
+    image VARCHAR(255) NULL DEFAULT NULL,
+    available_from DATE NULL DEFAULT NULL,
+    available_until DATETIME NULL DEFAULT NULL,
+    available_time_from TIME NULL DEFAULT NULL,
+    available_time_to TIME NULL DEFAULT NULL,
+    status ENUM('pending','approved','rejected','expired','withdrawn') NOT NULL DEFAULT 'pending',
+    admin_note VARCHAR(500) NOT NULL DEFAULT '',
+    approved_at DATETIME NULL DEFAULT NULL,
+    approved_by INT NULL DEFAULT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_mkt_public (listing_type, status, is_active, available_until),
+    INDEX idx_mkt_member (member_id, created_at),
+    INDEX idx_mkt_status (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_marketplace_inquiries (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    member_id INT NULL DEFAULT NULL,
+    inquirer_name VARCHAR(120) NOT NULL,
+    inquirer_phone VARCHAR(20) NOT NULL DEFAULT '',
+    message VARCHAR(1000) NOT NULL DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mkt_inq_listing (listing_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 -- ═══════════════════════════════════════════════════════════════
--- ✅  सबै tables (Core + HRM + Messages), columns, indexes, seed data लोड भयो।
+-- ✅  सबै tables (Core + HRM + Messages + Member Marketplace), columns, indexes, seed data लोड भयो।
 -- ═══════════════════════════════════════════════════════════════

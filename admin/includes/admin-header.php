@@ -204,6 +204,7 @@ $adminAlertCounts = [
     'attend'      => 0,   /* कार्यक्रम उपस्थिति अनुरोध */
     'survey'      => 0,   /* नयाँ: unread survey */
     'honor'       => 0,   /* सम्मान आवेदन */
+    'marketplace' => 0,   /* सदस्य बजार / सीप */
 ];
 try {
     /* पुरानो DB मा job_applications.is_read नहुन सक्छ — fallback */
@@ -245,6 +246,7 @@ try {
 } catch (Throwable $e) { /* table may not exist yet */ }
 $adminAlertCounts['digital']     = $__adminCount("SELECT COUNT(*) FROM digital_service_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header digital]');
 $adminAlertCounts['honor']       = $__adminCount("SELECT COUNT(*) FROM honor_applications WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header honor]');
+$adminAlertCounts['marketplace'] = $__adminCount("SELECT COUNT(*) FROM member_marketplace_listings WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header marketplace]');
 $adminAlertCounts['kyc_risk']    = $__adminCount("SELECT COUNT(*) FROM kyc_applications WHERE status='approved' AND risk_review_status='due_review'", '[admin-header kyc-risk]');
 $adminAlertCounts['appointment'] = $__adminCount("SELECT COUNT(*) FROM appointments WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header appointment]');
 $adminAlertCounts['attend']      = $__adminCount("SELECT COUNT(*) FROM member_program_attendance_requests WHERE LOWER(TRIM(status)) = 'pending'", '[admin-header attend]');
@@ -291,7 +293,7 @@ $pageGroups = [
     /* सदस्य / Member ID यात्रा — सूची→import→नयाँ अनुरोध→KYM→portal (आवेदनबाट छुट्टै) */
     'sadasya'=> ['members','member-import','membership-apps','kyc','kyc-risk-reviews','member-ssot-duplicates','member-activities','member-online-portal'],
     /* अन्य सेवा आवेदन (सदस्यता/KYM यसमा होइन) */
-    'aavedan'=> ['loans','account-apps','digital-service-requests','digital-service-types','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment'],
+    'aavedan'=> ['loans','account-apps','digital-service-requests','digital-service-types','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment','member-marketplace'],
     'program' => ['programs','program-attendance','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
@@ -646,7 +648,7 @@ set_exception_handler(function (\Throwable $ex) {
 
                     <!-- ── आवेदनहरू (ऋण/खाता/अन्य — सदस्यता/KYM होइन) ── -->
                     <li class="nav-group-wrap">
-                        <?php $aavedan_total = $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor']; ?>
+                        <?php $aavedan_total = $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor'] + (int)($adminAlertCounts['marketplace'] ?? 0); ?>
                         <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('अन्य आवेदन', 'Other applications'); ?></span>
@@ -719,6 +721,13 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="store"></i></span>
                                     <span><?php echo $adminT('भेन्डर सूचीकरण', 'Vendor Enlistment'); ?></span>
                                     <?php if ($adminAlertCounts['vendor'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['vendor']; ?></span><?php endif; ?>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-marketplace' ? 'active' : ''; ?>">
+                                <a href="member-marketplace.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary-soft" aria-hidden="true" data-lucide="shopping-basket"></i></span>
+                                    <span><?php echo $adminT('सदस्य बजार / सीप', 'Member marketplace / skills'); ?></span>
+                                    <?php if (!empty($adminAlertCounts['marketplace'])): ?><span class="badge"><?php echo (int)$adminAlertCounts['marketplace']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                         </ul>
@@ -1082,6 +1091,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('कल्याण दाबी', 'Welfare Claims'),      'count'=>$adminAlertCounts['welfare'],           'href'=>'welfare-claims.php?status=pending',   'icon'=>'fa-hand-holding-heart',  'tone'=>'teal'],
                         ['label'=>$adminT('लिलामी बिड', 'Auction Bids'),       'count'=>$adminAlertCounts['auction'],           'href'=>'auction-bids.php',                    'icon'=>'fa-gavel',               'tone'=>'slate'],
                         ['label'=>$adminT('भेन्डर आवेदन', 'Vendor Requests'),      'count'=>$adminAlertCounts['vendor'],            'href'=>'vendor-enlistment.php?status=pending','icon'=>'fa-store',               'tone'=>'blue'],
+                        ['label'=>$adminT('सदस्य बजार / सीप', 'Member marketplace'), 'count'=>$adminAlertCounts['marketplace'] ?? 0, 'href'=>'member-marketplace.php?tab=pending', 'icon'=>'fa-basket-shopping', 'tone'=>'green'],
                         ['label'=>$adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'),  'count'=>$adminAlertCounts['mem_pending'],       'href'=>'member-online-portal.php?status=pending','icon'=>'fa-user-plus',        'tone'=>'orange'],
                         ['label'=>$adminT('Password Reset', 'Password Reset'),    'count'=>$adminAlertCounts['mem_resets'],        'href'=>'member-online-portal.php?tab=resets', 'icon'=>'fa-key',                 'tone'=>'red'],
                         ['label'=>$adminT('उपस्थिति अनुरोध', 'Attendance Requests'), 'count'=>$adminAlertCounts['attend'] ?? 0,   'href'=>'program-attendance.php',              'icon'=>'fa-clipboard-check',     'tone'=>'cyan'],

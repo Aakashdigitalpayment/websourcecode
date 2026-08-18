@@ -60,6 +60,8 @@
         { title: 'खाता खोल्नुहोस् / Open Account',   url: 'online-account.php',     keywords: ['account','khata','open'] },
         { title: 'भेटघाट / Appointment',             url: 'appointment.php',        keywords: ['appointment','bhetghat'] },
         { title: 'लिलामी / Auction',                 url: 'auction.php',            keywords: ['auction','lilami'] },
+        { title: 'सदस्य बजार / Member Marketplace', url: 'member-marketplace.php', keywords: ['marketplace','bazar','tarkari','falful','product','utpadan'] },
+        { title: 'सीप सदस्य / Skill Workers',       url: 'member-skills.php',      keywords: ['skill','plumber','electrical','beautician','sip','kamdar','worker'] },
         { title: 'डिजिटल सेवा / Digital Services',   url: 'digital-services.php',   keywords: ['digital','service'] },
         { title: 'आवेदन ट्र्याक / Track Application',url: 'application-tracker.php',keywords: ['track','tracker','application','awadan'] },
         { title: 'सेवा कार्यालयहरू / Service Offices',               url: 'service-centers.php',    keywords: ['branch','shakha','sewa','karyalaya','location'] },

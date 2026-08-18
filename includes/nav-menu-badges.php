@@ -11,6 +11,8 @@ function nav_get_public_submenu_badges(?PDO $db): array
 {
     $badges = [
         'career_open' => 0,
+        'marketplace_products' => 0,
+        'marketplace_skills' => 0,
     ];
     if (!$db instanceof PDO) {
         return $badges;
@@ -22,16 +24,43 @@ function nav_get_public_submenu_badges(?PDO $db): array
         }
     }
     if (function_exists('getCachedData')) {
-        $cached = getCachedData('nav_career_badge_v1', 90, static function () use ($db) {
+        $cached = getCachedData('nav_career_badge_v3', 90, static function () use ($db) {
+            $out = [
+                'career_open' => 0,
+                'marketplace_products' => 0,
+                'marketplace_skills' => 0,
+            ];
             try {
-                return (int) $db->query(
+                $out['career_open'] = (int) $db->query(
                     'SELECT COUNT(*) FROM careers WHERE is_active = 1 AND deadline >= CURDATE()'
                 )->fetchColumn();
             } catch (Throwable $e) {
-                return 0;
+                $out['career_open'] = 0;
             }
+            try {
+                $sql = "SELECT listing_type, COUNT(*) AS c FROM member_marketplace_listings
+                        WHERE status = 'approved' AND is_active = 1
+                          AND (available_from IS NULL OR available_from <= CURDATE())
+                          AND (available_until IS NULL OR available_until >= NOW())
+                        GROUP BY listing_type";
+                foreach ($db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [] as $r) {
+                    $t = (string) ($r['listing_type'] ?? '');
+                    if ($t === 'product') {
+                        $out['marketplace_products'] = (int) ($r['c'] ?? 0);
+                    } elseif ($t === 'skill') {
+                        $out['marketplace_skills'] = (int) ($r['c'] ?? 0);
+                    }
+                }
+            } catch (Throwable $e) {
+                /* table may not exist yet */
+            }
+            return $out;
         });
-        $badges['career_open'] = (int) $cached;
+        if (is_array($cached)) {
+            $badges['career_open'] = (int) ($cached['career_open'] ?? 0);
+            $badges['marketplace_products'] = (int) ($cached['marketplace_products'] ?? 0);
+            $badges['marketplace_skills'] = (int) ($cached['marketplace_skills'] ?? 0);
+        }
         return $badges;
     }
     try {
@@ -40,6 +69,21 @@ function nav_get_public_submenu_badges(?PDO $db): array
         )->fetchColumn();
     } catch (Throwable $e) {
         $badges['career_open'] = 0;
+    }
+    try {
+        require_once __DIR__ . '/member-marketplace-tables.php';
+        $sql = 'SELECT listing_type, COUNT(*) AS c FROM member_marketplace_listings WHERE listing_type IN (\'product\',\'skill\') AND '
+            . mpPublicWhereSql() . ' GROUP BY listing_type';
+        foreach ($db->query($sql)->fetchAll(PDO::FETCH_ASSOC) ?: [] as $r) {
+            $t = (string) ($r['listing_type'] ?? '');
+            if ($t === 'product') {
+                $badges['marketplace_products'] = (int) ($r['c'] ?? 0);
+            } elseif ($t === 'skill') {
+                $badges['marketplace_skills'] = (int) ($r['c'] ?? 0);
+            }
+        }
+    } catch (Throwable $e) {
+        /* table may not exist yet */
     }
     return $badges;
 }

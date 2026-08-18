@@ -161,6 +161,7 @@ $quickActions = [
     ['href' => $siteUrl.'member/digital-service.php',          'icon' => 'fa-laptop',              'color' => 'var(--secondary-color)', 'label' => $_t('डिजिटल सेवा', 'Digital Service')],
     ['href' => $siteUrl.'member/grievance.php',                 'icon' => 'fa-comment-dots', 'color' => 'var(--secondary-color)', 'label' => $_t('गुनासो', 'Grievance')],
     ['href' => $siteUrl.'member/welfare.php',                   'icon' => 'fa-heart',               'color' => 'var(--secondary-color)', 'label' => $_t('कल्याण', 'Welfare')],
+    ['href' => $siteUrl.'member/marketplace.php',               'icon' => 'fa-store',               'color' => 'var(--primary-color)', 'label' => $_t('बजार / सीप', 'Market / Skills')],
     ['href' => $siteUrl.'member/service-request.php',           'icon' => 'fa-concierge-bell',      'color' => 'var(--primary-color)', 'label' => $_t('सेवा अनुरोध', 'Service Req.')],
     ['href' => $siteUrl.'member/apply-frame.php?p=career',      'icon' => 'fa-briefcase',           'color' => 'var(--primary-dark)', 'label' => $_t('जागिर', 'Career')],
     ['href' => $siteUrl.'member/apply-frame.php?p=emi',         'icon' => 'fa-calculator',          'color' => 'var(--accent-color)', 'label' => 'EMI Calculator'],
