@@ -439,19 +439,33 @@
         hideAdminGuidanceBlocks();
 
         /* ─────────────────────────────────────────────────────
-           Broken delete buttons: type=button inside POST forms
-           never submit — promote them to type=submit safely.
+           Broken POST action buttons: type=button inside POST
+           forms never submit — promote to type=submit when the
+           form's action is a known server handler and the button
+           is not a Bootstrap modal/tab control.
            ───────────────────────────────────────────────────── */
         document.querySelectorAll('form[method="post"] button[type="button"], form[method="POST"] button[type="button"]').forEach(function(btn) {
+            if (btn.getAttribute('data-bs-toggle') || btn.getAttribute('data-bs-target') || btn.classList.contains('nav-link')) {
+                return;
+            }
+            var form = btn.closest('form');
+            if (!form) return;
+            var action = form.querySelector('input[name="action"]');
+            if (!action) return;
+            var actionVal = String(action.value || '').toLowerCase();
             var title = ((btn.getAttribute('title') || '') + ' ' + (btn.getAttribute('aria-label') || '')).toLowerCase();
             var looksDelete = /मेटा|delete|trash|हटाउ/.test(title)
                 || btn.classList.contains('btn-outline-danger')
                 || btn.classList.contains('adm-icon-btn--delete');
-            if (!looksDelete) return;
-            var form = btn.closest('form');
-            if (!form) return;
-            var action = form.querySelector('input[name="action"]');
-            if (action && String(action.value || '').toLowerCase() === 'delete') {
+            var safeActions = {
+                delete: 1,
+                delete_admin: 1,
+                toggle: 1,
+                toggle_new: 1,
+                deactivate: 1,
+                finalize_results: 1
+            };
+            if (looksDelete || safeActions[actionVal]) {
                 btn.type = 'submit';
             }
         });

@@ -225,7 +225,7 @@ $flash = getFlash();
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
-                                        <button type="button" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
+                                        <button type="submit" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>" title="Toggle visibility">
                                             <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>
@@ -298,7 +298,7 @@ $flash = getFlash();
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
                                         <input type="hidden" name="is_active" value="<?php echo $r['is_active'] ? '0' : '1'; ?>">
-                                        <button type="button" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
+                                        <button type="submit" class="btn btn-sm <?php echo $r['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>" title="Toggle visibility">
                                             <i class="fas fa-<?php echo $r['is_active'] ? 'eye' : 'eye-slash'; ?> me-1"></i>
                                             <?php echo $r['is_active'] ? 'Active' : 'Hidden'; ?>
                                         </button>

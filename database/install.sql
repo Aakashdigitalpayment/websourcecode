@@ -2629,7 +2629,140 @@ CREATE TABLE IF NOT EXISTS request_status_history (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ═══════════════════════════════════════════════════════════════
+-- TEAM / SERVICES / CALENDAR / IMPORT / LICENSE (runtime bake-in)
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS team_staff_groups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(50) NOT NULL,
+    name_np VARCHAR(120) NOT NULL DEFAULT '',
+    name_en VARCHAR(120) NOT NULL DEFAULT '',
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    show_in_nav TINYINT(1) NOT NULL DEFAULT 1,
+    menu_category_id INT NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_team_staff_groups_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS team_menu_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    slug VARCHAR(50) NOT NULL,
+    name_np VARCHAR(120) NOT NULL DEFAULT '',
+    name_en VARCHAR(120) NOT NULL DEFAULT '',
+    icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-folder',
+    source_type VARCHAR(20) NOT NULL DEFAULT 'staff',
+    include_contact_officers TINYINT(1) NOT NULL DEFAULT 0,
+    include_board TINYINT(1) NOT NULL DEFAULT 0,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    show_in_nav TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_team_menu_categories_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS service_categories (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    name         VARCHAR(120) NOT NULL,
+    name_en      VARCHAR(120) DEFAULT '',
+    name_np      VARCHAR(120) DEFAULT '',
+    icon         VARCHAR(80)  DEFAULT 'fas fa-th-large',
+    display_order INT DEFAULT 0,
+    is_active    TINYINT(1) DEFAULT 1,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS service_products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    service_id INT NOT NULL,
+    title_np VARCHAR(255) NOT NULL,
+    title_en VARCHAR(255) DEFAULT '',
+    description_np TEXT NULL,
+    description_en TEXT NULL,
+    display_order INT DEFAULT 0,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_service (service_id),
+    INDEX idx_service_active (service_id, is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS sahakari_calendar_events (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title_np VARCHAR(200) NOT NULL,
+    title_en VARCHAR(200) NOT NULL DEFAULT '',
+    description_np TEXT NULL,
+    description_en TEXT NULL,
+    event_type VARCHAR(40) NOT NULL DEFAULT 'program',
+    recurrence VARCHAR(20) NOT NULL DEFAULT 'once',
+    bs_year SMALLINT NOT NULL,
+    bs_month TINYINT NULL,
+    bs_day TINYINT NOT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_sce_year (bs_year),
+    INDEX idx_sce_active (is_active),
+    INDEX idx_sce_ym (bs_year, bs_month),
+    INDEX idx_sce_day (bs_day)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_import_jobs (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    admin_id        INT NULL,
+    filename        VARCHAR(255) NOT NULL DEFAULT '',
+    stored_path     VARCHAR(500) NOT NULL DEFAULT '',
+    status          VARCHAR(20) NOT NULL DEFAULT 'uploaded',
+    mode            VARCHAR(10) NOT NULL DEFAULT 'skip',
+    total_rows      INT NOT NULL DEFAULT 0,
+    parsed_rows     INT NOT NULL DEFAULT 0,
+    ok_count        INT NOT NULL DEFAULT 0,
+    skip_count      INT NOT NULL DEFAULT 0,
+    fail_count      INT NOT NULL DEFAULT 0,
+    cards_count     INT NOT NULL DEFAULT 0,
+    parse_offset    INT NOT NULL DEFAULT 0,
+    parse_byte_offset INT NOT NULL DEFAULT 0,
+    error_message   TEXT NULL,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_mij_status (status),
+    INDEX idx_mij_admin (admin_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_import_rows (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    job_id          INT NOT NULL,
+    row_num         INT NOT NULL DEFAULT 0,
+    sadasyata_number VARCHAR(50) NOT NULL DEFAULT '',
+    full_name       VARCHAR(255) NOT NULL DEFAULT '',
+    mobile          VARCHAR(20) NOT NULL DEFAULT '',
+    email           VARCHAR(255) NOT NULL DEFAULT '',
+    address         TEXT NULL,
+    dob             VARCHAR(20) NOT NULL DEFAULT '',
+    gender          VARCHAR(20) NOT NULL DEFAULT '',
+    branch          VARCHAR(100) NOT NULL DEFAULT '',
+    remarks         VARCHAR(500) NOT NULL DEFAULT '',
+    status          VARCHAR(20) NOT NULL DEFAULT 'queued',
+    message         VARCHAR(500) NOT NULL DEFAULT '',
+    member_id       INT NULL,
+    INDEX idx_mir_job_status (job_id, status),
+    INDEX idx_mir_job_row (job_id, row_num)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS site_license_renewal_notices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    status ENUM('pending','cleared','cancelled') NOT NULL DEFAULT 'pending',
+    gateway VARCHAR(32) NOT NULL DEFAULT '',
+    txn_reference VARCHAR(180) NOT NULL DEFAULT '',
+    amount_reported VARCHAR(40) NOT NULL DEFAULT '',
+    note TEXT,
+    submitted_by_admin_id INT NULL,
+    submitted_by_username VARCHAR(80) NULL DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 -- ═══════════════════════════════════════════════════════════════
--- ✅  सबै tables (Core + HRM + Messages + Member Marketplace + auth/analytics), columns, indexes, seed data लोड भयो।
+-- ✅  सबै tables (Core + HRM + Messages + Marketplace + auth/team/services), columns, indexes, seed data लोड भयो।
 -- ═══════════════════════════════════════════════════════════════

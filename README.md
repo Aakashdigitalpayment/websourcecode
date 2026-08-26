@@ -126,9 +126,9 @@ PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 | PHP files | ~279 |
 | CSS files (`assets/css/*.css`) | 26 |
 | JS files (`assets/js/*.js`) | 12 |
-| DB tables (`install.sql`) | 74 |
+| DB tables (`install.sql`) | 107 |
 
 ---
 
 *Internal property of Aakash Cooperative — Not for redistribution.*  
-**Last updated: 2026-07-29**
+**Last updated: 2026-08-26**

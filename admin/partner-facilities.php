@@ -230,7 +230,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="deactivate">
                 <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button type="button" class="btn btn-sm btn-outline-secondary" title="निष्क्रिय"><i class="fas fa-archive"></i></button>
+                <button type="submit" class="adm-icon-btn" title="निष्क्रिय" aria-label="निष्क्रिय"><i class="fas fa-archive" aria-hidden="true"></i></button>
             </form>
             <?php endif; ?>
             <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $usage > 0 ? 'लग भएकाले निष्क्रिय मात्र हुन्छ। जारी?' : 'मेट्ने निश्चित?'; ?>');">
