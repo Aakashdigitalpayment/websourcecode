@@ -270,7 +270,7 @@ if ($_sceFlash) {
                             </td>
                             <td class="text-end text-nowrap">
                                 <div class="d-inline-flex align-items-center gap-1">
-                                    <a class="btn btn-sm btn-outline-primary" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen"></i></a>
+                                    <a class="adm-icon-btn adm-icon-btn--edit" href="?year=<?php echo (int)$filterYear; ?>&edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                     <form method="post" class="svc-inline-form" onsubmit="return confirm('स्थिति बदल्ने?');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle">
@@ -285,7 +285,7 @@ if ($_sceFlash) {
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
                                         <input type="hidden" name="filter_year" value="<?php echo (int)$filterYear; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </td>

@@ -116,12 +116,12 @@ echo adminPageHeader(
                             <td><?php echo (int)$p['default_max_votes']; ?></td>
                             <td><?php echo (int)$p['display_order']; ?></td>
                             <td class="text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="?edit=<?php echo (int)$p['id']; ?>&panel=form"><i class="fas fa-pen"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?edit=<?php echo (int)$p['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('यो पद मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_post">
                                     <input type="hidden" name="post_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>

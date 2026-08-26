@@ -444,7 +444,7 @@ if ($viewGrv):
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="remove_attachment" value="1">
                             <input type="hidden" name="id" value="<?php echo $viewGrv['id']; ?>">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                         </form>
                     </div>
                 </div>

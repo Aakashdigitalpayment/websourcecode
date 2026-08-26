@@ -232,7 +232,7 @@ $flash = getFlash();
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-mot"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
                                         <i class="fas fa-pen"></i> सम्पादन
@@ -241,7 +241,7 @@ $flash = getFlash();
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -305,7 +305,7 @@ $flash = getFlash();
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-mot"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-mot"
                                             data-member='<?php echo htmlspecialchars(json_encode($r, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                             title="सम्पादन">
                                         <i class="fas fa-pen"></i> सम्पादन
@@ -314,7 +314,7 @@ $flash = getFlash();
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $r['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

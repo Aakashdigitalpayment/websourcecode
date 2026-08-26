@@ -256,7 +256,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td data-label="प्रकार"><small><?= e(hrmEmploymentTypeLabel((string)($r['employment_type'] ?? ''))) ?></small></td>
                     <td data-label="अवस्था"><?= hrmStatusBadge($r['status']) ?></td>
                     <td class="stf-align-right" data-label="कार्य">
-                        <a class="btn btn-sm btn-outline-primary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a>
+                        <a class="adm-icon-btn adm-icon-btn--view" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>" title="हेर्नुहोस्" aria-label="हेर्नुहोस्"><i class="fas fa-eye" aria-hidden="true"></i></a>
                         <a class="btn btn-sm btn-outline-success" target="_blank" title="Digital ID Card" href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>" rel="noopener noreferrer"><i class="fas fa-id-card"></i></a>
                         <button type="button" class="btn btn-sm btn-outline-secondary hrm-edit-btn"
                                 data-emp="<?= e(json_encode($r, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP)) ?>"
@@ -266,7 +266,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?= csrfField() ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-                            <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                         </form>
                         <?php endif; ?>
                     </td>

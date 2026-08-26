@@ -227,7 +227,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center" data-label="कार्य">
                                     <button type="button"
-                                        class="btn btn-sm ntc-btn-edit me-1 btn-edit-notice"
+                                        class="adm-icon-btn adm-icon-btn--edit ntc-btn-edit btn-edit-notice"
                                         title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
                                         data-id="<?php echo $item['id']; ?>"
                                         data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
@@ -244,7 +244,7 @@ $flash = getFlash();
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$item['id']; ?>">
                                         <?php echo csrfField(); ?>
-                                        <button type="submit" class="btn btn-sm ntc-btn-delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete ntc-btn-delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

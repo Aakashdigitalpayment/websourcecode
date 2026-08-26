@@ -302,7 +302,7 @@ $servicesArch = $svcPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $s['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -355,7 +355,7 @@ $servicesArch = $svcPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $s['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -538,7 +538,7 @@ $servicesArch = $svcPart['archived'];
                                 <td class="text-center"><?php echo (int)$sp['display_order']; ?></td>
                                 <td class="text-center"><span class="badge bg-<?php echo (int)$sp['is_active'] ? 'success' : 'secondary'; ?>"><?php echo (int)$sp['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sp"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-sp"
                                             data-id="<?php echo (int)$sp['id']; ?>"
                                             data-service-id="<?php echo (int)$sp['service_id']; ?>"
                                             data-title-np="<?php echo htmlspecialchars($sp['title_np'], ENT_QUOTES); ?>"
@@ -553,7 +553,7 @@ $servicesArch = $svcPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="product_delete">
                                         <input type="hidden" name="product_id" value="<?php echo (int)$sp['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -652,7 +652,7 @@ $servicesArch = $svcPart['archived'];
                             <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                             <input type="hidden" name="action" value="cat_delete">
                             <input type="hidden" name="cat_id" value="<?php echo $sc['id']; ?>">
-                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                         </form>
                     </td>
                 </tr>

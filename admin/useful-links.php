@@ -158,7 +158,7 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-link"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-link"
                                             data-id="<?php echo $l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -175,7 +175,7 @@ $linksArch = $lnkPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -217,7 +217,7 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_popup'] ? 'warning text-dark' : 'secondary'; ?>"><?php echo $l['is_popup'] ? 'पप-अप' : 'नयाँ ट्याब'; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-link"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-link"
                                             data-id="<?php echo $l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -234,7 +234,7 @@ $linksArch = $lnkPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

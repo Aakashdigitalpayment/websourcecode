@@ -435,7 +435,7 @@ $catForm = $editCategory ?: [
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete_category">
                                         <input type="hidden" name="category_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -648,7 +648,7 @@ $selectedCats = $editCatIds;
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_program">
                                 <input type="hidden" name="id" value="<?php echo (int)$p['id']; ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                             <?php endif; ?>
                         </td>

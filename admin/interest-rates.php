@@ -141,7 +141,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-rate"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-rate"
                                             data-id="<?php echo $item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"
@@ -208,7 +208,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $item['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $item['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-rate"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-rate"
                                             data-id="<?php echo $item['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($item['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($item['name_np'] ?? '', ENT_QUOTES); ?>"

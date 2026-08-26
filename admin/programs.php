@@ -349,9 +349,9 @@ foreach ($rows as $_r) {
               <?php endif; ?>
             </td>
             <td>
-              <a class="btn btn-sm btn-outline-primary" href="programs.php?edit=<?php echo (int)$r['id']; ?>"><i class="fas fa-edit"></i></a>
+              <a class="adm-icon-btn adm-icon-btn--edit" href="programs.php?edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
               <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-warning" title="सक्रिय/निष्क्रिय"><i class="fas fa-power-off"></i></button></form>
-              <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button></form>
+              <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button></form>
             </td>
           </tr>
           <?php

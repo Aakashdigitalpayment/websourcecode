@@ -317,12 +317,12 @@ if (count($allCycles) > 1):
                             <td><?php echo (int)$p['seats']; ?></td>
                             <td><?php echo $cnt; ?></td>
                             <td class="text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="?cycle=<?php echo $cycleId; ?>&panel=positions&edit_pos=<?php echo (int)$p['id']; ?>"><i class="fas fa-pen"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=positions&edit_pos=<?php echo (int)$p['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('यो पद, सबै उम्मेदवार र मत मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_position">
                                     <input type="hidden" name="position_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -414,12 +414,12 @@ if (count($allCycles) > 1):
                             <td class="small"><?php echo $pos ? htmlspecialchars($pos['title_np']) : '—'; ?></td>
                             <td><?php echo htmlspecialchars($cd['symbol_no'] ?? ''); ?></td>
                             <td class="text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="?cycle=<?php echo $cycleId; ?>&panel=candidates&edit_cand=<?php echo (int)$cd['id']; ?>"><i class="fas fa-pen"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?cycle=<?php echo $cycleId; ?>&panel=candidates&edit_cand=<?php echo (int)$cd['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('उम्मेदवार र सम्बन्धित मतहरू मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_candidate">
                                     <input type="hidden" name="candidate_id" value="<?php echo (int)$cd['id']; ?>">
-                                    <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>
