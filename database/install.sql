@@ -102,12 +102,15 @@ CREATE TABLE IF NOT EXISTS notices (
     content_np TEXT,
     notice_date DATE,
     attachment VARCHAR(255),
+    popup_image VARCHAR(255) DEFAULT NULL,
+    popup_photo_only TINYINT(1) NOT NULL DEFAULT 0,
     is_active TINYINT(1) DEFAULT 1,
     is_popup TINYINT(1) DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
     INDEX idx_popup (is_popup),
+    INDEX idx_popup_active (is_popup, is_active),
     INDEX idx_date (notice_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- =====================================================

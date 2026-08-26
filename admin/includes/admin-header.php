@@ -286,7 +286,7 @@ if (!$mustChangeExempt && $db instanceof PDO && (int) ($_SESSION['admin_id'] ?? 
 
 // Determine which group the current page belongs to (for auto-open)
 $pageGroups = [
-    'samgri' => ['notices','designations','news','sliders','gallery','services','interest-rates','pages','pages-v2','downloads','faqs','useful-links','awards','reports','app-features','why-choose','partner-facilities'],
+    'samgri' => ['notices','designations','news','sliders','gallery','services','interest-rates','pages','downloads','faqs','useful-links','awards','reports','app-features','why-choose','partner-facilities'],
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
     'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
@@ -453,13 +453,13 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='interest-rates' ? 'active' : ''; ?>">
                                 <a href="interest-rates.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="percent"></i></span><span><?php echo $adminT('ब्याज दर', 'Interest Rates'); ?></span></a>
                             </li>
-                            <li class="<?php echo ($currentPage === 'pages-v2' && (($_GET['tab'] ?? 'dynamic') === 'dynamic')) ? 'active' : ''; ?>">
+                            <li class="<?php echo ($currentPage === 'pages' && (($_GET['tab'] ?? 'dynamic') === 'dynamic')) ? 'active' : ''; ?>">
                                 <a href="pages.php?tab=dynamic">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i></span>
                                     <span><?php echo $adminT('गतिशील पृष्ठ', 'Dynamic Pages'); ?></span>
                                 </a>
                             </li>
-                            <li class="<?php echo ($currentPage === 'pages-v2' && (($_GET['tab'] ?? '') === 'static')) ? 'active' : ''; ?>">
+                            <li class="<?php echo ($currentPage === 'pages' && (($_GET['tab'] ?? '') === 'static')) ? 'active' : ''; ?>">
                                 <a href="pages.php?tab=static">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layers"></i></span>
                                     <span><?php echo $adminT('स्थिर पृष्ठ', 'Static Pages'); ?></span>

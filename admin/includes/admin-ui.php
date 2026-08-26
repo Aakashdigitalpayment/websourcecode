@@ -256,29 +256,29 @@ function adminToggleBtn(int $recordId, $isActive, string $csrfToken, string $ext
    ────────────────────────────────────────────────────────────── */
 function adminDeleteBtn(int $recordId, string $csrfToken, string $confirmMsg = 'यो record हटाउने? यो कार्य फिर्ता हुँदैन।', string $extraFields = ''): string {
     $confirmJs = json_encode($confirmMsg, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    return '<form method="POST" class="d-inline" onsubmit="return confirm(' . $confirmJs . ')">'
+    return '<form method="POST" class="adm-icon-form" onsubmit="return confirm(' . $confirmJs . ')">'
          . '<input type="hidden" name="action" value="delete">'
          . '<input type="hidden" name="id" value="' . $recordId . '">'
          . '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrfToken) . '">'
          . $extraFields
-         . '<button type="submit" class="btn btn-sm btn-outline-danger admin-icon-btn" title="हटाउनुहोस्" aria-label="हटाउनुहोस्">'
-         . '<i class="lucide-icon" aria-hidden="true" data-lucide="trash-2"></i></button></form>';
+         . '<button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="हटाउनुहोस्" aria-label="हटाउनुहोस्">'
+         . '<i class="fas fa-trash" aria-hidden="true"></i></button></form>';
 }
 
 /* ──────────────────────────────────────────────────────────────
    adminEditBtn
-   Compact icon+text edit button
+   Compact icon-only edit button
    ────────────────────────────────────────────────────────────── */
 function adminEditBtn(string $onclick = '', string $href = '#'): string {
     if ($onclick) {
-        return '<button type="button" class="btn btn-sm btn-outline-primary" '
+        return '<button type="button" class="adm-icon-btn adm-icon-btn--edit" '
              . 'onclick="' . htmlspecialchars($onclick, ENT_QUOTES) . '" '
-             . 'title="सम्पादन" aria-label="सम्पादन" style="min-width:34px;">'
-             . '<i class="lucide-icon" aria-hidden="true" data-lucide="pencil"></i></button>';
+             . 'title="सम्पादन" aria-label="सम्पादन">'
+             . '<i class="fas fa-pen" aria-hidden="true"></i></button>';
     }
-    return '<a href="' . htmlspecialchars($href) . '" class="btn btn-sm btn-outline-primary" '
-         . 'title="सम्पादन" aria-label="सम्पादन" style="min-width:34px;">'
-         . '<i class="lucide-icon" aria-hidden="true" data-lucide="pencil"></i></a>';
+    return '<a href="' . htmlspecialchars($href) . '" class="adm-icon-btn adm-icon-btn--edit" '
+         . 'title="सम्पादन" aria-label="सम्पादन">'
+         . '<i class="fas fa-pen" aria-hidden="true"></i></a>';
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -286,10 +286,10 @@ function adminEditBtn(string $onclick = '', string $href = '#'): string {
    View detail button
    ────────────────────────────────────────────────────────────── */
 function adminViewBtn(string $href, string $label = ''): string {
-    $txt   = $label ? ' ' . htmlspecialchars($label) : '';
-    return '<a href="' . htmlspecialchars($href) . '" class="btn btn-sm btn-outline-info" '
-         . 'title="हेर्नुहोस्" aria-label="हेर्नुहोस्" style="min-width:34px;">'
-         . '<i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>' . $txt . '</a>';
+    return '<a href="' . htmlspecialchars($href) . '" class="adm-icon-btn adm-icon-btn--view" '
+         . 'title="' . htmlspecialchars($label !== '' ? $label : 'हेर्नुहोस्', ENT_QUOTES) . '" '
+         . 'aria-label="' . htmlspecialchars($label !== '' ? $label : 'हेर्नुहोस्', ENT_QUOTES) . '">'
+         . '<i class="fas fa-eye" aria-hidden="true"></i></a>';
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -309,7 +309,7 @@ function adminActionBtns(
     string $extraDelete   = '',
     string $confirmMsg    = 'यो record हटाउने? यो कार्य फिर्ता हुँदैन।'
 ): string {
-    $out = '<div class="d-flex align-items-center admin-action-group" style="gap:6px;flex-wrap:wrap;">';
+    $out = '<div class="adm-action-icons">';
     $out .= adminEditBtn($editOnclick, $editHref);
     if ($showToggle) $out .= adminToggleBtn($recordId, $isActive, $csrfToken, $extraToggle);
     if ($showDelete) $out .= adminDeleteBtn($recordId, $csrfToken, $confirmMsg, $extraDelete);
