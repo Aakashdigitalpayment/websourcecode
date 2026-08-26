@@ -233,7 +233,7 @@ if (count($allCycles) > 1):
         <form method="post" onsubmit="return confirm('नतिजा अन्तिम गर्ने र मतदान बन्द गर्ने?');" class="d-inline">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="finalize_results">
-            <button type="button" class="btn btn-outline-dark btn-sm"><i class="fas fa-check me-1"></i>नतिजा अन्तिम गर्नुहोस्</button>
+            <button type="submit" class="btn btn-outline-dark btn-sm"><i class="fas fa-check me-1"></i>नतिजा अन्तिम गर्नुहोस्</button>
         </form>
     </div>
 </div>

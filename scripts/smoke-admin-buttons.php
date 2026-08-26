@@ -139,7 +139,31 @@ $markers = [
     'admin/auctions.php' => 'type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle',
     'admin/member-activities.php' => 'type="submit" class="btn btn-success w-100"',
     'admin/member-online-portal.php' => 'type="submit" class="btn btn-success btn-sm w-100" onclick="return confirm',
+    'admin/election-results.php' => 'name="action" value="finalize_results"',
+    'admin/app-features.php' => 'type="submit" class="adm-icon-btn adm-icon-btn--delete appfeat-btn-delete"',
+    'admin/partner-facilities.php' => 'name="action" value="deactivate"',
 ];
+
+$mustSubmit = [
+    'admin/election-results.php' => 'type="submit" class="btn btn-outline-dark btn-sm"',
+    'admin/team.php' => 'type="submit" class="badge border-0 tm-status-toggle-btn',
+    'admin/member-of-year.php' => 'type="submit" class="btn btn-sm <?php echo $r[\'is_active\']',
+    'admin/app-features.php' => 'type="submit" class="badge border-0 appfeat-toggle-badge',
+    'admin/partner-facilities.php' => 'name="action" value="deactivate"',
+];
+foreach ($mustSubmit as $file => $needle) {
+    $path = $root . '/' . $file;
+    if (!is_file($path)) {
+        fail("{$file}: missing");
+        continue;
+    }
+    $t = (string) file_get_contents($path);
+    if (strpos($t, $needle) === false) {
+        fail("{$file}: missing submit marker `{$needle}`");
+    } else {
+        ok("{$file}: submit marker ok");
+    }
+}
 foreach ($markers as $file => $needle) {
     $path = $root . '/' . $file;
     if (!is_file($path)) {

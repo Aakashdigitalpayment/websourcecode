@@ -678,7 +678,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button type="button" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
+                                        <button type="submit" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>" title="<?php echo $__t('स्थिति टगल', 'Toggle status'); ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
                                     </form>
@@ -762,7 +762,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="toggle">
                                         <input type="hidden" name="id" value="<?php echo $m['id']; ?>">
-                                        <button type="button" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>">
+                                        <button type="submit" class="badge border-0 tm-status-toggle-btn <?php echo $m['is_active'] ? 'tm-status--on' : 'tm-status--off'; ?>" title="<?php echo $__t('स्थिति टगल', 'Toggle status'); ?>">
                                             <?php echo $m['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?>
                                         </button>
                                     </form>

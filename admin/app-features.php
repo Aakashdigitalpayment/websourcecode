@@ -128,7 +128,7 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_new">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="button" class="badge border-0 appfeat-toggle-badge <?php echo $f['is_new'] ? 'appfeat-toggle-on' : 'appfeat-toggle-off'; ?>" title="<?php echo $__t('टगल गर्नुहोस्', 'Toggle'); ?>">
+                                        <button type="submit" class="badge border-0 appfeat-toggle-badge <?php echo $f['is_new'] ? 'appfeat-toggle-on' : 'appfeat-toggle-off'; ?>" title="<?php echo $__t('टगल गर्नुहोस्', 'Toggle'); ?>">
                                             <?php echo $f['is_new'] ? ('✓ ' . $__t('नयाँ', 'NEW')) : $__t('छैन', 'No'); ?>
                                         </button>
                                     </form>
@@ -152,7 +152,7 @@ $flash = getFlash();
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="button" class="btn btn-sm appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

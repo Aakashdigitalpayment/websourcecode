@@ -379,8 +379,8 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                             <input type="hidden" name="action"     value="delete_admin">
                                             <input type="hidden" name="target_id"  value="<?php echo $adm['id']; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
