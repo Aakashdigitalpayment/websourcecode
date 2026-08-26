@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../includes/member-of-year-tables.php';
 require_once __DIR__ . '/../../includes/notification-templates-tables.php';
 require_once __DIR__ . '/../../includes/honor-tables.php';
 require_once __DIR__ . '/../../includes/member-marketplace-tables.php';
+require_once __DIR__ . '/../../includes/information-room-tables.php';
 /**
  * Admin panel मा आवश्यक सबै tables automatically create गर्छ
  * Re-run safe — CREATE TABLE IF NOT EXISTS
@@ -513,6 +514,8 @@ function ensureAdminTables(): bool {
         ensureMemberOfYearTable($db);
         ensureSatisfactionLinksTables($db);
         ensureMemberMarketplaceTables($db);
+        ensureInformationRoomTables($db);
+        ensureInformationRoomMemberColumn($db);
 
         /* ── 28. VENDORS — ensurePublicTables + ensureVendorsTables ── */
 
@@ -595,7 +598,7 @@ function ensureAdminTables(): bool {
 
 /* Admin header / login include — `.admin-schema.lock` बाट guard
  * सफल भए मात्र lock लेख्ने (खाली DB मा false lock नहोस्) */
-$_adminSchemaVersion = 'v11-member-marketplace-2026';
+$_adminSchemaVersion = 'v12-information-room-2026';
 $_adminLock = dirname(__DIR__, 2) . '/.admin-schema.lock';
 $_lockContent = @file_get_contents($_adminLock);
 if (!$_lockContent || strpos($_lockContent, $_adminSchemaVersion) === false) {

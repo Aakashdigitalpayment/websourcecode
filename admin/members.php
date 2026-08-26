@@ -13,6 +13,7 @@ require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/member-auth.php';
 require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/member-ssot.php';
+require_once __DIR__ . '/../includes/information-room-tables.php';
 require_once __DIR__ . '/includes/admin-ui.php';
 
 /* List data loads BEFORE admin-header, so $db is not set yet (header normally assigns it).
@@ -45,6 +46,9 @@ try {
     if ($db instanceof PDO) {
         if (function_exists('ensureMembersListSchema')) {
             ensureMembersListSchema($db);
+        }
+        if (function_exists('ensureInformationRoomMemberColumn')) {
+            ensureInformationRoomMemberColumn($db);
         }
         $stFlag = $db->prepare("SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1");
         $stFlag->execute(['migration_member_schema_backfill_v1']);
@@ -110,6 +114,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
         setFlash('error', 'Member id गलत।');
     }
     redirect('members.php' . ($memberId ? '?view=' . $memberId : ''));
+}
+
+/* ── Toggle Information Room access ── */
+if (isset($_POST['toggle_information_room'])) {
+    checkCSRF();
+    $mid = (int) ($_POST['member_id'] ?? 0);
+    if ($mid > 0) {
+        ensureInformationRoomMemberColumn($db);
+        try {
+            $db->prepare('UPDATE members SET information_room_enabled = 1 - COALESCE(information_room_enabled, 0) WHERE id=?')->execute([$mid]);
+            setFlash('success', 'Information Room access बदलियो।');
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog('member_ir_access_toggle', "Toggled Information Room for member ID: {$mid}", 'member', $mid);
+            }
+        } catch (Throwable $e) {
+            setFlash('error', 'Information Room access बदल्न सकिएन।');
+        }
+    }
+    redirect('members.php' . ($mid ? '?view=' . $mid : ''));
 }
 
 /* ── Toggle active/inactive ── */
@@ -763,6 +786,12 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         <?php echo !empty($viewMember['is_active']) ? 'सक्रिय' : 'निष्क्रिय'; ?>
                     </span>
                 </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">Information Room</span>
+                    <span class="badge <?php echo !empty($viewMember['information_room_enabled']) ? 'bg-success' : 'bg-secondary'; ?>">
+                        <?php echo !empty($viewMember['information_room_enabled']) ? 'Enabled' : 'Disabled'; ?>
+                    </span>
+                </li>
                 <?php
                 $cExp = $viewMember['card_expires_at'] ?? '';
                 if ($cExp):
@@ -829,6 +858,20 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <div class="small text-muted">पासवर्ड छैन — सदस्यले register गरेर सेट गर्नुपर्छ, वा import temp password प्रयोग।</div>
                     <?php endif; ?>
                 </div>
+            </div>
+            <div class="card-body border-top">
+                <form method="POST" class="mb-2">
+                    <?php echo csrfField(); ?>
+                    <input type="hidden" name="toggle_information_room" value="1">
+                    <input type="hidden" name="member_id" value="<?php echo (int) $viewMember['id']; ?>">
+                    <?php $irEnabled = !empty($viewMember['information_room_enabled']); ?>
+                    <button type="submit" class="btn btn-sm w-100 <?php echo $irEnabled ? 'btn-outline-warning' : 'btn-outline-success'; ?>"
+                            onclick="return confirm('Information Room access <?php echo $irEnabled ? 'disable' : 'enable'; ?> गर्ने?');">
+                        <i class="fas fa-vault me-1"></i>
+                        <?php echo $irEnabled ? 'Information Room Disable' : 'Information Room Enable'; ?>
+                    </button>
+                    <div class="small text-muted mt-2">Enable गरेपछि सदस्यको Member Portal मा Information Room menu देखिन्छ।</div>
+                </form>
             </div>
             <div class="card-body">
                 <form method="POST">

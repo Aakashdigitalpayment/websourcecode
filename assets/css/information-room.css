@@ -1,0 +1,123 @@
+/**
+ * Information Room — view-only document UX
+ */
+.ir-viewer-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.ir-viewer-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+.ir-viewer-meta {
+    flex: 1 1 auto;
+    min-width: 180px;
+}
+.ir-viewer-head h1 {
+    font-weight: 700;
+}
+.ir-viewer-stage {
+    position: relative;
+    background: #f8faf9;
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: .75rem;
+    overflow: hidden;
+    min-height: 70vh;
+}
+.ir-doc-frame {
+    width: 100%;
+    min-height: 75vh;
+    border: 0;
+    display: block;
+    background: #fff;
+}
+.ir-image-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    min-height: 60vh;
+}
+.ir-doc-image {
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+.ir-overlay-watermark {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 4vw, 2rem);
+    font-weight: 700;
+    color: rgba(26, 95, 42, .12);
+    transform: rotate(-24deg);
+    white-space: nowrap;
+    user-select: none;
+}
+.ir-restricted .ir-viewer-stage,
+.ir-restricted .ir-doc-image {
+    user-select: none;
+    -webkit-user-select: none;
+}
+.ir-viewer-wrap.ir-blurred .ir-viewer-stage {
+    filter: blur(12px);
+    transition: filter .15s ease;
+}
+@media print {
+    .ir-restricted .ir-viewer-stage,
+    .ir-restricted .ir-overlay-watermark {
+        display: none !important;
+    }
+    .ir-restricted::after {
+        content: 'Printing is not allowed for Information Room documents.';
+        display: block;
+        padding: 2rem;
+        font-weight: 700;
+    }
+}
+.ir-room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+.ir-room-card {
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: .75rem;
+    padding: 1rem;
+    background: #fff;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow .15s ease;
+}
+.ir-room-card:hover {
+    box-shadow: 0 8px 24px rgba(26,95,42,.08);
+}
+.ir-room-card h3 {
+    font-size: 1rem;
+    margin: .5rem 0;
+}
+.ir-room-card .ir-card-meta {
+    font-size: .8rem;
+    color: #64748b;
+    margin-bottom: .75rem;
+}
+.ir-room-card .ir-card-actions {
+    margin-top: auto;
+}
+@media print {
+    .ir-viewer-wrap,
+    .ir-room-grid,
+    .mem-nav,
+    .mp-bottom-nav {
+        display: none !important;
+    }
+}

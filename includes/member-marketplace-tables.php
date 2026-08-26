@@ -60,9 +60,25 @@ if (!function_exists('ensureMemberMarketplaceTables')) {
                 inquirer_name VARCHAR(120) NOT NULL,
                 inquirer_phone VARCHAR(20) NOT NULL DEFAULT '',
                 message VARCHAR(1000) NOT NULL DEFAULT '',
+                is_read TINYINT(1) NOT NULL DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_mkt_inq_listing (listing_id, created_at)
+                INDEX idx_mkt_inq_listing (listing_id, created_at),
+                INDEX idx_mkt_inq_read (is_read, created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+            /* Existing installs — is_read column migrate */
+            try {
+                if (function_exists('dbColumnExists')) {
+                    if (!dbColumnExists('member_marketplace_inquiries', 'is_read')) {
+                        $db->exec("ALTER TABLE member_marketplace_inquiries ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message");
+                    }
+                } else {
+                    $chk = $db->query("SHOW COLUMNS FROM member_marketplace_inquiries LIKE 'is_read'");
+                    if (!$chk || !$chk->fetch(PDO::FETCH_ASSOC)) {
+                        $db->exec("ALTER TABLE member_marketplace_inquiries ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message");
+                    }
+                }
+            } catch (Throwable $e) { /* ignore */ }
 
             $done = true;
         } catch (Throwable $e) {
@@ -420,5 +436,45 @@ if (!function_exists('mpDefaultUntilDays')) {
     function mpDefaultUntilDays(): int
     {
         return 30;
+    }
+}
+
+if (!function_exists('mpAdToBsDisplay')) {
+    /** Form fields का लागि AD → BS (nepali-datepicker); fail भए AD नै */
+    function mpAdToBsDisplay(string $adDate): string
+    {
+        $adDate = substr(trim($adDate), 0, 10);
+        if ($adDate === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $adDate)) {
+            return '';
+        }
+        if (function_exists('adToBs')) {
+            $bs = trim((string) adToBs($adDate));
+            if ($bs !== '' && preg_match('/^\d{4}-\d{2}-\d{2}/', $bs)) {
+                return substr($bs, 0, 10);
+            }
+        }
+        return $adDate;
+    }
+}
+
+if (!function_exists('mpMarkInquiriesRead')) {
+    /** @param list<int> $listingIds */
+    function mpMarkInquiriesRead(PDO $db, array $listingIds): int
+    {
+        $listingIds = array_values(array_filter(array_map('intval', $listingIds), static fn($id) => $id > 0));
+        if ($listingIds === []) {
+            return 0;
+        }
+        try {
+            $ph = implode(',', array_fill(0, count($listingIds), '?'));
+            $st = $db->prepare(
+                "UPDATE member_marketplace_inquiries SET is_read = 1
+                 WHERE listing_id IN ($ph) AND is_read = 0"
+            );
+            $st->execute($listingIds);
+            return (int) $st->rowCount();
+        } catch (Throwable $e) {
+            return 0;
+        }
     }
 }

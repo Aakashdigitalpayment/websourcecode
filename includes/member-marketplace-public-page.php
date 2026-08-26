@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mp_inquiry']) && $db 
                             ? 'सीप सेवामा चासो'
                             : 'उत्पादनमा चासो';
                         $nMsg = $iname . ' (' . $iphone . '): ' . mb_substr($imsg, 0, 160);
-                        createMemberNotification($ownerId, $nTitle, $nMsg, 'info', SITE_URL . 'member/marketplace.php');
+                        createMemberNotification($ownerId, $nTitle, $nMsg, 'info', SITE_URL . 'member/marketplace.php#mmp-inquiries');
                     } elseif ($ownerId > 0) {
                         try {
                             $db->prepare('INSERT INTO member_notifications (member_id, title, message, type, link) VALUES (?,?,?,?,?)')
@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mp_inquiry']) && $db 
                                     $mpKind === 'skill' ? 'सीप सेवामा चासो' : 'उत्पादनमा चासो',
                                     $iname . ' (' . $iphone . '): ' . mb_substr($imsg, 0, 160),
                                     'info',
-                                    SITE_URL . 'member/marketplace.php',
+                                    SITE_URL . 'member/marketplace.php#mmp-inquiries',
                                 ]);
                         } catch (Throwable $e) { /* ignore */ }
                     }
@@ -249,10 +249,10 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
             <?php endif; ?>
             <div class="mkt-card-actions">
                 <?php if ($phone !== ''): ?>
-                    <a class="mkt-btn mkt-btn-call" href="tel:<?php echo htmlspecialchars($phone); ?>"><i class="fas fa-phone"></i> <?php echo htmlspecialchars($phone); ?></a>
+                    <a class="mkt-btn mkt-btn-call mkt-btn-icon" href="tel:<?php echo htmlspecialchars($phone); ?>" title="<?php echo htmlspecialchars($phone); ?>" aria-label="<?php echo htmlspecialchars($mpT('फोन', 'Call') . ' ' . $phone); ?>"><i class="fas fa-phone"></i></a>
                 <?php endif; ?>
                 <?php if ($wa !== ''): ?>
-                    <a class="mkt-btn mkt-btn-wa" href="<?php echo htmlspecialchars($wa); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                    <a class="mkt-btn mkt-btn-wa mkt-btn-icon" href="<?php echo htmlspecialchars($wa); ?>" target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 <?php endif; ?>
                 <a class="mkt-btn mkt-btn-more" href="<?php echo htmlspecialchars($href); ?>"><?php echo $mpT('विवरण', 'Details'); ?></a>
             </div>

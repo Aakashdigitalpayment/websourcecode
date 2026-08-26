@@ -42,6 +42,7 @@ $_logoPath = function_exists('getLocalizedLogoPath')
 $_memName  = $mem['name'] ?? 'Member';
 $_memAvatar = trim((string)($mem['avatar_url'] ?? ''));
 $_memId    = (int)($mem['id'] ?? 0);
+$_hasInfoRoom = !empty($mem['information_room_enabled']);
 
 // Topbar: KYC photo जोड्ने (id लिंक वा इमेल/मोबाइल मिलान — profile.php जस्तै)
 if ($_memAvatar === '') {
@@ -124,6 +125,8 @@ $_activeMap = [
     'account-apply.php'  => 'apply-account',
     'grievance.php'      => 'apply-grievance',
     'digital-service.php'=> 'apply-digital',
+    'information-room.php' => 'info-room',
+    'information-room-view.php' => 'info-room',
 ];
 if (isset($_activeMap[$_self])) {
     $_active = $_activeMap[$_self];
@@ -375,6 +378,9 @@ try {
         <a href="<?php echo $_siteUrl; ?>member/id-card.php" class="mem-nav-item <?php echo $_active==='idcard'?'active':''; ?>"><i class="fas fa-id-card"></i><?php echo $_t('परिचयपत्र', 'ID Card'); ?></a>
         <?php endif; ?>
         <a href="<?php echo $_siteUrl; ?>member/welfare.php" class="mem-nav-item <?php echo $_active==='welfare'?'active':''; ?>"><i class="fas fa-heart-pulse"></i><?php echo $_t('कल्याण दाबी', 'Welfare Claim'); ?></a>
+        <?php if (!empty($_hasInfoRoom)): ?>
+        <a href="<?php echo $_siteUrl; ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="fas fa-vault"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
+        <?php endif; ?>
         <?php if ($_electionState === 'voting'): ?>
         <a href="<?php echo $_siteUrl; ?>member/election-vote.php" class="mem-nav-item mem-nav-vote-live <?php echo $_active==='election'?'active':''; ?>"><i class="fas fa-check-to-slot"></i><?php echo $_t('मतदान', 'Vote'); ?> <span class="mem-vote-live-dot" aria-hidden="true"></span></a>
         <?php elseif ($_electionState === 'candidates'): ?>
