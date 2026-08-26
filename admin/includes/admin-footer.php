@@ -475,6 +475,7 @@
             $.fn.dataTable.ext.errMode = 'none';
             document.querySelectorAll('table.data-table:not(.dataTable), table.pf-data-table:not(.dataTable), table[class*="-data-table"]:not(.dataTable)').forEach(function(tbl) {
                 try {
+                    var noResponsive = tbl.classList.contains('dt-no-responsive');
                     $(tbl).DataTable({
                         language: {
                             search    : <?php echo json_encode(!empty($adminIsEnglish) ? 'Search:' : 'खोज्नुहोस्:'); ?>,
@@ -485,7 +486,9 @@
                         },
                         pageLength: 10,
                         lengthMenu: [[10, 20, 50, 100], [10, 20, 50, 100]],
-                        responsive: true
+                        responsive: !noResponsive,
+                        autoWidth: false,
+                        columnDefs: noResponsive ? [{ orderable: false, targets: [0, -1] }] : []
                     });
                 } catch(dtErr) {
                     console.warn('DataTables init skipped for', tbl.id || tbl.className, ':', dtErr.message);
