@@ -322,7 +322,8 @@ $slidersArch = $slPart['archived'];
                         </div>
                         <div class="col-md-6">
                             <label for="slf_btn_text" class="form-label fw-semibold text-success">बटन पाठ</label>
-                            <input type="text" name="button_text" id="slf_btn_text" class="form-control admin-fancy-input" placeholder="थप जानकारी">
+                            <input type="text" name="button_text" id="slf_btn_text" class="form-control admin-fancy-input" maxlength="60" placeholder="थप जान्नुहोस्">
+                            <div class="form-text">छोटो CTA राख्नुहोस् (जस्तै: थप जान्नुहोस्)। लामो slogan उपशीर्षकमा राख्नुहोस्।</div>
                         </div>
                         <div class="col-md-6">
                             <label for="slf_btn_url" class="form-label fw-semibold text-success">बटन URL</label>
