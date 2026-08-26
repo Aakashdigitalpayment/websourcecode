@@ -150,6 +150,8 @@ $mustSubmit = [
     'admin/member-of-year.php' => 'type="submit" class="btn btn-sm <?php echo $r[\'is_active\']',
     'admin/app-features.php' => 'type="submit" class="badge border-0 appfeat-toggle-badge',
     'admin/partner-facilities.php' => 'name="action" value="deactivate"',
+    'admin/interest-rates.php' => 'if ($action === \'delete\' && $id && $_SERVER[\'REQUEST_METHOD\'] === \'POST\')',
+    'admin/credentials.php' => 'checkCSRF();',
 ];
 foreach ($mustSubmit as $file => $needle) {
     $path = $root . '/' . $file;

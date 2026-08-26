@@ -16,6 +16,11 @@ $db = getDB();
 /* ── AJAX: reveal password (POST + CSRF only — never GET) ── */
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['ajax'] ?? '') === 'reveal') {
     header('Content-Type: application/json; charset=utf-8');
+    if (!function_exists('verifyCSRFToken') || !verifyCSRFToken()) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'CSRF']);
+        exit;
+    }
     $id = (int)($_POST['id'] ?? 0);
     try {
         if ($id <= 0) {
@@ -44,6 +49,11 @@ if (($_GET['ajax'] ?? '') === 'reveal') {
 /* ── AJAX: log open/copy actions (open/copy_user/copy_pass) ── */
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['ajax'] ?? '') === 'log') {
     header('Content-Type: application/json; charset=utf-8');
+    if (!function_exists('verifyCSRFToken') || !verifyCSRFToken()) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'CSRF']);
+        exit;
+    }
     $id     = (int)($_POST['id'] ?? 0);
     $action = (string)($_POST['action'] ?? '');
     $allowedLog = ['open', 'copy_user', 'copy_pass'];
@@ -65,6 +75,7 @@ if (($_GET['ajax'] ?? '') === 'log') {
 
 /* ── POST handlers (admin+ only for mutations) ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkCSRF();
     require_role('admin');
     $action = $_POST['action'] ?? '';
     $me     = (int)($_SESSION['admin_id'] ?? 0);

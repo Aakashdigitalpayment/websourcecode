@@ -460,10 +460,17 @@
             var safeActions = {
                 delete: 1,
                 delete_admin: 1,
+                delete_type: 1,
                 toggle: 1,
                 toggle_new: 1,
+                toggle_active: 1,
+                toggle_type: 1,
+                toggle_category: 1,
                 deactivate: 1,
-                finalize_results: 1
+                finalize_results: 1,
+                approve: 1,
+                reject: 1,
+                bulk_status: 1
             };
             if (looksDelete || safeActions[actionVal]) {
                 btn.type = 'submit';

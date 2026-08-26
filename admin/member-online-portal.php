@@ -930,7 +930,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                         <?php endif; ?>
                     </td>
                     <td>
-                        <a href="?view=<?php echo $m['id']; ?>" class="btn btn-sm btn-outline-success" title="विवरण हेर्नुहोस्"><i class="fas fa-eye"></i></a>
+                        <a href="?view=<?php echo $m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस्" aria-label="विवरण हेर्नुहोस्"><i class="fas fa-eye" aria-hidden="true"></i></a>
                         <?php if (($m['approval_status'] ?? 'pending') === 'pending'): ?>
                         <form method="POST" class="d-inline">
                             <?php echo csrfField(); ?>
