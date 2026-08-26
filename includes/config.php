@@ -275,7 +275,11 @@ if (!function_exists('dbTableExists')) {
         try {
             $db = getDB();
             $r = $db->query('SHOW TABLES LIKE ' . $db->quote($table));
-            return $cache[$table] = ($r && $r->fetch(PDO::FETCH_NUM) !== false);
+            $ok = ($r && $r->fetch(PDO::FETCH_NUM) !== false);
+            if ($r instanceof PDOStatement) {
+                $r->closeCursor();
+            }
+            return $cache[$table] = $ok;
         } catch (Throwable $e) {
             return $cache[$table] = false;
         }
@@ -299,7 +303,11 @@ if (!function_exists('dbColumnExists')) {
         try {
             $db = getDB();
             $r = $db->query('SHOW COLUMNS FROM `' . $table . '` LIKE ' . $db->quote($column));
-            return $cache[$key] = ($r && $r->fetch(PDO::FETCH_ASSOC) !== false);
+            $ok = ($r && $r->fetch(PDO::FETCH_ASSOC) !== false);
+            if ($r instanceof PDOStatement) {
+                $r->closeCursor();
+            }
+            return $cache[$key] = $ok;
         } catch (Throwable $e) {
             return $cache[$key] = false;
         }
