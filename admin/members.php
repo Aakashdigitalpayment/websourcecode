@@ -1165,28 +1165,28 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         ?>
                     </td>
                     <td>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <a href="members.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-secondary" title="Member विवरण">
-                                <i class="fas fa-user"></i>
+                        <div class="d-inline-flex align-items-center gap-1 flex-wrap adm-action-icons" role="group">
+                            <a href="members.php?view=<?php echo (int)$m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="Member विवरण" aria-label="Member विवरण">
+                                <i class="fas fa-user" aria-hidden="true"></i>
                             </a>
-                            <a href="members.php?view=<?php echo (int)$m['id']; ?>&edit=1" class="btn btn-outline-primary" title="प्रोफाइल सम्पादन">
-                                <i class="fas fa-user-pen"></i>
+                            <a href="members.php?view=<?php echo (int)$m['id']; ?>&edit=1" class="adm-icon-btn adm-icon-btn--edit" title="प्रोफाइल सम्पादन" aria-label="प्रोफाइल सम्पादन">
+                                <i class="fas fa-user-pen" aria-hidden="true"></i>
                             </a>
-                            <a href="member-online-portal.php?view=<?php echo (int)$m['id']; ?>" class="btn btn-outline-success" title="Portal">
-                                <i class="fas fa-globe"></i>
+                            <a href="member-online-portal.php?view=<?php echo (int)$m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="Portal" aria-label="Portal">
+                                <i class="fas fa-globe" aria-hidden="true"></i>
                             </a>
                             <?php if (!empty($m['kyc_application_id'])): ?>
-                            <a href="kyc-applications.php?view=<?php echo (int)$m['kyc_application_id']; ?>" class="btn btn-outline-primary" title="केवाइएम">
-                                <i class="fas fa-id-card"></i>
+                            <a href="kyc-applications.php?view=<?php echo (int)$m['kyc_application_id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="केवाइएम" aria-label="केवाइएम">
+                                <i class="fas fa-id-card" aria-hidden="true"></i>
                             </a>
                             <?php elseif (!empty($m['sadasyata_number'])): ?>
-                            <a href="kyc-applications.php?search=<?php echo urlencode((string)$m['sadasyata_number']); ?>" class="btn btn-outline-secondary" title="केवाइएम खोज">
-                                <i class="fas fa-search"></i>
+                            <a href="kyc-applications.php?search=<?php echo urlencode((string)$m['sadasyata_number']); ?>" class="adm-icon-btn" title="केवाइएम खोज" aria-label="केवाइएम खोज">
+                                <i class="fas fa-search" aria-hidden="true"></i>
                             </a>
                             <?php endif; ?>
                             <?php if ($as === 'pending' || $as === 'renewal_pending'): ?>
-                            <a href="member-online-portal.php?status=<?php echo $as === 'renewal_pending' ? 'renewal_pending' : 'pending'; ?>" class="btn btn-warning" title="अनुमोदन">
-                                <i class="fas fa-check"></i>
+                            <a href="member-online-portal.php?status=<?php echo $as === 'renewal_pending' ? 'renewal_pending' : 'pending'; ?>" class="adm-icon-btn adm-icon-btn--edit" title="अनुमोदन" aria-label="अनुमोदन">
+                                <i class="fas fa-check" aria-hidden="true"></i>
                             </a>
                             <?php endif; ?>
                         </div>

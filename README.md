@@ -123,9 +123,9 @@ PHP 8.2 recommended (8.0+). Cron: `php /path/to/cron-cleanup.php` daily.
 
 | Item | Count |
 |------|-------|
-| PHP files | ~279 |
-| CSS files (`assets/css/*.css`) | 26 |
-| JS files (`assets/js/*.js`) | 12 |
+| PHP files | ~338 |
+| CSS files (`assets/css/*.css`) | 31 |
+| JS files (`assets/js/*.js`) | 13 |
 | DB tables (`install.sql`) | 107 |
 
 ---

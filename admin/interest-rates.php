@@ -50,7 +50,8 @@ checkCSRF();
     }
 }
 
-if ($action === 'delete' && $id) {
+if ($action === 'delete' && $id && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    checkCSRF();
     try {
         $db = getDB();
         $db->prepare("DELETE FROM interest_rates WHERE id=?")->execute([$id]);

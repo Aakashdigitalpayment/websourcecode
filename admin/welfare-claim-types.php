@@ -309,12 +309,12 @@ if ($_flash) {
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center text-nowrap">
-                                    <a href="welfare-claim-types.php?edit=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="welfare-claim-types.php?edit=<?php echo (int)$mc['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="Edit" aria-label="Edit"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="fas fa-power-off"></i></button>
+                                        <button type="submit" class="adm-icon-btn" title="Toggle" aria-label="Toggle"><i class="fas fa-power-off" aria-hidden="true"></i></button>
                                     </form>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने? प्रयोगमा भए निष्क्रिय हुन्छ।', 'Delete? If in use it will be deactivated.'); ?>');">
                                         <?php echo csrfField(); ?>

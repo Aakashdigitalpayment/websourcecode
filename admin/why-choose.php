@@ -162,7 +162,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                             </form>
                         </td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-primary wc-edit-btn"
+                            <button type="button" class="adm-icon-btn adm-icon-btn--edit wc-edit-btn"
                                     data-id="<?php echo $f['id']; ?>"
                                     data-icon="<?php echo e($f['icon']); ?>"
                                     data-title_np="<?php echo e($f['title_np']); ?>"
@@ -178,8 +178,8 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete">
-                                    <i class="fas fa-trash"></i>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
+                                    <i class="fas fa-trash" aria-hidden="true"></i>
                                 </button>
                             </form>
                         </td>
