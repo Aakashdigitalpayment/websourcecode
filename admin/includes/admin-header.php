@@ -680,7 +680,7 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='digital-service-requests' ? 'active' : ''; ?>">
                                 <a href="digital-service-requests.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="laptop-code"></i></span>
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i></span>
                                     <span><?php echo $adminT('डिजिटल सेवा', 'Digital Services'); ?></span>
                                     <?php if ($adminAlertCounts['digital'] > 0): ?><span class="badge"><?php echo $adminAlertCounts['digital']; ?></span><?php endif; ?>
                                 </a>
