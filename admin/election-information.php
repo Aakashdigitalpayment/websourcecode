@@ -355,7 +355,7 @@ echo adminPageHeader(
                                 <?php if (!empty($c['show_in_navbar'])): ?><span class="badge bg-primary">मेनु</span><?php endif; ?>
                             </td>
                             <td class="text-nowrap">
-                                <a class="btn btn-sm btn-outline-primary" href="election-information.php?edit=<?php echo (int)$c['id']; ?>&panel=form" title="सम्पादन"><i class="fas fa-pen"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="election-information.php?edit=<?php echo (int)$c['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                 <a class="btn btn-sm btn-outline-secondary" href="election-information.php?milestones=<?php echo (int)$c['id']; ?>" title="तालिका"><i class="fas fa-list-ol"></i></a>
                                 <a class="btn btn-sm btn-outline-success" href="election-candidates.php?cycle=<?php echo (int)$c['id']; ?>" title="उम्मेदवार"><i class="fas fa-user-tie"></i></a>
                             </td>

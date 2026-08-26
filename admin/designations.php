@@ -104,12 +104,12 @@ echo adminPageHeader(
                                 <td><?php echo (int)$r['display_order']; ?></td>
                                 <td><?php if ($r['is_active']): ?><span class="badge bg-success">सक्रिय</span><?php else: ?><span class="badge bg-secondary">निष्क्रिय</span><?php endif; ?></td>
                                 <td class="text-nowrap">
-                                    <a class="btn btn-sm btn-outline-primary" href="?edit=<?php echo (int)$r['id']; ?>&panel=form"><i class="fas fa-pen"></i></a>
+                                    <a class="adm-icon-btn adm-icon-btn--edit" href="?edit=<?php echo (int)$r['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('यो पद मेटाउने? कतै प्रयोग भइरहेको भए text मा फर्किनेछ।');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

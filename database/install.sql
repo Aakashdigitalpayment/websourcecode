@@ -2563,7 +2563,73 @@ CREATE TABLE IF NOT EXISTS member_marketplace_inquiries (
     INDEX idx_mkt_inq_read (is_read, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ═══════════════════════════════════════════════════════════════
+-- AUTH / ANALYTICS / MEMBERSHIP REQUESTS (runtime ensure → bake-in)
+-- ═══════════════════════════════════════════════════════════════
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    username     VARCHAR(100) NOT NULL,
+    ip_address   VARCHAR(45)  NOT NULL,
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_lookup (username, ip_address, attempted_at),
+    INDEX idx_attempted (attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS visitor_stats (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    visit_date DATE NOT NULL UNIQUE,
+    visitor_count INT DEFAULT 0,
+    page_views INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS membership_applications (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    tracking_id VARCHAR(40) NOT NULL,
+    full_name VARCHAR(200) NOT NULL,
+    mobile VARCHAR(20) NOT NULL DEFAULT '',
+    email VARCHAR(254) NULL,
+    address TEXT NULL,
+    citizenship_no VARCHAR(80) NULL,
+    remarks TEXT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    assigned_sadasyata VARCHAR(50) NULL,
+    member_pk INT UNSIGNED NULL,
+    admin_remarks TEXT NULL,
+    reviewed_by INT UNSIGNED NULL,
+    reviewed_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NULL,
+    UNIQUE KEY uq_membership_tracking (tracking_id),
+    KEY idx_membership_status (status),
+    KEY idx_membership_mobile (mobile),
+    KEY idx_membership_sadasyata (assigned_sadasyata)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS request_status_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    module VARCHAR(64) NOT NULL,
+    request_id INT NOT NULL,
+    old_status VARCHAR(64) DEFAULT NULL,
+    new_status VARCHAR(64) DEFAULT NULL,
+    admin_comment TEXT,
+    notify_sent TINYINT(1) NOT NULL DEFAULT 0,
+    actor_admin_id INT DEFAULT NULL,
+    actor_name VARCHAR(120) DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    admin_chose_to_notify TINYINT(1) NOT NULL DEFAULT 0,
+    notify_email_status VARCHAR(20) NOT NULL DEFAULT 'not_attempted',
+    notify_email_reason VARCHAR(180) DEFAULT NULL,
+    notify_email_to VARCHAR(180) DEFAULT NULL,
+    notify_sms_status VARCHAR(20) NOT NULL DEFAULT 'not_attempted',
+    notify_sms_reason VARCHAR(180) DEFAULT NULL,
+    notify_sms_to VARCHAR(40) DEFAULT NULL,
+    INDEX idx_module_request (module, request_id),
+    INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 -- ═══════════════════════════════════════════════════════════════
--- ✅  सबै tables (Core + HRM + Messages + Member Marketplace), columns, indexes, seed data लोड भयो।
+-- ✅  सबै tables (Core + HRM + Messages + Member Marketplace + auth/analytics), columns, indexes, seed data लोड भयो।
 -- ═══════════════════════════════════════════════════════════════

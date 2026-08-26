@@ -292,7 +292,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $t['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $t['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-type"
+                            <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-type"
                                     data-id="<?php echo $t['id']; ?>"
                                     data-name="<?php echo htmlspecialchars($t['name'], ENT_QUOTES); ?>"
                                     data-name-np="<?php echo htmlspecialchars($t['name_np'], ENT_QUOTES); ?>"
@@ -308,7 +308,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_type">
                                 <input type="hidden" name="delete_id" value="<?php echo $t['id']; ?>">
-                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -521,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $tn['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $tn['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-tenure"
+                            <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-tenure"
                                     data-id="<?php echo $tn['id']; ?>"
                                     data-type-id="<?php echo $tn['committee_type_id']; ?>"
                                     data-name="<?php echo htmlspecialchars($tn['tenure_name'], ENT_QUOTES); ?>"
@@ -536,7 +536,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_tenure">
                                 <input type="hidden" name="delete_id" value="<?php echo $tn['id']; ?>">
-                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -727,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $m['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $m['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-member"
+                            <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-member"
                                     data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                     title="सम्पादन">
                                 <i class="fas fa-edit"></i>
@@ -736,7 +736,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_member">
                                 <input type="hidden" name="delete_id" value="<?php echo $m['id']; ?>">
-                                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>

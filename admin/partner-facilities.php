@@ -205,7 +205,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
             </span>
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-pf"
+            <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-pf"
                     data-id="<?php echo $uid; ?>"
                     data-name="<?php echo htmlspecialchars((string)$f['partner_name'], ENT_QUOTES); ?>"
                     data-name-en="<?php echo htmlspecialchars((string)($f['partner_name_en'] ?? ''), ENT_QUOTES); ?>"
@@ -237,7 +237,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="delete">
                 <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
             </form>
         </td>
     </tr>

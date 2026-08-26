@@ -183,7 +183,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><small><?php echo $a['award_date'] ? date('Y', strtotime($a['award_date'])) : '—'; ?></small></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-aw"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-aw"
                                             data-id="<?php echo $a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -202,7 +202,7 @@ if ($flash = getFlash()):
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -248,7 +248,7 @@ if ($flash = getFlash()):
                                 <td class="text-center"><small><?php echo $a['award_date'] ? date('Y', strtotime($a['award_date'])) : '—'; ?></small></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $a['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $a['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-aw"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-aw"
                                             data-id="<?php echo $a['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($a['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($a['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -267,7 +267,7 @@ if ($flash = getFlash()):
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $a['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

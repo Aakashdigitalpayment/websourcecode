@@ -155,7 +155,7 @@ $departments = hrmListDepartments($db);
             <td class="small"><?= htmlspecialchars($r['join_date_bs'] ?: ($r['join_date_ad'] ?? '—')) ?></td>
             <td><?= hrmStatusBadge($r['status']) ?></td>
             <td class="text-end text-nowrap">
-              <a href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>" class="btn btn-sm btn-outline-secondary" title="विवरण"><i class="fas fa-eye"></i></a>
+              <a href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>" class="adm-icon-btn adm-icon-btn--view" title="विवरण" aria-label="विवरण"><i class="fas fa-eye" aria-hidden="true"></i></a>
               <a href="hrm-employee-id-card.php?id=<?= (int)$r['id'] ?>" class="btn btn-sm btn-outline-info" title="ID Card"><i class="fas fa-id-card"></i></a>
               <button type="button" class="btn btn-sm btn-primary"
                       data-bs-toggle="modal" data-bs-target="#msgModal"

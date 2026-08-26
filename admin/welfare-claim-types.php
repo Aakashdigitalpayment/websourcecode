@@ -320,7 +320,7 @@ if ($_flash) {
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

@@ -294,7 +294,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_contracts">
                   <input type="hidden" name="child_id" value="<?= (int)$c['id'] ?>">
-                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             </tr>
@@ -350,7 +350,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_documents"><input type="hidden" name="child_id" value="<?= (int)$d['id'] ?>">
-                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             </tr>
@@ -390,7 +390,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_education"><input type="hidden" name="child_id" value="<?= (int)$ed['id'] ?>">
-                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             </tr>
@@ -427,7 +427,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_experience"><input type="hidden" name="child_id" value="<?= (int)$ex['id'] ?>">
-                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             </tr>
@@ -468,7 +468,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
                 <form method="post" class="stf-inline-form" onsubmit="return confirm('हटाउने?');">
                   <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                   <input type="hidden" name="tbl" value="hrm_employee_family"><input type="hidden" name="child_id" value="<?= (int)$fm['id'] ?>">
-                  <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </form>
               </td>
             </tr>
@@ -549,7 +549,7 @@ $history    = $db->prepare("SELECT * FROM hrm_employee_history WHERE employee_id
               <form method="post" class="stf-inline-form mt-1" onsubmit="return confirm('हटाउने?');">
                 <?= csrfField() ?><input type="hidden" name="action" value="delete_child">
                 <input type="hidden" name="tbl" value="hrm_employee_history"><input type="hidden" name="child_id" value="<?= (int)$h['id'] ?>">
-                <button type="button" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button>
+                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
               </form>
             </li>
           <?php endforeach; ?>

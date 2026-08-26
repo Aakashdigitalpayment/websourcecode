@@ -425,12 +425,12 @@ foreach ($images as $img) {
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-end">
-                                            <a href="gallery.php?tab=albums&amp;edit_album=<?php echo (int)$alb['id']; ?>" class="btn btn-sm btn-outline-primary" title="सम्पादन"><i class="fas fa-edit"></i></a>
+                                            <a href="gallery.php?tab=albums&amp;edit_album=<?php echo (int)$alb['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
                                             <form method="POST" class="d-inline" onsubmit="return confirm('यो खाली एल्बम मेटाउने हो?')">
                                                 <?php echo csrfField(); ?>
                                                 <input type="hidden" name="action" value="delete_album">
                                                 <input type="hidden" name="id" value="<?php echo (int)$alb['id']; ?>">
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्" <?php echo (int)($alb['media_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="fas fa-trash"></i></button>
+                                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्" <?php echo (int)($alb['media_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="fas fa-trash" aria-hidden="true"></i></button>
                                             </form>
                                         </td>
                                     </tr>

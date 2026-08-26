@@ -152,7 +152,7 @@ try {
                 <td><?= e($r['full_name_np']) ?></td>
                 <td><small><?= e($r['designation']) ?></small></td>
                 <td><small><?= e($r['join_date_ad'] ?? '—') ?></small></td>
-                <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>"><i class="fas fa-eye"></i></a></td>
+                <td class="text-end"><a class="adm-icon-btn adm-icon-btn--view" href="hrm-employee-view.php?id=<?= (int)$r['id'] ?>" title="हेर्नुहोस्" aria-label="हेर्नुहोस्"><i class="fas fa-eye" aria-hidden="true"></i></a></td>
               </tr>
             <?php endforeach; ?>
             </tbody>
