@@ -211,12 +211,25 @@ $L = getLangStrings();
                                 <div class="hero-text-wrapper">
                                     <h1 class="hero-title-modern"><?php echo e($slider['title']); ?></h1>
                                     <p class="hero-subtitle-modern"><?php echo e($slider['subtitle']); ?></p>
-                                    <?php if ($slider['button_text']): ?>
+                                    <?php
+                                    $__btnLabel = trim((string) ($slider['button_text'] ?? ''));
+                                    /* Decorative quote marks belong on slogans, not CTA labels */
+                                    if ($__btnLabel !== '') {
+                                        $__btnLabel = preg_replace(
+                                            '/^[\s\"\'\x{201C}\x{201D}\x{2018}\x{2019}\x{00AB}\x{00BB}]+|[\s\"\'\x{201C}\x{201D}\x{2018}\x{2019}\x{00AB}\x{00BB}]+$/u',
+                                            '',
+                                            $__btnLabel
+                                        );
+                                        $__btnLabel = trim((string) $__btnLabel);
+                                    }
+                                    $__btnUrl = trim((string) ($slider['button_url'] ?? ''));
+                                    ?>
+                                    <?php if ($__btnLabel !== ''): ?>
                                     <div class="hero-actions-modern">
-                                        <a href="<?php echo e($slider['button_url']); ?>" class="btn hero-btn-modern">
+                                        <a href="<?php echo e($__btnUrl !== '' ? $__btnUrl : '#'); ?>" class="btn hero-btn-modern">
                                             <span class="btn-content">
-                                                <?php echo e($slider['button_text']); ?>
-                                                <i class="fas fa-arrow-right btn-icon"></i>
+                                                <span class="btn-label"><?php echo e($__btnLabel); ?></span>
+                                                <i class="fas fa-arrow-right btn-icon" aria-hidden="true"></i>
                                             </span>
                                             <span class="btn-shine"></span>
                                         </a>
