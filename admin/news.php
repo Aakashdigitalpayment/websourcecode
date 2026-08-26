@@ -180,7 +180,7 @@ $newsArch = $newsPart['archived'];
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-news"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-news"
                                             data-id="<?php echo $n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -195,7 +195,7 @@ $newsArch = $newsPart['archived'];
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -245,7 +245,7 @@ $newsArch = $newsPart['archived'];
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-news"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-news"
                                             data-id="<?php echo $n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -260,7 +260,7 @@ $newsArch = $newsPart['archived'];
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

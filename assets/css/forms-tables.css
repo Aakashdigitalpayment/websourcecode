@@ -281,54 +281,6 @@
   color: var(--text-muted);
 }
 
-/* Table Actions Column */
-.table-actions {
-  display: flex;
-  gap: var(--space-2);
-  justify-content: center;
-  align-items: center;
-}
-
-.table-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: var(--bg-soft);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  font-size: 0.9rem;
-}
-
-.table-action-btn:hover {
-  background: var(--primary);
-  color: var(--text-on-primary);
-}
-
-.table-action-btn.btn-edit {
-  background: #e3f2fd;
-  color: #1976d2;
-}
-
-.table-action-btn.btn-edit:hover {
-  background: #1976d2;
-  color: white;
-}
-
-.table-action-btn.btn-delete {
-  background: #ffebee;
-  color: var(--danger);
-}
-
-.table-action-btn.btn-delete:hover {
-  background: var(--danger);
-  color: white;
-}
-
 /* Table Empty State */
 .table-empty-state {
   padding: var(--space-8) var(--space-4);

@@ -155,7 +155,7 @@ function careers_admin_render_rows(array $list): void
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-career"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-career"
                                             data-id="<?php echo $c['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($c['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -190,7 +190,7 @@ function careers_admin_render_rows(array $list): void
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
