@@ -3898,6 +3898,31 @@ textarea.form-control {
 
 /* ── ADMIN: shell, alerts, tables ──────────────────────────────── */
 
+/* Sidebar labels — one size for group headers + submenu links */
+aside.sidebar .sidebar-nav a,
+aside.sidebar .sidebar-nav .nav-group-header,
+aside.sidebar .sidebar-nav .nav-group-label,
+aside.sidebar .sidebar-nav .sidebar-link-label,
+aside.sidebar .sidebar-nav .nav-submenu > li > a,
+aside.sidebar .sidebar-nav .nav-submenu > li > a span:not(.badge):not(.nav-icon-wrap) {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.01em !important;
+}
+
+aside.sidebar .sidebar-nav .nav-group-header,
+aside.sidebar .sidebar-nav .nav-group-label {
+  font-weight: 600 !important;
+}
+
+aside.sidebar .sidebar-nav li.active > a,
+aside.sidebar .sidebar-nav li.active > a span:not(.badge):not(.nav-icon-wrap),
+aside.sidebar .sidebar-nav .nav-submenu li.active > a,
+aside.sidebar .sidebar-nav .nav-submenu li.active > a span:not(.badge):not(.nav-icon-wrap) {
+  font-weight: 600 !important;
+}
+
 body[class*="admin-page-"] .main-content {
   background: linear-gradient(180deg, #f8fbf9 0%, #f4f7f5 120px, #f4f7f5 100%) !important;
 }

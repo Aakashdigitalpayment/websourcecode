@@ -212,10 +212,10 @@ nav.sidebar-nav li a,
   transition: background-color 0.14s var(--prem-ease) !important;
 }
 
-/* Submenu items */
+/* Submenu items — same size as group/top links */
 nav.sidebar-nav .nav-submenu li a {
   font-family: var(--prem-font-body) !important;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 
 /* ── 11. ADMIN TOP HEADER ────────────────────────────────────────────────

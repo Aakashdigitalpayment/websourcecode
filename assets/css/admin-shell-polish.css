@@ -677,7 +677,7 @@ body[class*="admin-page-"],
 .sidebar .nav-submenu li.active > a,
 .sidebar .nav-submenu li.active > a span {
   text-decoration: none !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
 }
 
 .sidebar .nav-submenu .nav-icon-wrap {
