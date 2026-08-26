@@ -1,6 +1,8 @@
 /*
   ══════════════════════════════════════════════════════════════════════
   SERVICE WORKER — Aakash Cooperative CMS  v7
+  New in v8:
+    • PWA icons use cooperative favicon/logo via /pwa-icon.php
   New in v7:
     • Navigations + "/" use network-first (was cache-first) so admin
       slider/settings updates show without hard refresh
@@ -24,9 +26,9 @@
   ══════════════════════════════════════════════════════════════════════
 */
 
-const STATIC_CACHE = 'coop-static-v7';
-const PAGES_CACHE  = 'coop-pages-v7';
-const API_CACHE    = 'coop-api-v7';
+const STATIC_CACHE = 'coop-static-v8';
+const PAGES_CACHE  = 'coop-pages-v8';
+const API_CACHE    = 'coop-api-v8';
 const ALL_CACHES   = [STATIC_CACHE, PAGES_CACHE, API_CACHE];
 
 /* Only these get cache-first — never HTML documents or "/" */
@@ -41,9 +43,11 @@ const PRECACHE_REQUIRED = [
 
 /* Pre-cache attempt — skip silently if unavailable */
 const PRECACHE_OPTIONAL = [
+  '/pwa-icon.php?s=192',
+  '/pwa-icon.php?s=512',
+  '/pwa-icon.php?s=512&maskable=1',
   '/assets/images/icon-192x192.png',
   '/assets/images/icon-512x512.png',
-  '/assets/images/icon-512x512-maskable.png',
   '/assets/css/app-member.css',
   '/assets/css/app-core.css',
   '/assets/js/coop-mobile.js',
@@ -222,8 +226,8 @@ self.addEventListener('push', event => {
   const body    = data.body  || 'नयाँ सूचना छ — Member Portal खोल्नुहोस्।';
   const options = {
     body,
-    icon:             '/assets/images/icon-192x192.png',
-    badge:            '/assets/images/badge-72x72.png',
+    icon:             '/pwa-icon.php?s=192',
+    badge:            '/pwa-icon.php?s=72',
     tag:              data.tag || 'coop-notification',
     requireInteraction: true,   /* stays visible until dismissed */
     vibrate:          [200, 100, 200],

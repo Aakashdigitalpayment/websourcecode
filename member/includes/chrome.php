@@ -238,11 +238,20 @@ try {
 <link rel="manifest" href="<?php echo htmlspecialchars(rtrim((string)$_siteUrl, '/') . '/manifest.php', ENT_QUOTES, 'UTF-8'); ?>">
 <meta name="theme-color" content="#1a5f2a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" href="<?php echo htmlspecialchars(rtrim((string)$_siteUrl, '/') . '/assets/images/icon-192x192.png', ENT_QUOTES, 'UTF-8'); ?>">
+<?php
+if (!function_exists('getPwaIconPublicUrl') && is_file(__DIR__ . '/../../includes/pwa-icons.php')) {
+    require_once __DIR__ . '/../../includes/pwa-icons.php';
+}
+$_pwaApple = function_exists('getPwaIconPublicUrl')
+    ? getPwaIconPublicUrl(180, false)
+    : (rtrim((string) $_siteUrl, '/') . '/assets/images/icon-192x192.png');
+?>
+<link rel="apple-touch-icon" href="<?php echo htmlspecialchars($_pwaApple, ENT_QUOTES, 'UTF-8'); ?>">
+<link rel="icon" href="<?php echo htmlspecialchars(function_exists('getPwaIconPublicUrl') ? getPwaIconPublicUrl(192, false) : $_pwaApple, ENT_QUOTES, 'UTF-8'); ?>" type="image/png" sizes="192x192">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
 <script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.5" defer></script>
-<script src="<?php echo $_siteUrl; ?>assets/js/pwa-register.js?v=3.2" defer></script>
+<script src="<?php echo $_siteUrl; ?>assets/js/pwa-register.js?v=3.3" defer></script>
 </head>
 <body class="mem-wrapper">
 
