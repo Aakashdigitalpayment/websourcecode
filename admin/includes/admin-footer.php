@@ -439,6 +439,24 @@
         hideAdminGuidanceBlocks();
 
         /* ─────────────────────────────────────────────────────
+           Broken delete buttons: type=button inside POST forms
+           never submit — promote them to type=submit safely.
+           ───────────────────────────────────────────────────── */
+        document.querySelectorAll('form[method="post"] button[type="button"], form[method="POST"] button[type="button"]').forEach(function(btn) {
+            var title = ((btn.getAttribute('title') || '') + ' ' + (btn.getAttribute('aria-label') || '')).toLowerCase();
+            var looksDelete = /मेटा|delete|trash|हटाउ/.test(title)
+                || btn.classList.contains('btn-outline-danger')
+                || btn.classList.contains('adm-icon-btn--delete');
+            if (!looksDelete) return;
+            var form = btn.closest('form');
+            if (!form) return;
+            var action = form.querySelector('input[name="action"]');
+            if (action && String(action.value || '').toLowerCase() === 'delete') {
+                btn.type = 'submit';
+            }
+        });
+
+        /* ─────────────────────────────────────────────────────
            DELETE links: GET delete link → safe POST+CSRF form
            — a[href*="action=delete"] ले GET delete बाट जोगाउँछ
            ───────────────────────────────────────────────────── */

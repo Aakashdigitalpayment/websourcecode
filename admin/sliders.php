@@ -202,7 +202,7 @@ $slidersArch = $slPart['archived'];
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $sl['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $sl['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $sl['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sl"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-sl"
                                             data-id="<?php echo $sl['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($sl['title'] ?? '', ENT_QUOTES); ?>"
                                             data-subtitle="<?php echo htmlspecialchars($sl['subtitle'] ?? '', ENT_QUOTES); ?>"
@@ -218,7 +218,7 @@ $slidersArch = $slPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $sl['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -264,7 +264,7 @@ $slidersArch = $slPart['archived'];
                                 <td class="text-center"><span class="badge bg-light text-dark border"><?php echo $sl['display_order']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $sl['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $sl['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-sl"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-sl"
                                             data-id="<?php echo $sl['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($sl['title'] ?? '', ENT_QUOTES); ?>"
                                             data-subtitle="<?php echo htmlspecialchars($sl['subtitle'] ?? '', ENT_QUOTES); ?>"
@@ -280,7 +280,7 @@ $slidersArch = $slPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $sl['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

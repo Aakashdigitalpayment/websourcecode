@@ -173,7 +173,7 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-info text-white"><?php echo htmlspecialchars($f['category']); ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-faq"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-faq"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
@@ -189,7 +189,7 @@ $faqsArch = $faqPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -229,7 +229,7 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-info text-white"><?php echo htmlspecialchars($f['category']); ?></span></td>
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm btn-primary me-1 btn-edit-faq"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-faq"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
@@ -245,7 +245,7 @@ $faqsArch = $faqPart['archived'];
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्"><i class="fas fa-trash"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

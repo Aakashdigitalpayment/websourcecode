@@ -55,14 +55,20 @@ Bootstrap + Font Awesome (vendor)
 Google Fonts
 app-public.css | app-admin.css | app-member.css   ← panel base (do not rewrite for polish)
 global.css · forms-tables.css
-(admin-only unified / layout / bootstrap overrides)
+(admin-only mid patches)
 global-theme.php          ← DB brand colours (inline)
-premium-ui.css            ← deferred polish
-*-shell-polish.css        ← panel shell polish
-ui-readability-safe-patch.css
-admin-ux-deep-patch.css   ← admin absolute last (admin only)
-final-ui-polish.css       ← ⭐ absolute last on ALL panels
+★ ONE *-late-bundle.css   ← built from polish sources (see below)
 ```
+
+**Late polish sources** (`premium-ui.css`, `*-shell-polish.css`, `ui-readability-safe-patch.css`,
+`admin-ux-deep-patch.css`, `final-ui-polish.css`, …) are **not** linked individually.
+Edit the source file, then run:
+
+```bash
+python3 scripts/build-css-late-bundles.py
+```
+
+Do **not** hand-edit `assets/css/*-late-bundle.css` (AUTO-GENERATED).
 
 ### Safe theme / UX rules
 

@@ -2078,6 +2078,183 @@ CREATE TABLE IF NOT EXISTS election_milestones (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- ELECTION VOTING + DESIGNATIONS (runtime ensure also creates these)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS designations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title_np VARCHAR(160) NOT NULL,
+    title_en VARCHAR(160) NOT NULL DEFAULT '',
+    category VARCHAR(50) NOT NULL DEFAULT 'committee',
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_desig_cat_ord (category, display_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS election_posts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    designation_id INT NULL DEFAULT NULL,
+    title_np VARCHAR(160) NOT NULL,
+    title_en VARCHAR(160) NOT NULL DEFAULT '',
+    committee_type_id INT NULL DEFAULT NULL,
+    default_seats INT NOT NULL DEFAULT 1,
+    default_max_votes INT NOT NULL DEFAULT 1,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_epost_active (is_active, display_order),
+    INDEX idx_epost_ctype (committee_type_id),
+    INDEX idx_epost_designation (designation_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS election_positions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cycle_id INT NOT NULL,
+    title_np VARCHAR(160) NOT NULL,
+    title_en VARCHAR(160) NOT NULL DEFAULT '',
+    seats INT NOT NULL DEFAULT 1,
+    max_votes_per_voter INT NOT NULL DEFAULT 1,
+    committee_type_id INT NULL DEFAULT NULL,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ep_cycle (cycle_id),
+    INDEX idx_ep_cycle_ord (cycle_id, display_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS election_candidates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cycle_id INT NOT NULL,
+    position_id INT NOT NULL,
+    name VARCHAR(160) NOT NULL,
+    name_en VARCHAR(160) NOT NULL DEFAULT '',
+    photo VARCHAR(500) NULL DEFAULT NULL,
+    bio_np TEXT NULL,
+    bio_en TEXT NULL,
+    phone VARCHAR(20) NULL DEFAULT NULL,
+    email VARCHAR(120) NULL DEFAULT NULL,
+    address VARCHAR(255) NULL DEFAULT NULL,
+    symbol_no VARCHAR(20) NULL DEFAULT NULL,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ec_cycle (cycle_id),
+    INDEX idx_ec_position (position_id),
+    INDEX idx_ec_pos_ord (position_id, display_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS election_vote_submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cycle_id INT NOT NULL,
+    member_id INT NOT NULL,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    source VARCHAR(30) NOT NULL DEFAULT 'member_portal',
+    proof_type VARCHAR(30) NOT NULL DEFAULT '',
+    verified_by_admin_id INT NULL DEFAULT NULL,
+    verified_by_name VARCHAR(120) NOT NULL DEFAULT '',
+    note VARCHAR(500) NOT NULL DEFAULT '',
+    is_ballot TINYINT(1) NOT NULL DEFAULT 1,
+    ip VARCHAR(64) NULL DEFAULT NULL,
+    user_agent VARCHAR(255) NULL DEFAULT NULL,
+    UNIQUE KEY uniq_cycle_member (cycle_id, member_id),
+    INDEX idx_evs_cycle (cycle_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS election_votes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cycle_id INT NOT NULL,
+    position_id INT NOT NULL,
+    candidate_id INT NOT NULL,
+    member_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_member_pos_cand (member_id, position_id, candidate_id),
+    INDEX idx_ev_cycle (cycle_id),
+    INDEX idx_ev_candidate (candidate_id),
+    INDEX idx_ev_position (position_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS partner_facilities (
+    id              INT AUTO_INCREMENT PRIMARY KEY,
+    partner_name    VARCHAR(200) NOT NULL,
+    partner_name_en VARCHAR(200) NOT NULL DEFAULT '',
+    location        VARCHAR(200) NOT NULL DEFAULT '',
+    facility_type   VARCHAR(100) NOT NULL DEFAULT '',
+    discount_percent DECIMAL(5,2) DEFAULT 0,
+    discount_label  VARCHAR(160) NOT NULL DEFAULT '',
+    description     TEXT,
+    description_en  TEXT NULL,
+    terms_np        TEXT NULL,
+    logo_path       VARCHAR(500) NULL DEFAULT NULL,
+    contact_phone   VARCHAR(30) NOT NULL DEFAULT '',
+    contact_email   VARCHAR(120) NOT NULL DEFAULT '',
+    website_url     VARCHAR(255) NOT NULL DEFAULT '',
+    partner_code    VARCHAR(32) NULL DEFAULT NULL,
+    pin_hash        VARCHAR(255) NULL DEFAULT NULL,
+    vendor_id       INT NULL DEFAULT NULL,
+    is_featured     TINYINT(1) NOT NULL DEFAULT 0,
+    is_active       TINYINT DEFAULT 1,
+    display_order   INT DEFAULT 0,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_pf_code (partner_code),
+    INDEX idx_pf_active (is_active, display_order),
+    INDEX idx_pf_type (facility_type),
+    INDEX idx_pf_vendor (vendor_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_notifications (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    member_id   INT NOT NULL,
+    title       VARCHAR(255) NOT NULL,
+    message     TEXT,
+    type        VARCHAR(30) DEFAULT 'info',
+    link        VARCHAR(500),
+    is_read     TINYINT DEFAULT 0,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mn_member (member_id),
+    INDEX idx_mn_member_read (member_id, is_read, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_otp_tokens (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    member_id   INT NOT NULL,
+    otp_code    VARCHAR(10) NOT NULL,
+    purpose     VARCHAR(50) DEFAULT 'password_reset',
+    channel     VARCHAR(10) DEFAULT 'sms',
+    sent_to     VARCHAR(200),
+    is_used     TINYINT DEFAULT 0,
+    attempts    TINYINT DEFAULT 0,
+    expires_at  TIMESTAMP NOT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_mot_member (member_id),
+    INDEX idx_mot_expires (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_push_subscriptions (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    member_id  INT UNSIGNED NOT NULL,
+    endpoint   TEXT NOT NULL,
+    p256dh     VARCHAR(512) NOT NULL,
+    auth       VARCHAR(64)  NOT NULL,
+    user_agent VARCHAR(255) DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_endpoint (endpoint(255)),
+    INDEX      idx_member  (member_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS member_push_log (
+    id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    notif_id  INT UNSIGNED DEFAULT NULL,
+    member_id INT UNSIGNED DEFAULT NULL,
+    endpoint  VARCHAR(255) NOT NULL DEFAULT '',
+    http_code SMALLINT UNSIGNED DEFAULT 0,
+    sent_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notif  (notif_id),
+    INDEX idx_member (member_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- HRM MODULE (full schema — merged from hrm_install.sql)
 -- सहकारी मानव संशाधन व्यवस्थापन
 -- =====================================================
