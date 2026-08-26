@@ -365,7 +365,15 @@ set_exception_handler(function (\Throwable $ex) {
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
-    <link rel="apple-touch-icon" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/images/icon-192x192.png">
+    <?php
+    if (!function_exists('getPwaIconPublicUrl') && is_file(__DIR__ . '/../../includes/pwa-icons.php')) {
+        require_once __DIR__ . '/../../includes/pwa-icons.php';
+    }
+    $__adminAppleIcon = function_exists('getPwaIconPublicUrl')
+        ? getPwaIconPublicUrl(180, false)
+        : ((defined('SITE_URL') ? SITE_URL : '../') . 'assets/images/icon-192x192.png');
+    ?>
+    <link rel="apple-touch-icon" href="<?php echo htmlspecialchars($__adminAppleIcon, ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="manifest" href="<?php echo defined('SITE_URL') ? rtrim((string)SITE_URL, '/') . '/' : '../'; ?>manifest.php">
     <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
     <meta name="pwa-short-name" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">

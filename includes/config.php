@@ -1178,9 +1178,16 @@ function getSiteFaviconPath($default = 'assets/images/favicon.png') {
     if ($custom !== '') {
         $candidates[] = ltrim($custom, '/');
     }
+    $siteLogo = trim((string) getSetting('site_logo', ''));
+    if ($siteLogo !== '') {
+        $candidates[] = ltrim($siteLogo, '/');
+    }
     $logo = trim((string) getSetting('logo', ''));
     if ($logo !== '') {
         $candidates[] = ltrim($logo, '/');
+    }
+    if (function_exists('getSitePwaIconSourcePath')) {
+        /* will prefer branding; avoid recursion by not calling if we're mid-load */
     }
     $candidates[] = 'assets/images/icon-192x192.png';
     $candidates[] = ltrim($default, '/');

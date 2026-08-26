@@ -17,7 +17,7 @@
   var _deferred  = null;
   var _appName   = '';
   var _shortName = '';
-  var _iconSrc   = '/assets/images/icon-192x192.png';
+  var _iconSrc   = '/pwa-icon.php?s=192';
   var _swReady   = null;
 
   /* ── 2. Read app name from meta tag injected by PHP ──────────────── */

@@ -521,9 +521,14 @@ if (strpos($__faviconRelVer, '?') !== false && strpos($__faviconUrl, '?') === fa
     $__faviconUrl .= substr($__faviconRelVer, strpos($__faviconRelVer, '?'));
 }
 $__faviconMime = function_exists('getSiteFaviconMime') ? getSiteFaviconMime($__faviconRel) : 'image/png';
-$__appleIconUrl = function_exists('seo_absolute_asset_url')
-    ? seo_absolute_asset_url('assets/images/icon-192x192.png')
-    : (rtrim(SITE_URL, '/') . '/assets/images/icon-192x192.png');
+if (!function_exists('getPwaIconPublicUrl') && is_file(__DIR__ . '/pwa-icons.php')) {
+    require_once __DIR__ . '/pwa-icons.php';
+}
+$__appleIconUrl = function_exists('getPwaIconPublicUrl')
+    ? getPwaIconPublicUrl(180, false)
+    : (function_exists('seo_absolute_asset_url')
+        ? seo_absolute_asset_url('assets/images/icon-192x192.png')
+        : (rtrim(SITE_URL, '/') . '/assets/images/icon-192x192.png'));
 
 $__seoOrg = function_exists('seo_organization_json_ld')
     ? seo_organization_json_ld($__seoEnglish)

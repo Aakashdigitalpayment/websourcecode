@@ -275,6 +275,12 @@ checkCSRF();
         if (function_exists('clearHomepageCache')) {
             clearHomepageCache();
         }
+        if (!function_exists('pwaClearIconCache') && is_file(dirname(__DIR__) . '/includes/pwa-icons.php')) {
+            require_once dirname(__DIR__) . '/includes/pwa-icons.php';
+        }
+        if (function_exists('pwaClearIconCache')) {
+            pwaClearIconCache();
+        }
         setFlash('success', $__t('सेटिङ्स सफलतापूर्वक अपडेट भयो।', 'Settings updated successfully.'));
 
         // Use JavaScript redirect to ensure session is saved
