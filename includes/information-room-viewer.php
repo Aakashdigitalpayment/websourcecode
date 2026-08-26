@@ -13,12 +13,18 @@ $irId = (int) ($irItem['id'] ?? 0);
 $irTitle = trim((string) ($irItem['title_np'] ?? '')) !== ''
     ? (string) $irItem['title_np']
     : (string) ($irItem['title'] ?? '');
-$irCat = irCategoryLabel((string) ($irItem['category'] ?? 'other'), function_exists('isEnglish') && isEnglish());
+$irCat = irCategoryLabel(
+    (string) ($irItem['category'] ?? 'other'),
+    isset($irUseEnglish) ? (bool) $irUseEnglish : (function_exists('isEnglish') && isEnglish())
+);
 $irRef = trim((string) ($irItem['reference_no'] ?? ''));
 $irDate = trim((string) ($irItem['meeting_date'] ?? ''));
-$irDesc = trim((string) ($irItem['description_np'] ?? $irItem['description'] ?? ''));
+$irDescNp = trim((string) ($irItem['description_np'] ?? ''));
+$irDescEn = trim((string) ($irItem['description'] ?? ''));
+$irDesc = $irDescNp !== '' ? $irDescNp : $irDescEn;
 $irAllowDl = !empty($irItem['allow_download']);
-$irRestrict = !empty($irItem['restrict_copy']);
+/* Vault policy: deterrence always on for IR viewer */
+$irRestrict = true;
 $irExt = strtolower((string) ($irItem['file_type'] ?? pathinfo((string) ($irItem['file_path'] ?? ''), PATHINFO_EXTENSION)));
 $irFileUrl = rtrim((string) (defined('SITE_URL') ? SITE_URL : '/'), '/') . '/information-room-file.php?id=' . $irId;
 $irDlUrl = $irFileUrl . '&dl=1';
@@ -75,7 +81,6 @@ $irIsImage = in_array($irExt, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true);
             src="<?php echo htmlspecialchars($irFileUrl, ENT_QUOTES, 'UTF-8'); ?>#toolbar=<?php echo $irAllowDl ? '1' : '0'; ?>&navpanes=0"
             class="ir-doc-frame"
             title="<?php echo htmlspecialchars($irTitle, ENT_QUOTES, 'UTF-8'); ?>"
-            sandbox="allow-scripts allow-same-origin"
         ></iframe>
         <?php elseif ($irIsImage): ?>
         <div class="ir-image-wrap">

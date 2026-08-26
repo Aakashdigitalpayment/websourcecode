@@ -5,6 +5,14 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/information-room-tables.php';
 
+try {
+    $db = getDB();
+    $GLOBALS['db'] = $db;
+} catch (Throwable $e) {
+    http_response_code(503);
+    exit;
+}
+
 $isAdmin = function_exists('isAdminLoggedIn') && isAdminLoggedIn();
 $member = null;
 if (!$isAdmin) {
@@ -26,13 +34,6 @@ if (!$isAdmin && !irMemberHasAccess($member)) {
 $id = (int) ($_GET['id'] ?? 0);
 $wantDownload = isset($_GET['dl']) && (string) $_GET['dl'] === '1';
 
-try {
-    $db = getDB();
-} catch (Throwable $e) {
-    http_response_code(503);
-    exit;
-}
-
 $item = irFetchItem($db, $id, !$isAdmin);
 if (!$item || !irCanAccessItem($item, $isAdmin, $member)) {
     http_response_code(404);
@@ -41,7 +42,7 @@ if (!$item || !irCanAccessItem($item, $isAdmin, $member)) {
     exit;
 }
 
-/* View-only vault: downloads blocked unless explicitly allowed AND admin/member still authenticated */
+/* View-only vault: downloads blocked unless explicitly allowed */
 if ($wantDownload && empty($item['allow_download'])) {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
@@ -80,6 +81,7 @@ $viewerId = $isAdmin ? (int) ($_SESSION['admin_id'] ?? 0) : (int) ($member['id']
 $viewerName = $isAdmin
     ? (string) ($_SESSION['admin_username'] ?? $_SESSION['admin_name'] ?? 'Admin')
     : (string) ($member['name'] ?? 'Member');
+/* Log real file hits only here (page views no longer double-log) */
 irLogAccess($db, $id, $viewerType, $viewerId, $viewerName, $wantDownload ? 'download' : 'view');
 
 header('Content-Type: ' . $mime);
@@ -93,7 +95,6 @@ header('Expires: 0');
 if ($wantDownload && !empty($item['allow_download'])) {
     header('Content-Disposition: attachment; filename="' . $safeName . '"');
 } else {
-    /* Discourage Save As from browser chrome */
     header('Content-Disposition: inline; filename="' . $safeName . '"');
     if ($ext === 'pdf' && empty($item['allow_download'])) {
         header('X-Robots-Tag: noindex, nofollow, noarchive');

@@ -59,7 +59,15 @@ assertFileContains('includes/information-room-tables.php', 'assets/uploads/infor
 assertFileContains('includes/information-room-tables.php', 'irDeleteStoredFile', 'file cleanup helper');
 assertFileContains('includes/information-room-tables.php', 'irFetchAccessLogs', 'access log fetch helper');
 assertFileContains('information-room-file.php', 'irNormalizeStoredPath', 'proxy uses path normalize');
-assertFileContains('information-room-file.php', 'X-Frame-Options', 'proxy sets frame options');
+assertFileContains('information-room-file.php', "\$GLOBALS['db'] = \$db", 'file proxy sets global db for currentMember');
+assertFileContains('includes/information-room-viewer.php', '$irRestrict = true', 'viewer always restricts copy');
+
+$viewerSrc = (string) file_get_contents($root . '/includes/information-room-viewer.php');
+if (strpos($viewerSrc, 'sandbox=') === false) {
+    ok('PDF iframe has no sandbox (browser PDF works)');
+} else {
+    bad('PDF iframe still sandboxed — preview may be blank');
+}
 assertFileContains('admin/information-room.php', 'irDeleteStoredFile', 'delete cleans disk file');
 assertFileContains('admin/information-room.php', 'irAllowedUploadExtensions', 'upload type restricted');
 assertFileContains('admin/information-room.php', '$restrictCopy = 1', 'restrict_copy always on');

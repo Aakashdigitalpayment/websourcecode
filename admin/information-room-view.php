@@ -25,13 +25,14 @@ if (!$item) {
 
 $adminName = (string) ($_SESSION['admin_username'] ?? $_SESSION['admin_name'] ?? 'Admin');
 $adminId = (int) ($_SESSION['admin_id'] ?? 0);
-irLogAccess($db, $id, 'admin', $adminId, $adminName, 'view');
+/* Access logged by information-room-file.php when document bytes are served */
 
 $siteBase = rtrim((string) (defined('SITE_URL') ? SITE_URL : '../'), '/') . '/';
 $irItem = $item;
 $irPanel = 'admin';
 $irBackUrl = 'information-room-browse.php';
 $irViewerLabel = $adminName . ' · ' . date('Y-m-d H:i');
+$irUseEnglish = strtolower((string) ($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np')) === 'en';
 $_t = $__t;
 ?>
 
