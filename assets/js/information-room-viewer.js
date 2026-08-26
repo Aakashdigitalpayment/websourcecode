@@ -9,43 +9,48 @@
         return;
     }
 
+    function insideWrap(target) {
+        return target && wrap.contains(target);
+    }
+
     document.addEventListener('contextmenu', function (e) {
-        if (wrap.contains(e.target)) {
+        if (insideWrap(e.target)) {
             e.preventDefault();
         }
     });
 
     document.addEventListener('copy', function (e) {
-        if (wrap.contains(e.target)) {
+        if (insideWrap(e.target)) {
             e.preventDefault();
         }
     });
 
     document.addEventListener('cut', function (e) {
-        if (wrap.contains(e.target)) {
+        if (insideWrap(e.target)) {
             e.preventDefault();
         }
     });
 
     document.addEventListener('dragstart', function (e) {
-        if (wrap.contains(e.target)) {
+        if (insideWrap(e.target)) {
             e.preventDefault();
         }
     });
 
     document.addEventListener('keydown', function (e) {
+        var active = document.activeElement;
+        if (!insideWrap(e.target) && !insideWrap(active)) {
+            return;
+        }
         var key = (e.key || '').toLowerCase();
         var blocked = key === 'printscreen'
             || (e.ctrlKey && ['s', 'p', 'c', 'u', 'a'].indexOf(key) >= 0)
-            || (e.metaKey && ['s', 'p', 'c', 'a'].indexOf(key) >= 0)
-            || (e.ctrlKey && e.shiftKey && ['i', 'j', 'c'].indexOf(key) >= 0)
-            || (e.metaKey && e.altKey && key === 'i');
+            || (e.metaKey && ['s', 'p', 'c', 'a'].indexOf(key) >= 0);
         if (blocked) {
             e.preventDefault();
         }
     });
 
-    /* Blur content briefly when tab hidden (discourages casual screen share peek) */
     document.addEventListener('visibilitychange', function () {
         if (document.hidden) {
             wrap.classList.add('ir-blurred');

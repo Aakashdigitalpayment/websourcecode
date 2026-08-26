@@ -70,7 +70,6 @@ if (!function_exists('ensureInformationRoomMemberColumn')) {
         if ($done) {
             return;
         }
-        $done = true;
 
         if (!$db instanceof PDO) {
             try {
@@ -84,18 +83,34 @@ if (!function_exists('ensureInformationRoomMemberColumn')) {
         }
 
         $flagKey = 'migration_information_room_v1';
+        $hasCol = false;
         try {
-            $st = $db->prepare('SELECT setting_value FROM site_settings WHERE setting_key = ? LIMIT 1');
-            $st->execute([$flagKey]);
-            if ((string) $st->fetchColumn() === '1') {
-                return;
+            if (function_exists('dbColumnExists')) {
+                $hasCol = dbColumnExists('members', 'information_room_enabled');
+            } else {
+                $chk = $db->query("SHOW COLUMNS FROM members LIKE 'information_room_enabled'");
+                $hasCol = $chk && (bool) $chk->fetch(PDO::FETCH_ASSOC);
             }
-        } catch (Throwable $e) { /* continue */ }
+        } catch (Throwable $e) {
+            $hasCol = false;
+        }
+
+        if ($hasCol) {
+            $done = true;
+            try {
+                if (function_exists('updateSetting')) {
+                    updateSetting($flagKey, '1');
+                }
+            } catch (Throwable $e) { /* ignore */ }
+            try {
+                $db->exec('UPDATE information_room_items SET restrict_copy = 1 WHERE restrict_copy = 0');
+            } catch (Throwable $e) { /* ignore */ }
+            return;
+        }
 
         try {
             $db->query('SELECT 1 FROM members LIMIT 1');
         } catch (Throwable $e) {
-            $done = false;
             return;
         }
 
@@ -107,6 +122,20 @@ if (!function_exists('ensureInformationRoomMemberColumn')) {
             } catch (Throwable $e) { /* exists */ }
         }
 
+        try {
+            /* Avoid dbColumnExists cache from the pre-ALTER miss */
+            $chk = $db->query("SHOW COLUMNS FROM members LIKE 'information_room_enabled'");
+            $hasCol = $chk && (bool) $chk->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            $hasCol = false;
+        }
+
+        if (!$hasCol) {
+            /* Don't mark done — retry next request */
+            return;
+        }
+
+        $done = true;
         try {
             if (function_exists('updateSetting')) {
                 updateSetting($flagKey, '1');

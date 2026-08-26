@@ -225,7 +225,7 @@ if ($editId > 0) {
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
-        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#ir-list"><?php echo $__t('सूची', 'List'); ?></button>
+        <button type="button" class="nav-link <?php echo $editRow ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#ir-list"><?php echo $__t('सूची', 'List'); ?></button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $editRow ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#ir-form" id="ir-form-tab-btn">
@@ -235,7 +235,7 @@ if ($editId > 0) {
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade show active" id="ir-list">
+    <div class="tab-pane fade <?php echo $editRow ? '' : 'show active'; ?>" id="ir-list">
         <div class="card admin-table-card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-body p-0">
                 <form method="POST">
