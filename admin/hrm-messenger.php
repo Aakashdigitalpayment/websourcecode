@@ -14,52 +14,82 @@ $db = getDB();
 ensureHrmTables($db);
 ensureHrmMessagesTable($db);
 
-$me = (int)($_SESSION['admin_id'] ?? 0);
-$conv = (int)($_GET['emp'] ?? 0);
+$me = (int) ($_SESSION['admin_id'] ?? 0);
+$conv = (int) ($_GET['emp'] ?? 0);
 
 /* mark conversation read */
 if ($conv > 0) {
-    $st = $db->prepare("UPDATE hrm_internal_messages SET is_read=1, read_at=NOW()
-                        WHERE receiver_employee_id=? AND is_read=0");
-    $st->execute([$conv]);
+    try {
+        $st = $db->prepare(
+            'UPDATE hrm_internal_messages SET is_read=1, read_at=NOW()
+             WHERE receiver_employee_id=? AND is_read=0'
+        );
+        $st->execute([$conv]);
+        $st->closeCursor();
+    } catch (Throwable $e) {
+        error_log('[hrm-messenger mark-read] ' . $e->getMessage());
+    }
 }
 
 /* POST: reply */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reply' && $conv > 0) {
-    $body = trim((string)($_POST['body'] ?? ''));
+    $body = trim((string) ($_POST['body'] ?? ''));
     if ($body !== '') {
-        $st = $db->prepare("INSERT INTO hrm_internal_messages
-            (sender_admin_id, receiver_employee_id, body, created_at) VALUES (?,?,?,NOW())");
+        $st = $db->prepare(
+            'INSERT INTO hrm_internal_messages
+             (sender_admin_id, receiver_employee_id, body, created_at) VALUES (?,?,?,NOW())'
+        );
         $st->execute([$me ?: null, $conv, $body]);
+        $st->closeCursor();
         header('Location: hrm-messenger.php?emp=' . $conv);
         exit;
     }
 }
 
 /* Sidebar list — last message per employee */
-$threads = $db->query("
-    SELECT e.id, e.full_name_np, e.photo, e.designation,
-           (SELECT body FROM hrm_internal_messages m
-             WHERE m.receiver_employee_id=e.id ORDER BY m.created_at DESC LIMIT 1) AS last_body,
-           (SELECT created_at FROM hrm_internal_messages m
-             WHERE m.receiver_employee_id=e.id ORDER BY m.created_at DESC LIMIT 1) AS last_at,
-           (SELECT COUNT(*) FROM hrm_internal_messages m
-             WHERE m.receiver_employee_id=e.id AND m.is_read=0) AS unread
-    FROM hrm_employees e
-    WHERE EXISTS (SELECT 1 FROM hrm_internal_messages m WHERE m.receiver_employee_id=e.id)
-    ORDER BY last_at DESC LIMIT 100
-")->fetchAll(PDO::FETCH_ASSOC);
+$threads = [];
+try {
+    $stThreads = $db->query(
+        "SELECT e.id, e.full_name_np, e.photo, e.designation,
+               (SELECT body FROM hrm_internal_messages m
+                 WHERE m.receiver_employee_id=e.id ORDER BY m.created_at DESC LIMIT 1) AS last_body,
+               (SELECT created_at FROM hrm_internal_messages m
+                 WHERE m.receiver_employee_id=e.id ORDER BY m.created_at DESC LIMIT 1) AS last_at,
+               (SELECT COUNT(*) FROM hrm_internal_messages m
+                 WHERE m.receiver_employee_id=e.id AND m.is_read=0) AS unread
+        FROM hrm_employees e
+        WHERE EXISTS (SELECT 1 FROM hrm_internal_messages m WHERE m.receiver_employee_id=e.id)
+        ORDER BY last_at DESC LIMIT 100"
+    );
+    $threads = $stThreads ? ($stThreads->fetchAll(PDO::FETCH_ASSOC) ?: []) : [];
+    if ($stThreads instanceof PDOStatement) {
+        $stThreads->closeCursor();
+    }
+} catch (Throwable $e) {
+    error_log('[hrm-messenger threads] ' . $e->getMessage());
+    $threads = [];
+}
 
 $messages = [];
 $activeEmp = null;
 if ($conv > 0) {
-    $st = $db->prepare("SELECT * FROM hrm_employees WHERE id=?");
-    $st->execute([$conv]);
-    $activeEmp = $st->fetch(PDO::FETCH_ASSOC);
-    $st = $db->prepare("SELECT * FROM hrm_internal_messages
-                        WHERE receiver_employee_id=? ORDER BY created_at ASC LIMIT 200");
-    $st->execute([$conv]);
-    $messages = $st->fetchAll(PDO::FETCH_ASSOC);
+    try {
+        $st = $db->prepare('SELECT * FROM hrm_employees WHERE id=?');
+        $st->execute([$conv]);
+        $activeEmp = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+        $st->closeCursor();
+        $st = $db->prepare(
+            'SELECT * FROM hrm_internal_messages
+             WHERE receiver_employee_id=? ORDER BY created_at ASC LIMIT 200'
+        );
+        $st->execute([$conv]);
+        $messages = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $st->closeCursor();
+    } catch (Throwable $e) {
+        error_log('[hrm-messenger conversation] ' . $e->getMessage());
+        $activeEmp = null;
+        $messages = [];
+    }
 }
 ?>
 <style>

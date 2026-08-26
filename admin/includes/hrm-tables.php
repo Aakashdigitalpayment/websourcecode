@@ -13,7 +13,14 @@ if (!function_exists('ensureHrmTables')) {
         try {
             $exists = function_exists('dbTableExists')
                 ? dbTableExists('hrm_employees')
-                : (bool)$db->query("SHOW TABLES LIKE 'hrm_employees'")->fetchColumn();
+                : false;
+            if (!$exists) {
+                $probe = $db->query("SHOW TABLES LIKE 'hrm_employees'");
+                $exists = $probe && $probe->fetch(PDO::FETCH_NUM) !== false;
+                if ($probe instanceof PDOStatement) {
+                    $probe->closeCursor();
+                }
+            }
             if ($exists) { $done = true; return; }
         } catch (\Throwable $e) {}
         $sql = file_get_contents($sqlFile);
