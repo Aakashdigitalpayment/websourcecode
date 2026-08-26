@@ -52,6 +52,11 @@ assertFileContains('sitemap.php', 'member-marketplace.php', 'sitemap includes ma
 assertFileContains('cron-cleanup.php', 'mpExpireStaleListings', 'cron expires listings');
 assertFileContains('includes/member-marketplace-tables.php', "status = 'approved'", 'public query requires approval');
 assertFileContains('includes/member-marketplace-tables.php', 'available_until', 'expiry column present');
+assertFileContains('includes/member-marketplace-tables.php', 'is_read', 'inquiry is_read column');
+assertFileContains('includes/member-marketplace-tables.php', 'available_from', 'available_from in public visibility');
+assertFileContains('member/marketplace.php', 'nepali-datepicker', 'member form uses BS datepicker');
+assertFileContains('admin/member-marketplace.php', 'createMemberNotification', 'admin uses member notification helper');
+assertFileContains('includes/member-marketplace-public-page.php', 'mkt-btn-icon', 'public cards hide full phone digits');
 
 $hdr = (string) file_get_contents($root . '/includes/header.php');
 if (substr_count($hdr, 'member-marketplace.php') >= 2) {

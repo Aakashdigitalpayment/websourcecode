@@ -1444,6 +1444,10 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
                 $maxWidth = 900;
                 $maxHeight = 700;
                 break;
+            case 'information_room':
+                $maxWidth = 1600;
+                $maxHeight = 1600;
+                break;
             case 'welfare_claims':
                 $maxWidth = 1200;
                 $maxHeight = 1200;

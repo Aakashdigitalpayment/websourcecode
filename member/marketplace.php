@@ -104,7 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cats = $listingType === 'skill' ? $skillCats : $productCats;
             $category = trim((string) ($_POST['category'] ?? ''));
             if (!isset($cats[$category])) {
-                $category = 'other';
+                $category = $listingType === 'skill' ? 'skill_other' : 'other';
             }
             $title = clean_text($_POST['title'] ?? '', 200);
             $description = clean_text($_POST['description'] ?? '', 2000);
@@ -240,6 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $mine = $loadMine();
 $inquiries = [];
+$unreadInquiryCount = 0;
 try {
     $ids = array_map(static fn($r) => (int) $r['id'], $mine);
     if ($ids !== []) {
@@ -249,10 +250,19 @@ try {
              FROM member_marketplace_inquiries i
              JOIN member_marketplace_listings l ON l.id = i.listing_id
              WHERE i.listing_id IN ($ph)
-             ORDER BY i.id DESC LIMIT 40"
+             ORDER BY i.is_read ASC, i.id DESC LIMIT 60"
         );
         $iq->execute($ids);
         $inquiries = $iq->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        foreach ($inquiries as $iqRow) {
+            if ((int) ($iqRow['is_read'] ?? 1) === 0) {
+                $unreadInquiryCount++;
+            }
+        }
+        /* Page खुल्दा नपढिएका सन्देश पढिएको चिन्ह लगाउने */
+        if ($unreadInquiryCount > 0) {
+            mpMarkInquiriesRead($db, $ids);
+        }
     }
 } catch (Throwable $e) {
     $inquiries = [];
@@ -285,7 +295,10 @@ $extraHead = '<style>
 @media(max-width:540px){.mmp-row{grid-template-columns:1fr}}
 .mmp-hint{font-size:.78rem;color:var(--text-light);margin-top:4px}
 .mmp-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-</style>';
+.mmp-inq-unread{border-color:color-mix(in srgb,var(--primary-color) 45%,#fbbf24)!important;background:color-mix(in srgb,var(--primary-color) 6%,#fffbeb)}
+.mmp-badge{display:inline-flex;min-width:1.25rem;height:1.25rem;padding:0 6px;border-radius:999px;background:#dc2626;color:#fff;font-size:.7rem;font-weight:800;align-items:center;justify-content:center;margin-left:6px}
+</style>
+<link rel="stylesheet" href="' . htmlspecialchars(SITE_URL) . 'assets/css/nepali.datepicker.min.css">';
 require __DIR__ . '/includes/chrome.php';
 
 $f = static function (string $key, string $fallback = '') use ($editRow): string {
@@ -300,6 +313,8 @@ if ($editRow && !empty($editRow['available_until'])) {
     $untilDateVal = substr((string) $editRow['available_until'], 0, 10);
     $untilTimeVal = substr((string) $editRow['available_until'], 11, 5);
 }
+$fromDateBs = mpAdToBsDisplay(substr($f('available_from'), 0, 10));
+$untilDateBs = mpAdToBsDisplay($untilDateVal ?: date('Y-m-d', strtotime('+' . mpDefaultUntilDays() . ' days')));
 ?>
 
 <div class="mmp-head">
@@ -404,14 +419,14 @@ if ($editRow && !empty($editRow['available_until'])) {
 
             <div class="mmp-row">
                 <div class="form-group">
-                    <label for="mpFrom"><?php echo $_t('उपलब्ध मिति (सुरू)', 'Available from'); ?></label>
-                    <input class="form-control" id="mpFrom" type="date" name="available_from" value="<?php echo htmlspecialchars(substr($f('available_from'), 0, 10)); ?>">
+                    <label for="mpFrom"><?php echo $_t('उपलब्ध मिति (सुरू) — वि.सं.', 'Available from (BS)'); ?></label>
+                    <input class="form-control nepali-datepicker" id="mpFrom" type="text" name="available_from" autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($fromDateBs); ?>">
                 </div>
                 <div class="form-group">
-                    <label for="mpUntil"><?php echo $_t('सम्म उपलब्ध (यसपछि हट्छ)', 'Available until (then removed)'); ?></label>
-                    <input class="form-control" id="mpUntil" type="date" name="available_until" required value="<?php echo htmlspecialchars($untilDateVal ?: date('Y-m-d', strtotime('+30 days'))); ?>">
+                    <label for="mpUntil"><?php echo $_t('सम्म उपलब्ध (यसपछि हट्छ) — वि.सं.', 'Available until (then removed) — BS'); ?></label>
+                    <input class="form-control nepali-datepicker" id="mpUntil" type="text" name="available_until" required autocomplete="off" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($untilDateBs); ?>">
                     <input class="form-control" style="margin-top:6px" type="time" name="available_until_time" value="<?php echo htmlspecialchars($untilTimeVal ?: '23:59'); ?>">
-                    <div class="mmp-hint"><?php echo $_t('यो मिति/समयपछि सार्वजनिक सूचीबाट स्वतः हट्छ। खाली भए ३० दिन राखिन्छ।', 'After this date/time the listing leaves the public list. Defaults to 30 days.'); ?></div>
+                    <div class="mmp-hint"><?php echo $_t('यो मिति/समयपछि सार्वजनिक सूचीबाट स्वतः हट्छ। खाली भए ३० दिन राखिन्छ। नेपाली मिति (वि.सं.) लेख्नुहोस्।', 'After this date/time the listing leaves the public list. Defaults to 30 days. Use Nepali (BS) date.'); ?></div>
                 </div>
             </div>
 
@@ -522,17 +537,28 @@ mmpToggleType();
 </div>
 
 <?php if ($inquiries !== []): ?>
-<div class="mem-card" style="margin-top:18px">
+<div class="mem-card" id="mmp-inquiries" style="margin-top:18px">
     <div class="mem-card-header">
-        <div class="mem-card-title"><i class="fas fa-comments"></i> <?php echo $_t('चासो सन्देशहरू', 'Interest messages'); ?></div>
+        <div class="mem-card-title">
+            <i class="fas fa-comments"></i> <?php echo $_t('चासो सन्देशहरू', 'Interest messages'); ?>
+            <?php if ($unreadInquiryCount > 0): ?>
+                <span class="mmp-badge" title="<?php echo $_t('नयाँ', 'New'); ?>"><?php echo (int) $unreadInquiryCount; ?></span>
+            <?php endif; ?>
+        </div>
     </div>
     <div class="mem-card-body">
-        <?php foreach ($inquiries as $iq): ?>
-            <div class="mmp-item" style="grid-template-columns:1fr">
+        <?php foreach ($inquiries as $iq):
+            $iqUnread = ((int) ($iq['is_read'] ?? 1) === 0);
+            $iqWhen = !empty($iq['created_at']) && function_exists('formatNepaliDate')
+                ? formatNepaliDate((string) $iq['created_at'], true)
+                : (string) ($iq['created_at'] ?? '');
+        ?>
+            <div class="mmp-item<?php echo $iqUnread ? ' mmp-inq-unread' : ''; ?>" style="grid-template-columns:1fr">
                 <div>
                     <strong><?php echo htmlspecialchars((string)$iq['inquirer_name']); ?></strong>
+                    <?php if ($iqUnread): ?><span class="mmp-pill" style="background:#fef3c7;color:#92400e"><?php echo $_t('नयाँ', 'New'); ?></span><?php endif; ?>
                     · <a href="tel:<?php echo htmlspecialchars(mpPhoneDigits((string)$iq['inquirer_phone'])); ?>"><?php echo htmlspecialchars((string)$iq['inquirer_phone']); ?></a>
-                    <div class="mmp-hint"><?php echo htmlspecialchars((string)$iq['title']); ?> · <?php echo htmlspecialchars((string)$iq['created_at']); ?></div>
+                    <div class="mmp-hint"><?php echo htmlspecialchars((string)$iq['title']); ?> · <?php echo htmlspecialchars($iqWhen); ?></div>
                     <p style="margin:6px 0 0"><?php echo nl2br(htmlspecialchars((string)$iq['message'])); ?></p>
                 </div>
             </div>
@@ -541,4 +567,17 @@ mmpToggleType();
 </div>
 <?php endif; ?>
 
+<script src="<?php echo htmlspecialchars(SITE_URL); ?>assets/vendor/jquery.min.js"></script>
+<script src="<?php echo htmlspecialchars(SITE_URL); ?>assets/js/nepali.datepicker.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof $ === 'undefined' || typeof $.fn.nepaliDatePicker === 'undefined') return;
+  $('.nepali-datepicker').each(function () {
+    var $inp = $(this);
+    if ($inp.data('ndp-ready')) return;
+    $inp.data('ndp-ready', true);
+    $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
+  });
+});
+</script>
 <?php require __DIR__ . '/includes/chrome-foot.php'; ?>

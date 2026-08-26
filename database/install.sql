@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS members (
     card_expires_at      TIMESTAMP NULL DEFAULT NULL,
     is_verified          TINYINT DEFAULT 0,
     is_active            TINYINT DEFAULT 1,
+    information_room_enabled TINYINT(1) NOT NULL DEFAULT 0,
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login           TIMESTAMP NULL,
     INDEX idx_email (email),
@@ -286,6 +287,44 @@ CREATE TABLE IF NOT EXISTS downloads (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
     INDEX idx_category (category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- INFORMATION ROOM (internal board/policy vault)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS information_room_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    title_np VARCHAR(255) NULL,
+    description TEXT NULL,
+    description_np TEXT NULL,
+    category VARCHAR(50) NOT NULL DEFAULT 'other',
+    file_path VARCHAR(255) NOT NULL,
+    file_type VARCHAR(50) NULL,
+    meeting_date DATE NULL,
+    reference_no VARCHAR(100) NULL,
+    allow_download TINYINT(1) NOT NULL DEFAULT 0,
+    restrict_copy TINYINT(1) NOT NULL DEFAULT 1,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_by INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_ir_active (is_active, category, display_order),
+    INDEX idx_ir_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS information_room_access_log (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    viewer_type ENUM('admin','member') NOT NULL,
+    viewer_id INT NOT NULL,
+    viewer_name VARCHAR(200) NULL,
+    action VARCHAR(30) NOT NULL DEFAULT 'view',
+    ip_address VARCHAR(45) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_ir_log_item (item_id, created_at),
+    INDEX idx_ir_log_viewer (viewer_type, viewer_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -2338,8 +2377,10 @@ CREATE TABLE IF NOT EXISTS member_marketplace_inquiries (
     inquirer_name VARCHAR(120) NOT NULL,
     inquirer_phone VARCHAR(20) NOT NULL DEFAULT '',
     message VARCHAR(1000) NOT NULL DEFAULT '',
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_mkt_inq_listing (listing_id, created_at)
+    INDEX idx_mkt_inq_listing (listing_id, created_at),
+    INDEX idx_mkt_inq_read (is_read, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;

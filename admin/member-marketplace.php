@@ -4,6 +4,7 @@
  */
 $pageTitle = 'सदस्य बजार / सीप';
 $currentPage = 'member-marketplace';
+require_once __DIR__ . '/../includes/member-auth.php';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/member-marketplace-tables.php';
@@ -49,16 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  SET status='approved', is_active=1, approved_at=NOW(), approved_by=?, admin_note=''
                  WHERE id=?"
             )->execute([$adminId ?: null, $id]);
-            try {
-                $db->prepare('INSERT INTO member_notifications (member_id, title, message, type, link) VALUES (?,?,?,?,?)')
-                    ->execute([
-                        (int) $row['member_id'],
-                        'सूची स्वीकृत',
-                        'तपाईंको सूची "' . (string) $row['title'] . '" सार्वजनिक बजारमा देखिएको छ।',
-                        'success',
-                        SITE_URL . 'member/marketplace.php',
-                    ]);
-            } catch (Throwable $e) { /* notifications table may be missing */ }
+            $GLOBALS['db'] = $db;
+            if (function_exists('createMemberNotification')) {
+                createMemberNotification(
+                    (int) $row['member_id'],
+                    'सूची स्वीकृत',
+                    'तपाईंको सूची "' . (string) $row['title'] . '" सार्वजनिक बजारमा देखिएको छ।',
+                    'success',
+                    SITE_URL . 'member/marketplace.php'
+                );
+            }
             setFlash('success', 'सूची सार्वजनिक गरियो।');
             redirect('member-marketplace.php?tab=approved');
         }
@@ -70,22 +71,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  SET status='rejected', admin_note=?, approved_at=NULL, approved_by=NULL
                  WHERE id=?"
             )->execute([$note, $id]);
-            try {
-                $msg = 'तपाईंको सूची "' . (string) $row['title'] . '" अस्वीकृत भयो।';
-                if ($note !== '') {
-                    $msg .= ' कारण: ' . $note;
-                }
-                $db->prepare('INSERT INTO member_notifications (member_id, title, message, type, link) VALUES (?,?,?,?,?)')
-                    ->execute([
-                        (int) $row['member_id'],
-                        'सूची अस्वीकृत',
-                        $msg,
-                        'warning',
-                        SITE_URL . 'member/marketplace.php',
-                    ]);
-            } catch (Throwable $e) { /* ignore */ }
+            $msg = 'तपाईंको सूची "' . (string) $row['title'] . '" अस्वीकृत भयो।';
+            if ($note !== '') {
+                $msg .= ' कारण: ' . $note;
+            }
+            $GLOBALS['db'] = $db;
+            if (function_exists('createMemberNotification')) {
+                createMemberNotification(
+                    (int) $row['member_id'],
+                    'सूची अस्वीकृत',
+                    $msg,
+                    'warning',
+                    SITE_URL . 'member/marketplace.php'
+                );
+            }
             setFlash('success', 'सूची अस्वीकृत गरियो।');
             redirect('member-marketplace.php?tab=rejected');
+        }
+
+        if ($action === 'extend_until' && $row) {
+            $untilDate = mpNormalizeDate((string) ($_POST['available_until'] ?? ''));
+            $untilTime = mpNormalizeTime((string) ($_POST['available_until_time'] ?? '23:59'));
+            if ($untilDate === '') {
+                $untilDate = date('Y-m-d', strtotime('+' . mpDefaultUntilDays() . ' days'));
+            }
+            $until = mpCombineUntil($untilDate, $untilTime);
+            if ($until === null || strtotime($until) < time()) {
+                setFlash('error', 'नयाँ उपलब्ध मिति अहिलेभन्दा पछाडि हुनुपर्छ।');
+                redirect('member-marketplace.php?view=' . $id . '&tab=' . urlencode((string) ($_GET['tab'] ?? 'pending')));
+            }
+            $db->prepare(
+                'UPDATE member_marketplace_listings SET available_until=?, status=CASE WHEN status=\'expired\' THEN \'pending\' ELSE status END WHERE id=?'
+            )->execute([$until, $id]);
+            setFlash('success', 'उपलब्ध मिति अपडेट भयो।');
+            redirect('member-marketplace.php?view=' . $id . '&tab=' . urlencode((string) ($_GET['tab'] ?? 'pending')));
         }
 
         if ($action === 'expire' && $row) {
@@ -215,7 +234,13 @@ if ($error) {
                     <tr><th>सम्पर्क</th><td><?php echo htmlspecialchars((string) $detail['contact_name']); ?> · <?php echo htmlspecialchars((string) $detail['contact_phone']); ?></td></tr>
                     <tr><th>सदस्य</th><td><?php echo htmlspecialchars(trim((string) ($detail['member_name'] ?? '')) !== '' ? (string) $detail['member_name'] : ('#' . (int) $detail['member_id'])); ?></td></tr>
                     <tr><th>सदस्य ID</th><td>#<?php echo (int) $detail['member_id']; ?></td></tr>
-                    <tr><th>उपलब्ध</th><td><?php echo htmlspecialchars((string) ($detail['available_from'] ?: '—')); ?> → <?php echo htmlspecialchars((string) ($detail['available_until'] ?: '—')); ?></td></tr>
+                    <tr><th>उपलब्ध</th><td><?php
+                        $af = trim((string) ($detail['available_from'] ?: ''));
+                        $au = trim((string) ($detail['available_until'] ?: ''));
+                        $afDisp = $af !== '' && function_exists('formatNepaliDate') ? formatNepaliDate($af) : ($af !== '' ? $af : '—');
+                        $auDisp = $au !== '' && function_exists('formatNepaliDate') ? formatNepaliDate($au, true) : ($au !== '' ? $au : '—');
+                        echo htmlspecialchars($afDisp . ' → ' . $auDisp);
+                    ?></td></tr>
                     <tr><th>दैनिक समय</th><td><?php echo htmlspecialchars(substr((string) ($detail['available_time_from'] ?? ''), 0, 5) ?: '—'); ?>–<?php echo htmlspecialchars(substr((string) ($detail['available_time_to'] ?? ''), 0, 5) ?: '—'); ?></td></tr>
                     <tr><th>विवरण</th><td><?php echo nl2br(htmlspecialchars((string) ($detail['description'] ?: '—'))); ?></td></tr>
                 </table>
@@ -229,7 +254,15 @@ if ($error) {
                         <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>स्वीकृत / सार्वजनिक</button>
                     </form>
                     <?php else: ?>
-                    <span class="badge bg-secondary">उपलब्ध समय सकिसकेको — स्वीकृत गर्न मिल्दैन</span>
+                    <span class="badge bg-secondary align-self-center">उपलब्ध समय सकिसकेको — पहिले मिति बढाउनुहोस्</span>
+                    <form method="post" class="d-flex gap-2 flex-wrap align-items-center">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                        <input type="hidden" name="action" value="extend_until">
+                        <input type="hidden" name="id" value="<?php echo (int) $detail['id']; ?>">
+                        <input type="text" name="available_until" class="form-control form-control-sm nepali-datepicker" placeholder="YYYY-MM-DD" style="min-width:140px" value="<?php echo htmlspecialchars(mpAdToBsDisplay(date('Y-m-d', strtotime('+30 days')))); ?>">
+                        <input type="time" name="available_until_time" class="form-control form-control-sm" value="23:59" style="max-width:110px">
+                        <button type="submit" class="btn btn-warning btn-sm">मिति बढाउनुहोस्</button>
+                    </form>
                     <?php endif; ?>
                     <?php endif; ?>
                     <?php if ((string) $detail['status'] !== 'rejected'): ?>
@@ -248,6 +281,14 @@ if ($error) {
                         <input type="hidden" name="id" value="<?php echo (int) $detail['id']; ?>">
                         <button type="submit" class="btn btn-outline-secondary btn-sm">सार्वजनिकबाट हटाउनुहोस्</button>
                     </form>
+                    <form method="post" class="d-flex gap-2 flex-wrap align-items-center">
+                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
+                        <input type="hidden" name="action" value="extend_until">
+                        <input type="hidden" name="id" value="<?php echo (int) $detail['id']; ?>">
+                        <input type="text" name="available_until" class="form-control form-control-sm nepali-datepicker" placeholder="YYYY-MM-DD" style="min-width:140px" value="<?php echo htmlspecialchars(mpAdToBsDisplay(substr((string) ($detail['available_until'] ?? ''), 0, 10) ?: date('Y-m-d', strtotime('+30 days')))); ?>">
+                        <input type="time" name="available_until_time" class="form-control form-control-sm" value="<?php echo htmlspecialchars(substr((string) ($detail['available_until'] ?? ''), 11, 5) ?: '23:59'); ?>" style="max-width:110px">
+                        <button type="submit" class="btn btn-outline-success btn-sm">मिति बढाउनुहोस्</button>
+                    </form>
                     <?php endif; ?>
                     <form method="post" onsubmit="return confirm('मेट्ने हो?');">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
@@ -255,7 +296,11 @@ if ($error) {
                         <input type="hidden" name="id" value="<?php echo (int) $detail['id']; ?>">
                         <button type="submit" class="btn btn-outline-danger btn-sm">मेटाउनुहोस्</button>
                     </form>
+                    <?php if (mpIsPubliclyVisible($detail)): ?>
                     <a class="btn btn-outline-primary btn-sm" href="<?php echo htmlspecialchars(mpPublicPageUrl((string) $detail['listing_type'], (int) $detail['id'])); ?>" target="_blank" rel="noopener">सार्वजनिक पूर्वावलोकन</a>
+                    <?php else: ?>
+                    <span class="btn btn-outline-secondary btn-sm disabled" title="स्वीकृत र सक्रिय भएपछि मात्र सार्वजनिक लिंक काम गर्छ">पूर्वावलोकन (अहिले सार्वजनिक छैन)</span>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

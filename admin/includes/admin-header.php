@@ -298,7 +298,7 @@ $pageGroups = [
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
-    'sanstha'=> ['service-centers','institutional-profile','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
+    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
     /* admin management pages — site-setup kept for direct URL; not in daily nav */
     'superadmin'=> ['manage-admins','site-setup','db-setup','run-migration'],
@@ -876,6 +876,9 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='institutional-profile' ? 'active' : ''; ?>">
                                 <a href="institutional-profile.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('संस्थागत प्रोफाइल', 'Institutional Profile'); ?></span></a>
+                            </li>
+                            <li class="<?php echo in_array($currentPage, ['information-room','information-room-browse','information-room-logs'], true) ? 'active' : ''; ?>">
+                                <a href="information-room.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="archive"></i></span><span><?php echo $adminT('Information Room', 'Information Room'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='notification-settings' ? 'active' : ''; ?>">
                                 <a href="notification-settings.php">
