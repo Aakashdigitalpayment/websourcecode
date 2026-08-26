@@ -1,6 +1,4 @@
 <?php
-/**
- * Compatibility redirect — old "खाता आवेदन" bookmark
- */
-header('Location: /admin/applications/kyc.php', true, 301);
+declare(strict_types=1);
+header('Location: ../account-applications.php', true, 301);
 exit;
