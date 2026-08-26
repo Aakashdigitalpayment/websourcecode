@@ -242,7 +242,7 @@ if ($editId > 0) {
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="action" value="bulk_status">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0 admin-data-table">
+                        <table class="table table-hover mb-0 admin-data-table dt-no-responsive">
                             <thead>
                                 <tr>
                                     <th style="width:36px"><input type="checkbox" class="form-check-input js-select-all"></th>
@@ -251,7 +251,7 @@ if ($editId > 0) {
                                     <th><?php echo $__t('मिति', 'Date'); ?></th>
                                     <th><?php echo $__t('पहुँच', 'Access'); ?></th>
                                     <th><?php echo $__t('स्थिति', 'Status'); ?></th>
-                                    <th></th>
+                                    <th class="text-end"><?php echo $__t('कार्य', 'Actions'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -261,21 +261,23 @@ if ($editId > 0) {
                                 <tr>
                                     <td><input type="checkbox" class="form-check-input" name="selected_ids[]" value="<?php echo (int) $row['id']; ?>"></td>
                                     <td>
-                                        <div class="fw-semibold"><?php echo htmlspecialchars($row['title_np'] ?: $row['title'], ENT_QUOTES, 'UTF-8'); ?></div>
+                                        <a href="information-room-view.php?id=<?php echo (int) $row['id']; ?>" class="fw-semibold text-decoration-none">
+                                            <?php echo htmlspecialchars($row['title_np'] ?: $row['title'], ENT_QUOTES, 'UTF-8'); ?>
+                                        </a>
                                         <?php if (!empty($row['reference_no'])): ?>
-                                        <small class="text-muted"><?php echo htmlspecialchars($row['reference_no'], ENT_QUOTES, 'UTF-8'); ?></small>
+                                        <div><small class="text-muted"><?php echo htmlspecialchars($row['reference_no'], ENT_QUOTES, 'UTF-8'); ?></small></div>
                                         <?php endif; ?>
                                     </td>
                                     <td><?php echo htmlspecialchars(irCategoryLabel((string) $row['category'], strtolower((string)($_SESSION['admin_lang'] ?? 'np')) === 'en'), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td><?php echo htmlspecialchars((string) ($row['meeting_date'] ?? '—'), ENT_QUOTES, 'UTF-8'); ?></td>
                                     <td>
                                         <?php if (!empty($row['allow_download'])): ?>
-                                        <span class="badge bg-success-subtle text-success"><?php echo $__t('DL', 'DL'); ?></span>
+                                        <span class="badge bg-success-subtle text-success"><?php echo $__t('डाउनलोड OK', 'Download OK'); ?></span>
                                         <?php else: ?>
-                                        <span class="badge bg-warning-subtle text-warning-emphasis"><?php echo $__t('View', 'View'); ?></span>
+                                        <span class="badge bg-warning-subtle text-warning-emphasis"><?php echo $__t('हेर्न मात्र', 'View only'); ?></span>
                                         <?php endif; ?>
                                         <?php if (!empty($row['restrict_copy'])): ?>
-                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo $__t('Protected', 'Protected'); ?></span>
+                                        <span class="badge bg-secondary-subtle text-secondary"><?php echo $__t('सुरक्षित', 'Protected'); ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
@@ -283,10 +285,28 @@ if ($editId > 0) {
                                             <?php echo !empty($row['is_active']) ? $__t('सक्रिय', 'Active') : $__t('अभिलेख', 'Archived'); ?>
                                         </span>
                                     </td>
-                                    <td class="text-nowrap">
-                                        <a href="information-room-view.php?id=<?php echo (int) $row['id']; ?>" class="btn btn-sm btn-outline-primary"><?php echo $__t('हेर्नुहोस्', 'View'); ?></a>
-                                        <a href="information-room.php?edit=<?php echo (int) $row['id']; ?>#ir-form" class="btn btn-sm btn-outline-secondary"><?php echo $__t('सम्पादन', 'Edit'); ?></a>
-                                        <button type="submit" form="ir-delete-<?php echo (int) $row['id']; ?>" class="btn btn-sm btn-outline-danger"><?php echo $__t('मेटाउनुहोस्', 'Delete'); ?></button>
+                                    <td class="text-end text-nowrap">
+                                        <div class="adm-action-icons">
+                                            <a href="information-room-view.php?id=<?php echo (int) $row['id']; ?>"
+                                               class="adm-icon-btn adm-icon-btn--view"
+                                               title="<?php echo $__t('हेर्नुहोस्', 'View'); ?>"
+                                               aria-label="<?php echo $__t('हेर्नुहोस्', 'View'); ?>">
+                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="information-room.php?edit=<?php echo (int) $row['id']; ?>#ir-form"
+                                               class="adm-icon-btn adm-icon-btn--edit"
+                                               title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
+                                               aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
+                                                <i class="fas fa-pen" aria-hidden="true"></i>
+                                            </a>
+                                            <button type="submit"
+                                                    form="ir-delete-<?php echo (int) $row['id']; ?>"
+                                                    class="adm-icon-btn adm-icon-btn--delete"
+                                                    title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"
+                                                    aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; endif; ?>

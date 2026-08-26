@@ -4,9 +4,9 @@
  */
 $pageTitle = 'सदस्य बजार / सीप';
 $currentPage = 'member-marketplace';
-require_once __DIR__ . '/../includes/member-auth.php';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
+require_once __DIR__ . '/../includes/member-auth.php'; /* createMemberNotification() */
 require_once __DIR__ . '/../includes/member-marketplace-tables.php';
 
 $adminT = $adminT ?? static function (string $np, string $en): string {
