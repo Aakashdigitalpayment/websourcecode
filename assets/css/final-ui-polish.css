@@ -2228,3 +2228,47 @@ body.dark-mode .gallery-album-cover {
 body.dark-mode .mkt-card, body.dark-mode .mkt-detail { background: #1a2220; border-color: rgba(255,255,255,.1); }
 body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; }
 
+
+/* ── Homepage notices: undo over-compact title (was 0.72rem) ── */
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content h6,
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content h6 a {
+  font-size: 0.95rem !important;
+  line-height: 1.45 !important;
+  font-weight: 600 !important;
+  margin: 0 0 0.35rem !important;
+  color: #0f1a15 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta,
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta span {
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+  color: #5b6b62 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta i,
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta .lucide-icon,
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta svg {
+  font-size: 0.78rem !important;
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced {
+  padding: 0.75rem 0.85rem !important;
+  gap: 0.75rem !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box {
+  width: 3rem !important;
+  height: 3.25rem !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .day {
+  font-size: 1.15rem !important;
+  line-height: 1.1 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .month {
+  font-size: 0.68rem !important;
+}
