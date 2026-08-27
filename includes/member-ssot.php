@@ -7,7 +7,7 @@
  * - kyc_applications = compliance docs linked via members.kyc_application_id
  * - portal auth = same members row (password + approval_status + is_active)
  *
- * Legacy BBWW generateMemberFromKyc is disabled — use upsert from KYM approve.
+ * Legacy BBWW generateMemberFromKyc path removed — use upsert from KYM approve.
  */
 declare(strict_types=1);
 

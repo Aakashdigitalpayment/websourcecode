@@ -31,7 +31,7 @@ Public website · Admin panel · Member portal — एउटै MySQL database�
 ├── *.php                   # Public pages (about, services, team, gallery…)
 ├── install.php             # First-run installer — DELETE after use
 ├── cron-cleanup.php        # Daily cron
-├── sw.js / manifest.json   # PWA
+├── sw.js / manifest.php    # PWA (legacy /manifest.json rewrites here)
 │
 ├── admin/                  # Admin panel
 ├── member/                 # Member portal

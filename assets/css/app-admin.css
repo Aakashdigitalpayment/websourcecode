@@ -12576,7 +12576,7 @@ aside.sidebar .sidebar-nav .nav-submenu li.active > a .badge:not(.group-badge) {
 .appfeat-required { color: var(--secondary-color); }
 
 /* ═══════════════════════════════════════════════════
-   47. ADMIN FOOTER PARTIAL (admin/_partials/footer.php)
+   47. ADMIN BOTTOM NAV (admin/includes/admin-footer.php)
    ═══════════════════════════════════════════════════ */
 .admin-bottom-nav .admin-nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--text-muted); text-decoration: none; font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: var(--radius-sm); transition: color .15s; }
 .admin-bottom-nav .admin-nav-item:hover { color: var(--brand-primary,var(--primary-color)); }
