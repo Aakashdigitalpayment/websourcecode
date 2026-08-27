@@ -4270,6 +4270,27 @@ body:has(.card > .card-top) .card-top {
   text-decoration: none !important;
   border: 1px solid rgba(255, 255, 255, 0.38) !important;
   box-shadow: 0 8px 22px rgba(15, 31, 23, 0.22) !important;
+  /* Clip shine sweep — without this, ::before / .btn-shine paint a frosted bar outside the pill */
+  position: relative !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Kill duplicate shine (::before) — .btn-shine already provides the sweep */
+.hero-slider .hero-btn-modern::before,
+#heroCarousel .hero-btn-modern::before {
+  content: none !important;
+  display: none !important;
+}
+
+.hero-slider .hero-btn-modern .btn-shine,
+#heroCarousel .hero-btn-modern .btn-shine {
+  pointer-events: none !important;
+  border-radius: inherit !important;
+  z-index: 1 !important;
 }
 
 .hero-slider .hero-btn-modern .btn-content,
@@ -4281,6 +4302,8 @@ body:has(.card > .card-top) .card-top {
   flex-wrap: wrap !important;
   max-width: 100% !important;
   line-height: 1.35 !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 .hero-slider .hero-btn-modern .btn-icon,
@@ -4291,6 +4314,26 @@ body:has(.card > .card-top) .card-top {
   opacity: 0.95;
 }
 
+/* Override legacy .slider-content .btn:hover yellow glow / scale that fights the green CTA */
+.hero-slider .slider-content .btn.hero-btn-modern:hover,
+#heroCarousel .slider-content .btn.hero-btn-modern:hover,
+.hero-slider a.hero-btn-modern:hover,
+#heroCarousel a.hero-btn-modern:hover {
+  transform: translateY(-2px) !important;
+  filter: none !important;
+  box-shadow: 0 10px 26px rgba(15, 31, 23, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  text-decoration: none !important;
+  background-image: none !important;
+}
+
+.hero-slider .slider-content .btn.hero-btn-modern:active,
+#heroCarousel .slider-content .btn.hero-btn-modern:active,
+.hero-slider a.hero-btn-modern:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 4px 14px rgba(15, 31, 23, 0.2) !important;
+}
+
 @media (max-width: 575.98px) {
   .hero-slider .btn.hero-btn-modern,
   #heroCarousel .btn.hero-btn-modern {
@@ -4299,6 +4342,32 @@ body:has(.card > .card-top) .card-top {
     padding: 0.8rem 1.25rem !important;
     font-size: 0.9rem !important;
   }
+}
+
+/* Hero dots — no hover scale that paints a wide frosted strip */
+.hero-slider .carousel-indicators,
+#heroCarousel .carousel-indicators,
+.hero-indicators-modern {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  pointer-events: auto;
+}
+
+.hero-slider .carousel-indicators [data-bs-target],
+.hero-slider .carousel-indicators button,
+.hero-slider .hero-indicator-btn,
+#heroCarousel .carousel-indicators [data-bs-target] {
+  transform: none !important;
+}
+
+.hero-slider .carousel-indicators [data-bs-target]:hover,
+.hero-slider .carousel-indicators button:hover,
+.hero-slider .hero-indicator-btn:hover,
+#heroCarousel .carousel-indicators [data-bs-target]:hover {
+  transform: none !important;
+  opacity: 0.9 !important;
 }
 
 /* ── PUBLIC: CTA band — KYC button readable on white ───────────── */
