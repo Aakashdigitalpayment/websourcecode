@@ -85,8 +85,9 @@
   --space-10:             40px;
 
   /* ━━━ TYPOGRAPHY ━━━ */
-  --font-primary:         'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif;
-  --font-mono:            'Monaco', 'Courier New', monospace;
+  --font-primary:         'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-heading:         'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --font-mono:            ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
   
   --text-xs:              0.75rem;   /* 12px */
   --text-sm:              0.8125rem; /* 13px */

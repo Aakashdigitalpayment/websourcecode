@@ -1977,7 +1977,7 @@ body {
 /* Nepali datepicker dropdown styling */
 .ndp-container {
     z-index: 9999 !important;
-    font-family: 'Mukta', sans-serif !important;
+    font-family: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
 }
 
 .ndp-container .ndp-header {
@@ -4265,7 +4265,7 @@ textarea.form-control {
     border-radius: 10px !important;
     box-shadow: 0 8px 30px rgba(0,0,0,0.18) !important;
     border: 1px solid #d4e8da !important;
-    font-family: 'Mukta', sans-serif !important;
+    font-family: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
     overflow: hidden;
 }
 

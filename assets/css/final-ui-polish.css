@@ -11,6 +11,17 @@
   --final-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
   --final-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.1);
   --final-muted: #5b6b62;
+  --final-font-body: var(--prem-font-body, var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif));
+  --final-font-head: var(--prem-font-head, var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif));
+}
+
+/* Nepali datepicker / calendar — override legacy Mukta (not loaded on main panels) */
+.ndp-container,
+.ndp-calendar,
+.calendar-container,
+.nepali-datepicker-calendar,
+.nepali-datepicker {
+  font-family: var(--final-font-body) !important;
 }
 
 /* ── Shared typography & focus ───────────────────────────────────── */

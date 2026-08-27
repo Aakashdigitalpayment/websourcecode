@@ -35,8 +35,8 @@
    These are own --prem-* tokens so we never clobber the existing system.
    ──────────────────────────────────────────────────────────────────── */
 :root {
-  --prem-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-  --prem-font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+  --prem-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --prem-font-body: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Elevation tokens — purely additive */
   --prem-sh-xs: 0 1px 2px rgba(0,0,0,0.04);
@@ -1138,8 +1138,8 @@ textarea:disabled {
  */
 
 :root {
-  --admin-font-body: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
-  --admin-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --admin-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --admin-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
   --admin-radius: 10px;
   --admin-radius-sm: 8px;
   --admin-border: #d7e0db;
@@ -2299,6 +2299,7 @@ a.btn.btn-primary:focus {
 :root {
   --font-primary: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-heading: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --font-nepali: 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
   --coop-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
 }
 
@@ -4605,6 +4606,17 @@ body[class*="admin-page-"] .main-content .form-select:focus {
   --final-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
   --final-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.1);
   --final-muted: #5b6b62;
+  --final-font-body: var(--prem-font-body, var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif));
+  --final-font-head: var(--prem-font-head, var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif));
+}
+
+/* Nepali datepicker / calendar — override legacy Mukta (not loaded on main panels) */
+.ndp-container,
+.ndp-calendar,
+.calendar-container,
+.nepali-datepicker-calendar,
+.nepali-datepicker {
+  font-family: var(--final-font-body) !important;
 }
 
 /* ── Shared typography & focus ───────────────────────────────────── */

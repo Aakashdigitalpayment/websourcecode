@@ -245,11 +245,12 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --color-danger-border:  #fecaca;
     --color-info-border:    #a5f3fc;
 
-    /* ── Typography ── */
-    --font-primary:    'Mukta', 'Noto Sans Devanagari', 'Inter', 'Segoe UI', sans-serif;
-    --font-nepali:     'Noto Sans Devanagari', 'Mukta', sans-serif;
-    --font-english:    'Inter', 'Poppins', 'Segoe UI', sans-serif;
-    --font-mono:       'JetBrains Mono', 'Fira Code', monospace;
+    /* ── Typography (must match Google Fonts loaded by theme-assets) ── */
+    --font-primary:    'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-heading:    'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+    --font-nepali:     'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+    --font-english:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
 
     --font-size-xs:    0.75rem;
     --font-size-sm:    0.8125rem;
@@ -1470,7 +1471,7 @@ body.auth-portal-page                               {
     align-items:     center !important;
     justify-content: center !important;
     padding:         60px 16px 24px !important;
-    font-family:     var(--font-primary,'Mukta','Noto Sans Devanagari','Segoe UI',sans-serif) !important;
+    font-family:     var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
 }
 body.auth-portal-page.verify-auth-page              {
     align-items:     center !important;
