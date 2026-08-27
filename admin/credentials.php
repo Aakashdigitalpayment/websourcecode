@@ -215,7 +215,7 @@ $rows = $db->query(
                     <code class="cred-code">
                         <?= e($r['username']) ?>
                     </code>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Username copy"
+                    <button type="button" class="adm-icon-btn" title="Username copy" aria-label="Username copy"
                             onclick="copyText(<?= (int)$r['id'] ?>, 'user', '<?= e($r['username']) ?>')">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i>
                     </button>
@@ -224,11 +224,11 @@ $rows = $db->query(
                 <div class="cred-row">
                     <code class="cred-code pw"
                           id="pw-<?= (int)$r['id'] ?>">••••••••</code>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="देखाउनुहोस्"
+                    <button type="button" class="adm-icon-btn adm-icon-btn--view" title="देखाउनुहोस्" aria-label="देखाउनुहोस्"
                             onclick="revealPw(<?= (int)$r['id'] ?>)">
                         <i class="far fa-eye" id="eye-<?= (int)$r['id'] ?>"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Password copy"
+                    <button type="button" class="adm-icon-btn" title="Password copy" aria-label="Password copy"
                             onclick="copyPw(<?= (int)$r['id'] ?>)">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i>
                     </button>
@@ -242,16 +242,17 @@ $rows = $db->query(
 
                 <?php if (is_admin_or_above()): ?>
                 <div class="cred-actions-top">
-                    <button type="button" class="btn btn-sm btn-link cred-icon-btn"
+                    <button type="button" class="adm-icon-btn adm-icon-btn--edit"
+                            title="सम्पादन" aria-label="सम्पादन"
                             onclick='editCred(<?= json_encode($r, JSON_HEX_APOS|JSON_HEX_QUOT) ?>)'>
-                        <i class="fas fa-edit"></i>
+                        <i class="fas fa-pen" aria-hidden="true"></i>
                     </button>
                     <form method="post" class="d-inline" onsubmit="return confirm('हटाउने?');">
                         <?= csrfField() ?>
                         <input type="hidden" name="action" value="delete">
                         <input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
-                        <button type="submit" class="btn btn-sm btn-link cred-icon-btn danger" aria-label="Delete" title="Delete">
-                            <i class="fas fa-trash"></i>
+                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
+                            <i class="fas fa-trash" aria-hidden="true"></i>
                         </button>
                     </form>
                 </div>

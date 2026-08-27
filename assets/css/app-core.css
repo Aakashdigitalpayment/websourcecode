@@ -222,7 +222,7 @@ input, select, textarea, button {
 
 /* ════════════════════════════════════════════════════════════════
    🆕 DESIGN TOKEN EXPANSIONS — v6.5
-   Missing tokens from components/, stat-card, bottom-nav
+   Missing tokens from shared UI (stat-card, bottom-nav)
    ════════════════════════════════════════════════════════════════ */
 :root {
     /* Accent — gold/amber: notices, live badges, special highlights */
@@ -1658,7 +1658,7 @@ a:active {
 .public-content {
   line-height: 1.7;
   letter-spacing: 0.3px;
-  font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
+  font-family: var(--font-nepali, var(--font-primary, 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif));
 }
 
 /* Nepali headings */
@@ -1677,7 +1677,7 @@ h1, h2, h3, h4, h5, h6 {
 .verify-form input,
 .verify-form select,
 .verify-form textarea {
-  font-family: 'Mukta', sans-serif;
+  font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -1746,48 +1746,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ─────────────────────────────────────────────────────────────────
-   8. MOBILE FOOTER NAV - Added navigation icons
+   8. (removed) MOBILE FOOTER NAV — PHP nav deleted; styles unused
    ───────────────────────────────────────────────────────────────── */
-
-@media (max-width: 768px) {
-  .mobile-footer-nav {
-    position: fixed;
-    bottom: 70px;
-    left: 0;
-    right: 0;
-    display: flex;
-    gap: 8px;
-    padding: 10px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .mobile-footer-nav a {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 8px;
-    border-radius: 8px;
-    background: #f1f5f9;
-    color: #475569;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .mobile-footer-nav a:active {
-    background: #e2e8f0;
-    transform: scale(0.95);
-  }
-
-  .mobile-footer-nav a i {
-    font-size: 16px;
-  }
-}
 
 /* ─────────────────────────────────────────────────────────────────
    9. SIDEBAR MOBILE MENU ITEMS - Better styling
@@ -1887,7 +1847,6 @@ h1, h2, h3, h4, h5, h6 {
 
 @media print {
   .mob-bottomnav,
-  .mobile-footer-nav,
   .admin-fab-msg,
   .hp-burger {
     display: none !important;
@@ -4987,7 +4946,7 @@ html { font-size: 15.5px; }
 body {
     font-size: 1rem;
     line-height: 1.72;
-    font-family: 'Mukta','Noto Sans Devanagari',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif);
     color: var(--text-color, #1e293b);
     padding: 0;
     -webkit-font-smoothing: antialiased;
@@ -4995,7 +4954,7 @@ body {
     overflow-x: hidden;
 }
 h1,h2,h3,h4,h5,h6,.card-title {
-    font-family: 'Mukta','Noto Sans Devanagari','Poppins',sans-serif;
+    font-family: var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif);
     font-weight: 700;
     line-height: 1.35;
 }
