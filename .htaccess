@@ -21,6 +21,8 @@
     # Crawlers expect /sitemap.xml and /robots.txt
     RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
     RewriteRule ^robots\.txt$ robots.php [L,QSA]
+    # Legacy PWA manifest path → dynamic manifest.php
+    RewriteRule ^manifest\.json$ manifest.php [L,QSA]
 </IfModule>
 
 # Long-cache fingerprinted static assets (?v=filemtime busts on change)
