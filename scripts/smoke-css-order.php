@@ -130,6 +130,12 @@ if ($enhPos === false || $latePos === false) {
 
 assertContains('scripts/build-css-late-bundles.py', 'public-late-bundle.css', 'local build script lists public bundle');
 
+// Homepage readability overrides must stay in final polish (late bundle wins)
+assertContains('assets/css/final-ui-polish.css', 'Homepage notices: undo over-compact', 'notice title readability marker');
+assertContains('assets/css/final-ui-polish.css', 'Homepage interest rates: undo over-compact', 'rate row readability marker');
+assertContains('assets/css/final-ui-polish.css', 'Institutional stats: readable labels', 'stats label readability marker');
+assertContains('assets/css/final-ui-polish.css', 'Tools widget: readable footer label', 'tools mini footer readability marker');
+
 // Page-scoped KYC capture CSS still loaded (not orphaned)
 assertContains('online-kyc.php', 'assets/css/kyc-capture.css', 'online-kyc loads kyc-capture.css');
 assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.10', 'online-kyc capture js version');
