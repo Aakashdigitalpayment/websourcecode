@@ -5,8 +5,8 @@
  */
 
 :root {
-  --admin-font-body: 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif;
-  --admin-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif;
+  --admin-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
+  --admin-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
   --admin-radius: 10px;
   --admin-radius-sm: 8px;
   --admin-border: #d7e0db;

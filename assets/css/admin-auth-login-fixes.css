@@ -416,7 +416,7 @@
     align-items: center !important;
     justify-content: center !important;
     padding: 16px !important;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    font-family: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif) !important;
 }
 
 /* Page back button — top-right pill (never stretch with left+right) */

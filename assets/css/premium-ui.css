@@ -20,8 +20,8 @@
    These are own --prem-* tokens so we never clobber the existing system.
    ──────────────────────────────────────────────────────────────────── */
 :root {
-  --prem-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', sans-serif;
-  --prem-font-body: 'Inter', 'Noto Sans Devanagari', sans-serif;
+  --prem-font-head: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif;
+  --prem-font-body: 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Elevation tokens — purely additive */
   --prem-sh-xs: 0 1px 2px rgba(0,0,0,0.04);
