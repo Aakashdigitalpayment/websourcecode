@@ -135,7 +135,7 @@ $flash = getFlash();
                                 </td>
                                 <td class="text-center"><span class="badge <?php echo $f['is_active'] ? 'appfeat-status-on' : 'appfeat-status-off'; ?>"><?php echo $f['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm appfeat-btn-edit me-1 btn-edit-feat"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-feat"
                                             data-id="<?php echo $f['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($f['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($f['title_np'] ?? '', ENT_QUOTES); ?>"
@@ -145,8 +145,9 @@ $flash = getFlash();
                                             data-order="<?php echo $f['sort_order']; ?>"
                                             data-is-new="<?php echo $f['is_new']; ?>"
                                             data-active="<?php echo $f['is_active']; ?>"
-                                            title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                            title="सम्पादन"
+                                            aria-label="सम्पादन">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="appfeat-inline-form" onsubmit="return confirm('<?php echo $__t('के तपाईं यो सुविधा हटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this feature?'); ?>')">
     <?php echo csrfField(); ?>

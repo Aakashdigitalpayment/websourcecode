@@ -153,6 +153,43 @@ $mustSubmit = [
     'admin/interest-rates.php' => 'if ($action === \'delete\' && $id && $_SERVER[\'REQUEST_METHOD\'] === \'POST\')',
     'admin/credentials.php' => 'checkCSRF();',
 ];
+
+$mustContain = [
+    'admin/team.php' => 'adm-icon-btn adm-icon-btn--edit btn-edit-member',
+    'admin/app-features.php' => 'adm-icon-btn adm-icon-btn--edit btn-edit-feat',
+    'admin/auctions.php' => 'adm-icon-btn adm-icon-btn--delete',
+    'admin/credentials.php' => 'adm-icon-btn adm-icon-btn--delete',
+];
+foreach ($mustContain as $file => $needle) {
+    $path = $root . '/' . $file;
+    if (!is_file($path)) {
+        fail("{$file}: missing");
+        continue;
+    }
+    $t = (string) file_get_contents($path);
+    if (strpos($t, $needle) === false) {
+        fail("{$file}: missing icon marker `{$needle}`");
+    } else {
+        ok("{$file}: icon marker ok");
+    }
+}
+
+$mustStayGone = [
+    'admin/_partials/header.php',
+    'admin/_partials/footer.php',
+    'includes/member-generator.php',
+    'manifest.json',
+    'public/icon.svg',
+    'includes/components/breadcrumb.php',
+    'includes/components/_registry.php',
+];
+foreach ($mustStayGone as $rel) {
+    if (is_file($root . '/' . $rel) || is_dir($root . '/' . $rel)) {
+        fail("{$rel}: should stay deleted");
+    } else {
+        ok("{$rel}: stays deleted");
+    }
+}
 foreach ($mustSubmit as $file => $needle) {
     $path = $root . '/' . $file;
     if (!is_file($path)) {

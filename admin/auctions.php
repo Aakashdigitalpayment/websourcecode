@@ -695,8 +695,8 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="delete_auction" value="1">
                                     <input type="hidden" name="auction_id" value="<?php echo $auc['id']; ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="मेटाउनुहोस्">
-                                        <i class="fas fa-trash"></i>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्">
+                                        <i class="fas fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </form>
                             </div>

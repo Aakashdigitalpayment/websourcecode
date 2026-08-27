@@ -25,8 +25,8 @@
        line-height, border-radius, box-shadow, transition, outline
    • NEVER touched: background-color, color, display, position,
        z-index, width, height, margin, padding, flex, overflow.
-   • !important is used ONLY on font-family — needed to override the
-       hardcoded 'Mukta' / 'Work Sans' declarations in multiple CSS files.
+   • !important is used ONLY on font-family — needed to override legacy
+       Mukta / system stacks still present in older panel CSS layers.
    • JS-controlled classes (.nav-open, .open, .active, .scrolled,
        .mobile-nav-open) are intentionally left alone.
    ═══════════════════════════════════════════════════════════════════════ */
@@ -48,7 +48,7 @@
 }
 
 /* ── 1. GLOBAL BASE FONT ────────────────────────────────────────────────
-   !important required to override 'Mukta' declared in global.css body {}
+   !important required to override older panel font-family declarations
    ──────────────────────────────────────────────────────────────────── */
 html {
   -webkit-font-smoothing: antialiased;

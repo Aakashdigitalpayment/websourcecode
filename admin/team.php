@@ -684,10 +684,11 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-member"
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
-                                            title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-edit"></i>
+                                            title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
+                                            aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo addslashes($__t('के तपाईं यो सदस्य मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this member?')); ?>')">
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
@@ -768,10 +769,11 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     </form>
                                 </td>
                                 <td class="text-center">
-                                    <button type="button" class="btn btn-sm tm-btn-edit me-1 btn-edit-member"
+                                    <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-member"
                                             data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
-                                            title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-edit"></i>
+                                            title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
+                                            aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
+                                        <i class="fas fa-pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo addslashes($__t('के तपाईं यो सदस्य मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this member?')); ?>')">
                                         <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">

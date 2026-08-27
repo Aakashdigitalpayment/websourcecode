@@ -264,8 +264,8 @@ require_once 'includes/admin-ui.php';
                                             <input type="hidden" name="action" value="delete_link">
                                             <input type="hidden" name="id" value="<?php echo $link['id']; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Delete" title="Delete">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
+                                                <i class="fas fa-trash" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                     </td>

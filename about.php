@@ -66,7 +66,7 @@ if ($aboutVisual === '') {
 }
 $hasAboutVisual = $aboutVisual !== '';
 
-// Static section titles (admin editable via pages-v2 static sections)
+// Static section titles (admin editable via pages static sections)
 $visionTitleNp = getSetting('vision_content_title_np', 'हाम्रो दृष्टिकोण');
 $visionTitleEn = getSetting('vision_content_title_en', 'Our Vision');
 $missionTitleNp = getSetting('mission_content_title_np', 'हाम्रो लक्ष्य');
