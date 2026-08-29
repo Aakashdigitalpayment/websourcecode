@@ -7293,4 +7293,185 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 .vendor-info-card h4 i {
   opacity: 0.95;
 }
+
+/* Institutional profile month ledger — match footer/body typography */
+.institutional-profile-page .ip-month-ledger-row,
+.institutional-profile-page .ip-month-tile-head,
+.institutional-profile-page .ip-month-tile-foot {
+  font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', sans-serif) !important;
+}
+
+.institutional-profile-page .ip-month-title {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-secondary, #4b5563) !important;
+  line-height: 1.45 !important;
+  letter-spacing: normal !important;
+}
+
+.institutional-profile-page .ip-month-title i {
+  font-size: 0.85rem !important;
+}
+
+.institutional-profile-page .ip-month-value strong {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary, #1f2937) !important;
+  line-height: 1.45 !important;
+}
+
+.institutional-profile-page .ip-month-value em {
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  color: var(--primary-color, #1a5f2a) !important;
+  line-height: 1.4 !important;
+}
+
+.institutional-profile-page .ip-month-sn {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: var(--text-muted, #6b7280) !important;
+}
+
+.institutional-profile-page .ip-month-tile-head strong {
+  font-family: var(--font-heading, var(--font-primary)) !important;
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  color: var(--primary-dark, #144a21) !important;
+  line-height: 1.35 !important;
+}
+
+.institutional-profile-page .ip-month-tile-head span:not(.ip-month-badge) {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  color: var(--text-muted, #6b7280) !important;
+  line-height: 1.45 !important;
+}
+
+.institutional-profile-page .ip-month-badge,
+.institutional-profile-page .ip-mini-chip {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+}
+
+.institutional-profile-page .ip-month-ledger-row.ip-month-total .ip-month-title,
+.institutional-profile-page .ip-month-ledger-row.ip-month-total .ip-month-value strong {
+  font-weight: 700 !important;
+  color: var(--primary-dark, #144a21) !important;
+}
+
+.institutional-profile-page .ip-featured-title,
+.institutional-profile-page .ip-section-intro h2 {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.institutional-profile-page .ip-featured-kicker,
+.institutional-profile-page .ip-section-kicker,
+.institutional-profile-page .ip-filter-count,
+.institutional-profile-page .ip-month-chip {
+  font-weight: 600 !important;
+}
+
+.institutional-profile-page .ip-featured-stat span,
+.institutional-profile-page .ip-featured-sub,
+.institutional-profile-page .ip-filter-input,
+.institutional-profile-page .ip-filter-select {
+  font-size: 0.875rem !important;
+  line-height: 1.45 !important;
+}
+
+.institutional-profile-page .ip-featured-stat strong {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+}
+
+/* Sahakari Patro — unify with site/footer body typography */
+.sp-page {
+  font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', sans-serif) !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+
+.sp-page .sp-cal-title-main,
+.sp-page .sp-rashi-name,
+.sp-page .sp-tool-center h3 {
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.sp-page .sp-cal-daynum,
+.sp-page .sp-minical-evday {
+  font-weight: 700 !important;
+}
+
+.sp-page .sp-selday-daynum {
+  font-weight: 800 !important;
+}
+
+.sp-page .sp-cal-weekhdr,
+.sp-page .sp-evlist-hdr,
+.sp-page .sp-section-title,
+.sp-page .sp-minical-hdr,
+.sp-page .sp-subsection-title,
+.sp-page .sp-cal-nav-btn,
+.sp-page .sp-cal-today-btn {
+  font-weight: 600 !important;
+}
+
+.sp-page .sp-tabs .nav-link {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+}
+
+.sp-page .sp-tabs .nav-link.active {
+  font-weight: 700 !important;
+}
+
+.sp-page .sp-cal-tithi,
+.sp-page .sp-evlist-evname,
+.sp-page .sp-pi-label,
+.sp-page .sp-evlist-vaar,
+.sp-page .sp-minical-evname,
+.sp-page .sp-minical-evrow,
+.sp-page .sp-rashi-meta,
+.sp-page .sp-rashi-pred,
+.sp-page .sp-muhurta-card-desc,
+.sp-page .sp-datebar-lead,
+.sp-page .sp-datebar-meta,
+.sp-page .sp-selday-row,
+.sp-page .sp-cal-leg-item {
+  font-size: 0.875rem !important;
+  line-height: 1.45 !important;
+}
+
+.sp-page .sp-pi-val,
+.sp-page .sp-selday-val,
+.sp-page .sp-muhurta-card-title,
+.sp-page .sp-muhurta-card-time,
+.sp-page .sp-work-card-name,
+.sp-page .sp-fal-card-title,
+.sp-page .sp-tip-val {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  line-height: 1.45 !important;
+}
+
+.sp-page .sp-minical-cell,
+.sp-page .sp-cal-evbadge,
+.sp-page .sp-badge,
+.sp-page .sp-chip-link {
+  font-weight: 600 !important;
+}
+
+.sp-page .sp-form-label {
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+}
+
+.sp-page .sp-form-control,
+.sp-page .sp-btn-primary {
+  font-size: 0.875rem !important;
+  line-height: 1.45 !important;
+}
 /* ===== END final-ui-polish.css ===== */
