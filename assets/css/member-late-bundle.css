@@ -1744,6 +1744,35 @@ body.auth-portal-page:not(.verify-auth-page) .card-header {
   ) !important;
   border-bottom-color: transparent !important;
   color: color-mix(in srgb, #fff 84%, #94a3b8) !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Multi-mark site logos (QR, federation marks) must not sit directly on green */
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-logo-wrap {
+  background: #ffffff !important;
+  border: 1px solid color-mix(in srgb, #fff 55%, var(--border-color, #e5e7eb)) !important;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.14) !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-bottom: 0.55rem !important;
+}
+
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-logo-wrap img {
+  max-height: 68px !important;
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+  margin: 0 auto !important;
+  border-radius: 6px !important;
+}
+
+body.auth-portal-page:not(.verify-auth-page) .card-header .card-logo-icon {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16) !important;
+  border: 2px solid rgba(255, 255, 255, 0.4) !important;
 }
 
 /* Soft footer-like muted light grey on green (not dark muted text) */

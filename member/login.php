@@ -389,6 +389,8 @@ body {
     height: auto;
     object-fit: contain;
     border-radius: 8px;
+    display: block;
+    margin: 0 auto;
 }
 .card-logo-hide { display: none !important; }
 
