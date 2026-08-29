@@ -370,10 +370,10 @@ if ($viewApplication && !empty($viewApplication['id'])) {
 
     /* Tab 2: Documents */
     $docsHtml = arvDocsGrid([
-        ['url' => !empty($viewApplication['resume_path'])       ? SITE_URL . $viewApplication['resume_path']       : '', 'label' => 'Resume / CV',    'icon' => 'fa-file-pdf'],
-        ['url' => !empty($viewApplication['photo_path'])        ? SITE_URL . $viewApplication['photo_path']        : '', 'label' => 'फोटो',           'icon' => 'fa-image'],
-        ['url' => !empty($viewApplication['citizenship_path'])  ? SITE_URL . $viewApplication['citizenship_path']  : '', 'label' => 'नागरिकता',     'icon' => 'fa-id-card'],
-        ['url' => !empty($viewApplication['certificates_path']) ? SITE_URL . $viewApplication['certificates_path'] : '', 'label' => 'प्रमाणपत्र', 'icon' => 'fa-certificate'],
+        ['url' => safe_media_src($viewApplication['resume_path'] ?? ''),       'label' => 'Resume / CV',    'icon' => 'fa-file-pdf'],
+        ['url' => safe_media_src($viewApplication['photo_path'] ?? ''),        'label' => 'फोटो',           'icon' => 'fa-image'],
+        ['url' => safe_media_src($viewApplication['citizenship_path'] ?? ''),  'label' => 'नागरिकता',     'icon' => 'fa-id-card'],
+        ['url' => safe_media_src($viewApplication['certificates_path'] ?? ''), 'label' => 'प्रमाणपत्र', 'icon' => 'fa-certificate'],
     ]);
 
     /* Tab 3: Activity Log */

@@ -319,8 +319,8 @@ $L = getLangStrings();
                     </div>
 
                     <div class="job-detail-footer">
-                        <?php if (!empty($job['attachment'])): ?>
-                        <a href="<?php echo e($job['attachment']); ?>" class="btn btn-outline-primary" download>
+                        <?php $jobAttachUrl = safe_media_src($job['attachment'] ?? ''); if ($jobAttachUrl !== ''): ?>
+                        <a href="<?php echo e($jobAttachUrl); ?>" class="btn btn-outline-primary" download rel="noopener noreferrer">
                             <i class="fas fa-download"></i> <?php echo isEnglish() ? 'Download Details' : 'विवरण डाउनलोड गर्नुहोस्'; ?>
                         </a>
                         <?php endif; ?>

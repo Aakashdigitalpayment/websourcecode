@@ -248,8 +248,8 @@ $L = getLangStrings();
                         <div class="container">
                             <div class="slider-content hero-content-modern">
                                 <div class="hero-text-wrapper">
-                                    <h1 class="hero-title-modern"><?php echo $heroTitle; ?></h1>
-                                    <p class="hero-subtitle-modern"><?php echo $heroSubtitle; ?></p>
+                                    <h1 class="hero-title-modern"><?php echo e($heroTitle); ?></h1>
+                                    <p class="hero-subtitle-modern"><?php echo e($heroSubtitle); ?></p>
                                     <div class="hero-actions-modern">
                                         <a href="about.php" class="btn hero-btn-modern">
                                             <span class="btn-content">

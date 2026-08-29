@@ -111,7 +111,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         : ($pageBodyNp !== '' ? $pageBodyNp : $pageBodyEn);
 
                     if ($pageHtml !== ''):
-                        echo '<div class="intro-text coop-prose">' . $pageHtml . '</div>';
+                        echo '<div class="intro-text coop-prose">' . coop_sanitize_cms_html($pageHtml) . '</div>';
                     else:
                     ?>
                         <div class="intro-text">
@@ -126,7 +126,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                     <div class="about-side-badge">
                         <i class="fas fa-seedling me-1"></i><?php echo isEnglish() ? 'Journey of Trust' : 'विश्वासको यात्रा'; ?>
                     </div>
-                    <img src="<?php echo SITE_URL . htmlspecialchars($aboutVisual, ENT_QUOTES, 'UTF-8'); ?>?v=<?php echo (int) filemtime(ROOT_PATH . $aboutVisual); ?>"
+                    <img src="<?php echo e(safe_versioned_media_src($aboutVisual)); ?>"
                          alt="<?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?>"
                          class="img-fluid rounded-4"
                          loading="lazy"
@@ -208,7 +208,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $historyContent = isEnglish() ? getSetting('history_content_en', '') : getSetting('history_content_np', '');
                         if ($historyContent):
-                            echo $historyContent;
+                            echo coop_sanitize_cms_html($historyContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'Our cooperative has a rich history of serving the community. Established with the vision of financial inclusion, we have grown to become one of the most trusted financial institutions in our area.' : 'हाम्रो सहकारीको समुदायको सेवामा समृद्ध इतिहास छ। वित्तीय समावेशीताको दृष्टिकोणका साथ स्थापित, हामी हाम्रो क्षेत्रमा सबैभन्दा विश्वसनीय वित्तीय संस्थाहरू मध्ये एक बन्न विकसित भएका छौं।'; ?></p>
@@ -245,7 +245,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $visionContent = isEnglish() ? getSetting('vision_content_en', '') : getSetting('vision_content_np', '');
                         if ($visionContent):
-                            echo '<p>' . $visionContent . '</p>';
+                            echo coop_sanitize_cms_html($visionContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'To be the most trusted and preferred cooperative in our community.' : 'समुदायमा सबैभन्दा विश्वसनीय र रुचाइएको सहकारी संस्था बन्नु।'; ?></p>
@@ -265,7 +265,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $missionContent = isEnglish() ? getSetting('mission_content_en', '') : getSetting('mission_content_np', '');
                         if ($missionContent):
-                            echo '<p>' . $missionContent . '</p>';
+                            echo coop_sanitize_cms_html($missionContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'To provide quality financial services while promoting the spirit of cooperation and helping members achieve their financial goals.' : 'सहकारिताको भावनालाई प्रवर्द्धन गर्दै सदस्यहरूलाई उनीहरूको वित्तीय लक्ष्य हासिल गर्न मद्दत गर्ने गुणस्तरीय वित्तीय सेवा प्रदान गर्नु।'; ?></p>
@@ -368,7 +368,7 @@ $ceoMessage = $ceoMessageSetting;
                     <div class="message-content-full">
                         <i class="fas fa-quote-left quote-icon-large"></i>
                         <div class="message-text-full coop-prose">
-                            <?php echo $chairmanMessage; ?>
+                            <?php echo coop_sanitize_cms_html($chairmanMessage); ?>
                         </div>
                     </div>
                 </div>
@@ -396,7 +396,7 @@ $ceoMessage = $ceoMessageSetting;
                     <div class="message-content-full">
                         <i class="fas fa-quote-left quote-icon-large"></i>
                         <div class="message-text-full coop-prose">
-                            <?php echo $ceoMessage; ?>
+                            <?php echo coop_sanitize_cms_html($ceoMessage); ?>
                         </div>
                     </div>
                 </div>

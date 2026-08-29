@@ -376,12 +376,12 @@ if ($viewApp):
                 <div class="adm-info-group-header"><i class="fas fa-images"></i>पेश गरिएका कागजातहरू</div>
                 <div class="p-3"><div class="row g-3">
                     <?php foreach ($docs as $col => $label): ?>
-                    <?php if (!empty($viewApp[$col])): ?>
+                    <?php $docUrl = safe_media_src($viewApp[$col] ?? ''); if ($docUrl !== ''): ?>
                     <div class="col-6 col-md-3 text-center">
-                        <a href="<?php echo htmlspecialchars(SITE_URL . $viewApp[$col]); ?>" target="_blank" rel="noopener noreferrer">
-                            <img src="<?php echo htmlspecialchars(SITE_URL . $viewApp[$col]); ?>"
-                                 class="img-thumbnail mb-1 acc-doc-thumb" alt="<?php echo $label; ?>">
-                            <div class="small text-muted"><?php echo $label; ?></div>
+                        <a href="<?php echo e($docUrl); ?>" target="_blank" rel="noopener noreferrer">
+                            <img src="<?php echo e($docUrl); ?>"
+                                 class="img-thumbnail mb-1 acc-doc-thumb" alt="<?php echo e($label); ?>">
+                            <div class="small text-muted"><?php echo e($label); ?></div>
                         </a>
                     </div>
                     <?php endif; ?>

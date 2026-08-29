@@ -131,10 +131,10 @@ try {
                 <?php if (!empty($footerLogo)): ?>
                 <img src="<?php echo e(safe_versioned_media_src($footerLogo)); ?>" alt="<?php echo e($siteName ?? 'आकाश सहकारी'); ?>" loading="lazy" decoding="async" onerror="this.style.display='none'">
                 <?php else: ?>
-                                <span class="footer-sahakari-name"><?php echo $siteName ?? 'आकाश सहकारी'; ?></span>
+                                <span class="footer-sahakari-name"><?php echo e($siteName ?? 'आकाश सहकारी'); ?></span>
                 <?php endif; ?>
                             </div>
-                            <p><?php echo $aboutShort; ?></p>
+                            <p><?php echo e($aboutShort); ?></p>
                             <div class="footer-social">
                                 <a href="<?php echo $facebookUrl ?? '#'; ?>" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                                 <a href="<?php echo $youtubeUrl ?? '#'; ?>" title="YouTube"><i class="fab fa-youtube"></i></a>
@@ -205,7 +205,7 @@ try {
             <div class="container">
                 <p class="copyright">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i>
-                    <?php echo $footerText; ?>
+                    <?php echo e($footerText); ?>
                 </p>
 
                 <!-- v10.3 (Issue #10): Footer policy links — admin बाट pages.php मा edit गर्न मिल्छ -->
@@ -263,7 +263,7 @@ try {
 
                 <p class="developer footer-developer-main">
                     <?php echo isEnglish() ? 'Developed By' : 'विकास सहयोग'; ?>
-                    <a href="<?php echo $developerUrl; ?>" target="_blank" rel="noopener noreferrer"><?php echo $developerName; ?></a>
+                    <a href="<?php echo e($developerUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo e($developerName); ?></a>
                 </p>
             </div>
         </div>

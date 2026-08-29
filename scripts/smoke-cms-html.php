@@ -50,7 +50,15 @@ foreach ([
     ['page.php', 'coop_sanitize_cms_html', 'cms page body sanitized'],
     ['news-detail.php', 'coop_sanitize_cms_html', 'news detail sanitized'],
     ['notices.php', 'coop_sanitize_cms_html', 'notice detail sanitized'],
-    ['about.php', 'e($chairmanName)', 'about chairman name escaped'],
+    ['about.php', 'coop_sanitize_cms_html', 'about prose sanitized'],
+    ['about.php', 'safe_versioned_media_src', 'about visual safe src'],
+    ['faqs.php', "e(isEnglish()", 'faq question escaped'],
+    ['career-detail.php', 'safe_media_src', 'job attachment safe src'],
+    ['admin/welfare-claims.php', 'safe_media_src', 'welfare certificate safe src'],
+    ['admin/account-applications.php', 'safe_media_src', 'account doc safe src'],
+    ['admin/job-applications.php', 'safe_media_src', 'job application docs safe src'],
+    ['index.php', 'e($heroTitle)', 'hero title escaped'],
+    ['includes/footer.php', 'e($aboutShort)', 'footer about escaped'],
     ['includes/information-room-tables.php', 'coop_client_ip', 'information room log ip'],
 ] as [$file, $needle, $why]) {
     $path = $root . '/' . $file;
