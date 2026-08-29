@@ -392,7 +392,7 @@ if ($action === 'edit' || $action === 'add') {
                         <input type="file" name="image" id="mainImgInput" class="form-control" accept="image/*,.webp,.png,.jpg,.jpeg">
                         <?php if (!empty($auction['image'])): ?>
                         <div class="mt-2" id="mainImgPreview">
-                            <img src="<?php echo SITE_URL . htmlspecialchars($auction['image']); ?>" id="mainImgPreviewImg" class="img-thumbnail" style="max-height:120px;" alt="Preview">
+                            <img src="<?php echo e(safe_media_src($auction['image'] ?? '')); ?>" id="mainImgPreviewImg" class="img-thumbnail" style="max-height:120px;" alt="Preview">
                         </div>
                         <?php else: ?>
                         <div class="mt-2 d-none" id="mainImgPreview">
@@ -410,7 +410,7 @@ if ($action === 'edit' || $action === 'add') {
                         if (!empty($exImgs)): ?>
                         <div class="d-flex flex-wrap gap-2 mt-2">
                             <?php foreach ($exImgs as $im): ?>
-                            <img src="<?php echo SITE_URL . htmlspecialchars($im); ?>" class="img-thumb" alt="img">
+                            <img src="<?php echo e(safe_media_src($im)); ?>" class="img-thumb" alt="img">
                             <?php endforeach; ?>
                         </div>
                         <?php endif; ?>
@@ -423,7 +423,7 @@ if ($action === 'edit' || $action === 'add') {
                         <?php if (!empty($auction['document'])): ?>
                         <div class="doc-preview">
                             <i class="fas fa-file-alt text-danger"></i>
-                            <a href="<?php echo SITE_URL . htmlspecialchars($auction['document']); ?>" target="_blank" rel="noopener noreferrer">
+                            <a href="<?php echo e(safe_media_src($auction['document'] ?? '')); ?>" target="_blank" rel="noopener noreferrer">
                                 हालको कागजपत्र हेर्नुहोस्
                             </a>
                         </div>
@@ -624,7 +624,7 @@ $_f = getFlash(); if ($_f) echo adminAlert($_f['type'], $_f['message']);
                             <br><span class="badge bg-secondary auc-badge-xxs">निष्क्रिय</span>
                             <?php endif; ?>
                             <?php if (!empty($auc['document'])): ?>
-                            <br><a href="<?php echo SITE_URL . htmlspecialchars($auc['document']); ?>" target="_blank"
+                            <br><a href="<?php echo e(safe_media_src($auc['document'] ?? '')); ?>" target="_blank"
                                title="Document" class="badge bg-danger text-decoration-none mt-1" rel="noopener noreferrer">
                                 <i class="fas fa-file-pdf"></i> Doc
                             </a>

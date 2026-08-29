@@ -644,7 +644,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($m['photo'])): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    <img src="<?php echo e(safe_media_src($m['photo'] ?? '')); ?>" class="tm-avatar-photo" alt="<?php echo e($m['name'] ?? ''); ?>">
                                     <?php else: ?>
                                     <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
                                     <?php endif; ?>
@@ -729,7 +729,7 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                             <tr>
                                 <td class="ps-3">
                                     <?php if (!empty($m['photo'])): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($m['photo']); ?>" class="tm-avatar-photo" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                                    <img src="<?php echo e(safe_media_src($m['photo'] ?? '')); ?>" class="tm-avatar-photo" alt="<?php echo e($m['name'] ?? ''); ?>">
                                     <?php else: ?>
                                     <div class="tm-avatar-fallback"><i class="fas fa-user tm-ico-accent"></i></div>
                                     <?php endif; ?>

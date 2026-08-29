@@ -111,7 +111,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         : ($pageBodyNp !== '' ? $pageBodyNp : $pageBodyEn);
 
                     if ($pageHtml !== ''):
-                        echo '<div class="intro-text coop-prose">' . coop_sanitize_cms_html($pageHtml) . '</div>';
+                        echo '<div class="intro-text coop-prose">' . coop_render_cms_prose($pageHtml) . '</div>';
                     else:
                     ?>
                         <div class="intro-text">
@@ -208,7 +208,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $historyContent = isEnglish() ? getSetting('history_content_en', '') : getSetting('history_content_np', '');
                         if ($historyContent):
-                            echo coop_sanitize_cms_html($historyContent);
+                            echo coop_render_cms_prose($historyContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'Our cooperative has a rich history of serving the community. Established with the vision of financial inclusion, we have grown to become one of the most trusted financial institutions in our area.' : 'हाम्रो सहकारीको समुदायको सेवामा समृद्ध इतिहास छ। वित्तीय समावेशीताको दृष्टिकोणका साथ स्थापित, हामी हाम्रो क्षेत्रमा सबैभन्दा विश्वसनीय वित्तीय संस्थाहरू मध्ये एक बन्न विकसित भएका छौं।'; ?></p>
@@ -368,7 +368,7 @@ $ceoMessage = $ceoMessageSetting;
                     <div class="message-content-full">
                         <i class="fas fa-quote-left quote-icon-large"></i>
                         <div class="message-text-full coop-prose">
-                            <?php echo coop_sanitize_cms_html($chairmanMessage); ?>
+                            <?php echo coop_render_cms_prose($chairmanMessage); ?>
                         </div>
                     </div>
                 </div>
@@ -396,7 +396,7 @@ $ceoMessage = $ceoMessageSetting;
                     <div class="message-content-full">
                         <i class="fas fa-quote-left quote-icon-large"></i>
                         <div class="message-text-full coop-prose">
-                            <?php echo coop_sanitize_cms_html($ceoMessage); ?>
+                            <?php echo coop_render_cms_prose($ceoMessage); ?>
                         </div>
                     </div>
                 </div>

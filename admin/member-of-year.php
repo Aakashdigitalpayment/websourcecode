@@ -203,7 +203,7 @@ $flash = getFlash();
                             <tr class="<?php echo $isCurrentYear ? 'table-warning' : ''; ?>">
                                 <td class="ps-3">
                                     <?php if ($hasPhoto): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" alt="<?php echo htmlspecialchars($r['name'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
+                                    <img src="<?php echo e(safe_media_src($r['photo'] ?? '')); ?>" alt="<?php echo e($r['name'] ?? 'Member'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
                                     <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
                                     <?php endif; ?>
@@ -276,7 +276,7 @@ $flash = getFlash();
                             <tr class="<?php echo $isCurrentYear ? 'table-warning' : ''; ?>">
                                 <td class="ps-3">
                                     <?php if ($hasPhoto): ?>
-                                    <img src="<?php echo SITE_URL . htmlspecialchars($r['photo']); ?>" alt="<?php echo htmlspecialchars($r['name'] ?? 'Member', ENT_QUOTES, 'UTF-8'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
+                                    <img src="<?php echo e(safe_media_src($r['photo'] ?? '')); ?>" alt="<?php echo e($r['name'] ?? 'Member'); ?>" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b;">
                                     <?php else: ?>
                                     <div style="width:48px;height:48px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user text-warning"></i></div>
                                     <?php endif; ?>

@@ -282,9 +282,12 @@ $totalDepts = count($deptSet);
             <?php endif; ?>
 
             <!-- Description -->
-            <?php $desc = getLangField($job, 'description'); if (!empty($desc)): ?>
-            <div class="cr-desc"><?php echo htmlspecialchars($desc); ?></div>
-            <?php endif; ?>
+            <?php $desc = getLangField($job, 'description'); if (!empty($desc)):
+                $descExcerpt = truncateText(strip_tags(coop_render_cms_prose($desc)), 160);
+                if ($descExcerpt !== ''):
+            ?>
+            <div class="cr-desc"><?php echo e($descExcerpt); ?></div>
+            <?php endif; endif; ?>
 
             <!-- Actions -->
             <div class="cr-actions">
