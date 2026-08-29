@@ -244,6 +244,7 @@ assertFileContains('includes/auction-tables.php', 'title="Auction location map"'
 assertFileContains('includes/auction-tables.php', 'loading="lazy"', 'auction map iframe lazy');
 assertFileContains('gallery.php', 'id="galleryVideoFrame"', 'gallery video iframe');
 assertFileContains('gallery.php', 'loading="lazy"', 'gallery video iframe lazy');
+assertFileContains('gallery.php', 'id="galleryPhotoModalCaption"', 'gallery photo caption below image');
 assertFileContains('404.php', 'type="button" onclick="history.back()"', '404 back button typed');
 assertFileContains('includes/footer.php', 'type="button" class="chatbot-close"', 'chatbot close typed');
 assertFileContains('includes/footer.php', 'type="button" class="search-modal-close"', 'search close typed');

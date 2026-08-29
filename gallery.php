@@ -391,20 +391,18 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
     </div>
 </section>
 
-<div class="modal fade gallery-photo-modal" id="galleryPhotoModal" tabindex="-1" aria-labelledby="galleryPhotoModalTitle" aria-hidden="true">
+<div class="modal fade gallery-photo-modal" id="galleryPhotoModal" tabindex="-1" aria-labelledby="galleryPhotoModalCaption" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title h5" id="galleryPhotoModalTitle"><?php echo isEnglish() ? 'Photo' : 'फोटो'; ?></h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"></button>
-            </div>
-            <div class="modal-body p-0 text-center">
+            <div class="modal-body p-0 gallery-photo-modal-body">
+                <button type="button" class="gallery-photo-modal-close btn-close" data-bs-dismiss="modal" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"></button>
                 <img id="galleryPhotoModalImage"
                      src=""
                      alt=""
                      decoding="async"
                      class="gallery-photo-modal-image">
             </div>
+            <div class="gallery-photo-modal-caption" id="galleryPhotoModalCaption" hidden></div>
         </div>
     </div>
 </div>
@@ -435,8 +433,8 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
 (function () {
     var modal = document.getElementById('galleryPhotoModal');
     var image = document.getElementById('galleryPhotoModalImage');
-    var title = document.getElementById('galleryPhotoModalTitle');
-    if (!modal || !image || !title) return;
+    var caption = document.getElementById('galleryPhotoModalCaption');
+    if (!modal || !image || !caption) return;
 
     document.body.appendChild(modal);
 
@@ -444,14 +442,24 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
         var trigger = event.relatedTarget;
         var src = trigger ? trigger.getAttribute('data-photo-src') : '';
         var photoTitle = trigger ? trigger.getAttribute('data-photo-title') : '';
-        title.textContent = photoTitle || <?php echo json_encode(isEnglish() ? 'Photo' : 'फोटो', JSON_UNESCAPED_UNICODE); ?>;
+        var fallbackTitle = <?php echo json_encode(isEnglish() ? 'Photo' : 'फोटो', JSON_UNESCAPED_UNICODE); ?>;
+        var label = photoTitle || fallbackTitle;
+        if (photoTitle) {
+            caption.textContent = photoTitle;
+            caption.hidden = false;
+        } else {
+            caption.textContent = '';
+            caption.hidden = true;
+        }
         image.src = src || '';
-        image.alt = photoTitle || '';
+        image.alt = label;
     });
 
     modal.addEventListener('hidden.bs.modal', function () {
         image.src = '';
         image.alt = '';
+        caption.textContent = '';
+        caption.hidden = true;
     });
 })();
 
