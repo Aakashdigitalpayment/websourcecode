@@ -2493,11 +2493,11 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 /* ── Homepage notices: undo over-compact title (was 0.72rem) ── */
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content h6,
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content h6 a {
-  font-size: 0.95rem !important;
-  line-height: 1.45 !important;
-  font-weight: 600 !important;
+  font-size: 0.92rem !important;
+  line-height: 1.35 !important;
+  font-weight: 500 !important;
   margin: 0 0 0.35rem !important;
-  color: #0f1a15 !important;
+  color: #1a2e24 !important;
 }
 
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-content .notice-meta,
@@ -2557,6 +2557,97 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 
 .rates-notices-section .rate-card-enhanced .rate-item {
   padding: 0.5rem 0.65rem !important;
+}
+
+/* ── Homepage notices: match interest-rates green card system ── */
+.rates-notices-section .notices-box-enhanced {
+  border: 1px solid rgba(26, 95, 42, 0.08) !important;
+  box-shadow: 0 15px 60px rgba(26, 95, 42, 0.12) !important;
+}
+
+.rates-notices-section .notices-box-enhanced:hover {
+  box-shadow: 0 25px 80px rgba(26, 95, 42, 0.18) !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-header {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a) 0%, #0d5a1c 50%, var(--primary-color, #1a5f2a) 100%) !important;
+  animation: none !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-header::before,
+.rates-notices-section .notices-box-enhanced .notices-header::after {
+  display: none !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-header h3,
+.rates-notices-section .rates-box-enhanced .rates-header h3 {
+  font-size: 0.98rem !important;
+  font-weight: 700 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-header h3 i {
+  background: rgba(255, 255, 255, 0.22) !important;
+  animation: none !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-body {
+  padding: 25px !important;
+  background: #fff !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced {
+  background: linear-gradient(145deg, var(--light-green, #e8f5e9) 0%, #eef8f0 100%) !important;
+  border: 1px solid rgba(26, 95, 42, 0.1) !important;
+  border-radius: 16px !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced::before {
+  background: linear-gradient(180deg, var(--primary-color, #1a5f2a), var(--primary-light, #2e8b4a)) !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced:hover {
+  background: rgba(26, 95, 42, 0.05) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 8px 25px rgba(26, 95, 42, 0.12) !important;
+  transform: translateX(3px) !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box {
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2e8b4a)) !important;
+  box-shadow: 0 4px 12px rgba(26, 95, 42, 0.22) !important;
+  color: #fff !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .day {
+  font-weight: 700 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .month {
+  font-weight: 600 !important;
+  opacity: 0.92 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-footer {
+  border-top: 1px solid rgba(26, 95, 42, 0.1) !important;
+  background: transparent !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-footer .btn {
+  border-radius: 25px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-footer .btn.home-btn-outline-primary {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: #fff !important;
+}
+
+.rates-notices-section .notices-box-enhanced .notices-footer .btn.home-btn-outline-primary:hover {
+  background: var(--primary-dark, #144a21) !important;
+  border-color: var(--primary-dark, #144a21) !important;
+  color: #fff !important;
 }
 
 /* ── Institutional stats: readable labels (was 0.63/0.61rem) ── */
