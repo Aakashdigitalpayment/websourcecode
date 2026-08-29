@@ -2648,3 +2648,27 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
     padding-bottom: 5px !important;
   }
 }
+
+/* ── Report cards: center tile layout (icon + title match centered buttons) ── */
+.report-card {
+  text-align: center !important;
+  align-items: center !important;
+}
+
+.report-card .report-icon {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.report-card .report-info {
+  width: 100%;
+}
+
+.report-card .report-info h5 {
+  text-align: center !important;
+}
+
+.report-card .report-type,
+.report-card .report-type-badge {
+  display: inline-block;
+}

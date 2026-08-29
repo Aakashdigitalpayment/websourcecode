@@ -628,7 +628,7 @@ require_once 'includes/header.php';
 .sp-evlist-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
 .sp-evlist-hdr{padding:12px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:14px;color:var(--sp-primary-dark);display:flex;align-items:center;gap:6px;}
 .sp-evlist-body{max-height:280px;overflow-y:auto;}
-.sp-evlist-row{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;border-left:3px solid transparent;transition:background .12s,border-color .12s;}
+.sp-evlist-row{display:flex;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;border-left:3px solid transparent;transition:background .12s,border-color .12s;}
 .sp-evlist-row:hover,.sp-evlist-row.active{background:var(--sp-muted);}
 .sp-evlist-row.active{border-left-color:var(--sp-primary);}
 .sp-evlist-daynum{min-width:28px;height:28px;border-radius:7px;background:var(--sp-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
@@ -690,11 +690,11 @@ require_once 'includes/header.php';
 .sp-table th,.sp-table td{padding:10px 12px;border-bottom:1px solid var(--sp-border);text-align:left;vertical-align:middle;}
 .sp-table th{background:var(--sp-soft);color:var(--sp-primary-dark);font-weight:700;font-size:13px;}
 .sp-table td{color:var(--sp-text);}
-.sp-muhurta-card{display:flex;gap:12px;align-items:flex-start;padding:14px 15px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;height:100%;box-shadow:0 1px 4px rgba(26,95,42,.04);}
+.sp-muhurta-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:14px 12px;border-radius:12px;background:#f0fdf4;border:1px solid #bbf7d0;height:100%;box-shadow:0 1px 4px rgba(26,95,42,.04);}
 .sp-muhurta-card.bad{background:#fff7ed;border-color:#fed7aa;box-shadow:0 1px 4px rgba(194,65,12,.05);}
-.sp-muhurta-card-title{font-weight:700;font-size:15px;color:var(--sp-text);margin-bottom:4px;line-height:1.35;}
+.sp-muhurta-card-title{font-weight:700;font-size:15px;color:var(--sp-text);margin-bottom:2px;line-height:1.35;}
 .sp-muhurta-card-desc{font-size:13.5px;color:var(--sp-text-muted);line-height:1.5;}
-.sp-muhurta-card-time{font-size:13.5px;font-weight:700;color:var(--sp-primary);margin-top:8px;display:flex;align-items:center;gap:5px;}
+.sp-muhurta-card-time{font-size:13.5px;font-weight:700;color:var(--sp-primary);margin-top:4px;display:inline-flex;align-items:center;justify-content:center;gap:5px;}
 .sp-muhurta-card.bad .sp-muhurta-card-time{color:#c2410c;}
 .sp-work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px;}
 .sp-work-card{background:linear-gradient(180deg,#f7fbf8,#eef7f0);border:1px solid rgba(26,95,42,.1);border-radius:12px;padding:14px 10px;text-align:center;transition:transform .12s,box-shadow .12s;}
@@ -1421,7 +1421,7 @@ elseif($activeTab==='muhurta'): ?>
       ] as [$good,$ico,$name,$time,$desc]): ?>
       <div class="col-md-6">
         <div class="sp-muhurta-card <?php echo $good?'':'bad'; ?>">
-          <i class="lucide-icon" style="width:16px;height:16px;flex-shrink:0;margin-top:2px;" data-lucide="<?php echo $ico; ?>"></i>
+          <i class="lucide-icon" style="width:20px;height:20px;flex-shrink:0;color:<?php echo $good?'var(--sp-primary)':'#c2410c'; ?>;" data-lucide="<?php echo $ico; ?>"></i>
           <div>
             <div class="sp-muhurta-card-title"><?php echo $name; ?><?php echo $good ? '' : ' <span style="font-size:11px;font-weight:700;opacity:.75;">('.(isEnglish()?'avoid':'बच्नुहोस्').')</span>'; ?></div>
             <div class="sp-muhurta-card-desc"><?php echo $desc; ?></div>
