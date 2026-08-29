@@ -278,6 +278,26 @@ function sp_has_event_type(array $evs, string $type): bool {
     }
     return false;
 }
+/** Inline styles for main/minical day cells (shared color logic). */
+function sp_cal_cell_style(bool $isToday, ?array $mainEv, bool $shubh): string {
+    if ($isToday) {
+        return 'text-decoration:none;';
+    }
+    $bg = '#fff';
+    if ($mainEv) {
+        $bg = sp_ev_bg((string)($mainEv['type'] ?? ''));
+    } elseif ($shubh) {
+        $bg = '#dcfce7';
+    }
+    return 'text-decoration:none;background:' . $bg . ';';
+}
+function sp_cal_cell_title(array $evs): string {
+    if ($evs === []) {
+        return '';
+    }
+    $names = array_map(static fn(array $e): string => (string)($e['name'] ?? ''), $evs);
+    return implode(' · ', array_filter($names));
+}
 
 /* Calendar builder */
 function sp_calendar_cells(int $bY, int $bM): array {
@@ -556,35 +576,36 @@ require_once 'includes/header.php';
 .sp-cal-sahakari-dot{width:5px;height:5px;border-radius:50%;background:#047857;position:absolute;bottom:3px;left:3px;box-shadow:0 0 0 1px #fff;}
 .sp-cal-today-btn{border:1px solid var(--sp-primary);background:var(--sp-muted);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:700;color:var(--sp-primary);text-decoration:none;}
 .sp-cal-body{padding:12px;}
-.sp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.sp-cal-weekhdr{text-align:center;padding:8px 2px;font-size:12px;font-weight:700;background:var(--sp-soft);border-radius:6px;color:var(--sp-text);}
+.sp-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--sp-border);border:1px solid var(--sp-border);border-radius:10px;overflow:hidden;}
+.sp-cal-weekhdr{text-align:center;padding:8px 4px;font-size:11.5px;font-weight:700;background:var(--sp-soft);color:var(--sp-text);letter-spacing:.01em;}
 .sp-cal-weekhdr.sat{color:var(--sp-secondary);}
 .sp-cal-weekhdr.sun{color:#b45309;}
-.sp-cal-cell{border-radius:8px;min-height:68px;cursor:pointer;border:1px solid var(--sp-border-soft);background:#fff;padding:5px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;transition:box-shadow .12s;}
-.sp-cal-cell:hover{box-shadow:0 2px 10px rgba(26,95,42,.12);z-index:2;}
-.sp-cal-cell.today{background:var(--sp-primary)!important;border-color:var(--sp-primary-dark)!important;}
-.sp-cal-cell.selected{background:var(--sp-muted);border-color:var(--sp-primary)!important;border-width:2px!important;}
+.sp-cal-cell,.sp-cal-empty{cursor:pointer;background:#fff;padding:5px 4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;position:relative;min-height:74px;transition:filter .12s,box-shadow .12s;}
+.sp-cal-cell:hover{filter:brightness(.98);box-shadow:inset 0 0 0 1px rgba(26,95,42,.28);z-index:2;}
+.sp-cal-cell.today{background:var(--sp-primary)!important;box-shadow:inset 0 0 0 2px var(--sp-primary-dark)!important;z-index:3;}
+.sp-cal-cell.selected{box-shadow:inset 0 0 0 2px var(--sp-primary)!important;z-index:2;}
 .sp-cal-cell.sat .sp-cal-daynum{color:var(--sp-secondary);}
+.sp-cal-cell.sun:not(.today) .sp-cal-daynum{color:#b45309;}
 .sp-cal-cell.today .sp-cal-daynum,.sp-cal-cell.today .sp-cal-tithi,.sp-cal-cell.today .sp-cal-evbadge{color:#fff!important;}
 .sp-cal-cell.today .sp-cal-evbadge{background:rgba(255,255,255,.22)!important;}
-.sp-cal-daynum{font-size:17px;font-weight:700;line-height:1.15;color:var(--sp-text);}
-.sp-cal-tithi{font-size:12px;color:var(--sp-text-muted);line-height:1.25;font-weight:500;}
-.sp-cal-evbadge{font-size:11px;font-weight:600;border-radius:4px;padding:2px 5px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
-.sp-cal-shubhdot{width:5px;height:5px;border-radius:50%;background:#16a34a;position:absolute;bottom:4px;right:4px;}
-.sp-cal-more{font-size:11px;color:var(--sp-text-muted);font-weight:600;}
+.sp-cal-daynum{font-size:16px;font-weight:800;line-height:1.1;color:var(--sp-text);}
+.sp-cal-tithi{font-size:11px;color:var(--sp-text-muted);line-height:1.2;font-weight:600;opacity:.92;}
+.sp-cal-evbadge{font-size:10px;font-weight:700;border-radius:4px;padding:2px 4px;line-height:1.3;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;border:1px solid rgba(0,0,0,.06);}
+.sp-cal-shubhdot{width:5px;height:5px;border-radius:50%;background:#16a34a;position:absolute;bottom:4px;right:4px;box-shadow:0 0 0 1px #fff;}
+.sp-cal-more{font-size:10px;color:var(--sp-text-muted);font-weight:700;background:rgba(255,255,255,.75);border-radius:999px;padding:0 4px;line-height:1.4;position:absolute;top:3px;right:3px;}
 
 /* Empty cell — site logo watermark (subtle but visible) */
-.sp-cal-empty{background:linear-gradient(145deg,#f7fbf8,#eef7f0);display:flex;align-items:center;justify-content:center;cursor:default!important;border-color:#e4efe6!important;min-height:68px;}
-.sp-cal-empty:hover{box-shadow:none!important;}
+.sp-cal-empty{background:linear-gradient(145deg,#f9fcfa,#f1f7f2);display:flex;align-items:center;justify-content:center;cursor:default!important;min-height:74px;}
+.sp-cal-empty:hover{filter:none!important;box-shadow:none!important;}
 .sp-cal-logo-wrap{opacity:.42;width:86%;height:86%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--sp-primary);pointer-events:none;}
 .sp-cal-logo-wrap img{max-width:100%;max-height:40px;width:auto;height:auto;object-fit:contain;filter:none;}
 .sp-cal-logo-wrap svg{width:28px;height:28px;}
 .sp-cal-logo-wrap span{font-size:6px;font-weight:700;text-align:center;line-height:1.2;color:var(--sp-primary);}
 
 /* Calendar legend */
-.sp-cal-legend{padding:10px 14px 12px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:flex;flex-wrap:wrap;gap:10px;}
-.sp-cal-leg-item{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--sp-text-muted);font-weight:500;}
-.sp-cal-leg-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;}
+.sp-cal-legend{padding:10px 14px 12px;border-top:1px solid var(--sp-border);background:var(--sp-soft);display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px 10px;}
+.sp-cal-leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--sp-text-muted);font-weight:600;line-height:1.2;}
+.sp-cal-leg-swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
 
 /* Selected day panel */
 .sp-selday-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
@@ -607,8 +628,9 @@ require_once 'includes/header.php';
 .sp-evlist-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
 .sp-evlist-hdr{padding:12px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:14px;color:var(--sp-primary-dark);display:flex;align-items:center;gap:6px;}
 .sp-evlist-body{max-height:280px;overflow-y:auto;}
-.sp-evlist-row{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;}
+.sp-evlist-row{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--sp-border-soft);cursor:pointer;border-left:3px solid transparent;transition:background .12s,border-color .12s;}
 .sp-evlist-row:hover,.sp-evlist-row.active{background:var(--sp-muted);}
+.sp-evlist-row.active{border-left-color:var(--sp-primary);}
 .sp-evlist-daynum{min-width:28px;height:28px;border-radius:7px;background:var(--sp-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
 .sp-evlist-evname{font-size:13px;font-weight:600;line-height:1.45;}
 .sp-evlist-vaar{font-size:11px;color:var(--sp-text-muted);margin-top:2px;}
@@ -617,17 +639,16 @@ require_once 'includes/header.php';
 .sp-minical-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
 .sp-minical-hdr{background:var(--sp-soft);padding:11px 14px;border-bottom:1px solid var(--sp-border);font-weight:700;font-size:13.5px;color:var(--sp-primary-dark);display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .sp-minical-body{padding:10px;}
-.sp-minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
-.sp-minical-wh{text-align:center;font-size:12px;color:var(--sp-text-muted);padding:5px 0;font-weight:700;}
-.sp-minical-cell{text-align:center;font-size:13px;padding:6px 1px;border-radius:6px;color:var(--sp-text);font-weight:600;}
-.sp-minical-cell.empty{opacity:0;}
-.sp-minical-cell.has-ev{font-weight:700;}
-.sp-minical-cell.sahakari{background:#ecfdf5;color:#047857;}
-.sp-minical-cell.sat{color:var(--sp-secondary);}
-.sp-minical-cell.holiday{background:#fef2f2;color:#dc2626;}
-.sp-minical-cell.festival{background:#fff7ed;color:#ea580c;}
-.sp-minical-cell.purnima{background:#eff6ff;color:#3b82f6;}
-.sp-minical-cell.ekadashi{background:#f5f3ff;color:#7c3aed;}
+.sp-minical-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0;border:1px solid var(--sp-border);border-radius:8px;overflow:hidden;background:#fff;}
+.sp-minical-wh{text-align:center;font-size:11px;color:var(--sp-text-muted);padding:6px 2px;font-weight:700;background:var(--sp-soft);border-right:1px solid var(--sp-border-soft);border-bottom:1px solid var(--sp-border);}
+.sp-minical-wh:nth-child(7n){border-right:none;}
+.sp-minical-cell{text-align:center;font-size:12px;padding:7px 2px;color:var(--sp-text);font-weight:600;border-right:1px solid var(--sp-border-soft);border-bottom:1px solid var(--sp-border-soft);min-height:34px;display:flex;align-items:center;justify-content:center;position:relative;transition:filter .12s,box-shadow .12s;}
+.sp-minical-cell:nth-child(7n){border-right:none;}
+.sp-minical-cell:hover{filter:brightness(.97);box-shadow:inset 0 0 0 1px rgba(26,95,42,.25);z-index:1;}
+.sp-minical-cell.empty{color:transparent;background:#fafcfb;pointer-events:none;}
+.sp-minical-cell.sat:not([style*="color"]){color:var(--sp-secondary);}
+.sp-minical-cell.sun:not([style*="color"]){color:#b45309;}
+.sp-minical-cell.has-coop-dot::after{content:'';width:4px;height:4px;border-radius:50%;background:#047857;position:absolute;bottom:2px;left:2px;box-shadow:0 0 0 1px #fff;}
 
 /* Cards / sections */
 .sp-card{background:#fff;border-radius:14px;box-shadow:0 4px 16px rgba(26,95,42,.07);border:1px solid rgba(26,95,42,.08);overflow:hidden;}
@@ -715,8 +736,13 @@ require_once 'includes/header.php';
 .sp-selday-note{margin-top:10px;padding:8px 10px;border-radius:8px;background:#fffbeb;border:1px solid #fde68a;font-size:12px;color:#92400e;line-height:1.4;}
 
 /* Soft empty cells — less logo noise */
-.sp-cal-empty{background:linear-gradient(145deg,#f9fcfa,#f1f7f2);}
 .sp-cal-logo-wrap{opacity:.22;}
+
+/* Mini cal event list under grid */
+.sp-minical-evlist{margin-top:8px;border-top:1px solid var(--sp-border-soft);padding-top:8px;display:flex;flex-direction:column;gap:5px;}
+.sp-minical-evrow{display:flex;gap:8px;align-items:baseline;font-size:12px;line-height:1.35;}
+.sp-minical-evday{font-weight:800;color:var(--sp-primary);min-width:20px;flex-shrink:0;}
+.sp-minical-evname{font-weight:600;flex:1;min-width:0;}
 
 /* Panchanga section when browsing non-today */
 .sp-pancha-sub{font-size:12.5px;font-weight:600;color:var(--sp-text-muted);margin-left:auto;}
@@ -730,11 +756,13 @@ require_once 'includes/header.php';
 
 @media(max-width:576px){
   .sp-pancha-grid{grid-template-columns:repeat(2,1fr);}
-  .sp-cal-daynum{font-size:15px;}
-  .sp-cal-tithi{font-size:11px;}
-  .sp-cal-cell,.sp-cal-empty{min-height:56px;}
+  .sp-cal-daynum{font-size:14px;}
+  .sp-cal-tithi{font-size:10px;}
+  .sp-cal-cell,.sp-cal-empty{min-height:58px;padding:4px 2px;}
+  .sp-cal-legend{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 8px;}
+  .sp-cal-leg-item{font-size:11px;}
   /* Keep a color bar so events remain visible on small screens */
-  .sp-cal-evbadge{font-size:0;line-height:0;padding:0;height:3px;width:85%;max-width:85%;border-radius:1px;overflow:hidden;color:transparent!important;}
+  .sp-cal-evbadge{font-size:0;line-height:0;padding:0;height:4px;width:88%;max-width:88%;border-radius:2px;overflow:hidden;color:transparent!important;border:none!important;}
   .sp-cal-nav{flex-wrap:wrap;gap:8px;justify-content:center;}
   .sp-cal-title{order:-1;width:100%;}
   .sp-rashi-grid{grid-template-columns:1fr;}
@@ -896,14 +924,12 @@ if($activeTab==='patro'): ?>
               $isSel=$d===$selD;
               $mainEv=sp_main_event($cell['evs']);
               $hasCoop=sp_has_event_type($cell['evs'],'sahakari');
-              $bg='#fff'; $brd='1px solid #f0f0f0';
-              if(!$isToday&&$mainEv) $bg=sp_ev_bg($mainEv['type']);
-              elseif(!$isToday&&$cell['shubh']) $bg='#dcfce7';
-              $classes='sp-cal-cell'.($isToday?' today':'').($isSel&&!$isToday?' selected':'').($cell['wd']===6?' sat':'');
+              $classes='sp-cal-cell'.($isToday?' today':'').($isSel&&!$isToday?' selected':'').($cell['wd']===6?' sat':($cell['wd']===0?' sun':''));
               $href="?tab=patro&cal_year=$calY&cal_month=$calM&sel_day=$d&rf=$rfPeriod";
-              $badgeName=$mainEv ? ((mb_strlen($mainEv['name'])>8)?mb_substr($mainEv['name'],0,7).'…':$mainEv['name']) : '';
+              $badgeName=$mainEv ? ((mb_strlen($mainEv['name'])>9)?mb_substr($mainEv['name'],0,8).'…':$mainEv['name']) : '';
+              $cellTitle=sp_cal_cell_title($cell['evs']);
             ?>
-            <a href="<?php echo $href; ?>" class="<?php echo $classes; ?>" style="background:<?php echo $bg; ?>;border:<?php echo $isSel&&!$isToday?'2px solid var(--sp-primary)':$brd; ?>;text-decoration:none;">
+            <a href="<?php echo $href; ?>" class="<?php echo $classes; ?>"<?php echo $cellTitle!==''?' title="'.htmlspecialchars($cellTitle).'"':''; ?> style="<?php echo sp_cal_cell_style($isToday,$mainEv,!empty($cell['shubh'])); ?>">
               <div class="sp-cal-daynum"><?php echo sp_np($d); ?></div>
               <div class="sp-cal-tithi"><?php echo ['प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','पू','प्र','द्वि','तृ','च','पं','ष','स','अ','न','द','ए','द्वा','त्र','च','औ'][$cell['ti']]; ?></div>
               <?php if($mainEv): $ec=sp_ev_color($mainEv['type']); $eb=sp_ev_bg($mainEv['type']); ?>
@@ -999,9 +1025,13 @@ if($activeTab==='patro'): ?>
             <div class="sp-minical-cell empty">·</div>
             <?php else:
               $me=sp_main_event($mc['evs']??[]);
-              $mcls='sp-minical-cell'.($mc['wd']===6?' sat':'');
-              if($me) $mcls.=' '.($me['type']==='holiday'?'holiday':($me['type']==='festival'?'festival':($me['type']==='purnima'?'purnima':($me['type']==='ekadashi'?'ekadashi':($me['type']==='sahakari'?'sahakari':'has-ev'))))); ?>
-            <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=<?php echo $mc['d']; ?>&rf=<?php echo $rfPeriod; ?>" class="<?php echo $mcls; ?>" title="<?php echo $me?htmlspecialchars($me['name']):''; ?>" style="text-decoration:none;">
+              $hasCoopMini=sp_has_event_type($mc['evs']??[],'sahakari');
+              $mcls='sp-minical-cell'.($mc['wd']===6?' sat':'').($mc['wd']===0?' sun':'').($hasCoopMini&&(!$me||($me['type']??'')!=='sahakari')?' has-coop-dot':'');
+              $miniTitle=sp_cal_cell_title($mc['evs']??[]);
+              $miniStyle=sp_cal_cell_style(false,$me,!empty($mc['shubh']));
+              if($me){ $miniStyle.='color:'.sp_ev_color($me['type']).';font-weight:700;'; }
+              elseif(!empty($mc['shubh'])){ $miniStyle.='color:#16a34a;'; } ?>
+            <a href="?tab=patro&cal_year=<?php echo $nextY; ?>&cal_month=<?php echo $nextM; ?>&sel_day=<?php echo $mc['d']; ?>&rf=<?php echo $rfPeriod; ?>" class="<?php echo $mcls; ?>"<?php echo $miniTitle!==''?' title="'.htmlspecialchars($miniTitle).'"':''; ?> style="<?php echo $miniStyle; ?>">
               <?php echo sp_np($mc['d']); ?>
             </a>
             <?php endif; ?>
@@ -1010,11 +1040,11 @@ if($activeTab==='patro'): ?>
         <!-- Next month events -->
         <?php $nextEvDays=array_filter($nextCalCells,fn($c)=>$c!==null&&!empty($c['evs']));
         if(!empty($nextEvDays)): ?>
-        <div style="margin-top:8px;border-top:1px solid var(--sp-border-soft);padding-top:7px;">
-          <?php $shown=0; foreach($nextEvDays as $nc) { foreach($nc['evs'] as $ne) { if($shown>=5) break 2; $ec=sp_ev_color($ne['type']); ?>
-          <div style="font-size:12.5px;display:flex;gap:6px;margin-bottom:4px;align-items:baseline;">
-            <span style="font-weight:700;color:var(--sp-primary);min-width:18px;"><?php echo sp_np($nc['d']); ?></span>
-            <span style="color:<?php echo $ec; ?>;font-weight:600;"><?php echo htmlspecialchars($ne['name']); ?></span>
+        <div class="sp-minical-evlist">
+          <?php $shown=0; foreach($nextEvDays as $nc) { foreach($nc['evs'] as $ne) { if($shown>=6) break 2; $ec=sp_ev_color($ne['type']); ?>
+          <div class="sp-minical-evrow">
+            <span class="sp-minical-evday"><?php echo sp_np($nc['d']); ?></span>
+            <span class="sp-minical-evname" style="color:<?php echo $ec; ?>;"><?php echo htmlspecialchars($ne['name']); ?></span>
           </div>
           <?php $shown++; }} ?>
         </div>
@@ -1099,7 +1129,7 @@ if($activeTab==='patro'): ?>
           if(empty($festOnly)) continue;
           $hasSomeEv=true; ?>
         <a href="?tab=patro&cal_year=<?php echo $calY; ?>&cal_month=<?php echo $calM; ?>&sel_day=<?php echo $ec['d']; ?>&rf=<?php echo $rfPeriod; ?>"
-           class="sp-evlist-row <?php echo $ec['d']===$selD?'active':''; ?>" style="text-decoration:none;">
+           class="sp-evlist-row <?php echo $ec['d']===$selD?'active':''; ?>" style="text-decoration:none;<?php $fe=sp_main_event($festOnly); if($fe){ echo 'border-left-color:'.sp_ev_color($fe['type']).';'; } ?>">
           <div class="sp-evlist-daynum"><?php echo sp_np($ec['d']); ?></div>
           <div>
             <?php foreach($festOnly as $ev): $ec2=sp_ev_color($ev['type']); ?>
