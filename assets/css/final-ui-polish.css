@@ -68,12 +68,17 @@ textarea:focus-visible,
   line-height: 1.55 !important;
 }
 
-.section-divider {
+/* Public section ornament — scoped (not admin modal flex dividers) */
+.section-header .section-divider,
+.section-header-unified .section-divider,
+.about-divider,
+.history-divider {
   width: 56px !important;
   height: 3px !important;
   margin: 0.75rem auto 0.85rem !important;
   border-radius: 999px !important;
   position: relative !important;
+  display: block !important;
   background: linear-gradient(
     90deg,
     transparent,
@@ -82,18 +87,96 @@ textarea:focus-visible,
   ) !important;
 }
 
-/* Drop legacy app-public red/yellow dot — line-only on light sections */
-.section-divider::before,
-.section-divider::after {
+/* Drop legacy app-public red/yellow dot on public section dividers only */
+.section-header .section-divider::before,
+.section-header-unified .section-divider::before,
+.about-divider::before,
+.history-divider::before,
+.section-header .section-divider::after,
+.section-header-unified .section-divider::after,
+.about-divider::after,
+.history-divider::after {
   display: none !important;
   content: none !important;
 }
 
+/* Admin modal keeps flex line dividers (— text —) */
+.modal-content .section-divider {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 25px 0 !important;
+  border-radius: 0 !important;
+  background: none !important;
+  color: #999 !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+}
+
+.modal-content .section-divider::before,
+.modal-content .section-divider::after {
+  display: block !important;
+  content: "" !important;
+  flex: 1 !important;
+  width: auto !important;
+  height: 1px !important;
+  margin: 0 !important;
+  position: static !important;
+  transform: none !important;
+  border-radius: 0 !important;
+  background: #e8e8e8 !important;
+  box-shadow: none !important;
+}
+
+/* Disable duplicate h2 ornaments — section-divider div is the single source */
+.section-header h2::before,
+.section-header h2::after,
+.section-header-unified h2::before,
+.section-header-unified h2::after,
+.section-header h3::before,
+.section-header h3::after,
+.section-header-unified h3::before,
+.section-header-unified h3::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* One badge style — override triple app-public definitions */
+.section-header .section-badge,
+.section-header-unified .section-badge,
+.section-badge-wrap .section-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-dark, #144a21)) !important;
+  color: #fff !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 999px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(26, 95, 42, 0.2) !important;
+}
+
+.section-header .section-badge i,
+.section-header-unified .section-badge i,
+.section-badge-wrap .section-badge i {
+  color: #fff !important;
+}
+
 /* Dark hero/banner sections keep a subtle white center dot */
-.page-banner .section-divider::before,
-.tracker-hero-section .section-divider::before,
-.cr-hero .section-divider::before,
-.page-hero .section-divider::before {
+.page-banner .section-header .section-divider::before,
+.page-banner .section-header-unified .section-divider::before,
+.tracker-hero-section .section-header .section-divider::before,
+.tracker-hero-section .section-header-unified .section-divider::before,
+.cr-hero .section-header .section-divider::before,
+.cr-hero .section-header-unified .section-divider::before,
+.page-hero .section-header .section-divider::before,
+.page-hero .section-header-unified .section-divider::before {
   display: block !important;
   content: "" !important;
   position: absolute !important;
@@ -108,10 +191,14 @@ textarea:focus-visible,
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.16) !important;
 }
 
-.page-banner .section-divider,
-.tracker-hero-section .section-divider,
-.cr-hero .section-divider,
-.page-hero .section-divider {
+.page-banner .section-header .section-divider,
+.page-banner .section-header-unified .section-divider,
+.tracker-hero-section .section-header .section-divider,
+.tracker-hero-section .section-header-unified .section-divider,
+.cr-hero .section-header .section-divider,
+.cr-hero .section-header-unified .section-divider,
+.page-hero .section-header .section-divider,
+.page-hero .section-header-unified .section-divider {
   background: linear-gradient(
     90deg,
     transparent,
@@ -120,6 +207,32 @@ textarea:focus-visible,
     rgba(255, 255, 255, 0.45),
     transparent
   ) !important;
+}
+
+/* Corp modal-header tint — keep custom/lightbox modals readable */
+.gallery-photo-modal .modal-content,
+.gallery-video-modal .modal-content,
+.notice-popup-enhanced .popup-dialog {
+  --modal-header-bg-override: transparent;
+}
+
+.modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):not(.bg-dark) {
+  background: #fff !important;
+  border-bottom: 1px solid #e8ece9 !important;
+}
+
+.modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):not(.bg-dark) .modal-title,
+.modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):not(.bg-dark) .modal-title h5 {
+  color: #1f2a24 !important;
+}
+
+body.dark-mode .modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):not(.bg-dark) {
+  background: #17201d !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+body.dark-mode .modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):not(.bg-dark) .modal-title {
+  color: #f3f7f4 !important;
 }
 
 .breadcrumb {

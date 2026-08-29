@@ -135,7 +135,11 @@ assertContains('assets/css/final-ui-polish.css', 'Homepage notices: undo over-co
 assertContains('assets/css/final-ui-polish.css', 'Homepage interest rates: undo over-compact', 'rate row readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Institutional stats: readable labels', 'stats label readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Tools widget: readable footer label', 'tools mini footer readability marker');
-assertContains('assets/css/final-ui-polish.css', 'Drop legacy app-public red/yellow dot', 'section divider dot override');
+assertContains('assets/css/final-ui-polish.css', 'Drop legacy app-public red/yellow dot on public section dividers only', 'section divider dot override');
+assertContains('assets/css/final-ui-polish.css', 'Admin modal keeps flex line dividers', 'admin modal divider scoped');
+assertContains('assets/css/final-ui-polish.css', 'Disable duplicate h2 ornaments', 'section h2 pseudo cleanup');
+assertContains('assets/css/final-ui-polish.css', 'One badge style', 'section badge unify');
+assertContains('assets/css/final-ui-polish.css', 'Corp modal-header tint', 'modal header corp override fix');
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
 
 // Page-scoped KYC capture CSS still loaded (not orphaned)
