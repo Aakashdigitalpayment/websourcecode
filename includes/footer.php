@@ -129,7 +129,7 @@ try {
                         <div class="footer-logo footer-logo-stacked <?php echo !empty($footerLogo) ? 'has-logo' : 'no-logo'; ?>">
                 <!-- Logo image — logo भए नाम नदेखाउने -->
                 <?php if (!empty($footerLogo)): ?>
-                <img src="<?php echo SITE_URL . $footerLogo; ?>" alt="<?php echo $siteName ?? 'आकाश सहकारी'; ?>" loading="lazy" decoding="async" onerror="this.style.display='none'">
+                <img src="<?php echo e(safe_versioned_media_src($footerLogo)); ?>" alt="<?php echo e($siteName ?? 'आकाश सहकारी'); ?>" loading="lazy" decoding="async" onerror="this.style.display='none'">
                 <?php else: ?>
                                 <span class="footer-sahakari-name"><?php echo $siteName ?? 'आकाश सहकारी'; ?></span>
                 <?php endif; ?>

@@ -46,7 +46,9 @@ assertContains('scripts/run-all-smokes.sh', 'smoke-*.php', 'run-all-smokes loops
 assertContains('.github/workflows/smoke.yml', 'smoke-*.php', 'CI runs smoke scripts');
 assertContains('admin/site-health.php', 'Auth signing secret', 'site health auth secret check');
 assertContains('admin/site-health.php', 'Deploy pull helper', 'site health deploy helper check');
-assertContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon sanitizer in config');
+assertContains('includes/config.php', 'function safe_versioned_media_src', 'versioned safe media helper');
+assertContains('index.php', 'safe_versioned_media_src($chairmanPhoto)', 'homepage chairman photo guarded');
+assertContains('includes/header.php', '$__headerLogoSrc', 'header logo safe src');
 assertContains('reports.php', 'e(getLangField($report, \'title\')', 'report titles escaped');
 assertContains('downloads.php', 'e(getLangField($item, \'title\')', 'download titles escaped');
 assertContains('downloads.php', 'safe_media_src($item[\'file_path\']', 'download href guarded');

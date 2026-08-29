@@ -1070,6 +1070,64 @@ function safe_public_upload_path(?string $path): string
 }
 
 /**
+ * Broader public media path — uploads plus static assets/images (logos, site photos).
+ */
+function safe_public_media_path(?string $path): string
+{
+    if ($path === null || $path === '') {
+        return '';
+    }
+    $path = str_replace('\\', '/', trim($path));
+    if ($path === '' || preg_match('#^(https?:)?//#i', $path) || str_contains($path, '..')) {
+        return '';
+    }
+    $p = ltrim($path, '/');
+    if (!preg_match('#^(assets/uploads/|assets/images/|uploads/)#i', $p)) {
+        return '';
+    }
+    return $p;
+}
+
+/**
+ * Safe image/file src for public templates — blocks javascript: and path traversal.
+ */
+function safe_media_src(?string $path): string
+{
+    if ($path === null || trim($path) === '') {
+        return '';
+    }
+    $path = trim($path);
+    if (preg_match('#^https?://#i', $path)) {
+        return safe_http_url($path);
+    }
+    $rel = safe_public_media_path($path);
+    if ($rel === '') {
+        $rel = safe_public_upload_path($path);
+    }
+    return $rel !== '' ? getAssetUrl($rel) : '';
+}
+
+/**
+ * Safe public media URL with ?v=filemtime cache bust (homepage logos, leadership photos).
+ */
+function safe_versioned_media_src(?string $path): string
+{
+    if ($path === null || trim($path) === '') {
+        return '';
+    }
+    $path = trim($path);
+    if (preg_match('#^https?://#i', $path)) {
+        $safe = safe_http_url($path);
+        return $safe !== '' ? coop_versioned_asset_url($safe) : '';
+    }
+    $rel = safe_public_media_path($path);
+    if ($rel === '') {
+        $rel = safe_public_upload_path($path);
+    }
+    return $rel !== '' ? coop_versioned_asset_url($rel) : '';
+}
+
+/**
  * Logged-in member profile for public forms.
  * If member session exists, return basic profile for auto-fill.
  */
@@ -1743,22 +1801,6 @@ function getAssetUrl($path) {
 
     // Build full URL
     return SITE_URL . $path;
-}
-
-/**
- * Safe image/file src for public templates — blocks javascript: and path traversal.
- */
-function safe_media_src(?string $path): string
-{
-    if ($path === null || trim($path) === '') {
-        return '';
-    }
-    $path = trim($path);
-    if (preg_match('#^https?://#i', $path)) {
-        return safe_http_url($path);
-    }
-    $rel = safe_public_upload_path($path);
-    return $rel !== '' ? getAssetUrl($rel) : '';
 }
 
 // Flash message functions

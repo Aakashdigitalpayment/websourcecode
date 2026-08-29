@@ -490,7 +490,9 @@ if (isset($pageOgImage) && (string) $pageOgImage !== '') {
     $__seoOgImg = function_exists('seo_absolute_asset_url') ? seo_absolute_asset_url((string) $pageOgImage) : (SITE_URL . ltrim((string) $pageOgImage, '/'));
 } else {
     $seoOgPath = trim((string) getSetting('seo_og_image', ''));
-    $seoOgSafe = $seoOgPath !== '' && function_exists('safe_public_upload_path') ? safe_public_upload_path($seoOgPath) : '';
+    $seoOgSafe = $seoOgPath !== '' && function_exists('safe_public_media_path')
+        ? safe_public_media_path($seoOgPath)
+        : ($seoOgPath !== '' && function_exists('safe_public_upload_path') ? safe_public_upload_path($seoOgPath) : '');
     if ($seoOgSafe !== '' && function_exists('seo_absolute_asset_url')) {
         $__seoOgImg = seo_absolute_asset_url($seoOgSafe);
     } else {
@@ -513,6 +515,7 @@ $__hrefLangEn = $__seoCanon . $__hrefLangSep . 'lang=en';
 
 $__faviconRel = function_exists('getSiteFaviconPath') ? getSiteFaviconPath() : 'assets/images/icon-192x192.png';
 $__faviconRelVer = function_exists('coop_versioned_asset_url') ? coop_versioned_asset_url($__faviconRel) : $__faviconRel;
+$__headerLogoSrc = function_exists('safe_versioned_media_src') ? safe_versioned_media_src($logo) : (SITE_URL . ltrim((string) $logo, '/'));
 $__faviconUrl = function_exists('seo_absolute_asset_url')
     ? seo_absolute_asset_url($__faviconRelVer)
     : (rtrim(SITE_URL, '/') . '/' . ltrim($__faviconRelVer, '/'));
@@ -622,7 +625,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
     <?php endforeach; ?>
 
     <!-- Preload Logo for faster display -->
-    <link rel="preload" href="<?php echo SITE_URL . $logo; ?>" as="image">
+    <link rel="preload" href="<?php echo e($__headerLogoSrc); ?>" as="image">
     <?php if (!empty($__preloadLcpImage)): ?>
     <link rel="preload" as="image" href="<?php echo htmlspecialchars($__preloadLcpImage, ENT_QUOTES, 'UTF-8'); ?>" fetchpriority="high">
     <?php endif; ?>
@@ -1537,7 +1540,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <div class="pfl-himal-silhouette"></div>
             <a href="<?php echo SITE_URL; ?>" class="pfl-brand-content <?php echo !empty($logo) ? 'has-logo' : 'no-logo'; ?>">
                 <?php if (!empty($logo)): ?>
-                <img src="<?php echo SITE_URL . $logo; ?>"
+                <img src="<?php echo e($__headerLogoSrc); ?>"
                      alt="<?php echo e($siteNameEn); ?>"
                      class="pfl-brand-logo"
                      onerror="this.style.display='none';var p=this.parentElement;p.classList.remove('has-logo');p.classList.add('no-logo');if(!p.querySelector('.pfl-brand-logo-fallback')){var fb=document.createElement('div');fb.className='pfl-brand-logo-fallback';fb.innerHTML='<i class=\'fas fa-landmark\'></i>';p.insertBefore(fb,this);}">
@@ -1938,7 +1941,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                 <div class="col-lg-4 col-md-5 col-8">
                     <div class="logo-banner">
                         <a href="<?php echo SITE_URL; ?>" class="logo-banner-link">
-                            <img src="<?php echo SITE_URL . $logo; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/')) . ltrim($logo, '/')) ?: '1'; ?>" alt="<?php echo $siteNameEn; ?>" class="logo-banner-img">
+                            <img src="<?php echo e($__headerLogoSrc); ?>" alt="<?php echo e($siteNameEn); ?>" class="logo-banner-img">
                         </a>
                     </div>
                 </div>

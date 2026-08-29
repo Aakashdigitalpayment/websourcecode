@@ -92,6 +92,8 @@ assertFileContains('includes/footer.php', 'coop_client_ip', 'visitor counter cli
 assertFileContains('application-tracker.php', 'safe_media_src($app[\'admin_attachment\']', 'tracker attachment href guarded');
 assertFileContains('awards.php', 'safe_media_src($award', 'awards image src guarded');
 assertFileContains('includes/member-auth.php', 'coop_client_ip', 'member session ip binding');
+assertFileContains('index.php', 'safe_versioned_media_src', 'homepage versioned media src');
+assertFileContains('includes/header.php', 'safe_versioned_media_src', 'header safe logo src');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {

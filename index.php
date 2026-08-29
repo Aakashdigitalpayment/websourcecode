@@ -741,7 +741,7 @@ if ($ceoMember) {
                 <div class="leadership-profile-card chairman-card">
                     <div class="profile-photo">
                         <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo SITE_URL . $chairmanPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($chairmanPhoto, '/')) ?: '1'; ?>" loading="lazy" alt="<?php echo $chairmanName; ?>">
+                        <img src="<?php echo e(safe_versioned_media_src($chairmanPhoto)); ?>" loading="lazy" alt="<?php echo e($chairmanName); ?>">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="fas fa-user-tie"></i>
@@ -749,7 +749,7 @@ if ($ceoMember) {
                         <?php endif; ?>
                     </div>
                     <div class="profile-info">
-                        <h4><?php echo $chairmanName; ?></h4>
+                        <h4><?php echo e($chairmanName); ?></h4>
                         <span class="profile-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
                         <p class="profile-message"><?php echo e(truncateText(strip_tags($chairmanMessage), 120)); ?></p>
                     </div>
@@ -765,7 +765,7 @@ if ($ceoMember) {
                 <div class="leadership-profile-card ceo-card">
                     <div class="profile-photo">
                         <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo SITE_URL . $ceoPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($ceoPhoto, '/')) ?: '1'; ?>" alt="<?php echo $ceoName; ?>" loading="lazy" decoding="async">
+                        <img src="<?php echo e(safe_versioned_media_src($ceoPhoto)); ?>" alt="<?php echo e($ceoName); ?>" loading="lazy" decoding="async">
                         <?php else: ?>
                         <div class="photo-placeholder">
                             <i class="fas fa-user-tie"></i>
@@ -773,7 +773,7 @@ if ($ceoMember) {
                         <?php endif; ?>
                     </div>
                     <div class="profile-info">
-                        <h4><?php echo $ceoName; ?></h4>
+                        <h4><?php echo e($ceoName); ?></h4>
                         <span class="profile-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
                         <p class="profile-message"><?php echo e(truncateText(strip_tags($ceoMessage), 120)); ?></p>
                     </div>
@@ -886,7 +886,7 @@ if ($ceoMember) {
                     $mobileAppPhoto = getSetting('mobile_app_photo', '');
                     if ($mobileAppPhoto):
                     ?>
-                    <img src="<?php echo SITE_URL . $mobileAppPhoto; ?>?v=<?php echo @filemtime((defined('ROOT_PATH') ? ROOT_PATH : (__DIR__ . '/')) . ltrim($mobileAppPhoto, '/')) ?: '1'; ?>" alt="Mobile Banking App" class="app-phone-img" loading="lazy">
+                    <img src="<?php echo e(safe_versioned_media_src($mobileAppPhoto)); ?>" alt="Mobile Banking App" class="app-phone-img" loading="lazy">
                     <?php else: ?>
                     <div class="app-mockup-default">
                         <div class="phone-frame">
@@ -1071,7 +1071,7 @@ if (empty($appFeatures)) {
                         </span>
                         <?php endif; ?>
                         <?php if (!empty($award['description']) || !empty($award['description_np'])): ?>
-                        <p class="award-desc"><?php echo isEnglish() ? ($award['description'] ?? $award['description_np']) : ($award['description_np'] ?? $award['description']); ?></p>
+                        <p class="award-desc"><?php echo e(isEnglish() ? ($award['description'] ?? $award['description_np']) : ($award['description_np'] ?? $award['description'])); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1149,7 +1149,7 @@ $hasPhoto = !empty($memberSpotlight['photo']) && file_exists(ROOT_PATH . $member
                         <div class="spotlight-photo-col">
                             <div class="spotlight-photo-frame">
                                 <?php if ($hasPhoto): ?>
-                                <img src="<?php echo SITE_URL . $memberSpotlight['photo']; ?>"
+                                <img src="<?php echo e(safe_versioned_media_src($memberSpotlight['photo'] ?? '')); ?>"
                                      alt="<?php echo htmlspecialchars($spotlightName); ?>"
                                      class="spotlight-photo"
                                      loading="lazy"
