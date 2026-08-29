@@ -39,7 +39,8 @@ $logo = function_exists('getLocalizedLogoPath')
     ? trim((string) getLocalizedLogoPath('assets/images/logo.png'))
     : trim((string) getSetting('site_logo', getSetting('logo', 'assets/images/logo.png')));
 $mobileAppPhoto = getSetting('mobile_app_photo', 'assets/images/mobile-app.png');
-$himalBg      = getSetting('himal_bg', '');
+$himalBgRaw   = trim((string) getSetting('himal_bg', ''));
+$himalBgCssUrl = $himalBgRaw !== '' ? safe_versioned_media_src_absolute($himalBgRaw) : '';
 $himalOpacity = max(0, min(100, (int)(float)getSetting('himal_bg_opacity', '100')));
 $visionMenuLabelNp = trim((string)getSetting('vision_content_title_np', 'हाम्रो दृष्टिकोण'));
 $visionMenuLabelEn = trim((string)getSetting('vision_content_title_en', 'Our Vision'));
@@ -1534,7 +1535,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
     </div>
 
     <!-- PFL Main Header: Brand + Navigation (himal bg on nav/right side) -->
-    <header class="pfl-main-header" id="pflMainHeader"<?php if ($himalBg): ?> style="--himal-bg:url('<?php echo e(safe_versioned_media_src($himalBg)); ?>');--himal-opacity:<?php echo $himalOpacity; ?>"<?php endif; ?>>
+    <header class="pfl-main-header" id="pflMainHeader"<?php if ($himalBgCssUrl !== ''): ?> style="--himal-bg:url('<?php echo e($himalBgCssUrl); ?>');--himal-opacity:<?php echo (int) $himalOpacity; ?>"<?php endif; ?>>
         <!-- LEFT: Logo area — clean white background -->
         <div class="pfl-brand-area">
             <div class="pfl-himal-silhouette"></div>

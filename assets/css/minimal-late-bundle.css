@@ -3831,6 +3831,67 @@ body.dark-mode .modal-header:not(.bg-primary):not(.bg-success):not(.bg-danger):n
   color: #f3f7f4 !important;
 }
 
+/* ── Header: Himal bg + SINCE badge + lang chips (override clash fixes) ── */
+
+.pfl-brand-content.has-logo {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+
+.pfl-since-badge {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  transform: none !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  margin: 0 0 0 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.pfl-brand-area {
+  max-width: min(480px, 42vw) !important;
+}
+
+html[lang="en"] .pfl-brand-area {
+  max-width: min(390px, 34vw) !important;
+}
+
+html[lang="en"] .pfl-brand-content.has-logo .pfl-brand-logo {
+  max-width: min(250px, 100%) !important;
+}
+
+html[lang="en"] .pfl-nav-area {
+  padding-left: 10px !important;
+}
+
+.pfl-top-right .pfl-lang-wrap {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+.pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+  min-height: 28px !important;
+  line-height: 1 !important;
+}
+
+html[lang="en"] .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
+  font-size: 11px !important;
+  padding: 3px 6px !important;
+  gap: 4px !important;
+}
+
+@media (min-width: 992px) {
+  .pfl-main-header::after {
+    display: block !important;
+    content: "" !important;
+  }
+}
+
 .breadcrumb {
   font-size: 0.875rem !important;
   margin-bottom: 0 !important;

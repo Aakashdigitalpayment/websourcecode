@@ -1160,6 +1160,21 @@ function safe_versioned_media_src(?string $path): string
 }
 
 /**
+ * Absolute site URL for CSS background-image vars (must not be document-relative).
+ */
+function safe_versioned_media_src_absolute(?string $path): string
+{
+    $src = safe_versioned_media_src($path);
+    if ($src === '') {
+        return '';
+    }
+    if (preg_match('#^https?://#i', $src)) {
+        return $src;
+    }
+    return rtrim(SITE_URL, '/') . '/' . ltrim($src, '/');
+}
+
+/**
  * Logged-in member profile for public forms.
  * If member session exists, return basic profile for auto-fill.
  */

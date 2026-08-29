@@ -140,6 +140,9 @@ assertContains('assets/css/final-ui-polish.css', 'Admin modal keeps flex line di
 assertContains('assets/css/final-ui-polish.css', 'Disable duplicate h2 ornaments', 'section h2 pseudo cleanup');
 assertContains('assets/css/final-ui-polish.css', 'One badge style', 'section badge unify');
 assertContains('assets/css/final-ui-polish.css', 'Corp modal-header tint', 'modal header corp override fix');
+assertContains('assets/css/final-ui-polish.css', 'Header: Himal bg + SINCE badge', 'header himal since lang fixes');
+assertContains('includes/config.php', 'function safe_versioned_media_src_absolute', 'absolute versioned media helper');
+assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute url');
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
 
 // Page-scoped KYC capture CSS still loaded (not orphaned)
