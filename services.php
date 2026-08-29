@@ -211,7 +211,7 @@ if (!function_exists('service_anchor_id')) {
                                 </div>
                             <?php endif; ?>
                             <?php if (!empty($service['image'])): ?>
-                                <img src="<?php echo $service['image']; ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
+                                <img src="<?php echo safe_media_src($service['image']); ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
                             <?php endif; ?>
                         </div>
                     </div>
@@ -272,7 +272,7 @@ if (!function_exists('service_anchor_id')) {
                                 </div>
                             <?php endif; ?>
                             <?php if (!empty($service['image'])): ?>
-                                <img src="<?php echo $service['image']; ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
+                                <img src="<?php echo safe_media_src($service['image']); ?>" loading="lazy" alt="<?php echo htmlspecialchars($service['title'] ?: $service['title_np'], ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid mt-3 rounded">
                             <?php endif; ?>
                         </div>
                     </div>

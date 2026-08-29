@@ -68,7 +68,7 @@ if (!ai_chat_is_enabled()) {
 }
 
 $db = function_exists('getDB') ? getDB() : null;
-$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+$ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
 $apiKey = ai_chat_get_api_key();
 if ($apiKey === '') {

@@ -48,6 +48,12 @@ assertContains('admin/site-health.php', 'Auth signing secret', 'site health auth
 assertContains('admin/site-health.php', 'Deploy pull helper', 'site health deploy helper check');
 assertContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon sanitizer in config');
 assertContains('reports.php', 'e(getLangField($report, \'title\')', 'report titles escaped');
+assertContains('downloads.php', 'e(getLangField($item, \'title\')', 'download titles escaped');
+assertContains('downloads.php', 'safe_media_src($item[\'file_path\']', 'download href guarded');
+assertContains('scripts/generate-auth-secret.php', 'bin2hex(random_bytes(32))', 'auth secret generator');
+assertContains('member/check-availability.php', 'coop_client_ip', 'member availability uses client ip');
+assertContains('api-public-chat.php', 'coop_client_ip', 'public chat uses client ip');
+assertContains('api-ai-chat.php', 'coop_client_ip', 'ai chat uses client ip');
 
 foreach (['scripts/deploy-pull-safe.sh', 'scripts/run-all-smokes.sh', 'admin/site-health.php'] as $f) {
     $cmd = 'php -l ' . escapeshellarg($root . '/' . $f) . ' 2>&1';

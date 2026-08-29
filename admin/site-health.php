@@ -159,7 +159,7 @@ $checks[] = healthRow(
     $hasAuthSecret ? 'ok' : 'warn',
     $hasAuthSecret ? 'AUTH_SECRET or includes/.auth-secret configured'
         : 'Using derived site seed only (legacy HMAC links still verify)',
-    'Production मा includes/.auth-secret (32+ chars) create गर्नुहोस् — tracker/id-card links बलियो हुन्छ।'
+    'Production मा php scripts/generate-auth-secret.php चलाउनुहोस् वा includes/.auth-secret (32+ chars) create गर्नुहोस्।'
 );
 
 $deployScript = ROOT_PATH . 'scripts/deploy-pull-safe.sh';

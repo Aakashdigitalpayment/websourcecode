@@ -77,7 +77,7 @@ require_once 'includes/header.php';
                 foreach ($popularLinks as $link):
                 ?>
                 <a href="<?php echo SITE_URL . $link['url']; ?>" class="btn btn-sm btn-light border">
-                    <i class="fas <?php echo $link['icon']; ?> me-1"></i>
+                    <i class="fas <?php echo htmlspecialchars(coop_sanitize_icon_class($link['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> me-1"></i>
                     <?php echo isEnglish() ? $link['en'] : $link['np']; ?>
                 </a>
                 <?php endforeach; ?>

@@ -18,7 +18,7 @@ header('X-Content-Type-Options: nosniff');
 header('Cache-Control: no-store');
 
 /* ── Simple rate limit (per IP) ── */
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 $rlKey = 'memchk_' . preg_replace('/[^0-9a-f.:]/i', '', $ip);
 if (function_exists('checkRateLimit')) {
     if (!checkRateLimit($rlKey, 20, 60)) {

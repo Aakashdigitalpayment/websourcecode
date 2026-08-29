@@ -85,6 +85,9 @@ assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', '
 assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
 assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
+assertFileContains('downloads.php', 'safe_media_src($item', 'download file href guarded');
+assertFileContains('services.php', 'safe_media_src($service', 'service image src guarded');
+assertFileContains('member/check-availability.php', 'coop_client_ip', 'availability rate limit client ip');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {

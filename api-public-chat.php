@@ -34,7 +34,7 @@ if (mb_strlen($body) > 2000)                  $errs[] = 'सन्देश ≤2
 if ($errs) { echo json_encode(['ok'=>false,'msg'=>implode(' • ', $errs)]); exit; }
 
 /* ── IP rate-limit: 5 messages / 10 min ── */
-$ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+$ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 try {
     $st = $db->prepare("SELECT COUNT(*) FROM hrm_internal_messages
                         WHERE created_at > (NOW() - INTERVAL 10 MINUTE)

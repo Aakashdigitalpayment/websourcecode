@@ -76,16 +76,17 @@ foreach ($downloads as $download) {
                                 elseif (strpos($item['file_type'] ?? '', 'xls') !== false) $fileIcon = 'fas fa-file-excel';
                                 elseif (strpos($item['file_type'] ?? '', 'image') !== false) $fileIcon = 'fas fa-file-image';
                                 ?>
-                                <i class="<?php echo $fileIcon; ?>"></i>
+                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($fileIcon), ENT_QUOTES, 'UTF-8'); ?>"></i>
                             </div>
                             <div class="download-info">
-                                <h5><?php echo getLangField($item, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($item, 'title')); ?></h5>
                                 <span class="file-type"><?php echo strtoupper($item['file_type'] ?? 'PDF'); ?></span>
                                 <span class="download-count">
                                     <i class="fas fa-download"></i> <?php echo $item['download_count'] ?? 0; ?>
                                 </span>
                             </div>
-                            <a href="<?php echo SITE_URL . $item['file_path']; ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer">
+                            <?php $dlHref = safe_media_src($item['file_path'] ?? ''); ?>
+                            <a href="<?php echo $dlHref !== '' ? e($dlHref) : '#'; ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer"<?php echo $dlHref === '' ? ' aria-disabled="true" tabindex="-1"' : ''; ?>>
                                 <i class="fas fa-download"></i> <?php echo $L['download']; ?>
                             </a>
                         </div>
