@@ -3651,7 +3651,7 @@ textarea:focus-visible,
 .section-header h2 {
   font-weight: 700 !important;
   letter-spacing: -0.02em !important;
-  margin-bottom: 0.45rem !important;
+  margin-bottom: 0.55rem !important;
 }
 
 .section-header-unified p,
@@ -3660,18 +3660,60 @@ textarea:focus-visible,
   max-width: 42rem;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 0 !important;
   line-height: 1.55 !important;
 }
 
 .section-divider {
   width: 56px !important;
   height: 3px !important;
-  margin: 0.65rem auto 0.85rem !important;
+  margin: 0.75rem auto 0.85rem !important;
   border-radius: 999px !important;
+  position: relative !important;
   background: linear-gradient(
     90deg,
     transparent,
     var(--primary-color, #1a5f2a),
+    transparent
+  ) !important;
+}
+
+/* Drop legacy app-public red/yellow dot — line-only on light sections */
+.section-divider::before,
+.section-divider::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Dark hero/banner sections keep a subtle white center dot */
+.page-banner .section-divider::before,
+.tracker-hero-section .section-divider::before,
+.cr-hero .section-divider::before,
+.page-hero .section-divider::before {
+  display: block !important;
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 7px !important;
+  height: 7px !important;
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.16) !important;
+}
+
+.page-banner .section-divider,
+.tracker-hero-section .section-divider,
+.cr-hero .section-divider,
+.page-hero .section-divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 255, 255, 0.85),
+    rgba(255, 255, 255, 0.45),
     transparent
   ) !important;
 }

@@ -135,6 +135,7 @@ assertContains('assets/css/final-ui-polish.css', 'Homepage notices: undo over-co
 assertContains('assets/css/final-ui-polish.css', 'Homepage interest rates: undo over-compact', 'rate row readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Institutional stats: readable labels', 'stats label readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Tools widget: readable footer label', 'tools mini footer readability marker');
+assertContains('assets/css/final-ui-polish.css', 'Drop legacy app-public red/yellow dot', 'section divider dot override');
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
 
 // Page-scoped KYC capture CSS still loaded (not orphaned)
