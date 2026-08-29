@@ -39,26 +39,45 @@ function smoke_cms_sanitize(?string $html): string
     return $clean;
 }
 
+/** Mirror includes/config.php coop_render_cms_prose — keep aligned on change */
+function smoke_cms_render_prose(?string $html): string
+{
+    $html = trim((string) $html);
+    if ($html === '') {
+        return '';
+    }
+    if ($html === strip_tags($html)) {
+        return '<p>' . nl2br(htmlspecialchars($html, ENT_QUOTES, 'UTF-8'), false) . '</p>';
+    }
+    return smoke_cms_sanitize($html);
+}
+
 $config = (string) file_get_contents($root . '/includes/config.php');
 if (strpos($config, 'function coop_sanitize_cms_html') === false) {
     bad('includes/config.php: coop_sanitize_cms_html missing');
 } else {
     ok('includes/config.php: coop_sanitize_cms_html defined');
 }
+if (strpos($config, 'function coop_render_cms_prose') === false) {
+    bad('includes/config.php: coop_render_cms_prose missing');
+} else {
+    ok('includes/config.php: coop_render_cms_prose defined');
+}
 
 foreach ([
     ['page.php', 'coop_sanitize_cms_html', 'cms page body sanitized'],
     ['news-detail.php', 'coop_sanitize_cms_html', 'news detail sanitized'],
     ['notices.php', 'coop_sanitize_cms_html', 'notice detail sanitized'],
-    ['about.php', 'coop_sanitize_cms_html', 'about prose sanitized'],
+    ['about.php', 'coop_render_cms_prose', 'about vision/mission prose rendered'],
     ['about.php', 'safe_versioned_media_src', 'about visual safe src'],
     ['faqs.php', "e(isEnglish()", 'faq question escaped'],
+    ['career-detail.php', 'coop_render_cms_prose', 'job description prose rendered'],
     ['career-detail.php', 'safe_media_src', 'job attachment safe src'],
     ['admin/welfare-claims.php', 'safe_media_src', 'welfare certificate safe src'],
     ['admin/account-applications.php', 'safe_media_src', 'account doc safe src'],
     ['admin/job-applications.php', 'safe_media_src', 'job application docs safe src'],
     ['index.php', 'e($heroTitle)', 'hero title escaped'],
-    ['includes/footer.php', 'e($aboutShort)', 'footer about escaped'],
+    ['includes/footer.php', 'coop_render_cms_prose', 'footer about prose rendered'],
     ['includes/information-room-tables.php', 'coop_client_ip', 'information room log ip'],
 ] as [$file, $needle, $why]) {
     $path = $root . '/' . $file;
@@ -93,6 +112,22 @@ if (stripos($linkOut, 'javascript:') !== false) {
     bad('mirrored sanitizer: javascript href not neutralized');
 } else {
     ok('mirrored sanitizer: javascript href neutralized');
+}
+
+$plainOut = smoke_cms_render_prose("Line one\nLine two");
+if (strpos($plainOut, '<p>') === false || strpos($plainOut, '<br') === false) {
+    bad('mirrored prose: plain text not wrapped in paragraph');
+} else {
+    ok('mirrored prose: plain text wrapped with nl2br');
+}
+
+$htmlProseOut = smoke_cms_render_prose('<p>Rich</p><script>x</script>');
+if (stripos($htmlProseOut, '<script') !== false) {
+    bad('mirrored prose: html path did not sanitize');
+} elseif (stripos($htmlProseOut, '<p>Rich</p>') === false) {
+    bad('mirrored prose: allowed html not preserved');
+} else {
+    ok('mirrored prose: html sanitized and preserved');
 }
 
 echo "\n{$pass} passed, {$fail} failed\n";

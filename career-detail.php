@@ -303,7 +303,7 @@ $L = getLangStrings();
                         <div class="job-section">
                             <h4><?php echo isEnglish() ? 'Job Description' : 'कामको विवरण'; ?></h4>
                             <div class="job-content">
-                                <?php echo nl2br(e($jobDesc)); ?>
+                                <?php echo coop_render_cms_prose($jobDesc); ?>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -312,7 +312,7 @@ $L = getLangStrings();
                         <div class="job-section">
                             <h4><?php echo isEnglish() ? 'Requirements' : 'आवश्यकताहरू'; ?></h4>
                             <div class="job-content">
-                                <?php echo nl2br(e($job['requirements'])); ?>
+                                <?php echo coop_render_cms_prose($job['requirements']); ?>
                             </div>
                         </div>
                         <?php endif; ?>

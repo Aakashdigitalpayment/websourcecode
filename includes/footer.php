@@ -134,7 +134,7 @@ try {
                                 <span class="footer-sahakari-name"><?php echo e($siteName ?? 'आकाश सहकारी'); ?></span>
                 <?php endif; ?>
                             </div>
-                            <p><?php echo e($aboutShort); ?></p>
+                            <div class="footer-about-text coop-prose"><?php echo coop_render_cms_prose($aboutShort); ?></div>
                             <div class="footer-social">
                                 <a href="<?php echo $facebookUrl ?? '#'; ?>" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                                 <a href="<?php echo $youtubeUrl ?? '#'; ?>" title="YouTube"><i class="fab fa-youtube"></i></a>

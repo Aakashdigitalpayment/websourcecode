@@ -245,7 +245,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $visionContent = isEnglish() ? getSetting('vision_content_en', '') : getSetting('vision_content_np', '');
                         if ($visionContent):
-                            echo coop_sanitize_cms_html($visionContent);
+                            echo coop_render_cms_prose($visionContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'To be the most trusted and preferred cooperative in our community.' : 'समुदायमा सबैभन्दा विश्वसनीय र रुचाइएको सहकारी संस्था बन्नु।'; ?></p>
@@ -265,7 +265,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php
                         $missionContent = isEnglish() ? getSetting('mission_content_en', '') : getSetting('mission_content_np', '');
                         if ($missionContent):
-                            echo coop_sanitize_cms_html($missionContent);
+                            echo coop_render_cms_prose($missionContent);
                         else:
                         ?>
                         <p><?php echo isEnglish() ? 'To provide quality financial services while promoting the spirit of cooperation and helping members achieve their financial goals.' : 'सहकारिताको भावनालाई प्रवर्द्धन गर्दै सदस्यहरूलाई उनीहरूको वित्तीय लक्ष्य हासिल गर्न मद्दत गर्ने गुणस्तरीय वित्तीय सेवा प्रदान गर्नु।'; ?></p>

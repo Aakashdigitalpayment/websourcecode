@@ -388,6 +388,21 @@ function coop_sanitize_cms_html(?string $html): string
 }
 
 /**
+ * Render CMS/settings content: plain text → escaped paragraph; HTML → sanitized whitelist.
+ */
+function coop_render_cms_prose(?string $html): string
+{
+    $html = trim((string) $html);
+    if ($html === '') {
+        return '';
+    }
+    if ($html === strip_tags($html)) {
+        return '<p>' . nl2br(e($html), false) . '</p>';
+    }
+    return coop_sanitize_cms_html($html);
+}
+
+/**
  * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
  * Bare domains get https:// prepended. Invalid schemes return empty string.
  */
