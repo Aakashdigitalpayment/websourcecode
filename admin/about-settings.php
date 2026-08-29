@@ -192,7 +192,7 @@ require_once 'includes/admin-ui.php';
                     <!-- Current Photo Preview -->
                     <?php if ($historyPhoto && file_exists(ROOT_PATH . $historyPhoto)): ?>
                     <div class="mb-3 text-center">
-                        <img src="<?php echo SITE_URL . $historyPhoto; ?>"
+                        <img src="<?php echo e(safe_versioned_media_src($historyPhoto)); ?>"
                              alt="History Photo"
                              class="img-fluid rounded shadow-sm"
                              style="max-height:200px;object-fit:cover;">

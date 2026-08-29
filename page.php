@@ -112,11 +112,11 @@ require_once 'includes/header.php';
             <div class="col-lg-10 mx-auto">
                 <div class="page-content-box">
                     <?php
-                    $__fi = safe_public_upload_path($page['featured_image'] ?? '');
-                    if ($__fi !== ''):
+                    $__fiSrc = safe_versioned_media_src($page['featured_image'] ?? '');
+                    if ($__fiSrc !== ''):
                     ?>
                     <div class="page-featured-image mb-4">
-                        <img src="<?php echo htmlspecialchars(SITE_URL . $__fi, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" alt="<?php echo htmlspecialchars($pageTitle); ?>" class="img-fluid rounded-3">
+                        <img src="<?php echo e($__fiSrc); ?>" loading="lazy" alt="<?php echo e($pageTitle); ?>" class="img-fluid rounded-3">
                     </div>
                     <?php endif; ?>
 
@@ -125,7 +125,7 @@ require_once 'includes/header.php';
                         // Display content based on language
                         // Database: content = English, content_np = Nepali
                         $content = isEnglish() ? ($page['content'] ?: $page['content_np']) : ($page['content_np'] ?: $page['content']);
-                        echo $content;
+                        echo coop_sanitize_cms_html($content);
                         ?>
                     </div>
 

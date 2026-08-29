@@ -139,7 +139,7 @@ require_once 'includes/header.php';
                         <h1><?php echo e($singleNotice['title']); ?></h1>
                     </div>
                     <div class="notice-content coop-prose">
-                        <?php echo $singleNotice['content']; ?>
+                        <?php echo coop_sanitize_cms_html($singleNotice['content'] ?? ''); ?>
                     </div>
                     <?php if ($singleNotice['attachment']): ?>
                     <div class="notice-attachment">

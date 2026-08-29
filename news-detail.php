@@ -104,7 +104,7 @@ $L = getLangStrings();
                     <?php endif; ?>
 
                     <div class="news-detail-content coop-prose">
-                        <?php echo getLangField($news, 'content'); ?>
+                        <?php echo coop_sanitize_cms_html(getLangField($news, 'content')); ?>
                     </div>
 
                     <div class="news-share">

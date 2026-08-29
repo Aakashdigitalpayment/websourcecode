@@ -240,7 +240,7 @@ if (!function_exists('irLogAccess')) {
             return;
         }
         ensureInformationRoomTables($db);
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
         try {
             $db->prepare(
                 'INSERT INTO information_room_access_log (item_id, viewer_type, viewer_id, viewer_name, action, ip_address)

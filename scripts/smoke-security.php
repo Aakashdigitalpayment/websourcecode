@@ -94,6 +94,10 @@ assertFileContains('awards.php', 'safe_media_src($award', 'awards image src guar
 assertFileContains('includes/member-auth.php', 'coop_client_ip', 'member session ip binding');
 assertFileContains('index.php', 'safe_versioned_media_src', 'homepage versioned media src');
 assertFileContains('includes/header.php', 'safe_versioned_media_src', 'header safe logo src');
+assertFileContains('includes/config.php', 'function coop_sanitize_cms_html', 'cms html sanitizer');
+assertFileContains('page.php', 'coop_sanitize_cms_html', 'cms page body sanitized');
+assertFileContains('news-detail.php', 'coop_sanitize_cms_html', 'news detail body sanitized');
+assertFileContains('notices.php', 'coop_sanitize_cms_html', 'notice detail body sanitized');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {

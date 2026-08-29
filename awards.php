@@ -69,7 +69,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                         </div>
                         <?php if (!empty($singleAward['description']) || !empty($singleAward['description_np'])): ?>
                         <div class="award-description">
-                            <?php echo isEnglish() ? ($singleAward['description'] ?? $singleAward['description_np']) : ($singleAward['description_np'] ?? $singleAward['description']); ?>
+                            <?php echo coop_sanitize_cms_html(isEnglish() ? ($singleAward['description'] ?? $singleAward['description_np']) : ($singleAward['description_np'] ?? $singleAward['description'])); ?>
                         </div>
                         <?php endif; ?>
                     </div>

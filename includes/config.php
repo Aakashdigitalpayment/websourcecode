@@ -371,6 +371,23 @@ function coop_sanitize_icon_class(?string $icon, string $fallback = 'fas fa-circ
 }
 
 /**
+ * Sanitize admin CMS HTML for public output (whitelist tags, strip event handlers).
+ */
+function coop_sanitize_cms_html(?string $html): string
+{
+    $html = trim((string) $html);
+    if ($html === '') {
+        return '';
+    }
+    $allowed = '<p><br><br/><strong><b><em><i><u><ul><ol><li><h2><h3><h4><h5><h6>'
+        . '<a><img><table><thead><tbody><tr><th><td><blockquote><hr><span><div><sub><sup>';
+    $clean = strip_tags($html, $allowed);
+    $clean = preg_replace('/\s(on\w+|formaction)\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/iu', '', $clean) ?? $clean;
+    $clean = preg_replace('/(<(?:a|img)\b[^>]*\s(?:href|src)\s*=\s*["\']?)\s*javascript:[^"\'>\s]*/iu', '$1#', $clean) ?? $clean;
+    return $clean;
+}
+
+/**
  * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
  * Bare domains get https:// prepended. Invalid schemes return empty string.
  */

@@ -361,7 +361,7 @@ $ceoMessage = $ceoMessageSetting;
                         </div>
                         <?php endif; ?>
                     </div>
-                    <h4 class="mt-3"><?php echo $chairmanName; ?></h4>
+                    <h4 class="mt-3"><?php echo e($chairmanName); ?></h4>
                     <span class="leader-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
                 </div>
                 <div class="col-lg-9 col-md-8">
@@ -389,7 +389,7 @@ $ceoMessage = $ceoMessageSetting;
                         </div>
                         <?php endif; ?>
                     </div>
-                    <h4 class="mt-3"><?php echo $ceoName; ?></h4>
+                    <h4 class="mt-3"><?php echo e($ceoName); ?></h4>
                     <span class="leader-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
                 </div>
                 <div class="col-lg-9 col-md-8">
