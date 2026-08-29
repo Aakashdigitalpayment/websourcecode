@@ -1558,6 +1558,23 @@ if (!function_exists('fa_to_lucide_map')) {
 }
 
 /**
+ * Sanitize Font Awesome / Lucide class string for HTML class attributes (admin-trust XSS guard).
+ */
+if (!function_exists('coop_sanitize_icon_class')) {
+    function coop_sanitize_icon_class(?string $icon, string $fallback = 'fas fa-circle'): string
+    {
+        $icon = trim((string) $icon);
+        if ($icon === '') {
+            return $fallback;
+        }
+        if (!preg_match('/^[\w\s\-]+$/u', $icon)) {
+            return $fallback;
+        }
+        return $icon;
+    }
+}
+
+/**
  * Convert Font Awesome icon class name to Lucide icon name.
  * Usage: fa_to_lucide('fa-gauge-high') → 'layout-dashboard'
  */

@@ -1,0 +1,30 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Run smoke scripts
+        run: |
+          set -e
+          for f in scripts/smoke-*.php; do
+            echo "=== ${f} ==="
+            php "$f"
+          done
+
+      - name: Verify deploy helper present
+        run: test -f scripts/deploy-pull-safe.sh

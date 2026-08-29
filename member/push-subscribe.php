@@ -20,6 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $raw  = file_get_contents('php://input');
 $data = json_decode($raw, true);
+if (!is_array($data)) {
+    $data = [];
+}
+
+$csrf = trim((string)($data['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''));
+if (!verifyCSRFToken($csrf)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'Security check failed']);
+    exit;
+}
 
 $endpoint = trim((string)($data['endpoint']             ?? ''));
 $p256dh   = trim((string)($data['keys']['p256dh']       ?? ''));

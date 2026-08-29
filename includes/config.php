@@ -427,6 +427,7 @@ function coopAuthSecret(): string
 
 /**
  * Verify HMAC signature — accepts current secret plus legacy fallback (verify-only).
+ * Legacy accepts old id-card/tracker links signed before site-specific AUTH_SECRET.
  */
 function coopVerifyHmac(string $payload, string $sig): bool
 {

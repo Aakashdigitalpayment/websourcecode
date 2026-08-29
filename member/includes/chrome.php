@@ -463,6 +463,8 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                     : '';
   if (!VAPID_KEY) return;
 
+  var MEMBER_PUSH_CSRF = <?php echo json_encode(generateCSRFToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+
   var btn      = document.getElementById('pushEnableBtn');
   var icon     = document.getElementById('pushBellIcon');
   var STORAGE  = 'coop_push_subscribed';
@@ -498,8 +500,9 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        endpoint: obj.endpoint,
-        keys:     { p256dh: obj.keys.p256dh, auth: obj.keys.auth },
+        endpoint:   obj.endpoint,
+        keys:       { p256dh: obj.keys.p256dh, auth: obj.keys.auth },
+        csrf_token: MEMBER_PUSH_CSRF,
       }),
       credentials: 'same-origin',
     }).catch(function () {});

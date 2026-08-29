@@ -181,7 +181,7 @@ if (!function_exists('service_anchor_id')) {
                             <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                             <?php endif; ?>
                             <div class="service-icon-lg">
-                                <i class="<?php echo $service['icon']; ?>"></i>
+                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($service['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></i>
                             </div>
                             <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
                             <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
@@ -242,7 +242,7 @@ if (!function_exists('service_anchor_id')) {
                             <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                             <?php endif; ?>
                             <div class="service-icon-lg">
-                                <i class="<?php echo $service['icon']; ?>"></i>
+                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($service['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></i>
                             </div>
                             <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
                             <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>

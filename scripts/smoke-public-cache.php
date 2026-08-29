@@ -55,10 +55,12 @@ if ($versioned('https://cdn.example/x.png') === 'https://cdn.example/x.png') {
 }
 
 $sw = (string) file_get_contents($root . '/sw.js');
-if (strpos($sw, 'coop-static-v7') !== false) {
-    ok('SW cache bumped to v7');
+if (strpos($sw, 'coop-static-v8') !== false) {
+    ok('SW cache bumped to v8');
+} elseif (preg_match("/const STATIC_CACHE = 'coop-static-v(\d+)'/", $sw, $m)) {
+    ok('SW cache version v' . $m[1] . ' (update smoke if bumped)');
 } else {
-    bad('SW still on old cache name');
+    bad('SW missing coop-static-v* cache name');
 }
 if (strpos($sw, "request.mode === 'navigate'") !== false) {
     ok('SW handles navigate mode');
