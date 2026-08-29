@@ -400,8 +400,8 @@ function memberIsLoggedIn() {
         }
     }
     if ($expectedIP !== '') {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-        $currentIPp = implode('.', array_slice(explode('.', $ip), 0, 3));
+        $ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
+        $currentIPp = function_exists('coop_ip_network_key') ? coop_ip_network_key($ip) : implode('.', array_slice(explode('.', $ip), 0, 3));
         if ($currentIPp !== '' && $currentIPp !== $expectedIP) {
             error_log('member-auth: IP /24 mismatch for member_id=' . (int)$_SESSION['member_id']
                 . ' (expected ' . $expectedIP . ', got ' . $currentIPp . ')');
@@ -772,8 +772,8 @@ function memberSetSession($m) {
     $_SESSION['member_avatar']     = $m['avatar_url'] ?? '';
     $_SESSION['member_card']       = $m['member_card_no'] ?? '';
     $_SESSION['member_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    $_SESSION['member_ip_partial'] = implode('.', array_slice(explode('.', $ip), 0, 3));
+    $ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
+    $_SESSION['member_ip_partial'] = function_exists('coop_ip_network_key') ? coop_ip_network_key($ip) : implode('.', array_slice(explode('.', $ip), 0, 3));
     $_SESSION['member_last_activity'] = time();
 }
 

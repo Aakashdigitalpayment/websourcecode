@@ -1052,7 +1052,7 @@ if (empty($appFeatures)) {
                 <div class="award-card">
                     <?php if (!empty($award['image'])): ?>
                     <div class="award-image">
-                        <img src="<?php echo SITE_URL . $award['image']; ?>" loading="lazy"  alt="<?php echo isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title']); ?>">
+                        <img src="<?php echo safe_media_src($award['image']); ?>" loading="lazy"  alt="<?php echo e(isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title'])); ?>">
                     </div>
                     <?php else: ?>
                     <div class="award-icon">
@@ -1060,10 +1060,10 @@ if (empty($appFeatures)) {
                     </div>
                     <?php endif; ?>
                     <div class="award-content">
-                        <h4><?php echo isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title']); ?></h4>
+                        <h4><?php echo e(isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title'])); ?></h4>
                         <p class="award-by">
                             <i class="fas fa-medal"></i>
-                            <?php echo isEnglish() ? ($award['awarded_by'] ?? $award['awarded_by_np']) : ($award['awarded_by_np'] ?? $award['awarded_by']); ?>
+                            <?php echo e(isEnglish() ? ($award['awarded_by'] ?? $award['awarded_by_np']) : ($award['awarded_by_np'] ?? $award['awarded_by'])); ?>
                         </p>
                         <?php if ($award['award_date']): ?>
                         <span class="award-date">

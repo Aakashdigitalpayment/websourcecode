@@ -53,7 +53,8 @@ assertContains('downloads.php', 'safe_media_src($item[\'file_path\']', 'download
 assertContains('scripts/generate-auth-secret.php', 'bin2hex(random_bytes(32))', 'auth secret generator');
 assertContains('member/check-availability.php', 'coop_client_ip', 'member availability uses client ip');
 assertContains('api-public-chat.php', 'coop_client_ip', 'public chat uses client ip');
-assertContains('api-ai-chat.php', 'coop_client_ip', 'ai chat uses client ip');
+assertContains('verify.php', 'coop_client_ip', 'card verify uses client ip');
+assertContains('application-tracker.php', 'coop_client_ip', 'tracker guard uses client ip');
 
 foreach (['scripts/deploy-pull-safe.sh', 'scripts/run-all-smokes.sh', 'admin/site-health.php'] as $f) {
     $cmd = 'php -l ' . escapeshellarg($root . '/' . $f) . ' 2>&1';

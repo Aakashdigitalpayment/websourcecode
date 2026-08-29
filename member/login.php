@@ -33,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
         $password = $_POST['password'] ?? '';
         if (!$loginId || !$password) {
             $error = $_t('इमेल/सदस्यता नम्बर र पासवर्ड आवश्यक छ।', 'Email/member number and password are required.');
-        } elseif (function_exists('checkLoginAttempts') && !checkLoginAttempts($loginId, $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0')) {
+        } elseif (function_exists('checkLoginAttempts') && !checkLoginAttempts($loginId, function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'))) {
             $error = $_t('धेरै पटक गलत प्रयास भयो। कृपया १५ मिनेट पछि पुनः प्रयास गर्नुहोस्।', 'Too many failed attempts. Please try again after 15 minutes.');
         } elseif (function_exists('checkRateLimit') && !checkRateLimit('member_login_pw', 5, 900)) {
             $error = $_t('धेरै पटक प्रयास भयो। कृपया केही समय पछि पुनः प्रयास गर्नुहोस्।', 'Too many attempts. Please try again later.');
         } else {
             $res = memberLogin($loginId, $password, true);
-            $ipLogin = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            $ipLogin = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
             $credOkErrors = ['pending_approval', 'rejected', 'renewal_required'];
             if (isset($res['error'])) {
                 if (!in_array($res['error'], $credOkErrors, true) && function_exists('recordLoginAttempt')) {

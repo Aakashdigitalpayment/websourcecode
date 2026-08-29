@@ -23,7 +23,7 @@ $usefulLinks = [];
 $chatbotFaqs = [];
 try {
     $db = getDB();
-    $visitorIp = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $visitorIp = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
     $today = date('Y-m-d');
     $hasVisitorTable = function_exists('dbTableExists')
         ? dbTableExists('visitor_counter')

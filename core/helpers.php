@@ -792,7 +792,8 @@ if (!function_exists('memberPhotoUrl')) {
  */
 if (!function_exists('checkRateLimit')) {
     function checkRateLimit(string $action, int $limit = 5, int $period = 60): bool {
-        $key = 'rate_' . $action . '_' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $ip = function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
+        $key = 'rate_' . $action . '_' . $ip;
         if (!isset($_SESSION[$key])) {
             $_SESSION[$key] = ['count' => 0, 'time' => time()];
         }
@@ -809,6 +810,9 @@ if (!function_exists('checkRateLimit')) {
  */
 if (!function_exists('getClientIP')) {
     function getClientIP(): string {
+        if (function_exists('coop_client_ip')) {
+            return coop_client_ip();
+        }
         $keys = ['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'];
         foreach ($keys as $key) {
             if (!empty($_SERVER[$key])) {

@@ -88,6 +88,10 @@ assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'track
 assertFileContains('downloads.php', 'safe_media_src($item', 'download file href guarded');
 assertFileContains('services.php', 'safe_media_src($service', 'service image src guarded');
 assertFileContains('member/check-availability.php', 'coop_client_ip', 'availability rate limit client ip');
+assertFileContains('includes/footer.php', 'coop_client_ip', 'visitor counter client ip');
+assertFileContains('application-tracker.php', 'safe_media_src($app[\'admin_attachment\']', 'tracker attachment href guarded');
+assertFileContains('awards.php', 'safe_media_src($award', 'awards image src guarded');
+assertFileContains('includes/member-auth.php', 'coop_client_ip', 'member session ip binding');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {

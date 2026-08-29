@@ -51,7 +51,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                 <div class="award-detail-card">
                     <?php if (!empty($singleAward['image'])): ?>
                     <div class="award-detail-image">
-                        <img src="<?php echo SITE_URL . $singleAward['image']; ?>" loading="lazy"  alt="<?php echo e(isEnglish() ? ($singleAward['title'] ?? $singleAward['title_np']) : ($singleAward['title_np'] ?? $singleAward['title'])); ?>">
+                        <img src="<?php echo safe_media_src($singleAward['image']); ?>" loading="lazy"  alt="<?php echo e(isEnglish() ? ($singleAward['title'] ?? $singleAward['title_np']) : ($singleAward['title_np'] ?? $singleAward['title'])); ?>">
                     </div>
                     <?php endif; ?>
                     <div class="award-detail-content">
@@ -95,7 +95,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                 <div class="award-card clickable" onclick="window.location.href='awards.php?id=<?php echo $award['id']; ?>'">
                     <?php if (!empty($award['image'])): ?>
                     <div class="award-image">
-                        <img src="<?php echo SITE_URL . $award['image']; ?>" loading="lazy"  alt="<?php echo isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title']); ?>">
+                        <img src="<?php echo safe_media_src($award['image']); ?>" loading="lazy"  alt="<?php echo e(isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title'])); ?>">
                     </div>
                     <?php else: ?>
                     <div class="award-icon">
@@ -103,10 +103,10 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                     </div>
                     <?php endif; ?>
                     <div class="award-content">
-                        <h4><?php echo isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title']); ?></h4>
+                        <h4><?php echo e(isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title'])); ?></h4>
                         <p class="award-by">
                             <i class="fas fa-medal"></i>
-                            <?php echo isEnglish() ? ($award['awarded_by'] ?? $award['awarded_by_np']) : ($award['awarded_by_np'] ?? $award['awarded_by']); ?>
+                            <?php echo e(isEnglish() ? ($award['awarded_by'] ?? $award['awarded_by_np']) : ($award['awarded_by_np'] ?? $award['awarded_by'])); ?>
                         </p>
                         <?php if ($award['award_date']): ?>
                         <span class="award-date">

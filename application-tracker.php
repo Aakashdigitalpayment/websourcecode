@@ -87,7 +87,7 @@ $verificationOk   = false;
 $needsVerify      = false;
 $trackerAttemptWindowSec = 15 * 60; // 15 minutes
 $trackerMaxAttempts = 7;
-$trackerGuardKey = 'tracker_guard_' . hash('sha256', strtolower((string)($_SERVER['REMOTE_ADDR'] ?? 'unknown')));
+$trackerGuardKey = 'tracker_guard_' . hash('sha256', strtolower(function_exists('coop_client_ip') ? coop_client_ip() : (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown')));
 
 /* Deep-link from success pages: ?id=JOB-… / ?tracking_id=BID-… */
 $prefillTrackingId = trim((string)($_GET['id'] ?? $_GET['tracking_id'] ?? ''));
@@ -1241,7 +1241,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1312,7 +1312,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1386,7 +1386,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1437,7 +1437,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1488,7 +1488,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1529,7 +1529,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1570,7 +1570,7 @@ function getAppTypeLabel($type) {
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo SITE_URL . '/' . ltrim(htmlspecialchars($app['admin_attachment']), '/'); ?>"
+                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>

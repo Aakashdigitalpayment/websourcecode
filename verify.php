@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (function_exists('normalizeCvvInput')) {
         $cvv = normalizeCvvInput($cvv);
     }
-    $ip   = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $ip   = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
     $runPrimaryVerify = static function () use ($pdo, $ip, &$verifyMode, &$verifyName, &$verifyMemberId, &$verifyMobile, &$code, &$cvv) {
         if (!$pdo) {
