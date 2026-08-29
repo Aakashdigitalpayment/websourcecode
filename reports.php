@@ -297,7 +297,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-file-pdf"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                                 <span class="report-month">
                                     <?php echo $nepaliMonths[$report['report_month']] ?? $report['report_month']; ?>
                                 </span>
@@ -330,7 +330,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-chart-bar"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                                 <span class="report-quarter">
                                     <?php echo $quarters[$report['report_quarter']] ?? $report['report_quarter']; ?>
                                 </span>
@@ -363,7 +363,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                             </div>
                             <?php render_report_actions($report); ?>
                         </div>
@@ -393,7 +393,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-file-alt"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                                 <span class="report-type-badge"><?php echo getTypeLabel($report['report_type']); ?></span>
                             </div>
                             <?php render_report_actions($report); ?>
@@ -424,7 +424,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-chart-bar"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                             </div>
                             <?php render_report_actions($report); ?>
                         </div>
@@ -454,7 +454,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-clipboard-check"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                             </div>
                             <?php render_report_actions($report); ?>
                         </div>
@@ -484,7 +484,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-users"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                             </div>
                             <?php render_report_actions($report); ?>
                         </div>
@@ -514,7 +514,7 @@ function render_report_actions(array $report): void {
                                 <i class="fas fa-file-pdf"></i>
                             </div>
                             <div class="report-info">
-                                <h5><?php echo getLangField($report, 'title'); ?></h5>
+                                <h5><?php echo e(getLangField($report, 'title')); ?></h5>
                             </div>
                             <?php render_report_actions($report); ?>
                         </div>

@@ -989,12 +989,12 @@ function getAppTypeLabel($type) {
                         <div class="rcp-body">
                             <div class="rcp-header">
                                 <div class="rcp-icon-wrap rcp-icon-<?php echo $typeInfo['color']; ?>">
-                                    <i class="fas <?php echo $typeInfo['icon']; ?>"></i>
+                                    <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($typeInfo['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
                                 </div>
                                 <div class="rcp-meta">
                                     <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                                         <span class="rcp-type-badge rcp-badge-<?php echo $typeInfo['color']; ?>">
-                                            <i class="fas <?php echo $typeInfo['icon']; ?> me-1"></i><?php echo isEnglish() ? $typeInfo['label_en'] : $typeInfo['label']; ?>
+                                            <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($typeInfo['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?> me-1"></i><?php echo isEnglish() ? $typeInfo['label_en'] : $typeInfo['label']; ?>
                                         </span>
                                         <span class="rcp-status-badge <?php echo getStatusBadgeClass($app['status'] ?? 'pending'); ?> rcp-status-glow">
                                             <?php echo getStatusText($app['status'] ?? 'pending', $app['app_type']); ?>

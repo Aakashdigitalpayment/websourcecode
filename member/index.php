@@ -331,7 +331,7 @@ require __DIR__ . '/includes/chrome.php';
                    <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener noreferrer"<?php endif; ?>
                    class="midx-ds-card midx-ds-card-bg" style="--midx-ds-bg:<?php echo htmlspecialchars($ds['bg'], ENT_QUOTES, 'UTF-8'); ?>;">
                     <div class="midx-ds-icon-wrap midx-ds-icon-bg" style="--midx-ds-color:<?php echo htmlspecialchars($ds['color'], ENT_QUOTES, 'UTF-8'); ?>;">
-                        <i class="<?php echo $ds['iconLib'] ?? 'fas'; ?> <?php echo $ds['icon']; ?> midx-ds-icon"></i>
+                        <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class(($ds['iconLib'] ?? 'fas') . ' ' . ($ds['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?> midx-ds-icon"></i>
                     </div>
                     <div class="midx-ds-label"><?php echo $ds['label']; ?></div>
                     <div class="midx-ds-desc"><?php echo $ds['desc']; ?></div>
@@ -545,7 +545,7 @@ require __DIR__ . '/includes/chrome.php';
             <div class="mem-actions">
                 <?php foreach ($quickActions as $qa): ?>
                 <a href="<?php echo htmlspecialchars($qa['href']); ?>" class="mem-action-btn">
-                    <div class="mem-action-icon midx-action-icon" style="--midx-action-color:<?php echo htmlspecialchars($qa['color'], ENT_QUOTES, 'UTF-8'); ?>;"><i class="fas <?php echo $qa['icon']; ?>"></i></div>
+                    <div class="mem-action-icon midx-action-icon" style="--midx-action-color:<?php echo htmlspecialchars($qa['color'], ENT_QUOTES, 'UTF-8'); ?>;"><i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($qa['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i></div>
                     <?php echo $qa['label']; ?>
                 </a>
                 <?php endforeach; ?>
@@ -565,7 +565,7 @@ require __DIR__ . '/includes/chrome.php';
                    <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener noreferrer"<?php endif; ?>
                    class="midx-ds-card midx-ds-card-bg" style="--midx-ds-bg:<?php echo htmlspecialchars($ds['bg'], ENT_QUOTES, 'UTF-8'); ?>;">
                     <div class="midx-ds-icon-wrap midx-ds-icon-bg" style="--midx-ds-color:<?php echo htmlspecialchars($ds['color'], ENT_QUOTES, 'UTF-8'); ?>;">
-                        <i class="<?php echo $ds['iconLib'] ?? 'fas'; ?> <?php echo $ds['icon']; ?> midx-ds-icon"></i>
+                        <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class(($ds['iconLib'] ?? 'fas') . ' ' . ($ds['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?> midx-ds-icon"></i>
                     </div>
                     <div class="midx-ds-label"><?php echo $ds['label']; ?></div>
                     <div class="midx-ds-desc"><?php echo $ds['desc']; ?></div>

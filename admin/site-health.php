@@ -151,6 +151,25 @@ $checks[] = healthRow(
     'If clean URLs or security rules fail, package बाट .htaccess upload गर्नुहोस्।'
 );
 
+$authSecretFile = ROOT_PATH . 'includes/.auth-secret';
+$hasAuthSecret = (defined('AUTH_SECRET') && (string) AUTH_SECRET !== '')
+    || (is_readable($authSecretFile) && strlen(trim((string) @file_get_contents($authSecretFile))) >= 32);
+$checks[] = healthRow(
+    'Auth signing secret',
+    $hasAuthSecret ? 'ok' : 'warn',
+    $hasAuthSecret ? 'AUTH_SECRET or includes/.auth-secret configured'
+        : 'Using derived site seed only (legacy HMAC links still verify)',
+    'Production मा includes/.auth-secret (32+ chars) create गर्नुहोस् — tracker/id-card links बलियो हुन्छ।'
+);
+
+$deployScript = ROOT_PATH . 'scripts/deploy-pull-safe.sh';
+$checks[] = healthRow(
+    'Deploy pull helper',
+    is_file($deployScript) ? 'ok' : 'warn',
+    is_file($deployScript) ? 'scripts/deploy-pull-safe.sh found' : 'deploy-pull-safe.sh missing',
+    'Live update: bash scripts/deploy-pull-safe.sh main (.htaccess stash/restore).'
+);
+
 $phpHandlerLooksOk = PHP_SAPI !== 'cli';
 $checks[] = healthRow(
     'PHP Handler',

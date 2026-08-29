@@ -276,7 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php foreach ($claimTypes as $key => $type): ?>
                         <div class="claim-type-item" data-type="<?php echo $key; ?>" onclick="selectClaimType('<?php echo $key; ?>')">
                             <div class="type-icon" style="background-color: <?php echo $type['color']; ?>">
-                                <i class="fas <?php echo $type['icon']; ?>"></i>
+                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
                             </div>
                             <div class="type-info">
                                 <h6><?php echo isEnglish() ? $type['en'] : $type['np']; ?></h6>
@@ -400,7 +400,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                            <?php echo ($_POST['claim_type'] ?? '') === $key ? 'checked' : ''; ?>
                                            required onchange="showTypeFields('<?php echo $key; ?>')">
                                     <span class="type-box" style="--type-color: <?php echo $type['color']; ?>">
-                                        <i class="fas <?php echo $type['icon']; ?>"></i>
+                                        <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
                                         <span><?php echo isEnglish() ? $type['en'] : $type['np']; ?></span>
                                     </span>
                                 </label>

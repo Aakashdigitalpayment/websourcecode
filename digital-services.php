@@ -313,7 +313,7 @@ $L = getLangStrings();
                     class="ds-service-card w-100 text-start"
                     data-service="<?php echo $key; ?>"
                     style="--card-color:<?php echo $type['color']; ?>;">
-                    <span class="ds-icon"><i class="fas <?php echo $type['icon']; ?>"></i></span>
+                    <span class="ds-icon"><i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i></span>
                     <span class="ds-label">
                         <strong><?php echo isEnglish() ? $type['en'] : $type['np']; ?></strong>
                         <?php if (!isEnglish()): ?>

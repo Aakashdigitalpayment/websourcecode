@@ -356,6 +356,21 @@ function e($string) {
 }
 
 /**
+ * Sanitize Font Awesome / Lucide class string for HTML class attributes.
+ */
+function coop_sanitize_icon_class(?string $icon, string $fallback = 'fas fa-circle'): string
+{
+    $icon = trim((string) $icon);
+    if ($icon === '') {
+        return $fallback;
+    }
+    if (!preg_match('/^[\w\s\-]+$/u', $icon)) {
+        return $fallback;
+    }
+    return $icon;
+}
+
+/**
  * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
  * Bare domains get https:// prepended. Invalid schemes return empty string.
  */

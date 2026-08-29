@@ -81,7 +81,10 @@ function assertNoBareBlankTargets(string $file): void {
 assertFileContains('member/session-check.php', 'http_response_code(403)', 'session-check returns 403');
 assertFileContains('member/push-subscribe.php', 'verifyCSRFToken', 'push subscribe CSRF guard');
 assertFileContains('member/includes/chrome.php', 'MEMBER_PUSH_CSRF', 'push subscribe client CSRF token');
-assertFileContains('core/helpers.php', 'function coop_sanitize_icon_class', 'icon class sanitizer');
+assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon class sanitizer');
+assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
+assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
+assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {
