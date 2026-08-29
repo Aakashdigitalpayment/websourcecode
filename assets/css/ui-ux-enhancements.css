@@ -467,7 +467,10 @@ h1, h2, h3, h4, h5, h6 {
 .card.appt-form-card > .card-header.appt-form-card-head h5,
 .card.appt-form-card > .card-header.bg-primary h5,
 .home-ip-preview-head,
-.home-ip-preview-title {
+.home-ip-preview-title,
+.vendor-info-card,
+.vendor-info-card h4,
+.vendor-info-card p {
   color: #fff;
 }
 

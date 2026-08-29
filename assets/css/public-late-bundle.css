@@ -7356,4 +7356,30 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 .report-card .report-type-badge {
   display: inline-block;
 }
+
+/* Vendor enlistment notice — green panel keeps readable light text */
+.vendor-info-card,
+.vendor-info-card h4,
+.vendor-info-card p,
+.vendor-info-card i,
+.vendor-info-card a {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.vendor-info-card p {
+  opacity: 1 !important;
+  line-height: 1.65 !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+}
+
+.vendor-info-card h4 {
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  margin-bottom: 0.65rem !important;
+}
+
+.vendor-info-card h4 i {
+  opacity: 0.95;
+}
 /* ===== END final-ui-polish.css ===== */
