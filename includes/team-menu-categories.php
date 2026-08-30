@@ -3,8 +3,12 @@
  * मानवीय श्रोत मेनुका parent श्रेणीहरू (व्यवस्थापन, समिति/उपसमिति, …)
  * Leaf items होइनन् — flyout को दोस्रो तह (submenu categories).
  */
-if (!function_exists('ensureTeamMenuCategoriesTable')) {
-    function ensureTeamMenuCategoriesTable(?PDO $db = null): void
+if (!function_exists('ensureCommitteeTypesExtendedColumns')) {
+    /**
+     * committee_types columns needed for team admin group CRUD + public menu.
+     * Must run even when schema.lock skips CREATE TABLE paths.
+     */
+    function ensureCommitteeTypesExtendedColumns(?PDO $db = null): void
     {
         static $done = false;
         if ($done) {
@@ -12,43 +16,33 @@ if (!function_exists('ensureTeamMenuCategoriesTable')) {
         }
         $done = true;
         $db = $db ?: getDB();
-
-        $lockFile = dirname(__DIR__) . '/.schema.lock';
-        if (@is_file($lockFile)) {
-            try {
-                $db->query('SELECT 1 FROM team_menu_categories LIMIT 1');
+        try {
+            $cols = $db->query('SHOW COLUMNS FROM committee_types')->fetchAll(PDO::FETCH_ASSOC);
+            $fields = array_column($cols ?: [], 'Field');
+            if ($fields === []) {
                 return;
-            } catch (Throwable $e) {
-                /* fall through — create */
             }
-        }
+            $alters = [
+                'show_in_navbar' => "ALTER TABLE committee_types ADD COLUMN show_in_navbar TINYINT(1) DEFAULT 0",
+                'icon' => "ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'",
+                'menu_category_id' => 'ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL',
+            ];
+            foreach ($alters as $col => $sql) {
+                if (!in_array($col, $fields, true)) {
+                    $db->exec($sql);
+                    $fields[] = $col;
+                }
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+    }
+}
 
-        $db->exec("CREATE TABLE IF NOT EXISTS team_menu_categories (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            slug VARCHAR(50) NOT NULL,
-            name_np VARCHAR(120) NOT NULL DEFAULT '',
-            name_en VARCHAR(120) NOT NULL DEFAULT '',
-            icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-folder',
-            source_type VARCHAR(20) NOT NULL DEFAULT 'staff',
-            include_contact_officers TINYINT(1) NOT NULL DEFAULT 0,
-            include_board TINYINT(1) NOT NULL DEFAULT 0,
-            display_order INT NOT NULL DEFAULT 0,
-            is_active TINYINT(1) NOT NULL DEFAULT 1,
-            show_in_nav TINYINT(1) NOT NULL DEFAULT 1,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY uq_team_menu_categories_slug (slug)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-
-        $count = (int)$db->query('SELECT COUNT(*) FROM team_menu_categories')->fetchColumn();
-        if ($count === 0) {
-            $ins = $db->prepare(
-                'INSERT INTO team_menu_categories
-                 (slug, name_np, name_en, icon, source_type, include_contact_officers, include_board, display_order, is_active, show_in_nav)
-                 VALUES (?,?,?,?,?,?,?,?,1,1)'
-            );
-            $ins->execute(['management', 'व्यवस्थापन', 'Management', 'fas fa-briefcase', 'staff', 1, 0, 10]);
-            $ins->execute(['committees', 'समिति / उपसमिति', 'Committees / Subcommittees', 'fas fa-sitemap', 'committees', 0, 1, 20]);
-        }
+if (!function_exists('syncTeamMenuCategoryLinks')) {
+    /** Link staff/committee groups to default menu categories when unset. */
+    function syncTeamMenuCategoryLinks(?PDO $db = null): void
+    {
+        $db = $db ?: getDB();
+        ensureCommitteeTypesExtendedColumns($db);
 
         /* staff groups → menu category link */
         try {
@@ -65,16 +59,65 @@ if (!function_exists('ensureTeamMenuCategoriesTable')) {
 
         /* committee_types → optional menu category */
         try {
-            $cols = $db->query('SHOW COLUMNS FROM committee_types')->fetchAll(PDO::FETCH_ASSOC);
-            $fields = array_column($cols ?: [], 'Field');
-            if (!in_array('menu_category_id', $fields, true)) {
-                $db->exec('ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL');
-            }
             $cmtCatId = (int)$db->query("SELECT id FROM team_menu_categories WHERE source_type='committees' ORDER BY display_order, id LIMIT 1")->fetchColumn();
             if ($cmtCatId > 0) {
                 $db->exec('UPDATE committee_types SET menu_category_id = ' . $cmtCatId . ' WHERE menu_category_id IS NULL');
             }
         } catch (Throwable $e) { /* best-effort */ }
+    }
+}
+
+if (!function_exists('ensureTeamMenuCategoriesTable')) {
+    function ensureTeamMenuCategoriesTable(?PDO $db = null): void
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+        $db = $db ?: getDB();
+
+        $skipCreate = false;
+        $lockFile = dirname(__DIR__) . '/.schema.lock';
+        if (@is_file($lockFile)) {
+            try {
+                $db->query('SELECT 1 FROM team_menu_categories LIMIT 1');
+                $skipCreate = true;
+            } catch (Throwable $e) {
+                /* fall through — create */
+            }
+        }
+
+        if (!$skipCreate) {
+            $db->exec("CREATE TABLE IF NOT EXISTS team_menu_categories (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(50) NOT NULL,
+            name_np VARCHAR(120) NOT NULL DEFAULT '',
+            name_en VARCHAR(120) NOT NULL DEFAULT '',
+            icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-folder',
+            source_type VARCHAR(20) NOT NULL DEFAULT 'staff',
+            include_contact_officers TINYINT(1) NOT NULL DEFAULT 0,
+            include_board TINYINT(1) NOT NULL DEFAULT 0,
+            display_order INT NOT NULL DEFAULT 0,
+            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            show_in_nav TINYINT(1) NOT NULL DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE KEY uq_team_menu_categories_slug (slug)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+            $count = (int)$db->query('SELECT COUNT(*) FROM team_menu_categories')->fetchColumn();
+            if ($count === 0) {
+                $ins = $db->prepare(
+                    'INSERT INTO team_menu_categories
+                 (slug, name_np, name_en, icon, source_type, include_contact_officers, include_board, display_order, is_active, show_in_nav)
+                 VALUES (?,?,?,?,?,?,?,?,1,1)'
+                );
+                $ins->execute(['management', 'व्यवस्थापन', 'Management', 'fas fa-briefcase', 'staff', 1, 0, 10]);
+                $ins->execute(['committees', 'समिति / उपसमिति', 'Committees / Subcommittees', 'fas fa-sitemap', 'committees', 0, 1, 20]);
+            }
+        }
+
+        syncTeamMenuCategoryLinks($db);
     }
 }
 

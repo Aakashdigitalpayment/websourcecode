@@ -471,10 +471,11 @@ function ensureAdminTables(): bool {
         ];
         foreach ($tmAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 
-        /* ── committee_types: navbar + icon ── */
+        /* ── committee_types: navbar + icon + menu link ── */
         $ctAlters = [
             "ALTER TABLE committee_types ADD COLUMN show_in_navbar TINYINT(1) DEFAULT 0",
             "ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'",
+            "ALTER TABLE committee_types ADD COLUMN menu_category_id INT NULL DEFAULT NULL",
         ];
         foreach ($ctAlters as $sql) { try { $db->exec($sql); } catch (Exception $e) {} }
 

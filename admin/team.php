@@ -191,9 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if ($teamListSection === 'governance') {
                     ensureTeamMenuCategoriesTable($db);
-                    try {
-                        $db->exec("ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'");
-                    } catch (Throwable $e) { /* already exists */ }
+                    ensureCommitteeTypesExtendedColumns($db);
                     $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
                     $gIcon = clean_text($_POST['group_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
                     if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
@@ -330,8 +328,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($success !== '' && function_exists('clearHomepageCache')) {
             clearHomepageCache();
         }
+    } catch (InvalidArgumentException $e) {
+        $error = $e->getMessage();
     } catch (Exception $e) {
         $error = $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.');
+        if (function_exists('error_log')) {
+            error_log('admin/team.php POST error: ' . $e->getMessage());
+        }
     }
 }
 
