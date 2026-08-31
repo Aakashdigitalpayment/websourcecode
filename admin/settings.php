@@ -21,7 +21,7 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'footer_text', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -80,6 +80,8 @@ checkCSRF();
                     if ($normalized !== '') {
                         $value = $normalized;
                     }
+                } elseif (in_array($key, ['internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url'], true)) {
+                    $value = function_exists('safe_http_url') ? safe_http_url((string)$value) : trim((string)$value);
                 }
                 updateSetting($key, $value);
             }
@@ -654,6 +656,14 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                value="<?php echo $settings['internet_banking_url'] ?? ''; ?>"
                                placeholder="https://ibanking.yoursite.com">
                         <small class="stg-muted"><?php echo $__t('इन्टरनेट बैंकिङ लगइन URL', 'Internet banking login URL'); ?></small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="stg_web_login_url" class="form-label"><i class="fas fa-envelope-open-text stg-ico-info"></i> <?php echo $__t('वेब लगिन URL', 'Web Login URL'); ?></label>
+                        <input type="url" name="web_login_url" id="stg_web_login_url" class="form-control"
+                               value="<?php echo htmlspecialchars($settings['web_login_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                               placeholder="https://mail.yourcoop.com.np">
+                        <small class="stg-muted"><?php echo $__t('इमेल वा अन्य वेब पोर्टल लगइन — public header को Login मेनुमा देखिन्छ (Internet Banking / App URL जस्तै)', 'Email or other web portal login — shown in the public header Login menu (like Internet Banking / app URLs)'); ?></small>
                     </div>
 
                     <div class="mb-3">

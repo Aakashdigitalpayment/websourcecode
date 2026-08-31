@@ -1389,13 +1389,24 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <i class="fas fa-caret-down pfl-login-caret"></i>
                     </a>
                     <ul class="pfl-login-menu" role="menu">
-                        <?php $ibUrl = getSetting('internet_banking_url',''); if($ibUrl): ?>
+                        <?php $ibUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('internet_banking_url', '')) : trim(getSetting('internet_banking_url', '')); if ($ibUrl): ?>
                         <li>
-                            <a href="<?php echo $ibUrl; ?>" target="_blank" rel="noopener noreferrer">
+                            <a href="<?php echo e($ibUrl); ?>" target="_blank" rel="noopener noreferrer">
                                 <span class="pfl-lm-icon pfl-lm-web"><i class="lucide-icon" aria-hidden="true" data-lucide="globe"></i></span>
                                 <span class="pfl-lm-text">
                                     <strong><?php echo isEnglish() ? 'E‑banking login' : 'इ‑बैंकिङ लगिन'; ?></strong>
                                     <small><?php echo isEnglish() ? 'Secure web banking' : 'अनलाइन बैंकिङ प्रवेश'; ?></small>
+                                </span>
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                        <?php $webLoginUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('web_login_url', '')) : trim(getSetting('web_login_url', '')); if ($webLoginUrl): ?>
+                        <li>
+                            <a href="<?php echo e($webLoginUrl); ?>" target="_blank" rel="noopener noreferrer">
+                                <span class="pfl-lm-icon pfl-lm-weblogin"><i class="fas fa-envelope-open-text" aria-hidden="true"></i></span>
+                                <span class="pfl-lm-text">
+                                    <strong><?php echo isEnglish() ? 'Web login' : 'वेब लगिन'; ?></strong>
+                                    <small><?php echo isEnglish() ? 'Email or web portal access' : 'इमेल / वेब पोर्टल प्रवेश'; ?></small>
                                 </span>
                             </a>
                         </li>

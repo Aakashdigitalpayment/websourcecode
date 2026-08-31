@@ -304,10 +304,12 @@ require __DIR__ . '/includes/chrome.php';
     // capture digital services data for later render below
     $digitalServices = [];
     {
-        $ibUrl  = getSetting('internet_banking_url', '');
-        $iosUrl = getSetting('app_store_url', '');
-        $andUrl = getSetting('play_store_url', '');
+        $ibUrl  = function_exists('safe_http_url') ? safe_http_url(getSetting('internet_banking_url', '')) : trim(getSetting('internet_banking_url', ''));
+        $webUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('web_login_url', '')) : trim(getSetting('web_login_url', ''));
+        $iosUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('app_store_url', '')) : trim(getSetting('app_store_url', ''));
+        $andUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('play_store_url', '')) : trim(getSetting('play_store_url', ''));
         if ($ibUrl)  $digitalServices[] = ['icon'=>'fa-laptop',      'color'=>'var(--accent-color)','bg'=>'color-mix(in srgb, var(--accent-color) 12%, white)','label'=>'Internet Banking','href'=>$ibUrl, 'desc'=>$_t('Online खाता व्यवस्थापन','Online account management'),'target'=>'_blank'];
+        if ($webUrl) $digitalServices[] = ['icon'=>'fa-envelope-open-text','color'=>'#1565c0','bg'=>'color-mix(in srgb, #1565c0 10%, white)','label'=>$_t('वेब लगिन','Web Login'),'href'=>$webUrl,'desc'=>$_t('इमेल / वेब पोर्टल','Email / web portal'),'target'=>'_blank'];
         if ($iosUrl) $digitalServices[] = ['icon'=>'fa-apple','iconLib'=>'fab','color'=>'var(--text-color)','bg'=>'color-mix(in srgb, var(--primary-color) 10%, white)','label'=>'iOS App','href'=>$iosUrl,'desc'=>$_t('App Store बाट डाउनलोड','Download from App Store'),'target'=>'_blank'];
         if ($andUrl) $digitalServices[] = ['icon'=>'fa-google-play','iconLib'=>'fab','color'=>'var(--primary-color)','bg'=>'color-mix(in srgb, var(--primary-color) 12%, white)','label'=>'Android App','href'=>$andUrl,'desc'=>$_t('Play Store बाट डाउनलोड','Download from Play Store'),'target'=>'_blank'];
         $digitalServices = array_merge($digitalServices, [

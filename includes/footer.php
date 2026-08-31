@@ -1195,8 +1195,19 @@ if ($__uiTestMode):
     <a class="qh-item" role="menuitem"
        href="<?php echo SITE_URL; ?>member/login.php">
       <span class="qh-ic qh-login"><i class="fas fa-right-to-bracket"></i></span>
-      <span>सदस्य लगइन</span>
+      <span><?php echo isEnglish() ? 'Member login' : 'सदस्य लगइन'; ?></span>
     </a>
+
+    <?php
+    $__webLoginUrl = function_exists('safe_http_url') ? safe_http_url(getSetting('web_login_url', '')) : trim(getSetting('web_login_url', ''));
+    if ($__webLoginUrl !== ''):
+    ?>
+    <a class="qh-item" role="menuitem" target="_blank" rel="noopener noreferrer"
+       href="<?php echo e($__webLoginUrl); ?>">
+      <span class="qh-ic qh-weblogin"><i class="fas fa-envelope-open-text"></i></span>
+      <span><?php echo isEnglish() ? 'Web login' : 'वेब लगिन'; ?></span>
+    </a>
+    <?php endif; ?>
 
     <!-- ── Divider before help items ── -->
     <div class="qh-divider"></div>

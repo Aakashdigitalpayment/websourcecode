@@ -7804,4 +7804,28 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
   font-size: 0.875rem !important;
   line-height: 1.45 !important;
 }
+
+/* Web login — header login menu + quick launcher */
+.pfl-login-menu .pfl-lm-weblogin {
+  background: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-weblogin,
+.pfl-top-bar .pfl-login-menu li a .pfl-lm-weblogin i {
+  color: #1565c0 !important;
+}
+
+body.dark-mode .pfl-lm-weblogin {
+  background: #1a2a3a !important;
+  color: #7ab0e0 !important;
+}
+
+.qh-ic.qh-weblogin {
+  background: #1565c0;
+}
+
+.qh-item:hover .qh-ic.qh-weblogin {
+  filter: brightness(1.12);
+}
 /* ===== END final-ui-polish.css ===== */
