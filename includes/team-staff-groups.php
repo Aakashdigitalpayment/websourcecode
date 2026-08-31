@@ -89,6 +89,47 @@ if (!function_exists('fetchTeamStaffGroups')) {
     }
 }
 
+if (!function_exists('teamStaffGroupHasActiveMembers')) {
+    function teamStaffGroupHasActiveMembers(?PDO $db, string $slug): bool
+    {
+        if ($slug === '' || !$db) {
+            return false;
+        }
+        try {
+            $st = $db->prepare('SELECT COUNT(*) FROM team_members WHERE is_active=1 AND category=?');
+            $st->execute([$slug]);
+            return (int)$st->fetchColumn() > 0;
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('fetchPublicNavStaffGroups')) {
+    /**
+     * Staff groups for public nav — only groups that actually have active members.
+     *
+     * @return list<array<string,mixed>>
+     */
+    function fetchPublicNavStaffGroups(?PDO $db = null): array
+    {
+        $db = $db ?: getDB();
+        if (function_exists('healMigratedTeamNavData')) {
+            healMigratedTeamNavData($db);
+        }
+        ensureTeamStaffGroupsTable($db);
+        $visible = [];
+        foreach (fetchTeamStaffGroups($db, true) as $sg) {
+            $slug = (string)($sg['slug'] ?? '');
+            if ($slug === '' || !teamStaffGroupHasActiveMembers($db, $slug)) {
+                continue;
+            }
+            $visible[] = $sg;
+        }
+        return $visible;
+    }
+}
+
 if (!function_exists('teamStaffGroupAnchor')) {
     /** Public section id / filter key from slug */
     function teamStaffGroupAnchor(string $slug): string

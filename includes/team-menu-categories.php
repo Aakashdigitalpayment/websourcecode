@@ -378,6 +378,69 @@ if (!function_exists('fetchPublicNavCommittees')) {
     }
 }
 
+if (!function_exists('teamNavCategoryItemCount')) {
+    /**
+     * How many visible Human Resources nav links a menu category would show.
+     */
+    function teamNavCategoryItemCount(
+        array $tmc,
+        array $navStaffGroups,
+        array $navCommittees,
+        int $navFallbackStaffMenuId,
+        int $navFallbackCommitteesMenuId,
+        bool $navHasBoardMembers,
+        bool $navHasContactOfficers
+    ): int {
+        $count = 0;
+        $tmcId = (int)($tmc['id'] ?? 0);
+        $source = (string)($tmc['source_type'] ?? 'staff');
+        if ($source === 'staff') {
+            if (!empty($tmc['include_contact_officers']) && $navHasContactOfficers) {
+                $count++;
+            }
+            foreach ($navStaffGroups as $sg) {
+                if (teamStaffGroupBelongsToMenuCategory($sg, $tmcId, $navFallbackStaffMenuId)) {
+                    $count++;
+                }
+            }
+            return $count;
+        }
+
+        $showBoard = !empty($tmc['include_board']);
+        foreach ($navCommittees as $nc) {
+            if (!teamCommitteeBelongsToMenuCategory($nc, $tmcId, $navFallbackCommitteesMenuId)) {
+                continue;
+            }
+            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($nc)) {
+                $showBoard = true;
+                continue;
+            }
+            $count++;
+        }
+        if ($showBoard && $navHasBoardMembers) {
+            $count++;
+        }
+        return $count;
+    }
+}
+
+if (!function_exists('teamBoardNavLabel')) {
+    /** @return array{np: string, en: string} */
+    function teamBoardNavLabel(array $navCommittees, bool $english = false): array
+    {
+        $np = 'सञ्चालक समिति';
+        $en = 'Board Committee';
+        foreach ($navCommittees as $nc) {
+            if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($nc)) {
+                $np = (string)(($nc['name_np'] ?? '') ?: ($nc['name'] ?? '') ?: $np);
+                $en = (string)(($nc['name'] ?? '') ?: ($nc['name_np'] ?? '') ?: $en);
+                break;
+            }
+        }
+        return ['np' => $np, 'en' => $en, 'label' => $english ? $en : $np];
+    }
+}
+
 if (!function_exists('isBoardCommitteeTypeAlias')) {
     /**
      * सञ्चालक समिति is the fixed team_members.category = 'board'.

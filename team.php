@@ -474,6 +474,15 @@ $menuItemsForSelect = (!$isTeamOverview && isset($menuTree[$viewMenuSlug]))
     ? $menuTree[$viewMenuSlug]['items']
     : [];
 
+$activeFilterParts = [];
+if (!$isTeamOverview && isset($menuTree[$viewMenuSlug])) {
+    $activeFilterParts[] = (string)$menuTree[$viewMenuSlug]['label'];
+}
+if ($viewItem && !empty($viewItem['label'])) {
+    $activeFilterParts[] = (string)$viewItem['label'];
+}
+$activeFilterSummary = implode(' → ', $activeFilterParts);
+
 /** Only render matching section unless overview (सबै श्रेणी). */
 $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSectionKey): bool {
     if ($isTeamOverview) return true;
@@ -562,6 +571,18 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                     </select>
                 </div>
             </div>
+            <?php if (!$isTeamOverview && $activeFilterSummary !== ''): ?>
+            <div class="team-active-filter-row">
+                <span class="team-active-filter-chip">
+                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+                    <?php echo htmlspecialchars($activeFilterSummary); ?>
+                </span>
+                <a href="<?php echo SITE_URL; ?>team.php" class="btn btn-sm btn-outline-success team-filter-reset">
+                    <i class="fas fa-rotate-left me-1" aria-hidden="true"></i>
+                    <?php echo isEnglish() ? 'View all' : 'सबै हेर्नुहोस्'; ?>
+                </a>
+            </div>
+            <?php endif; ?>
             <p class="text-center text-muted small mt-3 mb-0">
                 <?php echo isEnglish()
                     ? 'Same categories as the Human Resources menu: pick category → item (→ tenure for committees).'
@@ -586,6 +607,16 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
   border-color:var(--primary-color,#1a5f2a);
   box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary-color,#1a5f2a) 18%,transparent);
 }
+.team-active-filter-row{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.65rem;margin-top:.85rem;
+}
+.team-active-filter-chip{
+  display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .85rem;border-radius:999px;
+  background:color-mix(in srgb,var(--primary-color,#1a5f2a) 10%,#fff);
+  border:1px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 22%,#e5e7eb);
+  color:#1a2e24;font-size:.86rem;font-weight:600;
+}
+.team-filter-reset{border-radius:999px;font-weight:600}
 </style>
 <?php endif; ?>
 
@@ -863,42 +894,15 @@ foreach ($staffGroups as $_sg):
                 : 'चयनित समिति र कार्यकालका सदस्यहरू।'; ?></p>
         </div>
 
-        <div class="row justify-content-center" id="teamCmtMembers">
-            <?php foreach ($viewMembers as $index => $member):
-                $_tmPhoto = team_member_photo_src($member);
-            ?>
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="team-card-circular">
-                    <div class="team-photo-circular">
-                        <?php if ($_tmPhoto !== ''): ?>
-                            <img src="<?php echo e($_tmPhoto); ?>" loading="lazy" alt="<?php echo e($member['name']); ?>">
-                        <?php else: ?>
-                            <div class="team-placeholder-circular"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="team-info-circular">
-                        <h5><?php echo e($member['name']); ?></h5>
-                        <?php $_nameEn = team_member_distinct_name_en($member); if ($_nameEn !== ''): ?>
-                        <p class="team-name-en"><?php echo e($_nameEn); ?></p>
-                        <?php endif; ?>
-                        <span class="team-position-badge"><?php echo e($member['position_np'] ?: ($member['position'] ?? '')); ?></span>
-                        <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
-                        <div class="team-contact-circular">
-                            <?php if (!empty($member['phone'])): ?>
-                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
-                            <?php endif; ?>
-                            <?php if (!empty($member['email'])): ?>
-                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-            <?php endforeach; ?>
+        <?php if (!empty($viewMembers)): ?>
+        <div class="team-org-chart-wrap" id="teamCmtMembers">
+            <?php echo team_render_org_chart($viewMembers, ['english' => isEnglish()]); ?>
         </div>
-        <?php if (empty($viewMembers)): ?>
-        <p class="text-center text-muted mb-0"><?php echo isEnglish() ? 'No members found for this selection.' : 'यो छनोटका लागि सदस्य भेटिएन।'; ?></p>
+        <?php else: ?>
+        <div class="team-empty-selection text-center py-4" id="teamCmtMembers">
+            <i class="fas fa-users-slash fa-2x text-muted mb-3 d-block opacity-50" aria-hidden="true"></i>
+            <p class="text-muted mb-0"><?php echo isEnglish() ? 'No members found for this selection.' : 'यो छनोटका लागि सदस्य भेटिएन।'; ?></p>
+        </div>
         <?php endif; ?>
     </div>
 </section>

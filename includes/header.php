@@ -156,14 +156,12 @@ try {
         if (!function_exists('getCachedData')) {
             require_once __DIR__ . '/simple-cache.php';
         }
-        $__teamNav = getCachedData('nav_team_menu_v1', 90, function () use ($db) {
+        $__teamNav = getCachedData('nav_team_menu_v2', 90, static function () use ($db) {
             $staff = [];
             try {
-                foreach (fetchTeamStaffGroups($db, true) as $_sg) {
-                    if (!empty($_sg['show_in_nav']) && !empty($_sg['slug'])) {
-                        $staff[] = $_sg;
-                    }
-                }
+                $staff = function_exists('fetchPublicNavStaffGroups')
+                    ? fetchPublicNavStaffGroups($db)
+                    : [];
             } catch (Throwable $e) {
                 $staff = [];
             }
@@ -180,10 +178,54 @@ try {
         }
         $navStaffGroups = is_array($__teamNav['staff'] ?? null) ? $__teamNav['staff'] : [];
         $navTeamMenuCategories = is_array($__teamNav['cats'] ?? null) ? $__teamNav['cats'] : [];
+
+        $navHasBoardMembers = false;
+        $navHasContactOfficers = false;
+        try {
+            $navHasBoardMembers = (int)$db->query("SELECT COUNT(*) FROM team_members WHERE category='board' AND is_active=1")->fetchColumn() > 0;
+            $navHasContactOfficers = (int)$db->query(
+                "SELECT COUNT(*) FROM team_members WHERE is_active=1 AND (
+                    is_chairman=1 OR is_ceo=1 OR is_information_officer=1 OR is_grievance_officer=1
+                )"
+            )->fetchColumn() > 0;
+        } catch (Throwable $e) { /* best-effort */ }
+
+        if (function_exists('teamNavCategoryItemCount')) {
+            $navTeamMenuCategories = array_values(array_filter(
+                $navTeamMenuCategories,
+                static function (array $tmc) use (
+                    $navStaffGroups,
+                    $navCommittees,
+                    $navFallbackStaffMenuId,
+                    $navFallbackCommitteesMenuId,
+                    $navHasBoardMembers,
+                    $navHasContactOfficers
+                ): bool {
+                    return teamNavCategoryItemCount(
+                        $tmc,
+                        $navStaffGroups,
+                        $navCommittees,
+                        $navFallbackStaffMenuId,
+                        $navFallbackCommitteesMenuId,
+                        $navHasBoardMembers,
+                        $navHasContactOfficers
+                    ) > 0;
+                }
+            ));
+        }
+
+        $navBoardLabels = function_exists('teamBoardNavLabel')
+            ? teamBoardNavLabel($navCommittees, isEnglish())
+            : ['np' => 'सञ्चालक समिति', 'en' => 'Board Committee', 'label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'];
     }
 } catch (Throwable $e) {
     $navStaffGroups = [];
     $navTeamMenuCategories = [];
+    $navBoardLabels = ['np' => 'सञ्चालक समिति', 'en' => 'Board Committee', 'label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'];
+}
+
+if (!isset($navBoardLabels) || !is_array($navBoardLabels)) {
+    $navBoardLabels = ['np' => 'सञ्चालक समिति', 'en' => 'Board Committee', 'label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'];
 }
 
 /* Fallback: seeded categories missing (DB issue) — keep old 2 parents */
@@ -1705,7 +1747,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         <li>
                                             <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board">
                                                 <i class="fas fa-landmark"></i>
-                                                <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?>
+                                                <?php echo htmlspecialchars($navBoardLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?>
                                             </a>
                                         </li>
                                         <?php endif; ?>
@@ -2033,7 +2075,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         }
                                         ?>
                                         <?php if ($_showBoardLink): ?>
-                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board"><i class="fas fa-landmark"></i> <?php echo isEnglish() ? 'Board Committee' : 'सञ्चालक समिति'; ?></a></li>
+                                    <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=board&cat=board#board"><i class="fas fa-landmark"></i> <?php echo htmlspecialchars($navBoardLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?></a></li>
                                         <?php endif; ?>
                                         <?php
                                         foreach ($_catCommittees as $_nc):
