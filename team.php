@@ -635,7 +635,78 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
 <?php endif; ?>
 
 <!-- Information & Grievance Officers Section -->
-<?php if ($teamShowSection('contact-officers') && ($chairman || $ceo || $informationOfficer || $grievanceOfficer)): ?>
+<?php if ($teamShowSection('contact-officers') && ($chairman || $ceo || $informationOfficer || $grievanceOfficer)):
+    $contactOfficerCards = [];
+    if ($chairman) {
+        $contactOfficerCards[] = [
+            'person' => $chairman,
+            'class' => 'chairman-officer',
+            'badge_icon' => 'fas fa-user-tie',
+            'badge_label' => isEnglish() ? 'Chairman' : 'अध्यक्ष',
+            'description' => isEnglish()
+                ? 'The elected chairman guiding our cooperative governance.'
+                : 'हाम्रा सहकारी शासनलाई मार्गदर्शन गर्ने निर्वाचित अध्यक्ष',
+            'delay' => 100,
+        ];
+    }
+    if ($ceo && $chairman
+        && (int)($ceo['id'] ?? 0) > 0
+        && (int)($ceo['id'] ?? 0) === (int)($chairman['id'] ?? 0)) {
+        /* chairman card already added above */
+    } elseif ($ceo) {
+        $contactOfficerCards[] = [
+            'person' => $ceo,
+            'class' => 'ceo-officer',
+            'badge_icon' => 'fas fa-user-check',
+            'badge_label' => isEnglish() ? 'CEO' : 'मुख्य कार्यकारी अधिकारी',
+            'description' => isEnglish()
+                ? 'The executive leader responsible for daily operations.'
+                : 'दैनिक सञ्चालनको लागि उत्तरदायी कार्यकारी प्रमुख',
+            'delay' => 150,
+        ];
+    }
+    if ($informationOfficer && $grievanceOfficer
+        && (int)($informationOfficer['id'] ?? 0) > 0
+        && (int)($informationOfficer['id'] ?? 0) === (int)($grievanceOfficer['id'] ?? 0)) {
+        $contactOfficerCards[] = [
+            'person' => $informationOfficer,
+            'class' => 'information-officer grievance-officer',
+            'badge_icon' => 'fas fa-id-card-clip',
+            'badge_label' => isEnglish() ? 'Information & Grievance Officer' : 'सूचना तथा गुनासो अधिकारी',
+            'description' => isEnglish()
+                ? 'Contact for information requests and service-related complaints or grievances.'
+                : 'सूचना सम्बन्धी जिज्ञासा तथा सेवासँग सम्बन्धित गुनासो वा उजुरीका लागि सम्पर्क गर्नुहोस्।',
+            'delay' => 200,
+            'grievance_btn' => true,
+        ];
+    } else {
+        if ($informationOfficer) {
+            $contactOfficerCards[] = [
+                'person' => $informationOfficer,
+                'class' => 'information-officer',
+                'badge_icon' => 'fas fa-info-circle',
+                'badge_label' => isEnglish() ? 'Information Officer' : 'सूचना अधिकारी',
+                'description' => isEnglish()
+                    ? 'For information requests under the Right to Information Act, please contact.'
+                    : 'सूचनाको हकसम्बन्धी ऐन अनुसार कुनै पनि सूचना सम्बन्धी जिज्ञासाको लागि सम्पर्क गर्नुहोस्।',
+                'delay' => 200,
+            ];
+        }
+        if ($grievanceOfficer) {
+            $contactOfficerCards[] = [
+                'person' => $grievanceOfficer,
+                'class' => 'grievance-officer',
+                'badge_icon' => 'fas fa-exclamation-triangle',
+                'badge_label' => isEnglish() ? 'Grievance Officer' : 'गुनासो अधिकारी',
+                'description' => isEnglish()
+                    ? 'For any complaints or grievances related to our services, please contact.'
+                    : 'हाम्रो सेवासँग सम्बन्धित कुनै पनि गुनासो वा उजुरीको लागि सम्पर्क गर्नुहोस्।',
+                'delay' => 250,
+                'grievance_btn' => true,
+            ];
+        }
+    }
+?>
 <section id="contact-officers" class="team-section officers-section section-padding bg-light" data-filter="contact-officers">
     <div class="container">
         <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
@@ -647,165 +718,58 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
             <p><?php echo isEnglish() ? 'Meet our designated officers, senior leadership and contact points for information or grievances.' : 'सूचना तथा गुनासोका लागि तोकिएका अधिकारीहरू र वरिष्ठ नेतृत्वसँग भेट्नुहोस्'; ?></p>
         </div>
 
-        <div class="row justify-content-center">
-            <?php if ($chairman): ?>
-            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="officer-card chairman-officer">
+        <div class="officers-grid" role="list">
+            <?php foreach ($contactOfficerCards as $card):
+                $person = $card['person'];
+                $personName = isEnglish() && !empty($person['name_en']) ? $person['name_en'] : ($person['name'] ?? '');
+                $personPosition = isEnglish() && !empty($person['position_en'])
+                    ? $person['position_en']
+                    : (($person['position_np'] ?? '') ?: ($person['position'] ?? ''));
+            ?>
+            <div class="officers-grid-cell" role="listitem" data-aos="fade-up" data-aos-delay="<?php echo (int)$card['delay']; ?>">
+                <div class="officer-card <?php echo e($card['class']); ?>">
                     <div class="officer-badge">
-                        <i class="fas fa-user-tie"></i>
-                        <span><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
+                        <i class="<?php echo e($card['badge_icon']); ?>"></i>
+                        <span><?php echo e($card['badge_label']); ?></span>
                     </div>
                     <div class="officer-photo">
-                        <?php if ($chairman['photo']): ?>
-                            <img src="<?php echo e($chairman['photo']); ?>" loading="lazy" alt="<?php echo e($chairman['name']); ?>">
+                        <?php if (!empty($person['photo'])): ?>
+                            <img src="<?php echo e($person['photo']); ?>" loading="lazy" alt="<?php echo e($personName); ?>">
                         <?php else: ?>
                             <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
                         <?php endif; ?>
                     </div>
                     <div class="officer-info">
-                        <h4><?php echo e(isEnglish() && $chairman['name_en'] ? $chairman['name_en'] : $chairman['name']); ?></h4>
-                        <span class="position"><?php echo e(isEnglish() && $chairman['position_en'] ? $chairman['position_en'] : ($chairman['position_np'] ?: $chairman['position'])); ?></span>
-                        <div class="officer-contact">
-                            <?php if ($chairman['phone']): ?>
-                            <a href="tel:<?php echo e($chairman['phone']); ?>" class="contact-item">
-                                <i class="fas fa-phone"></i>
-                                <span><?php echo e($chairman['phone']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                            <?php if ($chairman['email']): ?>
-                            <a href="mailto:<?php echo e($chairman['email']); ?>" class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo e($chairman['email']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="officer-description">
-                        <p><?php echo isEnglish() ? 'The elected chairman guiding our cooperative governance.' : 'हाम्रा सहकारी शासनलाई मार्गदर्शन गर्ने निर्वाचित अध्यक्ष'; ?></p>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($ceo): ?>
-            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="150">
-                <div class="officer-card ceo-officer">
-                    <div class="officer-badge">
-                        <i class="fas fa-user-check"></i>
-                        <span><?php echo isEnglish() ? 'CEO' : 'मुख्य कार्यकारी अधिकारी'; ?></span>
-                    </div>
-                    <div class="officer-photo">
-                        <?php if ($ceo['photo']): ?>
-                            <img src="<?php echo e($ceo['photo']); ?>" loading="lazy" alt="<?php echo e($ceo['name']); ?>">
-                        <?php else: ?>
-                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
+                        <h4><?php echo e($personName); ?></h4>
+                        <?php if ($personPosition !== ''): ?>
+                        <span class="position"><?php echo e($personPosition); ?></span>
                         <?php endif; ?>
-                    </div>
-                    <div class="officer-info">
-                        <h4><?php echo e(isEnglish() && $ceo['name_en'] ? $ceo['name_en'] : $ceo['name']); ?></h4>
-                        <span class="position"><?php echo e(isEnglish() && $ceo['position_en'] ? $ceo['position_en'] : ($ceo['position_np'] ?: $ceo['position'])); ?></span>
                         <div class="officer-contact">
-                            <?php if ($ceo['phone']): ?>
-                            <a href="tel:<?php echo e($ceo['phone']); ?>" class="contact-item">
+                            <?php if (!empty($person['phone'])): ?>
+                            <a href="tel:<?php echo e($person['phone']); ?>" class="contact-item">
                                 <i class="fas fa-phone"></i>
-                                <span><?php echo e($ceo['phone']); ?></span>
+                                <span><?php echo e($person['phone']); ?></span>
                             </a>
                             <?php endif; ?>
-                            <?php if ($ceo['email']): ?>
-                            <a href="mailto:<?php echo e($ceo['email']); ?>" class="contact-item">
+                            <?php if (!empty($person['email'])): ?>
+                            <a href="mailto:<?php echo e($person['email']); ?>" class="contact-item">
                                 <i class="fas fa-envelope"></i>
-                                <span><?php echo e($ceo['email']); ?></span>
+                                <span><?php echo e($person['email']); ?></span>
                             </a>
                             <?php endif; ?>
                         </div>
                     </div>
                     <div class="officer-description">
-                        <p><?php echo isEnglish() ? 'The executive leader responsible for daily operations.' : 'दैनिक सञ्चालनको लागि उत्तरदायी कार्यकारी प्रमुख'; ?></p>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($informationOfficer): ?>
-            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="officer-card information-officer">
-                    <div class="officer-badge">
-                        <i class="fas fa-info-circle"></i>
-                        <span><?php echo isEnglish() ? 'Information Officer' : 'सूचना अधिकारी'; ?></span>
-                    </div>
-                    <div class="officer-photo">
-                        <?php if ($informationOfficer['photo']): ?>
-                            <img src="<?php echo e($informationOfficer['photo']); ?>" loading="lazy" alt="<?php echo e($informationOfficer['name']); ?>">
-                        <?php else: ?>
-                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="officer-info">
-                        <h4><?php echo e(isEnglish() && $informationOfficer['name_en'] ? $informationOfficer['name_en'] : $informationOfficer['name']); ?></h4>
-                        <span class="position"><?php echo e(isEnglish() && $informationOfficer['position_en'] ? $informationOfficer['position_en'] : ($informationOfficer['position_np'] ?: $informationOfficer['position'])); ?></span>
-                        <div class="officer-contact">
-                            <?php if ($informationOfficer['phone']): ?>
-                            <a href="tel:<?php echo e($informationOfficer['phone']); ?>" class="contact-item">
-                                <i class="fas fa-phone"></i>
-                                <span><?php echo e($informationOfficer['phone']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                            <?php if ($informationOfficer['email']): ?>
-                            <a href="mailto:<?php echo e($informationOfficer['email']); ?>" class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo e($informationOfficer['email']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="officer-description">
-                        <p><?php echo isEnglish() ? 'For any information related queries as per Right to Information Act, please contact.' : 'सूचनाको हकसम्बन्धी ऐन अनुसार कुनै पनि सूचना सम्बन्धी जिज्ञासाको लागि सम्पर्क गर्नुहोस्।'; ?></p>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <?php if ($grievanceOfficer): ?>
-            <div class="col-lg-5 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="250">
-                <div class="officer-card grievance-officer">
-                    <div class="officer-badge">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span><?php echo isEnglish() ? 'Grievance Officer' : 'गुनासो अधिकारी'; ?></span>
-                    </div>
-                    <div class="officer-photo">
-                        <?php if ($grievanceOfficer['photo']): ?>
-                            <img src="<?php echo e($grievanceOfficer['photo']); ?>" loading="lazy" alt="<?php echo e($grievanceOfficer['name']); ?>">
-                        <?php else: ?>
-                            <div class="officer-placeholder"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="officer-info">
-                        <h4><?php echo e(isEnglish() && $grievanceOfficer['name_en'] ? $grievanceOfficer['name_en'] : $grievanceOfficer['name']); ?></h4>
-                        <span class="position"><?php echo e(isEnglish() && $grievanceOfficer['position_en'] ? $grievanceOfficer['position_en'] : ($grievanceOfficer['position_np'] ?: $grievanceOfficer['position'])); ?></span>
-                        <div class="officer-contact">
-                            <?php if ($grievanceOfficer['phone']): ?>
-                            <a href="tel:<?php echo e($grievanceOfficer['phone']); ?>" class="contact-item">
-                                <i class="fas fa-phone"></i>
-                                <span><?php echo e($grievanceOfficer['phone']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                            <?php if ($grievanceOfficer['email']): ?>
-                            <a href="mailto:<?php echo e($grievanceOfficer['email']); ?>" class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo e($grievanceOfficer['email']); ?></span>
-                            </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="officer-description">
-                        <p><?php echo isEnglish() ? 'For any complaints or grievances related to our services, please contact.' : 'हाम्रो सेवासँग सम्बन्धित कुनै पनि गुनासो वा उजुरीको लागि सम्पर्क गर्नुहोस्।'; ?></p>
+                        <p><?php echo e($card['description']); ?></p>
+                        <?php if (!empty($card['grievance_btn'])): ?>
                         <a href="grievance.php" class="btn btn-sm btn-outline-danger mt-2">
                             <i class="fas fa-pen"></i> <?php echo isEnglish() ? 'File Grievance Online' : 'अनलाइन गुनासो दर्ता'; ?>
                         </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>

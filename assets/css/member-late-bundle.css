@@ -5332,6 +5332,181 @@ body.dark-mode .pagination .page-item.active .page-link {
   align-self: stretch !important;
 }
 
+/* Contact officers — 4-up grid aligned with org-chart card footprint */
+.officers-section {
+  --officer-card-w: 265px;
+  --officer-photo: 118px;
+}
+
+.officers-section .officers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1.25rem;
+  max-width: min(1240px, 100%);
+  margin-inline: auto;
+}
+
+.officers-section .officers-grid-cell {
+  display: flex;
+  flex: 0 1 var(--officer-card-w);
+  width: var(--officer-card-w);
+  max-width: var(--officer-card-w);
+  min-width: 0;
+}
+
+.officers-section .officer-card {
+  width: 100% !important;
+  max-width: var(--officer-card-w) !important;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 1.15rem 1rem 1rem !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.officers-section .officer-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12) !important;
+}
+
+.officers-section .officer-card::before {
+  height: 4px !important;
+}
+
+.officers-section .officer-card.chairman-officer::before {
+  background: linear-gradient(90deg, #1a5f2a, #2e7d32) !important;
+}
+
+.officers-section .officer-card.ceo-officer::before {
+  background: linear-gradient(90deg, #1565c0, #42a5f5) !important;
+}
+
+.officers-section .officer-card.information-officer.grievance-officer::before {
+  background: linear-gradient(90deg, #2196f3, #f44336) !important;
+}
+
+.officers-section .information-officer.grievance-officer .officer-badge {
+  background: linear-gradient(135deg, #e3f2fd 0%, #ffebee 100%) !important;
+  color: #0d47a1 !important;
+}
+
+.officers-section .chairman-officer .officer-badge {
+  background: #e8f5e9 !important;
+  color: #1b5e20 !important;
+}
+
+.officers-section .ceo-officer .officer-badge {
+  background: #e3f2fd !important;
+  color: #1565c0 !important;
+}
+
+.officers-section .officer-badge {
+  padding: 6px 12px !important;
+  margin-bottom: 12px !important;
+  font-size: 0.72rem !important;
+  line-height: 1.35 !important;
+  text-align: center;
+  max-width: 100%;
+}
+
+.officers-section .officer-badge span {
+  display: inline-block;
+}
+
+.officers-section .officer-photo {
+  width: var(--officer-photo) !important;
+  height: var(--officer-photo) !important;
+  margin: 0 auto 12px !important;
+  border-width: 4px !important;
+}
+
+.officers-section .officer-placeholder {
+  font-size: 2.25rem !important;
+}
+
+.officers-section .officer-info {
+  width: 100%;
+}
+
+.officers-section .officer-info h4 {
+  font-size: 1rem !important;
+  line-height: 1.4 !important;
+  margin-bottom: 4px !important;
+}
+
+.officers-section .officer-info .position {
+  font-size: 0.78rem !important;
+  line-height: 1.45 !important;
+  margin-bottom: 10px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.officers-section .officer-contact {
+  gap: 6px !important;
+  margin-top: 8px !important;
+}
+
+.officers-section .officer-contact .contact-item {
+  padding: 7px 10px !important;
+  font-size: 0.76rem !important;
+  gap: 6px !important;
+  word-break: break-word;
+}
+
+.officers-section .officer-contact .contact-item span {
+  text-align: left;
+}
+
+.officers-section .officer-description {
+  margin-top: auto !important;
+  padding-top: 12px !important;
+  width: 100%;
+}
+
+.officers-section .officer-description p {
+  font-size: 0.76rem !important;
+  line-height: 1.5 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.officers-section .officer-description .btn {
+  font-size: 0.72rem !important;
+  padding: 0.3rem 0.55rem !important;
+  white-space: normal;
+}
+
+@media (max-width: 1199.98px) {
+  .officers-section .officers-grid-cell {
+    flex-basis: calc(50% - 0.625rem);
+    width: calc(50% - 0.625rem);
+    max-width: var(--officer-card-w);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .officers-section {
+    --officer-card-w: min(100%, 280px);
+    --officer-photo: 108px;
+  }
+
+  .officers-section .officers-grid-cell {
+    flex-basis: 100%;
+    width: 100%;
+    max-width: var(--officer-card-w);
+  }
+}
+
 /* Same photo ring size for board, management, committees, featured, small */
 .team-section .team-photo-circular,
 .team-org-chart .team-photo-circular,
