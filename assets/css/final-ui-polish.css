@@ -493,25 +493,21 @@ textarea.form-control {
 .team-org-chart {
   width: 100%;
   max-width: min(1240px, 100%);
-}
-
-/* Up to 4 cards on one row — slightly tighter footprint than 3-up */
-.team-org-chart:has(.team-org-count-4) {
+  /* One footprint for every row: up to 4 cards per line (2–4 same size) */
   --team-card-w: 265px;
-  max-width: min(1240px, 100%);
 }
 
 .team-org-chart .team-org-row-inner {
   max-width: min(1240px, 100%) !important;
 }
 
-.team-org-chart .team-org-count-4 .team-org-cell {
+.team-org-chart .team-org-cell {
   flex: 0 1 var(--team-card-w, 265px) !important;
   width: var(--team-card-w, 265px) !important;
   max-width: var(--team-card-w, 265px) !important;
 }
 
-.team-org-chart .team-org-count-4 .team-org-cell > .team-card-circular {
+.team-org-chart .team-org-cell > .team-card-circular {
   max-width: var(--team-card-w, 265px) !important;
 }
 
@@ -1707,7 +1703,6 @@ body.dark-mode .pagination .page-item.active .page-link {
    ═══════════════════════════════════════════════════════════════════ */
 
 .team-section,
-.team-org-chart-wrap,
 .committees-section {
   --team-card-w: 280px;
   --team-uniform-photo: 140px;
@@ -1719,7 +1714,15 @@ body.dark-mode .pagination .page-item.active .page-link {
   --team-contact-min-h: 52px;
 }
 
-/* Org-chart cells (board / samiti) — same width as management cards */
+/* Org chart (board / samiti / vyabasthapan) — always 4-up row footprint */
+.team-org-chart-wrap,
+.team-org-chart {
+  --team-card-w: 265px;
+  --team-uniform-photo: 132px;
+  --team-card-min-h: 328px;
+}
+
+/* Org-chart cells — same width on every row (1–4 cards) */
 .team-org-cell {
   flex: 0 1 var(--team-card-w) !important;
   width: var(--team-card-w) !important;
@@ -1862,23 +1865,35 @@ body.dark-mode .pagination .page-item.active .page-link {
 
 @media (max-width: 991.98px) {
   .team-section,
-  .team-org-chart-wrap,
   .committees-section {
     --team-card-w: 250px;
     --team-uniform-photo: 128px;
     --team-card-min-h: 320px;
   }
+
+  .team-org-chart-wrap,
+  .team-org-chart {
+    --team-card-w: 248px;
+    --team-uniform-photo: 124px;
+    --team-card-min-h: 312px;
+  }
 }
 
 @media (max-width: 575.98px) {
   .team-section,
-  .team-org-chart-wrap,
   .committees-section {
     --team-card-w: min(100%, 280px);
     --team-uniform-photo: 120px;
     --team-uniform-pad-y: 22px;
     --team-uniform-pad-x: 14px;
     --team-card-min-h: 300px;
+  }
+
+  .team-org-chart-wrap,
+  .team-org-chart {
+    --team-card-w: min(100%, 265px);
+    --team-uniform-photo: 118px;
+    --team-card-min-h: 296px;
   }
 
   .team-org-cell,

@@ -970,9 +970,9 @@ button.qh-item {
 }
 
 .team-org-cell {
-  flex: 0 1 280px;
-  width: 280px;
-  max-width: 280px;
+  flex: 0 1 265px;
+  width: 265px;
+  max-width: 265px;
   min-width: 0;
 }
 
