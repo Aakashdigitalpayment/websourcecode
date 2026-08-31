@@ -1489,7 +1489,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <div class="pfl-bell-header">
                             <span><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i><?php echo isEnglish() ? 'Notices' : 'सूचनाहरू'; ?></span>
                             <?php if ($bellNewCount > 0): ?>
-                            <span class="pfl-bell-new-chip"><?php echo $bellNewCount; ?> New</span>
+                            <span class="pfl-bell-new-chip"><?php echo $bellNewCount; ?> <?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                             <?php endif; ?>
                         </div>
                         <ul class="pfl-bell-list">
@@ -1515,7 +1515,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         <?php endif; ?>
                                     </span>
                                     <?php if ($bni < 3): ?>
-                                    <span class="pfl-bell-new-dot" title="नयाँ">NEW</span>
+                                    <span class="pfl-bell-new-dot" title="<?php echo isEnglish() ? 'New' : 'नयाँ'; ?>"><?php echo isEnglish() ? 'NEW' : 'नयाँ'; ?></span>
                                     <?php endif; ?>
                                 </a>
                             </li>
@@ -2445,8 +2445,45 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     </div>
                     <div class="popup-content-body">
                         <h4 class="popup-title"><?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: ($notice['title_np'] ?? '')) : (($notice['title_np'] ?? '') ?: $notice['title']), ENT_QUOTES, 'UTF-8'); ?></h4>
-                        <div class="popup-text">
-                            <?php echo nl2br(htmlspecialchars(isEnglish() ? ($notice['content'] ?: ($notice['content_np'] ?? '')) : (($notice['content_np'] ?? '') ?: $notice['content']), ENT_QUOTES, 'UTF-8')); ?>
+                        <?php
+                        if (!empty($attachPath) && !($isPhotoOnly && $photoOnlySrc)):
+                            $attachFullUrl = function_exists('safe_media_src')
+                                ? safe_media_src($attachPath)
+                                : (SITE_URL . ltrim($attachPath, '/'));
+                            if ($attachFullUrl !== ''):
+                                $attachIsPdf = (bool)preg_match('/\.pdf$/i', $attachPath);
+                                $attachIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachPath);
+                                $attachIcon = $attachIsPdf ? 'fa-file-pdf' : ($attachIsImg ? 'fa-image' : 'fa-paperclip');
+                        ?>
+                        <div class="popup-attachment-cta">
+                            <a href="<?php echo e($attachFullUrl); ?>" target="_blank" rel="noopener noreferrer" class="popup-view-full-notice">
+                                <i class="fas <?php echo e($attachIcon); ?>" aria-hidden="true"></i>
+                                <span><?php echo isEnglish() ? 'View full notice' : 'पूरा सूचना हेर्नुहोस्'; ?></span>
+                            </a>
+                        </div>
+                        <?php
+                            endif;
+                        endif;
+                        if (!empty($attachPath) && !$isPhotoOnly && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachPath)):
+                            $inlineImgUrl = function_exists('safe_media_src') ? safe_media_src($attachPath) : (SITE_URL . ltrim($attachPath, '/'));
+                            if ($inlineImgUrl !== ''):
+                        ?>
+                        <div class="popup-inline-image">
+                            <img src="<?php echo e($inlineImgUrl); ?>" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <?php
+                            endif;
+                        endif;
+                        ?>
+                        <div class="popup-text coop-prose">
+                            <?php
+                            $popupBody = isEnglish()
+                                ? ($notice['content'] ?: ($notice['content_np'] ?? ''))
+                                : (($notice['content_np'] ?? '') ?: $notice['content']);
+                            echo function_exists('coop_render_cms_prose')
+                                ? coop_render_cms_prose($popupBody)
+                                : nl2br(htmlspecialchars((string)$popupBody, ENT_QUOTES, 'UTF-8'));
+                            ?>
                         </div>
                         <?php if (!empty($notice['notice_date'])): ?>
                         <div class="popup-date">

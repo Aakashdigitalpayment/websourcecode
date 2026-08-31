@@ -612,9 +612,11 @@ $ipSnapFy = $latestInstitutionalProfile ? trim((string)($latestInstitutionalProf
                     <div class="notices-body">
                         <div class="notices-list">
                             <?php foreach ($notices as $notice):
-                                $noticeDate = new DateTime($notice['notice_date']);
-                                $day = $noticeDate->format('d');
-                                $month = $noticeDate->format('M');
+                                $dateBox = function_exists('coop_notice_bs_day_month')
+                                    ? coop_notice_bs_day_month($notice['notice_date'] ?? '')
+                                    : ['day' => '—', 'month' => ''];
+                                $day = $dateBox['day'];
+                                $month = $dateBox['month'];
                             ?>
                             <div class="notice-item-enhanced">
                                 <div class="notice-date-box">

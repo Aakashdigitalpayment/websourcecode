@@ -6829,4 +6829,97 @@ body.dark-mode .pfl-lm-weblogin {
 .qh-item:hover .qh-ic.qh-weblogin {
   filter: brightness(1.12);
 }
+
+/* Notice popup — full notice link below title (replaces tiny top-left file icon) */
+.notice-popup-enhanced .popup-v3 .popup-doc-actions {
+  display: none !important;
+}
+
+.notice-popup-enhanced .popup-v3 .popup-actions-top {
+  justify-content: flex-end !important;
+}
+
+.notice-popup-enhanced .popup-attachment-cta {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 14px;
+}
+
+.notice-popup-enhanced .popup-view-full-notice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2e7d32));
+  color: #fff !important;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none !important;
+  box-shadow: 0 4px 14px rgba(26, 95, 42, 0.22);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.notice-popup-enhanced .popup-view-full-notice:hover,
+.notice-popup-enhanced .popup-view-full-notice:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(26, 95, 42, 0.28);
+  color: #fff !important;
+}
+
+.notice-popup-enhanced .popup-inline-image {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 14px;
+}
+
+.notice-popup-enhanced .popup-inline-image img {
+  display: block;
+  max-width: 100%;
+  max-height: min(42vh, 320px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+}
+
+body.dark-mode .notice-popup-enhanced .popup-view-full-notice {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Notice detail — attachment preview + view link */
+.notice-detail-card .notice-inline-image {
+  display: flex;
+  justify-content: center;
+}
+
+.notice-detail-card .notice-inline-image img {
+  display: block;
+  max-width: 100%;
+  max-height: min(520px, 70vh);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12);
+}
+
+.notice-detail-card .notice-attachment .nts-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.notice-popup-enhanced .popup-text.coop-prose {
+  text-align: left;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.notice-popup-enhanced .popup-text.coop-prose p:last-child {
+  margin-bottom: 0;
+}
 /* ===== END final-ui-polish.css ===== */

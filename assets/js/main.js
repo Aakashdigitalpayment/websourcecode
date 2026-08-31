@@ -116,19 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Old localStorage values no longer suppress the desktop popup forever.
         const alreadySeen = sessionStorage.getItem(storageKey);
 
-        // Function to update PDF button based on current slide
+        // Attachment links live under the popup title — hide legacy top-left doc button.
         function updateDocButton() {
-            if (!docActions) return;
-            const activeSlide = slides[currentSlide];
-            const attachment = activeSlide ? activeSlide.getAttribute('data-attachment') : '';
-            const photoOnly = activeSlide ? activeSlide.getAttribute('data-photo-only') === '1' : false;
-
-            if (attachment && !photoOnly) {
-                const siteUrl = window.SITE_URL || '/';
-                docActions.innerHTML = `<a href="${siteUrl}${attachment}" target="_blank" rel="noopener noreferrer" class="popup-doc-btn" title="View PDF"><i class="fas fa-file-pdf"></i></a>`;
-            } else {
-                docActions.innerHTML = '';
-            }
+            if (docActions) docActions.innerHTML = '';
         }
 
         function updatePhotoOnlyMode() {

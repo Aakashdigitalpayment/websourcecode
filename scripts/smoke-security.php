@@ -97,7 +97,7 @@ assertFileContains('includes/header.php', 'safe_versioned_media_src', 'header sa
 assertFileContains('includes/config.php', 'function coop_sanitize_cms_html', 'cms html sanitizer');
 assertFileContains('page.php', 'coop_sanitize_cms_html', 'cms page body sanitized');
 assertFileContains('news-detail.php', 'coop_sanitize_cms_html', 'news detail body sanitized');
-assertFileContains('notices.php', 'coop_sanitize_cms_html', 'notice detail body sanitized');
+assertFileContains('notices.php', 'coop_render_cms_prose', 'notice detail body sanitized');
 assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
 $session = (string) file_get_contents($root . '/member/session-check.php');
 foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {

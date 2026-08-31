@@ -403,6 +403,32 @@ function coop_render_cms_prose(?string $html): string
 }
 
 /**
+ * BS notice_date (YYYY-MM-DD) → day + Nepali month label for homepage cards.
+ *
+ * @return array{day: string, month: string}
+ */
+if (!function_exists('coop_notice_bs_day_month')) {
+    function coop_notice_bs_day_month(?string $date): array
+    {
+        $date = trim((string) $date);
+        if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $date, $m)) {
+            return ['day' => '—', 'month' => ''];
+        }
+        $day = $m[3];
+        $monthNum = (int) $m[2];
+        $month = function_exists('getNepaliMonthName')
+            ? (string) getNepaliMonthName((string) $monthNum)
+            : $m[2];
+        if (!function_exists('isEnglish') || !isEnglish()) {
+            if (function_exists('toNepaliNumeral')) {
+                $day = toNepaliNumeral($day);
+            }
+        }
+        return ['day' => $day, 'month' => $month];
+    }
+}
+
+/**
  * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
  * Bare domains get https:// prepended. Invalid schemes return empty string.
  */

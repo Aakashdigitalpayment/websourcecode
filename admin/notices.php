@@ -30,8 +30,12 @@ $action    = in_array($rawAction, ['list', 'delete', 'bulk_status'], true) ? $ra
 $id        = intval($_POST['id'] ?? 0) ?: null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
+    checkCSRF();
+
     $title      = clean_text($_POST['title']      ?? '');
-    $content    = $_POST['content']             ?? '';
+    $content    = function_exists('coop_sanitize_cms_html')
+        ? coop_sanitize_cms_html($_POST['content'] ?? '')
+        : trim((string) ($_POST['content'] ?? ''));
     $noticeDate = !empty(trim($_POST['notice_date'] ?? '')) ? clean_text($_POST['notice_date']) : null;
     $isActive          = isset($_POST['is_active'])         ? 1 : 0;
     $isPopup           = isset($_POST['is_popup'])           ? 1 : 0;
@@ -56,8 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
     try {
         $db = getDB();
 
-/* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
-checkCSRF();
         if (!empty($_POST['notice_id'])) {
             $noticeId = (int)$_POST['notice_id'];
             if ($attachment) {
@@ -129,13 +131,14 @@ try {
 } catch (Exception $e) { $notices = []; }
 
 $flash = getFlash();
+$editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
 ?>
 
 <?php echo adminPageHeader($__t('सूचना व्यवस्थापन', 'Notices Management'), 'fa-bullhorn', $__t('संस्थाका सूचनाहरू — थप्नुहोस्, सम्पादन गर्नुहोस्।', 'Manage organization notices — add and edit.'),
     '<span class="badge admin-stat-badge ntc-stat-pill me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($notices) . '</span>'
 );
 ?>
-<?php echo adminHelpTip($__t('यो पृष्ठबाट संस्थाका सूचनाहरू थप्न, सम्पादन गर्न र हटाउन सकिन्छ।', 'Use this page to add, edit and remove notices.'), [$__t('नयाँ सूचना थप्न: माथिको "+" बटन थिच्नुहोस्।', 'To add a new notice: click "+" button above.'), $__t('सूचना publish/unpublish गर्न: Active/Inactive बटन थिच्नुहोस्।', 'To publish/unpublish: use Active/Inactive buttons.'), $__t('सूचना हटाउन: रातो Delete बटन थिच्नुहोस् (यो कार्य पूर्ववत हुन सक्दैन)।', 'To delete: click red Delete button (cannot be undone).')]); ?>
+<?php echo adminHelpTip($__t('यो पृष्ठबाट संस्थाका सूचनाहरू थप्न, सम्पादन गर्न र हटाउन सकिन्छ।', 'Use this page to add, edit and remove notices.'), [$__t('नयाँ सूचना थप्न: "नयाँ थप्नुहोस्" tab थिच्नुहोस्।', 'To add a new notice: open the "Add New" tab.'), $__t('सक्रिय/निष्क्रिय: सूचना छानेर Bulk सक्रिय वा Bulk निष्क्रिय थिच्नुहोस्।', 'Active/inactive: select notices and use Bulk Active or Bulk Inactive.'), $__t('सूचना हटाउन: रातो Delete बटन थिच्नुहोस् (यो कार्य पूर्ववत हुन सक्दैन)।', 'To delete: click red Delete button (cannot be undone).')]); ?>
 
 <?php if (!empty($flash)) { echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']); } ?>
 
@@ -161,7 +164,7 @@ $flash = getFlash();
         <div class="card admin-table-card svc-flat-top-card">
             <div class="card-body p-0">
                 <div class="table-responsive table-responsive-stack">
-                    <form method="POST">
+                    <form method="POST" id="noticeBulkForm">
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="action" value="bulk_status">
                         <div class="px-3 py-2 border-bottom ntc-soft-bg d-flex gap-2 justify-content-end">
@@ -172,10 +175,11 @@ $flash = getFlash();
                                 <i class="fas fa-ban me-1"></i><?php echo $__t('Bulk निष्क्रिय', 'Bulk Inactive'); ?>
                             </button>
                         </div>
+                    </form>
                     <table class="table table-hover align-middle mb-0" id="noticesTable">
                         <thead>
                             <tr>
-                                <th width="40" class="text-center"><input type="checkbox" onclick="document.querySelectorAll('.nt-select').forEach(c=>c.checked=this.checked)"></th>
+                                <th width="40" class="text-center"><input type="checkbox" form="noticeBulkForm" onclick="document.querySelectorAll('.nt-select').forEach(c=>c.checked=this.checked)"></th>
                                 <th class="ps-3" width="50">#</th>
                                 <th><?php echo $__t('शीर्षक', 'Title'); ?></th>
                                 <th width="140"><?php echo $__t('मिति (बि.सं.)', 'Date (BS)'); ?></th>
@@ -187,7 +191,7 @@ $flash = getFlash();
                         <tbody>
                             <?php if (empty($notices)): ?>
                             <tr>
-                                <td colspan="6">
+                                <td colspan="7">
                                     <div class="admin-empty-state">
                                         <i class="fas fa-bullhorn"></i>
                                         <p><?php echo $__t('कुनै सूचना छैन। माथिको "नयाँ सूचना" बटन थिच्नुहोस्।', 'No notices yet. Click "New Notice" button above.'); ?></p>
@@ -197,13 +201,18 @@ $flash = getFlash();
                             <?php endif; ?>
                             <?php foreach ($notices as $idx => $item): ?>
                             <tr>
-                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>"></td>
+                                <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>"></td>
                                 <td class="ps-3 ntc-muted" data-label="#"><?php echo $idx + 1; ?></td>
                                 <td data-label="शीर्षक">
                                     <div class="fw-semibold text-dark"><?php echo htmlspecialchars($item['title']); ?></div>
                                     <?php if ($item['attachment']): ?>
                                         <small class="ntc-muted"><i class="fas fa-paperclip me-1 ntc-file-icon"></i><?php echo $__t('फाइल संलग्न', 'File attached'); ?></small>
                                     <?php endif; ?>
+                                    <div class="mt-1">
+                                        <a href="../notices.php?id=<?php echo (int)$item['id']; ?>" class="small text-decoration-none" target="_blank" rel="noopener noreferrer">
+                                            <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('Public हेर्नुहोस्', 'View public'); ?>
+                                        </a>
+                                    </div>
                                 </td>
                                 <td data-label="मिति">
                                     <span class="text-secondary">
@@ -226,6 +235,7 @@ $flash = getFlash();
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center" data-label="कार्य">
+                                    <div class="d-inline-flex align-items-center gap-1">
                                     <button type="button"
                                         class="adm-icon-btn adm-icon-btn--edit btn-edit-notice"
                                         title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
@@ -240,7 +250,7 @@ $flash = getFlash();
                                         data-popup_image="<?php echo htmlspecialchars($item['popup_image'] ?? '', ENT_QUOTES); ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $__t('यो सूचना मेटाउने हो?', 'Delete this notice?'); ?>')">
+                                    <form method="POST" class="svc-inline-form d-inline" onsubmit="return confirm('<?php echo $__t('यो सूचना मेटाउने हो?', 'Delete this notice?'); ?>')">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$item['id']; ?>">
                                         <?php echo csrfField(); ?>
@@ -248,12 +258,12 @@ $flash = getFlash();
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                    </form>
                 </div>
             </div>
         </div>
@@ -433,7 +443,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* Edit बटनहरू */
     document.querySelectorAll('.btn-edit-notice').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             var d = this.dataset;
             document.getElementById('ntf_id').value      = d.id;
             document.getElementById('ntf_title').value   = d.title;
@@ -478,11 +490,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     paginate  : { previous: '‹', next: '›' },
                     emptyTable: '<?php echo $__t('कुनै सूचना छैन', 'No notices found'); ?>'
                 },
-                order     : [[0, 'desc']],
+                order     : [],
                 pageLength: 15,
-                columnDefs: [{ orderable: false, targets: [0,6] }]
+                columnDefs: [{ orderable: false, targets: [0, 6] }]
             });
         } catch(e) {}
+    }
+
+    var autoEditId = <?php echo (int)$editNoticeId; ?>;
+    if (autoEditId > 0) {
+        var autoEditBtn = document.querySelector('.btn-edit-notice[data-id="' + autoEditId + '"]');
+        if (autoEditBtn) autoEditBtn.click();
     }
 });
 </script>

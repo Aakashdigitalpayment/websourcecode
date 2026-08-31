@@ -67,7 +67,7 @@ if (strpos($config, 'function coop_render_cms_prose') === false) {
 foreach ([
     ['page.php', 'coop_sanitize_cms_html', 'cms page body sanitized'],
     ['news-detail.php', 'coop_sanitize_cms_html', 'news detail sanitized'],
-    ['notices.php', 'coop_sanitize_cms_html', 'notice detail sanitized'],
+    ['notices.php', 'coop_render_cms_prose', 'notice detail prose rendered'],
     ['about.php', 'coop_render_cms_prose', 'about prose rendered'],
     ['about.php', 'safe_versioned_media_src', 'about visual safe src'],
     ['awards.php', 'coop_render_cms_prose', 'award description prose rendered'],

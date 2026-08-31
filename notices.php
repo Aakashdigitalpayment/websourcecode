@@ -27,20 +27,20 @@ try {
         if (!$singleNotice) {
             redirect('notices.php');
         }
-    }
+    } else {
+        $totalNotices = (int)$db->query("SELECT COUNT(*) FROM notices WHERE is_active = 1")->fetchColumn();
+        $totalPages = max(1, (int)ceil($totalNotices / $perPage));
+        if ($page > $totalPages) {
+            $page = $totalPages;
+            $offset = ($page - 1) * $perPage;
+        }
 
-    $totalNotices = (int)$db->query("SELECT COUNT(*) FROM notices WHERE is_active = 1")->fetchColumn();
-    $totalPages = max(1, (int)ceil($totalNotices / $perPage));
-    if ($page > $totalPages) {
-        $page = $totalPages;
-        $offset = ($page - 1) * $perPage;
+        $stmt = $db->prepare("SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT ? OFFSET ?");
+        $stmt->bindValue(1, $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $notices = $stmt->fetchAll() ?: [];
     }
-
-    $stmt = $db->prepare("SELECT * FROM notices WHERE is_active = 1 ORDER BY id DESC LIMIT ? OFFSET ?");
-    $stmt->bindValue(1, $perPage, PDO::PARAM_INT);
-    $stmt->bindValue(2, $offset, PDO::PARAM_INT);
-    $stmt->execute();
-    $notices = $stmt->fetchAll() ?: [];
 } catch (Throwable $e) {
     $notices = [];
     $totalNotices = 0;
@@ -139,18 +139,32 @@ require_once 'includes/header.php';
                         <h1><?php echo e($singleNotice['title']); ?></h1>
                     </div>
                     <div class="notice-content coop-prose">
-                        <?php echo coop_sanitize_cms_html($singleNotice['content'] ?? ''); ?>
+                        <?php echo function_exists('coop_render_cms_prose')
+                            ? coop_render_cms_prose($singleNotice['content'] ?? '')
+                            : coop_sanitize_cms_html($singleNotice['content'] ?? ''); ?>
                     </div>
-                    <?php if ($singleNotice['attachment']): ?>
+                    <?php if ($singleNotice['attachment']):
+                        $attUrl = safe_media_src($singleNotice['attachment']);
+                        $attIsPdf = (bool)preg_match('/\.pdf$/i', (string)$singleNotice['attachment']);
+                        $attIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', (string)$singleNotice['attachment']);
+                    ?>
                     <div class="notice-attachment">
-                        <a href="<?php echo e(safe_media_src($singleNotice['attachment'])); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-download"></i> फाइल डाउनलोड गर्नुहोस्
+                        <?php if ($attIsImg && $attUrl !== ''): ?>
+                        <div class="notice-inline-image mb-3">
+                            <img src="<?php echo e($attUrl); ?>" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <?php endif; ?>
+                        <?php if ($attUrl !== ''): ?>
+                        <a href="<?php echo e($attUrl); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener noreferrer">
+                            <i class="fas <?php echo $attIsPdf ? 'fa-file-pdf' : ($attIsImg ? 'fa-image' : 'fa-paperclip'); ?>"></i>
+                            <?php echo isEnglish() ? 'View full notice' : 'पूरा सूचना हेर्नुहोस्'; ?>
                         </a>
+                        <?php endif; ?>
                     </div>
                     <?php endif; ?>
                     <div class="notice-footer">
                         <a href="notices.php" class="btn btn-outline-primary">
-                            <i class="fas fa-arrow-left"></i> सबै सूचनाहरू हेर्नुहोस्
+                            <i class="fas fa-arrow-left"></i> <?php echo isEnglish() ? 'View all notices' : 'सबै सूचनाहरू हेर्नुहोस्'; ?>
                         </a>
                     </div>
                 </div>
@@ -174,12 +188,12 @@ require_once 'includes/header.php';
                             <h5><a href="notices.php?id=<?php echo $notice['id']; ?>"><?php echo e($notice['title']); ?></a></h5>
                             <p><?php echo e(truncateText(strip_tags((string)($notice['content'] ?? '')), 100)); ?></p>
                             <a href="notices.php?id=<?php echo $notice['id']; ?>" class="read-more">
-                                थप पढ्नुहोस् <i class="fas fa-arrow-right"></i>
+                                <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
                         <?php if ($notice['attachment']): ?>
                         <div class="notice-attachment-icon">
-                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="फाइल डाउनलोड">
+                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
                                 <i class="fas fa-paperclip"></i>
                             </a>
                         </div>
@@ -191,29 +205,47 @@ require_once 'includes/header.php';
                 <div class="col-12">
                     <div class="empty-state text-center py-5">
                         <i class="fas fa-clipboard-list fa-4x nts-empty-icon mb-3"></i>
-                        <h4>कुनै सूचना छैन</h4>
-                        <p class="nts-muted">हाल कुनै सूचना उपलब्ध छैन।</p>
+                        <h4><?php echo isEnglish() ? 'No notices yet' : 'कुनै सूचना छैन'; ?></h4>
+                        <p class="nts-muted"><?php echo isEnglish() ? 'No notices are available at this time.' : 'हाल कुनै सूचना उपलब्ध छैन।'; ?></p>
                     </div>
                 </div>
             <?php endif; ?>
         </div>
 
-        <?php if ($totalPages > 1 && !$singleNotice): ?>
-        <nav class="pagination-nav mt-4" aria-label="Notices pages">
+        <?php if ($totalPages > 1 && !$singleNotice):
+            $pageWindow = 2;
+            $startPage = max(1, $page - $pageWindow);
+            $endPage = min($totalPages, $page + $pageWindow);
+            if ($page <= 3) {
+                $endPage = min($totalPages, 5);
+            }
+            if ($page >= $totalPages - 2) {
+                $startPage = max(1, $totalPages - 4);
+            }
+        ?>
+        <nav class="pagination-nav mt-4" aria-label="<?php echo isEnglish() ? 'Notices pages' : 'सूचना पृष्ठ'; ?>">
             <ul class="pagination justify-content-center">
                 <?php if ($page > 1): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page - 1; ?>"><i class="fas fa-chevron-left"></i></a>
+                    <a class="page-link" href="?page=<?php echo $page - 1; ?>" aria-label="<?php echo isEnglish() ? 'Previous page' : 'अघिल्लो पृष्ठ'; ?>"><i class="fas fa-chevron-left"></i></a>
                 </li>
                 <?php endif; ?>
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                <?php if ($startPage > 1): ?>
+                <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
+                <?php if ($startPage > 2): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <?php endif; ?>
+                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
                 <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
                     <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
                 </li>
                 <?php endfor; ?>
+                <?php if ($endPage < $totalPages): ?>
+                <?php if ($endPage < $totalPages - 1): ?><li class="page-item disabled"><span class="page-link">…</span></li><?php endif; ?>
+                <li class="page-item"><a class="page-link" href="?page=<?php echo $totalPages; ?>"><?php echo $totalPages; ?></a></li>
+                <?php endif; ?>
                 <?php if ($page < $totalPages): ?>
                 <li class="page-item">
-                    <a class="page-link" href="?page=<?php echo $page + 1; ?>"><i class="fas fa-chevron-right"></i></a>
+                    <a class="page-link" href="?page=<?php echo $page + 1; ?>" aria-label="<?php echo isEnglish() ? 'Next page' : 'अर्को पृष्ठ'; ?>"><i class="fas fa-chevron-right"></i></a>
                 </li>
                 <?php endif; ?>
             </ul>
