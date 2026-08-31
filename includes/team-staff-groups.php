@@ -114,14 +114,14 @@ if (!function_exists('fetchPublicNavStaffGroups')) {
     function fetchPublicNavStaffGroups(?PDO $db = null): array
     {
         $db = $db ?: getDB();
-        if (function_exists('healMigratedTeamNavData')) {
-            healMigratedTeamNavData($db);
-        }
         ensureTeamStaffGroupsTable($db);
         $visible = [];
         foreach (fetchTeamStaffGroups($db, true) as $sg) {
             $slug = (string)($sg['slug'] ?? '');
-            if ($slug === '' || !teamStaffGroupHasActiveMembers($db, $slug)) {
+            if ($slug === '' || empty($sg['show_in_nav'])) {
+                continue;
+            }
+            if (!teamStaffGroupHasActiveMembers($db, $slug)) {
                 continue;
             }
             $visible[] = $sg;

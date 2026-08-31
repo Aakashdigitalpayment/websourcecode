@@ -153,9 +153,13 @@ if (!function_exists('team_render_org_chart')) {
                     <?php foreach ($rowMembers as $index => $member):
                         $featured = ($rowNum === 1 && $index === 0);
                         $photo = team_member_photo_src($member);
-                        $name = (string) ($member['name'] ?? '');
-                        $nameEn = team_member_distinct_name_en($member);
-                        $position = (string) (($member['position_np'] ?? '') ?: ($member['position'] ?? ''));
+                        $name = $english
+                            ? (string)(($member['name_en'] ?? '') ?: ($member['name'] ?? ''))
+                            : (string)($member['name'] ?? '');
+                        $nameEn = $english ? '' : team_member_distinct_name_en($member);
+                        $position = $english
+                            ? (string)(($member['position_en'] ?? '') ?: ($member['position'] ?? ($member['position_np'] ?? '')))
+                            : (string)(($member['position_np'] ?? '') ?: ($member['position'] ?? ''));
                         $delay = ($index % 6) * 50;
                         ?>
                     <div class="team-org-cell" role="listitem"<?php if ($useAos): ?> data-aos="fade-up" data-aos-delay="<?php echo (int) $delay; ?>"<?php endif; ?>>

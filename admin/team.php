@@ -304,9 +304,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($gid <= 0) break;
                 if ($teamListSection === 'governance') {
                     $slug = 'cmt_' . $gid;
-                    $db->prepare("UPDATE team_members SET category='board' WHERE category=?")->execute([$slug]);
-                    $db->prepare("DELETE FROM committee_types WHERE id=?")->execute([$gid]);
-                    $success = $__t('समिति समूह हटाइयो। त्यसमा map भएका सदस्य सञ्चालक समितिमा सारियो।', 'Group deleted. Mapped members moved to Board.');
+                    $stCheck = $db->prepare('SELECT id, name, name_np FROM committee_types WHERE id=? LIMIT 1');
+                    $stCheck->execute([$gid]);
+                    $typeRow = $stCheck->fetch(PDO::FETCH_ASSOC);
+                    if (!$typeRow) {
+                        break;
+                    }
+                    $fallback = 'staff';
+                    if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($typeRow)) {
+                        $fallback = 'board';
+                    } else {
+                        $other = $db->prepare(
+                            'SELECT id, name, name_np FROM committee_types WHERE id != ? AND is_active = 1 ORDER BY display_order, id LIMIT 1'
+                        );
+                        $other->execute([$gid]);
+                        $otherRow = $other->fetch(PDO::FETCH_ASSOC);
+                        if ($otherRow && !(function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($otherRow))) {
+                            $fallback = 'cmt_' . (int)$otherRow['id'];
+                        }
+                    }
+                    $db->prepare('UPDATE team_members SET category=? WHERE category=?')->execute([$fallback, $slug]);
+                    $db->prepare('DELETE FROM committee_types WHERE id=?')->execute([$gid]);
+                    if ($fallback === 'board') {
+                        $success = $__t('समिति समूह हटाइयो। त्यसमा map भएका सदस्य सञ्चालक समितिमा सारियो।', 'Group deleted. Mapped members moved to Board.');
+                    } else {
+                        $success = $__t('समिति समूह हटाइयो। त्यसमा map भएका सदस्य अन्य समूहमा सारियो।', 'Group deleted. Mapped members reassigned.');
+                    }
                 } elseif ($teamListSection === 'karmachari') {
                     ensureTeamStaffGroupsTable($db);
                     $st = $db->prepare('SELECT slug FROM team_staff_groups WHERE id=? LIMIT 1');

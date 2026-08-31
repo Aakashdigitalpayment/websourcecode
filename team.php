@@ -3,7 +3,7 @@ require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/includes/team-staff-groups.php';
 require_once __DIR__ . '/includes/team-menu-categories.php';
 require_once __DIR__ . '/includes/team-chart-helpers.php';
-$pageTitle = isEnglish() ? 'Contact Officers' : 'मानवीय श्रोत';
+$pageTitle = isEnglish() ? 'Human Resources' : 'मानवीय श्रोत';
 $pageDescription = isEnglish()
     ? 'Meet our board, management, committees and contact officers.'
     : 'हाम्रो सञ्चालक समिति, व्यवस्थापन, समिति र सम्पर्क अधिकारीहरूसँग भेट्नुहोस्।';
@@ -214,6 +214,10 @@ $hasAnyStaffMembers = false;
 foreach ($staffMembersBySlug as $_sm) {
     if (!empty($_sm)) { $hasAnyStaffMembers = true; break; }
 }
+$hasAnyContactOfficers = (bool)($chairman || $ceo || $informationOfficer || $grievanceOfficer);
+$boardSectionLabels = function_exists('teamBoardNavLabel')
+    ? teamBoardNavLabel($committeeTypes, isEnglish())
+    : ['label' => isEnglish() ? 'Board Committee' : 'सञ्चालक समिति', 'np' => 'सञ्चालक समिति', 'en' => 'Board Committee'];
 
 /* ── Menu श्रेणी tree (same parents as nav) → items inside each ── */
 $menuCategoriesPublic = [];
@@ -438,7 +442,17 @@ foreach ($committeeTypes as $_ct) {
 $viewTenures = $isCommitteeView ? ($committeeTenures[$viewCommitteeId] ?? []) : [];
 $viewTenureId = $isCommitteeView ? (int)($committeeActiveTenure[$viewCommitteeId] ?? 0) : 0;
 if ($isCommitteeView && $selectedTenureId > 0) {
-    $viewTenureId = $selectedTenureId;
+    $tenureValid = false;
+    foreach ($viewTenures as $tn) {
+        if ((int)($tn['id'] ?? 0) === $selectedTenureId) {
+            $tenureValid = true;
+            $viewTenureId = $selectedTenureId;
+            break;
+        }
+    }
+    if (!$tenureValid) {
+        $viewTenureId = (int)($committeeActiveTenure[$viewCommitteeId] ?? 0);
+    }
 }
 if ($isCommitteeView && $viewTenureId <= 0 && !empty($viewTenures)) {
     foreach ($viewTenures as $tn) {
@@ -801,8 +815,10 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
 <section id="board" class="team-section section-padding" data-filter="board">
     <div class="container">
         <div class="section-header section-header-unified text-center">
-            <h2>सञ्चालक समिति</h2>
-            <p>हाम्रो संस्थाको नेतृत्व गर्ने समिति</p>
+            <h2><?php echo e($boardSectionLabels['label'] ?? (isEnglish() ? 'Board Committee' : 'सञ्चालक समिति')); ?></h2>
+            <p><?php echo isEnglish()
+                ? 'The committee leading our organization.'
+                : 'हाम्रो संस्थाको नेतृत्व गर्ने समिति'; ?></p>
         </div>
 
         <div class="team-org-chart-wrap">
@@ -908,13 +924,15 @@ foreach ($staffGroups as $_sg):
 </section>
 <?php endif; ?>
 
-<?php if (empty($boardMembers) && !$hasAnyStaffMembers && empty(array_filter($committeeMembers))): ?>
+<?php if (empty($boardMembers) && !$hasAnyStaffMembers && empty(array_filter($committeeMembers)) && !$hasAnyContactOfficers): ?>
 <section class="section-padding">
     <div class="container">
         <div class="empty-state text-center py-5">
             <i class="lucide-icon fa-4x text-muted mb-3" aria-hidden="true" data-lucide="users"></i>
-            <h4>टोली जानकारी उपलब्ध छैन</h4>
-            <p class="text-muted">हाल टोली सदस्यहरूको जानकारी उपलब्ध छैन।</p>
+            <h4><?php echo isEnglish() ? 'Team information unavailable' : 'टोली जानकारी उपलब्ध छैन'; ?></h4>
+            <p class="text-muted"><?php echo isEnglish()
+                ? 'Team member information is not available at this time.'
+                : 'हाल टोली सदस्यहरूको जानकारी उपलब्ध छैन।'; ?></p>
         </div>
     </div>
 </section>

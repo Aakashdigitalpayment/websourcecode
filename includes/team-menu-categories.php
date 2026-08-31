@@ -261,6 +261,17 @@ if (!function_exists('healMigratedTeamNavData')) {
         syncTeamMenuCategoryLinks($db);
         healBoardAliasTeamMembers($db);
 
+        $runOneTimeNavFlags = true;
+        try {
+            if (function_exists('getSetting')) {
+                $runOneTimeNavFlags = getSetting('team_nav_migrated_healed', '') !== '1';
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+
+        if (!$runOneTimeNavFlags) {
+            return;
+        }
+
         try {
             $hasBoard = (int)$db->query("SELECT COUNT(*) FROM team_members WHERE category='board' AND is_active=1")->fetchColumn() > 0;
             if ($hasBoard) {
@@ -320,6 +331,12 @@ if (!function_exists('healMigratedTeamNavData')) {
                 if ($memberCount > 0 || $tenureCount > 0) {
                     $db->prepare('UPDATE committee_types SET show_in_navbar=1 WHERE id=? AND show_in_navbar=0')->execute([$ctId]);
                 }
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+
+        try {
+            if (function_exists('updateSetting')) {
+                updateSetting('team_nav_migrated_healed', '1');
             }
         } catch (Throwable $e) { /* best-effort */ }
     }

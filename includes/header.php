@@ -119,9 +119,6 @@ $navFallbackStaffMenuId = 0;
 try {
     if ($db) {
         require_once __DIR__ . '/team-menu-categories.php';
-        if (function_exists('healMigratedTeamNavData')) {
-            healMigratedTeamNavData($db);
-        }
         if (!function_exists('getCachedData')) {
             require_once __DIR__ . '/simple-cache.php';
         }
@@ -1694,14 +1691,14 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                 if ($_tmcSlug === '') $_tmcSlug = 'menu-' . $_tmcId;
                             ?>
                             <li class="has-sub">
-                                <a href="#" aria-haspopup="true" aria-expanded="false">
+                                <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>" aria-haspopup="true" aria-expanded="false">
                                     <i class="<?php echo htmlspecialchars($_tmcIcon); ?>"></i>
                                     <span><?php echo htmlspecialchars($_tmcLabel); ?></span>
                                     <i class="fas fa-chevron-right nav-flyout-arrow" aria-hidden="true"></i>
                                 </a>
                                 <ul class="sub-menu">
                                     <?php if ($_tmcSource === 'staff'): ?>
-                                        <?php if (!empty($_tmc['include_contact_officers'])): ?>
+                                        <?php if (!empty($_tmc['include_contact_officers']) && $navHasContactOfficers): ?>
                                         <li>
                                             <a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers">
                                                 <i class="fas fa-id-card-clip"></i>
@@ -2043,7 +2040,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         if ($_tmcSlug === '') $_tmcSlug = 'menu-' . $_tmcId;
                                     ?>
                                     <?php if ($_tmcSource === 'staff'): ?>
-                                        <?php if (!empty($_tmc['include_contact_officers'])): ?>
+                                        <?php if (!empty($_tmc['include_contact_officers']) && $navHasContactOfficers): ?>
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                                         <?php endif; ?>
                                         <?php foreach ($navStaffGroups as $_sg):
