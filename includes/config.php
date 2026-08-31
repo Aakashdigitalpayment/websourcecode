@@ -429,6 +429,32 @@ if (!function_exists('coop_notice_bs_day_month')) {
 }
 
 /**
+ * Public URL for a notice attachment (PDF/image) — handles assets/uploads paths and legacy bare filenames.
+ */
+if (!function_exists('coop_notice_media_src')) {
+    function coop_notice_media_src(?string $path): string
+    {
+        $path = trim((string) $path);
+        if ($path === '') {
+            return '';
+        }
+        if (function_exists('safe_media_src')) {
+            $url = safe_media_src($path);
+            if ($url !== '') {
+                return $url;
+            }
+        }
+        $normalized = ltrim(str_replace('\\', '/', $path), '/');
+        if ($normalized !== '' && !preg_match('#^(assets/uploads/|uploads/)#i', $normalized)) {
+            return function_exists('safe_media_src')
+                ? safe_media_src('assets/uploads/notices/' . $normalized)
+                : '';
+        }
+        return '';
+    }
+}
+
+/**
  * Allow only http/https URLs for href (blocks javascript:/data:/vbscript:).
  * Bare domains get https:// prepended. Invalid schemes return empty string.
  */

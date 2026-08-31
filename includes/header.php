@@ -2409,29 +2409,32 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <!-- Carousel Container -->
             <div class="popup-carousel" id="popupCarousel">
                 <?php foreach ($popupNotices as $index => $notice):
-                    $attachPath = '';
-                    if (!empty($notice['attachment'])) {
-                        $attachPath = $notice['attachment'];
-                        if (strpos($attachPath, 'uploads/') !== 0 && strpos($attachPath, '/') !== 0) {
-                            $attachPath = 'uploads/notices/' . $attachPath;
-                        }
-                    }
+                    $attachRaw = trim((string)($notice['attachment'] ?? ''));
+                    $attachFullUrl = function_exists('coop_notice_media_src')
+                        ? coop_notice_media_src($attachRaw)
+                        : (function_exists('safe_media_src') ? safe_media_src($attachRaw) : '');
                     /* photo-only popup: use popup_image if set, else attachment if it's an image */
                     $isPhotoOnly = !empty($notice['popup_photo_only']);
                     $photoOnlySrc = '';
+                    $photoOnlyUrl = '';
                     if ($isPhotoOnly) {
                         if (!empty($notice['popup_image'])) {
-                            $photoOnlySrc = $notice['popup_image'];
-                        } elseif (!empty($attachPath) && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachPath)) {
-                            $photoOnlySrc = $attachPath;
+                            $photoOnlySrc = (string)$notice['popup_image'];
+                        } elseif ($attachRaw !== '' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw)) {
+                            $photoOnlySrc = $attachRaw;
+                        }
+                        if ($photoOnlySrc !== '') {
+                            $photoOnlyUrl = function_exists('coop_notice_media_src')
+                                ? coop_notice_media_src($photoOnlySrc)
+                                : (function_exists('safe_media_src') ? safe_media_src($photoOnlySrc) : '');
                         }
                     }
                 ?>
-                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo htmlspecialchars($attachPath, ENT_QUOTES, 'UTF-8'); ?>" data-photo-only="<?php echo ($isPhotoOnly && $photoOnlySrc) ? '1' : '0'; ?>">
-                    <?php if ($isPhotoOnly && $photoOnlySrc): ?>
+                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo htmlspecialchars($attachRaw, ENT_QUOTES, 'UTF-8'); ?>" data-photo-only="<?php echo ($isPhotoOnly && $photoOnlyUrl !== '') ? '1' : '0'; ?>">
+                    <?php if ($isPhotoOnly && $photoOnlyUrl !== ''): ?>
                     <!-- Photo-only popup mode -->
                     <div class="popup-photo-only-wrap">
-                        <img src="<?php echo htmlspecialchars(SITE_URL . ltrim($photoOnlySrc, '/'), ENT_QUOTES, 'UTF-8'); ?>"
+                        <img src="<?php echo e($photoOnlyUrl); ?>"
                              alt="<?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: 'Notice') : ($notice['title_np'] ?: 'सूचना'), ENT_QUOTES, 'UTF-8'); ?>"
                              class="popup-photo-only-img"
                              loading="eager"
@@ -2446,13 +2449,9 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <div class="popup-content-body">
                         <h4 class="popup-title"><?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: ($notice['title_np'] ?? '')) : (($notice['title_np'] ?? '') ?: $notice['title']), ENT_QUOTES, 'UTF-8'); ?></h4>
                         <?php
-                        if (!empty($attachPath) && !($isPhotoOnly && $photoOnlySrc)):
-                            $attachFullUrl = function_exists('safe_media_src')
-                                ? safe_media_src($attachPath)
-                                : (SITE_URL . ltrim($attachPath, '/'));
-                            if ($attachFullUrl !== ''):
-                                $attachIsPdf = (bool)preg_match('/\.pdf$/i', $attachPath);
-                                $attachIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachPath);
+                        if ($attachFullUrl !== '' && !($isPhotoOnly && $photoOnlyUrl !== '')):
+                                $attachIsPdf = (bool)preg_match('/\.pdf$/i', $attachRaw);
+                                $attachIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw);
                                 $attachIcon = $attachIsPdf ? 'fa-file-pdf' : ($attachIsImg ? 'fa-image' : 'fa-paperclip');
                         ?>
                         <div class="popup-attachment-cta">
@@ -2462,19 +2461,13 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             </a>
                         </div>
                         <?php
-                            endif;
                         endif;
-                        if (!empty($attachPath) && !$isPhotoOnly && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachPath)):
-                            $inlineImgUrl = function_exists('safe_media_src') ? safe_media_src($attachPath) : (SITE_URL . ltrim($attachPath, '/'));
-                            if ($inlineImgUrl !== ''):
+                        if ($attachFullUrl !== '' && !$isPhotoOnly && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw)):
                         ?>
                         <div class="popup-inline-image">
-                            <img src="<?php echo e($inlineImgUrl); ?>" alt="" loading="lazy" decoding="async">
+                            <img src="<?php echo e($attachFullUrl); ?>" alt="" loading="lazy" decoding="async">
                         </div>
-                        <?php
-                            endif;
-                        endif;
-                        ?>
+                        <?php endif; ?>
                         <div class="popup-text coop-prose">
                             <?php
                             $popupBody = isEnglish()

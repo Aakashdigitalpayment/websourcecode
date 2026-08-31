@@ -144,7 +144,9 @@ require_once 'includes/header.php';
                             : coop_sanitize_cms_html($singleNotice['content'] ?? ''); ?>
                     </div>
                     <?php if ($singleNotice['attachment']):
-                        $attUrl = safe_media_src($singleNotice['attachment']);
+                        $attUrl = function_exists('coop_notice_media_src')
+                            ? coop_notice_media_src($singleNotice['attachment'])
+                            : safe_media_src($singleNotice['attachment']);
                         $attIsPdf = (bool)preg_match('/\.pdf$/i', (string)$singleNotice['attachment']);
                         $attIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', (string)$singleNotice['attachment']);
                     ?>
@@ -193,7 +195,7 @@ require_once 'includes/header.php';
                         </div>
                         <?php if ($notice['attachment']): ?>
                         <div class="notice-attachment-icon">
-                            <a href="<?php echo e(safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
+                            <a href="<?php echo e(function_exists('coop_notice_media_src') ? coop_notice_media_src($notice['attachment']) : safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
                                 <i class="fas fa-paperclip"></i>
                             </a>
                         </div>
