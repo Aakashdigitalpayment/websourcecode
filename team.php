@@ -32,6 +32,9 @@ try {
     try {
         ensureTeamMenuCategoriesTable($db);
         ensureTeamStaffGroupsTable($db);
+        if (function_exists('healMigratedTeamNavData')) {
+            healMigratedTeamNavData($db);
+        }
     } catch (Throwable $e) { /* best-effort */ }
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order LIMIT 50")->fetchAll();
 
@@ -800,6 +803,11 @@ foreach ($staffGroups as $_sg):
             <h2><?php echo htmlspecialchars($title); ?></h2>
         </div>
 
+        <?php if (team_staff_group_uses_chart($members, $slug)): ?>
+        <div class="team-org-chart-wrap">
+            <?php echo team_render_org_chart($members, ['english' => isEnglish()]); ?>
+        </div>
+        <?php else: ?>
         <div class="row justify-content-center">
             <?php foreach ($members as $index => $member):
                 $_tmPhoto = team_member_photo_src($member);
@@ -815,8 +823,8 @@ foreach ($staffGroups as $_sg):
                     </div>
                     <div class="team-info-circular">
                         <h5><?php echo e($member['name']); ?></h5>
-                        <?php if (!empty($member['name_en'])): ?>
-                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                        <?php $_nameEn = team_member_distinct_name_en($member); if ($_nameEn !== ''): ?>
+                        <p class="team-name-en"><?php echo e($_nameEn); ?></p>
                         <?php endif; ?>
                         <span class="team-position-badge"><?php echo e($member['position_np'] ?: $member['position']); ?></span>
                         <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
@@ -834,6 +842,7 @@ foreach ($staffGroups as $_sg):
             </div>
             <?php endforeach; ?>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 <?php endforeach; ?>
@@ -869,8 +878,8 @@ foreach ($staffGroups as $_sg):
                     </div>
                     <div class="team-info-circular">
                         <h5><?php echo e($member['name']); ?></h5>
-                        <?php if (!empty($member['name_en'])): ?>
-                        <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
+                        <?php $_nameEn = team_member_distinct_name_en($member); if ($_nameEn !== ''): ?>
+                        <p class="team-name-en"><?php echo e($_nameEn); ?></p>
                         <?php endif; ?>
                         <span class="team-position-badge"><?php echo e($member['position_np'] ?: ($member['position'] ?? '')); ?></span>
                         <?php if (!empty($member['phone']) || !empty($member['email'])): ?>

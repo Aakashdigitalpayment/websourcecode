@@ -164,6 +164,220 @@ if (!function_exists('fetchAllTeamMenuCategories')) {
     }
 }
 
+if (!function_exists('teamFallbackCommitteesMenuId')) {
+    function teamFallbackCommitteesMenuId(?PDO $db = null): int
+    {
+        static $id = null;
+        if ($id !== null) {
+            return $id;
+        }
+        $id = 0;
+        $db = $db ?: getDB();
+        try {
+            ensureTeamMenuCategoriesTable($db);
+            $id = (int)$db->query("SELECT id FROM team_menu_categories WHERE source_type='committees' AND is_active=1 ORDER BY display_order, id LIMIT 1")->fetchColumn();
+        } catch (Throwable $e) { /* best-effort */ }
+        return $id;
+    }
+}
+
+if (!function_exists('teamFallbackStaffMenuId')) {
+    function teamFallbackStaffMenuId(?PDO $db = null): int
+    {
+        static $id = null;
+        if ($id !== null) {
+            return $id;
+        }
+        $id = 0;
+        $db = $db ?: getDB();
+        try {
+            ensureTeamMenuCategoriesTable($db);
+            $id = (int)$db->query("SELECT id FROM team_menu_categories WHERE source_type='staff' AND is_active=1 ORDER BY display_order, id LIMIT 1")->fetchColumn();
+        } catch (Throwable $e) { /* best-effort */ }
+        return $id;
+    }
+}
+
+if (!function_exists('teamCommitteeBelongsToMenuCategory')) {
+    function teamCommitteeBelongsToMenuCategory(array $committeeType, int $menuCategoryId, int $fallbackCommitteesMenuId = 0): bool
+    {
+        if ($menuCategoryId <= 0) {
+            return false;
+        }
+        $ctMenu = (int)($committeeType['menu_category_id'] ?? 0);
+        return $ctMenu === $menuCategoryId
+            || ($ctMenu === 0 && $fallbackCommitteesMenuId > 0 && $menuCategoryId === $fallbackCommitteesMenuId);
+    }
+}
+
+if (!function_exists('teamStaffGroupBelongsToMenuCategory')) {
+    function teamStaffGroupBelongsToMenuCategory(array $staffGroup, int $menuCategoryId, int $fallbackStaffMenuId = 0): bool
+    {
+        if ($menuCategoryId <= 0) {
+            return false;
+        }
+        $sgMenu = (int)($staffGroup['menu_category_id'] ?? 0);
+        return $sgMenu === $menuCategoryId
+            || ($sgMenu === 0 && $fallbackStaffMenuId > 0 && $menuCategoryId === $fallbackStaffMenuId);
+    }
+}
+
+if (!function_exists('healBoardAliasTeamMembers')) {
+    /** Move members saved under board-alias cmt_* back to fixed category=board. */
+    function healBoardAliasTeamMembers(?PDO $db = null): void
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+        $db = $db ?: getDB();
+        try {
+            $types = $db->query('SELECT id, name, name_np FROM committee_types WHERE is_active = 1 ORDER BY display_order, id LIMIT 200')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            foreach ($types as $ct) {
+                if (!function_exists('isBoardCommitteeTypeAlias') || !isBoardCommitteeTypeAlias($ct)) {
+                    continue;
+                }
+                $db->prepare("UPDATE team_members SET category='board' WHERE category=?")->execute(['cmt_' . (int)$ct['id']]);
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+    }
+}
+
+if (!function_exists('healMigratedTeamNavData')) {
+    /**
+     * After DB migration: link null menu categories and surface committees that already have members.
+     */
+    function healMigratedTeamNavData(?PDO $db = null): void
+    {
+        static $done = false;
+        if ($done) {
+            return;
+        }
+        $done = true;
+        $db = $db ?: getDB();
+        ensureTeamMenuCategoriesTable($db);
+        ensureCommitteeTypesExtendedColumns($db);
+        syncTeamMenuCategoryLinks($db);
+        healBoardAliasTeamMembers($db);
+
+        try {
+            $hasBoard = (int)$db->query("SELECT COUNT(*) FROM team_members WHERE category='board' AND is_active=1")->fetchColumn() > 0;
+            if ($hasBoard) {
+                $boardMenuCatIds = [];
+                $fallbackId = teamFallbackCommitteesMenuId($db);
+                if ($fallbackId > 0) {
+                    $boardMenuCatIds[$fallbackId] = true;
+                }
+                $aliasRows = $db->query('SELECT id, name, name_np, menu_category_id FROM committee_types WHERE is_active=1')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                foreach ($aliasRows as $row) {
+                    if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($row)) {
+                        $mcid = (int)($row['menu_category_id'] ?? 0);
+                        if ($mcid > 0) {
+                            $boardMenuCatIds[$mcid] = true;
+                        }
+                    }
+                }
+                foreach (array_keys($boardMenuCatIds) as $catId) {
+                    $db->prepare("UPDATE team_menu_categories SET include_board=1 WHERE id=? AND source_type='committees' AND include_board=0")
+                       ->execute([(int)$catId]);
+                }
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+
+        try {
+            require_once __DIR__ . '/team-staff-groups.php';
+            foreach (fetchTeamStaffGroups($db, false) as $sg) {
+                $slug = (string)($sg['slug'] ?? '');
+                if ($slug === '') {
+                    continue;
+                }
+                $st = $db->prepare('SELECT COUNT(*) FROM team_members WHERE is_active=1 AND category=?');
+                $st->execute([$slug]);
+                if ((int)$st->fetchColumn() > 0) {
+                    $db->prepare('UPDATE team_staff_groups SET show_in_nav=1 WHERE slug=? AND show_in_nav=0')->execute([$slug]);
+                }
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+
+        try {
+            $types = $db->query('SELECT id FROM committee_types WHERE is_active = 1')->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            foreach ($types as $ct) {
+                $ctId = (int)($ct['id'] ?? 0);
+                if ($ctId <= 0) {
+                    continue;
+                }
+                $cat = 'cmt_' . $ctId;
+                $st = $db->prepare('SELECT COUNT(*) FROM team_members WHERE is_active=1 AND category=?');
+                $st->execute([$cat]);
+                $memberCount = (int)$st->fetchColumn();
+                $tenureCount = 0;
+                try {
+                    $st2 = $db->prepare('SELECT COUNT(*) FROM committee_tenures WHERE committee_type_id=? AND is_active=1');
+                    $st2->execute([$ctId]);
+                    $tenureCount = (int)$st2->fetchColumn();
+                } catch (Throwable $e) { /* older schema */ }
+                if ($memberCount > 0 || $tenureCount > 0) {
+                    $db->prepare('UPDATE committee_types SET show_in_navbar=1 WHERE id=? AND show_in_navbar=0')->execute([$ctId]);
+                }
+            }
+        } catch (Throwable $e) { /* best-effort */ }
+    }
+}
+
+if (!function_exists('fetchPublicNavCommittees')) {
+    /**
+     * Active committee types for public nav — includes migrated rows with members even if show_in_navbar was left off.
+     *
+     * @return list<array<string,mixed>>
+     */
+    function fetchPublicNavCommittees(?PDO $db = null): array
+    {
+        $db = $db ?: getDB();
+        healMigratedTeamNavData($db);
+        try {
+            $rows = $db->query(
+                "SELECT id, name, name_np, menu_category_id, icon, show_in_navbar
+                 FROM committee_types
+                 WHERE is_active = 1
+                 ORDER BY display_order, id
+                 LIMIT 200"
+            )->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        } catch (Throwable $e) {
+            return [];
+        }
+
+        $visible = [];
+        foreach ($rows as $row) {
+            $ctId = (int)($row['id'] ?? 0);
+            if ($ctId <= 0) {
+                continue;
+            }
+            if (!empty($row['show_in_navbar'])) {
+                $visible[] = $row;
+                continue;
+            }
+            $cat = 'cmt_' . $ctId;
+            try {
+                $st = $db->prepare('SELECT COUNT(*) FROM team_members WHERE is_active=1 AND category=?');
+                $st->execute([$cat]);
+                if ((int)$st->fetchColumn() > 0) {
+                    $visible[] = $row;
+                    continue;
+                }
+            } catch (Throwable $e) { /* ignore */ }
+            try {
+                $st2 = $db->prepare('SELECT COUNT(*) FROM committee_tenures WHERE committee_type_id=? AND is_active=1');
+                $st2->execute([$ctId]);
+                if ((int)$st2->fetchColumn() > 0) {
+                    $visible[] = $row;
+                }
+            } catch (Throwable $e) { /* ignore */ }
+        }
+        return $visible;
+    }
+}
+
 if (!function_exists('isBoardCommitteeTypeAlias')) {
     /**
      * सञ्चालक समिति is the fixed team_members.category = 'board'.

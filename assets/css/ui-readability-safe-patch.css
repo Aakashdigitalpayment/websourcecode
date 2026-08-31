@@ -962,7 +962,7 @@ button.qh-item {
   align-items: stretch;
   gap: 1.25rem;
   width: fit-content;
-  max-width: min(1100px, 100%);
+  max-width: min(1240px, 100%);
   margin-left: auto;
   margin-right: auto;
   padding: 0 0.5rem;

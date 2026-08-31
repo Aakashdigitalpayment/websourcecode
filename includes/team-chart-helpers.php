@@ -88,6 +88,35 @@ if (!function_exists('team_member_photo_src')) {
     }
 }
 
+if (!function_exists('team_member_distinct_name_en')) {
+    /** English name only when it differs from the primary display name. */
+    function team_member_distinct_name_en(array $member): string
+    {
+        $name = (string)($member['name'] ?? '');
+        $nameEn = (string)($member['name_en'] ?? '');
+        if ($nameEn === '' || strcasecmp($nameEn, $name) === 0) {
+            return '';
+        }
+        return $nameEn;
+    }
+}
+
+if (!function_exists('team_staff_group_uses_chart')) {
+    /** Whether a staff group should render as org chart instead of card grid. */
+    function team_staff_group_uses_chart(array $members, string $slug = ''): bool
+    {
+        if (in_array($slug, ['top_management', 'management'], true)) {
+            return true;
+        }
+        foreach ($members as $member) {
+            if ((int)($member['chart_row'] ?? 0) >= 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 if (!function_exists('team_render_org_chart')) {
     /**
      * Render hierarchical org chart for board / committee members.
@@ -125,7 +154,7 @@ if (!function_exists('team_render_org_chart')) {
                         $featured = ($rowNum === 1 && $index === 0);
                         $photo = team_member_photo_src($member);
                         $name = (string) ($member['name'] ?? '');
-                        $nameEn = (string) ($member['name_en'] ?? '');
+                        $nameEn = team_member_distinct_name_en($member);
                         $position = (string) (($member['position_np'] ?? '') ?: ($member['position'] ?? ''));
                         $delay = ($index % 6) * 50;
                         ?>

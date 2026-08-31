@@ -112,57 +112,33 @@ try {
     }
 } catch (Throwable $e) { $bellNotices = []; $bellNewCount = 0; }
 
-/* ── Navbar dropdown: admin बाट select गरिएका committees मात्र देखाउने ── */
+/* ── Navbar dropdown: committees with members / menu flag (migration-safe) ── */
 $navCommittees = [];
+$navFallbackCommitteesMenuId = 0;
+$navFallbackStaffMenuId = 0;
 try {
     if ($db) {
+        require_once __DIR__ . '/team-menu-categories.php';
+        if (function_exists('healMigratedTeamNavData')) {
+            healMigratedTeamNavData($db);
+        }
         if (!function_exists('getCachedData')) {
             require_once __DIR__ . '/simple-cache.php';
         }
-        $navCommittees = getCachedData('nav_committees_v1', 90, function () use ($db) {
-            try {
-                $rows = $db->query(
-                    "SELECT id, name, name_np, menu_category_id, icon FROM committee_types
-                     WHERE is_active = 1 AND show_in_navbar = 1
-                     ORDER BY display_order, id"
-                )->fetchAll(PDO::FETCH_ASSOC);
-                return is_array($rows) ? $rows : [];
-            } catch (Exception $e) {
-                try {
-                    $rows = $db->query(
-                        "SELECT id, name, name_np, menu_category_id FROM committee_types
-                         WHERE is_active = 1 AND show_in_navbar = 1
-                         ORDER BY display_order, id"
-                    )->fetchAll(PDO::FETCH_ASSOC);
-                    $rows = is_array($rows) ? $rows : [];
-                    foreach ($rows as &$_ncRow) {
-                        $_ncRow['icon'] = 'fas fa-users-gear';
-                    }
-                    unset($_ncRow);
-                    return $rows;
-                } catch (Exception $e2) {
-                    try {
-                        $rows = $db->query(
-                            "SELECT id, name, name_np FROM committee_types
-                             WHERE is_active = 1 AND show_in_navbar = 1
-                             ORDER BY display_order, id"
-                        )->fetchAll(PDO::FETCH_ASSOC);
-                        $rows = is_array($rows) ? $rows : [];
-                        foreach ($rows as &$_ncRow) {
-                            $_ncRow['menu_category_id'] = null;
-                            $_ncRow['icon'] = 'fas fa-users-gear';
-                        }
-                        unset($_ncRow);
-                        return $rows;
-                    } catch (Exception $e3) {
-                        return [];
-                    }
-                }
-            }
+        $navCommittees = getCachedData('nav_committees_v2', 90, static function () use ($db) {
+            return function_exists('fetchPublicNavCommittees')
+                ? fetchPublicNavCommittees($db)
+                : [];
         });
         if (!is_array($navCommittees)) {
             $navCommittees = [];
         }
+        $navFallbackCommitteesMenuId = function_exists('teamFallbackCommitteesMenuId')
+            ? teamFallbackCommitteesMenuId($db)
+            : 0;
+        $navFallbackStaffMenuId = function_exists('teamFallbackStaffMenuId')
+            ? teamFallbackStaffMenuId($db)
+            : 0;
     }
 } catch (Throwable $e) {
     $navCommittees = [];
@@ -1692,7 +1668,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         </li>
                                         <?php endif; ?>
                                         <?php foreach ($navStaffGroups as $_sg):
-                                            if ($_tmcId > 0 && (int)($_sg['menu_category_id'] ?? 0) !== $_tmcId) continue;
+                                            if ($_tmcId > 0 && !teamStaffGroupBelongsToMenuCategory($_sg, $_tmcId, $navFallbackStaffMenuId)) continue;
                                             $_slug = (string)$_sg['slug'];
                                             $_anchor = teamStaffGroupAnchor($_slug);
                                             $_label = isEnglish()
@@ -1714,8 +1690,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         $_catCommittees = [];
                                         $_showBoardLink = !empty($_tmc['include_board']);
                                         foreach ($navCommittees as $_nc) {
-                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
-                                            if ($ncid !== $_tmcId) {
+                                            if (!teamCommitteeBelongsToMenuCategory($_nc, $_tmcId, $navFallbackCommitteesMenuId)) {
                                                 continue;
                                             }
                                             /* Duplicate "सञ्चालक समिति" type → board link, not cmt-* */
@@ -2030,7 +2005,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo SITE_URL; ?>team.php?menu=<?php echo urlencode($_tmcSlug); ?>&item=contact-officers&cat=contact-officers#contact-officers"><i class="fas fa-id-card-clip"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></a></li>
                                         <?php endif; ?>
                                         <?php foreach ($navStaffGroups as $_sg):
-                                            if ($_tmcId > 0 && (int)($_sg['menu_category_id'] ?? 0) !== $_tmcId) continue;
+                                            if ($_tmcId > 0 && !teamStaffGroupBelongsToMenuCategory($_sg, $_tmcId, $navFallbackStaffMenuId)) continue;
                                             $_slug = (string)$_sg['slug'];
                                             $_anchor = teamStaffGroupAnchor($_slug);
                                             $_label = isEnglish()
@@ -2047,8 +2022,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                         $_catCommittees = [];
                                         $_showBoardLink = !empty($_tmc['include_board']);
                                         foreach ($navCommittees as $_nc) {
-                                            $ncid = (int)($_nc['menu_category_id'] ?? 0);
-                                            if ($ncid !== $_tmcId) {
+                                            if (!teamCommitteeBelongsToMenuCategory($_nc, $_tmcId, $navFallbackCommitteesMenuId)) {
                                                 continue;
                                             }
                                             if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($_nc)) {

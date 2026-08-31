@@ -77,6 +77,9 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
     ensureTeamStaffGroupsTable($_db_chk);
     ensureTeamMenuCategoriesTable($_db_chk);
+    if (function_exists('healMigratedTeamNavData')) {
+        healMigratedTeamNavData($_db_chk);
+    }
 } catch (\Throwable $e) { /* best-effort */ }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -194,13 +197,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ensureCommitteeTypesExtendedColumns($db);
                     $gMenuCat = (int)($_POST['group_menu_category_id'] ?? 0) ?: null;
                     $gIcon = clean_text($_POST['group_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
-                    if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
-                        'name' => $gName,
-                        'name_np' => $gNameNp,
-                    ])) {
+                    if (($_POST['action'] ?? '') === 'group_add'
+                        && function_exists('isBoardCommitteeTypeAlias')
+                        && isBoardCommitteeTypeAlias([
+                            'name' => $gName,
+                            'name_np' => $gNameNp,
+                        ])) {
                         throw new InvalidArgumentException($__t(
-                            'सञ्चालक समिति पहिले नै “board” को रूपमा छ — दोहोरो समूह नबनाउनुहोस्।',
-                            'Board Committee already exists as the fixed “board” category — do not create a duplicate group.'
+                            'सञ्चालक समिति पहिले नै “board” को रूपमा छ — दोहोरो समूह नबनाउनुहोस्। सदस्यहरू Team → सञ्चालक समिति (board) बाट थप्नुहोस्। मेनुमा देखाउन मेनु श्रेणीमा “+ सञ्चालक समिति” अन गर्नुहोस्।',
+                            'Board Committee already exists as the fixed “board” category — do not create a duplicate group. Add members under Board in the member form. To show in the menu, enable “+ Board Committee” on the menu category.'
                         ));
                     }
                     if (($_POST['action'] ?? '') === 'group_add') {
@@ -439,11 +444,8 @@ try {
         }
     }
     $allCommitteeGroups = $db->query("SELECT * FROM committee_types ORDER BY display_order, id LIMIT 200")->fetchAll();
-    /* Heal: members wrongly saved under board-alias cmt_* → board */
-    foreach ($boardAliasTypeIds as $aliasId) {
-        try {
-            $db->prepare("UPDATE team_members SET category='board' WHERE category=?")->execute(['cmt_' . $aliasId]);
-        } catch (Throwable $e) { /* ignore */ }
+    if (function_exists('healBoardAliasTeamMembers')) {
+        healBoardAliasTeamMembers($db);
     }
 } catch (\Throwable $e) { /* committee_types छैन */ }
 
@@ -916,6 +918,11 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                                     'Title मा Chairman / CEO / Director / Manager लेखे Auto ले row तय गर्छ। मिलेन भने माथिबाट Row manually चुन्नुहोस्।',
                                     'Auto picks the row from Chairman / CEO / Director / Manager in the title. If it does not match, choose Row manually above.'
                                 ); ?>
+                                <?php if ($teamListSection === 'karmachari'): ?>
+                                <br><span class="text-primary"><?php echo $__t('व्यवस्थापन / शीर्ष व्यवस्थापन समूह सार्वजनिक पृष्ठमा org chart मा देखिन्छ।', 'Management / Top Management groups render as an org chart on the public page.'); ?></span>
+                                <?php else: ?>
+                                <br><span class="text-primary"><?php echo $__t('सञ्चालक समिति (board) मात्र सार्वजनिक org chart मा देखिन्छ।', 'Only the board section uses the public org chart.'); ?></span>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -1094,11 +1101,15 @@ echo adminPageHeader($teamHeaderTitle, $teamHeaderIcon, $teamHeaderSub, $teamHea
                 <tbody>
                 <?php foreach ($allCommitteeGroups as $g):
                     $gMc = $menuCatById[(int)($g['menu_category_id'] ?? 0)] ?? null;
+                    $isBoardAliasGroup = function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias($g);
                 ?>
-                    <tr>
+                    <tr<?php echo $isBoardAliasGroup ? ' class="table-warning"' : ''; ?>>
                         <td>
                             <i class="<?php echo htmlspecialchars(trim((string)($g['icon'] ?? '')) ?: 'fas fa-users-gear'); ?> me-1 text-success"></i>
                             <?php echo htmlspecialchars($g['name_np'] ?: $g['name']); ?>
+                            <?php if ($isBoardAliasGroup): ?>
+                                <span class="badge bg-warning text-dark ms-1" title="<?php echo $__t('यो सञ्चालक समिति = team_members.category board', 'Maps to fixed board category'); ?>">board</span>
+                            <?php endif; ?>
                         </td>
                         <td><?php echo htmlspecialchars($g['name'] ?? ''); ?></td>
                         <td>
