@@ -78,6 +78,7 @@ if (file_exists(__DIR__ . '/theme-assets.php')) {
 // File Upload Settings
 define('UPLOAD_PATH', ROOT_PATH . 'assets/uploads/');
 define('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB - images / general uploads
+define('GALLERY_MAX_FILE_SIZE', 8 * 1024 * 1024); // 8MB — gallery photos (auto-resized to 1200×900)
 define('MAX_REPORT_FILE_SIZE', 50 * 1024 * 1024); // 50MB — annual/audit PDFs
 define('ALLOWED_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx', 'webp']);
 define('ALLOWED_IMAGE_EXTENSIONS', ['jpg', 'jpeg', 'png', 'gif', 'webp']); // Image-only extensions
@@ -2019,7 +2020,7 @@ function coop_upload_error_text(int $code): string
     $up = (string) (ini_get('upload_max_filesize') ?: '?');
     $pm = (string) (ini_get('post_max_size') ?: '?');
     if ($code === UPLOAD_ERR_INI_SIZE) {
-        return 'फाइल server limit भन्दा ठूलो छ (upload_max_filesize=' . $up . ', post_max_size=' . $pm . ')। सानो PDF राख्नुहोस्।';
+        return 'फाइल server limit भन्दा ठूलो छ (upload_max_filesize=' . $up . ', post_max_size=' . $pm . ')। सानो फाइल राख्नुहोस्।';
     }
     if ($code === UPLOAD_ERR_FORM_SIZE) {
         return 'फाइल form को अधिकतम साइज नाघ्यो।';

@@ -183,7 +183,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect('gallery.php?tab=video');
             }
 
-            if (isset($_FILES['images']) && $_FILES['images']['error'][0] !== UPLOAD_ERR_NO_FILE) {
+            if (isset($_FILES['images']) && is_array($_FILES['images']['error']) && $_FILES['images']['error'][0] !== UPLOAD_ERR_NO_FILE) {
+                if (function_exists('coop_post_exceeded_php_limit') && coop_post_exceeded_php_limit()) {
+                    $upIni = (string) (ini_get('upload_max_filesize') ?: '?');
+                    $pmIni = (string) (ini_get('post_max_size') ?: '?');
+                    setFlash(
+                        'error',
+                        'फाइल(हरू) server limit भन्दा ठूलो छन् (upload_max_filesize=' . $upIni
+                        . ', post_max_size=' . $pmIni . ')। प्रति फोटो '
+                        . max(1, (int) round(GALLERY_MAX_FILE_SIZE / (1024 * 1024))) . 'MB भन्दा सानो राख्नुहोस्।'
+                    );
+                    redirect('gallery.php?tab=upload');
+                }
+
                 if ($albumId <= 0) {
                     setFlash('error', 'पहिले एल्बम छान्नुहोस् वा नयाँ एल्बम बनाउनुहोस्।');
                     redirect('gallery.php?tab=upload');
@@ -199,11 +211,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $albumName = (string)($albumRow['name_np'] ?? '');
                 $files = $_FILES['images'];
                 $count = 0;
+                $failures = [];
+                $galleryMaxMb = max(1, (int) round(GALLERY_MAX_FILE_SIZE / (1024 * 1024)));
 
                 for ($i = 0; $i < count($files['name']); $i++) {
-                    if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    $fname = trim((string) ($files['name'][$i] ?? ''));
+                    $label = $fname !== '' ? $fname : ('फाइल #' . ($i + 1));
+                    $errCode = (int) ($files['error'][$i] ?? UPLOAD_ERR_NO_FILE);
+
+                    if ($errCode === UPLOAD_ERR_NO_FILE) {
                         continue;
                     }
+                    if ($errCode !== UPLOAD_ERR_OK) {
+                        $failures[] = $label . ': ' . coop_upload_error_text($errCode);
+                        continue;
+                    }
+
                     $file = [
                         'name' => $files['name'][$i],
                         'type' => $files['type'][$i],
@@ -211,8 +234,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'error' => $files['error'][$i],
                         'size' => $files['size'][$i],
                     ];
-                    $up = uploadFile($file, 'gallery');
+                    $up = uploadFile($file, 'gallery', GALLERY_MAX_FILE_SIZE);
                     if (!$up['success']) {
+                        $reason = (string) ($up['message'] ?? 'अपलोड असफल');
+                        if (stripos($reason, 'too large') !== false) {
+                            $failures[] = $label . ': फाइल ठूलो छ (अधिकतम ' . $galleryMaxMb . 'MB)।';
+                        } elseif (stripos($reason, 'Invalid file type') !== false || stripos($reason, 'Invalid file content') !== false) {
+                            $failures[] = $label . ': PNG, JPG वा WebP मात्र स्वीकार्य छ।';
+                        } elseif (stripos($reason, 'Failed to process') !== false) {
+                            $failures[] = $label . ': तस्विर प्रशोधन असफल (बिग्रिएको वा unsupported फाइल)।';
+                        } else {
+                            $failures[] = $label . ': ' . $reason;
+                        }
                         continue;
                     }
                     $t = $title !== '' ? $title : ('Gallery ' . ($i + 1));
@@ -235,12 +268,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $count++;
                 }
 
-                if ($count > 0) {
+                if ($count > 0 && !empty($failures)) {
+                    $shown = array_slice($failures, 0, 3);
+                    $more = count($failures) > 3 ? (' … +' . (count($failures) - 3) . ' अरू') : '';
+                    setFlash(
+                        'success',
+                        $count . ' तस्विर(हरू) "' . $albumName . '" एल्बममा अपलोड भयो। '
+                        . count($failures) . ' असफल: ' . implode('; ', $shown) . $more
+                    );
+                } elseif ($count > 0) {
                     setFlash('success', $count . ' तस्विर(हरू) "' . $albumName . '" एल्बममा अपलोड भयो।');
                 } else {
-                    setFlash('error', 'कुनै तस्विर अपलोड भएन।');
+                    $msg = empty($failures)
+                        ? 'कुनै तस्विर अपलोड भएन। एल्बम छान्नुहोस् र PNG/JPG/WebP (प्रति फोटो अधिकतम ' . $galleryMaxMb . 'MB) छान्नुहोस्।'
+                        : implode('; ', array_slice($failures, 0, 5))
+                          . (count($failures) > 5 ? ' …' : '');
+                    setFlash('error', $msg);
                 }
-                redirect('gallery.php?tab=list');
+                redirect('gallery.php?tab=' . ($count > 0 ? 'list' : 'upload'));
             }
         }
     } catch (Exception $e) {
@@ -274,6 +319,11 @@ if (!in_array($activeTab, ['albums', 'list', 'upload', 'video'], true)) {
 }
 
 $flash = getFlash();
+$galleryMaxMb = max(1, (int) round(GALLERY_MAX_FILE_SIZE / (1024 * 1024)));
+$postMaxBytes = function_exists('coop_ini_bytes') ? coop_ini_bytes((string) ini_get('post_max_size')) : 0;
+$galleryBatchMax = $postMaxBytes > 0
+    ? max(1, (int) floor(($postMaxBytes * 0.85) / GALLERY_MAX_FILE_SIZE))
+    : 6;
 $photoCount = 0;
 foreach ($images as $img) {
     if (($img['media_type'] ?? 'photo') !== 'video') {
@@ -593,7 +643,7 @@ foreach ($images as $img) {
                     <a href="gallery.php?tab=albums" class="alert-link ms-1">एल्बम बनाउनुहोस् →</a>
                 </div>
                 <?php else: ?>
-                <form method="POST" action="gallery.php?tab=upload" enctype="multipart/form-data" class="needs-validation" novalidate>
+                <form method="POST" action="gallery.php?tab=upload" enctype="multipart/form-data" class="needs-validation" id="galPhotoUploadForm" novalidate>
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="media_type" value="photo">
                     <div class="row g-3">
@@ -627,7 +677,9 @@ foreach ($images as $img) {
                                  onclick="document.getElementById('gal_files').click()">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-success mb-2"></i>
                                 <p class="mb-1 fw-semibold text-success">क्लिक गरी वा drag-drop गरी फोटो छान्नुहोस्</p>
-                                <small class="text-muted">PNG, JPG, WebP — एकैपटक धेरै फाइल छान्न सकिन्छ</small>
+                                <small class="text-muted d-block">PNG, JPG, WebP — एकैपटक धेरै फोटो छान्न सकिन्छ (Ctrl/Cmd + click)</small>
+                                <small class="text-muted d-block">प्रति फोटो अधिकतम <?php echo $galleryMaxMb; ?>MB (स्वतः 1200×900 सम्म resize हुन्छ)</small>
+                                <small class="text-muted">ठूला फोटो धेरै वटा एकैचोटि upload गर्दा server limit लाग्न सक्छ — लगभग <?php echo (int) $galleryBatchMax; ?> वटा <?php echo $galleryMaxMb; ?>MB सम्म एकैपटक safe छ</small>
                             </div>
                             <input type="file" name="images[]" id="gal_files" class="d-none" accept="image/*" multiple required
                                    onchange="showFileNames(this)">
@@ -659,6 +711,10 @@ foreach ($images as $img) {
                     <a href="gallery.php?tab=albums" class="alert-link ms-1">एल्बम बनाउनुहोस् →</a>
                 </div>
                 <?php else: ?>
+                <p class="text-muted small mb-3">
+                    <i class="fab fa-youtube me-1"></i>
+                    YouTube link मात्र — एक पटकमा एउटा भिडियो। फाइल upload हुँदैन; URL राखेर बारम्बार submit गर्न सकिन्छ।
+                </p>
                 <form method="POST" action="gallery.php?tab=video" class="needs-validation" novalidate>
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="media_type" value="video">
@@ -699,10 +755,92 @@ foreach ($images as $img) {
 </div>
 
 <script>
-function showFileNames(input) {
-    var names = Array.from(input.files).map(function (f) { return f.name; }).join(', ');
-    document.getElementById('gal_file_names').textContent = '✓ ' + input.files.length + ' फाइल(हरू): ' + names;
+var GALLERY_MAX_BYTES = <?php echo (int) GALLERY_MAX_FILE_SIZE; ?>;
+var GALLERY_BATCH_MAX = <?php echo (int) $galleryBatchMax; ?>;
+
+function galleryFilesTooBig(input) {
+    if (!input || !input.files || !input.files.length) return [];
+    return Array.from(input.files).filter(function (f) { return f.size > GALLERY_MAX_BYTES; });
 }
+
+function showFileNames(input) {
+    var el = document.getElementById('gal_file_names');
+    if (!el || !input.files || !input.files.length) {
+        if (el) el.textContent = '';
+        return false;
+    }
+    var names = [];
+    var tooBig = galleryFilesTooBig(input);
+    Array.from(input.files).forEach(function (f) { names.push(f.name); });
+    var msg = '✓ ' + input.files.length + ' फाइल(हरू): ' + names.join(', ');
+    if (tooBig.length) {
+        msg += ' — ⚠ ' + tooBig.length + ' फाइल ठूलो छ (अधिकतम ' + Math.round(GALLERY_MAX_BYTES / (1024 * 1024)) + 'MB): '
+            + tooBig.map(function (f) { return f.name; }).join(', ');
+        el.className = 'mt-2 small text-danger fw-semibold';
+    } else if (input.files.length > GALLERY_BATCH_MAX) {
+        msg += ' — ⚠ ' + input.files.length + ' वटा धेरै हुन सक्छ; ' + GALLERY_BATCH_MAX + ' वटा समूहमा upload गर्नुहोस्';
+        el.className = 'mt-2 small text-warning fw-semibold';
+    } else {
+        el.className = 'mt-2 text-muted small';
+    }
+    el.textContent = msg;
+    return tooBig.length === 0;
+}
+
+(function () {
+    var drop = document.querySelector('.gal-upload-drop');
+    var inp = document.getElementById('gal_files');
+    if (!drop || !inp) return;
+
+    function prevent(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) {
+            prevent(e);
+            drop.classList.add('border-success', 'bg-success-subtle');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) {
+            prevent(e);
+            drop.classList.remove('border-success', 'bg-success-subtle');
+        });
+    });
+    drop.addEventListener('drop', function (e) {
+        var files = e.dataTransfer && e.dataTransfer.files;
+        if (!files || !files.length) return;
+        var dt = new DataTransfer();
+        Array.from(files).forEach(function (f) {
+            if (f.type && f.type.indexOf('image/') === 0) {
+                dt.items.add(f);
+            }
+        });
+        if (!dt.files.length) return;
+        inp.files = dt.files;
+        showFileNames(inp);
+    });
+})();
+
+(function () {
+    var form = document.getElementById('galPhotoUploadForm');
+    var inp = document.getElementById('gal_files');
+    if (!form || !inp) return;
+    form.addEventListener('submit', function (e) {
+        var tooBig = galleryFilesTooBig(inp);
+        if (tooBig.length) {
+            e.preventDefault();
+            alert('यी फाइल(हरू) ' + Math.round(GALLERY_MAX_BYTES / (1024 * 1024)) + 'MB भन्दा ठूलो छन्:\n' + tooBig.map(function (f) { return f.name; }).join('\n'));
+            return;
+        }
+        if (inp.files.length > GALLERY_BATCH_MAX) {
+            var ok = confirm(inp.files.length + ' वटा फोटो छ — server limit लाग्न सक्छ। ' + GALLERY_BATCH_MAX + ' वटा समूहमा upload गर्नु राम्रो। तैपनि जारी राख्ने?');
+            if (!ok) e.preventDefault();
+        }
+    });
+})();
 
 (function () {
     var inp = document.querySelector('.admin-gallery-search');
