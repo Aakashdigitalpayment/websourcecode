@@ -181,6 +181,10 @@ $noopenerFiles = [
     'downloads.php',
     'application-tracker.php',
     'program-attendance-verify.php',
+    'admin/program-dashboard.php',
+    'admin/program-occurrences.php',
+    'admin/program-registration-desk.php',
+    'admin/program-reports-consolidated.php',
     'install.php',
     'member/profile.php',
     'member/tracker.php',
@@ -234,6 +238,10 @@ $chartSri = 'integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie
 assertFileContains('institutional-profile.php', $chartSri, 'Chart.js SRI public');
 assertFileContains('admin/analytics.php', $chartSri, 'Chart.js SRI analytics');
 assertFileContains('admin/program-attendance.php', $chartSri, 'Chart.js SRI program-attendance');
+assertFileContains('includes/program-attendance-helpers.php', 'recordProgramAttendance', 'program attendance core helper');
+assertFileContains('includes/program-tables.php', 'program_occurrences', 'program occurrences table migration');
+assertFileContains('admin/program-attendance.php', "attendance_status='VALID'", 'attendance list filters voided rows');
+assertFileContains('includes/program-tables.php', 'DROP INDEX uniq_member_program', 'drop legacy attendance unique for void re-record');
 assertFileContains('member/scan.php', 'integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"', 'html5-qrcode SRI');
 assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="', 'Leaflet JS SRI');
 assertFileContains('admin/pages.php', 'integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM"', 'TinyMCE SRI');

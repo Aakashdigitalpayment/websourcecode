@@ -12,6 +12,7 @@ if (!ob_get_level()) {
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/program-tables.php';
+require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 
 $db = getDB();
 ensureProgramTables($db);
@@ -84,25 +85,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stp->execute([$preregId]);
                 $pr = $stp->fetch(PDO::FETCH_ASSOC) ?: null;
                 if ($pr) {
-                    $chk = $db->prepare("SELECT id FROM member_program_attendance WHERE member_id=? AND program_id=? LIMIT 1");
-                    $chk->execute([(int)$pr['member_id'], (int)$pr['program_id']]);
-                    if ($chk->fetchColumn()) {
+                    $rec = recordProgramAttendance($db, [
+                        'member_id' => (int)$pr['member_id'],
+                        'member_card_no' => (string)($pr['member_card_no'] ?? ''),
+                        'program_id' => (int)$pr['program_id'],
+                        'attendance_method' => 'ADMIN_PREREG',
+                        'source' => 'admin_prereg',
+                        'attendance_note' => 'Pre-registration बाट attendance mark',
+                        'staff_admin_id' => (int)($_SESSION['admin_id'] ?? 0),
+                    ]);
+                    if (!empty($rec['ok'])) {
+                        setFlash('success', 'Pre-registration बाट attendance mark भयो।');
+                    } elseif (!empty($rec['duplicate'])) {
                         setFlash('error', 'यो सदस्यको attendance पहिल्यै register भइसकेको छ।');
                     } else {
-                        $ins = $db->prepare("INSERT INTO member_program_attendance
-                            (member_id, member_card_no, program_id, program_title, is_priority, attendance_note, verified_by_ip, source)
-                            VALUES (?,?,?,?,?,?,?,?)");
-                        $ins->execute([
-                            (int)$pr['member_id'],
-                            (string)($pr['member_card_no'] ?? ''),
-                            (int)$pr['program_id'],
-                            mb_substr((string)($pr['program_title'] ?? ''), 0, 180),
-                            0,
-                            'Pre-registration बाट attendance mark',
-                            $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
-                            'admin_prereg'
-                        ]);
-                        setFlash('success', 'Pre-registration बाट attendance mark भयो।');
+                        setFlash('error', $rec['error_np'] ?? 'Attendance mark गर्न समस्या भयो।');
                     }
                 } else {
                     setFlash('error', 'Pre-registration record फेला परेन।');
@@ -110,6 +107,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (Throwable $e) {
                 setFlash('error', 'Attendance mark गर्न समस्या भयो।');
             }
+        }
+    } elseif ($action === 'void_attendance') {
+        $attId = (int)($_POST['attendance_id'] ?? 0);
+        $reason = trim((string)($_POST['void_reason'] ?? ''));
+        if ($attId > 0) {
+            $res = voidProgramAttendance($db, $attId, (int)($_SESSION['admin_id'] ?? 0), $reason !== '' ? $reason : 'Admin void from attendance report');
+            setFlash($res['ok'] ? 'success' : 'error', $res['ok'] ? 'उपस्थिति void भयो (auditable).' : ($res['error_np'] ?? 'Void failed'));
         }
     } elseif ($action === 'approve_attendance_request') {
         $reqId = (int)($_POST['request_id'] ?? 0);
@@ -127,30 +131,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if ($mid <= 0) {
                         setFlash('error', 'यो अनुरोध existing member सँग match भएको छैन। पहिले सदस्य registration/link गरेर मात्र attendance approve गर्नुहोस्।');
                     } else {
-                    $chk = $db->prepare("SELECT id FROM member_program_attendance WHERE member_id=? AND program_id=? LIMIT 1");
-                    $chk->execute([$mid, $pid]);
-                    if ($chk->fetchColumn()) {
+                    $occId = (int)($req['occurrence_id'] ?? 0);
+                    $rec = recordProgramAttendance($db, [
+                        'member_id' => $mid,
+                        'member_card_no' => (string)($req['member_card_no'] ?? ''),
+                        'program_id' => $pid,
+                        'occurrence_id' => $occId > 0 ? $occId : null,
+                        'attendance_method' => 'ADMIN_APPROVE',
+                        'source' => 'admin_request_approve',
+                        'attendance_note' => 'QR अनुरोध #' . $reqId . ' Admin स्वीकृति',
+                        'staff_admin_id' => $adminId,
+                    ]);
+                    if (!empty($rec['ok'])) {
+                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=?")
+                            ->execute([$adminId ?: null, $reqId]);
+                        setFlash('success', 'उपस्थिति अनुरोध स्वीकृत भयो — सूचीमा थपियो।');
+                    } elseif (!empty($rec['duplicate'])) {
                         $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=?")
                             ->execute([$adminId ?: null, $reqId]);
                         setFlash('success', 'सदस्य पहिले नै उपस्थिति सूचीमा छ — अनुरोध बन्द गरियो।');
                     } else {
-                        $note = 'QR अनुरोध #' . $reqId . ' Admin स्वीकृति';
-                        $ins = $db->prepare("INSERT INTO member_program_attendance
-                            (member_id, member_card_no, program_id, program_title, is_priority, attendance_note, verified_by_ip, source)
-                            VALUES (?,?,?,?,?,?,?,?)");
-                        $ins->execute([
-                            $mid,
-                            (string)($req['member_card_no'] ?? ''),
-                            $pid,
-                            mb_substr((string)($req['program_title'] ?? ''), 0, 180),
-                            0,
-                            $note,
-                            $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
-                            'admin_request_approve',
-                        ]);
-                        $db->prepare("UPDATE member_program_attendance_requests SET status='approved', processed_at=NOW(), admin_id=? WHERE id=?")
-                            ->execute([$adminId ?: null, $reqId]);
-                        setFlash('success', 'उपस्थिति अनुरोध स्वीकृत भयो — सूचीमा थपियो।');
+                        setFlash('error', $rec['error_np'] ?? 'स्वीकृति गर्दा समस्या भयो।');
                     }
                     }
                 }
@@ -160,14 +161,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'link_attendance_request_member') {
         $reqId = (int)($_POST['request_id'] ?? 0);
-        $targetMemberId = (int)($_POST['target_member_id'] ?? 0);
-        if ($reqId > 0 && $targetMemberId > 0) {
+        $targetSadasyata = trim((string)($_POST['target_member_sadasyata'] ?? ''));
+        if ($reqId > 0 && $targetSadasyata !== '') {
             try {
-                $m = $db->prepare("SELECT id, name, sadasyata_number, phone, address FROM members WHERE id=? LIMIT 1");
-                $m->execute([$targetMemberId]);
-                $member = $m->fetch(PDO::FETCH_ASSOC) ?: null;
+                $member = programResolveMemberBySadasyata($db, $targetSadasyata);
                 if (!$member) {
-                    setFlash('error', 'Link गर्ने सदस्य फेला परेन।');
+                    setFlash('error', 'Member ID "' . $targetSadasyata . '" फेला परेन।');
                 } else {
                     $u = $db->prepare("UPDATE member_program_attendance_requests
                         SET member_id=?, member_name=?, member_card_no=?, member_phone=COALESCE(NULLIF(member_phone,''), ?), member_address=COALESCE(NULLIF(member_address,''), ?)
@@ -175,12 +174,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $u->execute([
                         (int)$member['id'],
                         (string)($member['name'] ?? ''),
-                        (string)($member['sadasyata_number'] ?? ''),
+                        programMemberSadasyataNo($member),
                         (string)($member['phone'] ?? ''),
                         (string)($member['address'] ?? ''),
                         $reqId
                     ]);
-                    setFlash('success', 'Attendance request सदस्यसँग link भयो। अब approve गर्न सकिन्छ।');
+                    setFlash('success', 'Attendance request Member ID ' . programMemberSadasyataNo($member) . ' सँग link भयो। अब approve गर्न सकिन्छ।');
                 }
             } catch (Throwable $e) {
                 setFlash('error', 'Member link गर्न समस्या भयो।');
@@ -282,7 +281,7 @@ $activeOnly = isset($_GET['active_only']) && (string)$_GET['active_only'] === '1
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 50;
 
-$whereA = '1=1';
+$whereA = "a.attendance_status='VALID'";
 $paramsA = [];
 if ($programId > 0) {
     $whereA .= ' AND a.program_id=?';
@@ -319,7 +318,8 @@ if ($q !== '') {
 
 $joinA = "FROM member_program_attendance a
         LEFT JOIN members m ON m.id = a.member_id
-        LEFT JOIN upcoming_programs p ON p.id = a.program_id";
+        LEFT JOIN upcoming_programs p ON p.id = a.program_id
+        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id";
 
 $paQuery = [];
 if ($programId > 0) {
@@ -342,7 +342,8 @@ if ($activeOnly) {
 }
 
 if (isset($_GET['export']) && $_GET['export'] === '1') {
-    $sqlAll = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location
+    $sqlAll = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
+               o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
         ORDER BY a.attended_at DESC";
@@ -357,14 +358,17 @@ if (isset($_GET['export']) && $_GET['export'] === '1') {
     header('Cache-Control: no-store');
     $out = fopen('php://output', 'w');
     fprintf($out, chr(0xEF) . chr(0xBB) . chr(0xBF));
-    fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member Card', 'Priority', 'Note', 'Attended At']);
+    fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
     foreach ($exportRows as $r) {
+        $loc = programAttendanceDisplayLocation($r);
         fputcsv($out, [
             (string)($r['program_title'] ?? ''),
             (string)($r['event_date'] ?? ''),
             (string)($r['member_name'] ?? ''),
             (string)($r['gender'] ?? ''),
             (string)($r['member_card_no'] ?? ''),
+            $loc,
+            programAttendanceMethodLabel($r['attendance_method'] ?? '', true),
             ((int)($r['is_priority'] ?? 0) ? 'Yes' : 'No'),
             (string)($r['attendance_note'] ?? ''),
             (string)($r['attended_at'] ?? ''),
@@ -377,7 +381,7 @@ if (isset($_GET['export']) && $_GET['export'] === '1') {
 $preJoinSql = "FROM member_program_preregistrations pr
                LEFT JOIN members m ON m.id = pr.member_id
                LEFT JOIN upcoming_programs p ON p.id = pr.program_id
-               LEFT JOIN member_program_attendance a2 ON a2.member_id = pr.member_id AND a2.program_id = pr.program_id";
+               LEFT JOIN member_program_attendance a2 ON a2.member_id = pr.member_id AND a2.program_id = pr.program_id AND a2.attendance_status='VALID'";
 
 if (isset($_GET['export']) && $_GET['export'] === 'prereg') {
     $preExportSql = "SELECT pr.*, COALESCE(NULLIF(m.name,''), pr.member_name) AS display_name, m.phone AS member_phone, m.phone AS member_mobile, m.email AS member_email, p.event_date, p.location,
@@ -487,7 +491,8 @@ foreach ($pgst->fetchAll(PDO::FETCH_ASSOC) as $pgr) {
 }
 
 $offset = ($page - 1) * $perPage;
-$sql = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location
+$sql = "SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
+               o.location_name AS occurrence_location
         {$joinA}
         WHERE {$whereA}
         ORDER BY a.attended_at DESC
@@ -747,7 +752,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="link_attendance_request_member">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
-              <input type="number" min="1" name="target_member_id" class="form-control form-control-sm" style="width:92px;" placeholder="Member ID">
+              <input type="text" name="target_member_sadasyata" class="form-control form-control-sm" style="min-width:140px;max-width:200px;" placeholder="Member ID" required>
               <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-link me-1"></i>Link</button>
             </form>
             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo $__t('यस request बाट नयाँ सदस्य बनाउने?', 'Create a new member from this request?'); ?>');">
@@ -775,18 +780,23 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   </div>
   <div class="table-responsive">
     <table class="table table-hover table-sm align-middle mb-0">
-      <thead><tr><th>कार्यक्रम</th><th>मिति</th><th>सदस्य</th><th>सदस्य नं.</th><th>Priority</th><th>नोट</th><th>समय</th></tr></thead>
+      <thead><tr><th><?php echo $__t('कार्यक्रम','Program'); ?></th><th><?php echo $__t('मिति','Date'); ?></th><th><?php echo $__t('सदस्य','Member'); ?></th><th><?php echo $__t('Member ID','Member ID'); ?></th><th><?php echo $__t('स्थान','Location'); ?></th><th><?php echo $__t('विधि','Method'); ?></th><th>Priority</th><th><?php echo $__t('नोट','Note'); ?></th><th><?php echo $__t('समय','Time'); ?></th></tr></thead>
       <tbody>
-      <?php if (empty($rows)): ?><tr><td colspan="7" class="text-center text-muted py-4">उपस्थिति रेकर्ड छैन।</td></tr><?php endif; ?>
-      <?php foreach($rows as $r): ?>
+      <?php if (empty($rows)): ?><tr><td colspan="9" class="text-center text-muted py-4"><?php echo $__t('उपस्थिति रेकर्ड छैन।','No attendance records.'); ?></td></tr><?php endif; ?>
+      <?php foreach($rows as $r):
+        $rowLoc = programAttendanceDisplayLocation($r);
+        $rowMethod = programAttendanceMethodLabel($r['attendance_method'] ?? '', strtolower((string)($_SESSION['admin_lang'] ?? 'np')) === 'en');
+      ?>
       <tr>
         <td><?php echo htmlspecialchars($r['program_title']); ?></td>
         <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?></td>
         <td><?php echo htmlspecialchars($r['member_name'] ?: '—'); ?></td>
-        <td><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></td>
+        <td><code class="small"><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></code></td>
+        <td class="small"><?php echo htmlspecialchars($rowLoc !== '' ? $rowLoc : '—'); ?></td>
+        <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rowMethod); ?></span></td>
         <td><?php echo (int)$r['is_priority'] ? '<span class="badge bg-warning text-dark">Priority</span>' : '<span class="text-muted">No</span>'; ?></td>
         <td><?php echo htmlspecialchars($r['attendance_note'] ?: ''); ?></td>
-        <td><?php echo htmlspecialchars($r['attended_at']); ?></td>
+        <td class="small text-muted"><?php echo htmlspecialchars(substr((string)($r['attended_at'] ?? ''), 0, 16)); ?></td>
       </tr>
       <?php endforeach; ?>
       </tbody>
@@ -979,6 +989,16 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   all.addEventListener('change', function(){
     document.querySelectorAll('.preRegSelectItem').forEach(function(cb){ cb.checked = all.checked; });
   });
+})();
+</script>
+<script>
+(function(){
+  var hash = (location.hash || '').replace('#','');
+  if (!hash) return;
+  var tabBtn = document.getElementById(hash);
+  if (tabBtn && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+    bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+  }
 })();
 </script>
 

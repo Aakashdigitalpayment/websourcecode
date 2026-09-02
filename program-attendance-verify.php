@@ -2,8 +2,10 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/card-verify-helpers.php';
 require_once __DIR__ . '/includes/program-tables.php';
+require_once __DIR__ . '/includes/program-attendance-helpers.php';
 
 $pageTitle = isEnglish() ? 'Program Attendance Verify' : 'कार्यक्रम उपस्थिति प्रमाणीकरण';
+$currentPage = 'program-attendance-verify';
 $attendanceStaffMode = isAdminLoggedIn();
 if (!$attendanceStaffMode) {
     redirect(ADMIN_URL . 'index.php');
@@ -18,12 +20,14 @@ $error = '';
 $memberInfo = null;
 $ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 $programId = (int)($_POST['program_id'] ?? ($_GET['program_id'] ?? 0));
+$occurrenceId = (int)($_POST['occurrence_id'] ?? 0);
+$existingAttendance = null;
 $code = mb_substr(trim((string)($_POST['code'] ?? '')), 0, 80, 'UTF-8');
 $cvv  = mb_substr(trim((string)($_POST['cvv'] ?? '')), 0, 32, 'UTF-8');
 
 $programs = [];
 try {
-    $programs = $pdo->query("SELECT id, title, event_date, event_time, location, qr_token
+    $programs = $pdo->query("SELECT id, title, event_date, event_time, location, qr_token, is_multi_location
                              FROM upcoming_programs
                              WHERE is_active=1
                              ORDER BY COALESCE(event_date, '9999-12-31') ASC, id DESC LIMIT 200")->fetchAll() ?: [];
@@ -41,34 +45,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $memberInfo = $result['member'] ?? null;
             try {
-                $pst = $pdo->prepare("SELECT id, title FROM upcoming_programs WHERE id=? AND is_active=1 LIMIT 1");
-                $pst->execute([$programId]);
-                $pg = $pst->fetch(PDO::FETCH_ASSOC) ?: null;
+                $pg = programFetchById($pdo, $programId);
                 if (!$pg || !$memberInfo) {
                     $error = isEnglish() ? 'Program not found.' : 'कार्यक्रम फेला परेन।';
+                } elseif ((int)($pg['is_multi_location'] ?? 0) === 1 && $occurrenceId <= 0) {
+                    $error = isEnglish() ? 'Select occurrence/location for multi-location program.' : 'Multi-location कार्यक्रममा स्थान/occurrence छान्नुहोस्।';
                 } else {
                     $mid = (int)($memberInfo['id'] ?? 0);
                     $cardNo = trim((string)($memberInfo['member_id'] ?? ''));
-                    $chk = $pdo->prepare("SELECT id FROM member_program_attendance WHERE member_id=? AND program_id=? LIMIT 1");
-                    $chk->execute([$mid, $programId]);
-                    if ($chk->fetchColumn()) {
-                        $already = true;
-                    } else {
-                        $ins = $pdo->prepare("INSERT INTO member_program_attendance
-                            (member_id, member_card_no, program_id, program_title, is_priority, attendance_note, verified_by_ip, source)
-                            VALUES (?,?,?,?,?,?,?,?)");
-                        $ins->execute([$mid, $cardNo, $programId, mb_substr((string)$pg['title'], 0, 180), 0, 'Program attendance verify page', $ip, 'program_verify_page']);
+                    $rec = recordProgramAttendance($pdo, [
+                        'member_id' => $mid,
+                        'member_card_no' => $cardNo,
+                        'program_id' => $programId,
+                        'occurrence_id' => $occurrenceId > 0 ? $occurrenceId : null,
+                        'attendance_method' => 'STAFF_VERIFY',
+                        'source' => 'program_verify_page',
+                        'attendance_note' => 'Program attendance verify page',
+                        'ip' => $ip,
+                        'staff_admin_id' => (int)($_SESSION['admin_id'] ?? 0),
+                    ]);
+                    if (!empty($rec['ok'])) {
                         $saved = true;
-                    }
-                    // Close any matching pending QR/portal requests so admin list stays clean
-                    try {
-                        $adminId = (int)($_SESSION['admin_id'] ?? 0);
-                        $pdo->prepare("UPDATE member_program_attendance_requests
-                            SET status='approved', processed_at=NOW(), admin_id=?, admin_note='Closed by Staff Verify'
-                            WHERE member_id=? AND program_id=? AND status='pending'")
-                            ->execute([$adminId > 0 ? $adminId : null, $mid, $programId]);
-                    } catch (Throwable $e) {
-                        error_log('[staff verify close pending] ' . $e->getMessage());
+                    } elseif (!empty($rec['duplicate'])) {
+                        $already = true;
+                        $existingAttendance = $rec['existing'] ?? null;
+                    } else {
+                        $error = (string)($rec['error_en'] ?? $rec['error_np'] ?? (isEnglish() ? 'Could not save attendance.' : 'Attendance सुरक्षित गर्न सकिएन।'));
                     }
                 }
             } catch (Throwable $e) {
@@ -128,6 +130,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <div id="pavOccurrenceWrap" class="mt-2" style="display:none">
+                            <label for="pavOccurrenceSelect" class="small"><?php echo isEnglish() ? 'Location / Occurrence' : 'स्थान / Occurrence'; ?></label>
+                            <select name="occurrence_id" id="pavOccurrenceSelect" class="pav-field-input">
+                                <option value=""><?php echo isEnglish() ? '— Select location —' : '— स्थान छान्नुहोस् —'; ?></option>
+                            </select>
+                        </div>
                         <div id="pavProgramQr" class="pav-program-qr" aria-live="polite"></div>
                         <div id="pavProgramQrEmpty" class="pav-program-qr-empty">
                             <?php echo isEnglish() ? 'Selected program QR दिखाउन, त्यो कार्यक्रममा QR token generate भएको हुनुपर्छ।' : 'कार्यक्रम select गरेपछि QR देखाउन, त्यो कार्यक्रममा QR token generate भएको हुनुपर्छ।'; ?>
@@ -172,6 +180,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php echo isEnglish() ? 'Attendance recorded successfully!' : 'उपस्थिति सफलतापूर्वक दर्ता भयो!'; ?>
                         <?php else: ?>
                             <?php echo isEnglish() ? 'Already marked for this program.' : 'यो कार्यक्रममा attendance पहिल्यै दर्ता भइसकेको छ।'; ?>
+                            <?php if ($existingAttendance): ?>
+                                <div class="small mt-1"><?php echo htmlspecialchars(programFormatExistingAttendanceMessage($existingAttendance, isEnglish())); ?></div>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                     <div class="pav-member-card">
@@ -220,7 +231,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         echo json_encode($qrMap, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     ?> || {};
+    var programMultiMap = <?php
+        $multiMap = [];
+        foreach ($programs as $pg) {
+            if ((int)($pg['is_multi_location'] ?? 0) !== 1) continue;
+            $st = $pdo->prepare('SELECT id, location_name, event_date FROM program_occurrences WHERE parent_program_id=? AND is_active=1 ORDER BY sort_order ASC, id ASC');
+            $st->execute([(int)$pg['id']]);
+            $multiMap[(int)$pg['id']] = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        }
+        echo json_encode($multiMap, JSON_UNESCAPED_UNICODE);
+    ?> || {};
     var programSel = document.getElementById('pavProgramSelect');
+    var occurrenceWrap = document.getElementById('pavOccurrenceWrap');
+    var occurrenceSel = document.getElementById('pavOccurrenceSelect');
+    function updateOccurrences() {
+        if (!programSel || !occurrenceWrap || !occurrenceSel) return;
+        var pid = programSel.value || '';
+        var list = (pid && programMultiMap[pid]) ? programMultiMap[pid] : [];
+        occurrenceSel.innerHTML = '<option value=""><?php echo isEnglish() ? "— Select location —" : "— स्थान छान्नुहोस् —"; ?></option>';
+        if (list.length) {
+            occurrenceWrap.style.display = '';
+            occurrenceSel.required = true;
+            list.forEach(function(o){
+                var opt = document.createElement('option');
+                opt.value = o.id;
+                opt.textContent = o.location_name + (o.event_date ? (' · ' + o.event_date) : '');
+                occurrenceSel.appendChild(opt);
+            });
+        } else {
+            occurrenceWrap.style.display = 'none';
+            occurrenceSel.required = false;
+        }
+    }
     var programQrBox = document.getElementById('pavProgramQr');
     var programQrEmpty = document.getElementById('pavProgramQrEmpty');
     function updateProgramQr() {
@@ -244,8 +286,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (programQrEmpty) programQrEmpty.style.display = 'none';
     }
     if (programSel) {
-        programSel.addEventListener('change', updateProgramQr);
+        programSel.addEventListener('change', function(){ updateProgramQr(); updateOccurrences(); });
         updateProgramQr();
+        updateOccurrences();
     }
 
     var code = document.querySelector('.pav-card-body input[name="code"]');

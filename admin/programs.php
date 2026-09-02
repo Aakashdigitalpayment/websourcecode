@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/simple-cache.php';
 
 $db = getDB();
 require_once __DIR__ . '/../includes/program-tables.php';
+require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 ensureProgramTables($db);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -22,6 +23,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $loc  = trim((string)($_POST['location'] ?? ''));
             $active = !empty($_POST['is_active']) ? 1 : 0;
             $preRegOpen = !empty($_POST['pre_registration_open']) ? 1 : 0;
+            $programType = trim((string)($_POST['program_type'] ?? 'General'));
+            $typeOpts = programTypeOptions();
+            if (!isset($typeOpts[$programType])) {
+                $programType = 'General';
+            }
+            $isMulti = !empty($_POST['is_multi_location']) ? 1 : 0;
+            $instantAtt = !empty($_POST['instant_attendance']) ? 1 : 0;
+            $sharedQr = !empty($_POST['shared_qr_mode']) ? 1 : 0;
+            $eligibleScope = trim((string)($_POST['eligible_member_scope'] ?? getSetting('program_default_eligible_scope', 'all_active')));
+            if (!in_array($eligibleScope, ['all_active', 'shareholders', 'voters'], true)) {
+                $eligibleScope = 'all_active';
+            }
+            $attOpenBs = trim((string)($_POST['attendance_open_bs'] ?? ''));
+            $attOpenTime = trim((string)($_POST['attendance_open_time'] ?? ''));
+            $attCloseBs = trim((string)($_POST['attendance_close_bs'] ?? ''));
+            $attCloseTime = trim((string)($_POST['attendance_close_time'] ?? ''));
+            $attOpenAt = $attOpenBs !== '' ? programCombineBsDateTime($attOpenBs, $attOpenTime !== '' ? $attOpenTime : '00:00') : null;
+            $attCloseAt = $attCloseBs !== '' ? programCombineBsDateTime($attCloseBs, $attCloseTime !== '' ? $attCloseTime : '23:59') : null;
             $qrStartsBs = trim((string)($_POST['qr_starts_at_bs'] ?? ''));
             $qrStartsTime = trim((string)($_POST['qr_starts_at_time'] ?? ''));
             $qrExpiresBs = trim((string)($_POST['qr_expires_at_bs'] ?? ''));
@@ -86,12 +105,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!$qrExpiresProvided) {
                     $qrExpiresAt = $prevExpires;
                 }
-                $st = $db->prepare("UPDATE upcoming_programs SET title=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=? WHERE id=?");
-                $st->execute([$title, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $id]);
+                $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=?");
+                $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $id]);
                 setFlash('success', 'कार्यक्रम अपडेट भयो।');
             } else {
-                $st = $db->prepare("INSERT INTO upcoming_programs (title, description, event_date, event_time, location, is_active, pre_registration_open, qr_starts_at, qr_expires_at, created_by) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                $st->execute([$title, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $_SESSION['admin_name'] ?? 'Admin']);
+                $st = $db->prepare("INSERT INTO upcoming_programs (title, program_type, is_multi_location, instant_attendance, shared_qr_mode, eligible_member_scope, description, event_date, event_time, location, is_active, pre_registration_open, qr_starts_at, qr_expires_at, attendance_open_at, attendance_close_at, created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $_SESSION['admin_name'] ?? 'Admin']);
                 setFlash('success', 'नयाँ कार्यक्रम थपियो।');
             }
         } elseif ($action === 'toggle') {
@@ -152,6 +171,12 @@ if ($editId > 0) {
     $st = $db->prepare("SELECT * FROM upcoming_programs WHERE id=?");
     $st->execute([$editId]);
     $edit = $st->fetch(PDO::FETCH_ASSOC) ?: null;
+} else {
+    $edit = [
+        'instant_attendance' => getSetting('program_default_instant_attendance', '0') === '1' ? 1 : 0,
+        'shared_qr_mode' => getSetting('program_default_shared_qr', '1') === '1' ? 1 : 0,
+        'eligible_member_scope' => getSetting('program_default_eligible_scope', 'all_active'),
+    ];
 }
 $rows = $db->query("SELECT * FROM upcoming_programs ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -168,7 +193,7 @@ try {
 }
 $attendByProgram = [];
 try {
-    $ac = $db->query('SELECT program_id, COUNT(*) AS c FROM member_program_attendance GROUP BY program_id');
+    $ac = $db->query("SELECT program_id, COUNT(*) AS c FROM member_program_attendance WHERE attendance_status='VALID' GROUP BY program_id");
     if ($ac) {
         while ($row = $ac->fetch(PDO::FETCH_ASSOC)) {
             $attendByProgram[(int)$row['program_id']] = (int)$row['c'];
@@ -201,8 +226,9 @@ foreach ($rows as $_r) {
 ?>
 
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। QR scan = स्थल उपस्थिति अनुरोध — Admin approve पछि सूची/इतिहासमा थपिन्छ। Staff Verify बाट तत्काल पनि राख्न सकिन्छ।',
+  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। Multi-location AGM = Parent Program + Occurrences। QR/Desk/Verify सबै duplicate-safe core बाट जान्छ।',
       '<div class="d-flex gap-2 flex-wrap">'
+      . '<a href="program-dashboard.php" class="btn btn-outline-info btn-sm"><i class="fas fa-chart-pie me-1"></i>Dashboard</a>'
       . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
       . '<a href="../program-attendance-verify.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-check me-1"></i>Staff Verify</a>'
       . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>उपस्थिति रिपोर्ट</a>'
@@ -216,7 +242,20 @@ foreach ($rows as $_r) {
         <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="save">
         <input type="hidden" name="id" value="<?php echo (int)($edit['id'] ?? 0); ?>">
-        <div class="col-md-6"><label for="prog_title" class="form-label">शीर्षक *</label><input required name="title" id="prog_title" class="form-control" value="<?php echo htmlspecialchars($edit['title'] ?? ''); ?>"></div>
+        <div class="col-md-5"><label for="prog_title" class="form-label">शीर्षक *</label><input required name="title" id="prog_title" class="form-control" value="<?php echo htmlspecialchars($edit['title'] ?? ''); ?>"></div>
+        <div class="col-md-3">
+          <label for="prog_type" class="form-label">कार्यक्रम प्रकार</label>
+          <select name="program_type" id="prog_type" class="form-select">
+            <?php foreach (programTypeOptions() as $k => $lbl): ?>
+              <option value="<?php echo htmlspecialchars($k); ?>" <?php echo ($edit['program_type'] ?? 'General') === $k ? 'selected' : ''; ?>><?php echo htmlspecialchars($lbl['np']); ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex flex-column justify-content-end gap-1 pb-1">
+          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_multi_location" value="1" <?php echo !empty($edit['is_multi_location']) ? 'checked' : ''; ?>>Multi-location (AGM/SGM)</label>
+          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="instant_attendance" value="1" <?php echo !empty($edit['instant_attendance']) ? 'checked' : ''; ?>>Instant QR attendance (approve बिना)</label>
+          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="shared_qr_mode" value="1" <?php echo !isset($edit['shared_qr_mode']) || (int)($edit['shared_qr_mode'] ?? 1) === 1 ? 'checked' : ''; ?>>Shared parent QR (multi-location)</label>
+        </div>
         <div class="col-md-3">
           <label for="prog_event_date" class="form-label">मिति (वि.सं.)</label>
           <div class="input-group">
@@ -243,9 +282,17 @@ foreach ($rows as $_r) {
         </div>
         <div class="col-md-6"><label for="prog_location" class="form-label">स्थान</label><input name="location" id="prog_location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
         <div class="col-md-6"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
+        <div class="col-md-3"><label class="form-label">उपस्थिति Window सुरु (BS)</label><input name="attendance_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
+        <div class="col-md-3"><label class="form-label">उपस्थिति Window अन्त्य (BS)</label><input name="attendance_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
         <div class="col-12 d-flex flex-wrap gap-3">
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
+          <?php if (!empty($edit['is_multi_location'])): ?>
+            <a href="program-occurrences.php?parent_id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-info"><i class="fas fa-map-marker-alt me-1"></i>Occurrences व्यवस्थापन</a>
+            <a href="program-detail.php?id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye me-1"></i>Detail</a>
+          <?php endif; ?>
         </div>
         <?php
           $qrStartBs = !empty($edit['qr_starts_at']) ? programMysqlDtToBsDate((string)$edit['qr_starts_at']) : '';
@@ -288,7 +335,7 @@ foreach ($rows as $_r) {
   </div>
 
   <?php
-  $programTableHead = '<thead><tr><th>शीर्षक</th><th>मिति</th><th>स्थान</th><th>स्थिति</th><th>Pre-reg / उपस्थिति</th><th>QR</th><th>कार्य</th></tr></thead>';
+  $programTableHead = '<thead><tr><th>शीर्षक</th><th>प्रकार</th><th>मिति</th><th>स्थान</th><th>स्थिति</th><th>Pre-reg / उपस्थिति</th><th>QR</th><th>कार्य</th></tr></thead>';
   $renderProgramRows = function (array $list) use ($preregByProgram, $attendByProgram, $pendingByProgram): void {
       foreach ($list as $r) {
           $prc = (int)($preregByProgram[(int)$r['id']] ?? 0);
@@ -302,7 +349,8 @@ foreach ($rows as $_r) {
           $dTitle = htmlspecialchars((string)($r['title'] ?? ''), ENT_QUOTES, 'UTF-8');
           ?>
           <tr>
-            <td><strong><?php echo htmlspecialchars($r['title']); ?></strong><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
+            <td><strong><?php echo htmlspecialchars($r['title']); ?></strong><?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><span class="badge bg-info ms-1">Multi</span><?php endif; ?><div class="small text-muted"><?php echo htmlspecialchars($r['description'] ?? ''); ?></div></td>
+            <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars(programTypeLabel($r['program_type'] ?? 'General')); ?></span></td>
             <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?> <span class="small text-muted"><?php echo htmlspecialchars($r['event_time'] ?? ''); ?></span></td>
             <td><?php echo htmlspecialchars($r['location'] ?: '—'); ?></td>
             <td><?php echo (int)$r['is_active'] ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">निष्क्रिय</span>'; ?></td>
@@ -349,7 +397,9 @@ foreach ($rows as $_r) {
               <?php endif; ?>
             </td>
             <td>
+              <a class="adm-icon-btn adm-icon-btn--edit" href="program-detail.php?id=<?php echo (int)$r['id']; ?>" title="Detail" aria-label="Detail"><i class="fas fa-eye" aria-hidden="true"></i></a>
               <a class="adm-icon-btn adm-icon-btn--edit" href="programs.php?edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+              <?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><a class="btn btn-sm btn-outline-info py-0 px-1" href="program-occurrences.php?parent_id=<?php echo (int)$r['id']; ?>" title="Occurrences"><i class="fas fa-map-marker-alt"></i></a><?php endif; ?>
               <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-warning" title="सक्रिय/निष्क्रिय"><i class="fas fa-power-off"></i></button></form>
               <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button></form>
             </td>
@@ -369,9 +419,9 @@ foreach ($rows as $_r) {
         <?php echo $programTableHead; ?>
         <tbody>
           <?php if (empty($rows)): ?>
-          <tr><td colspan="7" class="text-center text-muted py-4">अहिलेसम्म कार्यक्रम छैन।</td></tr>
+          <tr><td colspan="8" class="text-center text-muted py-4">अहिलेसम्म कार्यक्रम छैन।</td></tr>
           <?php elseif (empty($rowsActive)): ?>
-          <tr><td colspan="7" class="text-center text-muted py-3">कुनै सक्रिय कार्यक्रम छैन। Power बटनले पुनः सक्रिय गर्नुहोस्।</td></tr>
+          <tr><td colspan="8" class="text-center text-muted py-3">कुनै सक्रिय कार्यक्रम छैन। Power बटनले पुनः सक्रिय गर्नुहोस्।</td></tr>
           <?php else: ?>
           <?php $renderProgramRows($rowsActive); ?>
           <?php endif; ?>

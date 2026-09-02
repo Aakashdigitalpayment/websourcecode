@@ -1950,20 +1950,58 @@ UPDATE admin_users SET must_change_password = 1 WHERE username = 'admin' LIMIT 1
 CREATE TABLE IF NOT EXISTS upcoming_programs (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(180) NOT NULL,
+    program_type ENUM('General','AGM','SGM','Orientation','Training','Seminar','Workshop','Financial_Literacy','Other') NOT NULL DEFAULT 'General',
+    parent_program_id INT NULL,
+    is_multi_location TINYINT(1) NOT NULL DEFAULT 0,
     description TEXT NULL,
     event_date DATE NULL,
     event_time VARCHAR(30) NULL,
     location VARCHAR(180) NULL,
     is_active TINYINT(1) DEFAULT 1,
     pre_registration_open TINYINT(1) DEFAULT 0,
+    qr_enabled TINYINT(1) DEFAULT 1,
     qr_token VARCHAR(64) UNIQUE NULL,
+    qr_starts_at DATETIME NULL,
+    qr_expires_at DATETIME NULL,
+    attendance_open_at DATETIME NULL,
+    attendance_close_at DATETIME NULL,
+    eligible_member_scope VARCHAR(30) NOT NULL DEFAULT 'all_active',
+    instant_attendance TINYINT(1) NOT NULL DEFAULT 0,
+    shared_qr_mode TINYINT(1) NOT NULL DEFAULT 1,
     created_by VARCHAR(100) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_up_date (event_date),
     INDEX idx_up_active (is_active),
     INDEX idx_up_prereg (pre_registration_open),
-    INDEX idx_up_qr (qr_token)
+    INDEX idx_up_qr (qr_token),
+    INDEX idx_up_parent (parent_program_id),
+    INDEX idx_up_multi (is_multi_location),
+    INDEX idx_up_type (program_type)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS program_occurrences (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    parent_program_id INT NOT NULL,
+    location_name VARCHAR(180) NOT NULL DEFAULT '',
+    venue_id INT NULL,
+    event_date DATE NULL,
+    start_time VARCHAR(30) NULL,
+    end_time VARCHAR(30) NULL,
+    attendance_open_at DATETIME NULL,
+    attendance_close_at DATETIME NULL,
+    qr_token VARCHAR(64) UNIQUE NULL,
+    qr_enabled TINYINT(1) NOT NULL DEFAULT 1,
+    qr_starts_at DATETIME NULL,
+    qr_expires_at DATETIME NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_po_parent (parent_program_id),
+    INDEX idx_po_active (is_active),
+    INDEX idx_po_date (event_date),
+    INDEX idx_po_qr (qr_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS member_program_attendance (
@@ -1971,17 +2009,85 @@ CREATE TABLE IF NOT EXISTS member_program_attendance (
     member_id INT NOT NULL,
     member_card_no VARCHAR(60) DEFAULT '',
     program_id INT NOT NULL,
+    occurrence_id INT NULL,
+    parent_program_id INT NULL,
+    attendance_scope_key INT NOT NULL DEFAULT 0,
     program_title VARCHAR(180) NOT NULL,
     is_priority TINYINT(1) DEFAULT 0,
     attendance_note VARCHAR(500) DEFAULT '',
     verified_by_ip VARCHAR(45) DEFAULT '',
     source VARCHAR(30) DEFAULT 'verify_portal',
+    attendance_method ENUM('MEMBER_SELF','ADMIN_MANUAL','QR_SCAN','STAFF_VERIFY','ADMIN_APPROVE','ADMIN_PREREG') NOT NULL DEFAULT 'STAFF_VERIFY',
+    attendance_status ENUM('VALID','VOID') NOT NULL DEFAULT 'VALID',
+    location_label VARCHAR(180) NULL,
+    desk_id INT NULL,
+    staff_admin_id INT NULL,
+    device_fingerprint VARCHAR(120) NULL,
+    voided_by INT NULL,
+    voided_at DATETIME NULL,
+    void_reason VARCHAR(500) NULL,
     attended_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uniq_member_program (member_id, program_id),
+    UNIQUE KEY uniq_scope_member_status (attendance_scope_key, member_id, attendance_status),
+    INDEX idx_mpa_member_program (member_id, program_id),
     INDEX idx_mpa_member (member_id),
     INDEX idx_mpa_program (program_id),
+    INDEX idx_mpa_occurrence (occurrence_id),
+    INDEX idx_mpa_parent (parent_program_id),
+    INDEX idx_mpa_scope (attendance_scope_key),
+    INDEX idx_mpa_scope_member (attendance_scope_key, member_id),
     INDEX idx_mpa_date (attended_at),
     INDEX idx_mpa_prog_att (program_id, attended_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS program_attendance_attempts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    member_id INT NOT NULL,
+    parent_program_id INT NOT NULL,
+    program_id INT NOT NULL,
+    occurrence_id INT NULL,
+    attempted_method VARCHAR(40) NOT NULL DEFAULT '',
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    previous_attendance_id INT NULL,
+    result ENUM('DUPLICATE_BLOCKED','WINDOW_CLOSED','INELIGIBLE','INVALID_MEMBER','INVALID_PROGRAM','OTHER') NOT NULL DEFAULT 'OTHER',
+    result_message VARCHAR(500) DEFAULT '',
+    verified_by_ip VARCHAR(45) DEFAULT '',
+    desk_id INT NULL,
+    staff_admin_id INT NULL,
+    INDEX idx_paa_member (member_id),
+    INDEX idx_paa_parent (parent_program_id),
+    INDEX idx_paa_program (program_id),
+    INDEX idx_paa_result (result),
+    INDEX idx_paa_at (attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS program_registration_desks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    parent_program_id INT NOT NULL,
+    occurrence_id INT NULL,
+    desk_label VARCHAR(60) NOT NULL DEFAULT 'Desk 01',
+    assigned_staff_admin_id INT NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_prd_parent (parent_program_id),
+    INDEX idx_prd_occurrence (occurrence_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS program_audit_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    action_type VARCHAR(60) NOT NULL,
+    program_id INT NULL,
+    occurrence_id INT NULL,
+    attendance_id INT NULL,
+    member_id INT NULL,
+    admin_id INT NULL,
+    reason VARCHAR(500) DEFAULT '',
+    payload_json TEXT NULL,
+    ip_address VARCHAR(45) DEFAULT '',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_pal_program (program_id),
+    INDEX idx_pal_attendance (attendance_id),
+    INDEX idx_pal_action (action_type),
+    INDEX idx_pal_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS member_program_attendance_requests (
@@ -1989,19 +2095,24 @@ CREATE TABLE IF NOT EXISTS member_program_attendance_requests (
     member_id INT NOT NULL,
     member_card_no VARCHAR(60) DEFAULT '',
     member_name VARCHAR(150) DEFAULT '',
+    member_phone VARCHAR(30) DEFAULT '',
+    member_address VARCHAR(255) DEFAULT '',
     program_id INT NOT NULL,
+    occurrence_id INT NULL,
     program_title VARCHAR(180) NOT NULL,
     status ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     processed_at TIMESTAMP NULL DEFAULT NULL,
     verified_by_ip VARCHAR(45) DEFAULT '',
+    user_agent VARCHAR(255) DEFAULT '',
     admin_id INT NULL,
     admin_note VARCHAR(500) DEFAULT '',
     source VARCHAR(40) DEFAULT 'public_qr_request',
     INDEX idx_mpar_status (status),
     INDEX idx_mpar_program (program_id),
     INDEX idx_mpar_member (member_id),
-    INDEX idx_mpar_status_prog (status, program_id)
+    INDEX idx_mpar_status_prog (status, program_id),
+    INDEX idx_mpar_occurrence (occurrence_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS member_program_preregistrations (

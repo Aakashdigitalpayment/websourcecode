@@ -230,6 +230,7 @@ $viewApps   = [];
 $viewNotifs = [];
 $viewCard   = null;
 $viewKyc    = null;
+$viewProgramAttendance = [];
 if ($viewId > 0) {
     try {
         $st = $db->prepare("SELECT * FROM members WHERE id=?");
@@ -282,6 +283,20 @@ if ($viewId > 0) {
                 }
             } catch (Throwable $e) {
                 $viewKyc = null;
+            }
+            try {
+                require_once __DIR__ . '/../includes/program-tables.php';
+                require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+                ensureProgramTables($db);
+                $past = $db->prepare("SELECT a.*, o.location_name AS occurrence_location
+                                      FROM member_program_attendance a
+                                      LEFT JOIN program_occurrences o ON o.id=a.occurrence_id
+                                      WHERE a.member_id=? AND a.attendance_status='VALID'
+                                      ORDER BY a.attended_at DESC LIMIT 50");
+                $past->execute([$viewId]);
+                $viewProgramAttendance = $past->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (Throwable $e) {
+                $viewProgramAttendance = [];
             }
         }
     } catch (Throwable $e) {
@@ -939,6 +954,9 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabNotifs">
                         <i class="lucide-icon me-1" aria-hidden="true" data-lucide="bell"></i>Notifications (<?php echo count($viewNotifs); ?>)
                     </a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabProgramAtt">
+                        <i class="fas fa-calendar-check me-1"></i>उपस्थिति (<?php echo count($viewProgramAttendance); ?>)
+                    </a></li>
                 </ul>
             </div>
             <div class="card-body tab-content p-0">
@@ -988,6 +1006,32 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         </div>
                     </div>
                     <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <!-- Program attendance tab -->
+                <div class="tab-pane fade p-3" id="tabProgramAtt">
+                    <?php if (empty($viewProgramAttendance)): ?>
+                    <div class="text-center text-muted py-4"><i class="fas fa-calendar-xmark fa-2x mb-2 d-block opacity-25"></i>कुनै कार्यक्रम उपस्थिति record छैन</div>
+                    <?php else: ?>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead><tr><th>कार्यक्रम</th><th>स्थान</th><th>मिति/समय</th><th>विधि</th></tr></thead>
+                            <tbody>
+                            <?php foreach ($viewProgramAttendance as $pa):
+                                $ploc = trim((string)($pa['location_label'] ?? ''));
+                                if ($ploc === '') { $ploc = trim((string)($pa['occurrence_location'] ?? '')); }
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($pa['program_title'] ?? ''); ?></td>
+                                <td><?php echo htmlspecialchars($ploc !== '' ? $ploc : '—'); ?></td>
+                                <td class="small"><?php echo htmlspecialchars(substr((string)($pa['attended_at'] ?? ''), 0, 16)); ?></td>
+                                <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars(programAttendanceMethodLabel($pa['attendance_method'] ?? '', false)); ?></span></td>
+                            </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-2"><a href="member-activities.php?member_id=<?php echo (int)$viewMember['id']; ?>" class="small">सबै activities →</a></div>
                     <?php endif; ?>
                 </div>
             </div>

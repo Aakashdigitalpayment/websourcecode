@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/_bootstrap.php';
 require_once __DIR__ . '/../includes/program-tables.php';
+require_once __DIR__ . '/../includes/program-attendance-helpers.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -44,57 +45,82 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
     } else {
         $progId = (int)($_POST['program_id'] ?? 0);
         $qrToken = trim((string)($_POST['qr_token'] ?? ''));
-        $source = 'member_portal';
+        $occurrenceId = (int)($_POST['occurrence_id'] ?? 0);
         
         if ($progId > 0) {
             try {
-                /* Verify program exists and is active */
-                $prog = $db->prepare("SELECT id, title, is_active, qr_token, qr_enabled, qr_starts_at, qr_expires_at FROM upcoming_programs WHERE id=? LIMIT 1");
-                $prog->execute([$progId]);
-                $progRow = $prog->fetch(PDO::FETCH_ASSOC);
-                
-                if (!$progRow || !$progRow['is_active']) {
+                $progRow = programFetchById($db, $progId);
+                if (!$progRow || !(int)($progRow['is_active'] ?? 0)) {
                     $checkInErr = $_t('यो कार्यक्रम उपलब्ध छैन।', 'This program is not available.');
-                } elseif ($qrToken !== '' && (int)($progRow['qr_enabled'] ?? 0) !== 1) {
-                    $checkInErr = $_t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
-                } elseif ($qrToken !== '' && $qrToken !== (string)($progRow['qr_token'] ?? '')) {
-                    $checkInErr = $_t('QR token अमान्य छ।', 'Invalid QR token.');
-                } elseif ($qrToken !== '' && !empty($progRow['qr_starts_at']) && strtotime((string)$progRow['qr_starts_at']) > time()) {
-                    $checkInErr = $_t('यो QR scan समय अझै सुरु भएको छैन।', 'This QR scan window has not started yet.');
-                } elseif ($qrToken !== '' && !empty($progRow['qr_expires_at']) && strtotime((string)$progRow['qr_expires_at']) < time()) {
-                    $checkInErr = $_t('यो QR scan समय समाप्त भइसकेको छ।', 'This QR scan window has expired.');
                 } else {
-                    $dup = $db->prepare("SELECT id FROM member_program_attendance WHERE member_id=? AND program_id=? LIMIT 1");
-                    $dup->execute([$memberId, $progId]);
-                    if ($dup->fetchColumn()) {
-                        $checkInErr = $_t('तपाईं यो कार्यक्रममा पहिल्यै check-in हुनुभएको छ।', 'You are already checked in for this program.');
-                    } else {
-                        $pend = $db->prepare("SELECT id FROM member_program_attendance_requests WHERE member_id=? AND program_id=? AND status='pending' LIMIT 1");
-                        $pend->execute([$memberId, $progId]);
-                        if ($pend->fetchColumn()) {
-                            $checkInErr = $_t('तपाईंको उपस्थिति अनुरोध Admin स्वीकृतिको लागि पहिले नै pending छ।', 'Your attendance request is already pending for admin approval.');
-                        } else {
-                            $source = $qrToken ? 'member_portal_qr_pending' : 'member_portal_pending';
-                            $ins = $db->prepare("INSERT INTO member_program_attendance_requests
-                                (member_id, member_card_no, member_name, program_id, program_title, status, verified_by_ip, user_agent, source)
-                                VALUES (?,?,?,?,?,'pending',?,?,?)");
-                            $ins->execute([
-                                $memberId,
-                                $memCard,
-                                $memName,
-                                $progId,
-                                mb_substr((string)$progRow['title'], 0, 180),
-                                $_SERVER['REMOTE_ADDR'] ?? '',
-                                mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255),
-                                $source
+                    $occurrence = $occurrenceId > 0 ? programFetchOccurrenceById($db, $occurrenceId) : null;
+                    if ($qrToken !== '') {
+                        $ctx = programResolveQrContext($db, $qrToken);
+                        if ($ctx['occurrence']) {
+                            $occurrence = $ctx['occurrence'];
+                            $occurrenceId = (int)$occurrence['id'];
+                            $progRow = $ctx['program'] ?? $progRow;
+                            $progId = (int)($progRow['id'] ?? $progId);
+                        }
+                        if (!$ctx['program'] || (int)$ctx['program']['id'] !== $progId) {
+                            $checkInErr = $_t('QR token अमान्य छ।', 'Invalid QR token.');
+                        } elseif (!programIsQrEnabled($progRow, $occurrence)) {
+                            $checkInErr = $_t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
+                        }
+                    }
+                    if ($checkInErr === '') {
+                        $scope = programResolveScopeId($progRow, $occurrenceId ?: null);
+                        $existing = programFindExistingAttendance($db, $memberId, $scope);
+                        if ($existing) {
+                            $checkInErr = programFormatExistingAttendanceMessage($existing, isEnglish());
+                        } elseif (!empty($progRow['instant_attendance'])) {
+                            $rec = recordProgramAttendance($db, [
+                                'member_id' => $memberId,
+                                'member_card_no' => $memCard,
+                                'program_id' => $progId,
+                                'occurrence_id' => $occurrenceId > 0 ? $occurrenceId : null,
+                                'attendance_method' => $qrToken ? 'QR_SCAN' : 'MEMBER_SELF',
+                                'source' => $qrToken ? 'member_portal_instant' : 'member_portal_pending',
+                                'attendance_note' => 'Member portal instant check-in',
                             ]);
-                            $checkInMsg = '"' . htmlspecialchars($progRow['title']) . '" ' . $_t('मा उपस्थिति अनुरोध Admin स्वीकृतिको लागि पठाइयो।', 'attendance request sent for admin approval.');
+                            if (!empty($rec['ok'])) {
+                                $checkInMsg = '"' . htmlspecialchars($progRow['title']) . '" ' . $_t('मा उपस्थिति दर्ता भयो।', 'attendance recorded successfully.');
+                            } elseif (!empty($rec['duplicate'])) {
+                                $checkInErr = programFormatExistingAttendanceMessage($rec['existing'] ?? [], isEnglish());
+                            } else {
+                                $checkInErr = $rec['error_np'] ?? $_t('Check-in गर्न समस्या भयो।', 'Failed to check in.');
+                            }
+                        } else {
+                            $pend = $db->prepare("SELECT id FROM member_program_attendance_requests WHERE member_id=? AND program_id=? AND status='pending' LIMIT 1");
+                            $pend->execute([$memberId, $progId]);
+                            if ($pend->fetchColumn()) {
+                                $checkInErr = $_t('तपाईंको उपस्थिति अनुरोध Admin स्वीकृतिको लागि पहिले नै pending छ।', 'Your attendance request is already pending for admin approval.');
+                            } else {
+                                $window = programIsWindowOpen($progRow, $occurrence);
+                                if (empty($window['ok'])) {
+                                    $checkInErr = isEnglish() ? ($window['message_en'] ?? '') : ($window['message_np'] ?? '');
+                                } else {
+                                    $source = $qrToken ? 'member_portal_qr_pending' : 'member_portal_pending';
+                                    $ins = $db->prepare("INSERT INTO member_program_attendance_requests
+                                        (member_id, member_card_no, member_name, program_id, occurrence_id, program_title, status, verified_by_ip, user_agent, source)
+                                        VALUES (?,?,?,?,?,?,'pending',?,?,?)");
+                                    $ins->execute([
+                                        $memberId, $memCard, $memName, $progId,
+                                        $occurrenceId > 0 ? $occurrenceId : null,
+                                        mb_substr((string)$progRow['title'], 0, 180),
+                                        $_SERVER['REMOTE_ADDR'] ?? '',
+                                        mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255),
+                                        $source
+                                    ]);
+                                    $checkInMsg = '"' . htmlspecialchars($progRow['title']) . '" ' . $_t('मा उपस्थिति अनुरोध Admin स्वीकृतिको लागि पठाइयो।', 'attendance request sent for admin approval.');
+                                }
+                            }
                         }
                     }
                 }
             } catch (Throwable $e) {
                 $sqlState = ($e instanceof PDOException) ? (string)$e->getCode() : '';
-                if ($sqlState === '23000' || str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'uniq_member_program')) {
+                if ($sqlState === '23000' || str_contains($e->getMessage(), 'Duplicate') || str_contains($e->getMessage(), 'uniq_')) {
                     $checkInErr = $_t('तपाईं यो कार्यक्रममा पहिल्यै check-in हुनुभएको छ।', 'You are already checked in for this program.');
                 } else {
                     $checkInErr = $_t('Check-in गर्न समस्या भयो।', 'Failed to check in.');
@@ -138,10 +164,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'prere
 /* My attendance history */
 $myAttendance = [];
 try {
-    $st = $db->prepare("SELECT a.*, p.description, p.event_time, p.location
+    $st = $db->prepare("SELECT a.*, p.description, p.event_time, p.location, o.location_name AS occurrence_location
                         FROM member_program_attendance a
                         LEFT JOIN upcoming_programs p ON p.id=a.program_id
-                        WHERE a.member_id=? ORDER BY a.attended_at DESC LIMIT 50");
+                        LEFT JOIN program_occurrences o ON o.id=a.occurrence_id
+                        WHERE a.member_id=? AND a.attendance_status='VALID' ORDER BY a.attended_at DESC LIMIT 50");
     $st->execute([$memberId]);
     $myAttendance = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) { $myAttendance = []; }
@@ -149,22 +176,24 @@ try {
 /* QR deep-link (admin programs → Member Portal URL). Scan opens hero; Check-in is CSRF POST (no GET auto-insert). */
 $qrToken = trim(preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['qr_token'] ?? ''));
 $qrProgramRow = null;
+$qrOccurrenceRow = null;
 $qrAlreadyAttended = false;
 $qrPendingRequest = false;
+$qrExistingRecord = null;
 if ($qrToken !== '') {
     try {
-        $qst = $db->prepare('SELECT * FROM upcoming_programs WHERE qr_token = ? AND is_active = 1 LIMIT 1');
-        $qst->execute([$qrToken]);
-        $qrProgramRow = $qst->fetch(PDO::FETCH_ASSOC) ?: null;
-        if ($qrProgramRow && (int)($qrProgramRow['qr_enabled'] ?? 0) !== 1) {
+        $ctx = programResolveQrContext($db, $qrToken);
+        $qrProgramRow = $ctx['program'] ?? null;
+        $qrOccurrenceRow = $ctx['occurrence'] ?? null;
+        if ($qrProgramRow && !programIsQrEnabled($qrProgramRow, $qrOccurrenceRow)) {
             $checkInErr = $_t('यो कार्यक्रमको QR उपस्थिति अहिले बन्द छ।', 'QR attendance is disabled for this program.');
             $qrProgramRow = null;
-        } elseif ($qrProgramRow && !empty($qrProgramRow['qr_starts_at']) && strtotime((string)$qrProgramRow['qr_starts_at']) > time()) {
-            $checkInErr = $_t('यो QR scan समय अझै सुरु भएको छैन।', 'This QR scan window has not started yet.');
-            $qrProgramRow = null;
-        } elseif ($qrProgramRow && !empty($qrProgramRow['qr_expires_at']) && strtotime((string)$qrProgramRow['qr_expires_at']) < time()) {
-            $checkInErr = $_t('यो QR scan समय समाप्त भइसकेको छ।', 'This QR scan window has expired.');
-            $qrProgramRow = null;
+        } elseif ($qrProgramRow) {
+            $window = programIsWindowOpen($qrProgramRow, $qrOccurrenceRow);
+            if (empty($window['ok'])) {
+                $checkInErr = isEnglish() ? ($window['message_en'] ?? '') : ($window['message_np'] ?? '');
+                $qrProgramRow = null;
+            }
         }
     } catch (Throwable $e) {
         $qrProgramRow = null;
@@ -172,11 +201,11 @@ if ($qrToken !== '') {
 }
 if ($qrProgramRow) {
     $qpid = (int)$qrProgramRow['id'];
-    foreach ($myAttendance as $a) {
-        if ((int)($a['program_id'] ?? 0) === $qpid) {
-            $qrAlreadyAttended = true;
-            break;
-        }
+    $scope = programResolveScopeId($qrProgramRow, $qrOccurrenceRow ? (int)$qrOccurrenceRow['id'] : null);
+    $existingQr = programFindExistingAttendance($db, $memberId, $scope);
+    if ($existingQr) {
+        $qrAlreadyAttended = true;
+        $qrExistingRecord = $existingQr;
     }
     if (!$qrAlreadyAttended) {
         try {
@@ -223,11 +252,18 @@ try {
 
 /* Upcoming programs for check-in */
 $upcoming = [];
+$hasInstantProgram = false;
 try {
     $attended_ids = array_column($myAttendance, 'program_id');
     $prereg_ids   = array_column($myPreregs, 'program_id');
     $st = $db->query("SELECT * FROM upcoming_programs WHERE is_active=1 ORDER BY COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 20");
     $upcoming = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    foreach ($upcoming as $up) {
+        if (!empty($up['instant_attendance'])) {
+            $hasInstantProgram = true;
+            break;
+        }
+    }
 } catch (Throwable $e) { $upcoming = []; }
 
 /* QR code for this member */
@@ -406,7 +442,11 @@ HTML;
     <div class="att-badge"><i class="fas fa-check-double"></i> <?= count($myAttendance) ?> <?php echo $_t('कार्यक्रम उपस्थित', 'programs attended'); ?></div>
   </div>
   <p style="font-size:.78rem;color:#64748b;line-height:1.5;margin:0 0 16px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
-    <?php echo $_t('<strong>QR / Check-in</strong> स्थलमा गरेपछि Admin स्वीकृतिका लागि अनुरोध जान्छ; approve पछि मात्र उपस्थिति इतिहासमा देखिन्छ। Staff Verify बाट तत्काल पनि राख्न सकिन्छ। <strong>Pre-register</strong> = अगाडि नाम दर्ता मात्र (गणना बढाउँदैन)।', '<strong>QR / Check-in</strong> sends a request for admin approval; it appears in attendance history only after approve. Staff Verify can mark instantly. <strong>Pre-register</strong> only reserves your name (does not count as attendance).'); ?>
+    <?php if ($hasInstantProgram): ?>
+      <?php echo $_t('<strong>Instant QR</strong> कार्यक्रममा scan/check-in गर्दा तत्काल उपस्थिति दर्ता हुन्छ। <strong>अन्य कार्यक्रम</strong>मा Admin approve पछि मात्र इतिहासमा देखिन्छ। Staff Verify वा Registration Desk बाट पनि राख्न सकिन्छ। <strong>Pre-register</strong> = अगाडि नाम दर्ता मात्र।', '<strong>Instant QR</strong> programs record attendance immediately on scan/check-in. <strong>Other programs</strong> appear in history only after admin approval. Staff Verify or Registration Desk can also mark attendance. <strong>Pre-register</strong> only reserves your name.'); ?>
+    <?php else: ?>
+      <?php echo $_t('<strong>QR / Check-in</strong> स्थलमा गरेपछि Admin स्वीकृतिका लागि अनुरोध जान्छ; approve पछि मात्र उपस्थिति इतिहासमा देखिन्छ। Staff Verify वा Registration Desk बाट तत्काल पनि राख्न सकिन्छ। <strong>Pre-register</strong> = अगाडि नाम दर्ता मात्र (गणना बढाउँदैन)।', '<strong>QR / Check-in</strong> sends a request for admin approval; it appears in attendance history only after approve. Staff Verify or Registration Desk can mark instantly. <strong>Pre-register</strong> only reserves your name (does not count as attendance).'); ?>
+    <?php endif; ?>
   </p>
 
   <?php if ($checkInMsg):
@@ -434,13 +474,29 @@ HTML;
         <div style="font-size:.78rem;color:#047857;margin-top:6px;">
           <?php if (!empty($qrProgramRow['event_date'])): ?><i class="fas fa-calendar me-1"></i><?= htmlspecialchars($qrProgramRow['event_date']) ?><?php endif; ?>
           <?php if (!empty($qrProgramRow['event_time'])): ?> · <i class="fas fa-clock me-1"></i><?= htmlspecialchars($qrProgramRow['event_time']) ?><?php endif; ?>
-          <?php if (!empty($qrProgramRow['location'])): ?><br><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($qrProgramRow['location']) ?><?php endif; ?>
+          <?php if (!empty($qrOccurrenceRow['location_name'])): ?><br><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($qrOccurrenceRow['location_name']) ?>
+          <?php elseif (!empty($qrProgramRow['location'])): ?><br><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($qrProgramRow['location']) ?><?php endif; ?>
         </div>
         <?php endif; ?>
-        <p style="font-size:.75rem;color:#065f46;margin:10px 0 0;line-height:1.45;"><?php echo $_t('कार्यक्रम स्थलमा हुनुहुन्छ भने मात्र थिच्नुहोस्। अनुरोध Admin approve पछि इतिहासमा देखिन्छ।', 'Press only if you are at the venue. History updates after admin approval.'); ?></p>
+        <p style="font-size:.75rem;color:#065f46;margin:10px 0 0;line-height:1.45;">
+          <?php if (!empty($qrProgramRow['instant_attendance'])): ?>
+            <?php echo $_t('कार्यक्रम स्थलमा हुनुहुन्छ भने Confirm थिच्नुहोस् — उपस्थिति तत्काल दर्ता हुन्छ।', 'Press Confirm if you are at the venue — attendance is recorded instantly.'); ?>
+          <?php else: ?>
+            <?php echo $_t('कार्यक्रम स्थलमा हुनुहुन्छ भने मात्र थिच्नुहोस्। अनुरोध Admin approve पछि इतिहासमा देखिन्छ।', 'Press only if you are at the venue. History updates after admin approval.'); ?>
+          <?php endif; ?>
+        </p>
       </div>
       <div style="flex-shrink:0;width:100%;max-width:220px;">
-        <?php if ($qrAlreadyAttended): ?>
+        <?php if ($qrAlreadyAttended && $qrExistingRecord): ?>
+        <div style="width:100%;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;text-align:center;">
+          <div class="att-badge" style="width:100%;justify-content:center;margin-bottom:8px;"><i class="fas fa-circle-check"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
+          <div style="font-size:.78rem;color:#166534;line-height:1.5;">
+            <?php if ($loc = programAttendanceDisplayLocation($qrExistingRecord)): ?><div><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($loc) ?></div><?php endif; ?>
+            <?php if (!empty($qrExistingRecord['attended_at'])): ?><div><i class="fas fa-clock me-1"></i><?= htmlspecialchars(date('Y-m-d H:i', strtotime((string)$qrExistingRecord['attended_at']))) ?></div><?php endif; ?>
+            <?php if (!empty($qrExistingRecord['attendance_method'])): ?><div><i class="fas fa-tag me-1"></i><?= htmlspecialchars(programAttendanceMethodLabel($qrExistingRecord['attendance_method'], isEnglish())) ?></div><?php endif; ?>
+          </div>
+        </div>
+        <?php elseif ($qrAlreadyAttended): ?>
         <div class="att-badge" style="width:100%;justify-content:center;"><i class="fas fa-circle-check"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
         <?php elseif ($qrPendingRequest): ?>
         <div class="att-badge" style="width:100%;justify-content:center;background:#fffbeb;color:#92400e;border-color:#fcd34d;"><i class="fas fa-hourglass-half"></i> <?php echo $_t('Admin स्वीकृतिका लागि pending', 'Pending admin approval'); ?></div>
@@ -449,9 +505,10 @@ HTML;
           <?= $csrfField ?>
           <input type="hidden" name="action" value="checkin">
           <input type="hidden" name="program_id" value="<?= (int)$qrProgramRow['id'] ?>">
+          <?php if ($qrOccurrenceRow): ?><input type="hidden" name="occurrence_id" value="<?= (int)$qrOccurrenceRow['id'] ?>"><?php endif; ?>
           <input type="hidden" name="qr_token" value="<?= htmlspecialchars($qrToken) ?>">
           <button type="submit" style="width:100%;padding:12px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.9rem;font-weight:800;cursor:pointer;">
-            <i class="fas fa-user-check me-2"></i><?php echo $_t('यही कार्यक्रममा Check-in', 'Check-in to this Program'); ?>
+            <i class="fas fa-user-check me-2"></i><?php echo !empty($qrProgramRow['instant_attendance']) ? $_t('उपस्थिति Confirm', 'Confirm Attendance') : $_t('यही कार्यक्रममा Check-in', 'Check-in to this Program'); ?>
           </button>
         </form>
         <?php endif; ?>
@@ -474,7 +531,7 @@ HTML;
       <h3 class="program-flow-title"><?php echo $_t('QR स्क्यान गर्नुहोस्', 'QR Scan'); ?></h3>
     </div>
     <p class="program-flow-description">
-      <?php echo $_t('कार्यक्रम स्थलको QR स्क्यान गर्नुहोस् — Admin approve पछि उपस्थिति गणना हुन्छ।', 'Scan the venue QR — attendance counts after admin approval.'); ?>
+      <?php echo $_t('कार्यक्रम स्थलको QR स्क्यान गर्नुहोस्। Instant कार्यक्रममा तत्काल, अन्यमा Admin approve पछि गणना।', 'Scan the venue QR. Instant programs record immediately; others count after admin approval.'); ?>
     </p>
     <div class="program-flow-actions">
       <a href="scan.php" class="program-flow-btn primary">
@@ -582,6 +639,7 @@ HTML;
         $evMon      = $adEv !== '' ? date('M Y', strtotime($adEv)) : '';
         $isToday    = $evDate === date('Y-m-d');
         $isPast     = $evDate !== '' && $evDate < date('Y-m-d');
+        $isMultiLoc = (int)($prog['is_multi_location'] ?? 0) === 1;
         $pendingIds = array_map('intval', array_column($myPendingReqs, 'program_id'));
         $isPending  = in_array($progId, $pendingIds, true);
     ?>
@@ -613,13 +671,20 @@ HTML;
           <?php else: ?>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <?php if ($isToday): ?>
+            <?php if ($isMultiLoc): ?>
+            <a href="scan.php" style="padding:7px 16px;background:var(--primary-color,#1a8754);color:#fff;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;">
+              <i class="fas fa-qrcode" style="margin-right:4px;"></i><?php echo $_t('स्थानको QR स्क्यान','Scan location QR'); ?>
+            </a>
+            <span style="font-size:.75rem;color:#64748b;align-self:center;"><?php echo $_t('Multi-location: आफ्नो स्थानको QR प्रयोग गर्नुहोस्','Multi-location: use QR at your venue'); ?></span>
+            <?php else: ?>
             <form method="POST" style="display:inline;">
               <?= $csrfField ?><input type="hidden" name="action" value="checkin"><input type="hidden" name="program_id" value="<?= $progId ?>">
-              <button type="submit" style="padding:7px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;" title="Admin approve पछि गणना">
-                <i class="fas fa-user-check" style="margin-right:4px;"></i>Check-in (approve पछि)
+              <button type="submit" style="padding:7px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;" title="<?php echo !empty($prog['instant_attendance']) ? $_t('तत्काल दर्ता','Instant record') : $_t('Admin approve पछि गणना','Counts after approve'); ?>">
+                <i class="fas fa-user-check" style="margin-right:4px;"></i><?php echo !empty($prog['instant_attendance']) ? $_t('Check-in (Instant)','Check-in (Instant)') : $_t('Check-in (approve पछि)','Check-in (after approve)'); ?>
               </button>
             </form>
             <a href="scan.php" style="padding:7px 12px;background:#fff;color:var(--primary-color,#1a8754);border:1px solid #bbf7d0;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;"><i class="fas fa-qrcode" style="margin-right:4px;"></i>QR</a>
+            <?php endif; ?>
             <?php elseif ($prog['pre_registration_open'] && !$isPrereg): ?>
             <form method="POST" style="display:inline;">
               <?= $csrfField ?><input type="hidden" name="action" value="prereg"><input type="hidden" name="program_id" value="<?= $progId ?>">
@@ -677,8 +742,12 @@ HTML;
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($att['program_title']) ?></div>
         <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">
-          <i class="fas fa-calendar" style="margin-right:4px;"></i><?= date('Y-m-d', strtotime($att['attended_at'])) ?>
-          <?php if ($att['location']): ?><span style="margin-left:8px;"><i class="fas fa-location-dot" style="margin-right:3px;"></i><?= htmlspecialchars($att['location']) ?></span><?php endif; ?>
+          <i class="fas fa-calendar" style="margin-right:4px;"></i><?= date('Y-m-d H:i', strtotime($att['attended_at'])) ?>
+          <?php
+            $loc = trim((string)($att['location_label'] ?? ''));
+            if ($loc === '') { $loc = trim((string)($att['occurrence_location'] ?? $att['location'] ?? '')); }
+            if ($loc !== ''): ?><span style="margin-left:8px;"><i class="fas fa-location-dot" style="margin-right:3px;"></i><?= htmlspecialchars($loc) ?></span><?php endif; ?>
+          <?php if (!empty($att['attendance_method'])): ?><span style="margin-left:8px;"><i class="fas fa-tag" style="margin-right:3px;"></i><?= htmlspecialchars(programAttendanceMethodLabel($att['attendance_method'], isEnglish())) ?></span><?php endif; ?>
         </div>
       </div>
       <div class="att-badge"><i class="fas fa-circle-check"></i> उपस्थित</div>
