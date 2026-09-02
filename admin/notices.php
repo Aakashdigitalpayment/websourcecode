@@ -132,6 +132,24 @@ try {
 
 $flash = getFlash();
 $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
+$editNotice = null;
+if ($editNoticeId > 0) {
+    try {
+        $stEdit = $db->prepare('SELECT * FROM notices WHERE id = ? LIMIT 1');
+        $stEdit->execute([$editNoticeId]);
+        $editNotice = $stEdit->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (Exception $e) {
+        $editNotice = null;
+    }
+}
+$startOnFormTab = $editNotice !== null;
+$ef = is_array($editNotice) ? $editNotice : [];
+$efAttachment = trim((string) ($ef['attachment'] ?? ''));
+$efPopupImage = trim((string) ($ef['popup_image'] ?? ''));
+$ntcBasename = static function (?string $path): string {
+    $path = trim(str_replace('\\', '/', (string) $path));
+    return $path !== '' ? basename($path) : '';
+};
 ?>
 
 <?php echo adminPageHeader($__t('सूचना व्यवस्थापन', 'Notices Management'), 'fa-bullhorn', $__t('संस्थाका सूचनाहरू — थप्नुहोस्, सम्पादन गर्नुहोस्।', 'Manage organization notices — add and edit.'),
@@ -145,14 +163,14 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
 <!-- Tab Navigation -->
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="noticeTabs">
     <li class="nav-item">
-        <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-list" id="tab-list-btn">
+        <button type="button" class="nav-link<?php echo $startOnFormTab ? '' : ' active'; ?>" data-bs-toggle="tab" data-bs-target="#tab-list" id="tab-list-btn">
             <i class="fas fa-list me-2"></i><?php echo $__t('सूचना सूची', 'Notice List'); ?>
             <span class="badge ntc-count-badge ms-1"><?php echo count($notices); ?></span>
         </button>
     </li>
     <li class="nav-item">
-        <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-form" id="tab-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="noticeFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+        <button type="button" class="nav-link<?php echo $startOnFormTab ? ' active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#tab-form" id="tab-form-btn">
+            <i class="fas fa-<?php echo $startOnFormTab ? 'edit' : 'plus-circle'; ?> me-2"></i><span id="noticeFormTabLabel"><?php echo $startOnFormTab ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
 </ul>
@@ -160,7 +178,7 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
 <div class="tab-content">
 
     <!-- ══ TAB 1: सूची ══ -->
-    <div class="tab-pane fade show active" id="tab-list">
+    <div class="tab-pane fade<?php echo $startOnFormTab ? '' : ' show active'; ?>" id="tab-list">
         <div class="card admin-table-card svc-flat-top-card">
             <div class="card-body p-0">
                 <div class="table-responsive table-responsive-stack">
@@ -246,8 +264,8 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                         data-active="<?php echo $item['is_active']; ?>"
                                         data-popup="<?php echo $item['is_popup']; ?>"
                                         data-attachment="<?php echo htmlspecialchars($item['attachment'] ?? '', ENT_QUOTES); ?>"
-                                        data-popup_photo_only="<?php echo (int)($item['popup_photo_only'] ?? 0); ?>"
-                                        data-popup_image="<?php echo htmlspecialchars($item['popup_image'] ?? '', ENT_QUOTES); ?>">
+                                        data-popup-photo-only="<?php echo (int)($item['popup_photo_only'] ?? 0); ?>"
+                                        data-popup-image="<?php echo htmlspecialchars($item['popup_image'] ?? '', ENT_QUOTES); ?>">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form d-inline" onsubmit="return confirm('<?php echo $__t('यो सूचना मेटाउने हो?', 'Delete this notice?'); ?>')">
@@ -270,11 +288,15 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
     </div>
 
     <!-- ══ TAB 2: Add / Edit Form ══ -->
-    <div class="tab-pane fade" id="tab-form">
+    <div class="tab-pane fade<?php echo $startOnFormTab ? ' show active' : ''; ?>" id="tab-form">
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="noticeFormTitle">
+                    <?php if ($startOnFormTab): ?>
+                    <i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>
+                    <?php else: ?>
                     <i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>
+                    <?php endif; ?>
                 </h5>
                 <button type="button" class="btn btn-sm ntc-soft-bg" id="btnCancelNotice">
                     <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
@@ -284,7 +306,9 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                 <form method="POST" action="notices.php" enctype="multipart/form-data" id="noticeForm" class="needs-validation" novalidate>
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="save_notice" value="1">
-                    <input type="hidden" name="notice_id" id="ntf_id" value="">
+                    <input type="hidden" name="notice_id" id="ntf_id" value="<?php echo (int) ($ef['id'] ?? 0); ?>">
+                    <input type="hidden" name="existing_attachment" id="ntf_existing_attachment" value="<?php echo htmlspecialchars($efAttachment, ENT_QUOTES, 'UTF-8'); ?>">
+                    <input type="hidden" name="existing_popup_image" id="ntf_existing_popup_image" value="<?php echo htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8'); ?>">
 
                     <div class="row g-3">
                         <div class="col-md-8">
@@ -292,13 +316,13 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                 <label for="ntf_title" class="form-label fw-semibold ntc-label ntc-title-label">
                                     <i class="fas fa-heading me-1"></i><?php echo $__t('शीर्षक', 'Title'); ?> <span class="ntc-required">*</span>
                                 </label>
-                                <input type="text" name="title" id="ntf_title" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सूचनाको शीर्षक', 'Notice title'); ?>">
+                                <input type="text" name="title" id="ntf_title" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सूचनाको शीर्षक', 'Notice title'); ?>" value="<?php echo htmlspecialchars((string) ($ef['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="ntf_content" class="form-label fw-semibold ntc-label ntc-content-label">
                                     <i class="fas fa-align-left me-1"></i><?php echo $__t('विवरण (वैकल्पिक)', 'Description (optional)'); ?>
                                 </label>
-                                <textarea name="content" id="ntf_content" class="form-control admin-fancy-input" rows="6" placeholder="<?php echo $__t('सूचनाको विवरण...', 'Notice details...'); ?>"></textarea>
+                                <textarea name="content" id="ntf_content" class="form-control admin-fancy-input" rows="6" placeholder="<?php echo $__t('सूचनाको विवरण...', 'Notice details...'); ?>"><?php echo htmlspecialchars((string) ($ef['content'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -309,7 +333,8 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                 <div class="input-group">
                                     <input type="text" name="notice_date" id="ntf_date"
                                            class="form-control admin-fancy-input nepali-datepicker"
-                                           placeholder="YYYY-MM-DD" autocomplete="off">
+                                           placeholder="YYYY-MM-DD" autocomplete="off"
+                                           value="<?php echo htmlspecialchars((string) ($ef['notice_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                     <span class="input-group-text ntc-date-trigger ndp-trigger ntf-cursor-pointer">
                                         <i class="fas fa-calendar-alt"></i>
                                     </span>
@@ -317,33 +342,37 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                 <small class="ntc-muted"><?php echo $__t('बि.सं. मिति (नेपाली क्यालेन्डर)', 'BS date (Nepali calendar)'); ?></small>
                             </div>
                             <div class="mb-3">
-                                <label for="ntf_attachment" class="form-label fw-semibold ntc-label ntc-attach-label">
+                                <label class="form-label fw-semibold ntc-label ntc-attach-label">
                                     <i class="fas fa-paperclip me-1"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
                                     <small class="ntc-muted fw-normal" id="ntf_att_note"></small>
                                 </label>
-                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp">
-                                <div id="ntf_att_link" class="mt-2 d-none">
-                                    <div class="p-2 rounded border bg-light small">
-                                        <div class="fw-semibold mb-1"><i class="fas fa-paperclip me-1"></i><?php echo $__t('हालको फाइल', 'Current file'); ?></div>
+                                <div id="ntf_att_link" class="mb-2<?php echo $efAttachment !== '' ? '' : ' d-none'; ?>">
+                                    <div class="alert alert-success py-2 px-3 mb-0 small">
+                                        <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको फाइल', 'Currently uploaded file'); ?></div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <i class="fas fa-file" id="ntf_att_icon" aria-hidden="true"></i>
-                                            <span id="ntf_att_name" class="text-truncate"></span>
-                                            <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
+                                            <i class="<?php echo preg_match('/\.pdf$/i', $efAttachment) ? 'fas fa-file-pdf text-danger' : (preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $efAttachment) ? 'fas fa-file-image text-success' : 'fas fa-file text-secondary'); ?>" id="ntf_att_icon" aria-hidden="true"></i>
+                                            <span id="ntf_att_name" class="text-truncate fw-semibold"><?php echo htmlspecialchars($ntcBasename($efAttachment), ENT_QUOTES, 'UTF-8'); ?></span>
+                                            <a id="ntf_att_href" href="<?php echo $efAttachment !== '' ? '../' . htmlspecialchars($efAttachment, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
                                                 <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                             </a>
                                         </div>
                                     </div>
                                 </div>
+                                <div id="ntf_att_empty" class="mb-2 small text-muted<?php echo $efAttachment !== '' ? ' d-none' : ''; ?>">
+                                    <i class="fas fa-info-circle me-1"></i><?php echo $__t('हाल कुनै फाइल upload भएको छैन', 'No file uploaded yet'); ?>
+                                </div>
+                                <label for="ntf_attachment" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फाइल बदल्न (वैकल्पिक)', 'Replace with new file (optional)'); ?></label>
+                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp">
                             </div>
                             <div class="mb-2 d-flex align-items-center gap-2">
                                 <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" name="is_active" id="ntf_active">
+                                    <input class="form-check-input" type="checkbox" name="is_active" id="ntf_active"<?php echo ($startOnFormTab ? !empty($ef['is_active']) : true) ? ' checked' : ''; ?>>
                                 </div>
                                 <label class="form-label mb-0 fw-semibold" for="ntf_active"><?php echo $__t('सक्रिय', 'Active'); ?></label>
                             </div>
                             <div class="mb-1 d-flex align-items-center gap-2">
                                 <div class="form-check form-switch mb-0">
-                                    <input class="form-check-input" type="checkbox" name="is_popup" id="ntf_popup">
+                                    <input class="form-check-input" type="checkbox" name="is_popup" id="ntf_popup"<?php echo !empty($ef['is_popup']) ? ' checked' : ''; ?>>
                                 </div>
                                 <label class="form-label mb-0 fw-semibold d-flex align-items-center gap-1" for="ntf_popup">
                                     <i class="fas fa-bell ntc-bell-icon"></i>
@@ -351,10 +380,10 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                 </label>
                             </div>
                             <!-- Popup advanced options (visible only when is_popup is checked) -->
-                            <div id="ntf_popup_opts" class="ms-4 mt-2 p-3 rounded" style="display:none;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);">
+                            <div id="ntf_popup_opts" class="ms-4 mt-2 p-3 rounded" style="display:<?php echo !empty($ef['is_popup']) ? '' : 'none'; ?>;background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.2);">
                                 <div class="mb-2 d-flex align-items-center gap-2">
                                     <div class="form-check form-switch mb-0">
-                                        <input class="form-check-input" type="checkbox" name="popup_photo_only" id="ntf_popup_photo_only">
+                                        <input class="form-check-input" type="checkbox" name="popup_photo_only" id="ntf_popup_photo_only"<?php echo !empty($ef['popup_photo_only']) ? ' checked' : ''; ?>>
                                     </div>
                                     <label class="form-label mb-0 fw-semibold d-flex align-items-center gap-1" for="ntf_popup_photo_only">
                                         <i class="fas fa-image text-success"></i>
@@ -362,27 +391,31 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                     </label>
                                 </div>
                                 <div class="mt-2">
-                                    <label for="ntf_popup_image" class="form-label fw-semibold small mb-1">
+                                    <label class="form-label fw-semibold small mb-1">
                                         <i class="fas fa-image me-1 text-success"></i>
                                         <?php echo $__t('पप-अप फोटो (वैकल्पिक)', 'Popup image (optional)'); ?>
                                     </label>
-                                    <input type="file" name="popup_image" id="ntf_popup_image"
-                                           class="form-control admin-fancy-input form-control-sm"
-                                           accept=".jpg,.jpeg,.png,.webp">
-                                    <div id="ntf_popup_img_link" class="mt-2 d-none">
-                                        <div class="p-2 rounded border bg-light small">
-                                            <div class="fw-semibold mb-1"><i class="fas fa-image me-1 text-success"></i><?php echo $__t('हालको पप-अप फोटो', 'Current popup image'); ?></div>
+                                    <div id="ntf_popup_img_link" class="mb-2<?php echo $efPopupImage !== '' ? '' : ' d-none'; ?>">
+                                        <div class="alert alert-success py-2 px-3 mb-0 small">
+                                            <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको पप-अप फोटो', 'Current popup image'); ?></div>
                                             <div class="d-flex align-items-start gap-2 flex-wrap">
-                                                <img id="ntf_popup_img_preview" src="" alt="" class="rounded border d-none" style="max-height:72px;max-width:110px;object-fit:contain;">
+                                                <img id="ntf_popup_img_preview" src="<?php echo $efPopupImage !== '' ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : ''; ?>" alt="" class="rounded border<?php echo $efPopupImage !== '' ? '' : ' d-none'; ?>" style="max-height:72px;max-width:110px;object-fit:contain;">
                                                 <div class="flex-grow-1">
-                                                    <span id="ntf_popup_img_name" class="d-block text-truncate small"></span>
-                                                    <a id="ntf_popup_img_href" href="#" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
+                                                    <span id="ntf_popup_img_name" class="d-block text-truncate small fw-semibold"><?php echo htmlspecialchars($ntcBasename($efPopupImage), ENT_QUOTES, 'UTF-8'); ?></span>
+                                                    <a id="ntf_popup_img_href" href="<?php echo $efPopupImage !== '' ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
                                                         <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                                     </a>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <div id="ntf_popup_img_empty" class="mb-2 small text-muted<?php echo $efPopupImage !== '' ? ' d-none' : ''; ?>">
+                                        <i class="fas fa-info-circle me-1"></i><?php echo $__t('हाल कुनै पप-अप फोटो छैन', 'No popup image uploaded yet'); ?>
+                                    </div>
+                                    <label for="ntf_popup_image" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फोटो बदल्न (वैकल्पिक)', 'Replace with new image (optional)'); ?></label>
+                                    <input type="file" name="popup_image" id="ntf_popup_image"
+                                           class="form-control admin-fancy-input form-control-sm"
+                                           accept=".jpg,.jpeg,.png,.webp">
                                     <small class="text-muted d-block"><?php echo $__t('फोटो नराखे attachment को image प्रयोग हुनेछ।', 'If not set, the attachment image will be used.'); ?></small>
                                     <small class="text-muted"><?php echo $__t('फाइल (PDF) पनि भए photo click गर्दा फाइल खुल्छ।', 'If a file (PDF) is also attached, clicking the popup photo opens that file.'); ?></small>
                                 </div>
@@ -393,7 +426,11 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="ntf_submit" class="btn ntc-submit px-5 fw-semibold">
+                            <?php if ($startOnFormTab): ?>
+                            <i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>
+                            <?php else: ?>
                             <i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
+                            <?php endif; ?>
                         </button>
                         <button type="button" id="ntf_cancel2" class="btn btn-outline-secondary px-4">
                             <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
@@ -427,11 +464,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'fas fa-file text-secondary';
     }
 
-    function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId) {
+    function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId, emptyId, hiddenId) {
         var wrap = document.getElementById(wrapId);
         if (!wrap) return;
+        path = path ? String(path).trim() : '';
+        if (hiddenId) {
+            var hiddenEl = document.getElementById(hiddenId);
+            if (hiddenEl) hiddenEl.value = path;
+        }
         if (!path) {
             wrap.classList.add('d-none');
+            if (emptyId) {
+                var emptyEl = document.getElementById(emptyId);
+                if (emptyEl) emptyEl.classList.remove('d-none');
+            }
             if (noteId) {
                 var noteEl = document.getElementById(noteId);
                 if (noteEl) noteEl.textContent = '';
@@ -439,6 +485,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
         wrap.classList.remove('d-none');
+        if (emptyId) {
+            var emptyHide = document.getElementById(emptyId);
+            if (emptyHide) emptyHide.classList.add('d-none');
+        }
         var hrefEl = document.getElementById(hrefId);
         if (hrefEl) hrefEl.href = '../' + path;
         var nameEl = document.getElementById(nameId);
@@ -465,6 +515,27 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    function fillEditForm(data) {
+        var d = data || {};
+        document.getElementById('ntf_id').value = d.id || '';
+        document.getElementById('ntf_title').value = d.title || '';
+        document.getElementById('ntf_content').value = d.content || '';
+        document.getElementById('ntf_date').value = d.date || '';
+        document.getElementById('ntf_active').checked = d.active === '1' || d.active === 1;
+        document.getElementById('ntf_popup').checked = d.popup === '1' || d.popup === 1;
+        var popupOnly = d.popupPhotoOnly || d.popup_photo_only || '0';
+        document.getElementById('ntf_popup_photo_only').checked = popupOnly === '1' || popupOnly === 1;
+        document.getElementById('ntf_popup_opts').style.display = (d.popup === '1' || d.popup === 1) ? '' : 'none';
+        var popupImg = d.popupImage || d.popup_image || '';
+        var attachment = d.attachment || '';
+        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', popupImg, null, 'ntf_popup_img_empty', 'ntf_existing_popup_image');
+        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, attachment, 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment');
+        resetFileInputs();
+        document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
+        document.getElementById('noticeFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>';
+        document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('सम्पादन', 'Edit'); ?>';
+    }
+
     function resetFileInputs() {
         ['ntf_attachment', 'ntf_popup_image'].forEach(function (id) {
             var el = document.getElementById(id);
@@ -483,8 +554,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ntf_popup').checked = false;
         document.getElementById('ntf_popup_photo_only').checked = false;
         document.getElementById('ntf_popup_opts').style.display = 'none';
-        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '');
-        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note');
+        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '', null, 'ntf_popup_img_empty', 'ntf_existing_popup_image');
+        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment');
         resetFileInputs();
         document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
         document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>';
@@ -492,10 +563,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /* Edit mode flag — edit गर्दा tab switch हुँदा form clear नहोस् */
-    var _isEditMode = false;
+    var _isEditMode = <?php echo $startOnFormTab ? 'true' : 'false'; ?>;
     /* Add New tab direct-click गर्दा मात्र form clear हुन्छ */
     if (tabFormBtn) tabFormBtn.addEventListener('show.bs.tab', function() {
         if (!_isEditMode) clearForm();
+    });
+    if (tabFormBtn) tabFormBtn.addEventListener('shown.bs.tab', function() {
         _isEditMode = false;
     });
 
@@ -518,24 +591,8 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            var d = this.dataset;
-            var popupImg = d.popupImage || d.popup_image || '';
-            var popupOnly = d.popupPhotoOnly || d.popup_photo_only || '0';
-            document.getElementById('ntf_id').value      = d.id;
-            document.getElementById('ntf_title').value   = d.title;
-            document.getElementById('ntf_content').value = d.content || '';
-            document.getElementById('ntf_date').value    = d.date;
-            document.getElementById('ntf_active').checked= d.active === '1';
-            document.getElementById('ntf_popup').checked = d.popup  === '1';
-            document.getElementById('ntf_popup_photo_only').checked = popupOnly === '1';
-            document.getElementById('ntf_popup_opts').style.display = d.popup === '1' ? '' : 'none';
-            setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', popupImg);
-            setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, d.attachment || '', 'ntf_att_note');
-            resetFileInputs();
-            document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
-            document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>';
-            document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('सम्पादन', 'Edit'); ?>';
             _isEditMode = true;
+            fillEditForm(this.dataset);
             switchToForm();
         });
     });
@@ -562,7 +619,10 @@ document.addEventListener('DOMContentLoaded', function () {
     var autoEditId = <?php echo (int)$editNoticeId; ?>;
     if (autoEditId > 0) {
         var autoEditBtn = document.querySelector('.btn-edit-notice[data-id="' + autoEditId + '"]');
-        if (autoEditBtn) autoEditBtn.click();
+        if (autoEditBtn) {
+            _isEditMode = true;
+            fillEditForm(autoEditBtn.dataset);
+        }
     }
 });
 </script>
