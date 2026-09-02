@@ -5,16 +5,16 @@
             <a href="<?php echo ADMIN_URL; ?>dashboard.php" class="mob-bn-item <?php echo ($currentPage??'')==='dashboard'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-dashboard"></i><span><?php echo !empty($adminIsEnglish) ? 'Dashboard' : 'ड्यासबोर्ड'; ?></span></a>
             <a href="<?php echo ADMIN_URL; ?>notices.php" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo !empty($adminIsEnglish) ? 'Notices' : 'सूचना'; ?></span></a>
             <a href="<?php echo ADMIN_URL; ?>members.php" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i><span><?php echo !empty($adminIsEnglish) ? 'Members' : 'सदस्य'; ?></span></a>
-            <a href="<?php echo ADMIN_URL; ?>hrm-employees.php" class="mob-bn-item <?php echo (in_array(($currentPage??''), ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger']) ? 'active' : ''); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="badge-check"></i><span><?php echo !empty($adminIsEnglish) ? 'HRM' : 'HRM'; ?></span></a>
+            <a href="<?php echo ADMIN_URL; ?>messages.php" class="mob-bn-item <?php echo ($currentPage??'')==='messages'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i><span><?php echo !empty($adminIsEnglish) ? 'Messages' : 'सन्देश'; ?></span></a>
             <a href="<?php echo ADMIN_URL; ?>settings.php" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="settings"></i><span><?php echo !empty($adminIsEnglish) ? 'Settings' : 'सेटिङ'; ?></span></a>
             <a href="<?php echo ADMIN_URL; ?>logout.php" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="log-out"></i><span><?php echo !empty($adminIsEnglish) ? 'Logout' : 'लगआउट'; ?></span></a>
         </nav>
         <script>document.body.classList.add('has-bottomnav');</script>
 
-        <a href="<?php echo ADMIN_URL; ?>hrm-messenger.php"
+        <a href="<?php echo ADMIN_URL; ?>messages.php"
            class="admin-fab-msg"
-           title="<?php echo !empty($adminIsEnglish) ? 'Internal Chat' : 'आन्तरिक च्याट'; ?>"
-           aria-label="Internal Chat">
+           title="<?php echo !empty($adminIsEnglish) ? 'Contact Messages' : 'सम्पर्क सन्देश'; ?>"
+           aria-label="<?php echo !empty($adminIsEnglish) ? 'Contact Messages' : 'सम्पर्क सन्देश'; ?>">
           <i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i>
         </a>
     </main><!-- End main-content -->

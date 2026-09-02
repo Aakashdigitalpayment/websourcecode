@@ -86,6 +86,7 @@ assertFileContains('reports.php', 'e(getLangField($report', 'report title output
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
 assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
 assertFileContains('downloads.php', 'coop_public_download_url($item', 'download file href guarded');
+assertFileContains('api-public-chat.php', 'contact_messages', 'public chat stores in contact_messages');
 assertFileContains('notices.php', 'coop_public_download_url($attachRaw)', 'notice detail attachment guarded');
 assertFileContains('includes/header.php', 'coop_public_download_url($attachRaw)', 'notice popup attachment guarded');
 assertFileContains('admin/notices.php', 'coop_stored_upload_exists($item[\'attachment\'])', 'admin notice list file exists check');
@@ -185,7 +186,7 @@ $noopenerFiles = [
     'admin/help-guide.php',
     'admin/dashboard.php',
     'admin/settings.php',
-    'admin/hrm-employees.php',
+    'admin/messages.php',
     'admin/notification-settings.php',
     'admin/kyc-applications.php',
     'admin/ai-settings.php',

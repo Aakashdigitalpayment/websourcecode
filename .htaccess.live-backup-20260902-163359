@@ -1,0 +1,48 @@
+# Coop site — minimal Apache helpers (ignored on nginx)
+# Keep this file small: do not block public assets.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Block direct HTTP access to secrets / private PHP sources / file cache
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^cache/ - [F,L]
+    RewriteRule ^logs/ - [F,L]
+    RewriteRule ^scripts/ - [F,L]
+    RewriteRule ^database/ - [F,L]
+    RewriteRule ^core/ - [F,L]
+    RewriteRule (^|/)\.cred - [F,L]
+    RewriteRule \.cred-master\.key$ - [F,L]
+    # Debug session dump — must not be web-accessible (live safety)
+    RewriteRule ^member/session-check\.php$ - [F,L]
+    # Install wizard — block when lock or local DB config exists
+    RewriteCond %{DOCUMENT_ROOT}/install.lock -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/includes/database.local.php -f
+    RewriteRule ^install\.php$ - [F,L]
+    # Crawlers expect /sitemap.xml and /robots.txt
+    RewriteRule ^sitemap\.xml$ sitemap.php [L,QSA]
+    RewriteRule ^robots\.txt$ robots.php [L,QSA]
+    # Legacy PWA manifest path → dynamic manifest.php
+    RewriteRule ^manifest\.json$ manifest.php [L,QSA]
+</IfModule>
+
+# Long-cache fingerprinted static assets (?v=filemtime busts on change)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType application/font-woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|woff2?|ttf|otf|eot|png|jpe?g|gif|webp|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>

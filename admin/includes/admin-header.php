@@ -288,7 +288,6 @@ if (!$mustChangeExempt && $db instanceof PDO && (int) ($_SESSION['admin_id'] ?? 
 $pageGroups = [
     'samgri' => ['notices','designations','news','sliders','gallery','services','interest-rates','pages','downloads','faqs','useful-links','awards','reports','app-features','why-choose','partner-facilities'],
     'toli'   => ['team','team-karmachari','committees','info-officer','grievance-officer'],
-    'hrm'    => ['hrm-dashboard','hrm-employees','hrm-employee-directory','hrm-departments','hrm-contracts','hrm-documents','hrm-messenger','hrm-employee-view','hrm-employee-id-card'],
     'rojgar' => ['careers','job-applications'],
     /* सदस्य / Member ID यात्रा — सूची→import→नयाँ अनुरोध→KYM→portal (आवेदनबाट छुट्टै) */
     'sadasya'=> ['members','member-import','membership-apps','kyc','kyc-risk-reviews','member-ssot-duplicates','member-activities','member-online-portal'],
@@ -518,37 +517,6 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
-                    <!-- ── HRM (मानव संसाधन) ── v11.1 ── -->
-                    <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='hrm' ? 'open' : ''; ?>" data-group="hrm">
-                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i></span>
-                            <span class="nav-group-label"><?php echo $adminT('मानव संसाधन (HRM)', 'HRM'); ?></span>
-                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
-                        <ul class="nav-submenu <?php echo $activeGroup=='hrm' ? 'open' : ''; ?>" id="group-hrm">
-                            <li class="<?php echo $currentPage=='hrm-dashboard' ? 'active' : ''; ?>">
-                                <a href="hrm-dashboard.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="gauge"></i></span><span><?php echo $adminT('HRM ड्यासबोर्ड', 'HRM Dashboard'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-employees' ? 'active' : ''; ?>">
-                                <a href="hrm-employees.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span><span><?php echo $adminT('कर्मचारीहरू', 'Employees'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-employee-directory' ? 'active' : ''; ?>">
-                                <a href="hrm-employee-directory.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-cyan" aria-hidden="true" data-lucide="book-user"></i></span><span><?php echo $adminT('कर्मचारी डाइरेक्टरी', 'Employee Directory'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-departments' ? 'active' : ''; ?>">
-                                <a href="hrm-departments.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="network"></i></span><span><?php echo $adminT('विभागहरू', 'Departments'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-contracts' ? 'active' : ''; ?>">
-                                <a href="hrm-contracts.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="file-pen"></i></span><span><?php echo $adminT('करार/नियुक्ति', 'Contracts'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-documents' ? 'active' : ''; ?>">
-                                <a href="hrm-documents.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="folder-open"></i></span><span><?php echo $adminT('दस्तावेजहरू', 'Documents'); ?></span></a>
-                            </li>
-                            <li class="<?php echo $currentPage=='hrm-messenger' ? 'active' : ''; ?>">
-                                <a href="hrm-messenger.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-primary-soft" aria-hidden="true" data-lucide="message-square"></i></span><span><?php echo $adminT('आन्तरिक च्याट', 'Internal Chat'); ?></span></a>
-                            </li>
-                        </ul>
-                    </li>
 
                     <!-- ── रोजगारी ── -->
                     <li class="nav-group-wrap">
