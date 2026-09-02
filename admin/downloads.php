@@ -24,12 +24,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_path = $_POST['existing_file'] ?? '';
             $file_type = '';
 
-            if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+            if (isset($_FILES['file']) && (int) ($_FILES['file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                $errCode = (int) $_FILES['file']['error'];
+                if ($errCode !== UPLOAD_ERR_OK) {
+                    setFlash('error', coop_upload_error_text($errCode));
+                    redirect('downloads.php');
+                }
                 $upload = uploadFile($_FILES['file'], 'downloads');
                 if ($upload['success']) {
                     $file_path = $upload['path'];
                     $file_type = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+                } else {
+                    setFlash('error', (string) ($upload['message'] ?? 'फाइल अपलोड असफल।'));
+                    redirect('downloads.php');
                 }
+            }
+
+            if ($action === 'edit' && trim((string) $file_path) === '' && !empty($id)) {
+                $oldStmt = $db->prepare('SELECT file_path, file_type FROM downloads WHERE id = ? LIMIT 1');
+                $oldStmt->execute([(int) $id]);
+                $oldRow = $oldStmt->fetch(PDO::FETCH_ASSOC);
+                if ($oldRow) {
+                    $file_path = (string) ($oldRow['file_path'] ?? '');
+                    if ($file_type === '' && !empty($oldRow['file_type'])) {
+                        $file_type = (string) $oldRow['file_type'];
+                    }
+                }
+            }
+
+            if (trim((string) $title_np) === '' && trim((string) $title) === '') {
+                setFlash('error', 'शीर्षक (नेपाली वा English) आवश्यक छ।');
+                redirect('downloads.php');
+            }
+
+            if ($action === 'add' && trim((string) $file_path) === '') {
+                setFlash('error', 'फाइल अपलोड गर्नुहोस्। शीर्षक मात्र राखेर save गर्न मिल्दैन।');
+                redirect('downloads.php');
+            }
+
+            if ($action === 'edit' && trim((string) $file_path) === '') {
+                setFlash('error', 'फाइल छैन। कृपया PDF/Word फाइल upload गर्नुहोस्।');
+                redirect('downloads.php');
             }
 
             if ($action === 'add') {
@@ -37,8 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$title, $title_np, $category, $file_path, $file_type, $is_active]);
                 setFlash('success', 'फाइल थपियो।');
             } else {
-                $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, is_active=? WHERE id=?")
-                   ->execute([$title, $title_np, $category, $file_path, $is_active, $id]);
+                if ($file_type !== '') {
+                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, file_type=?, is_active=? WHERE id=?")
+                       ->execute([$title, $title_np, $category, $file_path, $file_type, $is_active, $id]);
+                } else {
+                    $db->prepare("UPDATE downloads SET title=?, title_np=?, category=?, file_path=?, is_active=? WHERE id=?")
+                       ->execute([$title, $title_np, $category, $file_path, $is_active, $id]);
+                }
                 setFlash('success', 'फाइल अपडेट भयो।');
             }
         } elseif ($action === 'delete') {
@@ -169,11 +209,13 @@ $flash = getFlash();
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <?php if (!empty($d['file_path'])): ?>
-                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
+                                    <?php if (coop_stored_upload_exists($d['file_path'] ?? '')): ?>
+                                    <a href="../<?php echo htmlspecialchars((string) $d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    <?php else: ?><span class="text-muted">—</span><?php endif; ?>
+                                    <?php else: ?>
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning" title="फाइल upload गरिएको छैन">फाइल छैन</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $d['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $d['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
@@ -234,11 +276,13 @@ $flash = getFlash();
                                     </span>
                                 </td>
                                 <td class="text-center">
-                                    <?php if (!empty($d['file_path'])): ?>
-                                    <a href="../<?php echo htmlspecialchars($d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
+                                    <?php if (coop_stored_upload_exists($d['file_path'] ?? '')): ?>
+                                    <a href="../<?php echo htmlspecialchars((string) $d['file_path']); ?>" target="_blank" class="btn btn-sm btn-outline-success" title="हेर्नुहोस्" rel="noopener noreferrer">
                                         <i class="fas fa-download"></i>
                                     </a>
-                                    <?php else: ?><span class="text-muted">—</span><?php endif; ?>
+                                    <?php else: ?>
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning" title="फाइल upload गरिएको छैन">फाइल छैन</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td class="text-center"><span class="badge bg-<?php echo $d['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $d['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
@@ -308,10 +352,11 @@ $flash = getFlash();
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="dlf_file_input" class="form-label fw-semibold text-success">फाइल अपलोड
+                            <label for="dlf_file_input" class="form-label fw-semibold text-success">फाइल अपलोड <span class="text-danger" id="dlf_file_required">*</span>
                                 <small class="text-muted fw-normal" id="dlf_file_note"></small>
                             </label>
-                            <input type="file" name="file" class="form-control admin-fancy-input" id="dlf_file_input">
+                            <input type="file" name="file" class="form-control admin-fancy-input" id="dlf_file_input" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp">
+                            <div class="form-text">PDF/Word/Image — शीर्षक मात्र save गर्न मिल्दैन।</div>
                         </div>
                         <div class="col-12">
                             <div class="form-check form-switch fs-5">
@@ -355,6 +400,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('dlf_active').checked = true;
         document.getElementById('dlf_category').selectedIndex = 3;
         document.getElementById('dlf_file_note').textContent  = '';
+        document.getElementById('dlf_file_input').required = true;
+        document.getElementById('dlf_file_required').classList.remove('d-none');
         document.getElementById('dlf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
         document.getElementById('dlFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ फाइल थप्नुहोस्';
         document.getElementById('dlFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
@@ -379,7 +426,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('dlf_active').checked = d.active === '1';
             document.getElementById('dlf_file_note').textContent = d.file
                 ? ' — नयाँ फाइल नचुने भने पुरानै रहन्छ'
-                : '';
+                : ' — हाल फाइल छैन; upload अनिवार्य';
+            document.getElementById('dlf_file_input').required = !d.file;
+            document.getElementById('dlf_file_required').classList.toggle('d-none', !!d.file);
             var sel = document.getElementById('dlf_category');
             for (var i=0; i<sel.options.length; i++) {
                 if (sel.options[i].value === d.category) { sel.selectedIndex = i; break; }

@@ -85,10 +85,16 @@ foreach ($downloads as $download) {
                                     <i class="fas fa-download"></i> <?php echo $item['download_count'] ?? 0; ?>
                                 </span>
                             </div>
-                            <?php $dlHref = safe_media_src($item['file_path'] ?? ''); ?>
-                            <a href="<?php echo $dlHref !== '' ? e($dlHref) : '#'; ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer"<?php echo $dlHref === '' ? ' aria-disabled="true" tabindex="-1"' : ''; ?>>
+                            <?php $dlHref = coop_public_download_url($item['file_path'] ?? ''); ?>
+                            <?php if ($dlHref !== ''): ?>
+                            <a href="<?php echo e($dlHref); ?>" class="btn btn-primary btn-sm" target="_blank" download rel="noopener noreferrer">
                                 <i class="fas fa-download"></i> <?php echo $L['download']; ?>
                             </a>
+                            <?php else: ?>
+                            <button type="button" class="btn btn-secondary btn-sm" disabled title="<?php echo isEnglish() ? 'File not uploaded yet' : 'फाइल अझै upload भएको छैन'; ?>">
+                                <i class="fas fa-ban"></i> <?php echo isEnglish() ? 'No file' : 'फाइल छैन'; ?>
+                            </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php endforeach; ?>

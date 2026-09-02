@@ -51,7 +51,7 @@ assertContains('index.php', 'safe_versioned_media_src($chairmanPhoto)', 'homepag
 assertContains('includes/header.php', '$__headerLogoSrc', 'header logo safe src');
 assertContains('reports.php', 'e(getLangField($report, \'title\')', 'report titles escaped');
 assertContains('downloads.php', 'e(getLangField($item, \'title\')', 'download titles escaped');
-assertContains('downloads.php', 'safe_media_src($item[\'file_path\']', 'download href guarded');
+assertContains('downloads.php', 'coop_public_download_url($item[\'file_path\']', 'download href guarded');
 assertContains('scripts/generate-auth-secret.php', 'bin2hex(random_bytes(32))', 'auth secret generator');
 assertContains('member/check-availability.php', 'coop_client_ip', 'member availability uses client ip');
 assertContains('api-public-chat.php', 'coop_client_ip', 'public chat uses client ip');

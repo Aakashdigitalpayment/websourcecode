@@ -1193,6 +1193,40 @@ function safe_media_src(?string $path): string
 }
 
 /**
+ * Whether a stored path points to a safe local file or allowed external URL.
+ */
+function coop_stored_upload_exists(?string $path): bool
+{
+    if ($path === null || trim($path) === '') {
+        return false;
+    }
+    $path = trim(str_replace('\\', '/', $path));
+    if (preg_match('#^https?://#i', $path)) {
+        return function_exists('safe_http_url') && safe_http_url($path) !== '';
+    }
+    $rel = safe_public_upload_path($path);
+    if ($rel === '') {
+        $rel = safe_public_media_path($path);
+    }
+    if ($rel === '') {
+        return false;
+    }
+    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+    return is_file($root . ltrim($rel, '/'));
+}
+
+/**
+ * Public download/view URL — empty when path missing or file not on disk.
+ */
+function coop_public_download_url(?string $path): string
+{
+    if (!coop_stored_upload_exists($path)) {
+        return '';
+    }
+    return safe_media_src($path);
+}
+
+/**
  * Safe public media URL with ?v=filemtime cache bust (homepage logos, leadership photos).
  */
 function safe_versioned_media_src(?string $path): string

@@ -159,7 +159,7 @@ function coop_public_report_file_url(?string $path): string {
 
 /** View + Download on every report card (annual/financial/all types). */
 function render_report_actions(array $report): void {
-    $url = coop_public_report_file_url((string) ($report['file_path'] ?? ''));
+    $url = coop_public_download_url((string) ($report['file_path'] ?? ''));
     $viewLabel = isEnglish() ? 'View' : 'हेर्नुहोस्';
     $dlLabel = isEnglish() ? 'Download' : 'डाउनलोड';
     echo '<div class="report-actions">';

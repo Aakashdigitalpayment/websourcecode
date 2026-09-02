@@ -1237,11 +1237,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['admin_response'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1308,11 +1308,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1382,11 +1382,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['admin_remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1433,11 +1433,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['admin_remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1484,11 +1484,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1525,11 +1525,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>
@@ -1566,11 +1566,11 @@ function getAppTypeLabel($type) {
                                         <p class="mb-0 mt-1"><?php echo nl2br(htmlspecialchars($app['remarks'])); ?></p>
                                     </div>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['admin_attachment'])): ?>
+                                    <?php $__attachUrl = coop_public_download_url($app['admin_attachment'] ?? ''); if ($__attachUrl !== ''): ?>
                                     <div class="mt-2 p-2 bg-light rounded border d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip tracker-ico-primary"></i>
                                         <span class="small text-muted"><?php echo isEnglish() ? 'Admin document:' : 'Admin संलग्न:'; ?></span>
-                                        <a href="<?php echo e(safe_media_src($app['admin_attachment'] ?? '') ?: '#'); ?>"
+                                        <a href="<?php echo e($__attachUrl); ?>"
                                            target="_blank" class="btn btn-sm btn-outline-primary py-0 px-2" rel="noopener noreferrer">
                                             <i class="fas fa-download me-1"></i><?php echo basename($app['admin_attachment']); ?>
                                         </a>

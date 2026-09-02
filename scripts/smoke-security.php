@@ -85,7 +85,7 @@ assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', '
 assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
 assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
-assertFileContains('downloads.php', 'safe_media_src($item', 'download file href guarded');
+assertFileContains('downloads.php', 'coop_public_download_url($item', 'download file href guarded');
 assertFileContains('services.php', 'safe_media_src($service', 'service image src guarded');
 assertFileContains('member/check-availability.php', 'coop_client_ip', 'availability rate limit client ip');
 assertFileContains('includes/footer.php', 'coop_client_ip', 'visitor counter client ip');
