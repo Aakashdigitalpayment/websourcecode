@@ -74,7 +74,7 @@ foreach ([
     ['career.php', 'coop_render_cms_prose', 'career list excerpt prose'],
     ['faqs.php', "e(isEnglish()", 'faq question escaped'],
     ['career-detail.php', 'coop_render_cms_prose', 'job description prose rendered'],
-    ['career-detail.php', 'safe_media_src', 'job attachment safe src'],
+    ['career-detail.php', 'coop_public_download_url', 'job attachment safe src'],
     ['includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute bg url'],
     ['admin/includes/admin-header.php', 'safe_versioned_media_src($siteLogo)', 'admin logo safe src'],
     ['admin/team.php', 'safe_media_src', 'team photo safe src'],

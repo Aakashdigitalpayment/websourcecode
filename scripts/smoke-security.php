@@ -87,6 +87,8 @@ assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital 
 assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
 assertFileContains('downloads.php', 'coop_public_download_url($item', 'download file href guarded');
 assertFileContains('api-public-chat.php', 'contact_messages', 'public chat stores in contact_messages');
+assertFileContains('admin/includes/admin-header.php', 'messages.php', 'admin messages nav present');
+assertFileContains('admin/hrm-dashboard.php', 'Location: dashboard.php', 'hrm dashboard redirect stub');
 assertFileContains('notices.php', 'coop_public_download_url($attachRaw)', 'notice detail attachment guarded');
 assertFileContains('includes/header.php', 'coop_public_download_url($attachRaw)', 'notice popup attachment guarded');
 assertFileContains('admin/notices.php', 'coop_stored_upload_exists($item[\'attachment\'])', 'admin notice list file exists check');
@@ -198,7 +200,8 @@ $noopenerFiles = [
 foreach ($noopenerFiles as $f) {
     assertNoBareBlankTargets($f);
 }
-assertFileContains('assets/js/main.js', 'target="_blank" rel="noopener noreferrer" class="popup-doc-btn"', 'popup PDF link hardened');
+assertFileContains('includes/header.php', 'class="popup-view-full-notice"', 'notice popup attachment link');
+assertFileContains('includes/header.php', 'rel="noopener noreferrer" class="popup-view-full-notice"', 'notice popup link hardened');
 assertFileContains('install.php', 'id="linkAdmin" class="btn-site btn-site-primary" target="_blank" rel="noopener noreferrer"', 'install admin link hardened');
 
 // Critical pairs

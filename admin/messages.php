@@ -91,9 +91,13 @@ if ($action === 'view' && isset($_GET['id'])) {
                     <div class="p-3 rounded-3 msg-info-card msg-info-email">
                         <div class="text-muted small mb-1"><i class="fas fa-envelope me-1"></i>इमेल</div>
                         <div class="fw-bold">
+                            <?php if (!empty($message['email'])): ?>
                             <a href="mailto:<?php echo htmlspecialchars($message['email']); ?>" class="text-primary text-decoration-none">
                                 <?php echo htmlspecialchars($message['email']); ?>
                             </a>
+                            <?php else: ?>
+                            <span class="text-muted">—</span>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -128,10 +132,16 @@ if ($action === 'view' && isset($_GET['id'])) {
 
             <!-- Action buttons -->
             <div class="d-flex gap-3 flex-wrap">
+                <?php if (!empty($message['email'])): ?>
                 <a href="mailto:<?php echo htmlspecialchars($message['email']); ?>?subject=Re: <?php echo htmlspecialchars($message['subject'] ?? 'Your Message'); ?>"
                    class="btn btn-primary">
                     <i class="fas fa-reply me-1"></i>जवाफ दिनुहोस्
                 </a>
+                <?php elseif (!empty($message['phone'])): ?>
+                <a href="tel:<?php echo htmlspecialchars($message['phone']); ?>" class="btn btn-primary">
+                    <i class="fas fa-phone me-1"></i>फोन गर्नुहोस्
+                </a>
+                <?php endif; ?>
                 <form method="POST" class="d-inline" onsubmit="return confirm('के तपाईं यो सन्देश स्थायी रूपमा मेट्न चाहनुहुन्छ?')">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="delete_id" value="<?php echo (int)$message['id']; ?>">
@@ -274,9 +284,12 @@ if ($action === 'view' && isset($_GET['id'])) {
                                 <?php if (!$msg['is_read']): ?>
                                 <span class="badge bg-danger me-1 msg-badge-xxs">नयाँ</span>
                                 <?php endif; ?>
+                                <?php if (strpos((string) ($msg['subject'] ?? ''), '[Live Chat') === 0): ?>
+                                <span class="badge bg-info me-1 msg-badge-xxs">Live Chat</span>
+                                <?php endif; ?>
                                 <?php echo htmlspecialchars($msg['name']); ?>
                             </td>
-                            <td class="text-muted small"><?php echo htmlspecialchars($msg['email']); ?></td>
+                            <td class="text-muted small"><?php echo htmlspecialchars($msg['email'] ?: ($msg['phone'] ?? '—')); ?></td>
                             <td>
                                 <span class="text-truncate d-block msg-text-clamp">
                                     <?php echo htmlspecialchars(mb_substr($msg['subject'] ?? $msg['message'] ?? '', 0, 55)); ?>
