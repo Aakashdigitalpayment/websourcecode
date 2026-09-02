@@ -1,5 +1,6 @@
 .DS_Store
 *.log
+.htaccess.live-backup-*
 
 # Runtime dirs (created on live server) — keep deny rules tracked
 /cache/*
