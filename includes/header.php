@@ -2474,10 +2474,19 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         </div>
                         <?php
                         endif;
-                        if ($attachFullUrl !== '' && !$isPhotoOnly && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw)):
+                        $popupImgRaw = trim((string) ($notice['popup_image'] ?? ''));
+                        $inlineImgUrl = '';
+                        if ($popupImgRaw !== '') {
+                            $inlineImgUrl = function_exists('coop_notice_media_src')
+                                ? coop_notice_media_src($popupImgRaw)
+                                : safe_media_src($popupImgRaw);
+                        } elseif ($attachFullUrl !== '' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw)) {
+                            $inlineImgUrl = $attachFullUrl;
+                        }
+                        if ($inlineImgUrl !== '' && !$isPhotoOnly):
                         ?>
                         <div class="popup-inline-image">
-                            <img src="<?php echo e($attachFullUrl); ?>" alt="" loading="lazy" decoding="async">
+                            <img src="<?php echo e($inlineImgUrl); ?>" alt="" loading="lazy" decoding="async">
                         </div>
                         <?php endif; ?>
                         <div class="popup-text coop-prose">

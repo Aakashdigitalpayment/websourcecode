@@ -193,13 +193,18 @@ require_once 'includes/header.php';
                                 <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
                             </a>
                         </div>
-                        <?php if ($notice['attachment']): ?>
+                        <?php if ($notice['attachment']):
+                            $attUrl = function_exists('coop_public_download_url')
+                                ? coop_public_download_url($notice['attachment'])
+                                : (function_exists('coop_notice_media_src') ? coop_notice_media_src($notice['attachment']) : safe_media_src($notice['attachment']));
+                            if ($attUrl !== ''):
+                        ?>
                         <div class="notice-attachment-icon">
-                            <a href="<?php echo e(function_exists('coop_notice_media_src') ? coop_notice_media_src($notice['attachment']) : safe_media_src($notice['attachment'])); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
+                            <a href="<?php echo e($attUrl); ?>" target="_blank" rel="noopener noreferrer" title="<?php echo isEnglish() ? 'View attachment' : 'संलग्न फाइल हेर्नुहोस्'; ?>">
                                 <i class="fas fa-paperclip"></i>
                             </a>
                         </div>
-                        <?php endif; ?>
+                        <?php endif; endif; ?>
                     </div>
                 </div>
                 <?php endforeach; ?>

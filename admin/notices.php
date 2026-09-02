@@ -29,60 +29,150 @@ $rawAction = $_POST['action'] ?? $_GET['action'] ?? 'list';
 $action    = in_array($rawAction, ['list', 'delete', 'bulk_status'], true) ? $rawAction : 'list';
 $id        = intval($_POST['id'] ?? 0) ?: null;
 
+$ntcRedirect = static function (?int $editId = null): void {
+    redirect($editId > 0 ? 'notices.php?edit=' . $editId : 'notices.php');
+};
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
     checkCSRF();
 
-    $title      = clean_text($_POST['title']      ?? '');
-    $content    = function_exists('coop_sanitize_cms_html')
+    $noticeIdPost      = (int) ($_POST['notice_id'] ?? 0);
+    $title             = clean_text($_POST['title'] ?? '');
+    $content           = function_exists('coop_sanitize_cms_html')
         ? coop_sanitize_cms_html($_POST['content'] ?? '')
         : trim((string) ($_POST['content'] ?? ''));
-    $noticeDate = !empty(trim($_POST['notice_date'] ?? '')) ? clean_text($_POST['notice_date']) : null;
-    $isActive          = isset($_POST['is_active'])         ? 1 : 0;
-    $isPopup           = isset($_POST['is_popup'])           ? 1 : 0;
-    $isPopupPhotoOnly  = isset($_POST['popup_photo_only'])   ? 1 : 0;
-    $attachment        = null;
-    $popupImage        = null;
+    $noticeDate        = !empty(trim($_POST['notice_date'] ?? '')) ? clean_text($_POST['notice_date']) : null;
+    $isActive          = isset($_POST['is_active']) ? 1 : 0;
+    $isPopup           = isset($_POST['is_popup']) ? 1 : 0;
+    $isPopupPhotoOnly  = isset($_POST['popup_photo_only']) ? 1 : 0;
+    $removeAttachment  = isset($_POST['remove_attachment']);
+    $removePopupImage  = isset($_POST['remove_popup_image']);
+    $newAttachment     = null;
+    $newPopupImage     = null;
+    $uploadErrors      = [];
 
     if ($title === '') {
         setFlash('error', $__t('शीर्षक अनिवार्य छ।', 'Title is required.'));
-        redirect('notices.php');
+        $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
     }
 
-    if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-        $upload = uploadFile($_FILES['attachment'], 'notices');
-        if ($upload['success']) $attachment = $upload['path'];
+    if (isset($_FILES['attachment']) && (int) ($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $errCode = (int) $_FILES['attachment']['error'];
+        if ($errCode !== UPLOAD_ERR_OK) {
+            $uploadErrors[] = coop_upload_error_text($errCode);
+        } else {
+            $upload = uploadFile($_FILES['attachment'], 'notices');
+            if ($upload['success']) {
+                $newAttachment = $upload['path'];
+            } else {
+                $uploadErrors[] = (string) ($upload['message'] ?? $__t('फाइल अपलोड असफल।', 'File upload failed.'));
+            }
+        }
     }
-    if (isset($_FILES['popup_image']) && $_FILES['popup_image']['error'] === UPLOAD_ERR_OK) {
-        $upload2 = uploadFile($_FILES['popup_image'], 'notices');
-        if ($upload2['success']) $popupImage = $upload2['path'];
+    if (isset($_FILES['popup_image']) && (int) ($_FILES['popup_image']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        $errCode = (int) $_FILES['popup_image']['error'];
+        if ($errCode !== UPLOAD_ERR_OK) {
+            $uploadErrors[] = coop_upload_error_text($errCode);
+        } else {
+            $upload2 = uploadFile($_FILES['popup_image'], 'notices');
+            if ($upload2['success']) {
+                $newPopupImage = $upload2['path'];
+            } else {
+                $uploadErrors[] = (string) ($upload2['message'] ?? $__t('पप-अप फोटो अपलोड असफल।', 'Popup image upload failed.'));
+            }
+        }
+    }
+
+    if (!empty($uploadErrors)) {
+        setFlash('error', implode(' ', $uploadErrors));
+        $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
     }
 
     try {
         $db = getDB();
-
-        if (!empty($_POST['notice_id'])) {
-            $noticeId = (int)$_POST['notice_id'];
-            if ($attachment) {
-                $db->prepare("UPDATE notices SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=COALESCE(NULLIF(?,NULL), popup_image) WHERE id=?")
-                   ->execute([$title, $content, $noticeDate, $attachment, $isActive, $isPopup, $isPopupPhotoOnly, $popupImage, $noticeId]);
-            } else {
-                $db->prepare("UPDATE notices SET title=?, content=?, notice_date=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=COALESCE(NULLIF(?,NULL), popup_image) WHERE id=?")
-                   ->execute([$title, $content, $noticeDate, $isActive, $isPopup, $isPopupPhotoOnly, $popupImage, $noticeId]);
+        $oldRow = null;
+        if ($noticeIdPost > 0) {
+            $oldStmt = $db->prepare('SELECT * FROM notices WHERE id = ? LIMIT 1');
+            $oldStmt->execute([$noticeIdPost]);
+            $oldRow = $oldStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$oldRow) {
+                setFlash('error', $__t('सूचना भेटिएन।', 'Notice not found.'));
+                redirect('notices.php');
             }
-            setFlash('success', $__t('सूचना सफलतापूर्वक अपडेट भयो।', 'Notice updated successfully.'));
-            writeAuditLog('notice_update', 'Updated: ' . mb_substr($title, 0, 80), 'notice', $noticeId);
-        } else {
-            $db->prepare("INSERT INTO notices (title, content, notice_date, attachment, is_active, is_popup, popup_photo_only, popup_image) VALUES (?,?,?,?,?,?,?,?)")
-               ->execute([$title, $content, $noticeDate, $attachment, $isActive, $isPopup, $isPopupPhotoOnly, $popupImage]);
-            $newNoticeId = (int)$db->lastInsertId();
-            setFlash('success', $__t('नयाँ सूचना सफलतापूर्वक थपियो।', 'New notice added successfully.'));
-            writeAuditLog('notice_create', 'Created: ' . mb_substr($title, 0, 80), 'notice', $newNoticeId);
         }
-        if (function_exists('clearHomepageCache')) clearHomepageCache();
-        redirect('notices.php');
+
+        $finalAttachment = trim((string) ($oldRow['attachment'] ?? ''));
+        $finalPopupImage = trim((string) ($oldRow['popup_image'] ?? ''));
+
+        if ($removeAttachment && $finalAttachment !== '') {
+            deleteFile($finalAttachment);
+            $finalAttachment = '';
+        }
+        if ($newAttachment) {
+            if ($finalAttachment !== '') {
+                deleteFile($finalAttachment);
+            }
+            $finalAttachment = $newAttachment;
+        }
+
+        if ($removePopupImage && $finalPopupImage !== '') {
+            deleteFile($finalPopupImage);
+            $finalPopupImage = '';
+        }
+        if ($newPopupImage) {
+            if ($finalPopupImage !== '') {
+                deleteFile($finalPopupImage);
+            }
+            $finalPopupImage = $newPopupImage;
+        }
+
+        if ($isPopup && $isPopupPhotoOnly) {
+            $hasPopupImg = $finalPopupImage !== ''
+                || ($finalAttachment !== '' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $finalAttachment));
+            if (!$hasPopupImg) {
+                setFlash(
+                    'error',
+                    $__t(
+                        'फोटो-मात्र पप-अपको लागि पप-अप फोटो वा image फाइल (JPG/PNG) attachment चाहिन्छ।',
+                        'Photo-only popup needs a popup image or an image file attachment (JPG/PNG).'
+                    )
+                );
+                $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
+            }
+        }
+
+        $attachDb = $finalAttachment !== '' ? $finalAttachment : null;
+        $popupDb  = $finalPopupImage !== '' ? $finalPopupImage : null;
+
+        if ($noticeIdPost > 0) {
+            $st = $db->prepare(
+                'UPDATE notices
+                 SET title=?, content=?, notice_date=?, attachment=?, is_active=?, is_popup=?, popup_photo_only=?, popup_image=?
+                 WHERE id=?'
+            );
+            $st->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb, $noticeIdPost]);
+            setFlash('success', $__t('सूचना सफलतापूर्वक अपडेट भयो।', 'Notice updated successfully.'));
+            writeAuditLog('notice_update', 'Updated: ' . mb_substr($title, 0, 80), 'notice', $noticeIdPost);
+            if (function_exists('clearHomepageCache')) {
+                clearHomepageCache();
+            }
+            redirect('notices.php?edit=' . $noticeIdPost);
+        }
+
+        $db->prepare(
+            'INSERT INTO notices (title, content, notice_date, attachment, is_active, is_popup, popup_photo_only, popup_image)
+             VALUES (?,?,?,?,?,?,?,?)'
+        )->execute([$title, $content, $noticeDate, $attachDb, $isActive, $isPopup, $isPopupPhotoOnly, $popupDb]);
+        $newNoticeId = (int) $db->lastInsertId();
+        setFlash('success', $__t('नयाँ सूचना सफलतापूर्वक थपियो।', 'New notice added successfully.'));
+        writeAuditLog('notice_create', 'Created: ' . mb_substr($title, 0, 80), 'notice', $newNoticeId);
+        if (function_exists('clearHomepageCache')) {
+            clearHomepageCache();
+        }
+        redirect('notices.php?edit=' . $newNoticeId);
     } catch (Exception $e) {
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
-        redirect('notices.php');
+        $ntcRedirect($noticeIdPost > 0 ? $noticeIdPost : null);
     }
 }
 
@@ -114,7 +204,18 @@ if ($action === 'delete' && $_SERVER['REQUEST_METHOD'] === 'POST' && $id) {
     try {
         $db = getDB();
         checkCSRF();
-        $db->prepare("DELETE FROM notices WHERE id=?")->execute([$id]);
+        $fileStmt = $db->prepare('SELECT attachment, popup_image FROM notices WHERE id = ? LIMIT 1');
+        $fileStmt->execute([$id]);
+        $fileRow = $fileStmt->fetch(PDO::FETCH_ASSOC);
+        if ($fileRow) {
+            if (!empty($fileRow['attachment'])) {
+                deleteFile((string) $fileRow['attachment']);
+            }
+            if (!empty($fileRow['popup_image'])) {
+                deleteFile((string) $fileRow['popup_image']);
+            }
+        }
+        $db->prepare('DELETE FROM notices WHERE id=?')->execute([$id]);
         setFlash('success', $__t('सूचना मेटाइयो।', 'Notice deleted.'));
         writeAuditLog('notice_delete', "Deleted notice ID: {$id}", 'notice', $id);
         if (function_exists('clearHomepageCache')) clearHomepageCache();
@@ -141,6 +242,9 @@ if ($editNoticeId > 0) {
     } catch (Exception $e) {
         $editNotice = null;
     }
+}
+if ($editNoticeId > 0 && !$editNotice && empty($flash)) {
+    $flash = ['type' => 'error', 'message' => $__t('सूचना भेटिएन वा मेटिसकिएको छ।', 'Notice not found or was deleted.')];
 }
 $startOnFormTab = $editNotice !== null;
 $ef = is_array($editNotice) ? $editNotice : [];
@@ -197,7 +301,7 @@ $ntcBasename = static function (?string $path): string {
                     <table class="table table-hover align-middle mb-0" id="noticesTable">
                         <thead>
                             <tr>
-                                <th width="40" class="text-center"><input type="checkbox" form="noticeBulkForm" onclick="document.querySelectorAll('.nt-select').forEach(c=>c.checked=this.checked)"></th>
+                                <th width="40" class="text-center"><input type="checkbox" form="noticeBulkForm" id="ntSelectAll" title="<?php echo $__t('यो पृष्ठका सबै', 'All on this page'); ?>"></th>
                                 <th class="ps-3" width="50">#</th>
                                 <th><?php echo $__t('शीर्षक', 'Title'); ?></th>
                                 <th width="140"><?php echo $__t('मिति (बि.सं.)', 'Date (BS)'); ?></th>
@@ -212,7 +316,7 @@ $ntcBasename = static function (?string $path): string {
                                 <td colspan="7">
                                     <div class="admin-empty-state">
                                         <i class="fas fa-bullhorn"></i>
-                                        <p><?php echo $__t('कुनै सूचना छैन। माथिको "नयाँ सूचना" बटन थिच्नुहोस्।', 'No notices yet. Click "New Notice" button above.'); ?></p>
+                                        <p><?php echo $__t('कुनै सूचना छैन। "नयाँ थप्नुहोस्" tab खोल्नुहोस्।', 'No notices yet. Open the "Add New" tab.'); ?></p>
                                     </div>
                                 </td>
                             </tr>
@@ -226,11 +330,15 @@ $ntcBasename = static function (?string $path): string {
                                     <?php if ($item['attachment']): ?>
                                         <small class="ntc-muted"><i class="fas fa-paperclip me-1 ntc-file-icon"></i><?php echo $__t('फाइल संलग्न', 'File attached'); ?></small>
                                     <?php endif; ?>
+                                    <?php if (!empty($item['is_active'])): ?>
                                     <div class="mt-1">
                                         <a href="../notices.php?id=<?php echo (int)$item['id']; ?>" class="small text-decoration-none" target="_blank" rel="noopener noreferrer">
                                             <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('Public हेर्नुहोस्', 'View public'); ?>
                                         </a>
                                     </div>
+                                    <?php else: ?>
+                                    <div class="mt-1"><small class="text-muted"><?php echo $__t('निष्क्रिय — public मा देखिँदैन', 'Inactive — hidden on public site'); ?></small></div>
+                                    <?php endif; ?>
                                 </td>
                                 <td data-label="मिति">
                                     <span class="text-secondary">
@@ -254,20 +362,11 @@ $ntcBasename = static function (?string $path): string {
                                 </td>
                                 <td class="text-center" data-label="कार्य">
                                     <div class="d-inline-flex align-items-center gap-1">
-                                    <button type="button"
-                                        class="adm-icon-btn adm-icon-btn--edit btn-edit-notice"
-                                        title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
-                                        data-id="<?php echo $item['id']; ?>"
-                                        data-title="<?php echo htmlspecialchars($item['title'], ENT_QUOTES); ?>"
-                                        data-content="<?php echo htmlspecialchars($item['content'] ?? '', ENT_QUOTES); ?>"
-                                        data-date="<?php echo htmlspecialchars($item['notice_date'] ?? '', ENT_QUOTES); ?>"
-                                        data-active="<?php echo $item['is_active']; ?>"
-                                        data-popup="<?php echo $item['is_popup']; ?>"
-                                        data-attachment="<?php echo htmlspecialchars($item['attachment'] ?? '', ENT_QUOTES); ?>"
-                                        data-popup-photo-only="<?php echo (int)($item['popup_photo_only'] ?? 0); ?>"
-                                        data-popup-image="<?php echo htmlspecialchars($item['popup_image'] ?? '', ENT_QUOTES); ?>">
+                                    <a href="notices.php?edit=<?php echo (int) $item['id']; ?>"
+                                        class="adm-icon-btn adm-icon-btn--edit"
+                                        title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
                                         <i class="fas fa-edit"></i>
-                                    </button>
+                                    </a>
                                     <form method="POST" class="svc-inline-form d-inline" onsubmit="return confirm('<?php echo $__t('यो सूचना मेटाउने हो?', 'Delete this notice?'); ?>')">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$item['id']; ?>">
@@ -356,13 +455,18 @@ $ntcBasename = static function (?string $path): string {
                                                 <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                             </a>
                                         </div>
+                                        <div class="form-check mt-2 mb-0">
+                                            <input class="form-check-input" type="checkbox" name="remove_attachment" id="ntf_remove_attachment" value="1">
+                                            <label class="form-check-label small text-danger" for="ntf_remove_attachment"><?php echo $__t('यो फाइल हटाउनुहोस्', 'Remove this file'); ?></label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="ntf_att_empty" class="mb-2 small text-muted<?php echo $efAttachment !== '' ? ' d-none' : ''; ?>">
                                     <i class="fas fa-info-circle me-1"></i><?php echo $__t('हाल कुनै फाइल upload भएको छैन', 'No file uploaded yet'); ?>
                                 </div>
                                 <label for="ntf_attachment" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फाइल बदल्न (वैकल्पिक)', 'Replace with new file (optional)'); ?></label>
-                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif">
+                                <small class="text-muted"><?php echo $__t('PDF/JPG/PNG/WebP/GIF — अधिकतम 10MB', 'PDF/JPG/PNG/WebP/GIF — max 10MB'); ?></small>
                             </div>
                             <div class="mb-2 d-flex align-items-center gap-2">
                                 <div class="form-check form-switch mb-0">
@@ -390,11 +494,12 @@ $ntcBasename = static function (?string $path): string {
                                         <?php echo $__t('फोटो मात्र देखाउनुहोस् (Photo-only popup)', 'Photo-only popup'); ?>
                                     </label>
                                 </div>
-                                <div class="mt-2">
+                                <div class="mt-2" id="ntf_popup_photo_wrap">
                                     <label class="form-label fw-semibold small mb-1">
                                         <i class="fas fa-image me-1 text-success"></i>
                                         <?php echo $__t('पप-अप फोटो (वैकल्पिक)', 'Popup image (optional)'); ?>
                                     </label>
+                                    <small class="text-muted d-block mb-2"><?php echo $__t('Photo-only popup मा मुख्य रूपमा प्रयोग हुन्छ।', 'Used mainly for photo-only popup mode.'); ?></small>
                                     <div id="ntf_popup_img_link" class="mb-2<?php echo $efPopupImage !== '' ? '' : ' d-none'; ?>">
                                         <div class="alert alert-success py-2 px-3 mb-0 small">
                                             <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको पप-अप फोटो', 'Current popup image'); ?></div>
@@ -407,6 +512,10 @@ $ntcBasename = static function (?string $path): string {
                                                     </a>
                                                 </div>
                                             </div>
+                                            <div class="form-check mt-2 mb-0">
+                                                <input class="form-check-input" type="checkbox" name="remove_popup_image" id="ntf_remove_popup_image" value="1">
+                                                <label class="form-check-label small text-danger" for="ntf_remove_popup_image"><?php echo $__t('यो फोटो हटाउनुहोस्', 'Remove this image'); ?></label>
+                                            </div>
                                         </div>
                                     </div>
                                     <div id="ntf_popup_img_empty" class="mb-2 small text-muted<?php echo $efPopupImage !== '' ? ' d-none' : ''; ?>">
@@ -415,8 +524,9 @@ $ntcBasename = static function (?string $path): string {
                                     <label for="ntf_popup_image" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फोटो बदल्न (वैकल्पिक)', 'Replace with new image (optional)'); ?></label>
                                     <input type="file" name="popup_image" id="ntf_popup_image"
                                            class="form-control admin-fancy-input form-control-sm"
-                                           accept=".jpg,.jpeg,.png,.webp">
-                                    <small class="text-muted d-block"><?php echo $__t('फोटो नराखे attachment को image प्रयोग हुनेछ।', 'If not set, the attachment image will be used.'); ?></small>
+                                           accept=".jpg,.jpeg,.png,.webp,.gif">
+                                    <small class="text-muted d-block"><?php echo $__t('JPG/PNG/WebP/GIF — अधिकतम 10MB', 'JPG/PNG/WebP/GIF — max 10MB'); ?></small>
+                                    <small class="text-muted d-block"><?php echo $__t('Photo-only बन्द भए पप-अप फोटो सामान्य popup मा पनि देखिन सक्छ।', 'When not photo-only, popup image may still show in the standard popup.'); ?></small>
                                     <small class="text-muted"><?php echo $__t('फाइल (PDF) पनि भए photo click गर्दा फाइल खुल्छ।', 'If a file (PDF) is also attached, clicking the popup photo opens that file.'); ?></small>
                                 </div>
                             </div>
@@ -464,13 +574,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return 'fas fa-file text-secondary';
     }
 
-    function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId, emptyId, hiddenId) {
+    function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId, emptyId, hiddenId, removeId) {
         var wrap = document.getElementById(wrapId);
         if (!wrap) return;
         path = path ? String(path).trim() : '';
         if (hiddenId) {
             var hiddenEl = document.getElementById(hiddenId);
             if (hiddenEl) hiddenEl.value = path;
+        }
+        if (removeId) {
+            var removeEl = document.getElementById(removeId);
+            if (removeEl) {
+                removeEl.checked = false;
+                removeEl.closest('.form-check')?.classList.toggle('d-none', !path);
+            }
         }
         if (!path) {
             wrap.classList.add('d-none');
@@ -515,25 +632,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    function fillEditForm(data) {
-        var d = data || {};
-        document.getElementById('ntf_id').value = d.id || '';
-        document.getElementById('ntf_title').value = d.title || '';
-        document.getElementById('ntf_content').value = d.content || '';
-        document.getElementById('ntf_date').value = d.date || '';
-        document.getElementById('ntf_active').checked = d.active === '1' || d.active === 1;
-        document.getElementById('ntf_popup').checked = d.popup === '1' || d.popup === 1;
-        var popupOnly = d.popupPhotoOnly || d.popup_photo_only || '0';
-        document.getElementById('ntf_popup_photo_only').checked = popupOnly === '1' || popupOnly === 1;
-        document.getElementById('ntf_popup_opts').style.display = (d.popup === '1' || d.popup === 1) ? '' : 'none';
-        var popupImg = d.popupImage || d.popup_image || '';
-        var attachment = d.attachment || '';
-        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', popupImg, null, 'ntf_popup_img_empty', 'ntf_existing_popup_image');
-        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, attachment, 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment');
-        resetFileInputs();
-        document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
-        document.getElementById('noticeFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>';
-        document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('सम्पादन', 'Edit'); ?>';
+    function syncPopupPhotoWrap() {
+        var popupOn = document.getElementById('ntf_popup')?.checked;
+        var opts = document.getElementById('ntf_popup_opts');
+        if (opts) opts.style.display = popupOn ? '' : 'none';
+    }
+
+    function syncRemoveCheckboxes() {
+        ['ntf_remove_attachment', 'ntf_remove_popup_image'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            var hasFile = id === 'ntf_remove_attachment'
+                ? (document.getElementById('ntf_existing_attachment')?.value || '').trim() !== ''
+                : (document.getElementById('ntf_existing_popup_image')?.value || '').trim() !== '';
+            el.closest('.form-check')?.classList.toggle('d-none', !hasFile);
+            el.checked = false;
+        });
     }
 
     function resetFileInputs() {
@@ -554,8 +668,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ntf_popup').checked = false;
         document.getElementById('ntf_popup_photo_only').checked = false;
         document.getElementById('ntf_popup_opts').style.display = 'none';
-        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '', null, 'ntf_popup_img_empty', 'ntf_existing_popup_image');
-        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment');
+        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '', null, 'ntf_popup_img_empty', 'ntf_existing_popup_image', 'ntf_remove_popup_image');
+        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment', 'ntf_remove_attachment');
         resetFileInputs();
         document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
         document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>';
@@ -575,8 +689,27 @@ document.addEventListener('DOMContentLoaded', function () {
     /* is_popup toggle → show/hide popup advanced options */
     var ntfPopupChk = document.getElementById('ntf_popup');
     if (ntfPopupChk) {
-        ntfPopupChk.addEventListener('change', function() {
-            document.getElementById('ntf_popup_opts').style.display = this.checked ? '' : 'none';
+        ntfPopupChk.addEventListener('change', syncPopupPhotoWrap);
+    }
+    syncPopupPhotoWrap();
+    syncRemoveCheckboxes();
+
+    var bulkForm = document.getElementById('noticeBulkForm');
+    if (bulkForm) {
+        bulkForm.addEventListener('submit', function (e) {
+            var checked = bulkForm.querySelectorAll('.nt-select:checked');
+            if (!checked.length) {
+                e.preventDefault();
+                alert('<?php echo $__t('कृपया कम्तीमा एउटा सूचना छान्नुहोस्।', 'Please select at least one notice.'); ?>');
+                return;
+            }
+            var action = e.submitter ? e.submitter.value : '';
+            var label = action === 'active'
+                ? '<?php echo $__t('सक्रिय', 'active'); ?>'
+                : '<?php echo $__t('निष्क्रिय', 'inactive'); ?>';
+            if (!confirm(checked.length + ' <?php echo $__t('वटा सूचना', 'notice(s)'); ?> ' + label + ' <?php echo $__t('गर्ने?', 'apply?'); ?>')) {
+                e.preventDefault();
+            }
         });
     }
 
@@ -586,21 +719,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (el) el.addEventListener('click', function() { clearForm(); switchToList(); });
     });
 
-    /* Edit बटनहरू */
-    document.querySelectorAll('.btn-edit-notice').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            _isEditMode = true;
-            fillEditForm(this.dataset);
-            switchToForm();
-        });
-    });
-
     /* DataTable */
+    var noticesTable = null;
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
         try {
-            $('#noticesTable').DataTable({
+            noticesTable = $('#noticesTable').DataTable({
                 autoWidth: false,
                 language: {
                     search    : '<?php echo $__t('खोज्नुहोस्', 'Search'); ?>:',
@@ -616,13 +739,17 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch(e) {}
     }
 
-    var autoEditId = <?php echo (int)$editNoticeId; ?>;
-    if (autoEditId > 0) {
-        var autoEditBtn = document.querySelector('.btn-edit-notice[data-id="' + autoEditId + '"]');
-        if (autoEditBtn) {
-            _isEditMode = true;
-            fillEditForm(autoEditBtn.dataset);
-        }
+    var selectAll = document.getElementById('ntSelectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            if (noticesTable) {
+                noticesTable.rows({ page: 'current', search: 'applied' }).nodes().to$().find('.nt-select').prop('checked', selectAll.checked);
+            } else {
+                document.querySelectorAll('#noticesTable tbody .nt-select').forEach(function (el) {
+                    el.checked = selectAll.checked;
+                });
+            }
+        });
     }
 });
 </script>
