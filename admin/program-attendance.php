@@ -1,6 +1,178 @@
 <?php
 $currentPage = 'program-attendance';
-/* CSV export अघि HTML नछापियोस् — नत्र Excel मा पूरै page source “code” जस्तो देखिन्छ */
+
+/* CSV/Excel export — admin-header अघि (HTML leak रोक्न) */
+if (isset($_GET['export'])) {
+    require_once __DIR__ . '/../includes/config.php';
+    if (!isAdminLoggedIn()) {
+        header('Location: ' . ADMIN_URL . 'index.php');
+        exit;
+    }
+    require_once __DIR__ . '/../includes/program-tables.php';
+    require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+    require_once __DIR__ . '/includes/program-reports-common.php';
+
+    $db = getDB();
+    ensureProgramTables($db);
+
+    $programId = (int)($_GET['program_id'] ?? 0);
+    $q = mb_substr(trim((string)($_GET['q'] ?? '')), 0, 200, 'UTF-8');
+    $showDone = isset($_GET['show_done']) && (string)$_GET['show_done'] === '1';
+    $dateFrom = trim((string)($_GET['date_from'] ?? ''));
+    $dateTo = trim((string)($_GET['date_to'] ?? ''));
+    if ($dateFrom !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
+        $dateFrom = '';
+    }
+    if ($dateTo !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
+        $dateTo = '';
+    }
+    $activeOnly = isset($_GET['active_only']) && (string)$_GET['active_only'] === '1';
+
+    $whereA = "a.attendance_status='VALID'";
+    $paramsA = [];
+    if ($programId > 0) {
+        $whereA .= ' AND a.program_id=?';
+        $paramsA[] = $programId;
+    }
+    if ($q !== '') {
+        $whereA .= ' AND (a.member_card_no LIKE ? OR a.program_title LIKE ? OR m.name LIKE ?)';
+        $like = "%$q%";
+        array_push($paramsA, $like, $like, $like);
+    }
+    if ($dateFrom !== '') {
+        $whereA .= ' AND DATE(a.attended_at) >= ?';
+        $paramsA[] = $dateFrom;
+    }
+    if ($dateTo !== '') {
+        $whereA .= ' AND DATE(a.attended_at) <= ?';
+        $paramsA[] = $dateTo;
+    }
+    if ($activeOnly) {
+        $whereA .= ' AND p.is_active = 1';
+    }
+
+    $joinA = "FROM member_program_attendance a
+        LEFT JOIN members m ON m.id = a.member_id
+        LEFT JOIN upcoming_programs p ON p.id = a.program_id
+        LEFT JOIN program_occurrences o ON o.id = a.occurrence_id";
+
+    $exportType = (string)$_GET['export'];
+    if ($exportType === '1') {
+        $stAll = $db->prepare("SELECT a.*, m.name AS member_name, m.gender AS gender, p.event_date, p.location,
+               o.location_name AS occurrence_location
+        {$joinA}
+        WHERE {$whereA}
+        ORDER BY a.attended_at DESC");
+        $stAll->execute($paramsA);
+        $exportRows = $stAll->fetchAll(PDO::FETCH_ASSOC);
+        programReportsCsvHeaders('program-attendance-' . date('Ymd-His') . '.csv');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Gender', 'Member ID', 'Location', 'Method', 'Priority', 'Note', 'Attended At']);
+        foreach ($exportRows as $r) {
+            $loc = programAttendanceDisplayLocation($r);
+            fputcsv($out, [
+                (string)($r['program_title'] ?? ''),
+                (string)($r['event_date'] ?? ''),
+                (string)($r['member_name'] ?? ''),
+                (string)($r['gender'] ?? ''),
+                (string)($r['member_card_no'] ?? ''),
+                $loc,
+                programAttendanceMethodLabel($r['attendance_method'] ?? '', true),
+                ((int)($r['is_priority'] ?? 0) ? 'Yes' : 'No'),
+                (string)($r['attendance_note'] ?? ''),
+                (string)($r['attended_at'] ?? ''),
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
+    if ($exportType === 'prereg') {
+        $wherePr = '1=1';
+        $paramsPr = [];
+        if ($programId > 0) {
+            $wherePr .= ' AND pr.program_id=?';
+            $paramsPr[] = $programId;
+        }
+        if ($q !== '') {
+            $wherePr .= ' AND (pr.member_card_no LIKE ? OR pr.program_title LIKE ? OR pr.member_name LIKE ? OR m.name LIKE ?)';
+            $like = "%$q%";
+            array_push($paramsPr, $like, $like, $like, $like);
+        }
+        $preJoinSql = "FROM member_program_preregistrations pr
+               LEFT JOIN members m ON m.id = pr.member_id
+               LEFT JOIN upcoming_programs p ON p.id = pr.program_id
+               LEFT JOIN member_program_attendance a2 ON a2.member_id = pr.member_id AND a2.program_id = pr.program_id AND a2.attendance_status='VALID'";
+        $preExportSql = "SELECT pr.*, COALESCE(NULLIF(m.name,''), pr.member_name) AS display_name, m.phone AS member_phone, m.phone AS member_mobile, m.email AS member_email, p.event_date, p.location,
+                      CASE WHEN a2.id IS NULL THEN 0 ELSE 1 END AS is_done
+               {$preJoinSql}
+               WHERE {$wherePr}
+               ORDER BY pr.created_at DESC";
+        $pex = $db->prepare($preExportSql);
+        $pex->execute($paramsPr);
+        $preExportRows = $pex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        programReportsCsvHeaders('program-preregistration-' . date('Ymd-His') . '.csv');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Email', 'Note', 'Registered At']);
+        foreach ($preExportRows as $r) {
+            fputcsv($out, [
+                (string)($r['program_title'] ?? ''),
+                (string)($r['event_date'] ?? ''),
+                (string)($r['display_name'] ?? $r['member_name'] ?? ''),
+                (string)($r['member_card_no'] ?? ''),
+                (string)($r['member_phone'] ?? $r['member_mobile'] ?? $r['phone'] ?? ''),
+                (string)($r['member_email'] ?? ''),
+                (string)($r['note'] ?? ''),
+                (string)($r['created_at'] ?? ''),
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+
+    if ($exportType === 'requests') {
+        $whereReq = "r.status='pending'";
+        $paramsReq = [];
+        if ($programId > 0) {
+            $whereReq .= ' AND r.program_id=?';
+            $paramsReq[] = $programId;
+        }
+        if ($q !== '') {
+            $whereReq .= ' AND (r.member_card_no LIKE ? OR r.program_title LIKE ? OR r.member_name LIKE ? OR m.name LIKE ?)';
+            $like = "%$q%";
+            array_push($paramsReq, $like, $like, $like, $like);
+        }
+        $reqExportSql = "SELECT r.*, COALESCE(NULLIF(m.name,''), r.member_name) AS display_name, m.phone AS matched_phone, p.event_date, p.location
+               FROM member_program_attendance_requests r
+               LEFT JOIN members m ON m.id=r.member_id
+               LEFT JOIN upcoming_programs p ON p.id=r.program_id
+               WHERE {$whereReq}
+               ORDER BY r.requested_at ASC";
+        $rex = $db->prepare($reqExportSql);
+        $rex->execute($paramsReq);
+        $reqExportRows = $rex->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        programReportsCsvHeaders('program-attendance-requests-' . date('Ymd-His') . '.csv');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Program', 'Event Date', 'Member Name', 'Member ID', 'Phone', 'Address', 'Source', 'IP', 'User Agent', 'Requested At']);
+        foreach ($reqExportRows as $r) {
+            fputcsv($out, [
+                (string)($r['program_title'] ?? ''),
+                (string)($r['event_date'] ?? ''),
+                (string)($r['display_name'] ?? $r['member_name'] ?? ''),
+                (string)($r['member_card_no'] ?? ''),
+                (string)($r['matched_phone'] ?? $r['member_phone'] ?? ''),
+                (string)($r['member_address'] ?? ''),
+                (string)($r['source'] ?? ''),
+                (string)($r['verified_by_ip'] ?? ''),
+                (string)($r['user_agent'] ?? ''),
+                (string)($r['requested_at'] ?? ''),
+            ]);
+        }
+        fclose($out);
+        exit;
+    }
+}
+
 if (!ob_get_level()) {
     ob_start();
 }
@@ -640,7 +812,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
       </div>
       <div class="col-12 col-md-10 d-flex flex-wrap gap-2">
         <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i><?php echo adminLangT('फिल्टर', 'Filter'); ?></button>
-        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><i class="fas fa-file-excel me-1"></i>Excel/CSV (<?php echo adminLangT('सबै फिल्टर', 'all filters'); ?>)</a>
+        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><?php echo function_exists('icon') ? icon('file-spreadsheet', 16, 'margin-right:6px;') : '<i class="fas fa-file-excel me-1"></i>'; ?>Excel/CSV (<?php echo adminLangT('सबै फिल्टर', 'all filters'); ?>)</a>
         <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 'prereg'])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary"><i class="fas fa-user-plus me-1"></i>Pre-Reg CSV</a>
         <?php if ($paQuery !== []): ?><a href="program-attendance.php" class="btn btn-outline-secondary">Reset</a><?php endif; ?>
       </div>
@@ -651,14 +823,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 
 <?php
   $statCards = [
-    ['icon'=>'fa-chart-bar',      'label'=>adminLangT('कुल उपस्थिति','Total Attendance'), 'value'=>(int)$totalAttendance,        'color'=>'primary'],
-    ['icon'=>'fa-users',          'label'=>'अद्वितीय सदस्य',                        'value'=>(int)$uniqueMembers,          'color'=>'success'],
-    ['icon'=>'fa-star',           'label'=>'Priority मार्क',                          'value'=>(int)$priorityCount,          'color'=>'warning'],
-    ['icon'=>'fa-calendar-days',  'label'=>adminLangT('कार्यक्रम संख्या','Program Count'), 'value'=>(int)$distinctProgramCount,   'color'=>'info'],
-    ['icon'=>'fa-mars',           'label'=>'पुरुष (Male)',                             'value'=>(int)$genderCounts['male'],   'color'=>'secondary'],
-    ['icon'=>'fa-venus',          'label'=>'महिला (Female)',                           'value'=>(int)$genderCounts['female'], 'color'=>'danger'],
-    ['icon'=>'fa-circle-question','label'=>'अन्य (Other)',                             'value'=>(int)$genderCounts['other'],  'color'=>'secondary'],
-    ['icon'=>'fa-circle-minus',   'label'=>'अनिर्दिष्ट',                              'value'=>(int)$genderCounts['unknown'],'color'=>'secondary'],
+    ['icon'=>'bar-chart-3',     'label'=>adminLangT('कुल उपस्थिति','Total Attendance'), 'value'=>(int)$totalAttendance,        'color'=>'primary'],
+    ['icon'=>'users',            'label'=>'अद्वितीय सदस्य',                        'value'=>(int)$uniqueMembers,          'color'=>'success'],
+    ['icon'=>'star',             'label'=>'Priority मार्क',                          'value'=>(int)$priorityCount,          'color'=>'warning'],
+    ['icon'=>'calendar-range',   'label'=>adminLangT('कार्यक्रम संख्या','Program Count'), 'value'=>(int)$distinctProgramCount,   'color'=>'info'],
+    ['icon'=>'user',             'label'=>'पुरुष (Male)',                             'value'=>(int)$genderCounts['male'],   'color'=>'secondary'],
+    ['icon'=>'user-round',       'label'=>'महिला (Female)',                           'value'=>(int)$genderCounts['female'], 'color'=>'danger'],
+    ['icon'=>'help-circle',       'label'=>'अन्य (Other)',                             'value'=>(int)$genderCounts['other'],  'color'=>'secondary'],
+    ['icon'=>'minus-circle',      'label'=>'अनिर्दिष्ट',                              'value'=>(int)$genderCounts['unknown'],'color'=>'secondary'],
   ];
   $statColClass = 'col-6 col-sm-4 col-md-3 col-lg-2';
   include __DIR__ . '/../includes/components/stat-card.php';

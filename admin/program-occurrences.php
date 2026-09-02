@@ -87,8 +87,8 @@ if ($editId > 0) {
 }
 ?>
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader('स्थान / सत्र (Occurrences)', 'fa-map-marker-alt', 'Multi-location AGM जस्ता कार्यक्रमका लागि Banepa, Panauti, … स्थान/मिति/QR यहाँ व्यवस्थापन गर्नुहोस्।',
-      '<a href="programs.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>कार्यक्रम सूची</a>'); ?>
+  <?php echo adminPageHeader('स्थान / सत्र (Occurrences)', 'map-pin', 'Multi-location AGM जस्ता कार्यक्रमका लागि Banepa, Panauti, … स्थान/मिति/QR यहाँ व्यवस्थापन गर्नुहोस्।',
+      '<a href="programs.php" class="btn btn-outline-secondary btn-sm">' . (function_exists('icon') ? icon('arrow-left', 14, 'margin-right:4px;') : '<i class="fas fa-arrow-left me-1"></i>') . 'कार्यक्रम सूची</a>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
   <div class="card admin-table-card mb-3">

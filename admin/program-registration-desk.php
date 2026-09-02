@@ -110,15 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="ne">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registration Desk - Admin</title>
-<link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/vendor/bootstrap.min.css">
-<?php if (function_exists('coopThemeHeadAssets')) coopThemeHeadAssets('admin'); ?>
 <style>
-.desk-shell { min-height:100vh; background:linear-gradient(135deg,#064e3b 0%,#0f766e 100%); padding:1rem; }
+.desk-page-wrap { padding: 0.25rem 0 1rem; }
+.desk-shell { background: linear-gradient(135deg,#064e3b 0%,#0f766e 100%); padding: 1rem; border-radius: 14px; }
 .desk-card { background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,.15); max-width:920px; margin:0 auto; }
 .desk-header { background:#ecfdf5; border-radius:16px 16px 0 0; padding:1rem 1.25rem; border-bottom:1px solid #d1fae5; }
 .desk-member-id { font-size:1.5rem; font-weight:700; letter-spacing:.02em; }
@@ -132,15 +126,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 .desk-inline-warn { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:.65rem .85rem; font-size:.85rem; color:#92400e; }
 .desk-kbd { font-size:.72rem; color:#64748b; }
 </style>
-</head>
-<body class="desk-shell">
+<div class="container-fluid desk-page-wrap">
+<?php echo adminPageHeader('Registration Desk', 'monitor', 'कार्डको Member ID (सदस्यता नं.) → lookup → Confirm · Staff को एक मात्र उपस्थिति दर्ता ठाउँ',
+    '<a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">← Dashboard</a>'); ?>
+<div class="desk-shell">
 <div class="desk-card">
   <div class="desk-header d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div>
-      <strong><i class="fas fa-desktop me-1"></i> Registration Desk</strong>
-      <div class="small text-muted">कार्डको Member ID (सदस्यता नं.) → lookup → Confirm · Staff को एक मात्र उपस्थिति दर्ता ठाउँ</div>
+      <strong><?php echo function_exists('icon') ? icon('monitor', 16, 'margin-right:6px;') : '<i class="fas fa-desktop me-1"></i>'; ?> Registration Desk</strong>
+      <div class="small text-muted">Member ID टाइप → auto lookup → Confirm</div>
     </div>
-    <a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">← Dashboard</a>
   </div>
   <div class="p-3 p-md-4">
     <?php if ($saved && $memberPreview): ?>
@@ -243,6 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     </details>
     <?php endif; ?>
   </div>
+</div>
+</div>
 </div>
 <script>
 (function(){
@@ -351,5 +348,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
   <?php endif; ?>
 })();
 </script>
-</body>
-</html>
+<?php require_once 'includes/admin-footer.php'; ?>
