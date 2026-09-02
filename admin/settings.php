@@ -392,7 +392,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 <label for="stg_pwa_app_name" class="form-label"><?php echo $__t('PWA App नाम (पूरा)', 'PWA App Name (Full)'); ?></label>
                                 <input type="text" name="pwa_app_name" id="stg_pwa_app_name" class="form-control"
                                        value="<?php echo htmlspecialchars($settings['pwa_app_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                       placeholder="<?php echo htmlspecialchars($settings['site_name'] ?? 'सहकारी HRM & CMS System', ENT_QUOTES, 'UTF-8'); ?>">
+                                       placeholder="<?php echo htmlspecialchars($settings['site_name'] ?? 'सहकारी CMS System', ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="form-text"><?php echo $__t('Install prompt र splash screen मा देखिन्छ।', 'Shown on install prompt and splash screen.'); ?></div>
                             </div>
                         </div>
@@ -401,7 +401,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 <label for="stg_pwa_short_name" class="form-label"><?php echo $__t('PWA Short Name (छोटो नाम)', 'PWA Short Name'); ?></label>
                                 <input type="text" name="pwa_short_name" id="stg_pwa_short_name" class="form-control" maxlength="12"
                                        value="<?php echo htmlspecialchars($settings['pwa_short_name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                       placeholder="<?php echo htmlspecialchars($settings['site_name_en'] ?? 'HRM System', ENT_QUOTES, 'UTF-8'); ?>">
+                                       placeholder="<?php echo htmlspecialchars($settings['site_name_en'] ?? 'Cooperative CMS', ENT_QUOTES, 'UTF-8'); ?>">
                                 <div class="form-text"><?php echo $__t('Home screen icon मुनि देखिन्छ — अधिकतम १२ अक्षर।', 'Shown under home screen icon — max 12 characters.'); ?></div>
                             </div>
                         </div>

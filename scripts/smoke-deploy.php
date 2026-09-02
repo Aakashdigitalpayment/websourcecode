@@ -41,6 +41,7 @@ function assertContains(string $file, string $needle, string $why): void
 }
 
 assertContains('scripts/deploy-pull-safe.sh', 'git stash push', 'deploy script stashes htaccess');
+assertContains('scripts/deploy-pull-safe.sh', 'drop-hrm-tables-safe.php', 'deploy one-time hrm table drop');
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'deploy script pulls branch');
 assertContains('scripts/run-all-smokes.sh', 'smoke-*.php', 'run-all-smokes loops scripts');
 assertContains('.github/workflows/smoke.yml', 'smoke-*.php', 'CI runs smoke scripts');

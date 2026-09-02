@@ -39,6 +39,24 @@ if [[ "$HTACCESS_STASHED" -eq 1 ]]; then
   fi
 fi
 
+# One-time retired HRM module DB cleanup (no app code uses hrm_* tables anymore)
+HRM_DROP_FLAG="$ROOT/cache/.hrm-tables-dropped"
+if [[ ! -f "$HRM_DROP_FLAG" ]] && command -v php >/dev/null 2>&1; then
+  set +e
+  php scripts/drop-hrm-tables-safe.php --yes
+  hrm_rc=$?
+  set -e
+  if [[ "$hrm_rc" -eq 0 ]]; then
+    mkdir -p "$ROOT/cache"
+    touch "$HRM_DROP_FLAG"
+    echo "==> HRM tables dropped or already absent (one-time; flag: cache/.hrm-tables-dropped)"
+  elif [[ "$hrm_rc" -eq 2 ]]; then
+    echo "==> HRM table drop skipped (DB not configured on this host)"
+  else
+    echo "==> HRM table drop failed (non-fatal; check DB and re-run php scripts/drop-hrm-tables-safe.php --yes)"
+  fi
+fi
+
 echo ""
 echo "==> Pull complete."
 echo "    Optional smoke: php scripts/smoke-security.php"

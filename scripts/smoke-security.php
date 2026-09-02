@@ -88,7 +88,8 @@ assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'track
 assertFileContains('downloads.php', 'coop_public_download_url($item', 'download file href guarded');
 assertFileContains('api-public-chat.php', 'contact_messages', 'public chat stores in contact_messages');
 assertFileContains('admin/includes/admin-header.php', 'messages.php', 'admin messages nav present');
-assertFileContains('admin/hrm-dashboard.php', 'Location: dashboard.php', 'hrm dashboard redirect stub');
+assertFileContains('scripts/drop-hrm-tables-safe.php', 'hrm_internal_messages', 'hrm drop script lists messages table');
+assertFileContains('database/install.sql', 'HRM module removed', 'install.sql no longer creates hrm tables');
 assertFileContains('notices.php', 'coop_public_download_url($attachRaw)', 'notice detail attachment guarded');
 assertFileContains('includes/header.php', 'coop_public_download_url($attachRaw)', 'notice popup attachment guarded');
 assertFileContains('admin/notices.php', 'coop_stored_upload_exists($item[\'attachment\'])', 'admin notice list file exists check');

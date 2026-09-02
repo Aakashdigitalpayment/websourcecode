@@ -5,7 +5,7 @@ $__coreHelpers = __DIR__ . '/../../core/helpers.php';
 if (is_file($__coreHelpers)) {
     require_once $__coreHelpers;
 }
-/* RBAC helpers — require_role() for HRM / KYC pages */
+/* RBAC helpers — require_role() for restricted admin pages */
 $__authRoles = __DIR__ . '/../../includes/auth-roles.php';
 if (is_file($__authRoles)) {
     require_once $__authRoles;
