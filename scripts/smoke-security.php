@@ -97,7 +97,7 @@ assertFileContains('includes/config.php', 'function coop_resolve_stored_upload_r
 assertFileContains('services.php', 'safe_media_src($service', 'service image src guarded');
 assertFileContains('member/check-availability.php', 'coop_client_ip', 'availability rate limit client ip');
 assertFileContains('includes/footer.php', 'coop_client_ip', 'visitor counter client ip');
-assertFileContains('application-tracker.php', 'safe_media_src($app[\'admin_attachment\']', 'tracker attachment href guarded');
+assertFileContains('application-tracker.php', 'coop_public_download_url($app[\'admin_attachment\']', 'tracker attachment href guarded');
 assertFileContains('awards.php', 'safe_media_src($award', 'awards image src guarded');
 assertFileContains('includes/member-auth.php', 'coop_client_ip', 'member session ip binding');
 assertFileContains('index.php', 'safe_versioned_media_src', 'homepage versioned media src');
