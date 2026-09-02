@@ -64,10 +64,15 @@ if ($singleNotice) {
     $pageOgType = 'article';
     $pageOgImageAlt = $pageTitle;
     $attach = trim((string) ($singleNotice['attachment'] ?? ''));
-    if ($attach !== '' && function_exists('safe_public_upload_path')) {
-        $safeAtt = safe_public_upload_path($attach);
-        if ($safeAtt !== '' && preg_match('/\.(jpe?g|png|webp|gif)$/i', $safeAtt)) {
-            $pageOgImage = $safeAtt;
+    if ($attach !== '' && function_exists('coop_stored_upload_exists') && coop_stored_upload_exists($attach)) {
+        if (function_exists('safe_public_upload_path')) {
+            $safeAtt = safe_public_upload_path($attach);
+            if ($safeAtt === '' && function_exists('coop_resolve_stored_upload_rel')) {
+                $safeAtt = coop_resolve_stored_upload_rel($attach);
+            }
+            if ($safeAtt !== '' && preg_match('/\.(jpe?g|png|webp|gif)$/i', $safeAtt)) {
+                $pageOgImage = function_exists('getAssetUrl') ? getAssetUrl($safeAtt) : $safeAtt;
+            }
         }
     }
     $seoBreadcrumbs[] = ['name' => $pageTitle];
@@ -143,26 +148,35 @@ require_once 'includes/header.php';
                             ? coop_render_cms_prose($singleNotice['content'] ?? '')
                             : coop_sanitize_cms_html($singleNotice['content'] ?? ''); ?>
                     </div>
-                    <?php if ($singleNotice['attachment']):
-                        $attUrl = function_exists('coop_notice_media_src')
-                            ? coop_notice_media_src($singleNotice['attachment'])
-                            : safe_media_src($singleNotice['attachment']);
-                        $attIsPdf = (bool)preg_match('/\.pdf$/i', (string)$singleNotice['attachment']);
-                        $attIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', (string)$singleNotice['attachment']);
+                    <?php
+                    $attachRaw = trim((string) ($singleNotice['attachment'] ?? ''));
+                    if ($attachRaw !== ''):
+                        $attUrl = function_exists('coop_public_download_url')
+                            ? coop_public_download_url($attachRaw)
+                            : (function_exists('coop_notice_media_src') ? coop_notice_media_src($attachRaw) : safe_media_src($attachRaw));
+                        $attIsPdf = (bool)preg_match('/\.pdf$/i', $attachRaw);
+                        $attIsImg = (bool)preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw);
                     ?>
+                    <?php if ($attUrl !== ''): ?>
                     <div class="notice-attachment">
-                        <?php if ($attIsImg && $attUrl !== ''): ?>
+                        <?php if ($attIsImg): ?>
                         <div class="notice-inline-image mb-3">
                             <img src="<?php echo e($attUrl); ?>" alt="" loading="lazy" decoding="async">
                         </div>
                         <?php endif; ?>
-                        <?php if ($attUrl !== ''): ?>
                         <a href="<?php echo e($attUrl); ?>" class="btn nts-btn-primary" target="_blank" rel="noopener noreferrer">
                             <i class="fas <?php echo $attIsPdf ? 'fa-file-pdf' : ($attIsImg ? 'fa-image' : 'fa-paperclip'); ?>"></i>
                             <?php echo isEnglish() ? 'View full notice' : 'पूरा सूचना हेर्नुहोस्'; ?>
                         </a>
-                        <?php endif; ?>
                     </div>
+                    <?php else: ?>
+                    <div class="notice-attachment">
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <?php echo isEnglish() ? 'Attached file is not available.' : 'संलग्न फाइल उपलब्ध छैन।'; ?>
+                        </p>
+                    </div>
+                    <?php endif; ?>
                     <?php endif; ?>
                     <div class="notice-footer">
                         <a href="notices.php" class="btn btn-outline-primary">

@@ -127,8 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_notice'])) {
         }
 
         if ($isPopup && $isPopupPhotoOnly) {
-            $hasPopupImg = $finalPopupImage !== ''
-                || ($finalAttachment !== '' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $finalAttachment));
+            $hasPopupImg = coop_stored_upload_exists($finalPopupImage !== '' ? $finalPopupImage : null)
+                || (coop_stored_upload_exists($finalAttachment !== '' ? $finalAttachment : null)
+                    && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $finalAttachment));
             if (!$hasPopupImg) {
                 setFlash(
                     'error',
@@ -250,6 +251,8 @@ $startOnFormTab = $editNotice !== null;
 $ef = is_array($editNotice) ? $editNotice : [];
 $efAttachment = trim((string) ($ef['attachment'] ?? ''));
 $efPopupImage = trim((string) ($ef['popup_image'] ?? ''));
+$efAttachmentExists = $efAttachment !== '' && coop_stored_upload_exists($efAttachment);
+$efPopupImageExists = $efPopupImage !== '' && coop_stored_upload_exists($efPopupImage);
 $ntcBasename = static function (?string $path): string {
     $path = trim(str_replace('\\', '/', (string) $path));
     return $path !== '' ? basename($path) : '';
@@ -328,7 +331,11 @@ $ntcBasename = static function (?string $path): string {
                                 <td data-label="शीर्षक">
                                     <div class="fw-semibold text-dark"><?php echo htmlspecialchars($item['title']); ?></div>
                                     <?php if ($item['attachment']): ?>
+                                        <?php if (coop_stored_upload_exists($item['attachment'])): ?>
                                         <small class="ntc-muted"><i class="fas fa-paperclip me-1 ntc-file-icon"></i><?php echo $__t('फाइल संलग्न', 'File attached'); ?></small>
+                                        <?php else: ?>
+                                        <small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('फाइल छैन', 'No file'); ?></small>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if (!empty($item['is_active'])): ?>
                                     <div class="mt-1">
@@ -445,19 +452,29 @@ $ntcBasename = static function (?string $path): string {
                                     <i class="fas fa-paperclip me-1"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
                                     <small class="ntc-muted fw-normal" id="ntf_att_note"></small>
                                 </label>
-                                <div id="ntf_att_link" class="mb-2<?php echo $efAttachment !== '' ? '' : ' d-none'; ?>">
+                                <div id="ntf_att_link" class="mb-2<?php echo $efAttachmentExists ? '' : ' d-none'; ?>">
                                     <div class="alert alert-success py-2 px-3 mb-0 small">
                                         <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको फाइल', 'Currently uploaded file'); ?></div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
                                             <i class="<?php echo preg_match('/\.pdf$/i', $efAttachment) ? 'fas fa-file-pdf text-danger' : (preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $efAttachment) ? 'fas fa-file-image text-success' : 'fas fa-file text-secondary'); ?>" id="ntf_att_icon" aria-hidden="true"></i>
                                             <span id="ntf_att_name" class="text-truncate fw-semibold"><?php echo htmlspecialchars($ntcBasename($efAttachment), ENT_QUOTES, 'UTF-8'); ?></span>
-                                            <a id="ntf_att_href" href="<?php echo $efAttachment !== '' ? '../' . htmlspecialchars($efAttachment, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
+                                            <a id="ntf_att_href" href="<?php echo $efAttachmentExists ? '../' . htmlspecialchars($efAttachment, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
                                                 <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                             </a>
                                         </div>
                                         <div class="form-check mt-2 mb-0">
                                             <input class="form-check-input" type="checkbox" name="remove_attachment" id="ntf_remove_attachment" value="1">
                                             <label class="form-check-label small text-danger" for="ntf_remove_attachment"><?php echo $__t('यो फाइल हटाउनुहोस्', 'Remove this file'); ?></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="ntf_att_missing" class="mb-2<?php echo ($efAttachment !== '' && !$efAttachmentExists) ? '' : ' d-none'; ?>">
+                                    <div class="alert alert-warning py-2 px-3 mb-0 small">
+                                        <div class="fw-semibold mb-1"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('फाइल disk मा भेटिएन', 'File missing on disk'); ?></div>
+                                        <div class="text-truncate"><?php echo htmlspecialchars($ntcBasename($efAttachment), ENT_QUOTES, 'UTF-8'); ?></div>
+                                        <div class="form-check mt-2 mb-0">
+                                            <input class="form-check-input" type="checkbox" name="remove_attachment" id="ntf_remove_attachment_missing" value="1"<?php echo ($efAttachment !== '' && !$efAttachmentExists) ? ' checked' : ''; ?>>
+                                            <label class="form-check-label small" for="ntf_remove_attachment_missing"><?php echo $__t('DB बाट हटाउनुहोस्', 'Clear from database'); ?></label>
                                         </div>
                                     </div>
                                 </div>
@@ -500,14 +517,14 @@ $ntcBasename = static function (?string $path): string {
                                         <?php echo $__t('पप-अप फोटो (वैकल्पिक)', 'Popup image (optional)'); ?>
                                     </label>
                                     <small class="text-muted d-block mb-2"><?php echo $__t('Photo-only popup मा मुख्य रूपमा प्रयोग हुन्छ।', 'Used mainly for photo-only popup mode.'); ?></small>
-                                    <div id="ntf_popup_img_link" class="mb-2<?php echo $efPopupImage !== '' ? '' : ' d-none'; ?>">
+                                    <div id="ntf_popup_img_link" class="mb-2<?php echo $efPopupImageExists ? '' : ' d-none'; ?>">
                                         <div class="alert alert-success py-2 px-3 mb-0 small">
                                             <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको पप-अप फोटो', 'Current popup image'); ?></div>
                                             <div class="d-flex align-items-start gap-2 flex-wrap">
-                                                <img id="ntf_popup_img_preview" src="<?php echo $efPopupImage !== '' ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : ''; ?>" alt="" class="rounded border<?php echo $efPopupImage !== '' ? '' : ' d-none'; ?>" style="max-height:72px;max-width:110px;object-fit:contain;">
+                                                <img id="ntf_popup_img_preview" src="<?php echo $efPopupImageExists ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : ''; ?>" alt="" class="rounded border<?php echo $efPopupImageExists ? '' : ' d-none'; ?>" style="max-height:72px;max-width:110px;object-fit:contain;">
                                                 <div class="flex-grow-1">
                                                     <span id="ntf_popup_img_name" class="d-block text-truncate small fw-semibold"><?php echo htmlspecialchars($ntcBasename($efPopupImage), ENT_QUOTES, 'UTF-8'); ?></span>
-                                                    <a id="ntf_popup_img_href" href="<?php echo $efPopupImage !== '' ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
+                                                    <a id="ntf_popup_img_href" href="<?php echo $efPopupImageExists ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
                                                         <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                                     </a>
                                                 </div>
@@ -515,6 +532,16 @@ $ntcBasename = static function (?string $path): string {
                                             <div class="form-check mt-2 mb-0">
                                                 <input class="form-check-input" type="checkbox" name="remove_popup_image" id="ntf_remove_popup_image" value="1">
                                                 <label class="form-check-label small text-danger" for="ntf_remove_popup_image"><?php echo $__t('यो फोटो हटाउनुहोस्', 'Remove this image'); ?></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="ntf_popup_img_missing" class="mb-2<?php echo ($efPopupImage !== '' && !$efPopupImageExists) ? '' : ' d-none'; ?>">
+                                        <div class="alert alert-warning py-2 px-3 mb-0 small">
+                                            <div class="fw-semibold mb-1"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('पप-अप फोटो disk मा भेटिएन', 'Popup image missing on disk'); ?></div>
+                                            <div class="text-truncate"><?php echo htmlspecialchars($ntcBasename($efPopupImage), ENT_QUOTES, 'UTF-8'); ?></div>
+                                            <div class="form-check mt-2 mb-0">
+                                                <input class="form-check-input" type="checkbox" name="remove_popup_image" id="ntf_remove_popup_image_missing" value="1"<?php echo ($efPopupImage !== '' && !$efPopupImageExists) ? ' checked' : ''; ?>>
+                                                <label class="form-check-label small" for="ntf_remove_popup_image_missing"><?php echo $__t('DB बाट हटाउनुहोस्', 'Clear from database'); ?></label>
                                             </div>
                                         </div>
                                     </div>
@@ -668,6 +695,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ntf_popup').checked = false;
         document.getElementById('ntf_popup_photo_only').checked = false;
         document.getElementById('ntf_popup_opts').style.display = 'none';
+        ['ntf_att_missing', 'ntf_popup_img_missing'].forEach(function (id) {
+            var miss = document.getElementById(id);
+            if (miss) miss.classList.add('d-none');
+        });
         setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '', null, 'ntf_popup_img_empty', 'ntf_existing_popup_image', 'ntf_remove_popup_image');
         setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment', 'ntf_remove_attachment');
         resetFileInputs();

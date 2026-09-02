@@ -125,8 +125,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!popupDialog) return;
             const activeSlide = slides[currentSlide];
             const flagged = !!(activeSlide && activeSlide.getAttribute('data-photo-only') === '1');
-            const hasImg = !!(activeSlide && activeSlide.querySelector('.popup-photo-only-img'));
+            const hasImg = !!(activeSlide && activeSlide.querySelector('.popup-photo-only-img:not([data-broken="1"])'));
             popupDialog.classList.toggle('popup-dialog--photo-only', flagged && hasImg);
+        }
+
+        function bindPopupImageFallback() {
+            noticePopup.querySelectorAll('.popup-photo-only-img, .popup-inline-image img').forEach(function (img) {
+                if (img.dataset.fallbackBound === '1') return;
+                img.dataset.fallbackBound = '1';
+                img.addEventListener('error', function () {
+                    img.dataset.broken = '1';
+                    img.style.display = 'none';
+                    updatePhotoOnlyMode();
+                });
+            });
         }
 
         // Function to go to specific slide
@@ -151,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update PDF button
             updateDocButton();
             updatePhotoOnlyMode();
+            bindPopupImageFallback();
 
             // Reset progress
             resetProgress();
@@ -195,12 +208,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Only show if not already seen
+        bindPopupImageFallback();
         if (!alreadySeen) {
             setTimeout(function() {
                 noticePopup.classList.add('show');
                 document.body.classList.add('notice-popup-open');
                 updateDocButton();
                 updatePhotoOnlyMode();
+                bindPopupImageFallback();
                 startAutoRotate();
             }, 800);
         }

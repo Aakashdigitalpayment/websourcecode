@@ -1502,7 +1502,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li class="pfl-bell-item<?php echo $bni < 3 ? ' pfl-bell-item--new' : ''; ?>">
                                 <a href="<?php echo SITE_URL; ?>notices.php?id=<?php echo (int)$bn['id']; ?>">
                                     <span class="pfl-bell-item-icon">
-                                        <?php if (!empty($bn['attachment'])): ?>
+                                        <?php if (function_exists('coop_stored_upload_exists') && coop_stored_upload_exists($bn['attachment'] ?? '')): ?>
                                             <i class="fas fa-paperclip"></i>
                                         <?php else: ?>
                                             <i class="fas fa-file-alt"></i>
@@ -2410,9 +2410,11 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <div class="popup-carousel" id="popupCarousel">
                 <?php foreach ($popupNotices as $index => $notice):
                     $attachRaw = trim((string)($notice['attachment'] ?? ''));
-                    $attachFullUrl = function_exists('coop_notice_media_src')
-                        ? coop_notice_media_src($attachRaw)
-                        : (function_exists('safe_media_src') ? safe_media_src($attachRaw) : '');
+                    $attachFullUrl = function_exists('coop_public_download_url')
+                        ? coop_public_download_url($attachRaw)
+                        : (function_exists('coop_notice_media_src')
+                            ? coop_notice_media_src($attachRaw)
+                            : (function_exists('safe_media_src') ? safe_media_src($attachRaw) : ''));
                     /* photo-only popup: use popup_image if set, else attachment if it's an image */
                     $isPhotoOnly = !empty($notice['popup_photo_only']);
                     $photoOnlySrc = '';
@@ -2424,9 +2426,11 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             $photoOnlySrc = $attachRaw;
                         }
                         if ($photoOnlySrc !== '') {
-                            $photoOnlyUrl = function_exists('coop_notice_media_src')
-                                ? coop_notice_media_src($photoOnlySrc)
-                                : (function_exists('safe_media_src') ? safe_media_src($photoOnlySrc) : '');
+                            $photoOnlyUrl = function_exists('coop_public_download_url')
+                                ? coop_public_download_url($photoOnlySrc)
+                                : (function_exists('coop_notice_media_src')
+                                    ? coop_notice_media_src($photoOnlySrc)
+                                    : (function_exists('safe_media_src') ? safe_media_src($photoOnlySrc) : ''));
                         }
                     }
                 ?>
@@ -2477,9 +2481,11 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         $popupImgRaw = trim((string) ($notice['popup_image'] ?? ''));
                         $inlineImgUrl = '';
                         if ($popupImgRaw !== '') {
-                            $inlineImgUrl = function_exists('coop_notice_media_src')
-                                ? coop_notice_media_src($popupImgRaw)
-                                : safe_media_src($popupImgRaw);
+                            $inlineImgUrl = function_exists('coop_public_download_url')
+                                ? coop_public_download_url($popupImgRaw)
+                                : (function_exists('coop_notice_media_src')
+                                    ? coop_notice_media_src($popupImgRaw)
+                                    : safe_media_src($popupImgRaw));
                         } elseif ($attachFullUrl !== '' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $attachRaw)) {
                             $inlineImgUrl = $attachFullUrl;
                         }

@@ -1193,6 +1193,38 @@ function safe_media_src(?string $path): string
 }
 
 /**
+ * Resolve a stored upload path to a safe relative file path on disk (empty if not found).
+ * Handles legacy bare filenames under assets/uploads/notices/.
+ */
+function coop_resolve_stored_upload_rel(?string $path): string
+{
+    if ($path === null || trim($path) === '') {
+        return '';
+    }
+    $path = trim(str_replace('\\', '/', $path));
+    if (preg_match('#^https?://#i', $path)) {
+        return '';
+    }
+    $rel = safe_public_upload_path($path);
+    if ($rel === '') {
+        $rel = safe_public_media_path($path);
+    }
+    if ($rel === '') {
+        $normalized = ltrim($path, '/');
+        if ($normalized !== '' && !preg_match('#^(assets/uploads/|uploads/)#i', $normalized)) {
+            $try = 'assets/uploads/notices/' . basename($normalized);
+            $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+            if (is_file($root . ltrim($try, '/'))) {
+                return $try;
+            }
+        }
+        return '';
+    }
+    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
+    return is_file($root . ltrim($rel, '/')) ? $rel : '';
+}
+
+/**
  * Whether a stored path points to a safe local file or allowed external URL.
  */
 function coop_stored_upload_exists(?string $path): bool
@@ -1204,15 +1236,7 @@ function coop_stored_upload_exists(?string $path): bool
     if (preg_match('#^https?://#i', $path)) {
         return function_exists('safe_http_url') && safe_http_url($path) !== '';
     }
-    $rel = safe_public_upload_path($path);
-    if ($rel === '') {
-        $rel = safe_public_media_path($path);
-    }
-    if ($rel === '') {
-        return false;
-    }
-    $root = defined('ROOT_PATH') ? ROOT_PATH : (dirname(__DIR__) . '/');
-    return is_file($root . ltrim($rel, '/'));
+    return coop_resolve_stored_upload_rel($path) !== '';
 }
 
 /**
@@ -1222,6 +1246,20 @@ function coop_public_download_url(?string $path): string
 {
     if (!coop_stored_upload_exists($path)) {
         return '';
+    }
+    $path = trim(str_replace('\\', '/', (string) $path));
+    if (preg_match('#^https?://#i', $path)) {
+        return function_exists('safe_http_url') ? safe_http_url($path) : '';
+    }
+    $rel = coop_resolve_stored_upload_rel($path);
+    if ($rel !== '') {
+        return getAssetUrl($rel);
+    }
+    if (function_exists('coop_notice_media_src')) {
+        $noticeUrl = coop_notice_media_src($path);
+        if ($noticeUrl !== '') {
+            return $noticeUrl;
+        }
     }
     return safe_media_src($path);
 }
