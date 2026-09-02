@@ -32,12 +32,12 @@ $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">
     <thead><tr><th>Time</th><th>Member</th><th>Program</th><th>Method</th><th>Result</th><th>Previous</th><th>Message</th></tr></thead>
     <tbody><?php foreach ($rows as $r): ?><tr>
-      <td class="small"><?php echo htmlspecialchars(substr((string)($r['attempted_at']??''),0,16)); ?></td>
+      <td class="small"><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attempted_at']??'')); ?></td>
       <td><?php echo htmlspecialchars(($r['sadasyata_number']??'').' '.($r['member_name']??'')); ?></td>
       <td><?php echo htmlspecialchars($r['program_title']??''); ?></td>
-      <td><?php echo htmlspecialchars($r['attempted_method']??''); ?></td>
+      <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attempted_method']??'')); ?></td>
       <td><span class="badge bg-danger"><?php echo htmlspecialchars($r['result']??''); ?></span></td>
-      <td class="small"><?php echo htmlspecialchars(($r['prev_location']??'').' '.substr((string)($r['prev_attended_at']??''),0,16)); ?></td>
+      <td class="small"><?php echo htmlspecialchars(($r['prev_location']??'').' '.programReportsFormatAttendedAt($r['prev_attended_at']??'')); ?></td>
       <td class="small"><?php echo htmlspecialchars($r['result_message']??''); ?></td>
     </tr><?php endforeach; if(empty($rows)): ?><tr><td colspan="7" class="text-muted text-center py-3">No attempts logged.</td></tr><?php endif; ?></tbody>
   </table></div></div>

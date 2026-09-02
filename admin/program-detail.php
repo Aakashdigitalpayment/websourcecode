@@ -15,27 +15,20 @@ if (!$prog) {
     redirect('programs.php');
 }
 
-$scope = programResolveScopeId($prog);
-$attended = programCountUniqueAttended($db, $scope);
-$eligible = programCountActiveMembers($db);
-$pct = $eligible > 0 ? round(($attended / $eligible) * 100, 1) : 0;
-$occCount = 0;
-$occRows = [];
-if ((int)($prog['is_multi_location'] ?? 0) === 1) {
-    $occRows = programOccurrenceCounts($db, $id);
-    $occCount = count($occRows);
-}
+$stats = programLiveStatsForProgram($db, $prog);
+$scope = $stats['scope'];
+$attended = $stats['attended'];
+$eligible = $stats['eligible'];
+$pct = $stats['pct'];
+$prereg = $stats['prereg'];
+$occRows = $stats['occurrences'];
+$occCount = count($occRows);
+
 $pending = 0;
 try {
     $st = $db->prepare("SELECT COUNT(*) FROM member_program_attendance_requests WHERE program_id=? AND status='pending'");
     $st->execute([$id]);
     $pending = (int)$st->fetchColumn();
-} catch (Throwable $e) {}
-$prereg = 0;
-try {
-    $st = $db->prepare('SELECT COUNT(*) FROM member_program_preregistrations WHERE program_id=?');
-    $st->execute([$id]);
-    $prereg = (int)$st->fetchColumn();
 } catch (Throwable $e) {}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

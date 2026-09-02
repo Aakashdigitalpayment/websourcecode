@@ -1,18 +1,14 @@
 <?php
-$__t = static function (string $np, string $en): string {
-    $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
-    return strtolower($lang) === 'en' ? $en : $np;
-};
-$pageTitle = $__t('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report');
 $currentPage = 'program-attendance';
 /* CSV export अघि HTML नछापियोस् — नत्र Excel मा पूरै page source “code” जस्तो देखिन्छ */
 if (!ob_get_level()) {
     ob_start();
 }
 require_once 'includes/admin-header.php';
-require_once 'includes/admin-ui.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
+
+$pageTitle = adminLangT('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report');
 
 $db = getDB();
 ensureProgramTables($db);
@@ -607,19 +603,19 @@ $totalAttendance = $totalFiltered;
 $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER BY is_active DESC, COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid py-3">
-<?php echo adminPageHeader($__t('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report'), 'fa-clipboard-check', $__t('कार्यक्रम छानेर pre-registration र उपस्थिति हेर्नुहोस्। लामो सूचीको लागि कार्यक्रम व्यवस्थापनमा सक्रिय/निष्क्रिय छुट्याउनुहोस्।', 'Select a program to view pre-registrations and attendance. For long lists, separate active/inactive from program management.'),
-    '<a class="btn btn-outline-primary btn-sm" href="programs.php"><i class="fas fa-calendar-plus me-1"></i>' . $__t('कार्यक्रम व्यवस्थापन', 'Program Management') . '</a>'); ?>
+<?php echo adminPageHeader(adminLangT('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report'), 'fa-clipboard-check', adminLangT('कार्यक्रम छानेर pre-registration र उपस्थिति हेर्नुहोस्। लामो सूचीको लागि कार्यक्रम व्यवस्थापनमा सक्रिय/निष्क्रिय छुट्याउनुहोस्।', 'Select a program to view pre-registrations and attendance. For long lists, separate active/inactive from program management.'),
+    '<a class="btn btn-outline-primary btn-sm" href="programs.php"><i class="fas fa-calendar-plus me-1"></i>' . adminLangT('कार्यक्रम व्यवस्थापन', 'Program Management') . '</a>'); ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <div class="card admin-table-card mb-3">
   <div class="card-body">
     <form class="row g-2 align-items-end" method="get" action="program-attendance.php">
-      <div class="col-md-3"><label for="pa_program_id" class="form-label small mb-1"><?php echo $__t('कार्यक्रम','Program'); ?></label><select name="program_id" id="pa_program_id" class="form-select"><option value="0"><?php echo $__t('सबै कार्यक्रम','All Programs'); ?></option><?php foreach ($programs as $p): ?><?php
+      <div class="col-md-3"><label for="pa_program_id" class="form-label small mb-1"><?php echo adminLangT('कार्यक्रम','Program'); ?></label><select name="program_id" id="pa_program_id" class="form-select"><option value="0"><?php echo adminLangT('सबै कार्यक्रम','All Programs'); ?></option><?php foreach ($programs as $p): ?><?php
           $pTitle = (string)($p['title'] ?? '');
           $pInactive = isset($p['is_active']) && (int)$p['is_active'] !== 1;
           $pLabel = $pTitle . ($pInactive ? ' (निष्क्रिय)' : '');
       ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId === (int)$p['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($pLabel); ?></option><?php endforeach; ?></select></div>
-      <div class="col-md-3"><label for="pa_q" class="form-label small mb-1"><?php echo $__t('खोज (नाम / सदस्य नं. / कार्यक्रम)', 'Search (name / member no. / program)'); ?></label><input name="q" id="pa_q" class="form-control" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo $__t('खोज…', 'Search...'); ?>"></div>
+      <div class="col-md-3"><label for="pa_q" class="form-label small mb-1"><?php echo adminLangT('खोज (नाम / सदस्य नं. / कार्यक्रम)', 'Search (name / member no. / program)'); ?></label><input name="q" id="pa_q" class="form-control" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo adminLangT('खोज…', 'Search...'); ?>"></div>
       <div class="col-md-2"><label for="pa_date_from" class="form-label small mb-1">देखि</label><input type="date" name="date_from" id="pa_date_from" class="form-control" value="<?php echo htmlspecialchars($dateFrom); ?>"></div>
       <div class="col-md-2"><label for="pa_date_to" class="form-label small mb-1">सम्म</label><input type="date" name="date_to" id="pa_date_to" class="form-control" value="<?php echo htmlspecialchars($dateTo); ?>"></div>
       <div class="col-md-2">
@@ -633,22 +629,22 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         </label>
       </div>
       <div class="col-12 col-md-10 d-flex flex-wrap gap-2">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i><?php echo $__t('फिल्टर', 'Filter'); ?></button>
-        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><i class="fas fa-file-excel me-1"></i>Excel/CSV (<?php echo $__t('सबै फिल्टर', 'all filters'); ?>)</a>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i><?php echo adminLangT('फिल्टर', 'Filter'); ?></button>
+        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><i class="fas fa-file-excel me-1"></i>Excel/CSV (<?php echo adminLangT('सबै फिल्टर', 'all filters'); ?>)</a>
         <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 'prereg'])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary"><i class="fas fa-user-plus me-1"></i>Pre-Reg CSV</a>
         <?php if ($paQuery !== []): ?><a href="program-attendance.php" class="btn btn-outline-secondary">Reset</a><?php endif; ?>
       </div>
     </form>
-    <p class="small text-muted mb-0 mt-2"><?php echo $__t('उपस्थिति तालिका', 'Attendance table'); ?> <?php echo (int)$perPage; ?>/<?php echo $__t('पृष्ठ', 'page'); ?>. KPI <?php echo $__t('र चार्ट हालको फिल्टरको', 'and charts are based on'); ?> <strong><?php echo $__t('जम्मा', 'total'); ?></strong> <?php echo $__t('डाटामा आधारित छन्।', 'filtered data.'); ?></p>
+    <p class="small text-muted mb-0 mt-2"><?php echo adminLangT('उपस्थिति तालिका', 'Attendance table'); ?> <?php echo (int)$perPage; ?>/<?php echo adminLangT('पृष्ठ', 'page'); ?>. KPI <?php echo adminLangT('र चार्ट हालको फिल्टरको', 'and charts are based on'); ?> <strong><?php echo adminLangT('जम्मा', 'total'); ?></strong> <?php echo adminLangT('डाटामा आधारित छन्।', 'filtered data.'); ?></p>
   </div>
 </div>
 
 <?php
   $statCards = [
-    ['icon'=>'fa-chart-bar',      'label'=>$__t('कुल उपस्थिति','Total Attendance'), 'value'=>(int)$totalAttendance,        'color'=>'primary'],
+    ['icon'=>'fa-chart-bar',      'label'=>adminLangT('कुल उपस्थिति','Total Attendance'), 'value'=>(int)$totalAttendance,        'color'=>'primary'],
     ['icon'=>'fa-users',          'label'=>'अद्वितीय सदस्य',                        'value'=>(int)$uniqueMembers,          'color'=>'success'],
     ['icon'=>'fa-star',           'label'=>'Priority मार्क',                          'value'=>(int)$priorityCount,          'color'=>'warning'],
-    ['icon'=>'fa-calendar-days',  'label'=>$__t('कार्यक्रम संख्या','Program Count'), 'value'=>(int)$distinctProgramCount,   'color'=>'info'],
+    ['icon'=>'fa-calendar-days',  'label'=>adminLangT('कार्यक्रम संख्या','Program Count'), 'value'=>(int)$distinctProgramCount,   'color'=>'info'],
     ['icon'=>'fa-mars',           'label'=>'पुरुष (Male)',                             'value'=>(int)$genderCounts['male'],   'color'=>'secondary'],
     ['icon'=>'fa-venus',          'label'=>'महिला (Female)',                           'value'=>(int)$genderCounts['female'], 'color'=>'danger'],
     ['icon'=>'fa-circle-question','label'=>'अन्य (Other)',                             'value'=>(int)$genderCounts['other'],  'color'=>'secondary'],
@@ -697,7 +693,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   <div class="tab-pane fade show active" id="pa-pane-req" role="tabpanel" aria-labelledby="pa-tab-req">
 <div class="card admin-table-card mb-3 border-warning" style="border-width:2px;">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo $__t('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
+    <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo adminLangT('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
     <span class="badge bg-warning text-dark">Pending <?php echo (int)$reqPendingCount; ?></span>
   </div>
   <div class="card-body py-2 small text-muted border-bottom">
@@ -713,10 +709,10 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   </div>
   <div class="table-responsive">
     <table class="table table-hover table-sm align-middle mb-0">
-      <thead><tr><th><?php echo $__t('कार्यक्रम','Program'); ?></th><th><?php echo $__t('मिति / स्थान','Date / Location'); ?></th><th><?php echo $__t('सदस्य','Member'); ?></th><th><?php echo $__t('सदस्य नं.','Member No.'); ?></th><th><?php echo $__t('स्रोत','Source'); ?></th><th><?php echo $__t('अनुरोध समय','Request Time'); ?></th><th><?php echo $__t('कार्य','Actions'); ?></th></tr></thead>
+      <thead><tr><th><?php echo adminLangT('कार्यक्रम','Program'); ?></th><th><?php echo adminLangT('मिति / स्थान','Date / Location'); ?></th><th><?php echo adminLangT('सदस्य','Member'); ?></th><th><?php echo adminLangT('सदस्य नं.','Member No.'); ?></th><th><?php echo adminLangT('स्रोत','Source'); ?></th><th><?php echo adminLangT('अनुरोध समय','Request Time'); ?></th><th><?php echo adminLangT('कार्य','Actions'); ?></th></tr></thead>
       <tbody>
       <?php if (empty($reqRows)): ?>
-      <tr><td colspan="7" class="text-center text-muted py-3"><?php echo $__t('कुनै pending अनुरोध छैन।', 'No pending requests.'); ?></td></tr>
+      <tr><td colspan="7" class="text-center text-muted py-3"><?php echo adminLangT('कुनै pending अनुरोध छैन।', 'No pending requests.'); ?></td></tr>
       <?php endif; ?>
       <?php foreach ($reqRows as $rx): ?>
       <?php
@@ -734,18 +730,18 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <td class="small"><?php echo htmlspecialchars($rx['requested_at'] ?? ''); ?></td>
         <td>
           <div class="d-flex flex-wrap gap-1">
-            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo $__t('यो सदस्यलाई उपस्थिति सूचीमा थप्ने? स्थलमा उपस्थिति पुष्टि भइसकेको हो?', 'Add this member to attendance list? Is physical attendance confirmed?'); ?>');">
+            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo adminLangT('यो सदस्यलाई उपस्थिति सूचीमा थप्ने? स्थलमा उपस्थिति पुष्टि भइसकेको हो?', 'Add this member to attendance list? Is physical attendance confirmed?'); ?>');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="approve_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
-              <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check me-1"></i><?php echo $__t('स्वीकृत','Approve'); ?></button>
+              <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check me-1"></i><?php echo adminLangT('स्वीकृत','Approve'); ?></button>
             </form>
-            <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap" onsubmit="return confirm('<?php echo $__t('अनुरोध अस्वीकृत गर्ने?', 'Reject this request?'); ?>');">
+            <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap" onsubmit="return confirm('<?php echo adminLangT('अनुरोध अस्वीकृत गर्ने?', 'Reject this request?'); ?>');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="reject_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
               <input type="text" name="reject_note" class="form-control form-control-sm" style="min-width:120px;max-width:180px;" placeholder="कारण (वैकल्पिक)">
-              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-times me-1"></i><?php echo $__t('अस्वीकृत','Reject'); ?></button>
+              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-times me-1"></i><?php echo adminLangT('अस्वीकृत','Reject'); ?></button>
             </form>
             <?php if ((int)($rx['member_id'] ?? 0) <= 0): ?>
             <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap">
@@ -755,7 +751,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <input type="text" name="target_member_sadasyata" class="form-control form-control-sm" style="min-width:140px;max-width:200px;" placeholder="Member ID" required>
               <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-link me-1"></i>Link</button>
             </form>
-            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo $__t('यस request बाट नयाँ सदस्य बनाउने?', 'Create a new member from this request?'); ?>');">
+            <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo adminLangT('यस request बाट नयाँ सदस्य बनाउने?', 'Create a new member from this request?'); ?>');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="create_member_from_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
@@ -775,14 +771,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   <div class="tab-pane fade" id="pa-pane-att" role="tabpanel" aria-labelledby="pa-tab-att">
 <div class="card admin-table-card">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-list me-2"></i><?php echo $__t('उपस्थिति सूची','Attendance List'); ?></h6>
+    <h6 class="mb-0"><i class="fas fa-list me-2"></i><?php echo adminLangT('उपस्थिति सूची','Attendance List'); ?></h6>
     <?php if ($totalFiltered > 0): ?><span class="badge bg-secondary"><?php echo (int)$totalFiltered; ?> रेकर्ड (फिल्टर)</span><?php endif; ?>
   </div>
   <div class="table-responsive">
     <table class="table table-hover table-sm align-middle mb-0">
-      <thead><tr><th><?php echo $__t('कार्यक्रम','Program'); ?></th><th><?php echo $__t('मिति','Date'); ?></th><th><?php echo $__t('सदस्य','Member'); ?></th><th><?php echo $__t('Member ID','Member ID'); ?></th><th><?php echo $__t('स्थान','Location'); ?></th><th><?php echo $__t('विधि','Method'); ?></th><th>Priority</th><th><?php echo $__t('नोट','Note'); ?></th><th><?php echo $__t('समय','Time'); ?></th></tr></thead>
+      <thead><tr><th><?php echo adminLangT('कार्यक्रम','Program'); ?></th><th><?php echo adminLangT('मिति','Date'); ?></th><th><?php echo adminLangT('सदस्य','Member'); ?></th><th><?php echo adminLangT('Member ID','Member ID'); ?></th><th><?php echo adminLangT('स्थान','Location'); ?></th><th><?php echo adminLangT('विधि','Method'); ?></th><th>Priority</th><th><?php echo adminLangT('नोट','Note'); ?></th><th><?php echo adminLangT('समय','Time'); ?></th></tr></thead>
       <tbody>
-      <?php if (empty($rows)): ?><tr><td colspan="9" class="text-center text-muted py-4"><?php echo $__t('उपस्थिति रेकर्ड छैन।','No attendance records.'); ?></td></tr><?php endif; ?>
+      <?php if (empty($rows)): ?><tr><td colspan="9" class="text-center text-muted py-4"><?php echo adminLangT('उपस्थिति रेकर्ड छैन।','No attendance records.'); ?></td></tr><?php endif; ?>
       <?php foreach($rows as $r):
         $rowLoc = programAttendanceDisplayLocation($r);
         $rowMethod = programAttendanceMethodLabel($r['attendance_method'] ?? '', strtolower((string)($_SESSION['admin_lang'] ?? 'np')) === 'en');
@@ -796,7 +792,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rowMethod); ?></span></td>
         <td><?php echo (int)$r['is_priority'] ? '<span class="badge bg-warning text-dark">Priority</span>' : '<span class="text-muted">No</span>'; ?></td>
         <td><?php echo htmlspecialchars($r['attendance_note'] ?: ''); ?></td>
-        <td class="small text-muted"><?php echo htmlspecialchars(substr((string)($r['attended_at'] ?? ''), 0, 16)); ?></td>
+        <td class="small text-muted"><?php echo htmlspecialchars(programFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
       </tr>
       <?php endforeach; ?>
       </tbody>
@@ -815,8 +811,8 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
             return 'program-attendance.php?' . http_build_query($q);
         };
       ?>
-      <?php if ($page > 1): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page - 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $__t('अघिल्लो','Previous'); ?></a><?php endif; ?>
-      <?php if ($page < $totalPages): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page + 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo $__t('अर्को','Next'); ?></a><?php endif; ?>
+      <?php if ($page > 1): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page - 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अघिल्लो','Previous'); ?></a><?php endif; ?>
+      <?php if ($page < $totalPages): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page + 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अर्को','Next'); ?></a><?php endif; ?>
     </nav>
   </div>
   <?php endif; ?>

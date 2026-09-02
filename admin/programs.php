@@ -166,12 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $editId = (int)($_GET['edit'] ?? 0);
-$edit = null;
-if ($editId > 0) {
-    $st = $db->prepare("SELECT * FROM upcoming_programs WHERE id=?");
-    $st->execute([$editId]);
-    $edit = $st->fetch(PDO::FETCH_ASSOC) ?: null;
-} else {
+$edit = $editId > 0 ? programFetchById($db, $editId) : null;
+if (!$edit && $editId <= 0) {
     $edit = [
         'instant_attendance' => getSetting('program_default_instant_attendance', '0') === '1' ? 1 : 0,
         'shared_qr_mode' => getSetting('program_default_shared_qr', '1') === '1' ? 1 : 0,

@@ -26,7 +26,7 @@ if ($export) {
     $out = fopen('php://output', 'w');
     fputcsv($out, ['Member ID', 'Name', 'Program', 'Location', 'Method', 'Attended At']);
     foreach ($rows as $r) {
-        fputcsv($out, [$r['member_card_no']??'', $r['member_name']??'', $r['program_title']??'', $r['location_label']??'', $r['attendance_method']??'', $r['attended_at']??'']);
+        fputcsv($out, [$r['member_card_no']??'', $r['member_name']??'', $r['program_title']??'', $r['location_label']??'', programReportsCsvMethodLabel($r['attendance_method']??''), $r['attended_at']??'']);
     }
     fclose($out);
     exit;
@@ -45,7 +45,7 @@ if ($export) {
     <tbody><?php foreach ($rows as $r): ?><tr>
       <td><?php echo htmlspecialchars($r['member_card_no']??''); ?></td><td><?php echo htmlspecialchars($r['member_name']??''); ?></td>
       <td><?php echo htmlspecialchars($r['program_title']??''); ?></td><td><?php echo htmlspecialchars($r['location_label']??'—'); ?></td>
-      <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method']??'')); ?></td><td><?php echo htmlspecialchars(substr((string)($r['attended_at']??''),0,16)); ?></td>
+      <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method']??'')); ?></td><td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at']??'')); ?></td>
     </tr><?php endforeach; ?></tbody>
   </table></div></div>
 </div>

@@ -461,14 +461,6 @@ if (!function_exists('programBackfillV2Columns')) {
                 INNER JOIN upcoming_programs p ON p.id = a.program_id
                 SET a.location_label = COALESCE(a.location_label, NULLIF(p.location, ''))
                 WHERE a.location_label IS NULL OR a.location_label = ''");
-            try {
-                $db->exec('ALTER TABLE member_program_attendance DROP INDEX uniq_member_program');
-            } catch (Throwable $e) {
-            }
-            try {
-                $db->exec('ALTER TABLE member_program_attendance ADD INDEX idx_mpa_member_program (member_id, program_id)');
-            } catch (Throwable $e) {
-            }
         } catch (Throwable $e) {
             error_log('[programBackfillV2Columns] ' . $e->getMessage());
         }

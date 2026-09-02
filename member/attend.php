@@ -91,9 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'check
                                 $checkInErr = $rec['error_np'] ?? $_t('Check-in गर्न समस्या भयो।', 'Failed to check in.');
                             }
                         } else {
-                            $pend = $db->prepare("SELECT id FROM member_program_attendance_requests WHERE member_id=? AND program_id=? AND status='pending' LIMIT 1");
-                            $pend->execute([$memberId, $progId]);
-                            if ($pend->fetchColumn()) {
+                            if (programHasPendingAttendanceRequest($db, $memberId, $progId)) {
                                 $checkInErr = $_t('तपाईंको उपस्थिति अनुरोध Admin स्वीकृतिको लागि पहिले नै pending छ।', 'Your attendance request is already pending for admin approval.');
                             } else {
                                 $window = programIsWindowOpen($progRow, $occurrence);
@@ -208,13 +206,7 @@ if ($qrProgramRow) {
         $qrExistingRecord = $existingQr;
     }
     if (!$qrAlreadyAttended) {
-        try {
-            $pend = $db->prepare("SELECT id FROM member_program_attendance_requests WHERE member_id=? AND program_id=? AND status='pending' LIMIT 1");
-            $pend->execute([$memberId, $qpid]);
-            $qrPendingRequest = (bool)$pend->fetchColumn();
-        } catch (Throwable $e) {
-            $qrPendingRequest = false;
-        }
+        $qrPendingRequest = programHasPendingAttendanceRequest($db, $memberId, $qpid);
     }
 }
 

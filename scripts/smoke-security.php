@@ -242,6 +242,8 @@ assertFileContains('includes/program-attendance-helpers.php', 'recordProgramAtte
 assertFileContains('includes/program-tables.php', 'program_occurrences', 'program occurrences table migration');
 assertFileContains('admin/program-attendance.php', "attendance_status='VALID'", 'attendance list filters voided rows');
 assertFileContains('includes/program-tables.php', 'DROP INDEX uniq_member_program', 'drop legacy attendance unique for void re-record');
+assertFileContains('includes/program-attendance-helpers.php', 'programLiveStatsForProgram', 'program live stats helper');
+assertFileContains('admin/includes/admin-ui.php', 'function adminLangT', 'admin lang translation helper');
 assertFileContains('member/scan.php', 'integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"', 'html5-qrcode SRI');
 assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="', 'Leaflet JS SRI');
 assertFileContains('admin/pages.php', 'integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM"', 'TinyMCE SRI');

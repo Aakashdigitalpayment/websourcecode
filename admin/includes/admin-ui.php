@@ -44,6 +44,15 @@ if (!function_exists('adminUiT')) {
     }
 }
 
+if (!function_exists('adminLangT')) {
+    /** Admin UI copy — respects admin_lang then lang session key. */
+    function adminLangT(string $np, string $en): string
+    {
+        $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
+        return strtolower($lang) === 'en' ? $en : $np;
+    }
+}
+
 /* ──────────────────────────────────────────────────────────────
    adminPageHeader
    Page header: left = icon + title + subtitle, right = buttons

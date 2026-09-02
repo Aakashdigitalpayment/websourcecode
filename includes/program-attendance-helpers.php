@@ -100,29 +100,18 @@ if (!function_exists('programFetchOccurrenceById')) {
 }
 
 if (!function_exists('programResolveScopeId')) {
-    /** Duplicate-check scope: parent program for multi-location, else program id. */
+    /** Duplicate-check scope: parent program id (multi-location shares one scope per member). */
     function programResolveScopeId(?array $program, ?int $occurrenceId = null): int
     {
-        if (!$program) {
-            return 0;
-        }
-        if ((int)($program['is_multi_location'] ?? 0) === 1) {
-            return (int)$program['id'];
-        }
-        return (int)($program['id'] ?? 0);
+        unset($occurrenceId);
+        return $program ? (int)($program['id'] ?? 0) : 0;
     }
 }
 
 if (!function_exists('programResolveParentProgramId')) {
     function programResolveParentProgramId(?array $program): int
     {
-        if (!$program) {
-            return 0;
-        }
-        if ((int)($program['is_multi_location'] ?? 0) === 1) {
-            return (int)$program['id'];
-        }
-        return (int)($program['id'] ?? 0);
+        return programResolveScopeId($program);
     }
 }
 
@@ -403,10 +392,6 @@ if (!function_exists('recordProgramAttendance')) {
         $scopeId = programResolveScopeId($program, $occurrenceId);
         $parentProgramId = programResolveParentProgramId($program);
         $locationLabel = $occurrence ? (string)($occurrence['location_name'] ?? '') : (string)($program['location'] ?? '');
-        $effectiveProgramId = $programId;
-        if ((int)($program['is_multi_location'] ?? 0) === 1) {
-            $effectiveProgramId = $programId;
-        }
 
         try {
             $db->beginTransaction();
@@ -453,7 +438,7 @@ if (!function_exists('recordProgramAttendance')) {
             $ins->execute([
                 $memberId,
                 mb_substr($memberCardNo, 0, 60),
-                $effectiveProgramId,
+                $programId,
                 $occurrenceId,
                 $parentProgramId,
                 $scopeId,
@@ -566,5 +551,125 @@ if (!function_exists('programFormatExistingAttendanceMessage')) {
             return 'Already recorded' . ($loc !== '' ? ' at ' . $loc : '') . ($dt !== '' ? ' on ' . $dt : '') . '.';
         }
         return 'पहिले नै दर्ता' . ($loc !== '' ? ' — ' . $loc : '') . ($dt !== '' ? ' (' . $dt . ')' : '') . '।';
+    }
+}
+
+if (!function_exists('programFormatAttendedAt')) {
+    function programFormatAttendedAt(?string $dt): string
+    {
+        $dt = trim((string)$dt);
+        return $dt !== '' ? substr($dt, 0, 16) : '';
+    }
+}
+
+if (!function_exists('programMemberPhotoUrl')) {
+    function programMemberPhotoUrl(?string $photo): string
+    {
+        $photo = trim((string)$photo);
+        if ($photo === '') {
+            return '';
+        }
+        if (function_exists('coop_public_download_url')) {
+            return coop_public_download_url($photo);
+        }
+        return (defined('SITE_URL') ? SITE_URL : '../') . ltrim($photo, '/');
+    }
+}
+
+if (!function_exists('programHasPendingAttendanceRequest')) {
+    function programHasPendingAttendanceRequest(PDO $db, int $memberId, int $programId): bool
+    {
+        if ($memberId < 1 || $programId < 1) {
+            return false;
+        }
+        $st = $db->prepare("SELECT 1 FROM member_program_attendance_requests WHERE member_id=? AND program_id=? AND status='pending' LIMIT 1");
+        $st->execute([$memberId, $programId]);
+        return (bool)$st->fetchColumn();
+    }
+}
+
+if (!function_exists('programCountPreregistrations')) {
+    function programCountPreregistrations(PDO $db, int $programId): int
+    {
+        if ($programId < 1) {
+            return 0;
+        }
+        try {
+            $st = $db->prepare('SELECT COUNT(*) FROM member_program_preregistrations WHERE program_id=?');
+            $st->execute([$programId]);
+            return (int)$st->fetchColumn();
+        } catch (Throwable $e) {
+            return 0;
+        }
+    }
+}
+
+if (!function_exists('programLiveStatsForProgram')) {
+    /** @return array{scope:int,title:string,attended:int,eligible:int,prereg:int,pct:float,occurrences:array} */
+    function programLiveStatsForProgram(PDO $db, array $prog): array
+    {
+        $programId = (int)($prog['id'] ?? 0);
+        $scope = programResolveScopeId($prog);
+        $attended = programCountUniqueAttended($db, $scope);
+        $eligible = programCountActiveMembers($db);
+        $prereg = programCountPreregistrations($db, $programId);
+        return [
+            'scope' => $scope,
+            'title' => (string)($prog['title'] ?? ''),
+            'attended' => $attended,
+            'eligible' => $eligible,
+            'prereg' => $prereg,
+            'pct' => $eligible > 0 ? round(($attended / $eligible) * 100, 1) : 0.0,
+            'occurrences' => (int)($prog['is_multi_location'] ?? 0) === 1
+                ? programOccurrenceCounts($db, $programId) : [],
+        ];
+    }
+}
+
+if (!function_exists('programFetchValidAttendanceByScope')) {
+    function programFetchValidAttendanceByScope(PDO $db, int $scopeId): array
+    {
+        if ($scopeId < 1) {
+            return [];
+        }
+        $st = $db->prepare("SELECT a.*, m.name AS member_name, m.phone
+                            FROM member_program_attendance a
+                            LEFT JOIN members m ON m.id=a.member_id
+                            WHERE a.attendance_scope_key=? AND a.attendance_status='VALID'
+                            ORDER BY a.attended_at DESC");
+        $st->execute([$scopeId]);
+        return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+}
+
+if (!function_exists('programFetchValidAttendanceByOccurrence')) {
+    function programFetchValidAttendanceByOccurrence(PDO $db, int $occurrenceId): array
+    {
+        if ($occurrenceId < 1) {
+            return [];
+        }
+        $st = $db->prepare("SELECT a.*, m.name AS member_name
+                            FROM member_program_attendance a
+                            LEFT JOIN members m ON m.id=a.member_id
+                            WHERE a.occurrence_id=? AND a.attendance_status='VALID'
+                            ORDER BY a.attended_at DESC");
+        $st->execute([$occurrenceId]);
+        return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+}
+
+if (!function_exists('programFetchValidAttendanceByProgram')) {
+    function programFetchValidAttendanceByProgram(PDO $db, int $programId): array
+    {
+        if ($programId < 1) {
+            return [];
+        }
+        $st = $db->prepare("SELECT a.*, m.name AS member_name
+                            FROM member_program_attendance a
+                            LEFT JOIN members m ON m.id=a.member_id
+                            WHERE a.program_id=? AND a.attendance_status='VALID'
+                            ORDER BY a.attended_at DESC");
+        $st->execute([$programId]);
+        return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }

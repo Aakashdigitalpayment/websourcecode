@@ -8,7 +8,6 @@ declare(strict_types=1);
 $root = dirname(__DIR__);
 require_once $root . '/includes/config.php';
 require_once $root . '/includes/program-tables.php';
-require_once $root . '/includes/program-attendance-helpers.php';
 
 $pdo = getDB();
 ensureProgramTables($pdo);

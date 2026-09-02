@@ -27,17 +27,33 @@ function programReportsCsvHeaders(string $filename): void
     }
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-store');
     echo "\xEF\xBB\xBF";
 }
 
 function programReportsMemberPhotoUrl(?string $photo): string
 {
-    $photo = trim((string)$photo);
-    if ($photo === '') {
-        return '';
+    return programMemberPhotoUrl($photo);
+}
+
+function programReportsFormatAttendedAt(?string $dt): string
+{
+    return programFormatAttendedAt($dt);
+}
+
+function programReportsRenderProgramSelect(array $programs, int $selectedId, string $emptyLabel = '— कार्यक्रम —'): void
+{
+    echo '<select name="program_id" class="form-select" onchange="this.form.submit()">';
+    echo '<option value="">' . htmlspecialchars($emptyLabel) . '</option>';
+    foreach ($programs as $p) {
+        $pid = (int)($p['id'] ?? 0);
+        $sel = $selectedId === $pid ? ' selected' : '';
+        echo '<option value="' . $pid . '"' . $sel . '>' . htmlspecialchars((string)($p['title'] ?? '')) . '</option>';
     }
-    if (function_exists('coop_public_download_url')) {
-        return coop_public_download_url($photo);
-    }
-    return (defined('SITE_URL') ? SITE_URL : '../') . ltrim($photo, '/');
+    echo '</select>';
+}
+
+function programReportsCsvMethodLabel(?string $method): string
+{
+    return programAttendanceMethodLabel($method, true);
 }

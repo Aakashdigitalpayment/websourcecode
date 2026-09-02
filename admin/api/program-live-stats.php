@@ -28,16 +28,8 @@ if (!$prog) {
     exit;
 }
 
-$scope = programResolveScopeId($prog);
-$attended = programCountUniqueAttended($db, $scope);
-$eligible = programCountActiveMembers($db);
-$prereg = 0;
-try {
-    $st = $db->prepare('SELECT COUNT(*) FROM member_program_preregistrations WHERE program_id=?');
-    $st->execute([$programId]);
-    $prereg = (int)$st->fetchColumn();
-} catch (Throwable $e) {
-}
+$stats = programLiveStatsForProgram($db, $prog);
+$scope = $stats['scope'];
 
 $recent = [];
 try {
@@ -53,10 +45,10 @@ try {
 
 echo json_encode([
     'ok' => true,
-    'attended' => $attended,
-    'prereg' => $prereg,
-    'eligible' => $eligible,
-    'pct' => $eligible > 0 ? round(($attended / $eligible) * 100, 1) : 0,
+    'attended' => $stats['attended'],
+    'prereg' => $stats['prereg'],
+    'eligible' => $stats['eligible'],
+    'pct' => $stats['pct'],
     'recent' => $recent,
-    'occurrences' => (int)($prog['is_multi_location'] ?? 0) === 1 ? programOccurrenceCounts($db, $programId) : [],
+    'occurrences' => $stats['occurrences'],
 ], JSON_UNESCAPED_UNICODE);

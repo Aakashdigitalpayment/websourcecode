@@ -55,11 +55,7 @@ $occurrence = $occurrenceId > 0 ? programFetchOccurrenceById($db, $occurrenceId)
 $scope = programResolveScopeId($prog, $occurrenceId);
 $existing = programFindExistingAttendance($db, (int)$member['id'], $scope);
 
-$photo = (string)($member['photo'] ?? '');
-$photoUrl = '';
-if ($photo !== '' && function_exists('coop_public_download_url')) {
-    $photoUrl = coop_public_download_url($photo);
-}
+$photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ''));
 
 $sadasyata = programMemberSadasyataNo($member);
 $window = programIsWindowOpen($prog, $occurrence);

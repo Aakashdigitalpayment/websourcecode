@@ -14,6 +14,8 @@ $errors = [];
 $required = [
     'recordProgramAttendance',
     'programResolveMemberBySadasyata',
+    'programHasPendingAttendanceRequest',
+    'programLiveStatsForProgram',
     'programFindExistingAttendance',
     'programLogAttempt',
     'programResolveScopeId',

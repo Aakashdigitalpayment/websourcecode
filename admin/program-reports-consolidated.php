@@ -14,22 +14,14 @@ $prog = programReportsSelectedProgram($db, $programId);
 $rows = [];
 $stats = ['attended' => 0, 'eligible' => 0, 'prereg' => 0, 'pct' => 0];
 if ($prog) {
-    $scope = programResolveScopeId($prog);
-    $stats['attended'] = programCountUniqueAttended($db, $scope);
-    $stats['eligible'] = programCountActiveMembers($db);
-    $stats['pct'] = $stats['eligible'] > 0 ? round(($stats['attended'] / $stats['eligible']) * 100, 1) : 0;
-    try {
-        $st = $db->prepare('SELECT COUNT(*) FROM member_program_preregistrations WHERE program_id=?');
-        $st->execute([$programId]);
-        $stats['prereg'] = (int)$st->fetchColumn();
-    } catch (Throwable $e) {}
-    $st = $db->prepare("SELECT a.*, m.name AS member_name, m.phone
-                        FROM member_program_attendance a
-                        LEFT JOIN members m ON m.id=a.member_id
-                        WHERE a.attendance_scope_key=? AND a.attendance_status='VALID'
-                        ORDER BY a.attended_at DESC");
-    $st->execute([$scope]);
-    $rows = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $live = programLiveStatsForProgram($db, $prog);
+    $stats = [
+        'attended' => $live['attended'],
+        'eligible' => $live['eligible'],
+        'prereg' => $live['prereg'],
+        'pct' => $live['pct'],
+    ];
+    $rows = programFetchValidAttendanceByScope($db, $live['scope']);
 }
 
 if ($export && $prog) {
@@ -41,8 +33,8 @@ if ($export && $prog) {
             $r['member_card_no'] ?? '',
             $r['member_name'] ?? '',
             $r['program_title'] ?? '',
-            $r['location_label'] ?? '',
-            $r['attendance_method'] ?? '',
+            programAttendanceDisplayLocation($r),
+            programReportsCsvMethodLabel($r['attendance_method'] ?? ''),
             $r['attended_at'] ?? '',
         ]);
     }
@@ -75,9 +67,9 @@ if ($export && $prog) {
     <tbody><?php foreach ($rows as $r): ?><tr>
       <td><?php echo htmlspecialchars($r['member_card_no']??''); ?></td>
       <td><?php echo htmlspecialchars($r['member_name']??''); ?></td>
-      <td><?php echo htmlspecialchars($r['location_label']??'—'); ?></td>
+      <td><?php echo htmlspecialchars(programAttendanceDisplayLocation($r)); ?></td>
       <td><?php echo htmlspecialchars(programAttendanceMethodLabel($r['attendance_method']??'')); ?></td>
-      <td><?php echo htmlspecialchars(substr((string)($r['attended_at']??''),0,16)); ?></td>
+      <td><?php echo htmlspecialchars(programReportsFormatAttendedAt($r['attended_at']??'')); ?></td>
     </tr><?php endforeach; if(empty($rows)): ?><tr><td colspan="5" class="text-muted text-center py-3">No attendance yet.</td></tr><?php endif; ?></tbody>
   </table></div></div>
   <?php endif; ?>
