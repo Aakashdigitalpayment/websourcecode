@@ -35,6 +35,34 @@ if (!function_exists('programMemberSadasyataNo')) {
     }
 }
 
+if (!function_exists('programFilterBsDateToAd')) {
+    /** Report filter: BS YYYY-MM-DD → AD YYYY-MM-DD for MySQL DATE() compare. Legacy AD URLs still work. */
+    function programFilterBsDateToAd(string $dateIn): string
+    {
+        $dateIn = trim($dateIn);
+        if ($dateIn === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateIn)) {
+            return '';
+        }
+        $y = (int)substr($dateIn, 0, 4);
+        if ($y >= 2070) {
+            if (!function_exists('bsToAd')) {
+                $h = dirname(__DIR__) . '/core/helpers.php';
+                if (is_file($h)) {
+                    require_once $h;
+                }
+            }
+            if (function_exists('bsToAd')) {
+                $ad = trim((string)bsToAd($dateIn));
+                if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+                    return $ad;
+                }
+            }
+            return '';
+        }
+        return $dateIn;
+    }
+}
+
 if (!function_exists('programAttendanceMethodLabel')) {
     function programAttendanceMethodLabel(?string $method, bool $english = false): string
     {

@@ -26,6 +26,8 @@ if (isset($_GET['export'])) {
     if ($dateTo !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
         $dateTo = '';
     }
+    $dateFromAd = programFilterBsDateToAd($dateFrom);
+    $dateToAd = programFilterBsDateToAd($dateTo);
     $activeOnly = isset($_GET['active_only']) && (string)$_GET['active_only'] === '1';
 
     $whereA = "a.attendance_status='VALID'";
@@ -39,13 +41,13 @@ if (isset($_GET['export'])) {
         $like = "%$q%";
         array_push($paramsA, $like, $like, $like);
     }
-    if ($dateFrom !== '') {
+    if ($dateFromAd !== '') {
         $whereA .= ' AND DATE(a.attended_at) >= ?';
-        $paramsA[] = $dateFrom;
+        $paramsA[] = $dateFromAd;
     }
-    if ($dateTo !== '') {
+    if ($dateToAd !== '') {
         $whereA .= ' AND DATE(a.attended_at) <= ?';
-        $paramsA[] = $dateTo;
+        $paramsA[] = $dateToAd;
     }
     if ($activeOnly) {
         $whereA .= ' AND p.is_active = 1';
@@ -454,6 +456,8 @@ if ($dateFrom !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) {
 if ($dateTo !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
     $dateTo = '';
 }
+$dateFromAd = programFilterBsDateToAd($dateFrom);
+$dateToAd = programFilterBsDateToAd($dateTo);
 $activeOnly = isset($_GET['active_only']) && (string)$_GET['active_only'] === '1';
 $page = max(1, (int)($_GET['page'] ?? 1));
 $perPage = 50;
@@ -469,13 +473,13 @@ if ($q !== '') {
     $like = "%$q%";
     array_push($paramsA, $like, $like, $like);
 }
-if ($dateFrom !== '') {
+if ($dateFromAd !== '') {
     $whereA .= ' AND DATE(a.attended_at) >= ?';
-    $paramsA[] = $dateFrom;
+    $paramsA[] = $dateFromAd;
 }
-if ($dateTo !== '') {
+if ($dateToAd !== '') {
     $whereA .= ' AND DATE(a.attended_at) <= ?';
-    $paramsA[] = $dateTo;
+    $paramsA[] = $dateToAd;
 }
 if ($activeOnly) {
     $whereA .= ' AND p.is_active = 1';
@@ -798,8 +802,8 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
           $pLabel = $pTitle . ($pInactive ? ' (निष्क्रिय)' : '');
       ?><option value="<?php echo (int)$p['id']; ?>" <?php echo $programId === (int)$p['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($pLabel); ?></option><?php endforeach; ?></select></div>
       <div class="col-md-3"><label for="pa_q" class="form-label small mb-1"><?php echo adminLangT('खोज (नाम / सदस्य नं. / कार्यक्रम)', 'Search (name / member no. / program)'); ?></label><input name="q" id="pa_q" class="form-control" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo adminLangT('खोज…', 'Search...'); ?>"></div>
-      <div class="col-md-2"><label for="pa_date_from" class="form-label small mb-1">देखि</label><input type="date" name="date_from" id="pa_date_from" class="form-control" value="<?php echo htmlspecialchars($dateFrom); ?>"></div>
-      <div class="col-md-2"><label for="pa_date_to" class="form-label small mb-1">सम्म</label><input type="date" name="date_to" id="pa_date_to" class="form-control" value="<?php echo htmlspecialchars($dateTo); ?>"></div>
+      <div class="col-md-2"><label for="pa_date_from" class="form-label small mb-1">देखि <span class="text-muted">(वि.सं.)</span></label><input type="text" name="date_from" id="pa_date_from" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($dateFrom); ?>"></div>
+      <div class="col-md-2"><label for="pa_date_to" class="form-label small mb-1">सम्म <span class="text-muted">(वि.सं.)</span></label><input type="text" name="date_to" id="pa_date_to" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($dateTo); ?>"></div>
       <div class="col-md-2">
         <label class="form-check-label small d-block mb-1">
           <input class="form-check-input me-1" type="checkbox" name="active_only" value="1" <?php echo $activeOnly ? 'checked' : ''; ?>>
