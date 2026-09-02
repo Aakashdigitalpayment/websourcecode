@@ -2430,10 +2430,21 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         }
                     }
                 ?>
-                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo htmlspecialchars($attachRaw, ENT_QUOTES, 'UTF-8'); ?>" data-photo-only="<?php echo ($isPhotoOnly && $photoOnlyUrl !== '') ? '1' : '0'; ?>">
+                <div class="popup-slide <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-attachment="<?php echo htmlspecialchars($attachRaw, ENT_QUOTES, 'UTF-8'); ?>" data-attachment-url="<?php echo htmlspecialchars($attachFullUrl, ENT_QUOTES, 'UTF-8'); ?>" data-photo-only="<?php echo ($isPhotoOnly && $photoOnlyUrl !== '') ? '1' : '0'; ?>">
                     <?php if ($isPhotoOnly && $photoOnlyUrl !== ''): ?>
                     <!-- Photo-only popup mode -->
                     <div class="popup-photo-only-wrap">
+                        <?php if ($attachFullUrl !== ''): ?>
+                        <a href="<?php echo e($attachFullUrl); ?>" target="_blank" rel="noopener noreferrer" class="popup-photo-only-link" title="<?php echo isEnglish() ? 'Open attached file' : 'संलग्न फाइल खोल्नुहोस्'; ?>" data-testid="notice-popup-photo-file-link">
+                            <img src="<?php echo e($photoOnlyUrl); ?>"
+                                 alt="<?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: 'Notice') : ($notice['title_np'] ?: 'सूचना'), ENT_QUOTES, 'UTF-8'); ?>"
+                                 class="popup-photo-only-img"
+                                 loading="eager"
+                                 decoding="async"
+                                 fetchpriority="high"
+                                 data-testid="notice-popup-photo-only-image">
+                        </a>
+                        <?php else: ?>
                         <img src="<?php echo e($photoOnlyUrl); ?>"
                              alt="<?php echo htmlspecialchars(isEnglish() ? ($notice['title'] ?: 'Notice') : ($notice['title_np'] ?: 'सूचना'), ENT_QUOTES, 'UTF-8'); ?>"
                              class="popup-photo-only-img"
@@ -2441,6 +2452,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                              decoding="async"
                              fetchpriority="high"
                              data-testid="notice-popup-photo-only-image">
+                        <?php endif; ?>
                     </div>
                     <?php else: ?>
                     <div class="popup-header-text">

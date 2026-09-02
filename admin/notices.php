@@ -321,13 +321,18 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                     <i class="fas fa-paperclip me-1"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
                                     <small class="ntc-muted fw-normal" id="ntf_att_note"></small>
                                 </label>
-                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png">
-                                <div id="ntf_att_link" class="mt-1 d-none">
-                                    <small class="ntc-muted"><?php echo $__t('हालको फाइल', 'Current file'); ?>:
-                                        <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link" rel="noopener noreferrer">
-                                            <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
-                                        </a>
-                                    </small>
+                                <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp">
+                                <div id="ntf_att_link" class="mt-2 d-none">
+                                    <div class="p-2 rounded border bg-light small">
+                                        <div class="fw-semibold mb-1"><i class="fas fa-paperclip me-1"></i><?php echo $__t('हालको फाइल', 'Current file'); ?></div>
+                                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <i class="fas fa-file" id="ntf_att_icon" aria-hidden="true"></i>
+                                            <span id="ntf_att_name" class="text-truncate"></span>
+                                            <a id="ntf_att_href" href="#" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
+                                                <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-2 d-flex align-items-center gap-2">
@@ -364,14 +369,22 @@ $editNoticeId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
                                     <input type="file" name="popup_image" id="ntf_popup_image"
                                            class="form-control admin-fancy-input form-control-sm"
                                            accept=".jpg,.jpeg,.png,.webp">
-                                    <div id="ntf_popup_img_link" class="mt-1 d-none">
-                                        <small><?php echo $__t('हालको फोटो', 'Current image'); ?>:
-                                            <a id="ntf_popup_img_href" href="#" target="_blank" class="fw-semibold" rel="noopener noreferrer">
-                                                <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
-                                            </a>
-                                        </small>
+                                    <div id="ntf_popup_img_link" class="mt-2 d-none">
+                                        <div class="p-2 rounded border bg-light small">
+                                            <div class="fw-semibold mb-1"><i class="fas fa-image me-1 text-success"></i><?php echo $__t('हालको पप-अप फोटो', 'Current popup image'); ?></div>
+                                            <div class="d-flex align-items-start gap-2 flex-wrap">
+                                                <img id="ntf_popup_img_preview" src="" alt="" class="rounded border d-none" style="max-height:72px;max-width:110px;object-fit:contain;">
+                                                <div class="flex-grow-1">
+                                                    <span id="ntf_popup_img_name" class="d-block text-truncate small"></span>
+                                                    <a id="ntf_popup_img_href" href="#" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
+                                                        <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <small class="text-muted"><?php echo $__t('फोटो नराखे attachment को image प्रयोग हुनेछ।', 'If not set, the attachment image will be used.'); ?></small>
+                                    <small class="text-muted d-block"><?php echo $__t('फोटो नराखे attachment को image प्रयोग हुनेछ।', 'If not set, the attachment image will be used.'); ?></small>
+                                    <small class="text-muted"><?php echo $__t('फाइल (PDF) पनि भए photo click गर्दा फाइल खुल्छ।', 'If a file (PDF) is also attached, clicking the popup photo opens that file.'); ?></small>
                                 </div>
                             </div>
                         </div>
@@ -402,6 +415,65 @@ document.addEventListener('DOMContentLoaded', function () {
     function switchToList() { adminSwitchTab(tabListBtn, tabFormBtn); }
     function switchToForm() { adminSwitchTab(tabFormBtn, tabListBtn); }
 
+    function basenamePath(path) {
+        if (!path) return '';
+        var p = String(path).replace(/\\/g, '/');
+        return p.split('/').pop() || p;
+    }
+
+    function fileIconClass(path) {
+        if (/\.pdf$/i.test(path)) return 'fas fa-file-pdf text-danger';
+        if (/\.(jpg|jpeg|png|webp|gif)$/i.test(path)) return 'fas fa-file-image text-success';
+        return 'fas fa-file text-secondary';
+    }
+
+    function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId) {
+        var wrap = document.getElementById(wrapId);
+        if (!wrap) return;
+        if (!path) {
+            wrap.classList.add('d-none');
+            if (noteId) {
+                var noteEl = document.getElementById(noteId);
+                if (noteEl) noteEl.textContent = '';
+            }
+            return;
+        }
+        wrap.classList.remove('d-none');
+        var hrefEl = document.getElementById(hrefId);
+        if (hrefEl) hrefEl.href = '../' + path;
+        var nameEl = document.getElementById(nameId);
+        if (nameEl) nameEl.textContent = basenamePath(path);
+        if (iconId) {
+            var iconEl = document.getElementById(iconId);
+            if (iconEl) iconEl.className = fileIconClass(path);
+        }
+        if (previewId) {
+            var prev = document.getElementById(previewId);
+            if (prev) {
+                if (/\.(jpg|jpeg|png|webp|gif)$/i.test(path)) {
+                    prev.src = '../' + path;
+                    prev.classList.remove('d-none');
+                } else {
+                    prev.removeAttribute('src');
+                    prev.classList.add('d-none');
+                }
+            }
+        }
+        if (noteId) {
+            var note = document.getElementById(noteId);
+            if (note) note.textContent = ' — <?php echo $__t('नयाँ फाइल नचुने भने पुरानै रहन्छ', 'old file is kept if no new file is selected'); ?>';
+        }
+    }
+
+    function resetFileInputs() {
+        ['ntf_attachment', 'ntf_popup_image'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) {
+                try { el.value = ''; } catch (e) {}
+            }
+        });
+    }
+
     function clearForm() {
         document.getElementById('ntf_id').value      = '';
         document.getElementById('ntf_title').value   = '';
@@ -411,9 +483,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('ntf_popup').checked = false;
         document.getElementById('ntf_popup_photo_only').checked = false;
         document.getElementById('ntf_popup_opts').style.display = 'none';
-        document.getElementById('ntf_popup_img_link').classList.add('d-none');
-        document.getElementById('ntf_att_link').classList.add('d-none');
-        document.getElementById('ntf_att_note').textContent   = '';
+        setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '');
+        setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note');
+        resetFileInputs();
         document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
         document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>';
         document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?>';
@@ -447,29 +519,19 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             e.stopPropagation();
             var d = this.dataset;
+            var popupImg = d.popupImage || d.popup_image || '';
+            var popupOnly = d.popupPhotoOnly || d.popup_photo_only || '0';
             document.getElementById('ntf_id').value      = d.id;
             document.getElementById('ntf_title').value   = d.title;
             document.getElementById('ntf_content').value = d.content || '';
             document.getElementById('ntf_date').value    = d.date;
             document.getElementById('ntf_active').checked= d.active === '1';
             document.getElementById('ntf_popup').checked = d.popup  === '1';
-            document.getElementById('ntf_popup_photo_only').checked = d.popup_photo_only === '1';
+            document.getElementById('ntf_popup_photo_only').checked = popupOnly === '1';
             document.getElementById('ntf_popup_opts').style.display = d.popup === '1' ? '' : 'none';
-            if (d.popup_image) {
-                document.getElementById('ntf_popup_img_link').classList.remove('d-none');
-                document.getElementById('ntf_popup_img_href').href = '../' + d.popup_image;
-            } else {
-                document.getElementById('ntf_popup_img_link').classList.add('d-none');
-            }
-
-            if (d.attachment) {
-                document.getElementById('ntf_att_link').classList.remove('d-none');
-                document.getElementById('ntf_att_href').href = '../' + d.attachment;
-                document.getElementById('ntf_att_note').textContent = ' — <?php echo $__t('नयाँ फाइल नचुने भने पुरानै रहन्छ', 'old file is kept if no new file is selected'); ?>';
-            } else {
-                document.getElementById('ntf_att_link').classList.add('d-none');
-                document.getElementById('ntf_att_note').textContent   = '';
-            }
+            setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', popupImg);
+            setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, d.attachment || '', 'ntf_att_note');
+            resetFileInputs();
             document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
             document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>';
             document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('सम्पादन', 'Edit'); ?>';

@@ -923,6 +923,21 @@ body:has(.card > .card-top) .card-top {
   box-shadow: none !important;
 }
 
+.notice-popup-enhanced .popup-photo-only-link {
+  display: block;
+  line-height: 0;
+  cursor: pointer;
+  text-decoration: none;
+  border-radius: 14px;
+}
+
+.notice-popup-enhanced .popup-photo-only-link:hover .popup-photo-only-img,
+.notice-popup-enhanced .popup-photo-only-link:focus-visible .popup-photo-only-img {
+  opacity: 0.92;
+  outline: 2px solid rgba(26, 95, 42, 0.35);
+  outline-offset: 2px;
+}
+
 .notice-popup-enhanced .popup-dialog--photo-only .popup-nav {
   padding: 10px 14px 12px !important;
   background: linear-gradient(180deg, #fff 0%, #f8fbf9 100%) !important;
