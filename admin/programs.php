@@ -226,7 +226,7 @@ foreach ($rows as $_r) {
       '<div class="d-flex gap-2 flex-wrap">'
       . '<a href="program-dashboard.php" class="btn btn-outline-info btn-sm"><i class="fas fa-chart-pie me-1"></i>Dashboard</a>'
       . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
-      . '<a href="../program-attendance-verify.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-user-check me-1"></i>Staff Verify</a>'
+      . '<a href="program-registration-desk.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-desktop me-1"></i>Registration Desk</a>'
       . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>उपस्थिति रिपोर्ट</a>'
       . '</div>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
@@ -457,7 +457,7 @@ foreach ($rows as $_r) {
           <strong>QR = कार्यक्रम स्थल उपस्थिति</strong> (pre-registration भन्दा फरक)। सदस्य कार्यक्रममा उपस्थित भएपछि Member Portal बाट QR scan गर्छन् (लगिन आवश्यक)।
           <br>• Scan पछि <strong>Admin स्वीकृतिका लागि अनुरोध (pending)</strong> जान्छ
           <br>• <strong>Admin → उपस्थिति रिपोर्ट</strong> बाट Approve गरेपछि मात्र गणना / इतिहासमा थपिन्छ
-          <br>• Staff लाई तत्काल राख्नु परे <strong>Staff Verify</strong> (कार्ड Verification Code + CVV) प्रयोग गर्नुहोस्
+          <br>• Staff लाई तत्काल राख्नु परे <strong>Registration Desk</strong> (कार्डको Member ID) प्रयोग गर्नुहोस्
           <br><br>
           <strong>Pre-registration</strong> = “आउँछु” भनी अगाडि नाम दर्ता — उपस्थिति गणना बढाउँदैन।
           <br>

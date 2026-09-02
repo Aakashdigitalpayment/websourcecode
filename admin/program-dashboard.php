@@ -136,8 +136,7 @@ if ($selectedProgramId > 0) {
         <div class="card-header bg-success bg-opacity-10"><h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-success"></i><?php echo adminLangT('कार्यक्रम दिनको Flow', 'Event Day Workflow'); ?></h6></div>
         <div class="card-body small">
           <ol class="mb-0 ps-3">
-            <li class="mb-2"><?php echo adminLangT('<strong>QR / Staff Verify</strong> — स्थलमा instant उपस्थिति (Card+CVV)', '<strong>QR / Staff Verify</strong> — instant attendance at venue (Card+CVV)'); ?></li>
-            <li class="mb-2"><?php echo adminLangT('<strong>Registration Desk</strong> — Member ID टाइप गरेर छिटो दर्ता', '<strong>Registration Desk</strong> — fast entry by Member ID'); ?></li>
+            <li class="mb-2"><?php echo adminLangT('<strong>Registration Desk</strong> — कार्डको Member ID टाइप गरेर तत्काल दर्ता', '<strong>Registration Desk</strong> — instant entry using Member ID on card'); ?></li>
             <li class="mb-2"><?php echo adminLangT('<strong>Member Portal QR</strong> — सदस्यले scan गर्छ → Admin approve', '<strong>Member Portal QR</strong> — member scans → admin approves'); ?></li>
             <li><?php echo adminLangT('<strong>Reports</strong> — consolidated / location / absent हेर्नुहोस्', '<strong>Reports</strong> — view consolidated / location / absent'); ?></li>
           </ol>
@@ -156,8 +155,7 @@ if ($selectedProgramId > 0) {
         <div class="list-group list-group-flush">
           <a class="list-group-item list-group-item-action" href="programs.php"><i class="fas fa-calendar-plus me-2 text-primary"></i><?php echo adminLangT('कार्यक्रम बनाउने / सूची', 'Create / List Programs'); ?></a>
           <a class="list-group-item list-group-item-action" href="program-occurrences.php"><i class="fas fa-map-marker-alt me-2 text-info"></i><?php echo adminLangT('स्थान / सत्र', 'Locations / Sessions'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-registration-desk.php"><i class="fas fa-desktop me-2 text-success"></i><?php echo adminLangT('दर्ता डेस्क', 'Registration Desk'); ?></a>
-          <a class="list-group-item list-group-item-action" href="../program-attendance-verify.php"><i class="fas fa-user-check me-2 text-secondary"></i><?php echo adminLangT('Staff Verify', 'Staff Verify'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-registration-desk.php"><i class="fas fa-desktop me-2 text-success"></i><?php echo adminLangT('दर्ता डेस्क (Staff)', 'Registration Desk (Staff)'); ?></a>
           <a class="list-group-item list-group-item-action" href="program-attendance.php"><i class="fas fa-clipboard-check me-2 text-warning"></i><?php echo adminLangT('उपस्थिति अनुरोध / रिपोर्ट', 'Attendance Requests / Report'); ?></a>
           <a class="list-group-item list-group-item-action" href="program-reports-consolidated.php"><i class="fas fa-chart-bar me-2 text-danger"></i><?php echo adminLangT('Consolidated Report', 'Consolidated Report'); ?></a>
           <a class="list-group-item list-group-item-action" href="program-settings.php"><i class="fas fa-cog me-2"></i><?php echo adminLangT('कार्यक्रम सेटिङ', 'Program Settings'); ?></a>

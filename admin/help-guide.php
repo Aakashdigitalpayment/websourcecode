@@ -558,12 +558,12 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
     <!-- ══ 25. ATTENDANCE ══ -->
     <section id="sec-attendance" class="hg-section">
       <h3><span class="hg-icon"><i class="fas fa-clipboard-check"></i></span> उपस्थिति (Attendance)</h3>
-      <p>सदस्य QR scan / portal check-in → pending request → Admin approve → इतिहास र रिपोर्ट। Staff Verify बाट तत्काल पनि राख्न सकिन्छ।</p>
+      <p>सदस्य QR scan / portal check-in → pending request → Admin approve → इतिहास र रिपोर्ट। Registration Desk बाट staff ले कार्डको Member ID राखेर तत्काल पनि दर्ता गर्न सक्छ।</p>
 
       <h5>Attendance कसरी लिने:</h5>
       <ol class="hg-steps-list">
         <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank" rel="noopener noreferrer">Member Portal → Scan</a> वा Attend बाट check-in → Admin approve।</li>
-        <li><b>Staff Verify (तत्काल):</b> <a href="../program-attendance-verify.php" target="_blank" rel="noopener noreferrer">program-attendance-verify.php</a> (admin login) — कार्ड Verification Code + CVV।</li>
+        <li><b>Registration Desk (staff, तत्काल):</b> <a href="program-registration-desk.php" target="_blank" rel="noopener noreferrer">program-registration-desk.php</a> — कार्डमा भएको Member ID (सदस्यता नं.)।</li>
         <li><b>Approve / रिपोर्ट:</b> Admin → <a href="program-attendance.php">Program Attendance</a> — pending approve, program-wise list, CSV download।</li>
       </ol>
     </section>

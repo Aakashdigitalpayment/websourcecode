@@ -697,7 +697,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
     <span class="badge bg-warning text-dark">Pending <?php echo (int)$reqPendingCount; ?></span>
   </div>
   <div class="card-body py-2 small text-muted border-bottom">
-    Member Portal QR / Attend, वा (वैकल्पिक) <code>attend.php?token=…</code> बाट आएका pending अनुरोध। <strong>Approve</strong> पछि मात्र उपस्थिति सूची र सदस्य इतिहासमा जान्छ। Staff Verify ले तत्काल राख्दा matching pending स्वतः बन्द हुन्छ।
+    Member Portal QR / Attend बाट आएका pending अनुरोध। <strong>Approve</strong> पछि मात्र उपस्थिति सूची र सदस्य इतिहासमा जान्छ। Registration Desk बाट staff ले तत्काल राख्दा matching pending स्वतः बन्द हुन्छ।
     <?php if ($reqPendingCount > count($reqRows)): ?>
       <div class="alert alert-info py-1 px-2 mt-2 mb-0 small">Pending जम्मा <?php echo (int)$reqPendingCount; ?> — तालिकामा पहिलो <?php echo count($reqRows); ?> मात्र (छिटो लोड)। बाँकी स्वीकृत गर्दै जाँदा सूची छोटो हुन्छ।</div>
     <?php endif; ?>

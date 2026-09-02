@@ -37,6 +37,18 @@ if ($programId > 0) {
 
 $selectedOccurrence = ($occurrenceId > 0 && $prog) ? programFetchOccurrenceById($db, $occurrenceId) : null;
 $windowStatus = $prog ? programIsWindowOpen($prog, $selectedOccurrence) : null;
+$programQrUrl = '';
+if ($prog) {
+    $qrToken = '';
+    if ($selectedOccurrence && trim((string)($selectedOccurrence['qr_token'] ?? '')) !== '') {
+        $qrToken = trim((string)$selectedOccurrence['qr_token']);
+    } elseif (trim((string)($prog['qr_token'] ?? '')) !== '') {
+        $qrToken = trim((string)$prog['qr_token']);
+    }
+    if ($qrToken !== '') {
+        $programQrUrl = rtrim(SITE_URL, '/') . '/member/attend.php?qr_token=' . rawurlencode($qrToken);
+    }
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confirm') {
     checkCSRF();
@@ -120,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
   <div class="desk-header d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div>
       <strong><i class="fas fa-desktop me-1"></i> Registration Desk</strong>
-      <div class="small text-muted">Member ID टाइप → स्वतः lookup → Confirm (Enter × २)</div>
+      <div class="small text-muted">कार्डको Member ID (सदस्यता नं.) → lookup → Confirm · Staff को एक मात्र उपस्थिति दर्ता ठाउँ</div>
     </div>
     <a href="program-dashboard.php" class="btn btn-sm btn-outline-secondary">← Dashboard</a>
   </div>
@@ -160,6 +172,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     </div>
     <?php endif; ?>
 
+    <?php if ($programQrUrl !== ''): ?>
+    <div class="text-center mb-3 p-2 border rounded bg-light">
+      <div class="small text-muted mb-1"><i class="fas fa-qrcode me-1"></i>सदस्य QR scan (Member Portal)</div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=4&amp;data=<?php echo urlencode($programQrUrl); ?>" alt="Program QR" width="120" height="120" class="rounded border bg-white">
+      <div class="mt-1"><a href="<?php echo htmlspecialchars($programQrUrl); ?>" class="small" target="_blank" rel="noopener noreferrer">Attendance link</a></div>
+    </div>
+    <?php endif; ?>
+
     <form method="POST" id="deskForm">
       <?php echo csrfField(); ?>
       <input type="hidden" name="action" value="confirm">
@@ -196,8 +216,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
         <div id="deskDupInfo" class="small text-warning mt-2 d-none"></div>
       </div>
 
-      <label class="form-label desk-member-id">Member ID (सदस्यता नं.) *</label>
-      <input type="text" name="member_id_input" id="deskMemberInput" class="form-control form-control-lg desk-member-id mb-2" placeholder="उदा. AKS-2080-0001" autocomplete="off" autocapitalize="characters" autofocus required>
+      <label class="form-label desk-member-id">Member ID (कार्ड / सदस्यता नं.) *</label>
+      <input type="text" name="member_id_input" id="deskMemberInput" class="form-control form-control-lg desk-member-id mb-2" placeholder="कार्डमा भएको Member ID — उदा. AKS-2080-0001" autocomplete="off" autocapitalize="characters" autofocus required>
       <div class="desk-kbd mb-3"><kbd>Enter</kbd> lookup · <kbd>Enter</kbd> again confirm · <kbd>Esc</kbd> clear</div>
       <div class="d-flex gap-2">
         <button type="button" id="deskLookupBtn" class="btn btn-outline-primary btn-lg flex-fill">Lookup</button>

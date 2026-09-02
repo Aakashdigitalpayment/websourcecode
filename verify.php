@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (($_POST['action'] ?? '') === 'log_program_attendance') {
         // Legacy action removed — attendance must go via Member Portal QR (pending→approve) or Staff Verify
-        $error = $_t('यो मार्ग बन्द छ। Member Portal QR वा Staff Verify प्रयोग गर्नुहोस्।', 'This path is closed. Use Member Portal QR or Staff Verify.');
+        $error = $_t('यो मार्ग बन्द छ। Member Portal QR वा Admin Registration Desk प्रयोग गर्नुहोस्।', 'This path is closed. Use Member Portal QR or Admin Registration Desk.');
         $code = trim($_POST['code'] ?? '');
         $code = function_exists('normalizeCardCode') ? normalizeCardCode($code) : $code;
         $cvv  = trim($_POST['cvv']  ?? '');

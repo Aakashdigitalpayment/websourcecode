@@ -293,7 +293,7 @@ $pageGroups = [
     'sadasya'=> ['members','member-import','membership-apps','kyc','kyc-risk-reviews','member-ssot-duplicates','member-activities','member-online-portal'],
     /* अन्य सेवा आवेदन (सदस्यता/KYM यसमा होइन) */
     'aavedan'=> ['loans','account-apps','digital-service-requests','digital-service-types','honor-applications','honor-programs','appointments','auctions','auction-bids','vendor-enlistment','member-marketplace'],
-    'program' => ['program-dashboard','programs','program-occurrences','program-registration-desk','program-attendance','program-attendance-verify','program-detail','program-reports-consolidated','program-reports-location','program-reports-member','program-reports-absent','program-reports-duplicates','program-settings','sahakari-calendar-events'],
+    'program' => ['program-dashboard','programs','program-occurrences','program-registration-desk','program-attendance','program-detail','program-reports-consolidated','program-reports-location','program-reports-member','program-reports-absent','program-reports-duplicates','program-settings','sahakari-calendar-events'],
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
@@ -741,12 +741,6 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="program-registration-desk.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="monitor"></i></span>
                                     <span><?php echo $adminT('दर्ता डेस्क', 'Registration Desk'); ?></span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='program-attendance-verify' ? 'active' : ''; ?>">
-                                <a href="../program-attendance-verify.php" class="sidebar-link-flex">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="user-check"></i></span>
-                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति प्रमाणिकरण', 'Attendance Verify'); ?></span>
                                 </a>
                             </li>
                             <li class="<?php echo $currentPage=='program-attendance' ? 'active' : ''; ?>">
