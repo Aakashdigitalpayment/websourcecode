@@ -37,7 +37,7 @@ if ($export) {
   <div class="card admin-table-card mb-3"><div class="card-body">
     <form method="GET" class="row g-2">
       <div class="col-md-8"><input name="q" class="form-control" placeholder="Member ID / Name / Program" value="<?php echo htmlspecialchars($q); ?>"></div>
-      <div class="col-md-4 d-flex gap-2"><button class="btn btn-primary">Search</button><a class="btn btn-success" href="?export=csv<?php echo $q!==''?'&q='.urlencode($q):''; ?>">CSV</a></div>
+      <div class="col-md-4 d-flex gap-2"><button type="submit" class="btn btn-primary">Search</button><a class="btn btn-success" href="?export=csv<?php echo $q!==''?'&q='.urlencode($q):''; ?>">CSV</a></div>
     </form>
   </div></div>
   <div class="card admin-table-card"><div class="table-responsive"><table class="table table-sm table-hover mb-0">

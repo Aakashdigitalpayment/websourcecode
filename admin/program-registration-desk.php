@@ -66,6 +66,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confi
             if ($prog && (int)($prog['is_multi_location'] ?? 0) === 1 && !$occId) {
                 $error = 'Multi-location कार्यक्रममा occurrence/स्थान छान्नुहोस्।';
             } else {
+                $occRow = $occId ? programFetchOccurrenceById($db, $occId) : null;
+                $window = programIsWindowOpen($prog, $occRow);
+                if (empty($window['ok'])) {
+                    $error = $window['message_np'] ?? 'उपस्थिति window बन्द छ।';
+                } else {
                 $result = recordProgramAttendance($db, [
                     'member_id' => (int)$member['id'],
                     'member_card_no' => programMemberSadasyataNo($member),
@@ -86,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'confi
                     $memberPreview = $member;
                 } else {
                     $error = $result['error_np'] ?? $result['error_en'] ?? 'Error';
+                }
                 }
             }
         }
@@ -218,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 
       <label class="form-label desk-member-id">Member ID (कार्ड / सदस्यता नं.) *</label>
       <input type="text" name="member_id_input" id="deskMemberInput" class="form-control form-control-lg desk-member-id mb-2" placeholder="कार्डमा भएको Member ID — उदा. AKS-2080-0001" autocomplete="off" autocapitalize="characters" autofocus required>
-      <div class="desk-kbd mb-3"><kbd>Enter</kbd> lookup · <kbd>Enter</kbd> again confirm · <kbd>Esc</kbd> clear</div>
+      <div class="desk-kbd mb-3">Member ID टाइप गर्नुहोस् → auto lookup → Confirm · <kbd>Esc</kbd> clear</div>
       <div class="d-flex gap-2">
         <button type="button" id="deskLookupBtn" class="btn btn-outline-primary btn-lg flex-fill">Lookup</button>
         <button type="submit" id="deskConfirmBtn" class="btn btn-success btn-lg flex-fill" disabled>Confirm Attendance</button>
@@ -232,7 +238,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
         <?php echo csrfField(); ?><input type="hidden" name="action" value="save_desk"><input type="hidden" name="parent_id" value="<?php echo $programId; ?>">
         <div class="col-md-4"><input name="desk_label" class="form-control" placeholder="Desk 01" required></div>
         <div class="col-md-4"><select name="desk_occurrence_id" class="form-select"><option value="0">All occurrences</option><?php foreach ($occurrences as $o): ?><option value="<?php echo (int)$o['id']; ?>"><?php echo htmlspecialchars($o['location_name']); ?></option><?php endforeach; ?></select></div>
-        <div class="col-md-4"><button class="btn btn-outline-secondary w-100">Add Desk</button></div>
+        <div class="col-md-4"><button type="submit" class="btn btn-outline-secondary w-100">Add Desk</button></div>
       </form>
     </details>
     <?php endif; ?>
@@ -292,6 +298,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
 
         if (d.window && !d.window.open) {
           showInline(d.window.message_np || 'Window closed', true);
+          confirmBtn.disabled = true;
+          lookupReady = false;
+        } else if (d.needs_occurrence) {
+          showInline('Multi-location: पहिले स्थान छान्नुहोस्।', true);
           confirmBtn.disabled = true;
           lookupReady = false;
         } else if (d.already_attended) {

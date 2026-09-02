@@ -370,6 +370,9 @@ if (!function_exists('recordProgramAttendance')) {
         if ($occurrence && (int)($occurrence['is_active'] ?? 0) !== 1) {
             return ['ok' => false, 'error_np' => 'यो स्थान/सत्र निष्क्रिय छ।', 'error_en' => 'This occurrence is inactive.'];
         }
+        if ((int)($program['is_multi_location'] ?? 0) === 1 && !$occurrenceId) {
+            return ['ok' => false, 'error_np' => 'Multi-location कार्यक्रममा स्थान/सत्र छान्नुहोस्।', 'error_en' => 'Please select a location for this multi-location program.'];
+        }
 
         $memberCheck = programValidateMemberEligible($db, $memberId, $program);
         if (empty($memberCheck['ok'])) {
@@ -456,7 +459,7 @@ if (!function_exists('recordProgramAttendance')) {
             ]);
             $attendanceId = (int)$db->lastInsertId();
 
-            programClosePendingRequests($db, $memberId, $effectiveProgramId, $staffAdminId, 'Closed by attendance record #' . $attendanceId);
+            programClosePendingRequests($db, $memberId, $programId, $staffAdminId, 'Closed by attendance record #' . $attendanceId);
             programAuditLog($db, 'attendance_create', $programId, $occurrenceId, $attendanceId, $memberId, $staffAdminId ?: null, $note, [
                 'method' => $method,
                 'source' => $source,

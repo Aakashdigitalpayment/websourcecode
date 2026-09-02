@@ -162,15 +162,15 @@ if ($editId > 0) {
               <td>
                 <?php if ($qrUrl): ?>
                   <code class="small"><?php echo htmlspecialchars(substr($o['qr_token'],0,8)); ?>…</code>
-                  <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="clear_qr"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button class="btn btn-sm btn-outline-danger py-0">×</button></form>
+                  <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="clear_qr"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-danger py-0">×</button></form>
                 <?php else: ?>
-                  <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="gen_qr"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button class="btn btn-sm btn-outline-primary py-0">QR</button></form>
+                  <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="gen_qr"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-primary py-0">QR</button></form>
                 <?php endif; ?>
               </td>
               <td><?php echo $attCount; ?></td>
               <td>
                 <a href="program-occurrences.php?parent_id=<?php echo (int)$parentId; ?>&edit=<?php echo (int)$o['id']; ?>" class="btn btn-sm btn-outline-secondary py-0"><i class="fas fa-pen"></i></a>
-                <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-trash"></i></button></form>
+                <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-trash"></i></button></form>
               </td>
             </tr>
           <?php endforeach; endif; ?>

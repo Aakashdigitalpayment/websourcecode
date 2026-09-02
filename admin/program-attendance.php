@@ -81,6 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stp->execute([$preregId]);
                 $pr = $stp->fetch(PDO::FETCH_ASSOC) ?: null;
                 if ($pr) {
+                    $progRow = programFetchById($db, (int)$pr['program_id']);
+                    if ($progRow && (int)($progRow['is_multi_location'] ?? 0) === 1) {
+                        setFlash('error', 'Multi-location कार्यक्रममा Registration Desk वा Approve बाट स्थान सहित mark गर्नुहोस्।');
+                    } else {
                     $rec = recordProgramAttendance($db, [
                         'member_id' => (int)$pr['member_id'],
                         'member_card_no' => (string)($pr['member_card_no'] ?? ''),
@@ -96,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         setFlash('error', 'यो सदस्यको attendance पहिल्यै register भइसकेको छ।');
                     } else {
                         setFlash('error', $rec['error_np'] ?? 'Attendance mark गर्न समस्या भयो।');
+                    }
                     }
                 } else {
                     setFlash('error', 'Pre-registration record फेला परेन।');
@@ -175,7 +180,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         (string)($member['address'] ?? ''),
                         $reqId
                     ]);
+                    if ($u->rowCount() < 1) {
+                        setFlash('error', 'अनुरोध फेला परेन वा पहिले नै प्रक्रिया भइसकेको छ।');
+                    } else {
                     setFlash('success', 'Attendance request Member ID ' . programMemberSadasyataNo($member) . ' सँग link भयो। अब approve गर्न सकिन्छ।');
+                    }
                 }
             } catch (Throwable $e) {
                 setFlash('error', 'Member link गर्न समस्या भयो।');
@@ -584,7 +593,8 @@ try {
     $rc->execute($paramsReq);
     $reqPendingCount = (int)$rc->fetchColumn();
 
-    $reqSql = "SELECT r.*, m.name AS mname, m.phone AS mphone, m.phone AS mmobile, p.event_date, p.location
+    $reqSql = "SELECT r.*, m.name AS mname, m.phone AS mphone, m.phone AS mmobile, p.event_date, p.location,
+               o.location_name AS occurrence_location
                FROM member_program_attendance_requests r
                LEFT JOIN members m ON m.id=r.member_id
                LEFT JOIN upcoming_programs p ON p.id=r.program_id
@@ -673,13 +683,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 
 <ul class="nav nav-tabs admin-nav-tabs mb-3" id="paSectionTabs" role="tablist">
   <li class="nav-item" role="presentation">
-    <button class="nav-link active" id="pa-tab-req" data-bs-toggle="tab" data-bs-target="#pa-pane-req" type="button" role="tab" aria-controls="pa-pane-req" aria-selected="true">
-      <i class="fas fa-hourglass-half me-2"></i>उपस्थिति अनुरोध
+    <button class="nav-link active" id="pa-tab-att" data-bs-toggle="tab" data-bs-target="#pa-pane-att" type="button" role="tab" aria-controls="pa-pane-att" aria-selected="true">
+      <i class="fas fa-list me-2"></i>उपस्थिति सूची
     </button>
   </li>
   <li class="nav-item" role="presentation">
-    <button class="nav-link" id="pa-tab-att" data-bs-toggle="tab" data-bs-target="#pa-pane-att" type="button" role="tab" aria-controls="pa-pane-att" aria-selected="false">
-      <i class="fas fa-list me-2"></i>उपस्थिति सूची
+    <button class="nav-link" id="pa-tab-req" data-bs-toggle="tab" data-bs-target="#pa-pane-req" type="button" role="tab" aria-controls="pa-pane-req" aria-selected="false">
+      <i class="fas fa-hourglass-half me-2"></i>उपस्थिति अनुरोध
+      <?php if ($reqPendingCount > 0): ?><span class="badge bg-warning text-dark ms-1"><?php echo (int)$reqPendingCount; ?></span><?php endif; ?>
     </button>
   </li>
   <li class="nav-item" role="presentation">
@@ -690,7 +701,66 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 </ul>
 
 <div class="tab-content" id="paSectionTabsContent">
-  <div class="tab-pane fade show active" id="pa-pane-req" role="tabpanel" aria-labelledby="pa-tab-req">
+  <div class="tab-pane fade show active" id="pa-pane-att" role="tabpanel" aria-labelledby="pa-tab-att">
+<div class="card admin-table-card">
+  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <h6 class="mb-0"><i class="fas fa-list me-2"></i><?php echo adminLangT('उपस्थिति सूची','Attendance List'); ?></h6>
+    <?php if ($totalFiltered > 0): ?><span class="badge bg-secondary"><?php echo (int)$totalFiltered; ?> रेकर्ड (फिल्टर)</span><?php endif; ?>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover table-sm align-middle mb-0">
+      <thead><tr><th><?php echo adminLangT('कार्यक्रम','Program'); ?></th><th><?php echo adminLangT('मिति','Date'); ?></th><th><?php echo adminLangT('सदस्य','Member'); ?></th><th><?php echo adminLangT('Member ID','Member ID'); ?></th><th><?php echo adminLangT('स्थान','Location'); ?></th><th><?php echo adminLangT('विधि','Method'); ?></th><th>Priority</th><th><?php echo adminLangT('नोट','Note'); ?></th><th><?php echo adminLangT('समय','Time'); ?></th><th><?php echo adminLangT('कार्य','Actions'); ?></th></tr></thead>
+      <tbody>
+      <?php if (empty($rows)): ?><tr><td colspan="10" class="text-center text-muted py-4"><?php echo adminLangT('उपस्थिति रेकर्ड छैन।','No attendance records.'); ?></td></tr><?php endif; ?>
+      <?php foreach($rows as $r):
+        $rowLoc = programAttendanceDisplayLocation($r);
+        $rowMethod = programAttendanceMethodLabel($r['attendance_method'] ?? '', strtolower((string)($_SESSION['admin_lang'] ?? 'np')) === 'en');
+      ?>
+      <tr>
+        <td><?php echo htmlspecialchars($r['program_title']); ?></td>
+        <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?></td>
+        <td><?php echo htmlspecialchars($r['member_name'] ?: '—'); ?></td>
+        <td><code class="small"><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></code></td>
+        <td class="small"><?php echo htmlspecialchars($rowLoc !== '' ? $rowLoc : '—'); ?></td>
+        <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rowMethod); ?></span></td>
+        <td><?php echo (int)$r['is_priority'] ? '<span class="badge bg-warning text-dark">Priority</span>' : '<span class="text-muted">No</span>'; ?></td>
+        <td><?php echo htmlspecialchars($r['attendance_note'] ?: ''); ?></td>
+        <td class="small text-muted"><?php echo htmlspecialchars(programFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
+        <td>
+          <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo adminLangT('यो उपस्थिति void गर्ने? पुन: दर्ता गर्न सकिन्छ।', 'Void this attendance? It can be re-recorded.'); ?>');">
+            <?php echo csrfField(); ?>
+            <input type="hidden" name="action" value="void_attendance">
+            <input type="hidden" name="attendance_id" value="<?php echo (int)$r['id']; ?>">
+            <button type="submit" class="btn btn-sm btn-outline-danger py-0" title="Void"><i class="fas fa-ban"></i></button>
+          </form>
+        </td>
+      </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <?php if ($totalPages > 1): ?>
+  <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
+    <span class="small text-muted">पृष्ठ <?php echo (int)$page; ?> / <?php echo (int)$totalPages; ?></span>
+    <nav class="d-flex flex-wrap gap-1">
+      <?php
+        $mkPageUrl = static function (int $p) use ($paQuery): string {
+            $q = $paQuery;
+            if ($p > 1) {
+                $q['page'] = $p;
+            }
+            return 'program-attendance.php?' . http_build_query($q);
+        };
+      ?>
+      <?php if ($page > 1): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page - 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अघिल्लो','Previous'); ?></a><?php endif; ?>
+      <?php if ($page < $totalPages): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page + 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अर्को','Next'); ?></a><?php endif; ?>
+    </nav>
+  </div>
+  <?php endif; ?>
+</div>
+  </div>
+
+  <div class="tab-pane fade" id="pa-pane-req" role="tabpanel" aria-labelledby="pa-tab-req">
 <div class="card admin-table-card mb-3 border-warning" style="border-width:2px;">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
     <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo adminLangT('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
@@ -720,10 +790,15 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         $rph = trim((string)($rx['mphone'] ?: ($rx['mmobile'] ?? $rx['member_phone'] ?? '')));
         $raddr = trim((string)($rx['member_address'] ?? ''));
         $rsrc = function_exists('programAttendanceSourceLabel') ? programAttendanceSourceLabel($rx['source'] ?? '') : (string)($rx['source'] ?? '—');
+        $reqLoc = trim((string)($rx['occurrence_location'] ?? ''));
+        if ($reqLoc === '') {
+            $reqLoc = trim((string)($rx['location'] ?? ''));
+        }
+        $reqDateLoc = trim(($rx['event_date'] ?? '') . ($reqLoc !== '' ? ' · ' . $reqLoc : ''));
       ?>
       <tr>
         <td><?php echo htmlspecialchars($rx['program_title'] ?? ''); ?></td>
-        <td class="small"><?php echo htmlspecialchars(trim(($rx['event_date'] ?? '') . ' ' . ($rx['location'] ?? ''))); ?></td>
+        <td class="small"><?php echo htmlspecialchars($reqDateLoc !== '' ? $reqDateLoc : '—'); ?></td>
         <td><?php echo htmlspecialchars($rn ?: '—'); ?><?php if ($raddr !== ''): ?><div class="small text-muted"><?php echo htmlspecialchars($raddr); ?></div><?php endif; ?><?php if ($rph !== ''): ?><div class="small text-muted"><?php echo htmlspecialchars($rph); ?></div><?php endif; ?></td>
         <td><code><?php echo htmlspecialchars($rx['member_card_no'] ?: '—'); ?></code></td>
         <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rsrc); ?></span></td>
@@ -765,57 +840,6 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
       </tbody>
     </table>
   </div>
-</div>
-  </div>
-
-  <div class="tab-pane fade" id="pa-pane-att" role="tabpanel" aria-labelledby="pa-tab-att">
-<div class="card admin-table-card">
-  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-list me-2"></i><?php echo adminLangT('उपस्थिति सूची','Attendance List'); ?></h6>
-    <?php if ($totalFiltered > 0): ?><span class="badge bg-secondary"><?php echo (int)$totalFiltered; ?> रेकर्ड (फिल्टर)</span><?php endif; ?>
-  </div>
-  <div class="table-responsive">
-    <table class="table table-hover table-sm align-middle mb-0">
-      <thead><tr><th><?php echo adminLangT('कार्यक्रम','Program'); ?></th><th><?php echo adminLangT('मिति','Date'); ?></th><th><?php echo adminLangT('सदस्य','Member'); ?></th><th><?php echo adminLangT('Member ID','Member ID'); ?></th><th><?php echo adminLangT('स्थान','Location'); ?></th><th><?php echo adminLangT('विधि','Method'); ?></th><th>Priority</th><th><?php echo adminLangT('नोट','Note'); ?></th><th><?php echo adminLangT('समय','Time'); ?></th></tr></thead>
-      <tbody>
-      <?php if (empty($rows)): ?><tr><td colspan="9" class="text-center text-muted py-4"><?php echo adminLangT('उपस्थिति रेकर्ड छैन।','No attendance records.'); ?></td></tr><?php endif; ?>
-      <?php foreach($rows as $r):
-        $rowLoc = programAttendanceDisplayLocation($r);
-        $rowMethod = programAttendanceMethodLabel($r['attendance_method'] ?? '', strtolower((string)($_SESSION['admin_lang'] ?? 'np')) === 'en');
-      ?>
-      <tr>
-        <td><?php echo htmlspecialchars($r['program_title']); ?></td>
-        <td><?php echo htmlspecialchars($r['event_date'] ?: '—'); ?></td>
-        <td><?php echo htmlspecialchars($r['member_name'] ?: '—'); ?></td>
-        <td><code class="small"><?php echo htmlspecialchars($r['member_card_no'] ?: '—'); ?></code></td>
-        <td class="small"><?php echo htmlspecialchars($rowLoc !== '' ? $rowLoc : '—'); ?></td>
-        <td><span class="badge bg-light text-dark border"><?php echo htmlspecialchars($rowMethod); ?></span></td>
-        <td><?php echo (int)$r['is_priority'] ? '<span class="badge bg-warning text-dark">Priority</span>' : '<span class="text-muted">No</span>'; ?></td>
-        <td><?php echo htmlspecialchars($r['attendance_note'] ?: ''); ?></td>
-        <td class="small text-muted"><?php echo htmlspecialchars(programFormatAttendedAt($r['attended_at'] ?? '')); ?></td>
-      </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-  <?php if ($totalPages > 1): ?>
-  <div class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2 py-2">
-    <span class="small text-muted">पृष्ठ <?php echo (int)$page; ?> / <?php echo (int)$totalPages; ?></span>
-    <nav class="d-flex flex-wrap gap-1">
-      <?php
-        $mkPageUrl = static function (int $p) use ($paQuery): string {
-            $q = $paQuery;
-            if ($p > 1) {
-                $q['page'] = $p;
-            }
-            return 'program-attendance.php?' . http_build_query($q);
-        };
-      ?>
-      <?php if ($page > 1): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page - 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अघिल्लो','Previous'); ?></a><?php endif; ?>
-      <?php if ($page < $totalPages): ?><a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($mkPageUrl($page + 1), ENT_QUOTES, 'UTF-8'); ?>"><?php echo adminLangT('अर्को','Next'); ?></a><?php endif; ?>
-    </nav>
-  </div>
-  <?php endif; ?>
 </div>
   </div>
 

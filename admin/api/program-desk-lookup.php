@@ -59,7 +59,8 @@ $photoUrl = programMemberPhotoUrl((string)($member['photo'] ?? ''));
 
 $sadasyata = programMemberSadasyataNo($member);
 $window = programIsWindowOpen($prog, $occurrence);
-$canRecord = !empty($window['ok']) && !$existing;
+$needsOccurrence = (int)($prog['is_multi_location'] ?? 0) === 1 && $occurrenceId < 1;
+$canRecord = !empty($window['ok']) && !$existing && !$needsOccurrence;
 
 echo json_encode([
     'ok' => true,
@@ -85,4 +86,5 @@ echo json_encode([
         'message_en' => (string)($window['message_en'] ?? ''),
     ],
     'can_record' => $canRecord,
+    'needs_occurrence' => $needsOccurrence,
 ], JSON_UNESCAPED_UNICODE);

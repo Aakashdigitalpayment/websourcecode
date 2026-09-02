@@ -32,7 +32,7 @@ try {
 } catch (Throwable $e) { $kycRow = null; }
 
 $memName    = trim((string)($kycRow['full_name'] ?? $mem['name'] ?? ''));
-$memCard    = trim((string)($kycRow['member_id'] ?? $mem['sadasyata_number'] ?? ''));
+$memCard    = programMemberSadasyataNo($mem);
 
 ensureProgramTables($db);
 

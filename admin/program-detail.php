@@ -90,7 +90,7 @@ $recentRows = $recentAtt->fetchAll(PDO::FETCH_ASSOC) ?: [];
           <td><?php echo htmlspecialchars($ra['location_label']??'—'); ?></td>
           <td><?php echo htmlspecialchars(programAttendanceMethodLabel($ra['attendance_method']??'')); ?></td>
           <td class="small"><?php echo htmlspecialchars(substr((string)($ra['attended_at']??''),0,16)); ?></td>
-          <td><form method="POST" class="d-inline" onsubmit="return confirm('Void?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="void_attendance"><input type="hidden" name="attendance_id" value="<?php echo (int)$ra['id']; ?>"><input type="hidden" name="void_reason" value="Admin void from program detail"><button class="btn btn-sm btn-outline-danger py-0">Void</button></form></td>
+          <td><form method="POST" class="d-inline" onsubmit="return confirm('Void?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="void_attendance"><input type="hidden" name="attendance_id" value="<?php echo (int)$ra['id']; ?>"><input type="hidden" name="void_reason" value="Admin void from program detail"><button type="submit" class="btn btn-sm btn-outline-danger py-0">Void</button></form></td>
         </tr><?php endforeach; ?></tbody>
       </table></div></div>
     </div>

@@ -39,8 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $attOpenTime = trim((string)($_POST['attendance_open_time'] ?? ''));
             $attCloseBs = trim((string)($_POST['attendance_close_bs'] ?? ''));
             $attCloseTime = trim((string)($_POST['attendance_close_time'] ?? ''));
-            $attOpenAt = $attOpenBs !== '' ? programCombineBsDateTime($attOpenBs, $attOpenTime !== '' ? $attOpenTime : '00:00') : null;
-            $attCloseAt = $attCloseBs !== '' ? programCombineBsDateTime($attCloseBs, $attCloseTime !== '' ? $attCloseTime : '23:59') : null;
+            $attOpenProvided = $attOpenBs !== '';
+            $attCloseProvided = $attCloseBs !== '';
+            $attOpenAt = $attOpenProvided ? programCombineBsDateTime($attOpenBs, $attOpenTime !== '' ? $attOpenTime : '00:00') : null;
+            $attCloseAt = $attCloseProvided ? programCombineBsDateTime($attCloseBs, $attCloseTime !== '' ? $attCloseTime : '23:59') : null;
             $qrStartsBs = trim((string)($_POST['qr_starts_at_bs'] ?? ''));
             $qrStartsTime = trim((string)($_POST['qr_starts_at_time'] ?? ''));
             $qrExpiresBs = trim((string)($_POST['qr_expires_at_bs'] ?? ''));
@@ -94,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 /* Keep existing QR window when fields left blank (avoid silent wipe) */
                 $prevStarts = null;
                 $prevExpires = null;
-                $prevSt = $db->prepare('SELECT qr_starts_at, qr_expires_at FROM upcoming_programs WHERE id=? LIMIT 1');
+                $prevSt = $db->prepare('SELECT qr_starts_at, qr_expires_at, attendance_open_at, attendance_close_at FROM upcoming_programs WHERE id=? LIMIT 1');
                 $prevSt->execute([$id]);
                 $prevRow = $prevSt->fetch(PDO::FETCH_ASSOC) ?: [];
                 $prevStarts = $prevRow['qr_starts_at'] ?? null;
@@ -104,6 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if (!$qrExpiresProvided) {
                     $qrExpiresAt = $prevExpires;
+                }
+                if (!$attOpenProvided) {
+                    $attOpenAt = $prevRow['attendance_open_at'] ?? null;
+                }
+                if (!$attCloseProvided) {
+                    $attCloseAt = $prevRow['attendance_close_at'] ?? null;
                 }
                 $st = $db->prepare("UPDATE upcoming_programs SET title=?, program_type=?, is_multi_location=?, instant_attendance=?, shared_qr_mode=?, eligible_member_scope=?, description=?, event_date=?, event_time=?, location=?, is_active=?, pre_registration_open=?, qr_starts_at=?, qr_expires_at=?, attendance_open_at=?, attendance_close_at=? WHERE id=?");
                 $st->execute([$title, $programType, $isMulti, $instantAtt, $sharedQr, $eligibleScope, $desc, $date, $time, $loc, $active, $preRegOpen, $qrStartsAt, $qrExpiresAt, $attOpenAt, $attCloseAt, $id]);
