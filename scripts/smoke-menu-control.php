@@ -99,6 +99,11 @@ if (str_contains($header, 'data-group="superadmin"') && str_contains($header, 'i
 } else {
     fail('superadmin nav group missing');
 }
+if (str_contains($header, 'footer-settings.php') && str_contains($header, "'footer-settings'")) {
+    ok('footer-settings in SA nav + pageGroups');
+} else {
+    fail('footer-settings missing from SA wiring');
+}
 /* SA-only items should not still live under prawidhi */
 if (!preg_match('/id="group-prawidhi"[\s\S]*backup-restore\.php[\s\S]*<\/ul>/', $header)) {
     ok('backup-restore removed from prawidhi group');

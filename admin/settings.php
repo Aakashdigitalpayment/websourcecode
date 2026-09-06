@@ -9,8 +9,6 @@ require_once 'includes/admin-ui.php';
 
 $updateSuccess = false;
 $updateError = '';
-$canEditFooterDev = !empty($_SESSION['is_superadmin']);
-
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -21,8 +19,9 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
+        /* Footer credits (developer/supported) — Superadmin → footer-settings.php मात्र */
         /* footer_text is not editable — copyright is derived from site_name via coop_footer_copyright_text() */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'developer_name', 'developer_url', 'supported_name', 'supported_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -39,9 +38,6 @@ checkCSRF();
         foreach ($textSettings as $key) {
             if (isset($_POST[$key])) {
                 if (in_array($key, ['twofa_admin_required','twofa_member_required'], true) && empty($_SESSION['is_superadmin'])) {
-                    continue;
-                }
-                if (in_array($key, ['developer_name', 'developer_url', 'supported_name', 'supported_url'], true) && !$canEditFooterDev) {
                     continue;
                 }
                 $value = $_POST[$key];
@@ -344,15 +340,12 @@ if (!in_array($panel, ['general', 'branding'], true)) {
         <div class="tab-pane fade <?php echo $panel === 'general' ? 'show active' : ''; ?>" id="settings-general-tab" role="tabpanel">
         <div class="alert alert-light border settings-tab-note mb-3">
             <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="info"></i>
-            <?php echo $__t('वेबसाइटको नाम, SEO, सम्पर्क, social links, banking links र (Superadmin मात्र) footer सम्बन्धी मुख्य सेटिङ्स यही tab मा छन्।', 'Main settings for website name, SEO, contacts, social links, banking links and (Superadmin only) footer are in this tab.'); ?>
+            <?php echo $__t('वेबसाइटको नाम, SEO, सम्पर्क, social links र banking links सम्बन्धी मुख्य सेटिङ्स यही tab मा छन्। फुटर credits Superadmin → फुटर सेटिङ मा छ।', 'Main settings for website name, SEO, contacts, social and banking links are in this tab. Footer credits live under Superadmin → Footer Settings.'); ?>
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="general">
             <button type="button" class="stg-subtab-btn active" data-stg-group="identity"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="globe"></i> <?php echo $__t('साइट / SEO', 'Site / SEO'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="contact"><i class="fas fa-address-book me-1"></i> <?php echo $__t('सम्पर्क / Maps', 'Contact / Maps'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="banking"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="lock"></i> <?php echo $__t('Banking / Security', 'Banking / Security'); ?></button>
-            <?php if ($canEditFooterDev): ?>
-            <button type="button" class="stg-subtab-btn" data-stg-group="leadership"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="copyright"></i> <?php echo $__t('फुटर (SA)', 'Footer (SA)'); ?></button>
-            <?php endif; ?>
             <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="fas fa-table-cells-large me-1"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
         </div>
         <div class="row">
@@ -744,70 +737,6 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <?php endif; ?>
 
                 </div>
-            </div>
-
-            <div class="row">
-            <div class="col-xl-6">
-            <!-- Leadership Section removed — Chairman/CEO name, photo, designation
-                 are now managed from Team Members (team-karmachari.php).
-                 Keeping col-xl-6 wrapper intact so Footer card layout is unchanged. -->
-            </div>
-
-            <div class="col-xl-6">
-            <?php if ($canEditFooterDev): ?>
-            <!-- Footer (Superadmin only): Developed/Supported editable; copyright from site_name -->
-            <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="general" data-stg-group="leadership" data-stg-order="2">
-                <div class="card-header stg-section-header">
-                    <h5 class="stg-section-title"><i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i> <?php echo $__t('फुटर', 'Footer'); ?></h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label"><?php echo $__t('Copyright Text', 'Copyright Text'); ?></label>
-                        <input type="text" class="form-control" readonly
-                               value="<?php echo htmlspecialchars(function_exists('coop_footer_copyright_text') ? coop_footer_copyright_text(false) : '', ENT_QUOTES, 'UTF-8'); ?>">
-                        <small class="stg-muted d-block mt-1">
-                            <?php echo $__t(
-                                'यो पाठ सहकारीको नाम (साइट नाम) बाट स्वतः बन्छ — छुट्टै सम्पादन गर्न मिल्दैन। नाम बदल्न «साइट / SEO» मा जानुहोस्।',
-                                'This text is generated from the cooperative site name — it is not separately editable. Change the name under Site / SEO.'
-                            ); ?>
-                        </small>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="stg_developer_name" class="form-label">Developed By (Name)</label>
-                                <input type="text" name="developer_name" id="stg_developer_name" class="form-control"
-                                       value="<?php echo $settings['developer_name'] ?? 'Tanka Adhikari'; ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="stg_developer_url" class="form-label">Developed By URL</label>
-                                <input type="url" name="developer_url" id="stg_developer_url" class="form-control"
-                                       value="<?php echo $settings['developer_url'] ?? 'https://www.tankaadhikari.com.np/'; ?>">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="stg_supported_name" class="form-label"><?php echo $__t('Supported By (Name)', 'Supported By (Name)'); ?></label>
-                                <input type="text" name="supported_name" id="stg_supported_name" class="form-control"
-                                       value="<?php echo $settings['supported_name'] ?? ''; ?>">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="stg_supported_url" class="form-label"><?php echo $__t('Supported By URL', 'Supported By URL'); ?></label>
-                                <input type="url" name="supported_url" id="stg_supported_url" class="form-control"
-                                       value="<?php echo $settings['supported_url'] ?? ''; ?>">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            </div>
             </div>
 
             <!-- Office Info -->

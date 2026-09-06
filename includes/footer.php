@@ -206,7 +206,6 @@ try {
         <div class="footer-bottom">
             <div class="container">
                 <p class="copyright">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i>
                     <?php echo e($footerText); ?>
                 </p>
 
