@@ -163,45 +163,52 @@ if ($error) echo adminAlert('error', $error);
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0">
+                        <table class="table table-hover align-middle mb-0 admin-assign-table">
                             <thead class="table-light">
                                 <tr>
-                                    <th></th>
-                                    <th>नाम</th>
-                                    <th>पद</th>
-                                    <th>फोन</th>
-                                    <th>कार्य</th>
+                                    <th scope="col" class="admin-assign-status-col" aria-label="स्थिति"></th>
+                                    <th scope="col">नाम</th>
+                                    <th scope="col">पद</th>
+                                    <th scope="col">फोन</th>
+                                    <th scope="col" class="text-end">कार्य</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($allMembers as $m): ?>
-                                <tr class="<?php echo ($currentOfficer && $currentOfficer['id'] == $m['id']) ? 'table-info' : ''; ?>">
-                                    <td>
-                                        <?php if ($currentOfficer && $currentOfficer['id'] == $m['id']): ?>
-                                            <i class="fas fa-check-circle text-success"></i>
+                                <?php $isCurrent = ($currentOfficer && (int)$currentOfficer['id'] === (int)$m['id']); ?>
+                                <tr class="<?php echo $isCurrent ? 'admin-assign-row-current' : ''; ?>">
+                                    <td class="text-center">
+                                        <?php if ($isCurrent): ?>
+                                            <i class="fas fa-check-circle text-success" title="हालको अधिकारी" aria-label="हालको अधिकारी"></i>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if (!empty($m['photo'])): ?>
-                                            <img src="<?php echo htmlspecialchars('../' . $m['photo']); ?>"
-                                                 style="width:32px;height:32px;border-radius:50%;object-fit:cover;margin-right:6px;" alt="">
-                                        <?php endif; ?>
-                                        <strong><?php echo htmlspecialchars($m['name']); ?></strong>
-                                        <?php if (!empty($m['name_en'])): ?>
-                                            <small class="text-muted d-block"><?php echo htmlspecialchars($m['name_en']); ?></small>
-                                        <?php endif; ?>
+                                        <div class="admin-person-cell">
+                                            <?php if (!empty($m['photo'])): ?>
+                                                <img src="<?php echo htmlspecialchars('../' . $m['photo']); ?>"
+                                                     class="gof-row-avatar" alt="">
+                                            <?php else: ?>
+                                                <span class="admin-person-fallback" aria-hidden="true"><i class="fas fa-user"></i></span>
+                                            <?php endif; ?>
+                                            <div class="admin-person-meta">
+                                                <span class="admin-person-name"><?php echo htmlspecialchars($m['name']); ?></span>
+                                                <?php if (!empty($m['name_en'])): ?>
+                                                    <span class="admin-person-sub"><?php echo htmlspecialchars($m['name_en']); ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td><?php echo htmlspecialchars($m['position_np'] ?: $m['position']); ?></td>
-                                    <td class="small"><?php echo htmlspecialchars($m['phone'] ?? '—'); ?></td>
-                                    <td>
-                                        <?php if (!$currentOfficer || $currentOfficer['id'] != $m['id']): ?>
-                                        <form method="POST" style="display:inline;">
+                                    <td class="admin-mono-soft"><?php echo htmlspecialchars($m['phone'] ?? '—'); ?></td>
+                                    <td class="text-end">
+                                        <?php if (!$isCurrent): ?>
+                                        <form method="POST" class="svc-inline-form">
                                             <?php echo csrfField(); ?>
-                                            <input type="hidden" name="member_id" value="<?php echo $m['id']; ?>">
+                                            <input type="hidden" name="member_id" value="<?php echo (int)$m['id']; ?>">
                                             <button type="submit" name="set_officer" value="1"
-                                                    class="btn btn-sm btn-primary"
-                                                    onclick="return confirm('<?php echo htmlspecialchars($m['name']); ?> लाई सूचना अधिकारी बनाउने?')">
-                                                <i class="fas fa-user-check me-1"></i>तोक्नुहोस्
+                                                    class="btn btn-sm btn-primary admin-assign-btn"
+                                                    onclick="return confirm('<?php echo htmlspecialchars($m['name'], ENT_QUOTES, 'UTF-8'); ?> लाई सूचना अधिकारी बनाउने?')">
+                                                <i class="fas fa-user-check" aria-hidden="true"></i><span>तोक्नुहोस्</span>
                                             </button>
                                         </form>
                                         <?php else: ?>

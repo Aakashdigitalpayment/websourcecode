@@ -182,13 +182,13 @@ body[class*="admin-page-"] .main-content .tm-search-wrap .search-count {
   min-height: 28px;
   min-width: 0 !important;
   padding: 0.15rem 0.55rem !important;
-  border: 1px solid #c9d5ce !important;
+  border: 1px solid var(--admin-border, color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb))) !important;
   border-radius: 8px !important;
-  background: #fff !important;
-  color: #1f2d26 !important;
-  -webkit-text-fill-color: #1f2d26 !important;
+  background: var(--admin-surface, var(--bg-card, #fff)) !important;
+  color: var(--admin-text, var(--text-primary, #1f2d26)) !important;
+  -webkit-text-fill-color: var(--admin-text, var(--text-primary, #1f2d26)) !important;
   font-weight: 700 !important;
-  font-size: 0.78rem !important; /* match existing .search-count size */
+  font-size: 0.78rem !important;
   line-height: 1.2 !important;
   white-space: nowrap;
   box-shadow: none !important;
@@ -261,9 +261,13 @@ body[class*="admin-page-"] .main-content .table thead th {
   font-weight: 600 !important;
   letter-spacing: 0.02em;
   padding: 0.8rem 0.95rem !important;
-  background: linear-gradient(180deg, #f6faf7 0%, #eef5f0 100%) !important;
-  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 15%, #e2ebe5) !important;
-  color: #2a3d32 !important;
+  background: linear-gradient(
+    180deg,
+    var(--admin-surface-soft, color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #f6faf7)) 0%,
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, var(--bg-soft, #eef5f0)) 100%
+  ) !important;
+  border-bottom: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, var(--border-color, #e2ebe5)) !important;
+  color: var(--admin-text, var(--text-primary, #2a3d32)) !important;
 }
 
 body[class*="admin-page-"] .main-content .table tbody td,
@@ -272,10 +276,16 @@ body[class*="admin-page-"] .main-content .data-table tbody td {
   padding: 0.82rem 0.95rem !important;
   vertical-align: middle !important;
   line-height: 1.45;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, var(--border-color, #eef3f0)) !important;
+  color: var(--admin-text, var(--text-primary, #1c2b23));
 }
 
 body[class*="admin-page-"] .main-content .table tbody tr {
   transition: background-color 0.12s ease;
+}
+
+body[class*="admin-page-"] .main-content .table tbody tr:hover {
+  background: var(--admin-row-hover, color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff)) !important;
 }
 
 body[class*="admin-page-"] .main-content .table .badge {
@@ -670,21 +680,57 @@ body[class*="admin-page-"] .main-content .alert-info {
   color: #164e63 !important;
 }
 
-/* DataTables controls */
+/* DataTables — Show entries + Search (token colours) */
+body[class*="admin-page-"] .dataTables_wrapper {
+  padding: 0.85rem 1rem !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_length,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter {
+  margin-bottom: 0.65rem;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_length label,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter label {
+  display: inline-flex !important;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--admin-muted, var(--text-muted, #5b6b62)) !important;
+  margin: 0 !important;
+}
+
 body[class*="admin-page-"] .dataTables_wrapper .dataTables_length select,
 body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter input {
   min-height: 38px;
   font-size: 0.875rem !important;
-  border-radius: 8px !important;
-  border: 1.5px solid #d7e0db !important;
-  padding: 0.35rem 0.65rem !important;
+  font-family: var(--admin-font-body, inherit) !important;
+  border-radius: var(--admin-ux-radius-sm, 8px) !important;
+  border: 1.5px solid var(--admin-border, color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb))) !important;
+  padding: 0.35rem 0.7rem !important;
+  background: var(--admin-surface, var(--bg-card, #fff)) !important;
+  color: var(--admin-text, var(--text-primary, #0f1a15)) !important;
+  box-shadow: none !important;
 }
 
-body[class*="admin-page-"] .dataTables_wrapper .dataTables_info,
-body[class*="admin-page-"] .dataTables_wrapper .dataTables_length label,
-body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter label {
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_length select:hover,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter input:hover {
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, var(--border-color, #e5e7eb)) !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_length select:focus,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: var(--admin-focus-ring, var(--shadow-focus)) !important;
+  outline: none !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_info {
   font-size: 0.8125rem !important;
-  color: var(--admin-muted, #5b6b62) !important;
+  color: var(--admin-muted, var(--text-muted, #5b6b62)) !important;
+  padding-top: 0.65rem !important;
 }
 
 body[class*="admin-page-"] .dataTables_wrapper .dataTables_paginate .paginate_button {
@@ -693,6 +739,23 @@ body[class*="admin-page-"] .dataTables_wrapper .dataTables_paginate .paginate_bu
   line-height: 36px !important;
   border-radius: 8px !important;
   margin: 0 2px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: var(--admin-muted, var(--text-muted, #5b6b62)) !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  box-shadow: var(--shadow-primary, 0 2px 8px color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent)) !important;
+}
+
+body[class*="admin-page-"] .dataTables_wrapper .dataTables_paginate .paginate_button:not(.disabled):not(.current):hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, var(--border-color, #e5e7eb)) !important;
+  color: var(--primary-color, #1a5f2a) !important;
 }
 
 /* Filter / action toolbars */
@@ -924,4 +987,403 @@ body[class*="admin-page-"] .main-content .form-select:focus {
   body[class*="admin-page-"] .sidebar a {
     transition: none !important;
   }
+}
+
+/* ── Officer assign tables (grievance / RTI) + shared person cells ─── */
+body[class*="admin-page-"] .admin-assign-table .admin-assign-status-col {
+  width: 2.25rem;
+}
+
+body[class*="admin-page-"] .admin-assign-row-current {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, #fff) !important;
+  box-shadow: inset 3px 0 0 var(--primary-color, #1a5f2a);
+}
+
+body[class*="admin-page-"] .admin-person-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+body[class*="admin-page-"] .admin-person-fallback {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #f3f6f4);
+  color: var(--primary-color, #1a5f2a);
+  font-size: 0.85rem;
+}
+
+body[class*="admin-page-"] .admin-person-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+body[class*="admin-page-"] .admin-person-name {
+  font-weight: 650;
+  font-size: 0.92rem;
+  color: var(--admin-text, #0f1a15);
+  line-height: 1.3;
+}
+
+body[class*="admin-page-"] .admin-person-sub {
+  font-size: 0.78rem;
+  color: #4a5c52 !important; /* stronger than default muted for EN names */
+  line-height: 1.3;
+}
+
+body[class*="admin-page-"] .admin-mono-soft {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  color: #33453c;
+  font-size: 0.875rem !important;
+}
+
+body[class*="admin-page-"] .admin-assign-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem !important;
+  white-space: nowrap !important;
+  padding: 0.4rem 0.9rem !important;
+  min-width: auto !important;
+  width: auto !important;
+  min-height: 34px;
+  line-height: 1.2 !important;
+  font-size: 0.84rem !important;
+}
+
+body[class*="admin-page-"] .admin-assign-btn i,
+body[class*="admin-page-"] .admin-assign-btn .lucide-icon {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+body[class*="admin-page-"] .admin-assign-btn span {
+  line-height: 1.2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UNIFORM admin chrome — forms / icons / bottom (ALL pages + modals)
+   Additive overrides so every form matches the same density & rhythm.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Forms — labels + controls (main + modal) */
+body[class*="admin-page-"] .main-content .form-label,
+body[class*="admin-page-"] .modal .form-label {
+  font-family: var(--admin-font-body, 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  color: #1a2b22 !important;
+  margin-bottom: 0.45rem !important;
+  letter-spacing: 0.01em;
+}
+
+body[class*="admin-page-"] .main-content .form-control,
+body[class*="admin-page-"] .main-content .form-select,
+body[class*="admin-page-"] .main-content .admin-fancy-input,
+body[class*="admin-page-"] .modal .form-control,
+body[class*="admin-page-"] .modal .form-select,
+body[class*="admin-page-"] .modal .admin-fancy-input {
+  font-family: var(--admin-font-body, 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+  font-size: max(0.9rem, 14px) !important;
+  line-height: 1.4 !important;
+  min-height: 42px;
+}
+
+body[class*="admin-page-"] .main-content textarea.form-control,
+body[class*="admin-page-"] .main-content textarea.admin-fancy-input,
+body[class*="admin-page-"] .modal textarea.form-control,
+body[class*="admin-page-"] .modal textarea.admin-fancy-input {
+  min-height: 96px;
+}
+
+body[class*="admin-page-"] .main-content input[type="file"].form-control,
+body[class*="admin-page-"] .modal input[type="file"].form-control {
+  min-height: 42px;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+body[class*="admin-page-"] .main-content .form-select,
+body[class*="admin-page-"] .modal .form-select {
+  padding-right: 2.25rem !important;
+}
+
+body[class*="admin-page-"] .main-content .input-group-text,
+body[class*="admin-page-"] .modal .input-group-text {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body[class*="admin-page-"] .main-content .form-check-label,
+body[class*="admin-page-"] .modal .form-check-label {
+  font-family: var(--admin-font-body, 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+  font-size: 0.875rem !important;
+  color: #1c2b23 !important;
+}
+
+body[class*="admin-page-"] .main-content .form-check-input:checked,
+body[class*="admin-page-"] .modal .form-check-input:checked {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+body[class*="admin-page-"] .main-content .was-validated .form-control:invalid,
+body[class*="admin-page-"] .main-content .form-control.is-invalid,
+body[class*="admin-page-"] .modal .form-control.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+body[class*="admin-page-"] .main-content .invalid-feedback,
+body[class*="admin-page-"] .modal .invalid-feedback {
+  font-size: 0.8125rem !important;
+}
+
+/* Buttons — icon + text gap uniform (kills me-1 / cramped Devanagari) */
+body[class*="admin-page-"] .main-content .btn,
+body[class*="admin-page-"] .modal .btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem !important;
+  line-height: 1.25 !important;
+  font-family: var(--admin-font-body, 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+}
+
+body[class*="admin-page-"] .main-content .btn > .fas,
+body[class*="admin-page-"] .main-content .btn > .far,
+body[class*="admin-page-"] .main-content .btn > .fa,
+body[class*="admin-page-"] .main-content .btn > .lucide-icon,
+body[class*="admin-page-"] .main-content .btn > svg,
+body[class*="admin-page-"] .modal .btn > .fas,
+body[class*="admin-page-"] .modal .btn > .far,
+body[class*="admin-page-"] .modal .btn > .fa,
+body[class*="admin-page-"] .modal .btn > .lucide-icon,
+body[class*="admin-page-"] .modal .btn > svg {
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+body[class*="admin-page-"] .main-content .table .btn-sm,
+body[class*="admin-page-"] .main-content .btn-group-action .btn,
+body[class*="admin-page-"] .main-content .btn-group-actions .btn {
+  gap: 0.35rem !important;
+  white-space: nowrap !important;
+  padding-left: 0.7rem !important;
+  padding-right: 0.7rem !important;
+}
+
+/* Icon-only action buttons — same 34×34 everywhere */
+body[class*="admin-page-"] .adm-icon-btn,
+body[class*="admin-page-"] .main-content .adm-icon-btn,
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px !important;
+  gap: 0 !important;
+}
+
+body[class*="admin-page-"] .adm-icon-btn .lucide-icon,
+body[class*="admin-page-"] .adm-icon-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  stroke-width: 2 !important;
+}
+
+/* Card headers — title + icon rhythm */
+body[class*="admin-page-"] .main-content .card-header h5,
+body[class*="admin-page-"] .main-content .card-header .fw-bold,
+body[class*="admin-page-"] .main-content .card-header .card-title {
+  font-size: 1rem !important;
+  font-weight: 700 !important;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  line-height: 1.3;
+  font-family: var(--admin-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif) !important;
+}
+
+body[class*="admin-page-"] .main-content .card-header h5 .fas,
+body[class*="admin-page-"] .main-content .card-header h5 .lucide-icon,
+body[class*="admin-page-"] .main-content .card-header .fw-bold .fas,
+body[class*="admin-page-"] .main-content .card-header .fw-bold .lucide-icon {
+  opacity: 0.95;
+  flex-shrink: 0;
+  margin: 0 !important;
+}
+
+/* Bottom nav — keep one size (matches shell + has-bottomnav block above) */
+.mob-bottomnav a.mob-bn-item,
+body[class*="admin-page-"] .mob-bottomnav a.mob-bn-item {
+  gap: 4px !important;
+  padding: 8px 4px 6px !important;
+  min-height: 52px;
+}
+
+.mob-bottomnav a.mob-bn-item .lucide-icon,
+.mob-bottomnav a.mob-bn-item svg,
+body[class*="admin-page-"] .mob-bottomnav a.mob-bn-item .lucide-icon,
+body[class*="admin-page-"] .mob-bottomnav a.mob-bn-item svg {
+  width: 22px !important;
+  height: 22px !important;
+  stroke-width: 2.1 !important;
+}
+
+.mob-bottomnav a.mob-bn-item span,
+body[class*="admin-page-"] .mob-bottomnav a.mob-bn-item span {
+  font-size: max(10px, 0.68rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  line-height: 1.15 !important;
+  max-width: 92%;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UNIFORM list surface — table / tab / search / view / show entries
+   Colours from theme tokens (primary / semantic), not hard greens.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Search bar — all admin-search-wrap variants */
+body[class*="admin-page-"] .main-content .admin-search-wrap {
+  background: var(--admin-surface-tray, color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, var(--bg-page, #f8faf9))) !important;
+  border-bottom: 1px solid var(--admin-border, color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb))) !important;
+  border-color: var(--admin-border) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap.bg-light {
+  background: var(--admin-surface-tray) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .input-group-text {
+  background: var(--admin-surface, var(--bg-card, #fff)) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .form-control {
+  border-color: var(--admin-border) !important;
+  background: var(--admin-surface, var(--bg-card, #fff)) !important;
+  color: var(--admin-text) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-search-wrap .form-control:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: var(--admin-focus-ring, var(--shadow-focus)) !important;
+}
+
+/* Tabs — token tray (reinforces shell) */
+body[class*="admin-page-"] .main-content .admin-nav-tabs {
+  background: var(--admin-surface-tray) !important;
+  border-color: var(--admin-border) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link {
+  color: var(--admin-muted) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link:hover,
+body[class*="admin-page-"] .main-content .admin-nav-tabs .nav-link.active {
+  color: var(--primary-dark, var(--primary-color, #1a5f2a)) !important;
+}
+
+body[class*="admin-page-"] .main-content .admin-nav-tabs.mb-0 + .tab-content > .tab-pane.show.active > .admin-table-card:first-child,
+body[class*="admin-page-"] .main-content .admin-nav-tabs.mb-0 + .tab-content > .tab-pane.active > .admin-table-card:first-child {
+  border-top-color: var(--admin-border) !important;
+}
+
+/* View / Edit / Delete / Print — semantic token colours */
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn {
+  border-color: var(--admin-border, var(--border-color, #e5e7eb)) !important;
+  background: var(--admin-surface, var(--bg-card, #fff)) !important;
+  color: var(--admin-muted, var(--text-muted, #6b7280)) !important;
+}
+
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn--view:hover {
+  border-color: var(--admin-action-view, var(--color-info, #0891b2)) !important;
+  color: var(--admin-action-view, var(--color-info, #0891b2)) !important;
+  background: var(--color-info-bg, color-mix(in srgb, var(--color-info, #0891b2) 10%, #fff)) !important;
+}
+
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn--edit:hover {
+  border-color: var(--admin-action-edit, var(--primary-color, #1a5f2a)) !important;
+  color: var(--primary-dark, var(--primary-color, #1a5f2a)) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 9%, #fff) !important;
+}
+
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn--delete:hover {
+  border-color: var(--admin-action-danger, var(--color-danger, #dc2626)) !important;
+  color: var(--admin-action-danger, var(--color-danger, #dc2626)) !important;
+  background: var(--color-danger-bg, color-mix(in srgb, var(--color-danger, #dc2626) 8%, #fff)) !important;
+}
+
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn--print:hover {
+  border-color: var(--secondary-color, #6366f1) !important;
+  color: var(--secondary-dark, var(--secondary-color, #4f46e5)) !important;
+  background: color-mix(in srgb, var(--secondary-color, #6366f1) 10%, #fff) !important;
+}
+
+body[class*="admin-page-"] .adm-action-icons .adm-icon-btn--reply:hover {
+  border-color: var(--color-info, #0891b2) !important;
+  color: var(--color-info, #0891b2) !important;
+  background: var(--color-info-bg, color-mix(in srgb, var(--color-info, #0891b2) 10%, #fff)) !important;
+}
+
+/* Filter chip buttons in table headers */
+body[class*="admin-page-"] .main-content .filter-buttons .btn {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-muted) !important;
+  background: var(--admin-surface) !important;
+}
+
+body[class*="admin-page-"] .main-content .filter-buttons .btn.btn-primary,
+body[class*="admin-page-"] .main-content .filter-buttons .btn.active {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Soft badge in tables */
+body[class*="admin-page-"] .main-content .table .badge.bg-primary,
+body[class*="admin-page-"] .main-content .table .badge.text-bg-primary {
+  background: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+body[class*="admin-page-"] .main-content .table .badge.bg-success,
+body[class*="admin-page-"] .main-content .table .badge.text-bg-success {
+  background: color-mix(in srgb, var(--color-success, #16a34a) 16%, #fff) !important;
+  color: var(--color-success, #16a34a) !important;
+  border: 1px solid color-mix(in srgb, var(--color-success, #16a34a) 28%, transparent);
+}
+
+body[class*="admin-page-"] .main-content .table .badge.bg-danger,
+body[class*="admin-page-"] .main-content .table .badge.text-bg-danger {
+  background: var(--color-danger-bg, #fef2f2) !important;
+  color: var(--color-danger, #dc2626) !important;
+  border: 1px solid var(--color-danger-border, #fecaca);
+}
+
+body[class*="admin-page-"] .main-content .table .badge.bg-info,
+body[class*="admin-page-"] .main-content .table .badge.text-bg-info {
+  background: var(--color-info-bg, #ecfeff) !important;
+  color: var(--color-info, #0891b2) !important;
+  border: 1px solid var(--color-info-border, #a5f3fc);
 }
