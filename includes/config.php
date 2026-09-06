@@ -1389,6 +1389,27 @@ function getSetting($key, $default = '') {
 }
 
 /**
+ * Public footer copyright — always derived from cooperative site name (not a free-edit field).
+ * Nepali: © {Y} {site_name}। सर्वाधिकार सुरक्षित।
+ * English: © {Y} {site_name_en|site_name}. All rights reserved.
+ */
+function coop_footer_copyright_text(?bool $english = null): string {
+    if ($english === null) {
+        $english = function_exists('isEnglish') && isEnglish();
+    }
+    $np = trim((string) getSetting('site_name', ''));
+    $en = trim((string) getSetting('site_name_en', ''));
+    $name = $english ? ($en !== '' ? $en : $np) : ($np !== '' ? $np : $en);
+    if ($name === '') {
+        $name = $english ? 'Cooperative' : 'सहकारी';
+    }
+    $year = date('Y');
+    return $english
+        ? ('© ' . $year . ' ' . $name . '. All rights reserved.')
+        : ('© ' . $year . ' ' . $name . '। सर्वाधिकार सुरक्षित।');
+}
+
+/**
  * Language-aware site logo path.
  * - Nepali UI: logo_np -> site_logo -> logo
  * - English UI: logo_en -> site_logo -> logo

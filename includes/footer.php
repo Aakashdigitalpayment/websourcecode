@@ -1,6 +1,8 @@
 <?php
-// Get footer settings
-$footerText = getSetting('footer_text', '© ' . date('Y') . ' आकाश सहकारी। सर्वाधिकार सुरक्षित।');
+// Get footer settings — copyright always from cooperative site_name (not free-edit footer_text)
+$footerText = function_exists('coop_footer_copyright_text')
+    ? coop_footer_copyright_text()
+    : ('© ' . date('Y') . ' ' . getSetting('site_name', 'सहकारी') . '। सर्वाधिकार सुरक्षित।');
 $aboutShort = getSetting('about_short', 'आकाश बचत तथा ऋण सहकारी संस्था लि. एक अग्रणी वित्तीय संस्था हो।');
 $developerName = getSetting('developer_name', 'Tanka Adhikari');
 $developerUrl = getSetting('developer_url', 'https://www.tankaadhikari.com.np/');
