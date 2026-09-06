@@ -44,6 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             admin_menu_control_save_hidden($toHide);
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog(
+                    'menu_control_update',
+                    'hidden_groups=' . (count($toHide) ? implode(',', $toHide) : '(none)'),
+                    'settings',
+                    0
+                );
+            }
             setFlash('success', 'Menu control अपडेट भयो। लुकेका समूह: ' . (count($toHide) ? implode(', ', $toHide) : 'कुनै छैन (सबै देखिने)'));
         } elseif ($action === 'reset_menu_control') {
             $code = (string)($_POST['confirm_code'] ?? '');
@@ -51,6 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception('Confirm code गलत छ। Reset भएन।');
             }
             admin_menu_control_save_hidden([]);
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog('menu_control_reset', 'all menus visible again', 'settings', 0);
+            }
             setFlash('success', 'सबै menu फेरि देखिने बनाइयो (default)।');
         }
     } catch (Throwable $e) {
@@ -88,7 +99,13 @@ echo adminPageHeader(
     <li><?php echo $t('Tick गरिएको समूह सामान्य Admin बाट लुक्छ; Superadmin ले सधैं सबै देख्छ।', 'Ticked groups hide from normal admins; Superadmin always sees all.'); ?></li>
     <li><?php echo $t('सीधा URL बाट पनि लुकेको समूहको page खोल्न मिल्दैन (SA बाहेक)।', 'Hidden group pages are also blocked via direct URL (except SA).'); ?></li>
     <li><?php echo $t('सेभ गर्दा Confirm Code अनिवार्य — SA login मात्रले पुग्दैन।', 'Confirm Code is required to save — SA login alone is not enough.'); ?></li>
+    <li><?php echo $t('संस्था (सेटिङ) वा सदस्य समूह लुकाउँदा सामान्य Admin ले ती page खोल्न सक्दैन — सावधानी अपनाउनुहोस्।', 'Hiding Organization or Members blocks those pages for normal admins — use carefully.'); ?></li>
   </ul>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-2">
+  <button type="button" class="btn btn-sm btn-outline-secondary" id="mcSelectNone"><?php echo $t('सबै अनटिक', 'Uncheck all'); ?></button>
+  <button type="button" class="btn btn-sm btn-outline-warning" id="mcSelectOptional"><?php echo $t('आम optional मात्र लुकाउने (निर्वाचन/रोजगारी/कार्यक्रम)', 'Hide common optional (election/career/program)'); ?></button>
 </div>
 
 <form method="POST" class="card admin-table-card">
@@ -143,4 +160,19 @@ echo adminPageHeader(
   </div>
 </form>
 </div>
+<script>
+(function(){
+  function setGroups(keys) {
+    var set = {};
+    (keys || []).forEach(function(k){ set[k] = true; });
+    document.querySelectorAll('input[name="hidden_groups[]"]').forEach(function(cb){
+      cb.checked = !!set[cb.value];
+    });
+  }
+  var noneBtn = document.getElementById('mcSelectNone');
+  if (noneBtn) noneBtn.addEventListener('click', function(){ setGroups([]); });
+  var optBtn = document.getElementById('mcSelectOptional');
+  if (optBtn) optBtn.addEventListener('click', function(){ setGroups(['nirvachan','rojgar','program']); });
+})();
+</script>
 <?php require_once __DIR__ . '/includes/admin-footer.php'; ?>

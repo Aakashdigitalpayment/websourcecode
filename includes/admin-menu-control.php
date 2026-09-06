@@ -169,7 +169,7 @@ if (!function_exists('admin_menu_page_allowed')) {
         }
         $always = [
             'dashboard', 'index', 'logout', 'change-password', 'manage-admins',
-            'menu-control', 'site-license-blocked', 'db-setup',
+            'site-license-blocked', 'db-setup',
         ];
         if (in_array($currentPage, $always, true)) {
             return true;
