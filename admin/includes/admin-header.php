@@ -298,7 +298,7 @@ $pageGroups = [
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
     'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
-    'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license'],
+    'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license','menu-control','audit-log','error-log'],
     /* admin management pages — site-setup kept for direct URL; not in daily nav */
     'superadmin'=> ['manage-admins','site-setup','db-setup','run-migration'],
 ];
@@ -308,6 +308,13 @@ foreach ($pageGroups as $group => $pages) {
         $activeGroup = $group;
         break;
     }
+}
+
+/* Per-coop menu hide (Superadmin Menu Control) — default: nothing hidden */
+require_once __DIR__ . '/../../includes/admin-menu-control.php';
+if (!admin_menu_page_allowed((string)$currentPage, $pageGroups)) {
+    setFlash('error', 'यो मेनु यस सहकारीका लागि बन्द गरिएको छ।');
+    redirect(ADMIN_URL . 'dashboard.php');
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -421,8 +428,18 @@ set_exception_handler(function (\Throwable $ex) {
                             <?php endif; ?>
                         </a>
                     </li>
+                    <?php if (!empty($_SESSION['is_superadmin'])): ?>
+                    <li class="<?php echo $currentPage === 'menu-control' ? 'active' : ''; ?>">
+                        <a href="menu-control.php">
+                            <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
+                            <span><?php echo $adminT('Menu Control', 'Menu Control'); ?></span>
+                            <span class="sa-mini-badge">SA</span>
+                        </a>
+                    </li>
+                    <?php endif; ?>
 
                     <!-- ── सामग्री ── -->
+                    <?php if (admin_menu_group_visible('samgri')): ?>
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='samgri' ? 'open' : ''; ?>" data-group="samgri">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="folder-open"></i></span>
@@ -490,8 +507,10 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                         </ul>
                     </li>
+                    <?php endif; /* samgri */ ?>
 
                     <!-- ── मानवीय स्रोत ── -->
+                    <?php if (admin_menu_group_visible('toli')): ?>
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" data-group="toli">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
@@ -516,9 +535,10 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                         </ul>
                     </li>
-
+                    <?php endif; /* toli */ ?>
 
                     <!-- ── रोजगारी ── -->
+                    <?php if (admin_menu_group_visible('rojgar')): ?>
                     <li class="nav-group-wrap">
                         <?php $rojgarBadge = $adminAlertCounts['job']; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='rojgar' ? 'open' : ''; ?>" data-group="rojgar">
@@ -540,8 +560,10 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                         </ul>
                     </li>
+                    <?php endif; /* rojgar */ ?>
 
                     <!-- ── सदस्य (Member ID) — एकै ठाउँ serial यात्रा ── -->
+                    <?php if (admin_menu_group_visible('sadasya')): ?>
                     <li class="nav-group-wrap">
                         <?php
                         $sadasyaBadge = (int)($adminAlertCounts['mem_pending'] ?? 0)
@@ -622,7 +644,10 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
+                    <?php endif; /* sadasya */ ?>
+
                     <!-- ── आवेदनहरू (ऋण/खाता/अन्य — सदस्यता/KYM होइन) ── -->
+                    <?php if (admin_menu_group_visible('aavedan')): ?>
                     <li class="nav-group-wrap">
                         <?php $aavedan_total = $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor'] + (int)($adminAlertCounts['marketplace'] ?? 0); ?>
                         <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
@@ -709,7 +734,10 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
+                    <?php endif; /* aavedan */ ?>
+
                     <!-- ── कार्यक्रम व्यवस्थापन (All program tools) ── -->
+                    <?php if (admin_menu_group_visible('program')): ?>
                     <li class="nav-group-wrap">
                         <?php $program_total = (int)($adminAlertCounts['attend'] ?? 0); ?>
                         <div class="nav-group-header <?php echo $activeGroup=='program' ? 'open' : ''; ?>" data-group="program">
@@ -783,7 +811,10 @@ set_exception_handler(function (\Throwable $ex) {
                     </li>
 
 
+                    <?php endif; /* program */ ?>
+
                     <!-- ── निर्वाचन (छुट्टै group) ── -->
+                    <?php if (admin_menu_group_visible('nirvachan')): ?>
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='nirvachan' ? 'open' : ''; ?>" data-group="nirvachan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="square-check-big"></i></span>
@@ -809,7 +840,10 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
+                    <?php endif; /* nirvachan */ ?>
+
                     <!-- ── सम्पर्क / संचार ── -->
+                    <?php if (admin_menu_group_visible('sampark')): ?>
                     <li class="nav-group-wrap">
                         <?php $sampark_total = $unreadMessages + $adminAlertCounts['feedback'] + $adminAlertCounts['grievance'] + $adminAlertCounts['welfare'] + $adminAlertCounts['appointment']; ?>
                         <div class="nav-group-header <?php echo $activeGroup=='sampark' ? 'open' : ''; ?>" data-group="sampark">
@@ -866,7 +900,10 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
+                    <?php endif; /* sampark */ ?>
+
                     <!-- ── संस्था ── -->
+                    <?php if (admin_menu_group_visible('sanstha')): ?>
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='sanstha' ? 'open' : ''; ?>" data-group="sanstha">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span>
@@ -922,7 +959,10 @@ set_exception_handler(function (\Throwable $ex) {
                         </ul>
                     </li>
 
+                    <?php endif; /* sanstha */ ?>
+
                     <!-- ── प्रविधि ── -->
+                    <?php if (admin_menu_group_visible('prawidhi')): ?>
                     <li class="nav-group-wrap">
                         <div class="nav-group-header <?php echo $activeGroup=='prawidhi' ? 'open' : ''; ?>" data-group="prawidhi">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="server"></i></span>
@@ -938,6 +978,13 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="backup-restore.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
                                     <span><?php echo $adminT('ब्याकअप / पुनर्स्थापना', 'Backup / Restore'); ?></span>
+                                    <span class="sa-label-badge">SA</span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage=='menu-control' ? 'active' : ''; ?>">
+                                <a href="menu-control.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
+                                    <span><?php echo $adminT('Menu Control', 'Menu Control'); ?></span>
                                     <span class="sa-label-badge">SA</span>
                                 </a>
                             </li>
@@ -992,6 +1039,7 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                         </ul>
                     </li>
+                    <?php endif; /* prawidhi */ ?>
 
                 </ul>
             </nav>
