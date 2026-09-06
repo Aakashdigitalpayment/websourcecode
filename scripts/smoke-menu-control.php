@@ -104,6 +104,11 @@ if (str_contains($header, 'footer-settings.php') && str_contains($header, "'foot
 } else {
     fail('footer-settings missing from SA wiring');
 }
+if (str_contains($header, 'security-settings.php') && str_contains($header, 'site-setup.php') && str_contains($header, 'run-migration.php') && str_contains($header, 'db-setup.php')) {
+    ok('SA nav includes security + site-setup + migration + db-setup');
+} else {
+    fail('SA nav missing security/site-setup/migration/db-setup links');
+}
 /* SA-only items should not still live under prawidhi */
 if (!preg_match('/id="group-prawidhi"[\s\S]*backup-restore\.php[\s\S]*<\/ul>/', $header)) {
     ok('backup-restore removed from prawidhi group');

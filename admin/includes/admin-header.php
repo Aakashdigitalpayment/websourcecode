@@ -300,7 +300,7 @@ $pageGroups = [
     'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','update-checklist','site-health','audit-log','error-log','help-guide','help-center'],
     /* Superadmin-only tools — one place in sidebar (not hideable via Menu Control) */
-    'superadmin'=> ['manage-admins','menu-control','footer-settings','backup-restore','site-license','site-setup','db-setup','run-migration'],
+    'superadmin'=> ['manage-admins','menu-control','footer-settings','security-settings','backup-restore','site-license','site-setup','db-setup','run-migration'],
 ];
 $activeGroup = '';
 foreach ($pageGroups as $group => $pages) {
@@ -446,6 +446,18 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('फुटर सेटिङ', 'Footer Settings'); ?></span>
                                 </a>
                             </li>
+                            <li class="<?php echo $currentPage === 'security-settings' ? 'active' : ''; ?>">
+                                <a href="security-settings.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i></span>
+                                    <span><?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'site-setup' ? 'active' : ''; ?>">
+                                <a href="site-setup.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i></span>
+                                    <span><?php echo $adminT('साइट सेटअप', 'Site Setup'); ?></span>
+                                </a>
+                            </li>
                             <li class="<?php echo $currentPage === 'backup-restore' ? 'active' : ''; ?>">
                                 <a href="backup-restore.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
@@ -456,6 +468,18 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="site-license.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="calendar-check"></i></span>
                                     <span><?php echo $adminT('साइट म्याद', 'Site License'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'run-migration' ? 'active' : ''; ?>">
+                                <a href="run-migration.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="database"></i></span>
+                                    <span><?php echo $adminT('Migration', 'Migration'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'db-setup' ? 'active' : ''; ?>">
+                                <a href="db-setup.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="hard-drive"></i></span>
+                                    <span><?php echo $adminT('DB Setup', 'DB Setup'); ?></span>
                                 </a>
                             </li>
                         </ul>
@@ -1237,6 +1261,7 @@ set_exception_handler(function (\Throwable $ex) {
                                     <a href="manage-admins.php"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i> <?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></a>
                                     <a href="menu-control.php"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i> <?php echo $adminT('Menu Control', 'Menu Control'); ?></a>
                                     <a href="footer-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i> <?php echo $adminT('फुटर सेटिङ', 'Footer Settings'); ?></a>
+                                    <a href="security-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> <?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></a>
                                     <a href="site-license.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo $adminT('साइट म्याद', 'Site License'); ?></a>
                                 <?php endif; ?>
                                 <a href="logout.php"><i class="lucide-icon" aria-hidden="true" data-lucide="log-out"></i> <?php echo $adminT('लगआउट', 'Logout'); ?></a>

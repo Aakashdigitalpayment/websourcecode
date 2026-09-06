@@ -19,9 +19,9 @@ checkCSRF();
 
         // Update text settings
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
-        /* Footer credits (developer/supported) — Superadmin → footer-settings.php मात्र */
+        /* Footer credits → footer-settings.php; 2FA policy → security-settings.php (Superadmin) */
         /* footer_text is not editable — copyright is derived from site_name via coop_footer_copyright_text() */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'twofa_admin_required', 'twofa_member_required', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'pwa_app_name', 'pwa_short_name'];
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -37,9 +37,6 @@ checkCSRF();
 
         foreach ($textSettings as $key) {
             if (isset($_POST[$key])) {
-                if (in_array($key, ['twofa_admin_required','twofa_member_required'], true) && empty($_SESSION['is_superadmin'])) {
-                    continue;
-                }
                 $value = $_POST[$key];
                 if (in_array($key, ['meta_description', 'meta_description_en'], true)) {
                     $value = function_exists('clean_text') ? clean_text((string) $value, 400) : trim((string) $value);
@@ -89,12 +86,6 @@ checkCSRF();
                 updateSetting('footer_text', coop_footer_copyright_text(false));
             }
         }
-        // checkbox fallback (unchecked हुँदा key नआउने)
-        if (!empty($_SESSION['is_superadmin'])) {
-            if (!isset($_POST['twofa_admin_required'])) updateSetting('twofa_admin_required', '0');
-            if (!isset($_POST['twofa_member_required'])) updateSetting('twofa_member_required', '0');
-        }
-
         $uploadErrors = [];
 
         // Site favicon (browser tab icon)
@@ -340,12 +331,12 @@ if (!in_array($panel, ['general', 'branding'], true)) {
         <div class="tab-pane fade <?php echo $panel === 'general' ? 'show active' : ''; ?>" id="settings-general-tab" role="tabpanel">
         <div class="alert alert-light border settings-tab-note mb-3">
             <i class="lucide-icon me-2 stg-ico-primary" aria-hidden="true" data-lucide="info"></i>
-            <?php echo $__t('वेबसाइटको नाम, SEO, सम्पर्क, social links र banking links सम्बन्धी मुख्य सेटिङ्स यही tab मा छन्। फुटर credits Superadmin → फुटर सेटिङ मा छ।', 'Main settings for website name, SEO, contacts, social and banking links are in this tab. Footer credits live under Superadmin → Footer Settings.'); ?>
+            <?php echo $__t('वेबसाइटको नाम, SEO, सम्पर्क, social links र banking links सम्बन्धी मुख्य सेटिङ्स यही tab मा छन्। फुटर / 2FA Superadmin मेनुमा छ।', 'Main settings for website name, SEO, contacts, social and banking links are in this tab. Footer / 2FA live under the Superadmin menu.'); ?>
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="general">
             <button type="button" class="stg-subtab-btn active" data-stg-group="identity"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="globe"></i> <?php echo $__t('साइट / SEO', 'Site / SEO'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="contact"><i class="fas fa-address-book me-1"></i> <?php echo $__t('सम्पर्क / Maps', 'Contact / Maps'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="banking"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="lock"></i> <?php echo $__t('Banking / Security', 'Banking / Security'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="banking"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="landmark"></i> <?php echo $__t('बैंकिङ / OAuth', 'Banking / OAuth'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="fas fa-table-cells-large me-1"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
         </div>
         <div class="row">
@@ -718,23 +709,6 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                    placeholder="abcdef1234..." autocomplete="off">
                         </div>
                     </div>
-                    <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                    <hr>
-                    <h6 class="stg-title-accent fw-bold mt-3"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="shield-halved"></i><?php echo $__t('2FA नीति (Superadmin)', '2FA Policy (Superadmin)'); ?></h6>
-                    <div class="alert alert-warning py-2 px-3 stg-help-compact">
-                        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="lock"></i> <?php echo $__t('तलको toggle अनुसार Google Authenticator 2FA login मा लागू हुन्छ।', 'Google Authenticator 2FA is enforced on login based on toggles below.'); ?>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="twofa_admin_required" name="twofa_admin_required" value="1"
-                               <?php echo (($settings['twofa_admin_required'] ?? '0') === '1') ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="twofa_admin_required"><?php echo $__t('Admin Login मा 2FA अनिवार्य', 'Require 2FA for Admin Login'); ?></label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="twofa_member_required" name="twofa_member_required" value="1"
-                               <?php echo (($settings['twofa_member_required'] ?? '0') === '1') ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="twofa_member_required"><?php echo $__t('Member Login मा 2FA अनिवार्य', 'Require 2FA for Member Login'); ?></label>
-                    </div>
-                    <?php endif; ?>
 
                 </div>
             </div>
