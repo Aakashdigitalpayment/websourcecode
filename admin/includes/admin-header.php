@@ -298,9 +298,9 @@ $pageGroups = [
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
     'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
-    'prawidhi'=> ['system-info','backup-restore','update-checklist','site-health','site-license','menu-control','audit-log','error-log'],
-    /* admin management pages — site-setup kept for direct URL; not in daily nav */
-    'superadmin'=> ['manage-admins','site-setup','db-setup','run-migration'],
+    'prawidhi'=> ['system-info','update-checklist','site-health','audit-log','error-log','help-guide','help-center'],
+    /* Superadmin-only tools — one place in sidebar (not hideable via Menu Control) */
+    'superadmin'=> ['manage-admins','menu-control','backup-restore','site-license','site-setup','db-setup','run-migration'],
 ];
 $activeGroup = '';
 foreach ($pageGroups as $group => $pages) {
@@ -418,23 +418,41 @@ set_exception_handler(function (\Throwable $ex) {
                         </a>
                     </li>
 
-                    <!-- ── Admin User Management — सबै admin ले देख्छन् ── -->
-                    <li class="<?php echo $currentPage === 'manage-admins' ? 'active' : ''; ?>">
-                        <a href="manage-admins.php">
-                            <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i></span>
-                            <span><?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></span>
-                            <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                            <span class="sa-mini-badge">SA</span>
-                            <?php endif; ?>
-                        </a>
-                    </li>
                     <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                    <li class="<?php echo $currentPage === 'menu-control' ? 'active' : ''; ?>">
-                        <a href="menu-control.php">
-                            <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
-                            <span><?php echo $adminT('Menu Control', 'Menu Control'); ?></span>
+                    <!-- ── Superadmin Tools (SA only — एकै ठाउँ) ── -->
+                    <li class="nav-group-wrap">
+                        <div class="nav-group-header <?php echo $activeGroup=='superadmin' ? 'open' : ''; ?>" data-group="superadmin">
+                            <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i></span>
+                            <span class="nav-group-label"><?php echo $adminT('सुपरएडमिन', 'Superadmin'); ?></span>
                             <span class="sa-mini-badge">SA</span>
-                        </a>
+                            <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
+                        </div>
+                        <ul class="nav-submenu <?php echo $activeGroup=='superadmin' ? 'open' : ''; ?>" id="group-superadmin">
+                            <li class="<?php echo $currentPage === 'manage-admins' ? 'active' : ''; ?>">
+                                <a href="manage-admins.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i></span>
+                                    <span><?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'menu-control' ? 'active' : ''; ?>">
+                                <a href="menu-control.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
+                                    <span><?php echo $adminT('Menu Control', 'Menu Control'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'backup-restore' ? 'active' : ''; ?>">
+                                <a href="backup-restore.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
+                                    <span><?php echo $adminT('ब्याकअप / पुनर्स्थापना', 'Backup / Restore'); ?></span>
+                                </a>
+                            </li>
+                            <li class="<?php echo $currentPage === 'site-license' ? 'active' : ''; ?>">
+                                <a href="site-license.php">
+                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="calendar-check"></i></span>
+                                    <span><?php echo $adminT('साइट म्याद', 'Site License'); ?></span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <?php endif; ?>
 
@@ -973,22 +991,6 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='system-info' ? 'active' : ''; ?>">
                                 <a href="system-info.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="server"></i></span><span><?php echo $adminT('प्रणाली जानकारी', 'System Info'); ?></span></a>
                             </li>
-                            <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                            <li class="<?php echo $currentPage=='backup-restore' ? 'active' : ''; ?>">
-                                <a href="backup-restore.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span>
-                                    <span><?php echo $adminT('ब्याकअप / पुनर्स्थापना', 'Backup / Restore'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
-                            <li class="<?php echo $currentPage=='menu-control' ? 'active' : ''; ?>">
-                                <a href="menu-control.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i></span>
-                                    <span><?php echo $adminT('Menu Control', 'Menu Control'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
-                            <?php endif; ?>
                             <li class="<?php echo $currentPage=='update-checklist' ? 'active' : ''; ?>">
                                 <a href="update-checklist.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="list-checks"></i></span><span><?php echo $adminT('अपडेट सूची', 'Update Checklist'); ?></span></a>
                             </li>
@@ -1014,16 +1016,6 @@ set_exception_handler(function (\Throwable $ex) {
                                     <span><?php echo $adminT('📖 सहायता / Help', '📖 Help / Guide'); ?></span>
                                 </a>
                             </li>
-                            <!-- साइट म्याद — Superadmin only -->
-                            <?php if (!empty($_SESSION['is_superadmin'])): ?>
-                            <li class="<?php echo $currentPage=='site-license' ? 'active' : ''; ?>">
-                                <a href="site-license.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-amber" aria-hidden="true" data-lucide="calendar-check"></i></span>
-                                    <span><?php echo $adminT('साइट म्याद', 'Site License'); ?></span>
-                                    <span class="sa-label-badge">SA</span>
-                                </a>
-                            </li>
-                            <?php endif; ?>
 
                             <!-- ── PWA Install App ── -->
                             <li id="pwa-nav-install-li">
@@ -1235,8 +1227,10 @@ set_exception_handler(function (\Throwable $ex) {
                                     <a href="profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo $adminT('प्रोफाइल', 'Profile'); ?></a>
                                     <a href="change-password.php"><i class="lucide-icon" aria-hidden="true" data-lucide="key"></i> <?php echo $adminT('पासवर्ड', 'Password'); ?></a>
                                 <?php else: ?>
-                                    <!-- Superadmin को लागि admin management link -->
+                                    <!-- Superadmin — SA tools एउटै समूहमा पनि छन्; shortcut यहाँ -->
                                     <a href="manage-admins.php"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i> <?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></a>
+                                    <a href="menu-control.php"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i> <?php echo $adminT('Menu Control', 'Menu Control'); ?></a>
+                                    <a href="site-license.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo $adminT('साइट म्याद', 'Site License'); ?></a>
                                 <?php endif; ?>
                                 <a href="logout.php"><i class="lucide-icon" aria-hidden="true" data-lucide="log-out"></i> <?php echo $adminT('लगआउट', 'Logout'); ?></a>
                             </div>

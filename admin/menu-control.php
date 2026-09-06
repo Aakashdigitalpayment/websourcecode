@@ -84,8 +84,8 @@ echo adminPageHeader(
     $t('Menu Control', 'Menu Control'),
     'layout-list',
     $t(
-        'यो सहकारीको Admin sidebar मा कुन समूह देख्ने / नदेख्ने — केवल Superadmin। Default: सबै देखिने।',
-        'Choose which admin sidebar groups this cooperative sees. Superadmin only. Default: all visible.'
+        'यो सहकारीको Admin sidebar मा कुन समूह देख्ने / नदेख्ने — केवल Superadmin। Default: सबै देखिने। SA tools (सुपरएडमिन समूह) सधैं SA लाई देखिन्छ।',
+        'Choose which admin sidebar groups this cooperative sees. Superadmin only. Default: all visible. SA tools group always stays for Superadmin.'
     ),
     '<a href="dashboard.php" class="btn btn-sm btn-outline-secondary">Dashboard</a>'
 );

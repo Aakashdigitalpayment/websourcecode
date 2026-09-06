@@ -251,6 +251,8 @@ assertFileContains('admin/menu-control.php', "empty(\$_SESSION['is_superadmin'])
 assertFileContains('admin/menu-control.php', 'confirm_code', 'menu control requires confirm code');
 assertFileContains('admin/includes/admin-header.php', 'admin_menu_page_allowed', 'header enforces hidden menu page gate');
 assertFileContains('admin/includes/admin-header.php', 'menu-control.php', 'menu control nav link present');
+assertFileContains('admin/includes/admin-header.php', "data-group=\"superadmin\"", 'superadmin tools grouped in one nav group');
+assertFileContains('admin/includes/admin-header.php', "empty(\$_SESSION['is_superadmin'])", 'superadmin group gated');
 assertFileContains('member/scan.php', 'integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"', 'html5-qrcode SRI');
 assertFileContains('online-kyc.php', 'integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="', 'Leaflet JS SRI');
 assertFileContains('admin/pages.php', 'integrity="sha384-lo8/CN/iRaTSWve/rcVNU06/qOA1Qn47bB4ENNcUQ7tLVBqPca8yRbxhx5ic7UZM"', 'TinyMCE SRI');

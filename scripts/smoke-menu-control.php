@@ -94,6 +94,17 @@ if (str_contains($header, "admin_menu_group_visible('program')") && str_contains
 } else {
     fail('header missing menu control wiring');
 }
+if (str_contains($header, 'data-group="superadmin"') && str_contains($header, 'id="group-superadmin"')) {
+    ok('SA tools consolidated in superadmin nav group');
+} else {
+    fail('superadmin nav group missing');
+}
+/* SA-only items should not still live under prawidhi */
+if (!preg_match('/id="group-prawidhi"[\s\S]*backup-restore\.php[\s\S]*<\/ul>/', $header)) {
+    ok('backup-restore removed from prawidhi group');
+} else {
+    fail('backup-restore still under prawidhi');
+}
 
 echo "\n$passed passed, $failed failed\n";
 exit($failed > 0 ? 1 : 0);
