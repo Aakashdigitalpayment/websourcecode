@@ -314,16 +314,6 @@ $ntcBasename = static function (?string $path): string {
                             </tr>
                         </thead>
                         <tbody>
-                            <?php if (empty($notices)): ?>
-                            <tr>
-                                <td colspan="7">
-                                    <div class="admin-empty-state">
-                                        <i class="fas fa-bullhorn"></i>
-                                        <p><?php echo $__t('कुनै सूचना छैन। "नयाँ थप्नुहोस्" tab खोल्नुहोस्।', 'No notices yet. Open the "Add New" tab.'); ?></p>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endif; ?>
                             <?php foreach ($notices as $idx => $item): ?>
                             <tr>
                                 <td class="text-center" data-label=""><input type="checkbox" class="nt-select" form="noticeBulkForm" name="selected_ids[]" value="<?php echo (int)$item['id']; ?>"></td>
@@ -750,10 +740,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (el) el.addEventListener('click', function() { clearForm(); switchToList(); });
     });
 
-    /* DataTable */
+    /* DataTable — empty colspan rows break column count (tn/18); leave tbody empty instead */
     var noticesTable = null;
     if (typeof $ !== 'undefined' && $.fn.DataTable) {
         try {
+            $.fn.dataTable.ext.errMode = 'none';
             noticesTable = $('#noticesTable').DataTable({
                 autoWidth: false,
                 language: {
@@ -761,7 +752,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     lengthMenu: '_MENU_ <?php echo $__t('पङ्क्ति', 'rows'); ?>',
                     info      : '_START_–_END_ / _TOTAL_ <?php echo $__t('सूचना', 'notices'); ?>',
                     paginate  : { previous: '‹', next: '›' },
-                    emptyTable: '<?php echo $__t('कुनै सूचना छैन', 'No notices found'); ?>'
+                    emptyTable: '<?php echo $__t('कुनै सूचना छैन। "नयाँ थप्नुहोस्" tab खोल्नुहोस्।', 'No notices yet. Open the "Add New" tab.'); ?>'
                 },
                 order     : [],
                 pageLength: 15,

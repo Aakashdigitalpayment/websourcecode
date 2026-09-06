@@ -31,6 +31,7 @@ foreach ([
     __DIR__ . '/notification-log-tables.php',
     __DIR__ . '/why-choose-tables.php',
     __DIR__ . '/service-products-tables.php',
+    __DIR__ . '/site-license-renewal.php',
 ] as $_etFile) {
     if (is_file($_etFile)) { require_once $_etFile; }
 }
@@ -45,7 +46,7 @@ function ensurePublicTables(): void {
 
     /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
        Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
-    $schemaVersion = 'v9-honor-darkhasta-2026';
+    $schemaVersion = 'v12-program-always-ensure-2026';
     $lockFile = dirname(__DIR__) . '/.schema.lock';
     $lockContent = @file_get_contents($lockFile);
     if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
@@ -132,10 +133,15 @@ function ensurePublicTables(): void {
         ────────────────────────────────────────────────── */
         $db->exec("CREATE TABLE IF NOT EXISTS appointments (
             id INT AUTO_INCREMENT PRIMARY KEY,
+            tracking_id VARCHAR(60) UNIQUE NULL,
             name VARCHAR(100) NOT NULL,
             phone VARCHAR(20) NOT NULL,
             email VARCHAR(100),
             member_id VARCHAR(50),
+            visit_kind VARCHAR(20) NOT NULL DEFAULT 'member',
+            organization_address VARCHAR(500) NULL,
+            organization_website VARCHAR(255) NULL,
+            contact_person VARCHAR(120) NULL,
             purpose ENUM('account_inquiry','loan_inquiry','kyc_update','loan_repayment','account_opening','other') DEFAULT 'other',
             purpose_detail TEXT,
             preferred_date DATE NOT NULL,
@@ -143,18 +149,25 @@ function ensurePublicTables(): void {
             branch VARCHAR(100),
             status ENUM('pending','confirmed','completed','cancelled') DEFAULT 'pending',
             remarks TEXT,
+            admin_attachment VARCHAR(500) DEFAULT '',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
             INDEX idx_status (status),
             INDEX idx_date (preferred_date),
-            INDEX idx_phone (phone)
+            INDEX idx_phone (phone),
+            INDEX idx_tracking (tracking_id),
+            INDEX idx_appt_visit_kind (visit_kind),
+            INDEX idx_appt_status_created (status, created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+        /* Old DBs: columns may be missing from older CREATE — keep ALTER try/catch */
         foreach ([
+            "ALTER TABLE appointments ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL",
             "ALTER TABLE appointments ADD COLUMN visit_kind VARCHAR(20) NOT NULL DEFAULT 'member'",
             'ALTER TABLE appointments ADD COLUMN organization_address VARCHAR(500) NULL',
             'ALTER TABLE appointments ADD COLUMN organization_website VARCHAR(255) NULL',
             'ALTER TABLE appointments ADD COLUMN contact_person VARCHAR(120) NULL',
+            "ALTER TABLE appointments ADD COLUMN admin_attachment VARCHAR(500) DEFAULT ''",
         ] as $sql) {
             try { $db->exec($sql); } catch (Throwable $e) {}
         }
@@ -628,6 +641,30 @@ function ensurePublicTables(): void {
         $addIndex('reports', 'idx_reports_type_active', 'report_type, is_active, report_year');
         $addIndex('institutional_profile', 'idx_ip_active_fy_month', 'is_active, fiscal_year, report_month');
         $addIndex('careers', 'idx_careers_active_deadline', 'is_active, deadline');
+        /* Hot-path list/filter indexes (idempotent; skip if already present) */
+        $addIndex('downloads', 'idx_downloads_active_cat', 'is_active, category');
+        $addIndex('contact_messages', 'idx_read_created', 'is_read, created_at');
+        /* header.php: WHERE is_active + show_in_menu + menu_position ORDER BY menu_order — Astha dump had only (show_in_menu, menu_position) */
+        $addIndex('pages', 'idx_pages_nav', 'is_active, show_in_menu, menu_order');
+        $addIndex('pages', 'idx_pages_nav_pos', 'is_active, show_in_menu, menu_position, menu_order');
+        $addIndex('appointments', 'idx_appt_visit_kind', 'visit_kind');
+        $addIndex('appointments', 'idx_appt_status_created', 'status, created_at');
+        $addIndex('gallery', 'idx_gallery_active_cat', 'is_active, category');
+        $addIndex('job_applications', 'idx_job_status_created', 'status, created_at');
+        $addIndex('membership_applications', 'idx_membapp_status_created', 'status, created_at');
+        $addIndex('services', 'idx_services_nav_group', 'nav_group, is_active');
+        $addIndex('upcoming_programs', 'idx_up_active_date', 'is_active, event_date');
+        /* KYC public tracking — Astha dump had non-unique idx only; UNIQUE prevents collisions (NULLs still ok) */
+        if (!$hasIndex('kyc_applications', 'uq_kyc_tracking')) {
+            try {
+                $db->exec('ALTER TABLE `kyc_applications` ADD UNIQUE KEY `uq_kyc_tracking` (`tracking_id`)');
+            } catch (Throwable $e) { /* duplicates or already unique — leave alone */ }
+        }
+
+        /* License renewal notices — missing on older Astha dump; create early so SA license UI never 500s */
+        if (function_exists('ensureSiteLicenseRenewalNoticesTable')) {
+            try { ensureSiteLicenseRenewalNoticesTable($db); } catch (Throwable $e) {}
+        }
 
         @file_put_contents(
             $lockFile,
@@ -649,11 +686,22 @@ function ensurePublicTables(): void {
  * नयाँ safe column migrations थपिए भने version bump → एक पटक re-run।
  * Manual: `.schema.lock` delete गरेर पनि Migration Runner बाट re-verify गर्न सकिन्छ।
  * Lock file is written inside ensurePublicTables() — no second write here.
+ *
+ * Program/attendance + license tables ALWAYS ensure even when lock matches —
+ * Astha production dump (2026-09-02) still had pre-v2 attendance columns and
+ * no program_occurrences; skipping those behind the public lock caused long-term drift.
  */
-$_publicSchemaVersion = 'v9-honor-darkhasta-2026';
+$_publicSchemaVersion = 'v12-program-always-ensure-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {
     ensurePublicTables();
+}
+/* Feature schemas that must not lag behind application code */
+if (function_exists('ensureProgramTables')) {
+    try { ensureProgramTables(); } catch (Throwable $e) { /* never break page */ }
+}
+if (function_exists('ensureSiteLicenseRenewalNoticesTable') && function_exists('getDB')) {
+    try { ensureSiteLicenseRenewalNoticesTable(getDB()); } catch (Throwable $e) { /* never break page */ }
 }
 unset($_lockFile, $_lockContent, $_publicSchemaVersion);

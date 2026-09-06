@@ -25,6 +25,11 @@ CREATE TABLE IF NOT EXISTS admin_users (
     email VARCHAR(100),
     role ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin',
     is_active TINYINT(1) DEFAULT 1,
+    must_change_password TINYINT(1) NOT NULL DEFAULT 0,
+    twofa_enabled TINYINT DEFAULT 0,
+    twofa_secret VARCHAR(64) NULL,
+    twofa_backup_codes TEXT NULL,
+    twofa_enabled_at DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL DEFAULT NULL,
     INDEX idx_role (role)
@@ -147,11 +152,14 @@ CREATE TABLE IF NOT EXISTS services (
     description_np TEXT,
     icon VARCHAR(50) DEFAULT 'fas fa-star',
     image VARCHAR(255),
+    nav_group VARCHAR(40) DEFAULT 'general',
+    service_category_id INT DEFAULT NULL,
     is_active TINYINT(1) DEFAULT 1,
     display_order INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_active (is_active),
-    INDEX idx_order (display_order)
+    INDEX idx_order (display_order),
+    INDEX idx_nav_group (nav_group, is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- =====================================================
 -- 6. SLIDERS TABLE (Homepage Banners)
@@ -857,6 +865,10 @@ CREATE TABLE IF NOT EXISTS appointments (
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(100),
     member_id VARCHAR(50),
+    visit_kind VARCHAR(20) NOT NULL DEFAULT 'member',
+    organization_address VARCHAR(500) NULL,
+    organization_website VARCHAR(255) NULL,
+    contact_person VARCHAR(120) NULL,
     purpose ENUM('account_inquiry', 'loan_inquiry', 'kyc_update', 'loan_repayment', 'account_opening', 'other') DEFAULT 'other',
     purpose_detail TEXT,
     preferred_date DATE NOT NULL,
@@ -868,7 +880,9 @@ CREATE TABLE IF NOT EXISTS appointments (
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_status (status),
     INDEX idx_date (preferred_date),
-    INDEX idx_phone (phone)
+    INDEX idx_phone (phone),
+    INDEX idx_appt_visit_kind (visit_kind),
+    INDEX idx_appt_status_created (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -1639,13 +1653,14 @@ CALL sp_v3_add_index('grievances', 'idx_status_date',  'status, created_at');
 -- ─── contact_messages ───
 CALL sp_v3_add_index('contact_messages', 'idx_status_date', 'is_read, created_at');
 
--- ─── news / notices (public listing) ───
-CALL sp_v3_add_index('news',    'idx_published_date', 'is_published, published_at');
-CALL sp_v3_add_index('notices', 'idx_published_date', 'is_published, published_at');
+-- ─── news / notices (public listing) — real columns are is_active (+ created_at / notice_date) ───
+CALL sp_v3_add_index('news',    'idx_news_active_created', 'is_active, created_at');
+CALL sp_v3_add_index('notices', 'idx_notices_active_id', 'is_active, id');
+CALL sp_v3_add_index('notices', 'idx_notices_popup', 'is_popup, is_active');
 
 -- ─── activity_log (already exists, ensure indexes) ───
 CALL sp_v3_add_index('activity_log',   'idx_created',  'created_at');
-CALL sp_v3_add_index('activity_log',   'idx_user',     'user_id');
+CALL sp_v3_add_index('activity_log',   'idx_admin',    'admin_id');
 
 -- ─── notification_log ───
 CALL sp_v3_add_index('notification_log', 'idx_status_date', 'status, created_at');
@@ -1654,9 +1669,9 @@ CALL sp_v3_add_index('notification_log', 'idx_event_type',  'event_type, channel
 -- ─── member_notifications ───
 CALL sp_v3_add_index('member_notifications', 'idx_member_unread', 'member_id, is_read, created_at');
 
--- ─── login_attempts (cleanup performance) ───
-CALL sp_v3_add_index('login_attempts',  'idx_email_date', 'email, created_at');
-CALL sp_v3_add_index('login_attempts',  'idx_ip_date',    'ip_address, created_at');
+-- ─── login_attempts (cleanup performance) — real cols: username, attempted_at ───
+CALL sp_v3_add_index('login_attempts',  'idx_user_date', 'username, attempted_at');
+CALL sp_v3_add_index('login_attempts',  'idx_ip_date',    'ip_address, attempted_at');
 
 
 -- ─────────────────────────────────────────────────────────────────────
@@ -1846,12 +1861,12 @@ WHERE id = (SELECT id FROM (SELECT MIN(id) AS id FROM admin_users WHERE is_activ
 -- Safe to re-run: all statements use IF NOT EXISTS.
 -- ============================================================
 
--- 1. Link KYC application to generated member
+-- 1. Link KYC application to generated member (legacy cols; live code uses member_id / members.kyc_application_id)
 ALTER TABLE kyc_applications
   ADD COLUMN IF NOT EXISTS member_id_generated VARCHAR(20) NULL AFTER status,
   ADD COLUMN IF NOT EXISTS member_generated_at DATETIME NULL,
   ADD COLUMN IF NOT EXISTS member_generated_by INT NULL,
-  ADD INDEX IF NOT EXISTS idx_kyc_member (member_id_generated);
+  ADD INDEX IF NOT EXISTS idx_kyc_member_generated (member_id_generated);
 
 -- 2. Members table — link back to source KYC
 ALTER TABLE members
