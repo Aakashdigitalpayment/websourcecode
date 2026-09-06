@@ -71,10 +71,10 @@ CREATE TABLE IF NOT EXISTS members (
     information_room_enabled TINYINT(1) NOT NULL DEFAULT 0,
     created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login           TIMESTAMP NULL,
-    INDEX idx_email (email),
-    INDEX idx_sadasyata_number (sadasyata_number),
+    INDEX idx_members_sadasyata (sadasyata_number),
     INDEX idx_approval_status (approval_status),
-    INDEX idx_kyc_application_id (kyc_application_id),
+    INDEX idx_members_kyc_app (kyc_application_id),
+    INDEX idx_members_phone_active (phone, is_active),
     INDEX idx_is_active (is_active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -91,7 +91,6 @@ CREATE TABLE IF NOT EXISTS site_settings (
     setting_label VARCHAR(200),
     setting_group VARCHAR(50) DEFAULT 'general',
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_key (setting_key),
     INDEX idx_group (setting_group)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- =====================================================
@@ -277,7 +276,6 @@ CREATE TABLE IF NOT EXISTS pages (
     new_until DATE,
     is_active TINYINT(1) DEFAULT 1,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_slug (slug),
     INDEX idx_active (is_active),
     INDEX idx_menu (show_in_menu, menu_position)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -412,8 +410,7 @@ CREATE TABLE IF NOT EXISTS member_feedback (
     INDEX idx_status (status),
     INDEX idx_type (type),
     INDEX idx_phone (phone),
-    INDEX idx_email (email),
-    INDEX idx_tracking (tracking_id)
+    INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
@@ -553,7 +550,6 @@ CREATE TABLE IF NOT EXISTS digital_service_requests (
     reviewed_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_tracking (tracking_id),
     INDEX idx_phone (phone),
     INDEX idx_email (email),
     INDEX idx_status (status),
@@ -1010,7 +1006,6 @@ CREATE TABLE IF NOT EXISTS grievances (
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_status (status),
     INDEX idx_category (category),
-    INDEX idx_tracking (tracking_id),
     INDEX idx_phone (phone),
     INDEX idx_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1104,8 +1099,7 @@ CREATE TABLE IF NOT EXISTS site_stats (
     id INT AUTO_INCREMENT PRIMARY KEY,
     stat_key VARCHAR(100) NOT NULL UNIQUE,
     stat_value BIGINT DEFAULT 0,
-    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_key (stat_key)
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Initialize visitor counter
@@ -1211,8 +1205,7 @@ CREATE TABLE IF NOT EXISTS job_applications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_career (career_id),
-    INDEX idx_status (status),
-    INDEX idx_tracking (tracking_id)
+    INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Re-enable foreign key checks
@@ -1240,7 +1233,6 @@ CREATE TABLE IF NOT EXISTS member_welfare_claims (
     attachment_path VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_tracking (tracking_id),
     INDEX idx_phone (phone),
     INDEX idx_status (status),
     INDEX idx_created (created_at)
@@ -1621,33 +1613,27 @@ CALL sp_v3_add_index('appointments',         'idx_deleted_at', 'deleted_at');
 -- ─────────────────────────────────────────────────────────────────────
 
 -- ─── members table ───
-CALL sp_v3_add_index('members', 'idx_email',           'email');
-CALL sp_v3_add_index('members', 'idx_phone',           'phone');
-CALL sp_v3_add_index('members', 'idx_sadasyata',       'sadasyata_number');
+CALL sp_v3_add_index('members', 'idx_members_phone_active', 'phone, is_active');
+CALL sp_v3_add_index('members', 'idx_members_sadasyata', 'sadasyata_number');
 CALL sp_v3_add_index('members', 'idx_approval_active', 'approval_status, is_active');
 CALL sp_v3_add_index('members', 'idx_created',         'created_at');
 
--- ─── loan_applications ───
-CALL sp_v3_add_index('loan_applications', 'idx_tracking',     'tracking_id');
+-- ─── loan_applications (tracking_id already UNIQUE in CREATE — no plain idx_tracking) ───
 CALL sp_v3_add_index('loan_applications', 'idx_status_date',  'status, created_at');
 CALL sp_v3_add_index('loan_applications', 'idx_email',        'email');
 CALL sp_v3_add_index('loan_applications', 'idx_mobile',       'mobile');
 
 -- ─── account_applications ───
-CALL sp_v3_add_index('account_applications', 'idx_tracking',    'tracking_id');
 CALL sp_v3_add_index('account_applications', 'idx_status_date', 'status, created_at');
 
--- ─── kyc_applications ───
-CALL sp_v3_add_index('kyc_applications', 'idx_tracking',    'tracking_id');
+-- ─── kyc_applications (UNIQUE tracking via ensure/runtime; avoid plain idx_tracking duplicate) ───
 CALL sp_v3_add_index('kyc_applications', 'idx_status_date', 'status, created_at');
 
 -- ─── appointments ───
 -- v10.3 FIX: column 'appointment_date' छैन — actual column 'preferred_date' हो
-CALL sp_v3_add_index('appointments', 'idx_tracking',      'tracking_id');
 CALL sp_v3_add_index('appointments', 'idx_status_date',   'status, preferred_date');
 
 -- ─── grievances ───
-CALL sp_v3_add_index('grievances', 'idx_tracking',     'tracking_id');
 CALL sp_v3_add_index('grievances', 'idx_status_date',  'status, created_at');
 
 -- ─── contact_messages ───
@@ -1989,7 +1975,6 @@ CREATE TABLE IF NOT EXISTS upcoming_programs (
     INDEX idx_up_date (event_date),
     INDEX idx_up_active (is_active),
     INDEX idx_up_prereg (pre_registration_open),
-    INDEX idx_up_qr (qr_token),
     INDEX idx_up_parent (parent_program_id),
     INDEX idx_up_multi (is_multi_location),
     INDEX idx_up_type (program_type)

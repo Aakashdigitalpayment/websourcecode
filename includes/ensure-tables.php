@@ -46,7 +46,7 @@ function ensurePublicTables(): void {
 
     /* Skip heavy CREATE/ALTER probes when schema lock matches current version.
        Delete `.schema.lock` (or bump version) after deploy if migrations must re-run. */
-    $schemaVersion = 'v12-program-always-ensure-2026';
+    $schemaVersion = 'v13-drop-redundant-indexes-2026';
     $lockFile = dirname(__DIR__) . '/.schema.lock';
     $lockContent = @file_get_contents($lockFile);
     if ($lockContent && strpos($lockContent, $schemaVersion) !== false) {
@@ -456,6 +456,18 @@ function ensurePublicTables(): void {
             if ($hasIndex($table, $idxName)) return;
             try { $db->exec("ALTER TABLE `{$table}` ADD INDEX `{$idxName}` ({$cols})"); } catch (\Throwable $e) {}
         };
+        /* helper: drop redundant secondary index only when a keeper index still exists (no data risk) */
+        $dropRedundantIndex = function(string $table, string $dropName, string $keepName) use ($db, $hasIndex): void {
+            if ($dropName === '' || $dropName === $keepName) {
+                return;
+            }
+            if (!$hasIndex($table, $dropName) || !$hasIndex($table, $keepName)) {
+                return;
+            }
+            try {
+                $db->exec("ALTER TABLE `{$table}` DROP INDEX `{$dropName}`");
+            } catch (\Throwable $e) { /* busy/lock — retry next ensure */ }
+        };
 
         /* admin_users: पुरानो `name` कलम → `full_name` (install.sql / admin login सँग मेल) */
         if ($hasColumn('admin_users', 'name')) {
@@ -666,6 +678,41 @@ function ensurePublicTables(): void {
             try { ensureSiteLicenseRenewalNoticesTable($db); } catch (Throwable $e) {}
         }
 
+        /*
+         * Redundant secondary indexes (Astha dump): same column list twice wastes write I/O.
+         * Rules: never drop PRIMARY/UNIQUE; only DROP KEY when keeper still exists.
+         * Data unchanged — recreate-able; brief metadata lock only.
+         */
+        $redundantDrops = [
+            /* UNIQUE already covers equality lookups — drop plain KEY on same col(s) */
+            ['digital_service_requests', 'idx_tracking', 'tracking_id'],
+            ['grievances', 'idx_tracking', 'tracking_id'],
+            ['job_applications', 'idx_tracking', 'tracking_id'],
+            ['member_feedback', 'idx_tracking', 'tracking_id'],
+            ['member_welfare_claims', 'idx_tracking', 'tracking_id'],
+            ['member_id_cards', 'idx_card_verify', 'verification_code'],
+            ['members', 'idx_email', 'email'],
+            ['pages', 'idx_slug', 'slug'],
+            ['site_settings', 'idx_key', 'setting_key'],
+            ['site_stats', 'idx_key', 'stat_key'],
+            ['upcoming_programs', 'idx_up_qr', 'qr_token'],
+            /* duplicate plain KEYs — keep canonical ensure name */
+            ['activity_log', 'idx_date', 'idx_created'],
+            ['grievances', 'idx_status_created', 'idx_grievances_status_created'],
+            ['kyc_applications', 'idx_status_created', 'idx_kyc_status_created'],
+            ['news', 'idx_date', 'idx_news_created'],
+            ['news', 'idx_active_date', 'idx_news_active_created'],
+            ['members', 'idx_sadasyata_number', 'idx_members_sadasyata'],
+            ['members', 'idx_sadasyata', 'idx_members_sadasyata'],
+            ['members', 'idx_phone', 'idx_members_phone_active'],
+            ['members', 'idx_members_phone', 'idx_members_phone_active'],
+            ['member_program_preregistrations', 'idx_pr_member', 'idx_mppr_member'],
+            ['member_program_preregistrations', 'idx_pr_program', 'idx_mppr_program'],
+        ];
+        foreach ($redundantDrops as [$tbl, $drop, $keep]) {
+            $dropRedundantIndex($tbl, $drop, $keep);
+        }
+
         @file_put_contents(
             $lockFile,
             "Schema initialized at " . date('Y-m-d H:i:s') . " [{$schemaVersion}]\n"
@@ -691,7 +738,7 @@ function ensurePublicTables(): void {
  * Astha production dump (2026-09-02) still had pre-v2 attendance columns and
  * no program_occurrences; skipping those behind the public lock caused long-term drift.
  */
-$_publicSchemaVersion = 'v12-program-always-ensure-2026';
+$_publicSchemaVersion = 'v13-drop-redundant-indexes-2026';
 $_lockFile = __DIR__ . '/../.schema.lock';
 $_lockContent = @file_get_contents($_lockFile);
 if (!$_lockContent || strpos($_lockContent, $_publicSchemaVersion) === false) {

@@ -37,8 +37,7 @@ if (!function_exists('ensureProgramTables')) {
                 updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
                 INDEX idx_up_date (event_date),
                 INDEX idx_up_active (is_active),
-                INDEX idx_up_prereg (pre_registration_open),
-                INDEX idx_up_qr (qr_token)
+                INDEX idx_up_prereg (pre_registration_open)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
             foreach ([
@@ -49,7 +48,6 @@ if (!function_exists('ensureProgramTables')) {
                 'ALTER TABLE upcoming_programs ADD COLUMN updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP',
                 'ALTER TABLE upcoming_programs ADD COLUMN created_by VARCHAR(100) NULL',
                 'ALTER TABLE upcoming_programs ADD COLUMN qr_enabled TINYINT(1) DEFAULT 1 AFTER pre_registration_open',
-                'ALTER TABLE upcoming_programs ADD INDEX idx_up_qr (qr_token)',
                 'ALTER TABLE upcoming_programs ADD INDEX idx_up_prereg (pre_registration_open)',
             ] as $sql) {
                 try {
@@ -149,8 +147,6 @@ if (!function_exists('ensureProgramTables')) {
                 'ALTER TABLE member_program_preregistrations ADD COLUMN event_date DATE NULL',
                 'ALTER TABLE member_program_preregistrations ADD COLUMN note VARCHAR(500) DEFAULT \'\'',
                 'ALTER TABLE member_program_preregistrations ADD INDEX idx_mppr_prog_created (program_id, created_at)',
-                'ALTER TABLE member_program_preregistrations ADD INDEX idx_pr_member (member_id)',
-                'ALTER TABLE member_program_preregistrations ADD INDEX idx_pr_program (program_id)',
             ] as $sql) {
                 try {
                     $db->exec($sql);
