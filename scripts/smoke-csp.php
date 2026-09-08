@@ -49,6 +49,16 @@ if (strpos($src, 'csp_script_nonce') !== false) {
 } else {
     fail('csp_script_nonce kill-switch');
 }
+if (strpos($src, 'COOP_CSP_OB_STARTED') !== false) {
+    ok('CSP OB nests even when php.ini already buffers');
+} else {
+    fail('CSP OB nest guard missing');
+}
+if (strpos($src, 'pcre.backtrack_limit') !== false) {
+    ok('CSP filter raises PCRE backtrack for large HTML');
+} else {
+    fail('CSP PCRE backtrack raise missing');
+}
 
 /* Standalone filter behavior (mirror of config helper) */
 function smoke_csp_ob_filter(string $html, string $nonce): string

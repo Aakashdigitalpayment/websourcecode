@@ -12,8 +12,12 @@
  * =====================================================
  */
 
-// Output buffering - prevent header issues; CSP nonce injector runs on flush.
-if (!ob_get_level()) {
+// Output buffering - CSP nonce injector must always nest on top.
+// php.ini output_buffering often already opens a buffer (ob_get_level()>0); skipping
+// our callback in that case left CSP with a nonce while HTML scripts had none,
+// which blocks inline JS (AOS.init) and hides homepage sections at opacity:0.
+if (!defined('COOP_CSP_OB_STARTED')) {
+    define('COOP_CSP_OB_STARTED', true);
     ob_start(static function (string $html): string {
         if (function_exists('coop_csp_ob_filter')) {
             return coop_csp_ob_filter($html);
@@ -2476,21 +2480,32 @@ if (!function_exists('coop_csp_ob_filter')) {
             && strpos($html, '<script') === false) {
             return $html;
         }
+        /* Large homepage HTML can trip default PCRE backtrack limits. */
+        $prevBacktrack = ini_get('pcre.backtrack_limit');
+        if (is_string($prevBacktrack) && (int) $prevBacktrack < 4000000) {
+            @ini_set('pcre.backtrack_limit', '4000000');
+        }
         $nonce = htmlspecialchars(coop_csp_nonce(), ENT_QUOTES, 'UTF-8');
-        $html = preg_replace_callback(
+        $stamped = preg_replace_callback(
             '/<script\b(?![^>]*\bnonce\s*=)([^>]*)>/i',
             static function (array $m) use ($nonce): string {
                 return '<script nonce="' . $nonce . '"' . $m[1] . '>';
             },
             $html
-        ) ?? $html;
+        );
+        if (is_string($stamped)) {
+            $html = $stamped;
+        }
         if (stripos($html, 'name="csp-nonce"') === false && stripos($html, '</head>') !== false) {
-            $html = preg_replace(
+            $withMeta = preg_replace(
                 '/<\/head>/i',
                 '<meta name="csp-nonce" content="' . $nonce . '">' . "\n</head>",
                 $html,
                 1
-            ) ?? $html;
+            );
+            if (is_string($withMeta)) {
+                $html = $withMeta;
+            }
         }
         return $html;
     }

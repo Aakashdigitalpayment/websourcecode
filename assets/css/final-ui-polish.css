@@ -1482,6 +1482,16 @@ body.aos-safe [data-aos] {
   opacity: 1 !important;
   transform: none !important;
 }
+/* CSP/JS blocked (no AOS.init): force-show after short delay even without aos-safe */
+@keyframes coop-aos-unstick {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+[data-aos]:not(.aos-animate) {
+  animation: coop-aos-unstick 0.01s linear 1.25s forwards;
+}
 
 /* Loader should never block interaction after early hide */
 .page-loader.loaded,
