@@ -145,11 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     if (!empty($_POST['do_admin_2fa'])) {
         if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
             $error = 'Security error.';
-        } elseif (!checkRateLimit('admin_2fa', 8, 900)) {
-            $error = 'धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।';
         } else {
             $pending = $_SESSION['admin_2fa_pending'] ?? null;
-            if (!is_array($pending) || empty($pending['id'])) {
+            $pendingModeEarly = is_array($pending) ? (string)($pending['mode'] ?? 'verify') : '';
+            /* backup_ack is only "I saved codes" — do not burn the TOTP attempt budget */
+            if ($pendingModeEarly !== 'backup_ack' && !checkRateLimit('admin_2fa', 8, 900)) {
+                $error = 'धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।';
+            } elseif (!is_array($pending) || empty($pending['id'])) {
                 $error = '2FA session सकियो। फेरि login गर्नुहोस्।';
             } else {
                 try {
@@ -343,58 +345,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                  * Policy (Google Authenticator TOTP):
                  * - Superadmin + all other admin roles: mandatory setup/verify with QR
                  * - Member portal: mandatory (password + OAuth) — handled in member/login.php
+                 * License expiry blocks before 2FA so staff are not forced to enroll first.
                  */
-                $mustTwoFa = true;
-                if ($mustTwoFa) {
-                    if (!$enabled) {
-                        if ($secret === '') {
-                            $secret = twoFaGenerateSecret(32);
-                        }
-                        $_SESSION['admin_2fa_pending'] = [
-                            'id' => (int) $user['id'],
-                            'mode' => 'setup',
-                            'secret' => $secret,
-                        ];
-                    } else {
-                        $_SESSION['admin_2fa_pending'] = [
-                            'id' => (int) $user['id'],
-                            'mode' => 'verify',
-                        ];
+                if (function_exists('site_license_login_blocked_for_user') && site_license_login_blocked_for_user($user)) {
+                    $error = $msgSiteLicenseExpiredLogin;
+                    $_SESSION['admin_license_renewal_prompt'] = true;
+                    if (function_exists('recordLoginAttempt')) {
+                        recordLoginAttempt($username, $ip);
                     }
+                } elseif (!$enabled) {
+                    if ($secret === '') {
+                        $secret = twoFaGenerateSecret(32);
+                    }
+                    $_SESSION['admin_2fa_pending'] = [
+                        'id' => (int) $user['id'],
+                        'mode' => 'setup',
+                        'secret' => $secret,
+                    ];
                 } else {
-                    if (function_exists('site_license_login_blocked_for_user') && site_license_login_blocked_for_user($user)) {
-                        $error = $msgSiteLicenseExpiredLogin;
-                        $_SESSION['admin_license_renewal_prompt'] = true;
-                        if (function_exists('recordLoginAttempt')) {
-                            recordLoginAttempt($username, $ip);
-                        }
-                    } else {
-                        unset($_SESSION['admin_license_renewal_prompt']);
-                        session_regenerate_id(true);
-                        $_SESSION['admin_id']        = $user['id'];
-                        $_SESSION['admin_username']  = $user['username'];
-                        $_SESSION['admin_name']      = $user['full_name'] ?: $user['username'];
-                        $_SESSION['admin_role']      = (string)($user['role'] ?? 'admin');
-                        $_SESSION['is_superadmin']   = admin_db_role_is_superadmin($user['role'] ?? '');
-                        $_SESSION['admin_last_login']    = $user['last_login'] ?? null;
-                        $_SESSION['admin_last_activity'] = time();
-                        $_SESSION['admin_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-                        $_SESSION['admin_ip_partial'] = function_exists('coop_ip_network_key')
-                            ? coop_ip_network_key($ip)
-                            : implode('.', array_slice(explode('.', $ip), 0, 3));
-
-                        /* last_login / activity_log असफल भए पनि login पूरा गर्ने (पुरानो DB मा activity_log नभएमा) */
-                        try {
-                            $updateStmt = $db->prepare('UPDATE admin_users SET last_login = NOW() WHERE id = ?');
-                            $updateStmt->execute([$user['id']]);
-                            $logStmt = $db->prepare('INSERT INTO activity_log (admin_id, action, description, ip_address) VALUES (?, ?, ?, ?)');
-                            $logStmt->execute([$user['id'], 'login', 'Admin logged in', $ip]);
-                        } catch (Throwable $postLoginEx) {
-                            error_log('[admin-login-post-actions] ' . $postLoginEx->getMessage());
-                        }
-
-                        redirect(ADMIN_URL . 'dashboard.php');
-                    }
+                    $_SESSION['admin_2fa_pending'] = [
+                        'id' => (int) $user['id'],
+                        'mode' => 'verify',
+                    ];
                 }
             } else {
                 if (!checkRateLimit('admin_login', 5, 900)) {
@@ -649,7 +621,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                     <label for="admin_twofa_code">2FA Code / Backup Code</label>
                     <div class="input-icon">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
-                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                     </div>
                 </div>
                 <button type="submit" class="submit-btn">
@@ -664,7 +636,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                     <label for="admin_twofa_code">2FA Code / Backup Code</label>
                     <div class="input-icon">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
-                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                     </div>
                 </div>
                 <button type="submit" class="submit-btn">

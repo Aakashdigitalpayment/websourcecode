@@ -106,11 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = $_t('Security error. Page refresh गर्नुहोस्।', 'Security error. Please refresh the page.');
-    } elseif (!checkRateLimit('member_2fa', 8, 900)) {
-        $error = $_t('धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।', 'Too many 2FA attempts. Please try again after 15 minutes.');
     } else {
         $pending = $_SESSION['member_2fa_pending'] ?? null;
-        if (!is_array($pending) || empty($pending['id'])) {
+        $pendingModeEarly = is_array($pending) ? (string)($pending['mode'] ?? 'verify') : '';
+        /* backup_ack is only "I saved codes" — do not burn the TOTP attempt budget */
+        if ($pendingModeEarly !== 'backup_ack' && !checkRateLimit('member_2fa', 8, 900)) {
+            $error = $_t('धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।', 'Too many 2FA attempts. Please try again after 15 minutes.');
+        } elseif (!is_array($pending) || empty($pending['id'])) {
             $error = $_t('2FA session समाप्त भयो। पुन: login गर्नुहोस्।', '2FA session expired. Please login again.');
         } else {
             try {
@@ -597,14 +599,14 @@ body {
                 </div>
                 <div class="field">
                     <label for="twofa_code">2FA Code</label>
-                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                 </div>
                 <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php else: ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i> Google Authenticator code वा backup code राख्नुहोस्।</div>
                 <div class="field">
                     <label for="twofa_code">2FA Code</label>
-                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                 </div>
                 <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php endif; ?>
