@@ -306,7 +306,7 @@ assertFileContains('api-ai-chat.php', 'verifyCSRFToken', 'AI chat CSRF');
 assertFileContains('includes/footer.php', "method=\"post\"", 'live chat form posts with method');
 assertFileContains('member/login.php', "checkRateLimit('member_2fa'", 'member 2FA rate limit');
 assertFileContains('admin/index.php', "checkRateLimit('admin_2fa'", 'admin 2FA rate limit');
-assertFileContains('admin/index.php', '$mustTwoFa = !$isSuperAdmin || $enabled', 'admin 2FA: superadmin optional, others mandatory');
+assertFileContains('admin/index.php', '$mustTwoFa = true', 'admin 2FA mandatory for all roles including superadmin');
 assertFileContains('admin/index.php', 'twoFaQrImageUrl', 'admin Google Authenticator QR image');
 assertFileContains('member/login.php', 'Member portal: Google Authenticator 2FA always mandatory', 'member 2FA always on');
 assertFileContains('member/login.php', 'twoFaQrImageUrl', 'member Google Authenticator QR image');
@@ -321,9 +321,10 @@ assertFileContains('member/login.php', "'mode' => 'backup_ack'", 'member 2FA bac
 assertFileContains('member/login.php', 'memberLoginEligibilityError($m, $db)', 'member 2FA re-checks eligibility');
 assertFileContains('admin/index.php', "'mode' => 'backup_ack'", 'admin 2FA backup codes ack step');
 assertFileContains('online-kyc.php', "coop_math_challenge_issue('kyc')", 'KYC math challenge issued for forms');
-assertFileContains('admin/security-settings.php', 'Superadmin ऐच्छिक', 'security settings documents 2FA policy');
+assertFileContains('admin/security-settings.php', 'Superadmin सहित सबै Admin अनिवार्य', 'security settings documents mandatory superadmin 2FA');
 assertFileNotContains('admin/security-settings.php', 'name="twofa_admin_required"', 'old admin 2FA toggle removed');
 assertFileNotContains('admin/security-settings.php', 'name="twofa_member_required"', 'old member 2FA toggle removed');
+assertFileNotContains('admin/security-settings.php', 'Superadmin ऐच्छिक', 'old optional superadmin 2FA policy removed');
 
 assertFileContains('deploy/nginx-security.conf', 'location ^~ /includes/', 'nginx security mirror for includes');
 assertFileContains('deploy/nginx-security.conf', 'location ^~ /assets/uploads/', 'nginx mirrors uploads harden');

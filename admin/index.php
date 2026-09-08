@@ -339,14 +339,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
 
                 $secret = trim((string)($user['twofa_secret'] ?? ''));
                 $enabled = ((int)($user['twofa_enabled'] ?? 0) === 1) && $secret !== '';
-                $isSuperAdmin = function_exists('admin_db_role_is_superadmin')
-                    && admin_db_role_is_superadmin($user['role'] ?? '');
                 /*
                  * Policy (Google Authenticator TOTP):
-                 * - Superadmin: optional (challenge only if already enrolled)
-                 * - All other admin roles: mandatory setup/verify with QR
+                 * - Superadmin + all other admin roles: mandatory setup/verify with QR
+                 * - Member portal: mandatory (password + OAuth) — handled in member/login.php
                  */
-                $mustTwoFa = !$isSuperAdmin || $enabled;
+                $mustTwoFa = true;
                 if ($mustTwoFa) {
                     if (!$enabled) {
                         if ($secret === '') {

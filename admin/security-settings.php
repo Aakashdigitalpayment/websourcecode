@@ -79,12 +79,12 @@ echo adminPageHeader(
         <div class="alert alert-info py-2 px-3 mb-3">
             <i class="lucide-icon me-1" aria-hidden="true" data-lucide="smartphone"></i>
             <?php echo $t(
-                '2FA = Google Authenticator (TOTP + QR)। नीति: Superadmin ऐच्छिक; अन्य Admin अनिवार्य; Member Portal अनिवार्य (password र Google/Facebook login दुवै)।',
-                '2FA = Google Authenticator (TOTP + QR). Policy: Superadmin optional; other Admins mandatory; Member Portal mandatory (password and Google/Facebook login).'
+                '2FA = Google Authenticator (TOTP + QR)। नीति: Superadmin सहित सबै Admin अनिवार्य; Member Portal अनिवार्य (password र Google/Facebook login दुवै)।',
+                '2FA = Google Authenticator (TOTP + QR). Policy: all Admins including Superadmin mandatory; Member Portal mandatory (password and Google/Facebook login).'
             ); ?>
         </div>
         <ul class="small text-muted mb-4 ps-3">
-            <li><?php echo $t('Superadmin — 2FA ऐच्छिक (enroll गरेपछि भने verify चाहिन्छ)', 'Superadmin — 2FA optional (once enrolled, verify is required)'); ?></li>
+            <li><?php echo $t('Superadmin — पहिलो login मा QR setup अनिवार्य', 'Superadmin — QR setup required on first login'); ?></li>
             <li><?php echo $t('अन्य Admin / Staff — पहिलो login मा QR setup अनिवार्य', 'Other Admin / Staff — QR setup required on first login'); ?></li>
             <li><?php echo $t('Member — हरेक login मा Google Authenticator अनिवार्य', 'Member — Google Authenticator required on every login'); ?></li>
         </ul>
