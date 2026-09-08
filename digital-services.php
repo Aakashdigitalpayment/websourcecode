@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 ensurePublicTables();
 $_dsrtFile = __DIR__ . '/includes/digital-service-requests-tables.php';
 if (is_file($_dsrtFile)) { require_once $_dsrtFile; }
@@ -43,6 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('digital_service_request', 5, 600)) {
         $error = isEnglish() ? 'Too many requests. Please wait.' : 'धेरै अनुरोधहरू। कृपया पर्खनुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'digital_svc', [
+        clean_text($_POST['request_details'] ?? '', 4000),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $requesterName   = clean_text($_POST['requester_name']   ?? '', 120);
         $memberId        = clean_text($_POST['member_id']         ?? '', 50);
@@ -601,6 +608,9 @@ $L = getLangStrings();
                         </div>
                     </div>
 
+                    <div class="row g-3 mb-3">
+                        <?php echo coop_public_form_anti_bot_html('digital_svc', 'ds', isEnglish(), 'col-12'); ?>
+                    </div>
                     <div class="d-grid mt-4">
                         <button type="submit" id="dsSubmitBtn" class="btn ds-btn-primary btn-lg">
                             <i class="fas fa-paper-plane me-2"></i>

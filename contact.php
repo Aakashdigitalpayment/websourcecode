@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 
 $pageTitle = isEnglish() ? 'Contact Us' : 'सम्पर्क';
 $pageDescription = isEnglish()
@@ -9,15 +10,14 @@ $pageDescription = isEnglish()
 
 $success = false;
 $error   = '';
+$__en = isEnglish();
 
 /* =============================================
    फारम submit भएमा process गर्नुहोस्
    ============================================= */
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
-        $error = isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।';
-    } elseif (!checkRateLimit('contact_form', 5, 60)) {
-        $error = isEnglish() ? 'Too many requests. Please wait a moment.' : 'धेरै अनुरोधहरू। कृपया केही समय पर्खनुहोस्।';
+        $error = $__en ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।';
     } else {
         $name    = clean_text($_POST['name']    ?? '', 200);
         $email   = strtolower(clean_text($_POST['email']   ?? '', 254));
@@ -25,10 +25,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $subject = clean_text($_POST['subject'] ?? '', 200);
         $message = clean_text($_POST['message'] ?? '', 8000);
 
-        if (empty($name) || empty($message)) {
-            $error = isEnglish() ? 'Please fill in name and message.' : 'कृपया नाम र सन्देश भर्नुहोस्।';
+        $block = coop_contact_guard_block_reason(
+            $_POST,
+            [$name, $subject, $message],
+            'contact',
+            'contact_form',
+            true
+        );
+
+        if ($block === 'honeypot') {
+            $success = true;
+            if (function_exists('logSecurityEvent')) {
+                logSecurityEvent('contact_honeypot', 'Contact honeypot tripped');
+            }
+        } elseif ($block) {
+            $error = coop_public_form_guard_message($block, $__en);
+        } elseif (empty($name) || empty($message)) {
+            $error = $__en ? 'Please fill in name and message.' : 'कृपया नाम र सन्देश भर्नुहोस्।';
         } elseif (!empty($email) && !isValidEmail($email)) {
-            $error = isEnglish() ? 'Please enter a valid email.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
+            $error = $__en ? 'Please enter a valid email.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
         } else {
             try {
                 $db   = getDB();
@@ -37,8 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success = true;
                 logSecurityEvent('contact_form', 'Contact form submitted by: ' . $name);
 
-                /* v3 connection-fix: contact form ले admin notification trigger गर्दैनथ्यो।
-                 * अब अरू forms जस्तै email/SMS पठाउँछ + audit_log मा record गर्छ। */
                 if (file_exists(__DIR__ . '/includes/notifications.php')) {
                     require_once __DIR__ . '/includes/notifications.php';
                     try {
@@ -53,11 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 if (function_exists('auditLog')) auditLog('contact_submit', 'contact_messages', null, null, ['name'=>$name]);
             } catch (Exception $e) {
-                $error = isEnglish() ? 'Failed to send message. Please try later.' : 'सन्देश पठाउन सकिएन। कृपया पछि प्रयास गर्नुहोस्।';
+                $error = $__en ? 'Failed to send message. Please try later.' : 'सन्देश पठाउन सकिएन। कृपया पछि प्रयास गर्नुहोस्।';
             }
         }
     }
 }
+
+$math = coop_math_challenge_issue('contact');
 
 require_once 'includes/header.php';
 ?>
@@ -303,7 +318,9 @@ require_once 'includes/header.php';
                             <label for="contact_message" class="form-label"><?php echo isEnglish() ? 'Message' : 'सन्देश'; ?> <span class="req">*</span></label>
                             <textarea name="message" id="contact_message" class="form-control" rows="4" required
                                       placeholder="<?php echo isEnglish() ? 'Write your message here...' : 'तपाईंको सन्देश लेख्नुहोस्...'; ?>"><?php echo htmlspecialchars($_POST['message'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            <div class="form-text"><?php echo isEnglish() ? 'Do not include website links or promo offers.' : 'वेबसाइट लिङ्क वा प्रोमो प्रस्ताव नराख्नुहोस्।'; ?></div>
                         </div>
+                        <?php echo coop_public_form_anti_bot_html('contact', 'contact', $__en, 'col-md-6', $math); ?>
                     </div><!-- /row -->
 
                     <div class="modal-footer px-0 pb-0 mt-4">

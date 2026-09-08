@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 $pageTitle = isEnglish() ? 'Vendor Enlistment' : 'भेन्डर सूचीकरण';
 require_once 'includes/header.php';
 $L = getLangStrings();
@@ -15,6 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।';
     } elseif (!checkRateLimit('vendor_enlistment', 5, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू भए। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'vendor', [
+        clean_text($_POST['description'] ?? '', 2000),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         try {
             $db = getDB();
@@ -218,6 +225,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </label>
                         </div>
 
+                        <div class="row g-3 mb-3">
+                            <?php echo coop_public_form_anti_bot_html('vendor', 'vnd', isEnglish(), 'col-12'); ?>
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-paper-plane me-1"></i>

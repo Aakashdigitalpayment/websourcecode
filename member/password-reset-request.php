@@ -9,6 +9,7 @@
 define('MEMBER_PORTAL', true);
 /* v2: bootstrap ले config + member-auth + global error guard load गर्छ */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/contact-spam-guard.php';
 if (file_exists(__DIR__ . '/../includes/notifications.php')) require_once __DIR__ . '/../includes/notifications.php';
 $_t = static function (string $np, string $en): string {
     return isEnglish() ? $en : $np;
@@ -28,8 +29,17 @@ $smsEnabled = getSetting('notify_sms_enabled','0')==='1' && getSetting('notify_s
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* CSRF guard — token provided by csrfField() in every form */
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) { $error = $_t('सुरक्षा जाँच असफल। पेज refresh गरेर पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please refresh and try again.'); }
-    $action = empty($error) ? ($_POST['action'] ?? '') : '';
+    $__prAction = (string) ($_POST['action'] ?? '');
+    /* Math only on primary steps; cancel/resend/admin_fallback are small CSRF-protected actions. */
+    $__prNeedsMath = in_array($__prAction, ['send_otp', 'verify_otp', 'set_password'], true);
+    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+        $error = $_t('सुरक्षा जाँच असफल। पेज refresh गरेर पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please refresh and try again.');
+    } elseif ($__prNeedsMath && ($__bot = coop_public_form_bot_block($_POST, 'password_reset', [], false)) === 'honeypot') {
+        $success = $_t('अनुरोध प्राप्त भयो।', 'Request received.');
+    } elseif ($__prNeedsMath && !empty($__bot)) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
+    }
+    $action = (empty($error) && empty($success)) ? $__prAction : '';
 
     /* ── Step 1: Find member & send OTP ── */
     if ($action === 'send_otp') {
@@ -242,6 +252,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <?php else: ?>
       <input type="hidden" name="channel" value="email">
       <?php endif; ?>
+      <?php echo coop_public_form_anti_bot_html('password_reset', 'pr1', isEnglish(), 'col-12'); ?>
       <button type="submit" class="btn btn-g w-100 py-2 fw-semibold">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="send"></i><?php echo $_t('OTP पठाउनुहोस्', 'Send OTP'); ?>
       </button>
@@ -284,6 +295,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
                placeholder="000000" maxlength="6" pattern="\d{6}"
                inputmode="numeric" autocomplete="one-time-code" autofocus required>
       </div>
+      <?php echo coop_public_form_anti_bot_html('password_reset', 'pr2', isEnglish(), 'col-12'); ?>
       <button type="submit" class="btn btn-g w-100 py-2 fw-semibold mb-2">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="check-circle"></i>OTP Verify गर्नुहोस्
       </button>
@@ -330,6 +342,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
           </button>
         </div>
       </div>
+      <?php echo coop_public_form_anti_bot_html('password_reset', 'pr3', isEnglish(), 'col-12'); ?>
       <button type="submit" class="btn btn-g w-100 py-2 fw-semibold">
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="save"></i>पासवर्ड परिवर्तन गर्नुहोस्
       </button>

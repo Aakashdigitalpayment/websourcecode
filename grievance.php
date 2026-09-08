@@ -2,6 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/kyc-public-form.php';
+require_once 'includes/contact-spam-guard.php';
 $pageTitle = isEnglish() ? 'File Grievance' : 'गुनासो दर्ता गर्नुहोस्';
 $pageDescription = isEnglish()
     ? 'Submit and track a grievance with our cooperative grievance officer.'
@@ -40,6 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('grievance', 10, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'grievance', [
+        clean_text($_POST['subject'] ?? '', 300),
+        clean_text($_POST['description'] ?? '', 8000),
+    ], true)) === 'honeypot') {
+        $success = true;
+        $trackingId = 'GRV-OK';
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $name = clean_text($_POST['name'] ?? '', 200);
         $member_id = clean_text($_POST['member_id'] ?? '', 80);
@@ -397,6 +406,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="form-actions">
+                            <?php echo coop_public_form_anti_bot_html('grievance', 'grv', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-danger btn-lg">
                                 <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit Grievance' : 'गुनासो पेश गर्नुहोस्'; ?>
                             </button>

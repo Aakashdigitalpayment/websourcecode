@@ -4,6 +4,7 @@ require_once 'includes/ensure-tables.php';
 require_once 'includes/member-auth.php';
 require_once 'includes/kyc-capture-helpers.php';   // v10.4 — base64 capture helper
 require_once 'includes/nepal-address.php';         // v10.4 — Province/District/Municipality data
+require_once 'includes/contact-spam-guard.php';
 
 // Nepal district options for issue-district dropdowns
 $nepalDistricts = [];
@@ -28,6 +29,7 @@ $membershipSuccess = false;
 $membershipTrackingId = '';
 $error = '';
 $kycTrackingId = '';
+$__kycMath = coop_math_challenge_issue('kyc');
 $oldInput = [];
 $prefillInput = [];
 $kycWasUpdate = false;
@@ -63,6 +65,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
     }
     else {
+        $__gate = coop_public_form_gate(
+            $_POST,
+            'kyc',
+            coop_public_form_spam_parts($_POST, ['remarks']),
+            true,
+            isEnglish()
+        );
+        if (!$__gate['ok']) {
+            if (!empty($__gate['silent'])) {
+                $success = true;
+            } else {
+                $error = (string) ($__gate['error'] ?? '');
+            }
+        } else {
         try {
             $db = getDB();
 
@@ -101,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             /* ── Public verify: Member ID + mobile (session gate) ── */
-            if (!$isMemberLoggedIn && isset($_POST['public_kym_verify'])) {
+            elseif (!$isMemberLoggedIn && isset($_POST['public_kym_verify'])) {
                 $member_id = function_exists('memberSsotNormalizeId')
                     ? memberSsotNormalizeId(clean_text($_POST['member_id'] ?? '', 80))
                     : strtoupper(trim(clean_text($_POST['member_id'] ?? '', 80)));
@@ -872,6 +888,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             error_log('online-kyc submit error: ' . $e->getMessage());
             $error = isEnglish() ? 'An error occurred. Please try again.' : 'त्रुटि भयो। कृपया पुन: प्रयास गर्नुहोस्।';
         }
+        } // end gate ok
     }
 }
 
@@ -1230,6 +1247,9 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
                             </div>
                         </div>
+                        <div class="row g-3 mb-3">
+                            <?php echo coop_public_form_anti_bot_html('kyc', 'kycJoin', isEnglish(), 'col-12', $__kycMath); ?>
+                        </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-1"></i><?php echo isEnglish() ? 'Submit membership request' : 'सदस्यता अनुरोध पठाउनुहोस्'; ?>
@@ -1265,6 +1285,9 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <input type="tel" name="mobile" id="kyc_f1_mobile" class="form-control" required pattern="[0-9]{10}" placeholder="98XXXXXXXX"
                                            value="<?php echo htmlspecialchars($_POST['mobile'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <?php echo coop_public_form_anti_bot_html('kyc', 'kycVerify', isEnglish(), 'col-12', $__kycMath); ?>
                             </div>
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-check me-1"></i><?php echo isEnglish() ? 'Verify & continue' : 'प्रमाणित गरी अगाडि'; ?>
@@ -1304,6 +1327,9 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <input type="email" name="email" id="kyc_f2_email" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['email'] ?? $_POST['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['email']) ? ' readonly' : ''; ?>></div>
                                 <div class="col-md-6 mb-3"><label for="kyc_f2_national_id_number" class="form-label"><?php echo isEnglish() ? 'National ID (if empty)' : 'National ID (खाली भए)'; ?></label>
                                     <input type="text" name="national_id_number" id="kyc_f2_national_id_number" class="form-control" value="<?php echo htmlspecialchars((string)($prefillInput['national_id_number'] ?? $_POST['national_id_number'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"<?php echo !empty($publicKycLockedFields['national_id_number']) ? ' readonly' : ''; ?>></div>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <?php echo coop_public_form_anti_bot_html('kyc', 'kycQuick', isEnglish(), 'col-12', $__kycMath); ?>
                             </div>
                             <button type="submit" class="btn btn-primary"><?php echo isEnglish() ? 'Save empty fields' : 'खाली field सुरक्षित'; ?></button>
                         </div>
@@ -2041,6 +2067,9 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             </button>
                         </div>
 
+                        <div class="row g-3 mb-3 justify-content-center">
+                            <?php echo coop_public_form_anti_bot_html('kyc', 'kycMain', isEnglish(), 'col-12 col-md-6', $__kycMath); ?>
+                        </div>
                         <div class="text-center" id="kymSubmitWrap">
                             <button type="submit" class="btn btn-primary btn-lg" id="kymSubmitBtn">
                     <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>

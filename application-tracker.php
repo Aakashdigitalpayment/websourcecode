@@ -1,5 +1,6 @@
 <?php
 require_once 'includes/config.php';
+require_once __DIR__ . '/includes/contact-spam-guard.php';
 require_once __DIR__ . '/includes/request-status-history.php';
 /* ensure-tables: silent fail — DB tables नभए पनि page crash नगर्ने */
 try { require_once 'includes/ensure-tables.php'; } catch (\Throwable $e) { error_log('tracker ensure-tables: ' . $e->getMessage()); }
@@ -146,6 +147,12 @@ if ($trackerIsPost || $trackerGetDeepLink) {
             : 'सुरक्षाका लागि यो खोज केही समयका लागि रोकिएको छ। कृपया ' . $remainingMin . ' मिनेटपछि फेरि प्रयास गर्नुहोस्।';
     } elseif (!verifyCSRFToken()) {
         $error = isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल भयो। कृपया पुनः प्रयास गर्नुहोस्।';
+
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'tracker', [], false)) === 'honeypot') {
+        /* silent drop — no DB lookup */
+
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
 
     /* ── Tracking ID search — directly verify ── */
     } elseif ($searchType === 'tracking_id' && empty($searchValue)) {
@@ -893,6 +900,9 @@ function getAppTypeLabel($type) {
                                 </div>
 
                                 <!-- खोज बटन -->
+                                <div class="col-12">
+                                    <?php echo coop_public_form_anti_bot_html('tracker', 'trk', isEnglish(), 'col-12 col-md-6'); ?>
+                                </div>
                                 <div class="col-12 d-flex align-items-center gap-3 flex-wrap">
                                     <button type="submit" class="btn btn-tracker-search btn-lg px-5">
                                         <i class="fas fa-search me-2"></i><?php echo isEnglish() ? 'Search Application' : 'आवेदन खोज्नुहोस्'; ?>

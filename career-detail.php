@@ -2,6 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/careers-tables.php';
+require_once 'includes/contact-spam-guard.php';
 ensurePublicTables();
 
 $jobId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -71,6 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
     }
     if (!checkRateLimit('job_apply', 5, 3600)) {
         $error = isEnglish() ? 'Too many applications. Please try again later.' : 'धेरै आवेदन। पछि प्रयास गर्नुहोस्।';
+        $showApplyForm = true;
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'job_apply', [
+        clean_text($_POST['cover_letter'] ?? '', 8000),
+    ], true)) === 'honeypot') {
+        redirect('career-detail.php?id=' . $jobId . '&applied=1&tid=JOB-OK');
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
         $showApplyForm = true;
     } else {
         try {
@@ -447,6 +455,7 @@ $L = getLangStrings();
                             </label>
                         </div>
 
+                        <?php echo coop_public_form_anti_bot_html('job_apply', 'job', isEnglish(), 'col-12'); ?>
                         <button type="submit" class="btn btn-primary btn-lg">
                             <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
                         </button>

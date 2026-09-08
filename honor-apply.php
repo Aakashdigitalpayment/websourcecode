@@ -5,6 +5,7 @@
 require_once 'includes/config.php';
 require_once 'includes/honor-tables.php';
 require_once 'includes/honor-submit-helper.php';
+require_once 'includes/contact-spam-guard.php';
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
 if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
@@ -45,6 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('honor_application', 8, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again later.' : 'धेरै अनुरोधहरू भए। कृपया पछि प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'honor', [
+        clean_text($_POST['description'] ?? '', 4000),
+        clean_text($_POST['business_note'] ?? '', 255),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $applicantName = clean_text($_POST['applicant_name'] ?? '', 160);
         $phone = preg_replace('/[^0-9]/', '', clean_text($_POST['phone'] ?? '', 20));
@@ -367,6 +375,7 @@ foreach ($openPrograms as $op) {
                                 <div class="form-text"><?php echo isEnglish() ? 'PDF or image, max as per site upload limit.' : 'PDF वा फोटो।'; ?></div>
                             </div>
 
+                            <?php echo coop_public_form_anti_bot_html('honor', 'hnr', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-1"></i>
                                 <?php echo isEnglish() ? 'Submit application' : 'आवेदन पठाउनुहोस्'; ?>

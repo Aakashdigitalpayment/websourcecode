@@ -2,6 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/auction-tables.php';
+require_once 'includes/contact-spam-guard.php';
 $pageTitle = isEnglish() ? 'Auction Notices' : 'लिलामी सूचना';
 $pageDescription = isEnglish()
     ? 'Current and past auction notices published by our cooperative.'
@@ -50,6 +51,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
         $bidError = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('auction_bid', 8, 3600)) {
         $bidError = isEnglish() ? 'Too many bids. Please try again later.' : 'धेरै बोलपत्र। पछि प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'auction_bid', [
+        clean_text($_POST['message'] ?? '', 2000),
+    ], true)) === 'honeypot') {
+        $bidSuccess = true;
+    } elseif ($__bot) {
+        $bidError = coop_public_form_guard_message($__bot, isEnglish());
     } elseif (!empty($_POST['bid_form_token']) && isset($_SESSION['last_bid_form_token']) && $_SESSION['last_bid_form_token'] === $_POST['bid_form_token']) {
         $bidError = isEnglish() ? 'This bid was already submitted. Please refresh before submitting again.' : 'यो बोलपत्र पहिले नै पेश भइसकेको छ। फेरि पेश गर्न पेज refresh गर्नुहोस्।';
     } else {
@@ -681,6 +688,7 @@ $L = getLangStrings();
                         </div>
                     </div>
                     <div class="modal-footer auc2-bid-footer">
+                        <?php echo coop_public_form_anti_bot_html('auction_bid', 'auc', isEnglish(), 'col-12'); ?>
                         <button type="button" class="btn auc2-bid-cancel" data-bs-dismiss="modal">
                             <i class="fas fa-times me-1"></i><?php echo isEnglish()?'Cancel':'रद्द'; ?>
                         </button>

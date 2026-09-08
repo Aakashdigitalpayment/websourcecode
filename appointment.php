@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्';
@@ -140,6 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('appointment', 3, 60)) {
         $error = isEnglish() ? 'Too many requests. Please wait.' : 'धेरै अनुरोधहरू। कृपया पर्खनुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'appointment', [clean_text($_POST['purpose_detail'] ?? '', 1000)], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $db = null;
         try { $db = getDB(); } catch (\Throwable $_dbEx) {
@@ -345,6 +350,8 @@ try {
 } catch (Throwable $e) {
     $branches = [];
 }
+
+$__sharedMath = coop_math_challenge_issue('appointment');
 
 require_once 'includes/header.php';
 $L = getLangStrings();
@@ -645,6 +652,9 @@ $L = getLangStrings();
                                 </div>
                             </div>
 
+                            <div class="row g-3 mb-3">
+                                <?php echo coop_public_form_anti_bot_html('appointment', 'appt1', isEnglish(), 'col-12', $__sharedMath); ?>
+                            </div>
                             <div class="appt-form-actions">
                                 <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
                                     <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
@@ -761,6 +771,9 @@ $L = getLangStrings();
                                 </div>
                             </div>
 
+                            <div class="row g-3 mb-3">
+                                <?php echo coop_public_form_anti_bot_html('appointment', 'appt2', isEnglish(), 'col-12', $__sharedMath); ?>
+                            </div>
                             <div class="appt-form-actions">
                                 <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
                                     <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>

@@ -8,6 +8,7 @@ if (!defined('SITE_URL')) {
 }
 require_once __DIR__ . '/ensure-tables.php';
 require_once __DIR__ . '/member-marketplace-tables.php';
+require_once __DIR__ . '/contact-spam-guard.php';
 if (is_file(__DIR__ . '/member-auth.php')) {
     require_once __DIR__ . '/member-auth.php';
 }
@@ -95,6 +96,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['mp_inquiry']) && $db 
         $err = $mpT('सुरक्षा जाँच असफल।', 'Security check failed.');
     } elseif (function_exists('checkRateLimit') && !checkRateLimit('mp_inquiry', 8, 3600)) {
         $err = $mpT('धेरै सन्देश भए। केही समयपछि प्रयास गर्नुहोस्।', 'Too many messages. Please try later.');
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'mp_inquiry', [
+        function_exists('clean_text') ? clean_text($_POST['message'] ?? '', 1000) : trim((string) ($_POST['message'] ?? '')),
+    ], true)) === 'honeypot') {
+        $_SESSION['mp_inq_flash'] = ['ok' => true];
+        header('Location: ' . mpPublicPageUrl($mpKind, $backId));
+        exit;
+    } elseif ($__bot) {
+        $err = coop_public_form_guard_message($__bot, $en);
     } else {
         $listing = mpFetchListingById($db, $backId);
         if (!$listing || !mpIsPubliclyVisible($listing) || ($listing['listing_type'] ?? '') !== $mpKind) {
@@ -387,6 +396,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
                             <textarea class="form-control" id="inqMsg" name="message" required maxlength="1000" rows="3" placeholder="<?php echo $mpT('के चाहिएको हो, कहिले चाहिन्छ…', 'What you need and when…'); ?>"></textarea>
                         </div>
                         <div class="col-12">
+                            <?php echo coop_public_form_anti_bot_html('mp_inquiry', 'mpInq', $en, 'col-12'); ?>
                             <button type="submit" class="btn btn-success"><?php echo $mpT('सन्देश पठाउनुहोस्', 'Send message'); ?></button>
                         </div>
                     </div>

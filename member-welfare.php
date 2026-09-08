@@ -8,6 +8,7 @@ require_once 'includes/config.php';
 require_once 'includes/welfare-claims-tables.php';
 require_once 'includes/welfare-claim-types.php';
 require_once 'includes/welfare-claims-submit-helper.php';
+require_once 'includes/contact-spam-guard.php';
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
 if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
@@ -55,6 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('welfare_claim', 10, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू भए। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'welfare', [
+        clean_text($_POST['description'] ?? '', 4000),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         // Get form data
         $member_name = clean_text($_POST['member_name'] ?? '', 200);
@@ -597,6 +604,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="form-actions">
+                            <?php echo coop_public_form_anti_bot_html('welfare', 'wlf', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i><?php echo isEnglish() ? 'Submit Claim' : 'दाबी पेश गर्नुहोस्'; ?>
                             </button>

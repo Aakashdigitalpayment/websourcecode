@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Online Account Opening' : 'अनलाइन खाता खोल्नुहोस्';
@@ -25,6 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed.' : 'सुरक्षा जाँच असफल।';
     } elseif (!checkRateLimit('account_open', 10, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'account', [], false)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $account_type = clean_text($_POST['account_type'] ?? '', 40);
         $full_name = clean_text($_POST['full_name'] ?? '', 200);
@@ -524,6 +529,9 @@ try {
                             </div>
                         </div>
 
+                        <div class="row g-3 mb-3">
+                            <?php echo coop_public_form_anti_bot_html('account', 'acc', isEnglish(), 'col-12'); ?>
+                        </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-paper-plane me-1"></i> <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>

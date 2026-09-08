@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
+require_once 'includes/contact-spam-guard.php';
 ensurePublicTables();
 /* Optional includes are guarded so partial deploy won't trigger HTTP 500. */
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
@@ -49,6 +50,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Rate Limiting
     elseif (!checkRateLimit('loan_form', 10, 3600)) {
         $error = isEnglish() ? 'Too many requests. Please try again after 1 hour.' : 'धेरै अनुरोधहरू भए। कृपया १ घण्टापछि पुनः प्रयास गर्नुहोस्।';
+    }
+    elseif (($__bot = coop_public_form_bot_block($_POST, 'loan', [
+        clean_text($_POST['loan_purpose'] ?? '', 2000),
+        clean_text($_POST['collateral_description'] ?? '', 2000),
+        clean_text($_POST['other_income'] ?? '', 500),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     }
     else {
         try {
@@ -672,6 +682,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="docFileList" class="mt-3 text-start small"></div>
             <p class="text-muted small mt-2 mb-0"><?php echo isEnglish() ? 'Max 5MB per file | PDF/JPG/PNG' : 'प्रति फाइल अधिकतम 5MB | PDF/JPG/PNG'; ?></p>
         </div>
+    </div>
+    <div class="row g-3 mb-3">
+        <?php echo coop_public_form_anti_bot_html('loan', 'loan', isEnglish(), 'col-12'); ?>
     </div>
 </div><!-- /loanPane4 -->
 

@@ -1270,6 +1270,13 @@ if ($__uiTestMode):
     </div>
     <button type="button" class="pcp-x" onclick="document.getElementById('publicChatPanel').classList.remove('open')" aria-label="Close">×</button>
   </div>
+  <?php
+  if (!function_exists('coop_public_form_anti_bot_html')) {
+      require_once __DIR__ . '/contact-spam-guard.php';
+  }
+  $__pcpEn = function_exists('isEnglish') && isEnglish();
+  $__pcpMath = coop_math_challenge_issue('live_chat');
+  ?>
   <form class="pcp-body" id="publicChatForm" novalidate>
     <label for="pcp_name">तपाईंको नाम *</label>
     <input type="text" name="name" id="pcp_name" maxlength="80" required autocomplete="name">
@@ -1277,9 +1284,9 @@ if ($__uiTestMode):
     <input type="text" name="contact" id="pcp_contact" maxlength="120" autocomplete="email">
     <label for="pcp_body">सन्देश *</label>
     <textarea name="body" id="pcp_body" maxlength="2000" required placeholder="कसरी सहयोग गर्न सक्छौं?"></textarea>
-    <!-- honeypot — hidden from real users -->
-    <input type="text" name="website" tabindex="-1" autocomplete="off"
-           style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">
+    <div class="pcp-antibot" id="pcpAntibot">
+      <?php echo coop_public_form_anti_bot_html('live_chat', 'pcp', $__pcpEn, '', $__pcpMath); ?>
+    </div>
     <button type="submit"><i class="fas fa-paper-plane me-1"></i> पठाउनुहोस्</button>
     <div class="pcp-msg" id="pcpMsg" style="display:none;"></div>
   </form>
@@ -1288,18 +1295,29 @@ if ($__uiTestMode):
 (function(){
   var f=document.getElementById('publicChatForm'); if(!f) return;
   var msg=document.getElementById('pcpMsg');
+  function applyMath(m){
+    var lab=f.querySelector('.coop-anti-bot-math label');
+    var inp=f.querySelector('input[name="math_answer"]');
+    if(!m||!lab||!inp) return;
+    if(m.prompt) lab.innerHTML=m.prompt+' <span class="text-danger">*</span>';
+    inp.value='';
+  }
   f.addEventListener('submit', function(e){
     e.preventDefault();
     var btn=f.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='पठाउँदै ...';
     msg.style.display='none';
     var fd=new FormData(f);
-    fetch('<?php echo SITE_URL; ?>api-public-chat.php', {method:'POST', body:fd})
+    fetch('<?php echo SITE_URL; ?>api-public-chat.php', {method:'POST', body:fd, credentials:'same-origin'})
       .then(function(r){ return r.json().catch(function(){ return {ok:false,msg:'त्रुटि'}; }); })
       .then(function(d){
         msg.style.display='block';
         msg.className='pcp-msg ' + (d.ok ? 'ok' : 'err');
         msg.textContent=d.msg || (d.ok?'पठाइयो':'त्रुटि');
-        if(d.ok){ f.reset(); }
+        if(d.math) applyMath(d.math);
+        if(d.ok){
+          f.reset();
+          if(d.math) applyMath(d.math);
+        }
       })
       .catch(function(){ msg.style.display='block'; msg.className='pcp-msg err'; msg.textContent='नेटवर्क त्रुटि'; })
       .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane me-1"></i> पठाउनुहोस्'; });

@@ -3,6 +3,7 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 ensurePublicTables();
 require_once 'includes/kyc-public-form.php';
+require_once 'includes/contact-spam-guard.php';
 $pageTitle = isEnglish() ? 'Member Survey & Feedback' : 'सदस्य सुझाव तथा प्रतिक्रिया';
 
 $success    = false;
@@ -20,6 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = isEnglish() ? 'Security check failed. Please try again.' : 'सुरक्षा जाँच असफल। कृपया पुन: प्रयास गर्नुहोस्।';
     } elseif (!checkRateLimit('feedback_form', 3, 60)) {
         $error = isEnglish() ? 'Too many requests. Please wait a moment.' : 'धेरै अनुरोधहरू। कृपया केही समय पर्खनुहोस्।';
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'survey', [
+        clean_text($_POST['subject'] ?? '', 255),
+        clean_text($_POST['message'] ?? '', 8000),
+    ], true)) === 'honeypot') {
+        $success = true;
+    } elseif ($__bot) {
+        $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
         $name      = clean_text($_POST['name']      ?? '', 120);
         $member_id = clean_text($_POST['member_id'] ?? '', 50);
@@ -362,6 +370,7 @@ require_once 'includes/header.php';
                     <?php endif; ?>
 
                     <div class="modal-footer px-0 pb-0 mt-4">
+                        <?php echo coop_public_form_anti_bot_html('survey', 'svy', isEnglish(), 'col-12'); ?>
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                             <i class="fas fa-times me-1"></i> <?php echo isEnglish() ? 'Cancel' : 'रद्द'; ?>
                         </button>

@@ -5,6 +5,7 @@
  * Member opens QR from phone → login check → mark present
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once 'includes/contact-spam-guard.php';
 require_once 'includes/ensure-tables.php';
 
 
@@ -75,6 +76,12 @@ $csrfOk = true;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $prog && $db && !$err) {
     if (!verifyCSRFToken()) {
         $err = 'Security check failed.';
+        $csrfOk = false;
+    } elseif (($__bot = coop_public_form_bot_block($_POST, 'attendance', [], false)) === 'honeypot') {
+        $requestSubmitted = true;
+        $csrfOk = false;
+    } elseif ($__bot) {
+        $err = coop_public_form_guard_message($__bot, function_exists('isEnglish') && isEnglish());
         $csrfOk = false;
     }
     if ($csrfOk) {
@@ -205,6 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $prog && $db && !$err) {
 $siteName     = function_exists('getSetting') ? getSetting('site_name', t('सहकारी', 'Cooperative')) : t('सहकारी', 'Cooperative');
 $csrfField    = function_exists('generateCSRFToken') ? '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">' : '';
 $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['event_date'])) : '') : '';
+$__sharedAttMath = coop_math_challenge_issue('attendance');
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo isEnglish() ? 'en' : 'ne'; ?>" dir="ltr">
@@ -280,6 +288,7 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
       </div>
       <form method="POST">
         <?= $csrfField ?><input type="hidden" name="action" value="checkin_logged">
+        <?php echo coop_public_form_anti_bot_html('attendance', 'att1', function_exists('isEnglish') && isEnglish(), 'col-12', $__sharedAttMath); ?>
         <button type="submit" class="btn-primary"><i class="fas fa-user-check"></i> <?php echo t('उपस्थिति दिनुहोस्', 'Mark Attendance'); ?></button>
       </form>
       <div class="divider"><span><?php echo t('वा', 'or'); ?></span></div>
@@ -304,6 +313,7 @@ $evDate       = $prog ? ($prog['event_date'] ? date('Y F d', strtotime($prog['ev
           <label for="attend_member_address"><i class="fas fa-location-dot meta-icon-gap"></i><?php echo t('ठेगाना', 'Address'); ?></label>
           <input type="text" name="member_address" id="attend_member_address" class="form-control" placeholder="<?php echo t('वडा/टोल/ठेगाना', 'Ward/tole/address'); ?>" autocomplete="street-address">
         </div>
+        <?php echo coop_public_form_anti_bot_html('attendance', 'att2', function_exists('isEnglish') && isEnglish(), 'col-12', $__sharedAttMath); ?>
         <button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> <?php echo t('उपस्थिति अनुरोध पठाउनुहोस्', 'Send Attendance Request'); ?></button>
       </form>
 
