@@ -639,6 +639,40 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
     return ['id' => $id, 'card_no' => $cardNo, 'approval_status' => $approvalStatus];
 }
 
+/* ─── Shared approval / renewal gate (password + OAuth + 2FA completion) ─── */
+if (!function_exists('memberLoginEligibilityError')) {
+    /**
+     * @return array{error:string,name?:string,reason?:string}|null null = may proceed
+     */
+    function memberLoginEligibilityError(array $m, $db = null): ?array
+    {
+        if (($m['approval_status'] ?? 'pending') === 'pending') {
+            return ['error' => 'pending_approval', 'name' => (string)($m['name'] ?? '')];
+        }
+        if (($m['approval_status'] ?? 'pending') === 'rejected') {
+            return ['error' => 'rejected', 'reason' => (string)($m['rejection_reason'] ?? '')];
+        }
+        if (!empty($m['card_expires_at'])) {
+            $expTs = strtotime((string)$m['card_expires_at']);
+            if ($expTs && $expTs < time() && ($m['approval_status'] ?? '') !== 'renewal_pending') {
+                if ($db instanceof PDO) {
+                    try {
+                        $db->prepare("UPDATE members SET approval_status='renewal_pending' WHERE id=?")
+                           ->execute([(int)($m['id'] ?? 0)]);
+                    } catch (\Throwable $e) {
+                        error_log('renewal flag: ' . $e->getMessage());
+                    }
+                }
+                return ['error' => 'renewal_required', 'name' => (string)($m['name'] ?? '')];
+            }
+        }
+        if (($m['approval_status'] ?? '') === 'renewal_pending') {
+            return ['error' => 'renewal_required', 'name' => (string)($m['name'] ?? '')];
+        }
+        return null;
+    }
+}
+
 /* ─── Login ─── */
 function memberLogin($email, $password, bool $skipSession = false) {
     /* v2 Fix: Same lazy-init + try/catch pattern */
@@ -666,28 +700,9 @@ function memberLogin($email, $password, bool $skipSession = false) {
     if (!$m['password_hash']) return ['error' => 'यो account Google/Facebook बाट बनेको हो — पासवर्ड सेट गरिएको छैन। पहिले Google/Facebook बाट लगिन गर्नुहोस्, त्यसपछि "मेरो प्रोफाइल" मा गएर पासवर्ड सेट गर्नुहोस्।'];
     if (!password_verify($password, $m['password_hash'])) return ['error' => 'पासवर्ड मिलेन। पुनः प्रयास गर्नुहोस्।'];
 
-    if (($m['approval_status'] ?? 'pending') === 'pending') {
-        return ['error' => 'pending_approval', 'name' => $m['name']];
-    }
-    if (($m['approval_status'] ?? 'pending') === 'rejected') {
-        $reason = $m['rejection_reason'] ?? '';
-        return ['error' => 'rejected', 'reason' => $reason];
-    }
-
-    /* ── Issue #3: 5-year card validity check ──
-       If member.card_expires_at <= NOW() → auto-flag for renewal & block login. */
-    if (!empty($m['card_expires_at'])) {
-        $expTs = strtotime($m['card_expires_at']);
-        if ($expTs && $expTs < time() && ($m['approval_status'] ?? '') !== 'renewal_pending') {
-            try {
-                $db->prepare("UPDATE members SET approval_status='renewal_pending' WHERE id=?")
-                   ->execute([$m['id']]);
-            } catch (\Throwable $e) { error_log('renewal flag: '.$e->getMessage()); }
-            return ['error' => 'renewal_required', 'name' => $m['name']];
-        }
-    }
-    if (($m['approval_status'] ?? '') === 'renewal_pending') {
-        return ['error' => 'renewal_required', 'name' => $m['name']];
+    $gate = memberLoginEligibilityError($m, $db);
+    if ($gate !== null) {
+        return $gate;
     }
 
     if ($skipSession) {
@@ -758,6 +773,11 @@ function memberOAuthLogin($provider, $providerId, $name, $email, $avatarUrl = ''
 
     if (!$m) {
         return ['error' => 'OAuth बाट नयाँ खाता सीधा खोल्न मिल्दैन। पहिले Member signup (Member ID + Email + Mobile) गरेर KYC match गर्नुहोस्, त्यसपछि Google/Facebook बाट लगिन गर्नुहोस्।'];
+    }
+
+    $gate = memberLoginEligibilityError($m, $db);
+    if ($gate !== null) {
+        return $gate;
     }
 
     /* Never skip Google Authenticator 2FA on OAuth — return pending challenge instead of session. */

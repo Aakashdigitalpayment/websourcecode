@@ -29,7 +29,25 @@ function oauthRedirectError($msg) {
 function oauthFinishWithTwoFa(array $res): void
 {
     if (isset($res['error'])) {
-        oauthRedirectError($res['error']);
+        $err = (string) $res['error'];
+        if ($err === 'pending_approval') {
+            oauthRedirectError(isEnglish()
+                ? 'Your account is pending admin approval. You will be notified after approval.'
+                : 'तपाईंको खाता Admin अनुमोदन प्रतीक्षामा छ। स्वीकृत भएपछि सूचना पठाइनेछ।');
+        }
+        if ($err === 'rejected') {
+            $reason = trim((string)($res['reason'] ?? ''));
+            oauthRedirectError(
+                (isEnglish() ? 'Your registration has been rejected.' : 'तपाईंको दर्ता अस्वीकृत भएको छ।')
+                . ($reason !== '' ? ((isEnglish() ? ' Reason: ' : ' कारण: ') . $reason) : '')
+            );
+        }
+        if ($err === 'renewal_required') {
+            oauthRedirectError(isEnglish()
+                ? 'Your member card has expired. Please contact the office for renewal.'
+                : 'तपाईंको Member Card को म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस्।');
+        }
+        oauthRedirectError($err);
     }
     if (empty($res['need_2fa']) || empty($res['id'])) {
         oauthRedirectError('Login could not complete 2FA challenge.');

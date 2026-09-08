@@ -164,7 +164,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                         $code = trim((string)($_POST['twofa_code'] ?? ''));
                         $mode = (string)($pending['mode'] ?? 'verify');
                         $ok = false;
-                        if ($mode === 'setup') {
+                        if ($mode === 'backup_ack') {
+                            /* User acknowledged backup codes — complete login below. */
+                            $ok = true;
+                        } elseif ($mode === 'setup') {
                             $secret = trim((string)($pending['secret'] ?? ''));
                             if ($secret === '') $error = '2FA secret नभेटियो।';
                             elseif (!twoFaVerifyCode($secret, $code, 1)) $error = '2FA code मिलेन।';
@@ -173,7 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                                 $db->prepare("UPDATE admin_users SET twofa_enabled=1, twofa_secret=?, twofa_backup_codes=?, twofa_enabled_at=NOW() WHERE id=?")
                                    ->execute([$secret, json_encode($bk['hashes']), (int)$user['id']]);
                                 $_SESSION['admin_2fa_backup_plain'] = $bk['plain'];
-                                $ok = true;
+                                $_SESSION['admin_2fa_pending'] = [
+                                    'id' => (int)$user['id'],
+                                    'mode' => 'backup_ack',
+                                ];
+                                /* Stay on page so backup codes are visible before session is created. */
+                                $ok = false;
                             }
                         } else {
                             $secret = trim((string)($user['twofa_secret'] ?? ''));
@@ -193,11 +201,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
 
                         if ($ok) {
                             if (function_exists('site_license_login_blocked_for_user') && site_license_login_blocked_for_user($user)) {
-                                unset($_SESSION['admin_2fa_pending']);
+                                unset($_SESSION['admin_2fa_pending'], $_SESSION['admin_2fa_backup_plain']);
                                 $error = $msgSiteLicenseExpiredLogin;
                                 $_SESSION['admin_license_renewal_prompt'] = true;
                             } else {
-                                unset($_SESSION['admin_2fa_pending']);
+                                unset($_SESSION['admin_2fa_pending'], $_SESSION['admin_2fa_backup_plain']);
                                 unset($_SESSION['admin_license_renewal_prompt']);
                                 session_regenerate_id(true);
                                 $_SESSION['admin_id']        = $user['id'];
@@ -604,7 +612,21 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
         <form method="POST" action="">
             <?php echo csrfField(); ?>
             <input type="hidden" name="do_admin_2fa" value="1">
-            <?php if (($admin2faPending['mode'] ?? '') === 'setup'): ?>
+            <?php if (($admin2faPending['mode'] ?? '') === 'backup_ack'): ?>
+                <div class="alert-error alert-info-soft">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="triangle-alert"></i>
+                    2FA setup सफल। तलका backup codes सुरक्षित ठाउँमा लेखेर राख्नुहोस् — फेरि देखाइँदैन।
+                </div>
+                <?php if (!empty($_SESSION['admin_2fa_backup_plain']) && is_array($_SESSION['admin_2fa_backup_plain'])): ?>
+                <div class="security-note security-note-warning">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="key-round"></i>
+                    Backup codes: <code><?php echo htmlspecialchars(implode(' , ', $_SESSION['admin_2fa_backup_plain']), ENT_QUOTES, 'UTF-8'); ?></code>
+                </div>
+                <?php endif; ?>
+                <button type="submit" class="submit-btn">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> मैले codes सुरक्षित राखें — Continue
+                </button>
+            <?php elseif (($admin2faPending['mode'] ?? '') === 'setup'): ?>
                 <div class="alert-error alert-info-soft">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i>
                     Google Authenticator setup आवश्यक छ — QR स्क्यान गर्नुहोस् वा Manual Secret हाल्नुहोस्।
@@ -625,28 +647,31 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                         <input type="text" readonly value="<?php echo htmlspecialchars((string)($admin2faPending['secret'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
                 </div>
+                <div class="field">
+                    <label for="admin_twofa_code">2FA Code / Backup Code</label>
+                    <div class="input-icon">
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> 2FA Verify
+                </button>
             <?php else: ?>
                 <div class="alert-error alert-info-soft">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
                     Google Authenticator बाट 6-अंकको code राख्नुहोस्।
                 </div>
-            <?php endif; ?>
-            <div class="field">
-                <label for="admin_twofa_code">2FA Code / Backup Code</label>
-                <div class="input-icon">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
-                    <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                <div class="field">
+                    <label for="admin_twofa_code">2FA Code / Backup Code</label>
+                    <div class="input-icon">
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                        <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                    </div>
                 </div>
-            </div>
-            <button type="submit" class="submit-btn">
-                <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> 2FA Verify
-            </button>
-            <?php if (!empty($_SESSION['admin_2fa_backup_plain']) && is_array($_SESSION['admin_2fa_backup_plain'])): ?>
-                <div class="security-note security-note-warning">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="triangle-alert"></i>
-                    Backup codes: <code><?php echo htmlspecialchars(implode(' , ', $_SESSION['admin_2fa_backup_plain']), ENT_QUOTES, 'UTF-8'); ?></code>
-                </div>
-                <?php unset($_SESSION['admin_2fa_backup_plain']); ?>
+                <button type="submit" class="submit-btn">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> 2FA Verify
+                </button>
             <?php endif; ?>
         </form>
         <?php elseif (!$showLicenseRenewalOnLogin): ?>

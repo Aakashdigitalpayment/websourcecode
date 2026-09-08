@@ -313,7 +313,14 @@ assertFileContains('member/login.php', 'twoFaQrImageUrl', 'member Google Authent
 assertFileContains('includes/totp-2fa.php', 'function twoFaQrImageUrl', 'TOTP QR helper');
 assertFileContains('includes/totp-2fa.php', 'otpauth://totp/', 'Google Authenticator otpauth URI');
 assertFileContains('includes/member-auth.php', "'need_2fa' => true", 'OAuth returns 2FA challenge');
+assertFileContains('includes/member-auth.php', 'function memberLoginEligibilityError', 'shared login eligibility gate');
+assertFileContains('includes/member-auth.php', 'memberLoginEligibilityError($m, $db)', 'OAuth uses eligibility gate');
 assertFileContains('member/oauth.php', 'oauthFinishWithTwoFa', 'OAuth finishes via 2FA');
+assertFileContains('member/oauth.php', "pending_approval", 'OAuth maps pending approval errors');
+assertFileContains('member/login.php', "'mode' => 'backup_ack'", 'member 2FA backup codes ack step');
+assertFileContains('member/login.php', 'memberLoginEligibilityError($m, $db)', 'member 2FA re-checks eligibility');
+assertFileContains('admin/index.php', "'mode' => 'backup_ack'", 'admin 2FA backup codes ack step');
+assertFileContains('online-kyc.php', "coop_math_challenge_issue('kyc')", 'KYC math challenge issued for forms');
 assertFileContains('admin/security-settings.php', 'Superadmin ऐच्छिक', 'security settings documents 2FA policy');
 assertFileNotContains('admin/security-settings.php', 'name="twofa_admin_required"', 'old admin 2FA toggle removed');
 assertFileNotContains('admin/security-settings.php', 'name="twofa_member_required"', 'old member 2FA toggle removed');

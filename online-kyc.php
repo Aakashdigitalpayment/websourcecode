@@ -29,7 +29,6 @@ $membershipSuccess = false;
 $membershipTrackingId = '';
 $error = '';
 $kycTrackingId = '';
-$__kycMath = coop_math_challenge_issue('kyc');
 $oldInput = [];
 $prefillInput = [];
 $kycWasUpdate = false;
@@ -891,6 +890,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } // end gate ok
     }
 }
+
+/* Issue math AFTER POST verify so failed submits do not permanently desync captcha. */
+$__kycMath = coop_math_challenge_issue('kyc');
 
 // Get branches for dropdown
 try {

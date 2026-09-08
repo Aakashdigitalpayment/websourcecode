@@ -124,7 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
                     $code = trim((string)($_POST['twofa_code'] ?? ''));
                     $mode = (string)($pending['mode'] ?? 'verify');
                     $ok = false;
-                    if ($mode === 'setup') {
+                    if ($mode === 'backup_ack') {
+                        $ok = true;
+                    } elseif ($mode === 'setup') {
                         $secret = trim((string)($pending['secret'] ?? ''));
                         if ($secret === '') {
                             $error = $_t('2FA setup secret भेटिएन।', '2FA setup secret not found.');
@@ -135,7 +137,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
                             $db->prepare("UPDATE members SET twofa_enabled=1, twofa_secret=?, twofa_backup_codes=?, twofa_enabled_at=NOW() WHERE id=?")
                                ->execute([$secret, json_encode($bk['hashes']), (int)$m['id']]);
                             $_SESSION['member_2fa_backup_plain'] = $bk['plain'];
-                            $ok = true;
+                            $_SESSION['member_2fa_pending'] = [
+                                'id' => (int)$m['id'],
+                                'mode' => 'backup_ack',
+                                'next' => (string)($pending['next'] ?? ''),
+                            ];
+                            /* Stay on page so backup codes are visible before session is created. */
+                            $ok = false;
+                            $info = 'twofa_backup_ack';
                         }
                     } else {
                         $secret = trim((string)($m['twofa_secret'] ?? ''));
@@ -155,14 +164,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
                     }
 
                     if ($ok) {
-                        unset($_SESSION['member_2fa_pending']);
-                        memberSetSession($m);
-                        try { $db->prepare("UPDATE members SET last_login=NOW() WHERE id=?")->execute([(int)$m['id']]); } catch (Throwable $e) {}
-                        $rawNext  = (string)($pending['next'] ?? '');
-                        $siteHost = parse_url(SITE_URL, PHP_URL_HOST);
-                        $nextP    = parse_url($rawNext);
-                        $next     = ($rawNext && (empty($nextP['host']) || $nextP['host'] === $siteHost)) ? $rawNext : SITE_URL . 'member/';
-                        memberSafeRedirect($next);
+                        $gate = memberLoginEligibilityError($m, $db);
+                        if ($gate !== null) {
+                            unset($_SESSION['member_2fa_pending'], $_SESSION['member_2fa_backup_plain']);
+                            if (($gate['error'] ?? '') === 'pending_approval') {
+                                $info = 'pending';
+                            } elseif (($gate['error'] ?? '') === 'rejected') {
+                                $info = 'rejected';
+                                $error = $_t('❌ तपाईंको दर्ता अस्वीकृत भएको छ।', '❌ Your registration has been rejected.')
+                                       . (!empty($gate['reason']) ? ($_t(' कारण: ', ' Reason: ') . htmlspecialchars((string)$gate['reason'])) : '')
+                                       . $_t(' थप जानकारीका लागि कार्यालयमा सम्पर्क गर्नुहोस्।', ' Please contact office for more details.');
+                            } elseif (($gate['error'] ?? '') === 'renewal_required') {
+                                $info = 'renewal';
+                                $error = $_t('🔄 तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', '🔄 Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
+                            } else {
+                                $error = htmlspecialchars((string)($gate['error'] ?? 'Login blocked.'));
+                            }
+                        } else {
+                            unset($_SESSION['member_2fa_pending'], $_SESSION['member_2fa_backup_plain']);
+                            memberSetSession($m);
+                            try { $db->prepare("UPDATE members SET last_login=NOW() WHERE id=?")->execute([(int)$m['id']]); } catch (Throwable $e) {}
+                            $rawNext  = (string)($pending['next'] ?? '');
+                            $siteHost = parse_url(SITE_URL, PHP_URL_HOST);
+                            $nextP    = parse_url($rawNext);
+                            $next     = ($rawNext && (empty($nextP['host']) || $nextP['host'] === $siteHost)) ? $rawNext : SITE_URL . 'member/';
+                            memberSafeRedirect($next);
+                        }
                     }
                 }
             } catch (Throwable $e) {
@@ -541,7 +568,20 @@ body {
         <form method="POST" id="formMember2FA">
             <input type="hidden" name="csrf_token" value="<?php echo $csrf; ?>">
             <input type="hidden" name="do_member_2fa" value="1">
-            <?php if (($member2faPending['mode'] ?? '') === 'setup'): ?>
+            <?php if (($member2faPending['mode'] ?? '') === 'backup_ack'): ?>
+                <div class="alert alert-warning">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="triangle-alert"></i>
+                    <?php echo $_t('2FA setup सफल। तलका backup codes सुरक्षित ठाउँमा लेखेर राख्नुहोस् — फेरि देखाइँदैन।', '2FA setup successful. Save these backup codes somewhere safe — they will not be shown again.'); ?>
+                </div>
+                <?php if (!empty($_SESSION['member_2fa_backup_plain']) && is_array($_SESSION['member_2fa_backup_plain'])): ?>
+                <div class="alert alert-warning" style="margin-top:12px;">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="key-round"></i>
+                    Backup codes:<br>
+                    <code><?php echo htmlspecialchars(implode(' , ', $_SESSION['member_2fa_backup_plain'])); ?></code>
+                </div>
+                <?php endif; ?>
+                <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> <?php echo $_t('मैले codes सुरक्षित राखें — Continue', 'I saved my codes — Continue'); ?></button>
+            <?php elseif (($member2faPending['mode'] ?? '') === 'setup'): ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो QR स्क्यान गर्नुहोस्:</div>
                 <?php if ($member2faSetupUri !== '' && function_exists('twoFaQrImageUrl')): ?>
                 <div class="twofa-qr-wrap" style="text-align:center;margin:12px 0">
@@ -555,20 +595,18 @@ body {
                     <label for="twofa_manual_secret">Manual Secret Key</label>
                     <input type="text" id="twofa_manual_secret" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>" autocomplete="off">
                 </div>
+                <div class="field">
+                    <label for="twofa_code">2FA Code</label>
+                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
+                </div>
+                <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php else: ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i> Google Authenticator code वा backup code राख्नुहोस्।</div>
-            <?php endif; ?>
-            <div class="field">
-                <label for="twofa_code">2FA Code</label>
-                <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
-            </div>
-            <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
-            <?php if (!empty($_SESSION['member_2fa_backup_plain']) && is_array($_SESSION['member_2fa_backup_plain'])): ?>
-                <div class="alert alert-warning" style="margin-top:12px;">
-                    <i class="fas fa-triangle-exclamation"></i> Backup codes (safe राख्नुहोस्):<br>
-                    <code><?php echo htmlspecialchars(implode(' , ', $_SESSION['member_2fa_backup_plain'])); ?></code>
+                <div class="field">
+                    <label for="twofa_code">2FA Code</label>
+                    <input type="text" name="twofa_code" id="twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="numeric">
                 </div>
-                <?php unset($_SESSION['member_2fa_backup_plain']); ?>
+                <button type="submit" class="submit-btn"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Verify 2FA</button>
             <?php endif; ?>
         </form>
         <?php else: ?>
