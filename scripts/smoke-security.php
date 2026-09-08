@@ -196,6 +196,13 @@ assertFileContains('includes/config.php', 'https://unpkg.com', 'CSP allows unpkg
 assertFileContains('includes/config.php', 'frame-src', 'CSP frame-src for maps/embeds');
 assertFileContains('includes/config.php', 'connect-src', 'CSP connect-src for XHR/fetch');
 assertFileContains('includes/config.php', 'worker-src', 'CSP worker-src for QR scanner');
+assertFileContains('includes/config.php', 'script-src-elem', 'CSP3 script-src-elem nonce path');
+assertFileContains('includes/config.php', 'coop_csp_ob_filter', 'CSP output filter stamps script nonces');
+assertFileContains('includes/config.php', "object-src 'none'", 'CSP object-src none');
+assertFileContains('includes/config.php', "getSetting('csp_script_nonce', '1')", 'csp_script_nonce kill-switch');
+assertFileContains('includes/config.php', "script-src-attr 'unsafe-inline'", 'CSP keeps onclick via script-src-attr');
+assertFileContains('admin/security-settings.php', 'name="csp_script_nonce"', 'admin CSP nonce toggle');
+assertFileContains('admin/security-settings.php', 'name="csp_enforce"', 'admin CSP enforce toggle');
 assertFileContains('includes/config.php', 'Permissions-Policy: geolocation=(self)', 'KYC map geolocation allowed same-origin');
 assertFileContains('includes/member-auth.php', 'Permissions-Policy: geolocation=(self)', 'member headers geolocation same-origin');
 // Ensure we did not leave a total geo deny that breaks KYC locate
@@ -300,6 +307,11 @@ assertFileContains('includes/footer.php', "method=\"post\"", 'live chat form pos
 assertFileContains('member/login.php', "checkRateLimit('member_2fa'", 'member 2FA rate limit');
 assertFileContains('admin/index.php', "checkRateLimit('admin_2fa'", 'admin 2FA rate limit');
 assertFileContains('deploy/nginx-security.conf', 'location ^~ /includes/', 'nginx security mirror for includes');
+assertFileContains('deploy/nginx-security.conf', 'location ^~ /assets/uploads/', 'nginx mirrors uploads harden');
+assertFileContains('deploy/nginx-security.conf', 'sitemap.xml', 'nginx mirrors sitemap rewrite');
+assertFileContains('deploy/nginx-security.conf', 'location ^~ /vendor/', 'nginx denies composer vendor');
+assertFileContains('deploy/nginx-site.example.conf', 'nginx-security.conf', 'example site includes security conf');
+assertFileContains('deploy/README.md', 'nginx-security.conf', 'nginx deploy docs');
 assertFileNotContains('includes/notifications.php', 'http://api.sparrowsms.com', 'notifications SMS uses HTTPS');
 assertFileContains('member/profile.php', 'minlength="8"', 'member profile password min 8');
 assertFileContains('admin/change-password.php', 'minlength="8"', 'admin change password min 8');

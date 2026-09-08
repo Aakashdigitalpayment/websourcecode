@@ -21,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         updateSetting('twofa_admin_required', isset($_POST['twofa_admin_required']) ? '1' : '0');
         updateSetting('twofa_member_required', isset($_POST['twofa_member_required']) ? '1' : '0');
+        updateSetting('csp_enforce', isset($_POST['csp_enforce']) ? '1' : '0');
+        updateSetting('csp_script_nonce', isset($_POST['csp_script_nonce']) ? '1' : '0');
         updateSetting('turnstile_site_key', trim((string) ($_POST['turnstile_site_key'] ?? '')));
         $tsSecret = trim((string) ($_POST['turnstile_secret_key'] ?? ''));
         /* Password field often blanks on browser autofill — keep existing secret unless a new value is typed. */
@@ -35,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'security_settings_update',
                 'twofa_admin=' . getSetting('twofa_admin_required', '0')
                     . ' twofa_member=' . getSetting('twofa_member_required', '0')
+                    . ' csp_enforce=' . getSetting('csp_enforce', '1')
+                    . ' csp_script_nonce=' . getSetting('csp_script_nonce', '1')
                     . ' turnstile=' . (getSetting('turnstile_site_key', '') !== '' ? 'on' : 'off'),
                 'settings',
                 0
@@ -57,6 +61,8 @@ $t = static function (string $np, string $en) use ($adminIsEn): string {
 
 $adminRequired = getSetting('twofa_admin_required', '0') === '1';
 $memberRequired = getSetting('twofa_member_required', '0') === '1';
+$cspEnforce = getSetting('csp_enforce', '1') !== '0';
+$cspScriptNonce = getSetting('csp_script_nonce', '1') !== '0';
 $turnstileSite = (string) getSetting('turnstile_site_key', '');
 $turnstileSecret = (string) getSetting('turnstile_secret_key', '');
 ?>
@@ -66,8 +72,8 @@ echo adminPageHeader(
     $t('सुरक्षा / 2FA', 'Security / 2FA'),
     'shield-halved',
     $t(
-        'Admin/Member 2FA नीति र optional Cloudflare Turnstile — केवल Superadmin।',
-        'Admin/Member 2FA policy and optional Cloudflare Turnstile — Superadmin only.'
+        'Admin/Member 2FA, CSP, र optional Cloudflare Turnstile — केवल Superadmin।',
+        'Admin/Member 2FA, CSP, and optional Cloudflare Turnstile — Superadmin only.'
     ),
     '<a href="dashboard.php" class="btn btn-sm btn-outline-secondary">Dashboard</a>'
 );
@@ -97,6 +103,32 @@ echo adminPageHeader(
                        <?php echo $memberRequired ? 'checked' : ''; ?>>
                 <label class="form-check-label" for="twofa_member_required">
                     <?php echo $t('Member Login मा 2FA अनिवार्य', 'Require 2FA for Member Login'); ?>
+                </label>
+            </div>
+
+            <hr class="my-4">
+            <h6 class="fw-bold mb-2">
+                <i class="lucide-icon me-1" aria-hidden="true" data-lucide="shield"></i>
+                <?php echo $t('Content Security Policy (CSP)', 'Content Security Policy (CSP)'); ?>
+            </h6>
+            <p class="text-muted small mb-3">
+                <?php echo $t(
+                    'Modern browsers मा script-src-elem + nonce ले XSS बाट inject भएको &lt;script&gt; रोक्छ। onclick अझै चल्छ। समस्या आए CSP Enforce वा Script Nonce बन्द गर्नुहोस्। Nginx मा deploy/nginx-security.conf include गर्न नबिर्सनुहोस्।',
+                    'Modern browsers use script-src-elem + nonce to block XSS-injected &lt;script&gt; tags. onclick still works. If something breaks, turn off CSP Enforce or Script Nonce. On nginx, include deploy/nginx-security.conf.'
+                ); ?>
+            </p>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="csp_enforce" name="csp_enforce" value="1"
+                       <?php echo $cspEnforce ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="csp_enforce">
+                    <?php echo $t('CSP Enforce (बन्द = Report-Only)', 'CSP Enforce (off = Report-Only)'); ?>
+                </label>
+            </div>
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" id="csp_script_nonce" name="csp_script_nonce" value="1"
+                       <?php echo $cspScriptNonce ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="csp_script_nonce">
+                    <?php echo $t('Script nonce (script-src-elem — XSS script block)', 'Script nonce (script-src-elem — block injected scripts)'); ?>
                 </label>
             </div>
 

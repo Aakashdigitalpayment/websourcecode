@@ -12,9 +12,14 @@
  * =====================================================
  */
 
-// Output buffering - prevent header issues without stacking nested buffers unnecessarily.
+// Output buffering - prevent header issues; CSP nonce injector runs on flush.
 if (!ob_get_level()) {
-    ob_start();
+    ob_start(static function (string $html): string {
+        if (function_exists('coop_csp_ob_filter')) {
+            return coop_csp_ob_filter($html);
+        }
+        return $html;
+    });
 }
 /* Security HTTP headers — तल session block पछि एकै ठाउँमा (दोहोरो header नपठाउनु) */
 
@@ -2432,6 +2437,65 @@ if (session_status() === PHP_SESSION_NONE) {
     $_SESSION['last_activity'] = time();
 }
 
+/**
+ * Per-request CSP nonce (script-src-elem). Stable for the whole response.
+ */
+if (!function_exists('coop_csp_nonce')) {
+    function coop_csp_nonce(): string
+    {
+        static $nonce = null;
+        if ($nonce !== null) {
+            return $nonce;
+        }
+        try {
+            $nonce = rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
+        } catch (Throwable $e) {
+            $nonce = bin2hex(random_bytes(16));
+        }
+        return $nonce;
+    }
+}
+
+/**
+ * HTML output filter: stamp nonce on every <script> tag so modern CSP can
+ * drop 'unsafe-inline' for script elements without breaking our own pages.
+ */
+if (!function_exists('coop_csp_ob_filter')) {
+    function coop_csp_ob_filter(string $html): string
+    {
+        if ($html === '') {
+            return $html;
+        }
+        $trim0 = ltrim($html);
+        /* Skip JSON / non-HTML API bodies even if they mention <script> in a string. */
+        if ($trim0 !== '' && ($trim0[0] === '{' || $trim0[0] === '[')) {
+            return $html;
+        }
+        $head = substr($html, 0, 800);
+        if (!preg_match('/<(?:!DOCTYPE\s+html|html\b|head\b|body\b|script\b)/i', $head)
+            && strpos($html, '<script') === false) {
+            return $html;
+        }
+        $nonce = htmlspecialchars(coop_csp_nonce(), ENT_QUOTES, 'UTF-8');
+        $html = preg_replace_callback(
+            '/<script\b(?![^>]*\bnonce\s*=)([^>]*)>/i',
+            static function (array $m) use ($nonce): string {
+                return '<script nonce="' . $nonce . '"' . $m[1] . '>';
+            },
+            $html
+        ) ?? $html;
+        if (stripos($html, 'name="csp-nonce"') === false && stripos($html, '</head>') !== false) {
+            $html = preg_replace(
+                '/<\/head>/i',
+                '<meta name="csp-nonce" content="' . $nonce . '">' . "\n</head>",
+                $html,
+                1
+            ) ?? $html;
+        }
+        return $html;
+    }
+}
+
 // Security headers - send on every request (एकै सेट — माथि दोहोरो नभएको)
 if (!headers_sent()) {
     header('X-Frame-Options: SAMEORIGIN');
@@ -2449,19 +2513,43 @@ if (!headers_sent()) {
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
     unset($_httpsOn);
-    /* CSP policy — enforce by default; kill-switch: define('CSP_ENFORCE', false)
-       before this file, or site setting csp_enforce=0 (emergency rollback). */
+
+    $_cspNonce = coop_csp_nonce();
+    $_cspHosts = 'https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.ckeditor.com https://challenges.cloudflare.com';
+    /*
+     * Safe CSP split (CSP3):
+     * - script-src keeps 'unsafe-inline' for old browsers
+     * - script-src-elem uses nonce only (blocks XSS-injected <script> in modern browsers)
+     * - script-src-attr keeps onclick= working until handlers are migrated
+     * - style-src keeps 'unsafe-inline' (many style="" attributes site-wide)
+     * Kill-switch: csp_script_nonce=0 → emit legacy single script-src with unsafe-inline only
+     */
+    $_cspScriptNonce = true;
+    if (defined('CSP_SCRIPT_NONCE')) {
+        $_cspScriptNonce = (bool) CSP_SCRIPT_NONCE;
+    } elseif (function_exists('getSetting')) {
+        $_cspScriptNonce = (string) getSetting('csp_script_nonce', '1') !== '0';
+    }
+
     $_cspPolicy = "default-src 'self'; "
+        . "object-src 'none'; "
         . "img-src 'self' data: blob: https:; "
         . "media-src 'self' blob: https:; "
         . "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; "
+        . "style-src-attr 'unsafe-inline'; "
         . "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com https://unpkg.com; "
-        . "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com https://cdn.ckeditor.com https://challenges.cloudflare.com; "
+        . "script-src 'self' 'unsafe-inline' {$_cspHosts}; "
+        . "script-src-attr 'unsafe-inline'; "
         . "connect-src 'self' https:; "
         . "frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com https://www.youtube-nocookie.com https://www.facebook.com https://challenges.cloudflare.com; "
         . "worker-src 'self' blob: https://cdn.ckeditor.com https://cdn.jsdelivr.net; "
         . "child-src 'self' blob:; "
         . "frame-ancestors 'self'; base-uri 'self'; form-action 'self';";
+
+    if ($_cspScriptNonce) {
+        $_cspPolicy .= " script-src-elem 'self' 'nonce-{$_cspNonce}' {$_cspHosts};";
+    }
+
     $_cspEnforce = true;
     if (defined('CSP_ENFORCE')) {
         $_cspEnforce = (bool) CSP_ENFORCE;
@@ -2473,7 +2561,7 @@ if (!headers_sent()) {
     } else {
         header('Content-Security-Policy-Report-Only: ' . $_cspPolicy);
     }
-    unset($_cspPolicy, $_cspEnforce);
+    unset($_cspPolicy, $_cspEnforce, $_cspNonce, $_cspHosts, $_cspScriptNonce);
 }
 
 /**
