@@ -147,37 +147,21 @@ if ($trackerIsPost) {
             ? 'Enter a full Tracking ID (example: KYC-20260101-A1B2C3D4), not a short number.'
             : 'पूरा Tracking ID लेख्नुहोस् (उदाहरण: KYC-20260101-A1B2C3D4), छोटो नम्बर होइन।';
 
-    /* ── Phone / Email खोज्दा security code verification ──
-       code = phone को अन्तिम 4 अंक + email को @ अघिका पहिला 3 अक्षर */
+    /* ── Phone / Email: require Tracking ID as real second factor (not derivable from phone/email) ── */
     } elseif (in_array($searchType, ['phone', 'email'])) {
-        $secCode      = trim((string)($_POST['security_code'] ?? ''));
+        $secTracking  = trim((string)($_POST['sec_tracking_id'] ?? $_POST['security_code'] ?? ''));
         $needsVerify  = true;
 
         if (empty($secPhone) || empty($secEmail)) {
             $error = isEnglish()
                 ? 'Please enter both your phone number and email address.'
                 : 'कृपया आफ्नो फोन नम्बर र इमेल दुवै प्रविष्ट गर्नुहोस्।';
-        } elseif (empty($secCode)) {
+        } elseif ($secTracking === '' || !preg_match('/^[A-Za-z]{2,8}-[A-Za-z0-9][A-Za-z0-9\-_.]{4,90}$/', $secTracking)) {
             $error = isEnglish()
-                ? 'Please enter the security verification code.'
-                : 'कृपया सुरक्षा प्रमाणीकरण कोड प्रविष्ट गर्नुहोस्।';
+                ? 'Enter the full Tracking ID from your application receipt (example: KYC-20260101-A1B2C3D4).'
+                : 'आवेदन रसिदको पूरा Tracking ID लेख्नुहोस् (उदाहरण: KYC-20260101-A1B2C3D4)।';
         } else {
-            $phonePart = preg_replace('/\D/', '', $secPhone);
-            $last4     = strlen($phonePart) >= 4 ? substr($phonePart, -4) : $phonePart;
-            $emailPart = '';
-            if ($secEmail && strpos($secEmail, '@') !== false) {
-                $emailPart = strtolower(substr($secEmail, 0, strpos($secEmail, '@')));
-                $emailPart = substr($emailPart, 0, 3);
-            }
-            $expectedCode = strtolower($last4 . $emailPart);
-
-            if (strtolower($secCode) === $expectedCode) {
-                $verificationOk = true;
-            } else {
-                $error = isEnglish()
-                    ? 'Verification code does not match. Please check phone/email and code.'
-                    : 'सुरक्षा कोड मिलेन। फोन/इमेल र कोड पुनः जाँच गर्नुहोस्।';
-            }
+            $verificationOk = true;
         }
     } elseif ($searchType === 'tracking_id' && $searchValue !== '') {
         /* Tracking ID खोज्दा verification आवश्यक छैन (खाली = माथि नै error) */
@@ -443,13 +427,20 @@ if ($trackerIsPost) {
                 if ($memJoinResults) $allResults = array_merge($allResults, $memJoinResults);
             } catch (Exception $e) {}
 
-            /* Phone/email खोज: दुवै contact मिलेका row मात्र (faux-code बाट leak रोक्न) */
+            /* Phone/email खोज: दुवै contact + Tracking ID मिलेका row मात्र */
             if (in_array($searchType, ['phone', 'email'], true)) {
                 $phoneDigits = trackerNormalizePhone((string)$secPhone);
                 $emailNorm = strtolower(trim((string)$secEmail));
+                $trackNorm = strtoupper(trim((string)($_POST['sec_tracking_id'] ?? $_POST['security_code'] ?? '')));
                 $allResults = array_values(array_filter(
                     $allResults,
-                    static fn(array $r): bool => trackerRowMatchesBothContacts($r, $phoneDigits, $emailNorm)
+                    static function (array $r) use ($phoneDigits, $emailNorm, $trackNorm): bool {
+                        if (!trackerRowMatchesBothContacts($r, $phoneDigits, $emailNorm)) {
+                            return false;
+                        }
+                        $tid = strtoupper(trim((string)($r['tracking_id'] ?? '')));
+                        return $tid !== '' && $tid === $trackNorm;
+                    }
                 ));
             }
 
@@ -784,7 +775,7 @@ function getAppTypeLabel($type) {
 
                                 <!-- ── Security Verification Section ──
                                      Phone / Email बाट खोज्दा मात्र देखिन्छ (JS ले control गर्छ)
-                                     Code format: phone last 4 + email first 3 -->
+                                     Real second factor: full Tracking ID from application receipt -->
                                 <div id="verifySection" class="col-12" style="display:none">
                                     <div class="card tracker-verify-card">
                                         <div class="card-body py-3">
@@ -794,8 +785,8 @@ function getAppTypeLabel($type) {
                                             </h6>
                                             <p class="text-muted small mb-3" id="verifySectionDesc">
                                                 <?php echo isEnglish()
-                                                    ? 'Enter phone and email used during application, then type security code (last 4 digits of phone + first 3 letters before @ in email).'
-                                                    : 'आवेदनमा प्रयोग गरेको फोन र इमेल राख्नुहोस्, अनि सुरक्षा कोड टाइप गर्नुहोस् (फोनको अन्तिम ४ अंक + इमेलको @ अघिका पहिला ३ अक्षर)।'; ?>
+                                                    ? 'Enter the phone and email used when applying, plus the full Tracking ID from your receipt/email.'
+                                                    : 'आवेदनमा प्रयोग गरेको फोन र इमेल, अनि रसिद/इमेलमा आएको पूरा Tracking ID लेख्नुहोस्।'; ?>
                                             </p>
                                             <div class="row g-2 mb-3">
                                                 <div class="col-md-4">
@@ -815,29 +806,20 @@ function getAppTypeLabel($type) {
                                                            value="<?php echo htmlspecialchars($_POST['sec_email'] ?? ''); ?>">
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <label for="securityCode" class="form-label small"><i class="fas fa-key me-1 tracker-ico-warn"></i>
-                                                        <?php echo isEnglish() ? 'Security Code' : 'सुरक्षा कोड'; ?>
+                                                    <label for="secTrackingId" class="form-label small"><i class="fas fa-key me-1 tracker-ico-warn"></i>
+                                                        <?php echo isEnglish() ? 'Tracking ID (from receipt)' : 'Tracking ID (रसिदबाट)'; ?>
                                                     </label>
-                                                    <div class="input-group">
-                                                        <input type="password" name="security_code" id="securityCode" class="form-control"
-                                                               placeholder="<?php echo isEnglish() ? 'e.g. 7000ram' : 'जस्तै: 7000ram'; ?>"
-                                                               maxlength="12" autocomplete="off">
-                                                        <button class="btn btn-outline-secondary" type="button"
-                                                                id="secCodeToggle"
-                                                                onclick="(function(){var f=document.getElementById('securityCode'),b=document.getElementById('secCodeToggle'),i=b.querySelector('i');if(!f)return;var show=f.type==='password';f.type=show?'text':'password';i.classList.toggle('fa-eye',!show);i.classList.toggle('fa-eye-slash',show);b.setAttribute('title',show?'<?php echo isEnglish()?"Hide":"लुकाउनुहोस्"; ?>':'<?php echo isEnglish()?"Show":"देखाउनुहोस्"; ?>');b.setAttribute('aria-label',show?'<?php echo isEnglish()?"Hide security code":"सुरक्षा कोड लुकाउनुहोस्"; ?>':'<?php echo isEnglish()?"Show security code":"सुरक्षा कोड देखाउनुहोस्"; ?>');})();"
-                                                                title="<?php echo isEnglish() ? 'Show security code' : 'सुरक्षा कोड देखाउनुहोस्'; ?>"
-                                                                aria-label="<?php echo isEnglish() ? 'Show security code' : 'सुरक्षा कोड देखाउनुहोस्'; ?>"
-                                                                style="border-left:0;color:#6b7280;">
-                                                            <i class="fas fa-eye" aria-hidden="true"></i>
-                                                        </button>
-                                                    </div>
+                                                    <input type="text" name="sec_tracking_id" id="secTrackingId" class="form-control"
+                                                           placeholder="<?php echo isEnglish() ? 'e.g. KYC-20260101-A1B2C3D4' : 'जस्तै: KYC-20260101-A1B2C3D4'; ?>"
+                                                           value="<?php echo htmlspecialchars($_POST['sec_tracking_id'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                                                           autocomplete="off">
                                                 </div>
                                             </div>
                                             <div class="small rounded-2 p-2 tracker-verify-rule">
                                                 <i class="fas fa-info-circle tracker-ico-warn me-1"></i>
                                                 <?php echo isEnglish()
-                                                    ? 'Code rule: last 4 digits of phone + first 3 letters of email before @ (example: 9827157000 + ram@gmail.com => 7000ram).'
-                                                    : 'कोड बनाउने नियम: फोनको अन्तिम ४ अंक + इमेलको @ अघिका पहिला ३ अक्षर (उदाहरण: 9827157000 + ram@gmail.com => 7000ram)।'; ?>
+                                                    ? 'Phone + email alone is not enough. Tracking ID proves you received the application confirmation.'
+                                                    : 'फोन र इमेल मात्र पर्याप्त छैन। Tracking ID ले आवेदन पुष्टि पाएको प्रमाणित गर्छ।'; ?>
                                             </div>
                                         </div>
                                     </div>

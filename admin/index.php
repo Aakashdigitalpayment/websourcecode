@@ -145,6 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
     if (!empty($_POST['do_admin_2fa'])) {
         if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
             $error = 'Security error.';
+        } elseif (!checkRateLimit('admin_2fa', 8, 900)) {
+            $error = 'धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।';
         } else {
             $pending = $_SESSION['admin_2fa_pending'] ?? null;
             if (!is_array($pending) || empty($pending['id'])) {

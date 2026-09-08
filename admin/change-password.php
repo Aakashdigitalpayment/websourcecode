@@ -32,8 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         setFlash('error', 'सबै फिल्डहरू भर्नुहोस्।');
     } elseif ($newPassword !== $confirmPassword) {
         setFlash('error', 'नयाँ पासवर्ड र पुष्टि पासवर्ड मेल खाएन।');
-    } elseif (strlen($newPassword) < 6) {
-        setFlash('error', 'पासवर्ड कम्तिमा ६ अक्षर हुनुपर्छ।');
+    } elseif (strlen($newPassword) < 8) {
+        setFlash('error', 'पासवर्ड कम्तिमा ८ अक्षर हुनुपर्छ।');
     } else {
         try {
             $db = getDB();
@@ -125,7 +125,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                         <label for="admin_new_password" class="form-label">नयाँ पासवर्ड <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-key"></i></span>
-                            <input type="password" name="new_password" id="admin_new_password" class="form-control" minlength="6" required autocomplete="new-password">
+                            <input type="password" name="new_password" id="admin_new_password" class="form-control" minlength="8" required autocomplete="new-password">
                         </div>
                         <small class="text-muted">कम्तिमा ६ अक्षर</small>
                     </div>
@@ -134,7 +134,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                         <label for="admin_confirm_password" class="form-label">नयाँ पासवर्ड पुष्टि गर्नुहोस् <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-key"></i></span>
-                            <input type="password" name="confirm_password" id="admin_confirm_password" class="form-control" minlength="6" required autocomplete="new-password">
+                            <input type="password" name="confirm_password" id="admin_confirm_password" class="form-control" minlength="8" required autocomplete="new-password">
                         </div>
                     </div>
 

@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $smsSender = getSetting('notify_sms_sender_id', 'COOP');
                         if (getSetting('notify_sms_enabled', '0') === '1' && $smsToken) {
                             $smsTxt = 'आकाश सहकारी: ' . $companyName . ' को भेन्डर आवेदन दर्ता भयो। Tracking ID: ' . $vndTrackingId . '. हामी छिट्टै सम्पर्क गर्नेछौं।';
-                            $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+                            $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
                             curl_setopt_array($ch, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query(['token'=>$smsToken,'from'=>$smsSender,'to'=>$cleanPhone,'text'=>mb_substr($smsTxt,0,160)]),CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>10,CURLOPT_SSL_VERIFYPEER=>true]);
                             curl_exec($ch); curl_close($ch);
                         }

@@ -256,7 +256,7 @@ function sendSMSNotification($eventType, $message) {
         try {
             if ($gateway === 'sparrow') {
                 /* Sparrow SMS API */
-                $apiUrl = 'http://api.sparrowsms.com/v2/sms/';
+                $apiUrl = 'https://api.sparrowsms.com/v2/sms/';
                 $postData = http_build_query([
                     'token'  => $apiToken,
                     'from'   => $senderId,
@@ -664,7 +664,7 @@ function sendMemberStatusUpdate(
             if ($apiToken) {
                 try {
                     if ($gateway === 'sparrow') {
-                        $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+                        $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
                         curl_setopt_array($ch, [
                             CURLOPT_POST           => true,
                             CURLOPT_POSTFIELDS     => http_build_query(['token'=>$apiToken,'from'=>$senderId,'to'=>$phone,'text'=>$smsText]),

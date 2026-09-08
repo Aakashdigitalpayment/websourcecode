@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $smsText = mb_substr($smsText, 0, 160);
                             $ph = preg_replace('/[^0-9]/', '', $phone);
                             if (strlen($ph) >= 10) {
-                                $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+                                $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
                                 curl_setopt_array($ch, [
                                     CURLOPT_POST           => true,
                                     CURLOPT_POSTFIELDS     => http_build_query(['token'=>$apiToken,'from'=>$senderId,'to'=>$ph,'text'=>$smsText]),

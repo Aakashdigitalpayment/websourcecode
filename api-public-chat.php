@@ -25,6 +25,16 @@ $name    = trim((string) ($_POST['name'] ?? ''));
 $contact = trim((string) ($_POST['contact'] ?? ''));
 $body    = trim((string) ($_POST['body'] ?? ''));
 
+if (!verifyCSRFToken((string) ($_POST['csrf_token'] ?? ''))) {
+    http_response_code(403);
+    echo json_encode([
+        'ok' => false,
+        'msg' => $en ? 'Security check failed. Please refresh the page.' : 'सुरक्षा जाँच असफल। पेज refresh गर्नुहोस्।',
+        'math' => coop_public_form_math_payload('live_chat', $en),
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 $block = coop_contact_guard_block_reason(
     $_POST,
     [$name, $body],

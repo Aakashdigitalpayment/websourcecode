@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $smsTxt = 'आकाश सहकारी: तपाईंको खाता खोल्ने आवेदन दर्ता भयो। Tracking ID: ' . $accTrackingId . '. हामी चाँडै सम्पर्क गर्नेछौं।';
                             $ph = preg_replace('/[^0-9]/', '', $mobile);
                             if (strlen($ph) >= 10) {
-                                $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+                                $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
                                 curl_setopt_array($ch, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query(['token'=>$smsToken,'from'=>$smsSender,'to'=>$ph,'text'=>mb_substr($smsTxt,0,160)]),CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>10,CURLOPT_SSL_VERIFYPEER=>true]);
                                 curl_exec($ch); curl_close($ch);
                             }

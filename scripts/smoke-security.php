@@ -291,8 +291,19 @@ assertFileContains('admin/notification-settings.php', 'autocomplete="off"', 'not
 assertFileContains('includes/header.php', 'class="skip-link"', 'skip link present');
 assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'English\'', 'EN lang aria-label');
 assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'Nepali\'', 'NP lang aria-label');
-assertFileContains('application-tracker.php', 'id="secCodeToggle"', 'security code toggle');
-assertFileContains('application-tracker.php', 'aria-label="<?php echo isEnglish() ? \'Show security code\'', 'security code toggle aria-label');
+assertFileContains('application-tracker.php', 'name="sec_tracking_id"', 'tracker phone/email requires tracking id factor');
+assertFileContains('application-tracker.php', 'Phone + email alone is not enough', 'tracker help text updated');
+assertFileNotContains('application-tracker.php', '7000ram', 'old derivable security code removed');
+assertFileContains('api-public-chat.php', 'verifyCSRFToken', 'public chat CSRF');
+assertFileContains('api-ai-chat.php', 'verifyCSRFToken', 'AI chat CSRF');
+assertFileContains('includes/footer.php', "method=\"post\"", 'live chat form posts with method');
+assertFileContains('member/login.php', "checkRateLimit('member_2fa'", 'member 2FA rate limit');
+assertFileContains('admin/index.php', "checkRateLimit('admin_2fa'", 'admin 2FA rate limit');
+assertFileContains('deploy/nginx-security.conf', 'location ^~ /includes/', 'nginx security mirror for includes');
+assertFileNotContains('includes/notifications.php', 'http://api.sparrowsms.com', 'notifications SMS uses HTTPS');
+assertFileContains('member/profile.php', 'minlength="8"', 'member profile password min 8');
+assertFileContains('admin/change-password.php', 'minlength="8"', 'admin change password min 8');
+
 
 // CDN Subresource Integrity (pinned versions)
 $chartSri = 'integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"';

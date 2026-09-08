@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'approve_reset') {
         $requestId   = (int)($_POST['request_id'] ?? 0);
         $newPassword = $_POST['new_password'] ?? '';
-        if ($requestId && strlen($newPassword) >= 6) {
+        if ($requestId && strlen($newPassword) >= 8) {
             $ok = adminApprovePasswordReset($requestId, $adminId, $newPassword);
             if ($ok) {
                 setFlash('success', 'पासवर्ड Reset स्वीकृत भयो र member लाई notification पठाइयो!');
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setFlash('error', 'Reset स्वीकृत गर्न सकिएन।');
             }
         } else {
-            setFlash('error', 'नयाँ पासवर्ड कम्तीमा ६ अक्षर हुनुपर्छ।');
+            setFlash('error', 'नयाँ पासवर्ड कम्तीमा ८ अक्षर हुनुपर्छ।');
         }
         redirect('member-online-portal.php?tab=resets');
     }
@@ -816,7 +816,7 @@ if ($vmPhotoSrc !== '' && strpos($vmPhotoSrc, 'http') !== 0) {
                                 <div class="modal-body">
                                     <div class="mb-3">
                                         <label for="mop_new_password" class="form-label fw-bold"><?php echo $__t('नयाँ अस्थायी पासवर्ड', 'New Temporary Password'); ?> <span class="text-danger">*</span></label>
-                                        <input type="text" name="new_password" id="mop_new_password" class="form-control" required minlength="6" placeholder="<?php echo $__t('कम्तीमा ६ अक्षर', 'Minimum 6 characters'); ?>">
+                                        <input type="text" name="new_password" id="mop_new_password" class="form-control" required minlength="8" placeholder="<?php echo $__t('कम्तीमा ८ अक्षर', 'Minimum 8 characters'); ?>">
                                         <div class="form-text text-muted"><?php echo $__t('Member लाई यो पासवर्ड दिनुहोस् र login पछि बदल्न भन्नुहोस्।', 'Share this password with member and ask to change after login.'); ?></div>
                                     </div>
                                 </div>

@@ -1042,7 +1042,7 @@ function memberRequestPasswordReset($memberId) {
 /* ─── Password Reset: Admin approves ─── */
 function adminApprovePasswordReset($requestId, $adminId, $newPassword) {
     global $db;
-    if (!$db || !$newPassword || strlen($newPassword) < 6) return false;
+    if (!$db || !$newPassword || strlen($newPassword) < 8) return false;
     $st = $db->prepare("SELECT * FROM member_password_reset_requests WHERE id=? AND status='pending'");
     $st->execute([$requestId]);
     $req = $st->fetch(PDO::FETCH_ASSOC);
@@ -1327,7 +1327,7 @@ function sendDirectSMS($phone, $text) {
     if (!$apiToken) return false;
     try {
         if ($gateway === 'sparrow') {
-            $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+            $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
             curl_setopt_array($ch,[CURLOPT_POST=>true,CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>8,
                 CURLOPT_SSL_VERIFYPEER=>true,
                 CURLOPT_POSTFIELDS=>http_build_query(['token'=>$apiToken,'from'=>$senderId,'to'=>$phone,'text'=>mb_substr($text,0,160)])]);
@@ -1413,8 +1413,10 @@ function verifyOTP($memberId, $otpCode, $purpose = 'password_reset') {
         $expect = hash_hmac('sha256', $given, function_exists('coopAuthSecret') ? coopAuthSecret() : 'otp');
         $ok = hash_equals($stored, $expect);
     } else {
-        /* Legacy plaintext rows (pre-hash migration) */
-        $ok = hash_equals($stored, $given);
+        /* Reject legacy plaintext OTP rows — force a fresh OTP send. */
+        $ok = false;
+        $db->prepare("UPDATE member_otp_tokens SET is_used=1 WHERE id=?")->execute([$row['id']]);
+        return false;
     }
     if (!$ok) {
         $db->prepare("UPDATE member_otp_tokens SET attempts=attempts+1 WHERE id=?")->execute([$row['id']]);

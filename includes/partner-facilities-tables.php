@@ -97,7 +97,7 @@ if (!function_exists('partnerGenerateCode')) {
                 return $code;
             }
         }
-        return 'PF-' . strtoupper(substr(md5(uniqid('', true)), 0, 8));
+        return 'PF-' . strtoupper(bin2hex(random_bytes(4)));
     }
 }
 

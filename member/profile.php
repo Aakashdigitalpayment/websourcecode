@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_password'])) {
         $isOAuthOnly = empty($mem['password_hash']);  /* OAuth account, no password yet */
 
         if (!$newpw) $error = 'नयाँ पासवर्ड राख्नुहोस्।';
-        elseif (strlen($newpw) < 6) $error = 'नयाँ पासवर्ड कम्तीमा ६ अक्षर हुनुपर्छ।';
+        elseif (strlen($newpw) < 8) $error = 'नयाँ पासवर्ड कम्तीमा ८ अक्षर हुनुपर्छ।';
         elseif ($newpw !== $confirm) $error = 'नयाँ पासवर्ड र Confirm मिलेन।';
         elseif (!$isOAuthOnly && !password_verify($current, $mem['password_hash'])) {
             /* Existing password change — current must match */
@@ -380,11 +380,11 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <?php endif; ?>
                         <div class="mem-field">
                             <label for="mem_new_pw">नयाँ पासवर्ड</label>
-                            <input type="password" name="new_pw" id="mem_new_pw" required placeholder="कम्तीमा ६ अक्षर" minlength="6" autocomplete="new-password">
+                            <input type="password" name="new_pw" id="mem_new_pw" required placeholder="कम्तीमा ८ अक्षर" minlength="8" autocomplete="new-password">
                         </div>
                         <div class="mem-field">
                             <label for="mem_confirm_pw">पुनः नयाँ पासवर्ड</label>
-                            <input type="password" name="confirm_pw" id="mem_confirm_pw" required placeholder="माथिको जस्तै" minlength="6" autocomplete="new-password">
+                            <input type="password" name="confirm_pw" id="mem_confirm_pw" required placeholder="माथिको जस्तै" minlength="8" autocomplete="new-password">
                         </div>
                         <button type="submit" class="mem-submit-btn" style="background:linear-gradient(135deg,#374151,#1f2937);">
                             <i class="fas fa-key me-2"></i><?php echo $hasPwd ? 'पासवर्ड बदल्नुहोस्' : 'पासवर्ड सेट गर्नुहोस्'; ?>

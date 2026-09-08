@@ -114,6 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
         $error = $_t('Security error. Page refresh गर्नुहोस्।', 'Security error. Please refresh the page.');
+    } elseif (!checkRateLimit('member_2fa', 8, 900)) {
+        $error = $_t('धेरै पटक 2FA प्रयास। कृपया १५ मिनेटपछि प्रयास गर्नुहोस्।', 'Too many 2FA attempts. Please try again after 15 minutes.');
     } else {
         $pending = $_SESSION['member_2fa_pending'] ?? null;
         if (!is_array($pending) || empty($pending['id'])) {

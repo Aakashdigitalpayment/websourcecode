@@ -1281,7 +1281,8 @@ if ($__uiTestMode):
   $__pcpEn = function_exists('isEnglish') && isEnglish();
   $__pcpMath = coop_math_challenge_issue('live_chat');
   ?>
-  <form class="pcp-body" id="publicChatForm" novalidate>
+  <form class="pcp-body" id="publicChatForm" method="post" novalidate>
+    <?php echo function_exists('csrfField') ? csrfField() : ''; ?>
     <label for="pcp_name">तपाईंको नाम *</label>
     <input type="text" name="name" id="pcp_name" maxlength="80" required autocomplete="name">
     <label for="pcp_contact">सम्पर्क (फोन/इमेल) — वैकल्पिक</label>
@@ -1311,6 +1312,8 @@ if ($__uiTestMode):
     var btn=f.querySelector('button[type=submit]'); btn.disabled=true; btn.textContent='पठाउँदै ...';
     msg.style.display='none';
     var fd=new FormData(f);
+    var meta=document.querySelector('meta[name="csrf-token"]');
+    if(meta && meta.content && !fd.get('csrf_token')) fd.append('csrf_token', meta.content);
     fetch('<?php echo SITE_URL; ?>api-public-chat.php', {method:'POST', body:fd, credentials:'same-origin'})
       .then(function(r){ return r.json().catch(function(){ return {ok:false,msg:'त्रुटि'}; }); })
       .then(function(d){
@@ -1461,8 +1464,10 @@ if ($__uiTestMode):
     fetch('<?php echo SITE_URL; ?>api-ai-chat.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      credentials: 'same-origin',
       body: JSON.stringify({
         message: msg,
+        csrf_token: (document.querySelector('meta[name="csrf-token"]') || {}).content || '',
         /* Always empty — never read DOM honeypot (browsers autofill name=website). */
         acp_hp: ''
       })

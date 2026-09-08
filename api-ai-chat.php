@@ -24,6 +24,13 @@ if (!is_array($json)) {
     $json = $_POST;
 }
 
+$csrfToken = (string)($json['csrf_token'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
+if (!verifyCSRFToken($csrfToken)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'msg' => 'Security check failed. Please refresh the page.'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 /* Honeypot — obscure name so browsers/password managers do not autofill it.
  * Real clients always send empty acp_hp. Keep HTTP 200 so proxies do not strip JSON. */
 $honeypot = trim((string)($json['acp_hp'] ?? $json['website'] ?? ''));
