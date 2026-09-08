@@ -48,13 +48,7 @@ function trackerRowMatchesBothContacts(array $row, string $phoneDigits, string $
 
 function trackerLegacyNumericId(string $raw, string $prefix): int
 {
-    $raw = trim($raw);
-    if ($raw !== '' && ctype_digit($raw)) {
-        return (int)$raw;
-    }
-    if (preg_match('/^' . preg_quote($prefix, '/') . '-(\d{1,12})$/i', $raw, $m)) {
-        return (int)$m[1];
-    }
+    /* Disabled: sequential GRV-1 / KYC-12 / bare digits enabled public IDOR enumeration. */
     return 0;
 }
 
@@ -104,18 +98,10 @@ if (!isset($_SESSION['tracker_guard'][$trackerGuardKey]) || !is_array($_SESSION[
 }
 
 $trackerIsPost = ($_SERVER['REQUEST_METHOD'] === 'POST');
-$trackerGetDeepLink = (!$trackerIsPost && $prefillTrackingId !== '' && preg_match('/^[A-Za-z0-9][A-Za-z0-9\-_.]{3,95}$/', $prefillTrackingId));
+/* GET ?id= only prefills the form — never auto-loads PII without POST + bot/CSRF checks. */
+$trackerGetDeepLink = false;
 
-if ($trackerIsPost || $trackerGetDeepLink) {
-    if ($trackerGetDeepLink) {
-        /* Tracking ID itself is the credential — allow GET deep-link without CSRF */
-        $searchType = 'tracking_id';
-        $searchValue = $prefillTrackingId;
-        $secPhone = '';
-        $secEmail = '';
-        $verificationOk = true;
-        $needsVerify = false;
-    } else {
+if ($trackerIsPost) {
     $searchType = $_POST['search_type'] ?? 'tracking_id';
     if (!in_array($searchType, ['tracking_id', 'phone', 'email'], true)) {
         $searchType = 'tracking_id';
@@ -139,8 +125,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
         $searchValue = mb_substr($searchValue, 0, $maxSvLen);
     }
 
-    if (in_array($searchType, ['phone', 'email'], true)
-        && (int)($_SESSION['tracker_guard'][$trackerGuardKey]['blocked_until'] ?? 0) > time()) {
+    if ((int)($_SESSION['tracker_guard'][$trackerGuardKey]['blocked_until'] ?? 0) > time()) {
         $remainingMin = (int)ceil((((int)$_SESSION['tracker_guard'][$trackerGuardKey]['blocked_until']) - time()) / 60);
         $error = isEnglish()
             ? 'For your security, this search is temporarily paused. Please try again after ' . $remainingMin . ' minute(s).'
@@ -157,6 +142,10 @@ if ($trackerIsPost || $trackerGetDeepLink) {
     /* ── Tracking ID search — directly verify ── */
     } elseif ($searchType === 'tracking_id' && empty($searchValue)) {
         $error = isEnglish() ? 'Please enter a Tracking ID.' : 'कृपया Tracking ID प्रविष्ट गर्नुहोस्।';
+    } elseif ($searchType === 'tracking_id' && !preg_match('/^[A-Za-z]{2,8}-[A-Za-z0-9][A-Za-z0-9\-_.]{4,90}$/', $searchValue)) {
+        $error = isEnglish()
+            ? 'Enter a full Tracking ID (example: KYC-20260101-A1B2C3D4), not a short number.'
+            : 'पूरा Tracking ID लेख्नुहोस् (उदाहरण: KYC-20260101-A1B2C3D4), छोटो नम्बर होइन।';
 
     /* ── Phone / Email खोज्दा security code verification ──
        code = phone को अन्तिम 4 अंक + email को @ अघिका पहिला 3 अक्षर */
@@ -194,7 +183,6 @@ if ($trackerIsPost || $trackerGetDeepLink) {
         /* Tracking ID खोज्दा verification आवश्यक छैन (खाली = माथि नै error) */
         $verificationOk = true;
     }
-    } /* end POST-only validation */
 
     /* Verification pass भयो — database खोज्छु */
     if ($verificationOk) {
@@ -265,21 +253,13 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($accResults) $allResults = array_merge($allResults, $accResults);
             } catch (Exception $e) {}
 
-            // गुनासो खोज्ने — tracking_id (GRV-YYYYMMDD-XXXXXX) वा legacy numeric id दुवै support
+            // गुनासो खोज्ने — tracking_id string मात्र
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
                     $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
                     $stmt->execute([$rawSv]);
                     $grvResults = $stmt->fetchAll();
-                    if (!$grvResults) {
-                        $legacyId = trackerLegacyNumericId($rawSv, 'GRV');
-                        if ($legacyId > 0) {
-                            $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE id = ?");
-                            $stmt->execute([$legacyId]);
-                            $grvResults = $stmt->fetchAll();
-                        }
-                    }
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'grievance' as app_type FROM grievances WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
@@ -292,21 +272,13 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($grvResults) $allResults = array_merge($allResults, $grvResults);
             } catch (Exception $e) {}
 
-            // केवाइएम आवेदन खोज्ने — tracking_id वा legacy id दुवै support
+            // केवाइएम आवेदन खोज्ने — tracking_id string मात्र
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
                     $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?))");
                     $stmt->execute([$rawSv]);
                     $kycResults = $stmt->fetchAll();
-                    if (!$kycResults) {
-                        $legacyId = trackerLegacyNumericId($rawSv, 'KYC');
-                        if ($legacyId > 0) {
-                            $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE id = ?");
-                            $stmt->execute([$legacyId]);
-                            $kycResults = $stmt->fetchAll();
-                        }
-                    }
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'kyc' as app_type FROM kyc_applications WHERE " . trackerPhoneSqlExpr('mobile') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
@@ -319,29 +291,15 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($kycResults) $allResults = array_merge($allResults, $kycResults);
             } catch (Exception $e) {}
 
-            // लिलामी बोलपत्र खोज्ने
+            // लिलामी बोलपत्र खोज्ने — tracking_id string मात्र (numeric id enumeration बन्द)
             try {
                 if ($searchType === 'tracking_id') {
                     $rawBid = trim($searchValue);
-                    $bidId = 0;
-                    if (preg_match('/^BID-\d{8}-[A-Z0-9]+$/i', $rawBid)) {
-                        $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
-                                              FROM auction_bids ab
-                                              LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                              WHERE UPPER(ab.tracking_id) = UPPER(?)");
-                        $stmt->execute([$rawBid]);
-                    } else {
-                        if (preg_match('/BID-?(\d+)/i', $rawBid, $matches)) {
-                            $bidId = (int) $matches[1];
-                        } elseif (ctype_digit($rawBid)) {
-                            $bidId = (int) $rawBid;
-                        }
-                        $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
-                                              FROM auction_bids ab
-                                              LEFT JOIN auction_notices an ON ab.auction_id = an.id
-                                              WHERE ab.id = ? OR UPPER(COALESCE(ab.tracking_id,'')) = UPPER(?)");
-                        $stmt->execute([$bidId > 0 ? $bidId : 0, $rawBid]);
-                    }
+                    $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
+                                          FROM auction_bids ab
+                                          LEFT JOIN auction_notices an ON ab.auction_id = an.id
+                                          WHERE UPPER(TRIM(COALESCE(ab.tracking_id,''))) = UPPER(TRIM(?))");
+                    $stmt->execute([$rawBid]);
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT ab.*, an.title as auction_title, 'auction_bid' as app_type
                                           FROM auction_bids ab
@@ -359,7 +317,7 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                 if ($bidResults) $allResults = array_merge($allResults, $bidResults);
             } catch (Exception $e) {}
 
-            // भेटघाट बुकिङ खोज्ने — APT-YYYYMMDD-XXXXXX (tracking_id) + legacy APT-###### / numeric id
+            // भेटघाट बुकिङ खोज्ने — tracking_id string मात्र
             try {
                 if ($searchType === 'tracking_id') {
                     $rawSv = trim($searchValue);
@@ -370,20 +328,6 @@ if ($trackerIsPost || $trackerGetDeepLink) {
                     );
                     $stmt->execute([$rawSv]);
                     $apptResults = $stmt->fetchAll();
-                    if (empty($apptResults)) {
-                        $apptId = 0;
-                        // Legacy: एउटै हाइफन पछि अङ्क मात्र (जस्तै APT-000655) — दुई हाइफन भएको APT-20260505-ABC123 बाट अङ्क निकाल्दैन
-                        if (preg_match('/^APT-(\d{1,12})$/i', $rawSv, $m)) {
-                            $apptId = (int) $m[1];
-                        } elseif (ctype_digit($rawSv)) {
-                            $apptId = (int) $rawSv;
-                        }
-                        if ($apptId > 0) {
-                            $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE id = ?");
-                            $stmt->execute([$apptId]);
-                            $apptResults = $stmt->fetchAll();
-                        }
-                    }
                 } elseif ($searchType === 'phone') {
                     $stmt = $db->prepare("SELECT *, 'appointment' as app_type FROM appointments WHERE " . trackerPhoneSqlExpr('phone') . " = ? ORDER BY created_at DESC LIMIT 20");
                     $stmt->execute([$searchValue]);
@@ -535,11 +479,11 @@ if ($trackerIsPost || $trackerGetDeepLink) {
         }
     }
 
-    if ($trackerIsPost && in_array($searchType, ['phone', 'email'], true)) {
+    if ($trackerIsPost) {
         $hasResults = !empty($allResults);
         if ($verificationOk && $hasResults) {
             $_SESSION['tracker_guard'][$trackerGuardKey] = ['fails' => 0, 'blocked_until' => 0];
-        } elseif (!empty($error)) {
+        } elseif (!empty($error) || ($verificationOk && !$hasResults)) {
             $fails = (int)($_SESSION['tracker_guard'][$trackerGuardKey]['fails'] ?? 0) + 1;
             $blockedUntil = 0;
             if ($fails >= $trackerMaxAttempts) {

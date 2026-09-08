@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 require_once __DIR__ . '/includes/vendors-tables.php';
                 ensureVendorsTables($db);
 
-                $vndTrackingId = 'VND-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $vndTrackingId = coop_new_tracking_id('VND');
 
                 $stmt = $db->prepare("INSERT INTO vendors (tracking_id, company_name, owner_name, address, phone, email, pan_no, business_type, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$vndTrackingId, $companyName, $ownerName, $address, $phone, $email, $panNo, $businessType, $description]);

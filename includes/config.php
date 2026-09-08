@@ -494,7 +494,7 @@ function safe_http_url(?string $url): string
 
 /**
  * Per-install HMAC secret — never use a shared public fallback for signing.
- * Priority: AUTH_SECRET → SECRET_KEY → includes/.auth-secret → derived install hash.
+ * Priority: AUTH_SECRET → SECRET_KEY → includes/.auth-secret → auto-create random file.
  */
 function coopAuthSecret(): string
 {
@@ -518,6 +518,17 @@ function coopAuthSecret(): string
             return $cached;
         }
     }
+    /* Prefer a fresh random secret on disk over a predictable host-derived hash. */
+    try {
+        $key = bin2hex(random_bytes(32));
+        if (@file_put_contents($secretFile, $key . "\n", LOCK_EX) !== false) {
+            @chmod($secretFile, 0600);
+            $cached = $key;
+            return $cached;
+        }
+    } catch (Throwable $e) {
+        /* fall through */
+    }
     $seed = (defined('DB_NAME') ? DB_NAME : 'coop')
         . '|' . (defined('DB_HOST') ? DB_HOST : 'localhost')
         . '|' . (defined('SITE_URL') ? SITE_URL : ($_SERVER['HTTP_HOST'] ?? ''));
@@ -526,15 +537,14 @@ function coopAuthSecret(): string
 }
 
 /**
- * Verify HMAC signature — accepts current secret plus legacy fallback (verify-only).
- * Legacy accepts old id-card/tracker links signed before site-specific AUTH_SECRET.
+ * Verify HMAC with the current install secret only (no public shared legacy key).
+ * Optional verify-only extra secret: define COOP_HMAC_LEGACY_SECRET in local config if old links must keep working briefly.
  */
 function coopVerifyHmac(string $payload, string $sig): bool
 {
     $secrets = [coopAuthSecret()];
-    $legacy = 'aakash-fallback-secret-2026';
-    if (!in_array($legacy, $secrets, true)) {
-        $secrets[] = $legacy;
+    if (defined('COOP_HMAC_LEGACY_SECRET') && is_string(COOP_HMAC_LEGACY_SECRET) && COOP_HMAC_LEGACY_SECRET !== '') {
+        $secrets[] = COOP_HMAC_LEGACY_SECRET;
     }
     foreach ($secrets as $secret) {
         $expected = hash_hmac('sha256', $payload, $secret);
@@ -543,6 +553,15 @@ function coopVerifyHmac(string $payload, string $sig): bool
         }
     }
     return false;
+}
+
+/**
+ * Stronger public tracking IDs: PREFIX-YYYYMMDD-XXXXXXXX (32 bits entropy in suffix).
+ */
+function coop_new_tracking_id(string $prefix): string
+{
+    $prefix = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $prefix) ?: 'TRK');
+    return $prefix . '-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4)));
 }
 
 /**

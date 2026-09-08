@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = mb_substr($name, 0, 200, 'UTF-8');
                 $branch = mb_substr($branch, 0, 200, 'UTF-8');
                 try {
-                    $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                    $apptTrackingId = coop_new_tracking_id('APT');
                     appointmentInsertRow($db, [
                         'tracking_id' => $apptTrackingId,
                         'name' => $name,
@@ -297,7 +297,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $name = mb_substr($name, 0, 200, 'UTF-8');
                 $branch = mb_substr($branch, 0, 200, 'UTF-8');
                 try {
-                    $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                    $apptTrackingId = coop_new_tracking_id('APT');
                     appointmentInsertRow($db, [
                         'tracking_id' => $apptTrackingId,
                         'name' => $name,

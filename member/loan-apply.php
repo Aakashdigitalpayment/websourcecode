@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!$errorMsg) {
             try {
-                $loanTrackingId = 'LNP-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $loanTrackingId = coop_new_tracking_id('LNP');
                 $stmt = $db->prepare("INSERT INTO loan_applications
                     (tracking_id, full_name, member_id, mobile, email, address, citizenship_no,
                      loan_type, loan_amount, loan_purpose, loan_tenure, repayment_method,

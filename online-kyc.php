@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'email' => $email,
                         'national_id_number' => $national_id_number,
                     ];
-                    $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
+                    $kycTrackingId = $existingKyc['tracking_id'] ?? (coop_new_tracking_id('KYC'));
                     $linkedKycPk = 0;
                     if ($existingKyc) {
                         $kycWasUpdate = true;
@@ -703,7 +703,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!$isMemberLoggedIn && function_exists('memberSsotPublicGateStore')) {
                         memberSsotPublicGateStore($member_id, (string)$mobile);
                     }
-                    $kycTrackingId = $existingKyc['tracking_id'] ?? ('KYC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6)));
+                    $kycTrackingId = $existingKyc['tracking_id'] ?? (coop_new_tracking_id('KYC'));
                     $want_id_card  = isset($_POST['want_id_card']) ? 1 : 0;
 
                     // v10.4 — extended INSERT (signature, fingerprints, structured address)

@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!$errorMsg) {
             try {
-                $apptTrackingId = 'APT-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $apptTrackingId = coop_new_tracking_id('APT');
                 $stmt = $db->prepare("INSERT INTO appointments (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch) VALUES (?,?,?,?,?,?,?,?,?,?)");
                 $stmt->execute([$apptTrackingId, $memName, $rPhone, $rEmail, $memberId, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
                 /* Reload history */

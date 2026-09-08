@@ -26,14 +26,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if ($act === 'add' || $act === 'edit') {
             $title     = clean_text($_POST['title']    ?? '');
             $title_np  = clean_text($_POST['title_np'] ?? $title);
-            $url       = clean_text($_POST['url']      ?? '');
+            $urlRaw    = clean_text($_POST['url']      ?? '', 500);
+            $url       = function_exists('safe_http_url') ? safe_http_url($urlRaw) : $urlRaw;
             $icon      = clean_text($_POST['icon']     ?? 'fas fa-link');
             $desc      = clean_text($_POST['description'] ?? '');
             $is_popup  = isset($_POST['is_popup'])  ? 1 : 0;
             $order     = (int)($_POST['display_order'] ?? 0);
             $is_active = isset($_POST['is_active']) ? 1 : 0;
 
-            if ($act === 'add') {
+            if ($url === '') {
+                $error = 'URL अमान्य छ। https:// बाट सुरु हुने सुरक्षित लिंक मात्र राख्नुहोस्।';
+            } elseif ($act === 'add') {
                 $db->prepare("INSERT INTO useful_links (title, title_np, url, icon, description, is_popup, display_order, is_active) VALUES (?,?,?,?,?,?,?,?)")
                    ->execute([$title, $title_np, $url, $icon, $desc, $is_popup, $order, $is_active]);
                 $success = 'लिंक सफलतापूर्वक थपियो।';

@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             $errorMsg = $_t('सन्देश / विवरण अनिवार्य छ।', 'Message/description is required.');
         } else {
             $svc       = $serviceTypes[$svcType];
-            $trackingId = 'REQ-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid($memberId,true)),0,6));
+            $trackingId = coop_new_tracking_id('REQ');
             $svcLabel = $serviceTypes[$svcType]['label'] ?? $svcType;
             $corePurpose = $svc['purpose'] ?: 'other';
             $detailPrefix = preg_replace('/^[^\s]+\s*/u', '', $svcLabel);

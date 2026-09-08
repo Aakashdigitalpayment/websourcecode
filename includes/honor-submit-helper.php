@@ -127,7 +127,7 @@ if (!function_exists('submitHonorApplicationUnified')) {
             ];
         }
 
-        $trackingId = 'HNR-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid((string)mt_rand(), true)), 0, 6));
+        $trackingId = coop_new_tracking_id('HNR');
 
         try {
             $stmt = $db->prepare('INSERT INTO honor_applications (

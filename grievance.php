@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Generate tracking ID first
                 $tempId = date('YmdHis') . rand(100, 999);
-                $trackingId = 'GRV-' . date('Ymd') . '-' . strtoupper(substr(md5($tempId), 0, 6));
+                $trackingId = coop_new_tracking_id('GRV');
 
                 // Insert with tracking ID
                 $stmt = $db->prepare("INSERT INTO grievances (tracking_id, name, member_id, phone, email, category, subject, description, attachment, is_anonymous, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");

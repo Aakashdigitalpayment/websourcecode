@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
                 }
             }
 
-            $trackingId = 'JOB-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+            $trackingId = coop_new_tracking_id('JOB');
 
             $stmt = $db->prepare(
                 'INSERT INTO job_applications

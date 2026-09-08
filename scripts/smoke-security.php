@@ -37,6 +37,25 @@ function assertFileContains(string $file, string $needle, string $why): void {
     ok("{$file}: {$why}");
 }
 
+function assertFileNotContains(string $file, string $needle, string $why): void {
+    global $root;
+    $path = $root . '/' . $file;
+    if (!is_file($path)) {
+        fail("{$file}: missing ({$why})");
+        return;
+    }
+    $t = file_get_contents($path);
+    if ($t === false) {
+        fail("{$file}: unreadable ({$why})");
+        return;
+    }
+    if (strpos($t, $needle) !== false) {
+        fail("{$file}: unexpectedly contains `{$needle}` ({$why})");
+        return;
+    }
+    ok("{$file}: {$why}");
+}
+
 function assertNoBareBlankTargets(string $file): void {
     global $root;
     $path = $root . '/' . $file;
@@ -84,7 +103,18 @@ assertFileContains('member/includes/chrome.php', 'MEMBER_PUSH_CSRF', 'push subsc
 assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon class sanitizer');
 assertFileContains('reports.php', 'e(getLangField($report', 'report title output escaped');
 assertFileContains('digital-services.php', 'coop_sanitize_icon_class', 'digital services icon sanitize');
-assertFileContains('application-tracker.php', 'coop_sanitize_icon_class', 'tracker icon sanitize');
+assertFileContains('includes/config.php', 'function coop_new_tracking_id', 'strong tracking id helper');
+assertFileContains('includes/config.php', 'COOP_HMAC_LEGACY_SECRET', 'HMAC legacy only via optional local define');
+assertFileNotContains('includes/config.php', 'aakash-fallback-secret-2026', 'no public shared HMAC fallback');
+assertFileContains('application-tracker.php', 'never auto-loads PII', 'tracker blocks GET auto PII lookup');
+assertFileContains('application-tracker.php', 'Disabled: sequential GRV-1', 'tracker legacy numeric id disabled');
+assertFileContains('includes/member-auth.php', 'hash_hmac(\'sha256\', $otp', 'OTP stored hashed');
+assertFileContains('includes/member-auth.php', 'https://api.sparrowsms.com/v2/sms/', 'Sparrow SMS over HTTPS');
+assertFileContains('admin/useful-links.php', 'safe_http_url', 'useful links URL hardened');
+assertFileContains('includes/footer.php', 'safe_http_url((string)($link[\'url\']', 'footer useful links escaped');
+assertFileContains('member/password-reset-request.php', 'member_otp_send', 'password reset OTP rate limit');
+assertFileContains('member/password-reset-request.php', 'If an account matches these details', 'password reset anti-enumeration');
+
 assertFileContains('downloads.php', 'coop_public_download_url($item', 'download file href guarded');
 assertFileContains('api-public-chat.php', 'contact_messages', 'public chat stores in contact_messages');
 assertFileContains('api-public-chat.php', 'coop_contact_guard_block_reason', 'public chat uses shared contact guard');

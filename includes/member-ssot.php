@@ -303,7 +303,7 @@ if (!function_exists('memberSsotEnsureKycStubFromMember')) {
                 return ['ok' => true, 'created' => false, 'linked' => true, 'kyc_id' => $kycId];
             }
 
-            $trackingId = 'KYC-' . date('Ymd') . '-' . strtoupper(substr(md5('m' . $memberPk . $sid . microtime(true)), 0, 6));
+            $trackingId = function_exists('coop_new_tracking_id') ? coop_new_tracking_id('KYC') : ('KYC-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4))));
             static $hasTrackingCol = null;
             if ($hasTrackingCol === null) {
                 $hasTrackingCol = true;

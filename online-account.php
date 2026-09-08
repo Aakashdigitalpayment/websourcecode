@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
-                $accTrackingId = 'ACC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $accTrackingId = coop_new_tracking_id('ACC');
                 $stmt = $db->prepare("INSERT INTO account_applications (tracking_id, account_type, full_name, full_name_en, dob_bs, dob_ad, gender, marital_status, mobile, email, permanent_address, temporary_address, citizenship_no, citizenship_issued_date, citizenship_issued_place, father_name, mother_name, occupation, monthly_income, initial_deposit, nominee_name, nominee_relation, nominee_phone, branch, photo, citizenship_front, citizenship_back, signature) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$accTrackingId, $account_type, $full_name, $full_name_en, $dob_bs, $dob_ad, $gender, $marital_status, $mobile, $email, $permanent_address, $temporary_address, $citizenship_no, $citizenship_issued_date, $citizenship_issued_place, $father_name, $mother_name, $occupation, $monthly_income, $initial_deposit, $nominee_name, $nominee_relation, $nominee_phone, $branch, $photo, $citizenship_front, $citizenship_back, $signature]);
                 $success = true;

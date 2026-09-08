@@ -47,7 +47,7 @@ if (!function_exists('membershipEnsureTable')) {
 if (!function_exists('membershipNewTrackingId')) {
     function membershipNewTrackingId(): string
     {
-        return 'MEM-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+        return function_exists('coop_new_tracking_id') ? coop_new_tracking_id('MEM') : ('MEM-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4))));
     }
 }
 

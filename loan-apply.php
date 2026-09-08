@@ -194,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 // Generate tracking ID
-                $loanTrackingId = 'LNP-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $loanTrackingId = coop_new_tracking_id('LNP');
 
                 $stmt = $db->prepare("INSERT INTO loan_applications (
                     tracking_id,

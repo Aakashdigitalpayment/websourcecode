@@ -93,7 +93,7 @@ if (!function_exists('welfareHasSupportingDocuments')) {
 if (!function_exists('submitWelfareClaimUnified')) {
     function submitWelfareClaimUnified($db, $payload, $files)
     {
-        $trackingId = 'WLF-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+        $trackingId = coop_new_tracking_id('WLF');
         $claimType = $payload['claim_type'] ?? 'other';
         $claimTypeNp = welfareClaimTypeLabelNp($claimType);
 

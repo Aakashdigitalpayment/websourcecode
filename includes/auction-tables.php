@@ -244,7 +244,9 @@ if (!function_exists('auctionGenerateBidTrackingId')) {
     function auctionGenerateBidTrackingId(?PDO $db = null): string
     {
         for ($i = 0; $i < 8; $i++) {
-            $id = 'BID-' . date('Ymd') . '-' . strtoupper(substr(bin2hex(random_bytes(3)), 0, 6));
+            $id = function_exists('coop_new_tracking_id')
+                ? coop_new_tracking_id('BID')
+                : ('BID-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4))));
             if (!$db instanceof PDO) {
                 return $id;
             }
@@ -258,6 +260,6 @@ if (!function_exists('auctionGenerateBidTrackingId')) {
                 return $id;
             }
         }
-        return 'BID-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 8));
+        return function_exists('coop_new_tracking_id') ? coop_new_tracking_id('BID') : ('BID-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4))));
     }
 }

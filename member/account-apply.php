@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         if (!$errorMsg) {
             try {
                 $submitMobile = $rPhone !== '' ? $rPhone : $memPhone;
-                $accTrackingId = 'ACC-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $accTrackingId = coop_new_tracking_id('ACC');
                 $stmt = $db->prepare("INSERT INTO account_applications
                     (tracking_id, account_type, full_name, full_name_en, dob_bs, gender,
                      mobile, email, permanent_address, citizenship_no,

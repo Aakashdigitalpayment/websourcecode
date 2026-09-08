@@ -290,12 +290,16 @@ try {
                 <button type="button" class="useful-links-close" id="usefulLinksClose" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द गर्नुहोस्'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="x"></i></button>
             </div>
             <div class="useful-links-body">
-                <?php foreach ($usefulLinks as $link): ?>
-                <a href="<?php echo $link['url']; ?>"
+                <?php foreach ($usefulLinks as $link):
+                    $__ulUrl = function_exists('safe_http_url') ? safe_http_url((string)($link['url'] ?? '')) : '';
+                    if ($__ulUrl === '') { continue; }
+                    $__ulTitle = isEnglish() ? ($link['title'] ?? $link['title_np']) : ($link['title_np'] ?? $link['title']);
+                ?>
+                <a href="<?php echo htmlspecialchars($__ulUrl, ENT_QUOTES, 'UTF-8'); ?>"
                    class="useful-link-row"
                    target="_blank" rel="noopener noreferrer">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="link"></i>
-                    <span><?php echo isEnglish() ? ($link['title'] ?? $link['title_np']) : ($link['title_np'] ?? $link['title']); ?></span>
+                    <span><?php echo htmlspecialchars((string)$__ulTitle, ENT_QUOTES, 'UTF-8'); ?></span>
                     <i class="fas fa-external-link-alt link-arrow"></i>
                 </a>
                 <?php endforeach; ?>

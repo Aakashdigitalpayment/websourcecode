@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = isEnglish() ? 'Please enter a valid amount for selected share service.' : 'छानिएको शेयर सेवाको लागि सही रकम राख्नुहोस्।';
         } elseif (!$error) {
             try {
-                $trackingId = 'DSR-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $trackingId = coop_new_tracking_id('DSR');
                 $attachment = '';
                 $needDoc = !empty($serviceTypes[$serviceType]['requires_document']);
                 if (isset($_FILES['attachment']) && (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {

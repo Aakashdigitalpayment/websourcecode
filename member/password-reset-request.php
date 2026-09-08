@@ -43,14 +43,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* ── Step 1: Find member & send OTP ── */
     if ($action === 'send_otp') {
+        if (!checkRateLimit('member_otp_send', 5, 3600)) {
+            $error = $_t('धेरै पटक OTP अनुरोध भयो। कृपया १ घण्टापछि प्रयास गर्नुहोस्।', 'Too many OTP requests. Please try again after 1 hour.');
+        } else {
         $identifier = trim($_POST['identifier'] ?? '');
         $channel    = in_array($_POST['channel'] ?? '', ['sms','email']) ? $_POST['channel'] : 'auto';
         if (!$identifier) {
             $error = $_t('Email वा Sadasyata Number लेख्नुहोस्।', 'Please enter email or member number.');
         } else {
             $member = findMemberForReset($identifier);
+            /* Generic response — do not reveal whether the account exists. */
+            $genericOk = $_t(
+                'यदि यो विवरणसँग खाता छ भने OTP पठाइएको छ (SMS/Email जाँच गर्नुहोस्)।',
+                'If an account matches these details, an OTP has been sent (check SMS/Email).'
+            );
             if (!$member) {
-                $error = $_t('यो email वा sadasyata number मा कुनै खाता भेटिएन।', 'No account found for this email or member number.');
+                $success = $genericOk;
+                $step = 1;
             } else {
                 $result = dispatchOTP($member, $channel);
                 if ($result['sent']) {
@@ -63,9 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif ($result['channel'] === 'none') {
                     $error = $_t('SMS/Email gateway configure भएको छैन। Admin लाई request पठाउनुहोस्।', 'SMS/Email gateway is not configured. Please send admin request.');
                 } else {
-                    $error = $_t('OTP पठाउन सकिएन। केही समय पछि पुनः प्रयास गर्नुहोस्।', 'Could not send OTP. Please try again later.');
+                    /* Still generic when send fails after account found — avoid confirming account */
+                    $success = $genericOk;
+                    $step = 1;
+                    error_log('password-reset OTP send failed for member #' . (int)$member['id']);
                 }
             }
+        }
         }
     }
 
@@ -96,8 +109,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$memberId || !$otpOk) {
             $error = 'Session expired.'; $step = 1;
             unset($_SESSION['pr_member_id'],$_SESSION['pr_otp_ok'],$_SESSION['pr_step']);
-        } elseif (strlen($pass1) < 6) {
-            $error = $_t('पासवर्ड कम्तिमा 6 अक्षरको हुनुपर्छ।', 'Password must be at least 6 characters.'); $step = 3;
+        } elseif (strlen($pass1) < 8) {
+            $error = $_t('पासवर्ड कम्तिमा 8 अक्षरको हुनुपर्छ।', 'Password must be at least 8 characters.'); $step = 3;
         } elseif ($pass1 !== $pass2) {
             $error = $_t('दुवै पासवर्ड मेल खाएनन्।', 'Passwords do not match.'); $step = 3;
         } else {
@@ -112,6 +125,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     /* ── Resend OTP ── */
     elseif ($action === 'resend_otp') {
+        if (!checkRateLimit('member_otp_resend', 5, 3600)) {
+            $error = $_t('धेरै पटक OTP अनुरोध भयो। कृपया पछि प्रयास गर्नुहोस्।', 'Too many OTP requests. Please try again later.');
+            $step = 2;
+        } else {
         $memberId = intval($_SESSION['pr_member_id'] ?? 0);
         $channel  = $_SESSION['pr_channel'] ?? 'auto';
         if ($memberId) {
@@ -125,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($result['sent']) $success = $_t('OTP फेरि पठाइयो।', 'OTP resent.');
                 else $error = $_t('OTP पठाउन सकिएन।', 'Could not send OTP.');
             }
+        }
         }
     }
 
@@ -326,7 +344,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
         <label for="pw1" class="form-label fw-semibold small"><?php echo $_t('नयाँ पासवर्ड', 'New Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password" id="pw1" class="form-control"
-                 placeholder="<?php echo $_t('कम्तिमा 6 अक्षर', 'At least 6 characters'); ?>" minlength="6" required autofocus autocomplete="new-password">
+                 placeholder="<?php echo $_t('कम्तिमा 8 अक्षर', 'At least 8 characters'); ?>" minlength="8" required autofocus autocomplete="new-password">
           <button type="button" class="btn btn-outline-secondary" onclick="tpw('pw1', this)" aria-label="Show password" aria-pressed="false" title="Show password">
             <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
           </button>
@@ -336,7 +354,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
         <label for="pw2" class="form-label fw-semibold small"><?php echo $_t('पासवर्ड पुष्टि गर्नुहोस्', 'Confirm Password'); ?> <span class="text-danger">*</span></label>
         <div class="input-group">
           <input type="password" name="password_confirm" id="pw2" class="form-control"
-                 placeholder="<?php echo $_t('फेरि लेख्नुहोस्', 'Enter again'); ?>" minlength="6" required autocomplete="new-password">
+                 placeholder="<?php echo $_t('फेरि लेख्नुहोस्', 'Enter again'); ?>" minlength="8" required autocomplete="new-password">
           <button type="button" class="btn btn-outline-secondary" onclick="tpw('pw2', this)" aria-label="Show password" aria-pressed="false" title="Show password">
             <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
           </button>

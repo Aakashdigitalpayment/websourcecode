@@ -279,7 +279,7 @@ function ensureMemberTables() {
     $db->exec("CREATE TABLE IF NOT EXISTS member_otp_tokens (
         id          INT AUTO_INCREMENT PRIMARY KEY,
         member_id   INT NOT NULL,
-        otp_code    VARCHAR(10) NOT NULL,
+        otp_code    VARCHAR(128) NOT NULL,
         purpose     VARCHAR(50) DEFAULT 'password_reset',
         channel     VARCHAR(10) DEFAULT 'sms',
         sent_to     VARCHAR(200),
@@ -289,6 +289,9 @@ function ensureMemberTables() {
         created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX (member_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    try {
+        $db->exec("ALTER TABLE member_otp_tokens MODIFY otp_code VARCHAR(128) NOT NULL");
+    } catch (\Throwable $e2) { /* already wide */ }
     } catch (\Throwable $e) {
         error_log('[ensureMemberTables otp] ' . $e->getMessage());
     }
@@ -1368,7 +1371,9 @@ function findMemberForReset($identifier) {
  */
 function generateAndStoreOTP($memberId, $channel, $sentTo, $purpose = 'password_reset') {
     $db  = getDB();
-    $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+    /* Store HMAC hash — never keep plaintext OTP in DB */
+    $otpHash = hash_hmac('sha256', $otp, function_exists('coopAuthSecret') ? coopAuthSecret() : 'otp');
     /* Invalidate old OTPs for same member/purpose */
     $db->prepare("UPDATE member_otp_tokens SET is_used=1
                   WHERE member_id=? AND purpose=? AND is_used=0")
@@ -1377,7 +1382,7 @@ function generateAndStoreOTP($memberId, $channel, $sentTo, $purpose = 'password_
     $db->prepare("INSERT INTO member_otp_tokens
                     (member_id, otp_code, purpose, channel, sent_to, expires_at)
                   VALUES (?, ?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 10 MINUTE))")
-       ->execute([$memberId, $otp, $purpose, $channel, $sentTo]);
+       ->execute([$memberId, $otpHash, $purpose, $channel, $sentTo]);
     return $otp;
 }
 
@@ -1401,7 +1406,17 @@ function verifyOTP($memberId, $otpCode, $purpose = 'password_reset') {
         $db->prepare("UPDATE member_otp_tokens SET is_used=1 WHERE id=?")->execute([$row['id']]);
         return false;
     }
-    if ($row['otp_code'] !== trim($otpCode)) {
+    $given = trim((string) $otpCode);
+    $stored = (string) ($row['otp_code'] ?? '');
+    $ok = false;
+    if (strlen($stored) === 64 && ctype_xdigit($stored)) {
+        $expect = hash_hmac('sha256', $given, function_exists('coopAuthSecret') ? coopAuthSecret() : 'otp');
+        $ok = hash_equals($stored, $expect);
+    } else {
+        /* Legacy plaintext rows (pre-hash migration) */
+        $ok = hash_equals($stored, $given);
+    }
+    if (!$ok) {
         $db->prepare("UPDATE member_otp_tokens SET attempts=attempts+1 WHERE id=?")->execute([$row['id']]);
         return false;
     }
@@ -1430,7 +1445,7 @@ function sendOTPviaSMS($phone, $otp, $siteName = '') {
 
     try {
         if ($gateway === 'sparrow') {
-            $ch = curl_init('http://api.sparrowsms.com/v2/sms/');
+            $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
             curl_setopt_array($ch, [
                 CURLOPT_POST           => true,
                 CURLOPT_POSTFIELDS     => http_build_query(['token'=>$apiToken,'from'=>$senderId,'to'=>$phone,'text'=>$message]),

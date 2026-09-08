@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!$errorMsg) {
             try {
-                $trackingId = 'GRV-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid('', true)), 0, 6));
+                $trackingId = coop_new_tracking_id('GRV');
                 $attachment = '';
                 if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
                     if (function_exists('uploadFile')) {
