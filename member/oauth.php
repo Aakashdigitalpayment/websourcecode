@@ -25,6 +25,32 @@ function oauthRedirectError($msg) {
     exit;
 }
 
+/** After OAuth identity match — always complete via Google Authenticator 2FA on login page. */
+function oauthFinishWithTwoFa(array $res): void
+{
+    if (isset($res['error'])) {
+        oauthRedirectError($res['error']);
+    }
+    if (empty($res['need_2fa']) || empty($res['id'])) {
+        oauthRedirectError('Login could not complete 2FA challenge.');
+    }
+    $mode = (($res['twofa_mode'] ?? '') === 'verify') ? 'verify' : 'setup';
+    $pending = [
+        'id' => (int) $res['id'],
+        'mode' => $mode,
+        'next' => '',
+    ];
+    if ($mode === 'setup') {
+        $pending['secret'] = (string) ($res['twofa_secret'] ?? '');
+        if ($pending['secret'] === '') {
+            oauthRedirectError('2FA setup secret missing.');
+        }
+    }
+    $_SESSION['member_2fa_pending'] = $pending;
+    header('Location: ' . SITE_URL . 'member/login.php?oauth_2fa=1');
+    exit;
+}
+
 /* State CSRF check — state is ALWAYS required */
 if ($error_p) {
     oauthRedirectError($_t('OAuth रद्द भयो। पुनः प्रयास गर्नुहोस्।', 'OAuth cancelled. Please try again.'));
@@ -78,10 +104,7 @@ if ($provider === 'google') {
     if (!$googleId) oauthRedirectError('Google user ID not received.');
 
     $res = memberOAuthLogin('google', $googleId, $name, $email, $avatarUrl);
-    if (isset($res['error'])) oauthRedirectError($res['error']);
-
-    header('Location: ' . SITE_URL . 'member/?welcome=google');
-    exit;
+    oauthFinishWithTwoFa($res);
 }
 
 /* ── Facebook OAuth ── */
@@ -119,10 +142,7 @@ if ($provider === 'facebook') {
     if (!$fbId) oauthRedirectError('Facebook user ID not received.');
 
     $res = memberOAuthLogin('facebook', $fbId, $name, $email, $avatarUrl);
-    if (isset($res['error'])) oauthRedirectError($res['error']);
-
-    header('Location: ' . SITE_URL . 'member/?welcome=facebook');
-    exit;
+    oauthFinishWithTwoFa($res);
 }
 
 oauthRedirectError($_t('अज्ञात OAuth provider।', 'Unknown OAuth provider.'));

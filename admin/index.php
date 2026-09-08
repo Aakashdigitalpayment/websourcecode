@@ -329,15 +329,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                     $rh->execute([$newHash, $user['id']]);
                 }
 
-                $twoFaRequired = (getSetting('twofa_admin_required', '0') === '1');
                 $secret = trim((string)($user['twofa_secret'] ?? ''));
                 $enabled = ((int)($user['twofa_enabled'] ?? 0) === 1) && $secret !== '';
-                if ($twoFaRequired) {
+                $isSuperAdmin = function_exists('admin_db_role_is_superadmin')
+                    && admin_db_role_is_superadmin($user['role'] ?? '');
+                /*
+                 * Policy (Google Authenticator TOTP):
+                 * - Superadmin: optional (challenge only if already enrolled)
+                 * - All other admin roles: mandatory setup/verify with QR
+                 */
+                $mustTwoFa = !$isSuperAdmin || $enabled;
+                if ($mustTwoFa) {
                     if (!$enabled) {
-                        if ($secret === '') $secret = twoFaGenerateSecret(32);
-                        $_SESSION['admin_2fa_pending'] = ['id' => (int)$user['id'], 'mode' => 'setup', 'secret' => $secret];
+                        if ($secret === '') {
+                            $secret = twoFaGenerateSecret(32);
+                        }
+                        $_SESSION['admin_2fa_pending'] = [
+                            'id' => (int) $user['id'],
+                            'mode' => 'setup',
+                            'secret' => $secret,
+                        ];
                     } else {
-                        $_SESSION['admin_2fa_pending'] = ['id' => (int)$user['id'], 'mode' => 'verify'];
+                        $_SESSION['admin_2fa_pending'] = [
+                            'id' => (int) $user['id'],
+                            'mode' => 'verify',
+                        ];
                     }
                 } else {
                     if (function_exists('site_license_login_blocked_for_user') && site_license_login_blocked_for_user($user)) {
@@ -590,20 +606,30 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
             <input type="hidden" name="do_admin_2fa" value="1">
             <?php if (($admin2faPending['mode'] ?? '') === 'setup'): ?>
                 <div class="alert-error alert-info-soft">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator setup आवश्यक छ।
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i>
+                    Google Authenticator setup आवश्यक छ — QR स्क्यान गर्नुहोस् वा Manual Secret हाल्नुहोस्।
                 </div>
+                <?php if ($admin2faSetupUri !== '' && function_exists('twoFaQrImageUrl')): ?>
+                <div class="field field-compact" style="text-align:center">
+                    <img src="<?php echo htmlspecialchars(twoFaQrImageUrl($admin2faSetupUri, 220), ENT_QUOTES, 'UTF-8'); ?>"
+                         alt="Google Authenticator QR"
+                         width="220" height="220"
+                         style="max-width:220px;height:auto;border-radius:12px;border:1px solid rgba(0,0,0,.08);background:#fff;padding:8px">
+                    <div class="sub" style="margin-top:8px">Google Authenticator / Authy मा Scan गर्नुहोस्</div>
+                </div>
+                <?php endif; ?>
                 <div class="field">
-                    <label>Manual Secret</label>
+                    <label>Manual Secret (Google Authenticator)</label>
                     <div class="input-icon">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="key-round"></i>
                         <input type="text" readonly value="<?php echo htmlspecialchars((string)($admin2faPending['secret'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                     </div>
                 </div>
-                <?php if ($admin2faSetupUri !== ''): ?>
-                <div class="field field-compact">
-                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($admin2faSetupUri); ?>" target="_blank" rel="noopener noreferrer" class="link-primary-strong">QR खोल्नुहोस् (scan गर्न)</a>
+            <?php else: ?>
+                <div class="alert-error alert-info-soft">
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                    Google Authenticator बाट 6-अंकको code राख्नुहोस्।
                 </div>
-                <?php endif; ?>
             <?php endif; ?>
             <div class="field">
                 <label for="admin_twofa_code">2FA Code / Backup Code</label>

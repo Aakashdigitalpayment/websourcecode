@@ -19,8 +19,6 @@ if (empty($_SESSION['is_superadmin'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     checkCSRF();
     try {
-        updateSetting('twofa_admin_required', isset($_POST['twofa_admin_required']) ? '1' : '0');
-        updateSetting('twofa_member_required', isset($_POST['twofa_member_required']) ? '1' : '0');
         updateSetting('csp_enforce', isset($_POST['csp_enforce']) ? '1' : '0');
         updateSetting('csp_script_nonce', isset($_POST['csp_script_nonce']) ? '1' : '0');
         updateSetting('turnstile_site_key', trim((string) ($_POST['turnstile_site_key'] ?? '')));
@@ -35,9 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (function_exists('writeAuditLog')) {
             writeAuditLog(
                 'security_settings_update',
-                'twofa_admin=' . getSetting('twofa_admin_required', '0')
-                    . ' twofa_member=' . getSetting('twofa_member_required', '0')
-                    . ' csp_enforce=' . getSetting('csp_enforce', '1')
+                'csp_enforce=' . getSetting('csp_enforce', '1')
                     . ' csp_script_nonce=' . getSetting('csp_script_nonce', '1')
                     . ' turnstile=' . (getSetting('turnstile_site_key', '') !== '' ? 'on' : 'off'),
                 'settings',
@@ -59,8 +55,6 @@ $t = static function (string $np, string $en) use ($adminIsEn): string {
     return $adminIsEn ? $en : $np;
 };
 
-$adminRequired = getSetting('twofa_admin_required', '0') === '1';
-$memberRequired = getSetting('twofa_member_required', '0') === '1';
 $cspEnforce = getSetting('csp_enforce', '1') !== '0';
 $cspScriptNonce = getSetting('csp_script_nonce', '1') !== '0';
 $turnstileSite = (string) getSetting('turnstile_site_key', '');
@@ -72,8 +66,8 @@ echo adminPageHeader(
     $t('सुरक्षा / 2FA', 'Security / 2FA'),
     'shield-halved',
     $t(
-        'Admin/Member 2FA, CSP, र optional Cloudflare Turnstile — केवल Superadmin।',
-        'Admin/Member 2FA, CSP, and optional Cloudflare Turnstile — Superadmin only.'
+        'Google Authenticator 2FA नीति, CSP, र optional Cloudflare Turnstile — केवल Superadmin।',
+        'Google Authenticator 2FA policy, CSP, and optional Cloudflare Turnstile — Superadmin only.'
     ),
     '<a href="dashboard.php" class="btn btn-sm btn-outline-secondary">Dashboard</a>'
 );
@@ -82,29 +76,20 @@ echo adminPageHeader(
 
 <div class="card shadow-sm border-0 mb-4" style="max-width:640px">
     <div class="card-body">
-        <div class="alert alert-warning py-2 px-3 mb-3">
-            <i class="lucide-icon me-1" aria-hidden="true" data-lucide="lock"></i>
+        <div class="alert alert-info py-2 px-3 mb-3">
+            <i class="lucide-icon me-1" aria-hidden="true" data-lucide="smartphone"></i>
             <?php echo $t(
-                'तलको toggle अनुसार लगइनमा 2FA लागू हुन्छ। अनिवार्य गर्नु अघि सम्बन्धित प्रयोगकर्तासँग Authenticator सेटअप भएको सुनिश्चित गर्नुहोस्।',
-                'Toggles below enforce 2FA at login. Ensure users have Authenticator set up before requiring it.'
+                '2FA = Google Authenticator (TOTP + QR)। नीति: Superadmin ऐच्छिक; अन्य Admin अनिवार्य; Member Portal अनिवार्य (password र Google/Facebook login दुवै)।',
+                '2FA = Google Authenticator (TOTP + QR). Policy: Superadmin optional; other Admins mandatory; Member Portal mandatory (password and Google/Facebook login).'
             ); ?>
         </div>
+        <ul class="small text-muted mb-4 ps-3">
+            <li><?php echo $t('Superadmin — 2FA ऐच्छिक (enroll गरेपछि भने verify चाहिन्छ)', 'Superadmin — 2FA optional (once enrolled, verify is required)'); ?></li>
+            <li><?php echo $t('अन्य Admin / Staff — पहिलो login मा QR setup अनिवार्य', 'Other Admin / Staff — QR setup required on first login'); ?></li>
+            <li><?php echo $t('Member — हरेक login मा Google Authenticator अनिवार्य', 'Member — Google Authenticator required on every login'); ?></li>
+        </ul>
         <form method="post" action="security-settings.php" autocomplete="off">
             <?php echo csrfField(); ?>
-            <div class="form-check form-switch mb-3">
-                <input class="form-check-input" type="checkbox" id="twofa_admin_required" name="twofa_admin_required" value="1"
-                       <?php echo $adminRequired ? 'checked' : ''; ?>>
-                <label class="form-check-label" for="twofa_admin_required">
-                    <?php echo $t('Admin Login मा 2FA अनिवार्य', 'Require 2FA for Admin Login'); ?>
-                </label>
-            </div>
-            <div class="form-check form-switch mb-4">
-                <input class="form-check-input" type="checkbox" id="twofa_member_required" name="twofa_member_required" value="1"
-                       <?php echo $memberRequired ? 'checked' : ''; ?>>
-                <label class="form-check-label" for="twofa_member_required">
-                    <?php echo $t('Member Login मा 2FA अनिवार्य', 'Require 2FA for Member Login'); ?>
-                </label>
-            </div>
 
             <hr class="my-4">
             <h6 class="fw-bold mb-2">

@@ -67,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
                 }
             } else {
                 $m = $res['member'] ?? null;
-                $twoFaRequired = (getSetting('twofa_member_required', '0') === '1');
-                if ($twoFaRequired && is_array($m)) {
+                /* Member portal: Google Authenticator 2FA always mandatory */
+                if (is_array($m)) {
                     $rawNext2fa  = (string)($_GET['next'] ?? '');
                     $siteHost2fa = parse_url(SITE_URL, PHP_URL_HOST);
                     $nextP2fa    = parse_url($rawNext2fa);
@@ -78,7 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
                     $secret = trim((string)($m['twofa_secret'] ?? ''));
                     $enabled = (int)($m['twofa_enabled'] ?? 0) === 1 && $secret !== '';
                     if (!$enabled) {
-                        if ($secret === '') $secret = twoFaGenerateSecret(32);
+                        if ($secret === '') {
+                            $secret = twoFaGenerateSecret(32);
+                        }
                         $_SESSION['member_2fa_pending'] = [
                             'id' => (int)$m['id'],
                             'mode' => 'setup',
@@ -94,16 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
                         ];
                         $info = 'twofa_verify_required';
                     }
-                } else {
-                    if (is_array($m)) {
-                        memberSetSession($m);
-                        try { getDB()->prepare("UPDATE members SET last_login=NOW() WHERE id=?")->execute([(int)$m['id']]); } catch (Throwable $e) {}
-                    }
-                    $rawNext  = $_GET['next'] ?? '';
-                    $siteHost = parse_url(SITE_URL, PHP_URL_HOST);
-                    $nextP    = parse_url($rawNext);
-                    $next     = ($rawNext && (empty($nextP['host']) || $nextP['host'] === $siteHost)) ? $rawNext : SITE_URL . 'member/';
-                    memberSafeRedirect($next);
                 }
             }
         }
@@ -538,11 +530,11 @@ body {
                 <?php echo $_t('तपाईंको खाता Admin को समीक्षामा छ। स्वीकृत भएपछि सूचना पठाइनेछ।', 'Your account is under admin review. You will be notified after approval.'); ?>
             </div>
         <?php endif; ?>
-        <?php if ($info === 'twofa_setup_required'): ?>
-            <div class="alert alert-warning"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i> 2FA setup आवश्यक छ। Google Authenticator मा secret add गरेर code verify गर्नुहोस्।</div>
+        <?php if ($info === 'twofa_setup_required' || (isset($_GET['oauth_2fa']) && (string)$_GET['oauth_2fa'] === '1' && is_array($member2faPending) && ($member2faPending['mode'] ?? '') === 'setup')): ?>
+            <div class="alert alert-warning"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i> Google Authenticator setup आवश्यक छ — QR स्क्यान गरी code verify गर्नुहोस्।</div>
         <?php endif; ?>
-        <?php if ($info === 'twofa_verify_required'): ?>
-            <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> 2FA code verify गरेपछि मात्र login हुन्छ।</div>
+        <?php if ($info === 'twofa_verify_required' || (isset($_GET['oauth_2fa']) && (string)$_GET['oauth_2fa'] === '1' && is_array($member2faPending) && ($member2faPending['mode'] ?? '') === 'verify')): ?>
+            <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> Google Authenticator code verify गरेपछि मात्र login हुन्छ।</div>
         <?php endif; ?>
 
         <?php if (is_array($member2faPending)): ?>
@@ -550,16 +542,19 @@ body {
             <input type="hidden" name="csrf_token" value="<?php echo $csrf; ?>">
             <input type="hidden" name="do_member_2fa" value="1">
             <?php if (($member2faPending['mode'] ?? '') === 'setup'): ?>
-                <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो setup गर्नुहोस्:</div>
+                <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="qr-code"></i> Google Authenticator app मा यो QR स्क्यान गर्नुहोस्:</div>
+                <?php if ($member2faSetupUri !== '' && function_exists('twoFaQrImageUrl')): ?>
+                <div class="twofa-qr-wrap" style="text-align:center;margin:12px 0">
+                    <img src="<?php echo htmlspecialchars(twoFaQrImageUrl($member2faSetupUri, 220), ENT_QUOTES, 'UTF-8'); ?>"
+                         alt="Google Authenticator QR"
+                         width="220" height="220"
+                         style="max-width:220px;height:auto;border-radius:12px;border:1px solid #e5e7eb;background:#fff;padding:8px">
+                </div>
+                <?php endif; ?>
                 <div class="field">
                     <label for="twofa_manual_secret">Manual Secret Key</label>
                     <input type="text" id="twofa_manual_secret" readonly value="<?php echo htmlspecialchars((string)($member2faPending['secret'] ?? '')); ?>" autocomplete="off">
                 </div>
-                <?php if ($member2faSetupUri !== ''): ?>
-                <div class="twofa-qr-wrap">
-                    <a href="https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=<?php echo urlencode($member2faSetupUri); ?>" target="_blank" rel="noopener noreferrer" class="twofa-qr-link">QR खोल्नुहोस् (scan गर्न)</a>
-                </div>
-                <?php endif; ?>
             <?php else: ?>
                 <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i> Google Authenticator code वा backup code राख्नुहोस्।</div>
             <?php endif; ?>

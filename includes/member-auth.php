@@ -760,9 +760,21 @@ function memberOAuthLogin($provider, $providerId, $name, $email, $avatarUrl = ''
         return ['error' => 'OAuth बाट नयाँ खाता सीधा खोल्न मिल्दैन। पहिले Member signup (Member ID + Email + Mobile) गरेर KYC match गर्नुहोस्, त्यसपछि Google/Facebook बाट लगिन गर्नुहोस्।'];
     }
 
-    memberSetSession($m);
-    $db->prepare("UPDATE members SET last_login=NOW() WHERE id=?")->execute([$m['id']]);
-    return ['id' => $m['id']];
+    /* Never skip Google Authenticator 2FA on OAuth — return pending challenge instead of session. */
+    if (!function_exists('twoFaGenerateSecret')) {
+        require_once __DIR__ . '/totp-2fa.php';
+    }
+    $secret = trim((string)($m['twofa_secret'] ?? ''));
+    $enabled = ((int)($m['twofa_enabled'] ?? 0) === 1) && $secret !== '';
+    if (!$enabled && $secret === '') {
+        $secret = twoFaGenerateSecret(32);
+    }
+    return [
+        'id' => (int) $m['id'],
+        'need_2fa' => true,
+        'twofa_mode' => $enabled ? 'verify' : 'setup',
+        'twofa_secret' => $enabled ? '' : $secret,
+    ];
 }
 
 function memberSetSession($m) {

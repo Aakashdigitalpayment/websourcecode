@@ -73,6 +73,16 @@ if (!function_exists('twoFaProvisioningUri')) {
     }
 }
 
+if (!function_exists('twoFaQrImageUrl')) {
+    /** PNG QR for Google Authenticator otpauth:// URI (external image API). */
+    function twoFaQrImageUrl(string $otpauthUri, int $size = 220): string
+    {
+        $size = max(120, min(400, $size));
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size
+            . '&ecc=M&margin=8&data=' . rawurlencode($otpauthUri);
+    }
+}
+
 if (!function_exists('twoFaGenerateBackupCodes')) {
     function twoFaGenerateBackupCodes(int $count = 8): array
     {
