@@ -144,6 +144,9 @@ assertFileContains('member-survey.php', 'coop_public_form_bot_block', 'survey bo
 assertFileContains('application-tracker.php', 'coop_public_form_bot_block', 'tracker bot guard');
 assertFileContains('includes/member-marketplace-public-page.php', 'coop_public_form_bot_block', 'marketplace inquiry bot guard');
 assertFileContains('attend.php', 'coop_public_form_bot_block', 'attendance bot guard');
+assertFileContains('cooperative-programs.php', 'coop_public_form_bot_block', 'program prereg bot guard');
+assertFileContains('cooperative-programs.php', 'coop_public_form_anti_bot_html', 'program prereg anti-bot UI');
+assertFileContains('verify.php', "coop_public_form_bot_block(\$_POST, 'prog_prereg'", 'verify prereg POST bot guard');
 assertFileContains('includes/contact-spam-guard.php', 'function coop_public_form_anti_bot_html', 'reusable anti-bot HTML');
 assertFileContains('includes/contact-spam-guard.php', 'function coop_public_form_bot_block', 'public form bot block helper');
 assertFileContains('admin/security-settings.php', 'turnstile_site_key', 'turnstile keys in security settings');

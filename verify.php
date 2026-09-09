@@ -19,6 +19,7 @@ require_once __DIR__ . '/includes/card-verify-helpers.php';
 require_once __DIR__ . '/includes/program-tables.php';
 require_once __DIR__ . '/includes/member-partner-services-tables.php';
 require_once __DIR__ . '/includes/partner-facilities-tables.php';
+require_once __DIR__ . '/includes/contact-spam-guard.php';
 $_t = static function (string $np, string $en): string {
     return isEnglish() ? $en : $np;
 };
@@ -167,7 +168,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $programId = (int)($_POST['program_id'] ?? 0);
         $memberIdInput = trim((string)($_POST['member_id_input'] ?? ''));
         $note = trim((string)($_POST['prereg_note'] ?? ''));
-        if ($programId <= 0 || $memberIdInput === '') {
+        if (($__bot = coop_public_form_bot_block($_POST, 'prog_prereg', [
+            function_exists('clean_text') ? clean_text($note, 500) : mb_substr($note, 0, 500),
+        ], true)) === 'honeypot') {
+            $preregSaved = true;
+        } elseif ($__bot) {
+            $preregError = coop_public_form_guard_message($__bot, isEnglish());
+        } elseif ($programId <= 0 || $memberIdInput === '') {
             $preregError = $_t('कृपया कार्यक्रम र सदस्यता नं. दुवै भर्नुहोस्।', 'Please fill both program and member number.');
         } else {
             try {

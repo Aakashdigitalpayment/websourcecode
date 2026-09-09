@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once 'includes/program-tables.php';
+require_once 'includes/contact-spam-guard.php';
 $pageTitle = isEnglish() ? 'Cooperative Programs' : 'सहकारी कार्यक्रम';
 $pageDescription = isEnglish()
     ? 'Training, awareness and member programs organized by our cooperative.'
@@ -29,6 +30,15 @@ try {
 
         if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
             $preregError = $_t('सुरक्षा जाँच असफल भयो।', 'Security validation failed.');
+        } elseif (function_exists('checkRateLimit') && !checkRateLimit('program_prereg_public', 12, 3600)) {
+            $preregError = $_t('धेरै पटक प्रयास भयो। केही समयपछि फेरि प्रयास गर्नुहोस्।', 'Too many attempts. Please try again later.');
+        } elseif (($__bot = coop_public_form_bot_block($_POST, 'prog_prereg', [
+            clean_text($preregNoteInput, 500),
+        ], true)) === 'honeypot') {
+            /* Silent success — do not write DB */
+            $preregSaved = true;
+        } elseif ($__bot) {
+            $preregError = coop_public_form_guard_message($__bot, isEnglish());
         } elseif ($preregProgramId <= 0 || $preregMemberInput === '') {
             $preregError = $_t('कृपया कार्यक्रम र सदस्यता नं. दुवै भर्नुहोस्।', 'Please fill program and member ID.');
         } else {
@@ -122,6 +132,8 @@ try {
         $programs = [];
     }
 }
+
+$__cpMath = coop_math_challenge_issue('prog_prereg');
 
 /* Flash from PRG redirect */
 if (!empty($_GET['ok'])) {
@@ -369,6 +381,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                                    placeholder="<?php echo $_t('टिप्पणी (वैकल्पिक)', 'Note (optional)'); ?>"
                                                    value="<?php echo htmlspecialchars($preregProgramId === (int)$pg['id'] ? $preregNoteInput : ''); ?>">
                                         </div>
+                                        <?php echo coop_public_form_anti_bot_html('prog_prereg', 'cp' . (int)$pg['id'], isEnglish(), 'col-12', $__cpMath); ?>
                                         <div class="col-12">
                                             <button type="submit" class="btn btn-sm btn-primary">
                                                 <i class="fas fa-check-circle me-1"></i><?php echo $_t('Registration Confirm', 'Confirm Registration'); ?>
