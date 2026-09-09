@@ -250,14 +250,32 @@
     window.addEventListener('pageshow', function () {
         document.querySelectorAll('form[data-submitting="1"]').forEach(function (form) {
             form.removeAttribute('data-submitting');
-            form.querySelectorAll('button[type="submit"][aria-busy="true"], input[type="submit"][aria-busy="true"]').forEach(function (btn) {
+            form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (btn) {
+                if (btn.getAttribute('aria-busy') !== 'true' && !btn.dataset.origLabel && !btn.dataset.origHtml) {
+                    return;
+                }
                 btn.disabled = false;
                 btn.removeAttribute('aria-busy');
                 if (btn.dataset.origLabel) {
                     btn.innerHTML = btn.dataset.origLabel;
                     delete btn.dataset.origLabel;
+                } else if (btn.dataset.origHtml) {
+                    btn.innerHTML = btn.dataset.origHtml;
+                    delete btn.dataset.origHtml;
                 }
             });
+        });
+        /* Also reset footer-spinner-only busy buttons (no data-submitting) */
+        document.querySelectorAll('button[type="submit"][aria-busy="true"], input[type="submit"][aria-busy="true"]').forEach(function (btn) {
+            btn.disabled = false;
+            btn.removeAttribute('aria-busy');
+            if (btn.dataset.origHtml) {
+                btn.innerHTML = btn.dataset.origHtml;
+                delete btn.dataset.origHtml;
+            } else if (btn.dataset.origLabel) {
+                btn.innerHTML = btn.dataset.origLabel;
+                delete btn.dataset.origLabel;
+            }
         });
     });
 

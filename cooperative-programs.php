@@ -30,8 +30,6 @@ try {
 
         if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
             $preregError = $_t('सुरक्षा जाँच असफल भयो।', 'Security validation failed.');
-        } elseif (function_exists('checkRateLimit') && !checkRateLimit('program_prereg_public', 12, 3600)) {
-            $preregError = $_t('धेरै पटक प्रयास भयो। केही समयपछि फेरि प्रयास गर्नुहोस्।', 'Too many attempts. Please try again later.');
         } elseif (($__bot = coop_public_form_bot_block($_POST, 'prog_prereg', [
             clean_text($preregNoteInput, 500),
         ], true)) === 'honeypot') {
@@ -39,6 +37,8 @@ try {
             $preregSaved = true;
         } elseif ($__bot) {
             $preregError = coop_public_form_guard_message($__bot, isEnglish());
+        } elseif (function_exists('checkRateLimit') && !checkRateLimit('program_prereg_public', 12, 3600)) {
+            $preregError = $_t('धेरै पटक प्रयास भयो। केही समयपछि फेरि प्रयास गर्नुहोस्।', 'Too many attempts. Please try again later.');
         } elseif ($preregProgramId <= 0 || $preregMemberInput === '') {
             $preregError = $_t('कृपया कार्यक्रम र सदस्यता नं. दुवै भर्नुहोस्।', 'Please fill program and member ID.');
         } else {
