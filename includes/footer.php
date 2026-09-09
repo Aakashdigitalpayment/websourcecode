@@ -987,20 +987,35 @@ function copyTrk(id,btn){
     document.querySelectorAll('form.needs-validation').forEach(function(form){
         if(form.id === 'fullKymForm') return;
         form.addEventListener('submit', function(e){
-            if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); }
+            if(!this.checkValidity()){
+                e.preventDefault();
+                e.stopPropagation();
+                /* Do not leave sibling handlers stuck on "Saving…" */
+                this.removeAttribute('data-submitting');
+                this.querySelectorAll('button[type="submit"][disabled], input[type="submit"][disabled]').forEach(function(btn){
+                    if (btn.getAttribute('aria-busy') === 'true' || btn.dataset.origLabel || btn.dataset.origHtml) {
+                        btn.disabled = false;
+                        btn.removeAttribute('aria-busy');
+                        if (btn.dataset.origLabel) { btn.innerHTML = btn.dataset.origLabel; delete btn.dataset.origLabel; }
+                        if (btn.dataset.origHtml) { btn.innerHTML = btn.dataset.origHtml; delete btn.dataset.origHtml; }
+                    }
+                });
+            }
             this.classList.add('was-validated');
         }, false);
     });
-    // Submit button loading spinner (all forms)
+    // Submit button loading spinner (all forms) — only when submit will proceed
     document.querySelectorAll('form').forEach(function(form){
-        form.addEventListener('submit', function(){
+        form.addEventListener('submit', function(e){
+            if (e.defaultPrevented) return;
             if(this.checkValidity && !this.checkValidity()) return;
             var btn = this.querySelector('[type="submit"]:not([data-no-spin])');
             if(btn && !btn.disabled){
                 btn.dataset.origHtml = btn.innerHTML;
                 btn.disabled = true;
+                btn.setAttribute('aria-busy', 'true');
                 btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + (btn.dataset.loadingText || '...');
-                setTimeout(function(){ if(btn.dataset.origHtml){ btn.disabled=false; btn.innerHTML=btn.dataset.origHtml; } }, 12000);
+                setTimeout(function(){ if(btn.dataset.origHtml){ btn.disabled=false; btn.removeAttribute('aria-busy'); btn.innerHTML=btn.dataset.origHtml; } }, 12000);
             }
         });
     });

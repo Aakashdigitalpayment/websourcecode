@@ -194,13 +194,33 @@
                 }
             });
 
+            /* Math anti-bot — forms use novalidate so required must be checked in JS too */
+            form.querySelectorAll('input.coop-anti-bot-math-input, input[name="math_answer"]').forEach(function (inp) {
+                var raw = (inp.value || '').trim();
+                var empty = raw === '';
+                var badNum = !empty && (Number.isNaN(Number(raw)) || !/^-?\d+$/.test(raw));
+                if (empty || badNum || (typeof inp.checkValidity === 'function' && !inp.checkValidity())) {
+                    inp.classList.add('is-invalid');
+                    if (!hasError) inp.focus();
+                    hasError = true;
+                } else {
+                    inp.classList.remove('is-invalid');
+                }
+            });
+
             if (hasError) {
                 e.preventDefault();
+                form.classList.add('was-validated');
                 /* Scroll to first invalid field */
-                var firstInvalid = form.querySelector('.is-invalid');
+                var firstInvalid = form.querySelector('.is-invalid, :invalid');
                 if (firstInvalid) {
                     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                return false;
+            }
+
+            /* Bootstrap / other handlers may already have cancelled (empty required fields) */
+            if (e.defaultPrevented) {
                 return false;
             }
 
@@ -216,7 +236,26 @@
                 btn.setAttribute('aria-busy', 'true');
                 if (btn.tagName === 'BUTTON' && !btn.dataset.origLabel) {
                     btn.dataset.origLabel = btn.innerHTML;
-                    btn.innerHTML = (document.documentElement.lang === 'en') ? 'Saving…' : 'सुरक्षित गर्दैछ…';
+                    var en = document.documentElement.lang === 'en';
+                    var isSend = /contact|message|send|chat|inquiry|bid/i.test(form.id + ' ' + (form.className || ''));
+                    btn.innerHTML = en
+                        ? (isSend ? 'Sending…' : 'Saving…')
+                        : (isSend ? 'पठाउँदै…' : 'सुरक्षित गर्दैछ…');
+                }
+            });
+        });
+    });
+
+    /* bfcache / back-forward: never leave forms stuck on Saving… */
+    window.addEventListener('pageshow', function () {
+        document.querySelectorAll('form[data-submitting="1"]').forEach(function (form) {
+            form.removeAttribute('data-submitting');
+            form.querySelectorAll('button[type="submit"][aria-busy="true"], input[type="submit"][aria-busy="true"]').forEach(function (btn) {
+                btn.disabled = false;
+                btn.removeAttribute('aria-busy');
+                if (btn.dataset.origLabel) {
+                    btn.innerHTML = btn.dataset.origLabel;
+                    delete btn.dataset.origLabel;
                 }
             });
         });

@@ -47,7 +47,7 @@ if (!function_exists('coop_math_challenge_issue')) {
             return [
                 'a' => $a,
                 'b' => $b,
-                'prompt_np' => "के हो {$a} + {$b}?",
+                'prompt_np' => "के हो {$a} + {$b} ?",
                 'prompt_en' => "What is {$a} + {$b}?",
             ];
         }
@@ -62,7 +62,7 @@ if (!function_exists('coop_math_challenge_issue')) {
         return [
             'a' => $a,
             'b' => $b,
-            'prompt_np' => "के हो {$a} + {$b}?",
+            'prompt_np' => "के हो {$a} + {$b} ?",
             'prompt_en' => "What is {$a} + {$b}?",
         ];
     }
