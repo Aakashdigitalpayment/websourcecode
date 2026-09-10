@@ -44,41 +44,23 @@ $_memAvatar = trim((string)($mem['avatar_url'] ?? ''));
 $_memId    = (int)($mem['id'] ?? 0);
 $_hasInfoRoom = !empty($mem['information_room_enabled']);
 
-// Topbar: KYC photo जोड्ने (id लिंक वा इमेल/मोबाइल मिलान — profile.php जस्तै)
+// Topbar: KYC photo via SSOT (kyc_application_id → sadasyata); no email/mobile soft match
 if ($_memAvatar === '') {
     try {
         $_dbA = getDB();
-        if ($_dbA) {
-            if (!empty($mem['kyc_application_id'])) {
-                $_stA = $_dbA->prepare('SELECT photo FROM kyc_applications WHERE id=? LIMIT 1');
-                $_stA->execute([(int)$mem['kyc_application_id']]);
-                $_photo = trim((string)($_stA->fetchColumn() ?: ''));
+        if ($_dbA instanceof PDO) {
+            $_kycA = function_exists('memberSsotLoadLinkedKyc')
+                ? memberSsotLoadLinkedKyc($_dbA, $mem)
+                : null;
+            if (is_array($_kycA)) {
+                $_photo = trim((string)($_kycA['photo'] ?? ''));
                 if ($_photo !== '') {
                     $_memAvatar = $_photo;
                 }
-            }
-            if ($_memAvatar === '') {
-                $_kw = [];
-                $_kp = [];
-                $_em = strtolower(trim((string)($mem['email'] ?? '')));
-                $_ph = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
-                if ($_em !== '') {
-                    $_kw[] = 'LOWER(email)=?';
-                    $_kp[] = $_em;
-                }
-                if ($_ph !== '') {
-                    $_kw[] = 'mobile=?';
-                    $_kp[] = $_ph;
-                }
-                if ($_kw !== []) {
-                    $_sql = 'SELECT photo FROM kyc_applications WHERE (' . implode(' OR ', $_kw) . ')
-                            AND TRIM(IFNULL(photo,\'\')) != \'\' ORDER BY id DESC LIMIT 1';
-                    $_stA = $_dbA->prepare($_sql);
-                    $_stA->execute($_kp);
-                    $_photo = trim((string)($_stA->fetchColumn() ?: ''));
-                    if ($_photo !== '') {
-                        $_memAvatar = $_photo;
-                    }
+                if (empty($mem['kyc_application_id']) && !empty($_kycA['id']) && $_memId > 0) {
+                    $_dbA->prepare('UPDATE members SET kyc_application_id=? WHERE id=? AND (kyc_application_id IS NULL OR kyc_application_id = 0)')
+                        ->execute([(int)$_kycA['id'], $_memId]);
+                    $mem['kyc_application_id'] = (int)$_kycA['id'];
                 }
             }
         }
@@ -231,6 +213,19 @@ try {
 .mem-nav-vote-live{position:relative;}
 .mem-vote-live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16a34a;margin-left:6px;box-shadow:0 0 0 0 rgba(22,163,74,.55);animation:memVoteLivePulse 1.4s infinite;}
 @keyframes memVoteLivePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55);}70%{box-shadow:0 0 0 8px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+/* Apply / Services disclosure */
+.mem-nav-apply-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:stretch;flex:0 0 auto;}
+.mem-nav-apply-toggle{border:0;cursor:pointer;font:inherit;background:transparent;color:inherit;appearance:none;-webkit-appearance:none;}
+.mem-nav-apply-toggle .mem-nav-apply-chevron{display:inline-block;margin-left:4px;font-size:.65em;transition:transform .2s ease;}
+.mem-nav-apply-wrap.open .mem-nav-apply-chevron{transform:rotate(180deg);}
+.mem-nav-apply-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:min(240px,80vw);padding:8px;border-radius:12px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.14);border:1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #e5e7eb);}
+.mem-nav-apply-wrap.open .mem-nav-apply-panel{display:flex;flex-direction:column;gap:4px;}
+.mem-nav-apply-panel .mem-nav-item{display:flex !important;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px !important;border-radius:8px;white-space:nowrap;}
+.mem-nav-apply-panel .mem-nav-item i{display:inline-block !important;margin:0 !important;font-size:.9rem !important;}
+@media (max-width: 899px){
+  .mem-nav-apply-wrap{flex:0 0 auto;}
+  .mem-nav-apply-panel{left:auto;right:0;}
+}
 </style>
 <?php echo $extraHead; ?>
 <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($_pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
@@ -248,12 +243,14 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 ?>
 <link rel="apple-touch-icon" href="<?php echo htmlspecialchars($_pwaApple, ENT_QUOTES, 'UTF-8'); ?>">
 <link rel="icon" href="<?php echo htmlspecialchars(function_exists('getPwaIconPublicUrl') ? getPwaIconPublicUrl(192, false) : $_pwaApple, ENT_QUOTES, 'UTF-8'); ?>" type="image/png" sizes="192x192">
+<link rel="stylesheet" href="<?php echo $_siteUrl; ?>assets/css/nepali.datepicker.min.css">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-<script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.5" defer></script>
+<script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.8" defer></script>
 <script src="<?php echo $_siteUrl; ?>assets/js/pwa-register.js?v=3.3" defer></script>
 </head>
 <body class="mem-wrapper">
+<a class="skip-link" href="#main-content"><?php echo $_t('मुख्य सामग्रीमा जानुहोस्', 'Skip to content'); ?></a>
 
 <!-- ══ Offline Banner ══ -->
 <div id="coopOfflineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
@@ -398,12 +395,28 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         <a href="<?php echo $_siteUrl; ?>member/scan.php" class="mem-nav-item <?php echo $_active==='scan'?'active':''; ?>"><i class="fas fa-qrcode"></i><?php echo $_t('QR स्क्यान', 'QR Scan'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/attend.php" class="mem-nav-item <?php echo $_active==='attend'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('उपस्थिति', 'Attendance'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/marketplace.php" class="mem-nav-item <?php echo $_active==='marketplace'?'active':''; ?>"><i class="fas fa-store"></i><?php echo $_t('बजार / सीप', 'Market / Skills'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/service-request.php" class="mem-nav-item <?php echo $_active==='service'?'active':''; ?>"><i class="fas fa-concierge-bell"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/appointment.php" class="mem-nav-item <?php echo $_active==='apply-appointment'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('भेटघाट', 'Appointment'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/loan-apply.php" class="mem-nav-item <?php echo $_active==='apply-loan'?'active':''; ?>"><i class="fas fa-hand-holding-dollar"></i><?php echo $_t('ऋण आवेदन', 'Loan Apply'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/account-apply.php" class="mem-nav-item <?php echo $_active==='apply-account'?'active':''; ?>"><i class="fas fa-landmark"></i><?php echo $_t('खाता खोल्ने', 'Open Account'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/digital-service.php" class="mem-nav-item <?php echo $_active==='apply-digital'?'active':''; ?>"><i class="fas fa-laptop"></i><?php echo $_t('डिजिटल सेवा', 'Digital Service'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="fas fa-comment-dots"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
+        <?php
+        $_applyKeys = ['service', 'apply-appointment', 'apply-loan', 'apply-account', 'apply-digital', 'apply-grievance'];
+        $_applyOpen = in_array($_active, $_applyKeys, true);
+        ?>
+        <div class="mem-nav-apply-wrap<?php echo $_applyOpen ? ' open' : ''; ?>" id="memNavApplyWrap">
+            <button type="button"
+                    class="mem-nav-item mem-nav-apply-toggle<?php echo $_applyOpen ? ' active' : ''; ?>"
+                    id="memNavApplyToggle"
+                    aria-expanded="<?php echo $_applyOpen ? 'true' : 'false'; ?>"
+                    aria-controls="mem-nav-apply-panel">
+                <i class="fas fa-file-signature"></i><?php echo $_t('आवेदन / सेवा', 'Apply / Services'); ?>
+                <span class="mem-nav-apply-chevron" aria-hidden="true">▾</span>
+            </button>
+            <div class="mem-nav-apply-panel" id="mem-nav-apply-panel" role="group" aria-label="<?php echo htmlspecialchars($_t('आवेदन / सेवा', 'Apply / Services'), ENT_QUOTES, 'UTF-8'); ?>">
+                <a href="<?php echo $_siteUrl; ?>member/service-request.php" class="mem-nav-item <?php echo $_active==='service'?'active':''; ?>"><i class="fas fa-concierge-bell"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?></a>
+                <a href="<?php echo $_siteUrl; ?>member/appointment.php" class="mem-nav-item <?php echo $_active==='apply-appointment'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('भेटघाट', 'Appointment'); ?></a>
+                <a href="<?php echo $_siteUrl; ?>member/loan-apply.php" class="mem-nav-item <?php echo $_active==='apply-loan'?'active':''; ?>"><i class="fas fa-hand-holding-dollar"></i><?php echo $_t('ऋण आवेदन', 'Loan Apply'); ?></a>
+                <a href="<?php echo $_siteUrl; ?>member/account-apply.php" class="mem-nav-item <?php echo $_active==='apply-account'?'active':''; ?>"><i class="fas fa-landmark"></i><?php echo $_t('खाता खोल्ने', 'Open Account'); ?></a>
+                <a href="<?php echo $_siteUrl; ?>member/digital-service.php" class="mem-nav-item <?php echo $_active==='apply-digital'?'active':''; ?>"><i class="fas fa-laptop"></i><?php echo $_t('डिजिटल सेवा', 'Digital Service'); ?></a>
+                <a href="<?php echo $_siteUrl; ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="fas fa-comment-dots"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
+            </div>
+        </div>
         <a href="<?php echo $_siteUrl; ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="fas fa-certificate"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
         <a href="<?php echo $_siteUrl; ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="fas fa-user-circle"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
         <a href="<?php echo $_siteUrl; ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
@@ -553,3 +566,29 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 
 })();
 </script>
+<script>
+(function () {
+  var wrap = document.getElementById('memNavApplyWrap');
+  var btn = document.getElementById('memNavApplyToggle');
+  var panel = document.getElementById('mem-nav-apply-panel');
+  if (!wrap || !btn || !panel) return;
+
+  function setOpen(open) {
+    wrap.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    setOpen(!wrap.classList.contains('open'));
+  });
+  document.addEventListener('click', function (e) {
+    if (!wrap.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') setOpen(false);
+  });
+})();
+</script>
+
+<main id="main-content" class="mem-main-content" tabindex="-1">

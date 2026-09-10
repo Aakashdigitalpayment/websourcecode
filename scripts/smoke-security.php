@@ -96,8 +96,14 @@ function assertNoBareBlankTargets(string $file): void {
     ok("{$file}: all target=_blank have noopener noreferrer");
 }
 
-// Session debug stub must not leak
-assertFileContains('member/session-check.php', 'http_response_code(403)', 'session-check returns 403');
+// Session debug stub removed; web rules must still deny the path
+if (is_file($root . '/member/session-check.php')) {
+    fail('member/session-check.php: should be deleted (was always 403)');
+} else {
+    ok('member/session-check.php: deleted');
+}
+assertFileContains('.htaccess', 'member/session-check', 'htaccess still forbids session-check path');
+assertFileContains('deploy/nginx-security.conf', 'member/session-check.php', 'nginx still denies session-check path');
 assertFileContains('member/push-subscribe.php', 'verifyCSRFToken', 'push subscribe CSRF guard');
 assertFileContains('member/includes/chrome.php', 'MEMBER_PUSH_CSRF', 'push subscribe client CSRF token');
 assertFileContains('includes/config.php', 'function coop_sanitize_icon_class', 'icon class sanitizer');
@@ -173,16 +179,6 @@ assertFileContains('includes/config.php', 'function coop_sanitize_cms_html', 'cm
 assertFileContains('page.php', 'coop_sanitize_cms_html', 'cms page body sanitized');
 assertFileContains('news-detail.php', 'coop_sanitize_cms_html', 'news detail body sanitized');
 assertFileContains('notices.php', 'coop_render_cms_prose', 'notice detail body sanitized');
-assertFileContains('member/session-check.php', 'Forbidden', 'session-check body Forbidden');
-$session = (string) file_get_contents($root . '/member/session-check.php');
-foreach (['session_id(', 'var_dump', 'print_r', 'phpinfo'] as $leak) {
-    if (stripos($session, $leak) !== false) {
-        fail("member/session-check.php: still contains {$leak}");
-    } else {
-        ok("member/session-check.php: no {$leak}");
-    }
-}
-
 // Cron URL token hardening
 assertFileContains('cron-cleanup.php', 'strlen($secret) < 20', 'cron requires 20+ token');
 assertFileContains('cron-cleanup.php', 'hash_equals', 'cron uses hash_equals');
@@ -302,6 +298,16 @@ assertFileContains('admin/notification-settings.php', 'autocomplete="off"', 'not
 
 // Language switcher a11y
 assertFileContains('includes/header.php', 'class="skip-link"', 'skip link present');
+assertFileContains('admin/includes/admin-header.php', 'class="skip-link"', 'admin skip link');
+assertFileContains('admin/includes/admin-header.php', 'id="main-content"', 'admin main landmark id');
+assertFileContains('admin/includes/admin-header.php', 'aria-controls="group-', 'admin nav group aria-controls');
+assertFileContains('admin/includes/admin-header.php', '<button type="button" class="nav-group-header', 'admin nav group headers are buttons');
+assertFileContains('member/includes/chrome.php', 'class="skip-link"', 'member skip link');
+assertFileContains('member/includes/chrome.php', 'id="main-content"', 'member main landmark id');
+assertFileContains('member/includes/chrome.php', 'mem-nav-apply-toggle', 'member Apply/Services group');
+assertFileContains('member/includes/chrome-foot.php', '</main><!-- /#main-content -->', 'member main closed in chrome foot');
+assertFileContains('verify.php', '<main class="vp-outer" id="main-content"', 'verify main landmark');
+assertFileContains('verify.php', 'role="alert"', 'verify error alerts announced');
 assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'English\'', 'EN lang aria-label');
 assertFileContains('includes/header.php', 'aria-label="<?php echo isEnglish() ? \'Nepali\'', 'NP lang aria-label');
 assertFileContains('application-tracker.php', 'name="sec_tracking_id"', 'tracker phone/email requires tracking id factor');
@@ -357,6 +363,58 @@ assertFileContains('includes/program-tables.php', 'program_occurrences', 'progra
 assertFileContains('admin/program-attendance.php', "attendance_status='VALID'", 'attendance list filters voided rows');
 assertFileContains('includes/program-tables.php', 'DROP INDEX uniq_member_program', 'drop legacy attendance unique for void re-record');
 assertFileContains('includes/program-attendance-helpers.php', 'programLiveStatsForProgram', 'program live stats helper');
+assertFileContains('includes/loan-submit-helper.php', 'function submitLoanApplicationUnified', 'shared loan submit helper');
+assertFileContains('loan-apply.php', 'loan-submit-helper.php', 'public loan apply uses shared helper');
+assertFileContains('member/loan-apply.php', 'loan-submit-helper.php', 'member loan apply uses shared helper');
+assertFileContains('loan-apply.php', 'submitLoanApplicationUnified', 'public loan apply calls unified submit');
+assertFileContains('member/loan-apply.php', 'submitLoanApplicationUnified', 'member loan apply calls unified submit');
+assertFileContains('includes/grievance-submit-helper.php', 'function submitGrievanceUnified', 'shared grievance submit helper');
+assertFileContains('grievance.php', 'grievance-submit-helper.php', 'public grievance uses shared helper');
+assertFileContains('member/grievance.php', 'grievance-submit-helper.php', 'member grievance uses shared helper');
+assertFileContains('grievance.php', 'submitGrievanceUnified', 'public grievance calls unified submit');
+assertFileContains('member/grievance.php', 'submitGrievanceUnified', 'member grievance calls unified submit');
+assertFileContains('member/service-request.php', 'submitGrievanceUnified', 'service-request uses grievance helper');
+assertFileContains('member/service-request.php', 'submitAppointmentUnified', 'service-request uses appointment helper');
+assertFileContains('member/service-request.php', 'member-portal-identity.php', 'service-request uses portal identity SSOT');
+assertFileContains('member/service-request.php', 'Please choose both preferred date and time', 'service-request requires schedule (no silent default)');
+assertFileNotContains('member/service-request.php', "?: date('Y-m-d')", 'service-request no silent today default');
+assertFileNotContains('member/service-request.php', "?: '10:00 AM'", 'service-request no silent 10am default');
+assertFileContains('login.php', 'X-Robots-Tag', 'quarantine login stub noindex');
+assertFileContains('admin/hrm-dashboard.php', 'X-Robots-Tag', 'quarantine HRM stub noindex');
+assertFileContains('scripts/smoke-quarantine-stubs.php', 'X-Robots-Tag', 'quarantine smoke asserts noindex');
+assertFileContains('verify.php', 'skip-link', 'verify has skip link');
+assertFileContains('includes/coop-date-ui.php', 'function coop_date_input_html', 'lang-aware date UI helper');
+assertFileContains('includes/config.php', 'coop-date-ui.php', 'config loads date UI helper');
+assertFileContains('member/appointment.php', 'coop_date_input_html', 'member appointment uses lang date UI');
+assertFileContains('member/service-request.php', 'coop_date_input_html', 'service-request uses lang date UI');
+assertFileContains('appointment.php', 'coop_date_input_html', 'public appointment uses lang date UI');
+assertFileContains('member/includes/chrome.php', 'nepali.datepicker.min.css', 'member chrome loads nepali datepicker css');
+assertFileContains('member/includes/chrome-foot.php', 'nepaliDatePicker', 'member chrome inits nepali datepicker');
+
+assertFileNotContains('member/index.php', 'LOWER(email)=?', 'dashboard no email soft KYC match');
+assertFileNotContains('member/id-card.php', 'LOWER(email)=?', 'id-card no email soft KYC match');
+assertFileNotContains('member/certificate.php', 'LOWER(email)=?', 'certificate no email soft KYC match');
+assertFileNotContains('member/tracker.php', 'LOWER(email)=?', 'tracker no email soft KYC match');
+assertFileNotContains('member/kyc-print.php', 'LOWER(email)=?', 'kyc-print no email soft KYC match');
+assertFileContains('contact.php', 'public-form-shell', 'contact form uses form shell');
+assertFileContains('includes/appointment-submit-helper.php', 'function submitAppointmentUnified', 'shared appointment submit helper');
+assertFileContains('appointment.php', 'appointment-submit-helper.php', 'public appointment uses shared helper');
+assertFileContains('member/appointment.php', 'appointment-submit-helper.php', 'member appointment uses shared helper');
+assertFileContains('appointment.php', 'submitAppointmentUnified', 'public appointment calls unified submit');
+assertFileContains('member/appointment.php', 'submitAppointmentUnified', 'member appointment calls unified submit');
+assertFileContains('includes/account-submit-helper.php', 'function submitAccountApplicationUnified', 'shared account submit helper');
+assertFileContains('online-account.php', 'account-submit-helper.php', 'public account apply uses shared helper');
+assertFileContains('member/account-apply.php', 'account-submit-helper.php', 'member account apply uses shared helper');
+assertFileContains('online-account.php', 'submitAccountApplicationUnified', 'public account apply calls unified submit');
+assertFileContains('member/account-apply.php', 'submitAccountApplicationUnified', 'member account apply calls unified submit');
+assertFileContains('includes/digital-service-submit-helper.php', 'function submitDigitalServiceRequestUnified', 'shared digital service submit helper');
+assertFileContains('digital-services.php', 'digital-service-submit-helper.php', 'public digital services uses shared helper');
+assertFileContains('member/digital-service.php', 'digital-service-submit-helper.php', 'member digital service uses shared helper');
+assertFileContains('digital-services.php', 'submitDigitalServiceRequestUnified', 'public digital services calls unified submit');
+assertFileContains('member/digital-service.php', 'submitDigitalServiceRequestUnified', 'member digital service calls unified submit');
+assertFileContains('member/apply-frame.php', "'digital' => 'digital-service.php'", 'apply-frame redirects digital to native page');
+assertFileNotContains('member/apply-frame.php', "'path' => 'digital-services.php'", 'apply-frame no longer iframes digital-services');
+assertFileContains('member/welfare.php', 'member-portal-identity.php', 'member welfare uses portal identity SSOT');
 assertFileContains('program-attendance-verify.php', 'program-registration-desk.php', 'staff verify redirects to registration desk');
 assertFileContains('admin/includes/admin-ui.php', 'function adminLangT', 'admin lang translation helper');
 assertFileContains('includes/admin-menu-control.php', 'ADMIN_MENU_CONTROL_CONFIRM_CODE', 'menu control confirm code constant');
@@ -444,7 +502,7 @@ foreach ($typedButtonFiles as $f) {
 
 // Syntax
 $lintFiles = array_merge(
-    ['member/session-check.php', 'cron-cleanup.php'],
+    ['cron-cleanup.php'],
     $noopenerFiles
 );
 foreach ($lintFiles as $f) {

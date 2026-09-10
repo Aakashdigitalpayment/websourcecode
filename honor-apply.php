@@ -217,7 +217,7 @@ foreach ($openPrograms as $op) {
         </div>
         <?php else: ?>
         <div class="row justify-content-center">
-            <div class="col-lg-8 col-xl-7">
+            <div class="col-lg-8 col-xl-7 public-form-shell">
         <?php if ($error): ?>
         <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>

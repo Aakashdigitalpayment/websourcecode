@@ -1,6 +1,7 @@
 <?php
 /**
  * उपयोगी लिंकहरू व्यवस्थापन — Useful Links Management
+ * SSOT table: useful_links. Legacy important_links is schema-only — do not dual-write.
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
 $pageTitle = 'उपयोगी लिंकहरू व्यवस्थापन';

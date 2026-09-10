@@ -3,6 +3,7 @@
  * Deprecated public/root entry — backup/restore lives in the admin panel only.
  * Kept as a safe redirect so old bookmarks do not break.
  */
+header('X-Robots-Tag: noindex, nofollow', true);
 require_once __DIR__ . '/_bootstrap.php';
 if (!function_exists('isAdminLoggedIn') || !isAdminLoggedIn()) {
     if (defined('ADMIN_URL')) {

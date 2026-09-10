@@ -146,7 +146,7 @@ HTML;
 require __DIR__ . '/includes/chrome.php';
 ?>
 
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container mp-container-narrow scan-wrap">
   <h1 class="mem-page-title">
     <i class="fas fa-qrcode"></i><?php echo $_t('कार्यक्रम QR स्क्यान', 'Program QR Scan'); ?>
@@ -171,7 +171,7 @@ require __DIR__ . '/includes/chrome.php';
     <a href="<?= htmlspecialchars($base) ?>member/attend.php"><i class="fas fa-calendar-check me-1"></i><?php echo $_t('उपस्थिति र इतिहास', 'Attendance & History'); ?></a>
   </div>
 </div>
-</main>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>

@@ -2,10 +2,8 @@
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/contact-spam-guard.php';
+require_once 'includes/digital-service-submit-helper.php';
 ensurePublicTables();
-$_dsrtFile = __DIR__ . '/includes/digital-service-requests-tables.php';
-if (is_file($_dsrtFile)) { require_once $_dsrtFile; }
-unset($_dsrtFile);
 $_dstypes = __DIR__ . '/includes/digital-service-types.php';
 if (is_file($_dstypes)) { require_once $_dstypes; }
 unset($_dstypes);
@@ -107,59 +105,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        if (!$error && $requesterName === '') {
-            $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
-        } elseif (!$error && $phone === '') {
-            $error = isEnglish() ? 'Mobile number is required.' : 'मोबाइल नम्बर अनिवार्य छ।';
-        } elseif (!$error && !preg_match('/^[0-9]{10}$/', $phone)) {
-            $error = isEnglish() ? 'Enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-        } elseif (!$error && $email === '') {
-            $error = isEnglish() ? 'Email address is required.' : 'इमेल ठेगाना अनिवार्य छ।';
-        } elseif (!$error && !empty($email) && !isValidEmail($email)) {
-            $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-        } elseif (!$error && ($serviceType === '' || !isset($serviceTypes[$serviceType]))) {
-            $error = isEnglish() ? 'Please select a valid service.' : 'कृपया सही सेवा छान्नुहोस्।';
-        } elseif (!$error && in_array($serviceType, ['share_refund', 'share_increase'], true) && ($serviceAmount === null || $serviceAmount <= 0)) {
-            $error = isEnglish() ? 'Please enter a valid amount for selected share service.' : 'छानिएको शेयर सेवाको लागि सही रकम राख्नुहोस्।';
-        } elseif (!$error) {
-            try {
-                $trackingId = coop_new_tracking_id('DSR');
-                $attachment = '';
-                $needDoc = !empty($serviceTypes[$serviceType]['requires_document']);
-                if (isset($_FILES['attachment']) && (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
-                    $upload = uploadFile($_FILES['attachment'], 'digital_services');
-                    if (!empty($upload['success']) && !empty($upload['path'])) {
-                        $attachment = (string)$upload['path'];
-                    }
-                }
-                if ($needDoc && $attachment === '') {
-                    $error = isEnglish()
-                        ? 'Please attach a valid supporting document for this service.'
-                        : 'यो सेवाको लागि मान्य संलग्न कागजात अनिवार्य छ।';
-                }
-                if (!$error) {
-                $stmt = $db->prepare("INSERT INTO digital_service_requests
-                    (tracking_id, requester_name, member_id, phone, email,
-                     service_type, service_type_np, account_number,
-                     statement_from, statement_to, biller_name, bill_reference,
-                     recharge_number, recharge_amount, service_amount, request_details, attachment, preferred_contact)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([
-                    $trackingId, $requesterName, $memberId, $phone, $email,
-                    $serviceType, $serviceTypes[$serviceType]['np'], $accountNumber,
-                    $statementFrom ?: null, $statementTo ?: null,
-                    $billerName, $billReference,
-                    $rechargeNumber, $rechargeAmount, $serviceAmount,
-                    $requestDetails, $attachment,
-                    in_array($preferredContact, ['phone','email','branch'], true) ? $preferredContact : 'phone'
-                ]);
-                $success = true;
-                logSecurityEvent('digital_service_request', 'Request submitted: ' . $trackingId);
+        if (!$error) {
+            $__nf = __DIR__ . '/includes/notifications.php';
+            if (is_file($__nf)) { require_once $__nf; }
+            unset($__nf);
 
-                /* Notifications — guarded so missing/broken file does not 500 the form */
-                $__nf = __DIR__ . '/includes/notifications.php';
-                if (is_file($__nf)) { require_once $__nf; }
-                unset($__nf);
+            $result = submitDigitalServiceRequestUnified($db, [
+                'requester_name' => $requesterName,
+                'member_id' => $memberId,
+                'member_portal_id' => $loggedMember ? (int)($loggedMember['id'] ?? 0) : null,
+                'phone' => $phone,
+                'email' => $email,
+                'service_type' => $serviceType,
+                'account_number' => $accountNumber,
+                'statement_from' => $statementFrom,
+                'statement_to' => $statementTo,
+                'biller_name' => $billerName,
+                'bill_reference' => $billReference,
+                'recharge_number' => $rechargeNumber,
+                'recharge_amount' => $rechargeAmount,
+                'service_amount' => $serviceAmount,
+                'request_details' => $requestDetails,
+                'preferred_contact' => $preferredContact,
+                'require_contact' => true,
+            ], $_FILES, $serviceTypes);
+
+            if (!empty($result['ok'])) {
+                $success = true;
+                $trackingId = (string)$result['tracking_id'];
+                logSecurityEvent('digital_service_request', 'Request submitted: ' . $trackingId);
 
                 // Member confirmation SMS
                 if (!empty($phone)) {
@@ -186,18 +160,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     } catch (Exception $ignored) {}
                 }
-
-                sendAdminNotification('digital_service', [
-                    'नाम'           => $requesterName,
-                    'फोन'           => $phone,
-                    'इमेल'          => $email ?: 'N/A',
-                    'सेवा प्रकार'    => $serviceTypes[$serviceType]['en'],
-                    'सम्पर्क माध्यम' => $preferredContact,
-                    'मिति'          => date('Y-m-d H:i'),
-                ], $trackingId);
-                } /* end if (!$error) after attachment check */
-            } catch (\Throwable $e) {
-                $error = isEnglish() ? 'Unable to submit. Please try again.' : 'अनुरोध पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।';
+            } else {
+                $error = isEnglish()
+                    ? (string)($result['error_en'] ?? $result['error'] ?? 'Unable to submit. Please try again.')
+                    : (string)($result['error'] ?? 'अनुरोध पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
             }
         }
     }
@@ -342,7 +308,7 @@ $L = getLangStrings();
 <section class="section-padding pt-2" id="ds-form-section">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-9">
+            <div class="col-lg-9 public-form-shell public-form-shell--wide">
 
                 <!-- Error alert (shown above the card) -->
                 <?php if ($error): ?>
@@ -502,14 +468,12 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="ds_statement_from" class="form-label"><?php echo isEnglish() ? 'From Date' : 'देखि मिति'; ?></label>
-                                    <input type="text" name="statement_from" id="ds_statement_from" class="form-control nepali-datepicker"
-                                           value="<?php echo e($_POST['statement_from'] ?? ''); ?>" placeholder="YYYY-MM-DD" autocomplete="off">
+                                    <label for="ds_statement_from" class="form-label"><?php echo isEnglish() ? 'From Date' : 'देखि मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'statement_from','id'=>'ds_statement_from','class'=>'form-control','value'=>(string)($_POST['statement_from'] ?? ''),'hint'=>false]) : '<input type="text" name="statement_from" id="ds_statement_from" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">'; ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="ds_statement_to" class="form-label"><?php echo isEnglish() ? 'To Date' : 'सम्म मिति'; ?></label>
-                                    <input type="text" name="statement_to" id="ds_statement_to" class="form-control nepali-datepicker"
-                                           value="<?php echo e($_POST['statement_to'] ?? ''); ?>" placeholder="YYYY-MM-DD" autocomplete="off">
+                                    <label for="ds_statement_to" class="form-label"><?php echo isEnglish() ? 'To Date' : 'सम्म मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'statement_to','id'=>'ds_statement_to','class'=>'form-control','value'=>(string)($_POST['statement_to'] ?? ''),'hint'=>true]) : '<input type="text" name="statement_to" id="ds_statement_to" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">'; ?>
                                 </div>
                             </div>
                         </div>

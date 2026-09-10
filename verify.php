@@ -637,6 +637,8 @@ if ($result && !empty($result['ok']) && $pdo) {
 </head>
 <body class="auth-portal-page verify-auth-page">
 
+<a class="skip-link" href="#main-content"><?= htmlspecialchars($_t('मुख्य सामग्रीमा जानुहोस्', 'Skip to main content'), ENT_QUOTES, 'UTF-8') ?></a>
+
 <?php
 $__siteName = function_exists('getSetting') ? (getSetting('site_name') ?: getSetting('cooperative_name')) : '';
 $__logoSrc  = function_exists('getSetting') ? (getSetting('logo') ?: '') : '';
@@ -646,7 +648,7 @@ if ($__logoSrc && strpos($__logoSrc, 'http') === false) {
 $__pageTitleDisplay = $pageTitle ?? $_t('कार्ड प्रमाणीकरण', 'Member Card Verification');
 ?>
 
-<div class="vp-outer">
+<main class="vp-outer" id="main-content" tabindex="-1">
 
     <!-- Back to homepage + lang toggle -->
     <div class="vp-back-bar">
@@ -681,7 +683,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 
 <?php if ($__rateLimited): ?>
 <!-- ── Rate-limit countdown card ── -->
-<div id="vp-ratelimit-card" class="vp-rate-card">
+<div id="vp-ratelimit-card" class="vp-rate-card" role="alert" aria-live="assertive">
     <div class="vp-rate-head">
         <span class="vp-result-icon" style="width:46px;height:46px;font-size:1.5rem;">
             <i class="fas fa-shield-halved"></i>
@@ -743,7 +745,7 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 </script>
 
 <?php elseif (!empty($__err)): ?>
-<div class="vp-alert-error">
+<div class="vp-alert-error" role="alert" aria-live="assertive">
     <i class="fas fa-exclamation-circle" style="font-size:1.2rem;flex-shrink:0;"></i>
     <span><?= htmlspecialchars($__err) ?></span>
 </div>
@@ -791,7 +793,7 @@ $__hasPartnerCol = !empty($partners);
 </div>
 <?php endif; ?>
 <?php if (!empty($logError)): ?>
-<div class="vp-alert-error" style="margin-bottom:0;<?= !empty($logSaved) ? 'margin-top:10px;' : '' ?>">
+<div class="vp-alert-error" role="alert" aria-live="assertive" style="margin-bottom:0;<?= !empty($logSaved) ? 'margin-top:10px;' : '' ?>">
     <i class="fas fa-exclamation-circle"></i>
     <span><?= htmlspecialchars($logError) ?></span>
 </div>
@@ -1177,6 +1179,6 @@ $__hasPartnerCol = !empty($partners);
 </div>
 <?php endif; ?>
 
-</div><!-- /.vp-outer -->
+</main><!-- /.vp-outer /#main-content -->
 </body>
 </html>

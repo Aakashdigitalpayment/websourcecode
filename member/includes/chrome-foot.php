@@ -93,6 +93,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl.'member/grievance.php',      'icon'=>'message
 $_fnSecondary[] = ['href'=>$_fnUrl.'member/certificate.php',    'icon'=>'award',       'label'=>$_footT('प्रमाणपत्र','Certificates'),  'active'=>'certificate'];
 $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe',             'label'=>$_footT('मुख्य साइट','Main Site'),      'active'=>'__mainsite',      'target'=>'_blank'];
 ?>
+</main><!-- /#main-content -->
 </div><!-- /.mem-container -->
 
 <!-- ══ Mobile: 4-item bottom nav ══ -->
@@ -209,6 +210,27 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
 }());
 </script>
+<?php if (!$_footIsEn): ?>
+<script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/jquery.min.js"></script>
+<script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/nepali.datepicker.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof window.jQuery === 'undefined' || !window.jQuery.fn || typeof window.jQuery.fn.nepaliDatePicker !== 'function') return;
+  window.jQuery('.nepali-datepicker').each(function () {
+    var $inp = window.jQuery(this);
+    if ($inp.data('ndp-ready')) return;
+    $inp.data('ndp-ready', true);
+    try {
+      $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
+    } catch (e) {}
+    $inp.closest('.coop-date-wrap, .input-group, .nepali-datepicker-wrapper')
+      .find('.coop-date-ico, .ndp-trigger, .input-group-text')
+      .off('click.ndp')
+      .on('click.ndp', function () { $inp.trigger('focus'); });
+  });
+});
+</script>
+<?php endif; ?>
 <?php if (function_exists("coopThemeLucideInit")) { coopThemeLucideInit(); } ?>
 </body>
 </html>

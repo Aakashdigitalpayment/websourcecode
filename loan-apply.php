@@ -2,6 +2,7 @@
 require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/contact-spam-guard.php';
+require_once 'includes/loan-submit-helper.php';
 ensurePublicTables();
 /* Optional includes are guarded so partial deploy won't trigger HTTP 500. */
 $kycPublicFormFile = __DIR__ . '/includes/kyc-public-form.php';
@@ -151,106 +152,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            /* -------------------------------------------------------
-               Server-side validation — loan application
-               नाम, मोबाइल (10 digits), इमेल, ऋण प्रकार र रकम required
-            ------------------------------------------------------- */
-            if (!$error && empty($full_name)) {
-                $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
-            } elseif (!$error && empty($mobile)) {
-                $error = isEnglish() ? 'Mobile number is required.' : 'मोबाइल नम्बर अनिवार्य छ।';
-            } elseif (!$error && !preg_match('/^[0-9]{10}$/', $mobile)) {
-                $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-            } elseif (!$error && $isCoopMember !== 'yes' && empty($email ?? '')) {
-                $error = isEnglish() ? 'Email address is required.' : 'इमेल ठेगाना अनिवार्य छ।';
-            } elseif (!$error && !empty($email ?? '') && !isValidEmail($email ?? '')) {
-                $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-            } elseif (!$error && empty($loan_type)) {
-                $error = isEnglish() ? 'Please select a loan type.' : 'कृपया ऋण प्रकार छान्नुहोस्।';
-            } elseif (!$error && (empty($loan_amount) || (float) $loan_amount <= 0)) {
-                $error = isEnglish() ? 'Please enter the loan amount.' : 'कृपया ऋण रकम भर्नुहोस्।';
-            } elseif (!$error) {
-                /* validation passed — proceed with file upload and DB insert */
-                // Handle file uploads using the secure uploadFile() helper
-                $documents = '';
-                if (isset($_FILES['documents']) && !empty($_FILES['documents']['name'][0])) {
-                    $uploadedFiles = [];
-                    foreach ($_FILES['documents']['name'] as $key => $name) {
-                        if ($_FILES['documents']['error'][$key] === UPLOAD_ERR_OK) {
-                            $singleFile = [
-                                'name'     => $_FILES['documents']['name'][$key],
-                                'type'     => $_FILES['documents']['type'][$key],
-                                'tmp_name' => $_FILES['documents']['tmp_name'][$key],
-                                'error'    => $_FILES['documents']['error'][$key],
-                                'size'     => $_FILES['documents']['size'][$key],
-                            ];
-                            $result = uploadFile($singleFile, 'loan');
-                            if ($result['success']) {
-                                $uploadedFiles[] = $result['path'];
-                            }
-                        }
-                    }
-                    $documents = implode(',', $uploadedFiles);
-                }
-
-                // Generate tracking ID
-                $loanTrackingId = coop_new_tracking_id('LNP');
-
-                $stmt = $db->prepare("INSERT INTO loan_applications (
-                    tracking_id,
-                    full_name, member_id, mobile, email, address, citizenship_no,
-                    loan_type, loan_amount, loan_purpose, loan_tenure, repayment_method,
-                    occupation, organization_name, monthly_income, other_income,
-                    collateral_type, collateral_description, collateral_value,
-                    guarantor_name, guarantor_relation, guarantor_phone, guarantor_address,
-                    branch, documents
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-                $stmt->execute([
-                    $loanTrackingId,
-                    $full_name, $member_id, $mobile, $email, $address, $citizenship_no,
-                    $loan_type, $loan_amount, $loan_purpose, $loan_tenure, $repayment_method,
-                    $occupation, $organization_name, $monthly_income, $other_income,
-                    $collateral_type, $collateral_description, $collateral_value,
-                    $guarantor_name, $guarantor_relation, $guarantor_phone, $guarantor_address,
-                    $branch, $documents
-                ]);
-
-                $success = true;
-                logSecurityEvent('loan_application', 'Loan application submitted by: ' . $full_name . ' (Tracking: ' . $loanTrackingId . ')');
-
+            if (!$error) {
                 /* Notifications — guarded so missing/broken file does not 500 the form */
                 $__nf = __DIR__ . '/includes/notifications.php';
                 if (is_file($__nf)) { require_once $__nf; }
                 unset($__nf);
 
-                // Member confirmation SMS
-                if (!empty($mobile)) {
-                    try {
-                        $smsToken = getSetting('notify_sms_token', '');
-                        $smsSender = getSetting('notify_sms_sender_id', 'COOP');
-                        if (getSetting('notify_sms_enabled', '0') === '1' && $smsToken) {
-                            $smsTxt = 'आकाश सहकारी: तपाईंको ऋण आवेदन दर्ता भयो। Tracking ID: ' . $loanTrackingId . '. हाम्रो अधिकृत २-३ कार्यदिनभित्र सम्पर्क गर्नेछन्।';
-                            $ph = preg_replace('/[^0-9]/', '', $mobile);
-                            if (strlen($ph) >= 10) {
-                                $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
-                                curl_setopt_array($ch, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query(['token'=>$smsToken,'from'=>$smsSender,'to'=>$ph,'text'=>mb_substr($smsTxt,0,160)]),CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>10,CURLOPT_SSL_VERIFYPEER=>true]);
-                                curl_exec($ch); curl_close($ch);
-                            }
-                        }
-                    } catch (Exception $ignored) {}
-                }
+                $result = submitLoanApplicationUnified($db, [
+                    'full_name' => $full_name,
+                    'member_id' => $member_id,
+                    'member_portal_id' => $loggedMember ? (int)($loggedMember['id'] ?? 0) : null,
+                    'mobile' => $mobile,
+                    'email' => $email,
+                    'address' => $address,
+                    'citizenship_no' => $citizenship_no,
+                    'loan_type' => $loan_type,
+                    'loan_amount' => $loan_amount,
+                    'loan_purpose' => $loan_purpose,
+                    'loan_tenure' => $loan_tenure,
+                    'repayment_method' => $repayment_method,
+                    'occupation' => $occupation,
+                    'organization_name' => $organization_name,
+                    'monthly_income' => $monthly_income,
+                    'other_income' => $other_income,
+                    'collateral_type' => $collateral_type,
+                    'collateral_description' => $collateral_description,
+                    'collateral_value' => $collateral_value,
+                    'guarantor_name' => $guarantor_name,
+                    'guarantor_relation' => $guarantor_relation,
+                    'guarantor_phone' => $guarantor_phone,
+                    'guarantor_address' => $guarantor_address,
+                    'branch' => $branch,
+                    'require_email' => $isCoopMember !== 'yes',
+                ], $_FILES);
 
-                /* Admin notification */
-                sendAdminNotification('loan_application', [
-                    'नाम'        => $full_name,
-                    'फोन'        => $mobile,
-                    'ऋण रकम'    => 'Rs. ' . number_format((float)$loan_amount),
-                    'ऋण प्रकार'  => $loan_type,
-                    'Tracking ID'=> $loanTrackingId,
-                    'सेवा कार्यालय' => $branch ?: 'N/A',
-                    'मिति'       => date('Y-m-d H:i'),
-                ], $loanTrackingId);
+                if (!empty($result['ok'])) {
+                    $success = true;
+                    $loanTrackingId = (string)$result['tracking_id'];
+                    logSecurityEvent('loan_application', 'Loan application submitted by: ' . $full_name . ' (Tracking: ' . $loanTrackingId . ')');
+
+                    // Member confirmation SMS (page-local; admin notify lives in helper)
+                    if (!empty($mobile)) {
+                        try {
+                            $smsToken = getSetting('notify_sms_token', '');
+                            $smsSender = getSetting('notify_sms_sender_id', 'COOP');
+                            if (getSetting('notify_sms_enabled', '0') === '1' && $smsToken) {
+                                $smsTxt = 'आकाश सहकारी: तपाईंको ऋण आवेदन दर्ता भयो। Tracking ID: ' . $loanTrackingId . '. हाम्रो अधिकृत २-३ कार्यदिनभित्र सम्पर्क गर्नेछन्।';
+                                $ph = preg_replace('/[^0-9]/', '', $mobile);
+                                if (strlen($ph) >= 10) {
+                                    $ch = curl_init('https://api.sparrowsms.com/v2/sms/');
+                                    curl_setopt_array($ch, [CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query(['token'=>$smsToken,'from'=>$smsSender,'to'=>$ph,'text'=>mb_substr($smsTxt,0,160)]),CURLOPT_RETURNTRANSFER=>true,CURLOPT_TIMEOUT=>10,CURLOPT_SSL_VERIFYPEER=>true]);
+                                    curl_exec($ch); curl_close($ch);
+                                }
+                            }
+                        } catch (Exception $ignored) {}
+                    }
+                } else {
+                    $error = isEnglish()
+                        ? (string)($result['error_en'] ?? $result['error'] ?? 'An error occurred. Please try again.')
+                        : (string)($result['error'] ?? 'त्रुटि भयो। कृपया पुन: प्रयास गर्नुहोस्।');
+                }
             }
         } catch (\Throwable $e) {
             error_log('loan-apply submit error: ' . $e->getMessage());
@@ -314,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 
 <div class="row justify-content-center">
-<div class="col-lg-10">
+<div class="col-lg-10 public-form-shell public-form-shell--wide">
 
 <!-- ── Step Progress Bar ── -->
 <div class="loan-wizard-bar mb-4" id="loanWizardBar">

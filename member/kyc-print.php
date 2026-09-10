@@ -15,26 +15,14 @@ $incomeItems = [];
 $expenseItems = [];
 
 try {
-    $kycId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycId > 0) {
-        $s = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
-        $s->execute([$kycId]);
-        $kycRow = $s->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $conds = [];
-        $vals = [];
-        if (!empty($mem['email'])) {
-            $conds[] = 'LOWER(email)=?';
-            $vals[] = strtolower(trim((string)$mem['email']));
-        }
-        if (!empty($mem['phone'])) {
-            $conds[] = 'mobile=?';
-            $vals[] = preg_replace('/[^0-9]/', '', (string)$mem['phone']);
-        }
-        if (!empty($conds)) {
-            $s = $db->prepare("SELECT * FROM kyc_applications WHERE (" . implode(' OR ', $conds) . ") ORDER BY id DESC LIMIT 1");
-            $s->execute($vals);
+    $kycRow = null;
+    if (function_exists('memberSsotLoadLinkedKyc')) {
+        $kycRow = memberSsotLoadLinkedKyc($db, $mem);
+    } else {
+        $kycId = (int)($mem['kyc_application_id'] ?? 0);
+        if ($kycId > 0) {
+            $s = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
+            $s->execute([$kycId]);
             $kycRow = $s->fetch(PDO::FETCH_ASSOC) ?: null;
         }
     }

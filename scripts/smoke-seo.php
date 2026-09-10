@@ -101,6 +101,25 @@ assertFileContains('loan-apply.php', '$pageDescription', 'loan-apply unique meta
 assertFileContains('emi-calculator.php', '$pageDescription', 'emi-calculator unique meta description');
 assertFileContains('institutional-profile.php', '$pageDescription', 'institutional-profile unique meta description');
 
+// Phase 6: drop obsolete keywords meta; data SSOT documented
+$header = (string) file_get_contents($root . '/includes/header.php');
+if (strpos($header, 'name="keywords"') !== false) {
+    fail('includes/header.php: obsolete keywords meta still emitted');
+} else {
+    ok('includes/header.php: keywords meta omitted');
+}
+assertFileContains('includes/data-ssot.php', 'COOP_SSOT_PUBLIC_FAQS', 'FAQ/links SSOT constants');
+assertFileContains('includes/config.php', 'data-ssot.php', 'config loads data SSOT');
+assertFileContains('admin/faqs.php', 'do not dual-write', 'faqs admin SSOT note');
+assertFileContains('admin/help-center.php', 'chatbot_faqs', 'help-center SSOT note');
+assertFileContains('admin/useful-links.php', 'useful_links', 'useful-links SSOT note');
+assertFileContains('member/includes/chrome.php', 'memberSsotLoadLinkedKyc', 'member avatar uses KYC SSOT helper');
+if (strpos((string) file_get_contents($root . '/member/includes/chrome.php'), 'LOWER(email)') !== false) {
+    fail('member/includes/chrome.php: email soft avatar fallback should be removed');
+} else {
+    ok('member/includes/chrome.php: no email soft avatar fallback');
+}
+
 // Print control should be a button (not href="#")
 assertFileContains('member/kyc-print.php', 'onclick="window.print();"', 'kyc print action');
 assertFileContains('member/kyc-print.php', '<button type="button" class="btn"', 'kyc print is button');

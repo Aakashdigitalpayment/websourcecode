@@ -20,33 +20,13 @@ $_t = static function (string $np, string $en): string {
 $memberId = (int)$mem['id'];
 $memEmail = trim((string)($mem['email'] ?? ''));
 $memPhone = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
+$memName  = trim((string)($mem['name'] ?? ''));
+require __DIR__ . '/../includes/member-portal-identity.php';
 
-/* KYC-linked profile priority */
-$kycRow = null;
-try {
-    $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycLinkId > 0) {
-        $ks = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $kw = []; $kp = [];
-        if ($memEmail) { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower($memEmail); }
-        if ($memPhone) { $kw[] = 'mobile=?'; $kp[] = $memPhone; }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT * FROM kyc_applications WHERE (" . implode(' OR ', $kw) . ") ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
-            $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-        }
-    }
-} catch (Throwable $e) { $kycRow = null; }
-
-/* Resolved identity */
-$memName    = trim((string)($kycRow['full_name'] ?? $mem['name']    ?? ''));
-$memSadasyata = trim((string)($kycRow['member_id'] ?? $mem['sadasyata_number'] ?? ''));
-$resolvedPhone = $memPhone ?: preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? ''));
-$resolvedEmail = $memEmail ?: strtolower(trim((string)($kycRow['email'] ?? '')));
+$rPhone = $memPhone ?: preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? $kycRow['phone'] ?? ''));
+$rEmail = $memEmail ?: strtolower(trim((string)($kycRow['email'] ?? '')));
+$resolvedPhone = $rPhone;
+$resolvedEmail = $rEmail;
 $resolvedAddress = trim((string)($kycRow['temporary_address'] ?? $kycRow['permanent_address'] ?? ''));
 
 ensureWelfareClaimsTables($db);
@@ -258,7 +238,7 @@ HTML;
 ?>
 <?php require __DIR__ . '/includes/chrome.php'; ?>
 
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="wf-head">
@@ -433,7 +413,7 @@ HTML;
           <div class="form-row cols2">
             <div class="form-group wf-mb-0"><label>मृत्यु हुने व्यक्तिको नाम</label><input name="deceased_name" type="text" class="form-control" placeholder="पूरा नाम"></div>
             <div class="form-group wf-mb-0"><label>नाता</label><input name="deceased_relation" type="text" class="form-control" placeholder="जस्तै: आफ्नो, श्रीमती"></div>
-            <div class="form-group wf-mb-0"><label><?php echo $_t('मृत्यु मिति', 'Date of Death'); ?></label><input name="death_date" type="date" class="form-control" data-calendar="ad"></div>
+            <div class="form-group wf-mb-0"><label><?php echo $_t('मृत्यु मिति', 'Date of Death'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label><?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'death_date','id'=>'mwf_death_date','class'=>'form-control','value'=>(string)($_POST['death_date'] ?? ''),'hint'=>false]) : '<input name="death_date" type="date" class="form-control">'; ?></div>
           </div>
         </div>
       </div>
@@ -443,7 +423,7 @@ HTML;
         <div class="wf-section-box maternity">
           <div class="wf-section-head maternity"><i class="fas fa-baby wf-icon-gap-sm"></i>सुत्केरी विवरण</div>
           <div class="form-row cols2">
-            <div class="form-group wf-mb-0"><label><?php echo $_t('सुत्केरी मिति', 'Delivery Date'); ?></label><input name="delivery_date" type="date" class="form-control" data-calendar="ad"></div>
+            <div class="form-group wf-mb-0"><label><?php echo $_t('सुत्केरी मिति', 'Delivery Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label><?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'delivery_date','id'=>'mwf_delivery_date','class'=>'form-control','value'=>(string)($_POST['delivery_date'] ?? ''),'hint'=>false]) : '<input name="delivery_date" type="date" class="form-control">'; ?></div>
             <div class="form-group wf-mb-0"><label>अस्पताल / क्लिनिकको नाम</label><input name="hospital_name" type="text" class="form-control" placeholder="अस्पतालको नाम"></div>
           </div>
         </div>
@@ -455,7 +435,7 @@ HTML;
           <div class="wf-section-head medical"><i class="fas fa-stethoscope wf-icon-gap-sm"></i>उपचार विवरण</div>
           <div class="form-row cols2">
             <div class="form-group wf-mb-0"><label>रोग / चोट विवरण</label><input name="disease_illness" type="text" class="form-control" placeholder="संक्षिप्त विवरण"></div>
-            <div class="form-group wf-mb-0"><label><?php echo $_t('उपचार मिति', 'Treatment Date'); ?></label><input name="treatment_date" type="date" class="form-control" data-calendar="ad"></div>
+            <div class="form-group wf-mb-0"><label><?php echo $_t('उपचार मिति', 'Treatment Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label><?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'treatment_date','id'=>'mwf_treatment_date','class'=>'form-control','value'=>(string)($_POST['treatment_date'] ?? ''),'hint'=>true]) : '<input name="treatment_date" type="date" class="form-control">'; ?></div>
             <div class="form-group wf-mb-0"><label>अस्पताल / क्लिनिक</label><input name="hospital_clinic" type="text" class="form-control" placeholder="अस्पतालको नाम"></div>
           </div>
         </div>
@@ -531,7 +511,7 @@ HTML;
   </div>
 
 </div>
-</main>
+</div>
 
 <script>
 function showTab(btn, tab) {

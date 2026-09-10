@@ -485,21 +485,6 @@ $__seoDocTitle = function_exists('seo_document_title')
     ? seo_document_title(isset($pageTitle) ? (string) $pageTitle : null, $__seoEnglish)
     : ((isset($pageTitle) ? $pageTitle . ' - ' : '') . $siteBrandName);
 
-$__seoKeywords = trim((string) getSetting('meta_keywords', ''));
-if ($__seoKeywords === '') {
-    $kwParts = array_filter([
-        $siteName,
-        $siteNameEn,
-        'सहकारी',
-        'cooperative',
-        'SACCOS',
-        'बचत',
-        'ऋण',
-        'Nepal',
-    ]);
-    $__seoKeywords = implode(', ', $kwParts);
-}
-
 $__seoCanon = function_exists('seo_canonical_url') ? seo_canonical_url() : (rtrim(SITE_URL, '/') . '/');
 $__seoOgImg = '';
 if (isset($pageOgImage) && (string) $pageOgImage !== '') {
@@ -583,7 +568,6 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
     <meta name="theme-color" content="#1a5f2a">
     <meta name="robots" content="<?php echo e($__robots); ?>">
     <meta name="description" content="<?php echo e($__seoDesc); ?>">
-    <meta name="keywords" content="<?php echo e($__seoKeywords); ?>">
     <meta name="author" content="<?php echo e($siteBrandName); ?>">
     <?php
     $__gscVerify = trim((string) getSetting('google_site_verification', ''));
@@ -2312,7 +2296,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         else bindPflMobileMenu();
     })();
     </script>
-    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.5" defer></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.8" defer></script>
     <script>
     /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {

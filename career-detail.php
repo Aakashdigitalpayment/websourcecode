@@ -348,7 +348,7 @@ $L = getLangStrings();
                 </div>
 
                 <?php if ($allowOnlineApply && !$success): ?>
-                <div class="application-form-section" id="apply-form" style="<?php echo $showApplyForm ? '' : 'display: none;'; ?>">
+                <div class="application-form-section public-form-shell" id="apply-form" style="<?php echo $showApplyForm ? '' : 'display: none;'; ?>">
                     <h3><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Online Application Form' : 'अनलाइन आवेदन फारम'; ?></h3>
                     <p class="form-subtitle"><?php echo isEnglish() ? 'Fill out the form below to apply for this position. Fields marked with * are required.' : 'यस पदको लागि आवेदन दिन तलको फारम भर्नुहोस्। * चिन्ह भएका फिल्डहरू अनिवार्य छन्।'; ?></p>
 

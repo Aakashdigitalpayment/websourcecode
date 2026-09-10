@@ -109,6 +109,28 @@ if (!function_exists('submitWelfareClaimUnified')) {
             throw new InvalidArgumentException('DOC_REQUIRED');
         }
 
+        $normDate = static function ($raw): ?string {
+            $s = trim((string)$raw);
+            if ($s === '') {
+                return null;
+            }
+            if (!function_exists('appointmentNormalizeDate')) {
+                $ah = __DIR__ . '/appointment-submit-helper.php';
+                if (is_file($ah)) {
+                    require_once $ah;
+                }
+            }
+            if (function_exists('coop_date_ui_normalize_ad')) {
+                $ad = coop_date_ui_normalize_ad($s);
+                return $ad !== '' ? $ad : null;
+            }
+            if (function_exists('appointmentNormalizeDate')) {
+                $ad = appointmentNormalizeDate($s);
+                return $ad !== '' ? $ad : null;
+            }
+            return $s;
+        };
+
         $stmt = $db->prepare("INSERT INTO member_welfare_claims (
             tracking_id, member_name, member_id, member_portal_id, phone, email, address,
             claim_type, claim_type_np, beneficiary_name, beneficiary_relation,
@@ -135,12 +157,12 @@ if (!function_exists('submitWelfareClaimUnified')) {
             $documents ?: null,
             $payload['deceased_name'] ?? '',
             $payload['deceased_relation'] ?? '',
-            $payload['death_date'] ?? null,
+            $normDate($payload['death_date'] ?? null),
             $deathCertificate ?: null,
-            $payload['delivery_date'] ?? null,
+            $normDate($payload['delivery_date'] ?? null),
             $payload['hospital_name'] ?? '',
             $payload['disease_illness'] ?? '',
-            $payload['treatment_date'] ?? null,
+            $normDate($payload['treatment_date'] ?? null),
             $payload['hospital_clinic'] ?? '',
             $payload['policy_number'] ?? null,
             $payload['insurer_name'] ?? null,

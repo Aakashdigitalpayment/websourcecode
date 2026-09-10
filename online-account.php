@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/ensure-tables.php';
 require_once 'includes/contact-spam-guard.php';
+require_once 'includes/account-submit-helper.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Online Account Opening' : 'अनलाइन खाता खोल्नुहोस्';
@@ -115,59 +116,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         /* -------------------------------------------------------
-           Server-side validation — account opening application
-           खाता प्रकार, नाम, मोबाइल (10 digits), इमेल, नागरिकता required
+           Server-side validation + INSERT via shared helper
         ------------------------------------------------------- */
-        if (!$error && empty($account_type)) {
-            $error = isEnglish() ? 'Please select an account type.' : 'कृपया खाता प्रकार छान्नुहोस्।';
-        } elseif (!$error && empty($full_name)) {
-            $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
-        } elseif (!$error && empty($mobile)) {
-            $error = isEnglish() ? 'Mobile number is required.' : 'मोबाइल नम्बर अनिवार्य छ।';
-        } elseif (!$error && !preg_match('/^[0-9]{10}$/', $mobile)) {
-            $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-        } elseif (!$error && $isCoopMember !== 'yes' && empty($email)) {
-            $error = isEnglish() ? 'Email address is required.' : 'इमेल ठेगाना अनिवार्य छ।';
-        } elseif (!$error && !empty($email) && !isValidEmail($email)) {
-            $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-        } elseif (!$error && empty($citizenship_no)) {
-            $error = isEnglish() ? 'Citizenship number is required.' : 'नागरिकता नम्बर अनिवार्य छ।';
-        } elseif (!$error) {
-            try {
-                // KYC-based member case मा duplicate documents फेरि upload/save नगर्ने
-                $photo = '';
-                $citizenship_front = '';
-                $citizenship_back = '';
-                $signature = '';
-                if (!$useKycIdentity) {
-                    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === 0) {
-                        $uploadResult = uploadFile($_FILES['photo'], 'accounts');
-                        if ($uploadResult['success']) $photo = $uploadResult['path'];
-                    }
-                    if (isset($_FILES['citizenship_front']) && $_FILES['citizenship_front']['error'] === 0) {
-                        $uploadResult = uploadFile($_FILES['citizenship_front'], 'accounts');
-                        if ($uploadResult['success']) $citizenship_front = $uploadResult['path'];
-                    }
-                    if (isset($_FILES['citizenship_back']) && $_FILES['citizenship_back']['error'] === 0) {
-                        $uploadResult = uploadFile($_FILES['citizenship_back'], 'accounts');
-                        if ($uploadResult['success']) $citizenship_back = $uploadResult['path'];
-                    }
-                    if (isset($_FILES['signature']) && $_FILES['signature']['error'] === 0) {
-                        $uploadResult = uploadFile($_FILES['signature'], 'accounts');
-                        if ($uploadResult['success']) $signature = $uploadResult['path'];
-                    }
-                }
+        if (!$error) {
+            $__nf = __DIR__ . '/includes/notifications.php';
+            if (is_file($__nf)) { require_once $__nf; }
+            unset($__nf);
 
-                $accTrackingId = coop_new_tracking_id('ACC');
-                $stmt = $db->prepare("INSERT INTO account_applications (tracking_id, account_type, full_name, full_name_en, dob_bs, dob_ad, gender, marital_status, mobile, email, permanent_address, temporary_address, citizenship_no, citizenship_issued_date, citizenship_issued_place, father_name, mother_name, occupation, monthly_income, initial_deposit, nominee_name, nominee_relation, nominee_phone, branch, photo, citizenship_front, citizenship_back, signature) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$accTrackingId, $account_type, $full_name, $full_name_en, $dob_bs, $dob_ad, $gender, $marital_status, $mobile, $email, $permanent_address, $temporary_address, $citizenship_no, $citizenship_issued_date, $citizenship_issued_place, $father_name, $mother_name, $occupation, $monthly_income, $initial_deposit, $nominee_name, $nominee_relation, $nominee_phone, $branch, $photo, $citizenship_front, $citizenship_back, $signature]);
+            $result = submitAccountApplicationUnified($db, [
+                'account_type' => $account_type,
+                'full_name' => $full_name,
+                'full_name_en' => $full_name_en,
+                'dob_bs' => $dob_bs,
+                'dob_ad' => $dob_ad,
+                'gender' => $gender,
+                'marital_status' => $marital_status,
+                'mobile' => $mobile,
+                'email' => $email,
+                'permanent_address' => $permanent_address,
+                'temporary_address' => $temporary_address,
+                'citizenship_no' => $citizenship_no,
+                'citizenship_issued_date' => $citizenship_issued_date,
+                'citizenship_issued_place' => $citizenship_issued_place,
+                'father_name' => $father_name,
+                'mother_name' => $mother_name,
+                'occupation' => $occupation,
+                'monthly_income' => $monthly_income,
+                'initial_deposit' => $initial_deposit,
+                'nominee_name' => $nominee_name,
+                'nominee_relation' => $nominee_relation,
+                'nominee_phone' => $nominee_phone,
+                'branch' => $branch,
+                'skip_uploads' => $useKycIdentity,
+                'require_email' => $isCoopMember !== 'yes',
+                'require_citizenship' => true,
+            ], $_FILES);
+
+            if (!empty($result['ok'])) {
                 $success = true;
+                $accTrackingId = (string)$result['tracking_id'];
                 logSecurityEvent('account_application', 'Account application by: ' . $full_name . ' (Tracking: ' . $accTrackingId . ')');
-
-                /* Notifications — guarded so missing/broken file does not 500 the form */
-                $__nf = __DIR__ . '/includes/notifications.php';
-                if (is_file($__nf)) { require_once $__nf; }
-                unset($__nf);
 
                 // Member confirmation SMS
                 if (!empty($mobile)) {
@@ -185,20 +173,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     } catch (Throwable $ignored) {}
                 }
-
-                sendAdminNotification('account_application', [
-                    'नाम'             => $full_name,
-                    'खाता प्रकार'     => $account_type,
-                    'फोन'             => $mobile,
-                    'इमेल'            => $email ?: 'N/A',
-                    'प्रारम्भिक जम्मा' => 'Rs. ' . number_format((float)($initial_deposit ?: 0)),
-                    'Tracking ID'     => $accTrackingId,
-                    'सेवा कार्यालय'     => $branch ?: 'N/A',
-                    'मिति'            => date('Y-m-d H:i'),
-                ], $accTrackingId);
-            } catch (Throwable $e) {
-                error_log('online-account submit error: ' . $e->getMessage());
-                $error = isEnglish() ? 'Failed to submit application.' : 'आवेदन पेश गर्न सकिएन।';
+            } else {
+                $error = isEnglish()
+                    ? (string)($result['error_en'] ?? $result['error'] ?? 'Failed to submit application.')
+                    : (string)($result['error'] ?? 'आवेदन पेश गर्न सकिएन।');
             }
         }
     }
@@ -269,7 +247,7 @@ try {
         <?php endif; ?>
 
         <div class="row justify-content-center">
-            <div class="col-lg-10">
+            <div class="col-lg-10 public-form-shell public-form-shell--wide">
                 <div class="account-form-box">
                     <div class="form-header text-center mb-4">
                         <div class="form-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i></div>
@@ -344,8 +322,8 @@ try {
                                     <input type="text" name="full_name_en" id="acc_full_name_en" class="form-control" value="<?php echo htmlspecialchars($_POST['full_name_en'] ?? '', ENT_QUOTES); ?>">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="acc_dob_bs" class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (बि.सं.)'; ?></label>
-                                    <input type="text" name="dob_bs" id="acc_dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off" value="<?php echo htmlspecialchars($_POST['dob_bs'] ?? '', ENT_QUOTES); ?>">
+                                    <label for="acc_dob_bs" class="form-label"><?php echo isEnglish() ? 'Date of Birth' : 'जन्म मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'dob_bs','id'=>'acc_dob_bs','class'=>'form-control','value'=>(string)($_POST['dob_bs'] ?? ''),'hint'=>true]) : '<input type="text" name="dob_bs" id="acc_dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">'; ?>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="acc_gender" class="form-label"><?php echo isEnglish() ? 'Gender' : 'लिङ्ग'; ?></label>
@@ -435,8 +413,8 @@ try {
                                     <input type="text" name="citizenship_no" id="acc_citizenship_no" class="form-control js-acc-cit-req" required>
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label for="acc_citizenship_issued_date" class="form-label"><?php echo isEnglish() ? 'Issued Date' : 'जारी मिति'; ?></label>
-                                    <input type="text" name="citizenship_issued_date" id="acc_citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off">
+                                    <label for="acc_citizenship_issued_date" class="form-label"><?php echo isEnglish() ? 'Issued Date' : 'जारी मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'citizenship_issued_date','id'=>'acc_citizenship_issued_date','class'=>'form-control','value'=>(string)($_POST['citizenship_issued_date'] ?? ''),'hint'=>false]) : '<input type="text" name="citizenship_issued_date" id="acc_citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">'; ?>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label for="acc_citizenship_issued_place" class="form-label"><?php echo isEnglish() ? 'Issued Place' : 'जारी स्थान'; ?></label>

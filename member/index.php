@@ -22,28 +22,22 @@ $memEmail = trim((string)($mem['email'] ?? ''));
 $memPhone = trim((string)($mem['phone'] ?? ''));
 $memAvatar = $mem['avatar_url'] ?? '';
 
-/* KYC-linked profile priority */
+/* KYC-linked profile priority (SSOT: kyc_application_id → sadasyata; no email/mobile soft match) */
 $kycRow = null;
 try {
-    $kycMemberLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycMemberLinkId > 0) {
-        $ks = $db->prepare("SELECT id, full_name, email, mobile, photo FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycMemberLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $kw = []; $kp = [];
-        if ($memEmail !== '') { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower($memEmail); }
-        if ($memPhone !== '') { $kw[] = 'mobile=?'; $kp[] = preg_replace('/[^0-9]/', '', $memPhone); }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT id, full_name, email, mobile, photo FROM kyc_applications WHERE (" . implode(' OR ', $kw) . ") ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
+    if (function_exists('memberSsotLoadLinkedKyc')) {
+        $kycRow = memberSsotLoadLinkedKyc($db, $mem);
+    } else {
+        $kycMemberLinkId = (int)($mem['kyc_application_id'] ?? 0);
+        if ($kycMemberLinkId > 0) {
+            $ks = $db->prepare("SELECT id, full_name, email, mobile, photo FROM kyc_applications WHERE id=? LIMIT 1");
+            $ks->execute([$kycMemberLinkId]);
             $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-            if ($kycRow && empty($mem['kyc_application_id'])) {
-                $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")->execute([(int)$kycRow['id'], $memberId]);
-                $mem['kyc_application_id'] = (int)$kycRow['id'];
-            }
         }
+    }
+    if ($kycRow && empty($mem['kyc_application_id'])) {
+        $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")->execute([(int)$kycRow['id'], $memberId]);
+        $mem['kyc_application_id'] = (int)$kycRow['id'];
     }
 } catch (Throwable $e) { $kycRow = null; }
 if ($kycRow) {

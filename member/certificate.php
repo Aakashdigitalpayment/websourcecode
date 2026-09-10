@@ -16,24 +16,16 @@ $_t = static function (string $np, string $en): string {
 
 $memberId = (int)$mem['id'];
 
-/* KYC data */
+/* KYC data (SSOT: kyc_application_id → sadasyata; no email/mobile soft match) */
 $kycRow = null;
 try {
-    $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycLinkId > 0) {
-        $ks = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $memEmail = trim((string)($mem['email'] ?? ''));
-        $memPhone = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
-        $kw = []; $kp = [];
-        if ($memEmail) { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower($memEmail); }
-        if ($memPhone) { $kw[] = 'mobile=?'; $kp[] = $memPhone; }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT * FROM kyc_applications WHERE (" . implode(' OR ', $kw) . ") ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
+    if (function_exists('memberSsotLoadLinkedKyc')) {
+        $kycRow = memberSsotLoadLinkedKyc($db, $mem);
+    } else {
+        $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
+        if ($kycLinkId > 0) {
+            $ks = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
+            $ks->execute([$kycLinkId]);
             $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
         }
     }
@@ -144,7 +136,7 @@ HTML;
 ?>
 <?php require __DIR__ . '/includes/chrome.php'; ?>
 
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <!-- Action buttons (hidden on print) -->
@@ -282,5 +274,5 @@ HTML;
   </div>
 
 </div>
-</main>
+</div>
 <?php require __DIR__ . '/includes/chrome-foot.php'; ?>

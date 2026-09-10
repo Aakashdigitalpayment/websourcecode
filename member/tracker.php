@@ -19,31 +19,23 @@ $_t = static function (string $np, string $en): string {
     return isEnglish() ? $en : $np;
 };
 
-/* KYC-linked source priority (profile/dashboard/id-card जस्तै) */
+/* KYC-linked source priority (SSOT: kyc_application_id → sadasyata; no email/mobile soft match) */
 try {
     $kycRow = null;
-    $kycMemberLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycMemberLinkId > 0) {
-        $ks = $db->prepare("SELECT id, email, mobile FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycMemberLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $kw = [];
-        $kp = [];
-        if ($memEmail !== '') { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower($memEmail); }
-        if ($memPhone !== '') { $kw[] = 'mobile=?'; $kp[] = preg_replace('/[^0-9]/', '', $memPhone); }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT id, email, mobile FROM kyc_applications
-                                WHERE (" . implode(' OR ', $kw) . ")
-                                ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
+    if (function_exists('memberSsotLoadLinkedKyc')) {
+        $kycRow = memberSsotLoadLinkedKyc($db, $mem);
+    } else {
+        $kycMemberLinkId = (int)($mem['kyc_application_id'] ?? 0);
+        if ($kycMemberLinkId > 0) {
+            $ks = $db->prepare("SELECT id, email, mobile FROM kyc_applications WHERE id=? LIMIT 1");
+            $ks->execute([$kycMemberLinkId]);
             $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-            if ($kycRow && empty($mem['kyc_application_id'])) {
-                $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
-                    ->execute([(int)$kycRow['id'], $memberId]);
-            }
         }
+    }
+    if ($kycRow && empty($mem['kyc_application_id'])) {
+        $db->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
+            ->execute([(int)$kycRow['id'], $memberId]);
+        $mem['kyc_application_id'] = (int)$kycRow['id'];
     }
     if ($kycRow) {
         if (trim((string)($kycRow['email'] ?? '')) !== '') $memEmail = trim((string)$kycRow['email']);

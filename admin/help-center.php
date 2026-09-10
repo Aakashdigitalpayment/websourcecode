@@ -1,4 +1,8 @@
 <?php
+/**
+ * Help Center — SSOT table: chatbot_faqs (AI chat + help desk).
+ * Public FAQ page uses faqs — do not dual-write between the two.
+ */
 $pageTitle = 'सहायता केन्द्र व्यवस्थापन (Help Center)';
 require_once '../includes/config.php';
 require_once __DIR__ . '/../includes/simple-cache.php';

@@ -229,7 +229,7 @@ function ensureAdminTables(): bool {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        /* ── 13. IMPORTANT LINKS (legacy alias) ─────────── */
+        /* ── 13. IMPORTANT LINKS (legacy schema only — SSOT is useful_links; do not dual-write) ── */
         $db->exec("CREATE TABLE IF NOT EXISTS important_links (
             id INT AUTO_INCREMENT PRIMARY KEY,
             title VARCHAR(200) NOT NULL,

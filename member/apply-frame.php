@@ -16,11 +16,6 @@ $frames = [
         'title' => $_t('केवाइएम दर्ता / अपडेट', 'KYC Register / Update'),
         'hint' => $_t('अनलाइन केवाइएम फारम — लगिन सत्र प्रयोग भइरहेको छ।', 'Online KYM form using your current login session.'),
     ],
-    'digital' => [
-        'path' => 'digital-services.php',
-        'title' => $_t('डिजिटल सेवा अनुरोध', 'Digital Service Request'),
-        'hint' => $_t('डिजिटल सेवा छानेर विवरण पठाउनुहोस्।', 'Choose digital service and submit details.'),
-    ],
     'career' => [
         'path' => 'career.php',
         'title' => $_t('रोजगार / जागिर', 'Career / Job'),
@@ -39,6 +34,7 @@ $nativeRedirects = [
     'appointment' => 'appointment.php',
     'grievance' => 'grievance.php',
     'account' => 'account-apply.php',
+    'digital' => 'digital-service.php',
 ];
 
 $p = $_GET['p'] ?? '';

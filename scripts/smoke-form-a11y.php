@@ -112,7 +112,7 @@ $pairs = [
     ['online-account.php', 'for="acc_branch"', 'branch'],
     ['online-account.php', 'aria-labelledby="acc_coop_member_label"', 'member radio group'],
     ['application-tracker.php', 'for="secPhone"', 'verify phone'],
-    ['application-tracker.php', 'for="securityCode"', 'security code'],
+    ['application-tracker.php', 'for="secTrackingId"', 'tracking id verify field'],
     ['member/password-reset-request.php', 'for="mpr_identifier"', 'identifier'],
     ['member/password-reset-request.php', 'for="pw1"', 'new password'],
     ['member/password-reset-request.php', 'aria-labelledby="mpr_channel_label"', 'OTP channel group'],
@@ -160,6 +160,11 @@ $pairs = [
 foreach ($pairs as [$file, $needle, $why]) {
     assertContains($file, $needle, $why);
 }
+
+// Phase 4 shell landmarks (lightweight)
+assertContains('admin/includes/admin-header.php', 'aria-expanded="<?php echo $activeGroup', 'admin nav aria-expanded');
+assertContains('member/includes/chrome.php', 'href="#main-content"', 'member skip target');
+assertContains('verify.php', 'aria-live="assertive"', 'verify live errors');
 
 // Syntax lint on touched files
 foreach ($filesExpectZeroBare as $f) {
