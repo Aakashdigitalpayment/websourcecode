@@ -102,7 +102,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
     <?php foreach ($_fnPrimary as $_fnItem): ?>
     <a href="<?php echo htmlspecialchars($_fnItem['href']); ?>"
        class="mp-bottom-nav__item<?php echo ($_fnActive === $_fnItem['active']) ? ' active' : ''; ?>"
-       aria-label="<?php echo htmlspecialchars($_fnItem['label']); ?>">
+       aria-label="<?php echo htmlspecialchars($_fnItem['label']); ?>"<?php echo ($_fnActive === $_fnItem['active']) ? ' aria-current="page"' : ''; ?>>
         <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo htmlspecialchars($_fnItem['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i>
         <span><?php echo htmlspecialchars($_fnItem['label']); ?></span>
         <?php if (!empty($_fnItem['badge']) && $_fnItem['badge'] > 0): ?>
@@ -112,7 +112,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
     <?php endforeach; ?>
 
     <!-- More button -->
-    <button class="mp-bn-more" id="mpMoreBtn" type="button" aria-label="<?php echo $_footT('थप नेभिगेसन','More Navigation'); ?>">
+    <button class="mp-bn-more" id="mpMoreBtn" type="button" aria-label="<?php echo $_footT('थप नेभिगेसन','More Navigation'); ?>" aria-expanded="false" aria-controls="mpMoreDrawer">
         <i class="lucide-icon" aria-hidden="true" data-lucide="more-horizontal"></i>
         <span><?php echo $_footT('थप', 'More'); ?></span>
     </button>
@@ -120,10 +120,10 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
 </nav>
 
 <!-- ══ More drawer — backdrop ══ -->
-<div class="mp-more-overlay" id="mpMoreOverlay" role="dialog" aria-modal="true" aria-label="<?php echo $_footT('सबै सेवाहरू','All Services'); ?>"></div>
+<div class="mp-more-overlay" id="mpMoreOverlay" hidden></div>
 
 <!-- ══ More drawer — slide-up sheet ══ -->
-<div class="mp-more-drawer" id="mpMoreDrawer">
+<div class="mp-more-drawer" id="mpMoreDrawer" role="dialog" aria-modal="true" aria-label="<?php echo $_footT('सबै सेवाहरू','All Services'); ?>">
     <div class="mp-more-drag" aria-hidden="true"></div>
     <div class="mp-more-head">
         <span><i style="font-size:.8rem;margin-right:6px;" class="lucide-icon" aria-hidden="true" data-lucide="grid-2x2"></i><?php echo $_footT('सबै सेवाहरू', 'All Services'); ?></span>
@@ -146,6 +146,7 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
 
 <script src="assets/vendor/bootstrap.bundle.min.js" defer></script>
 <script src="<?php echo $_fnUrl; ?>assets/js/v9-mobile-fix.js?v=9.7" defer></script>
+<script src="<?php echo htmlspecialchars($_fnUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/form-validation.js?v=<?php echo (int)(@filemtime(dirname(__DIR__, 2) . '/assets/js/form-validation.js') ?: time()); ?>" defer></script>
 <script>
 (function () {
     /* ── Bell dropdown ── */
@@ -183,13 +184,20 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
         moreOverlay.classList.add('open');
         moreDrawer.classList.add('open');
         moreBtn.classList.add('open');
+        moreBtn.setAttribute('aria-expanded', 'true');
+        moreOverlay.hidden = false;
         document.body.style.overflow = 'hidden';
+        var focusable = moreDrawer.querySelector('button, a[href]');
+        if (focusable) try { focusable.focus(); } catch (e) {}
     }
     function closeDrawer() {
         moreOverlay.classList.remove('open');
         moreDrawer.classList.remove('open');
         moreBtn.classList.remove('open');
+        moreBtn.setAttribute('aria-expanded', 'false');
+        moreOverlay.hidden = true;
         document.body.style.overflow = '';
+        try { moreBtn.focus(); } catch (e) {}
     }
 
     moreBtn.addEventListener('click', function () {

@@ -165,7 +165,7 @@ require __DIR__ . '/includes/chrome.php';
       <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 

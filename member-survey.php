@@ -258,7 +258,7 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <!-- Survey Form -->
-                <form method="POST" id="surveyForm" class="needs-validation" novalidate>
+                <form method="POST" id="surveyForm" class="needs-validation coop-form-sticky" novalidate>
                     <?php echo csrfField(); ?>
                     <?php if ($loggedMember): ?>
                     <div class="alert alert-success py-2 small mb-3">

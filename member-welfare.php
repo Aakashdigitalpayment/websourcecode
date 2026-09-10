@@ -387,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p><?php echo isEnglish() ? 'Fill the form below to submit your welfare claim' : 'तल दिइएको फारम भर्नुहोस्'; ?></p>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation claim-form" id="welfareClaimForm" novalidate>
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation claim-form coop-form-sticky" id="welfareClaimForm" novalidate>
                         <?php echo csrfField(); ?>
                         <?php if ($loggedMember): ?>
                         <div class="alert alert-success py-2 small mb-3">

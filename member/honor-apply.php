@@ -149,7 +149,7 @@ require __DIR__ . '/includes/chrome.php';
     <?php else: ?>
     <div class="card mb-4">
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" class="coop-form-sticky">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="submit_honor">
 

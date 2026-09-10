@@ -302,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!-- ── Wizard Form ── -->
 <div class="loan-form-box" data-aos="fade-up">
-<form method="POST" enctype="multipart/form-data" class="loan-form needs-validation" id="loanApplyForm" novalidate>
+<form method="POST" enctype="multipart/form-data" class="loan-form needs-validation coop-form-sticky" id="loanApplyForm" novalidate>
 <?php echo csrfField(); ?>
 
 <!-- ════════════════════ STEP 1: APPLICANT ════════════════════ -->

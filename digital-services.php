@@ -335,7 +335,7 @@ $L = getLangStrings();
                     <div class="card-body p-4">
 
                 <!-- Request Form -->
-                <form method="POST" enctype="multipart/form-data" id="digitalServiceForm" class="needs-validation" novalidate>
+                <form method="POST" enctype="multipart/form-data" id="digitalServiceForm" class="needs-validation coop-form-sticky" novalidate>
                     <?php echo csrfField(); ?>
                     <?php if ($loggedMember):
                         $kycForDisplay = isset($kycMerge) ? $kycMerge : null;

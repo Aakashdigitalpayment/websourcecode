@@ -285,7 +285,7 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <!-- Contact Form -->
-                <form method="POST" action="contact.php" id="contactForm" class="needs-validation public-form-shell" novalidate>
+                <form method="POST" action="contact.php" id="contactForm" class="needs-validation public-form-shell coop-form-sticky" novalidate>
                     <?php echo csrfField(); ?>
 
                     <div class="row g-3">
@@ -306,9 +306,9 @@ require_once 'includes/header.php';
                         <!-- फोन -->
                         <div class="col-md-6">
                             <label for="contact_phone" class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन नम्बर'; ?></label>
-                            <input type="tel" name="phone" id="contact_phone" class="form-control"
+                            <input type="tel" name="phone" id="contact_phone" class="form-control no-univ-phone"
                                    value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>" autocomplete="tel">
+                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>" autocomplete="tel" data-univ-phone="off">
                         </div>
                         <!-- विषय -->
                         <div class="col-md-6">

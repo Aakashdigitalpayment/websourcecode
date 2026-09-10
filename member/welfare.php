@@ -362,7 +362,7 @@ HTML;
       <div><?php echo $_t('तपाईंको नाम, फोन र ठेगाना <strong>KYM बाट auto-fill</strong> भएको छ — तल देखिन्छ। केवल दाबीको विवरण भर्नुहोस्।', 'Your name, phone and address are <strong>auto-filled from KYM</strong> — shown below. Fill only claim details.'); ?></div>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit_claim">
 

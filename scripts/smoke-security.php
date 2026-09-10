@@ -156,6 +156,13 @@ assertFileContains('cooperative-programs.php', "checkRateLimit('program_prereg_p
 assertFileContains('verify.php', "coop_public_form_bot_block(\$_POST, 'prog_prereg'", 'verify prereg POST bot guard');
 assertFileContains('verify.php', "checkRateLimit('program_prereg_public'", 'verify prereg shares rate bucket');
 assertFileContains('assets/js/form-validation.js', 'dataset.origHtml', 'form validation restores footer spinner label');
+assertFileContains('assets/js/form-validation.js', 'prefers-reduced-motion', 'form validation respects reduced motion scroll');
+assertFileContains('assets/js/coop-mobile.js', 'function prefersReducedMotion', 'coop-mobile reduced-motion helper');
+assertFileContains('assets/js/coop-mobile.js', 'form.coop-form-sticky', 'coop-mobile sticky submit selector');
+assertFileContains('contact.php', 'coop-form-sticky', 'contact sticky submit class');
+assertFileContains('loan-apply.php', 'coop-form-sticky', 'loan sticky submit class');
+assertFileContains('assets/css/final-ui-polish.css', 'Phase 4 safe UX', 'final polish phase 4 present');
+assertFileContains('assets/css/final-ui-polish.css', '@media print', 'print chrome hide rules');
 assertFileContains('includes/contact-spam-guard.php', 'function coop_public_form_anti_bot_html', 'reusable anti-bot HTML');
 assertFileContains('includes/contact-spam-guard.php', 'function coop_public_form_bot_block', 'public form bot block helper');
 assertFileContains('admin/security-settings.php', 'turnstile_site_key', 'turnstile keys in security settings');
@@ -494,6 +501,15 @@ assertFileContains('admin/help-guide.php', 'autocomplete="off"', 'help-guide sea
 assertFileContains('admin/print-form.php', 'type="button" onclick="history.back()"', 'print-form back typed');
 assertFileContains('includes/satisfaction-widget.php', 'type="button" class="satisfaction-toggle"', 'satisfaction toggle typed');
 assertFileContains('includes/footer.php', 'type="button" id="uiTestClose"', 'ui-test panel buttons typed');
+assertFileContains('contact.php', 'no-univ-phone', 'contact phone skips mobile-only validation');
+assertFileContains('assets/js/form-validation.js', 'no-univ-phone', 'form-validation respects no-univ-phone');
+assertFileContains('assets/js/form-validation.js', "aria-invalid", 'form-validation sets aria-invalid');
+assertFileContains('assets/js/main.js', 'function coopScrollBehavior', 'main.js reduced-motion scroll helper');
+assertFileContains('member/includes/chrome-foot.php', 'form-validation.js', 'member chrome loads form-validation');
+assertFileContains('member/includes/chrome-foot.php', 'aria-expanded', 'member More drawer aria-expanded');
+assertFileContains('includes/footer.php', 'prefers-reduced-motion: reduce', 'footer AOS/scroll-reveal respects reduce');
+assertFileContains('includes/header.php', 'Close menu', 'mobile menu close aria-label');
+
 assertFileContains('auction.php', 'type="button" class="auc2-fchip active"', 'auction filter chips typed');
 
 // Password policy + PRG + credentials hardening (backend round 3)

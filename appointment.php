@@ -310,7 +310,7 @@ $L = getLangStrings();
                         <div class="tab-content">
                             <div class="tab-pane fade <?php echo $activeApptTab === 'member' ? 'show active' : ''; ?>" id="appt-tab-member" role="tabpanel" aria-labelledby="appt-tab-member-btn" tabindex="0">
 
-                        <form method="POST" id="appointmentForm" class="needs-validation" novalidate>
+                        <form method="POST" id="appointmentForm" class="needs-validation coop-form-sticky" novalidate>
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="visit_kind" value="member">
                             <?php if ($loggedMember):
@@ -485,7 +485,7 @@ $L = getLangStrings();
                             </div>
 
                             <div class="tab-pane fade <?php echo $activeApptTab === 'cooperative' ? 'show active' : ''; ?>" id="appt-tab-coop" role="tabpanel" aria-labelledby="appt-tab-coop-btn" tabindex="0">
-                        <form method="POST" id="cooperativeVisitForm" class="needs-validation" novalidate>
+                        <form method="POST" id="cooperativeVisitForm" class="needs-validation coop-form-sticky" novalidate>
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="visit_kind" value="cooperative">
 

@@ -1,5 +1,14 @@
 // Main JavaScript File
 
+function coopScrollBehavior() {
+    try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return 'auto';
+        }
+    } catch (e) { /* ignore */ }
+    return 'smooth';
+}
+
 /* Global JS error visibility (audit Phase 3a) — log only, never break UX */
 (function () {
     if (window.__coopJsErrorHooks) return;
@@ -466,7 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (target) {
                     e.preventDefault();
                     target.scrollIntoView({
-                        behavior: 'smooth',
+                        behavior: coopScrollBehavior(),
                         block: 'start'
                     });
                 }
@@ -587,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollUpBtn.addEventListener('click', function() {
             window.scrollTo({
                 top: 0,
-                behavior: 'smooth'
+                behavior: coopScrollBehavior()
             });
         });
     }
@@ -597,7 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
         scrollDownBtn.addEventListener('click', function() {
             window.scrollBy({
                 top: window.innerHeight * 0.85,
-                behavior: 'smooth'
+                behavior: coopScrollBehavior()
             });
         });
     }
@@ -613,16 +622,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (e.key === 'ArrowDown' || e.key === 'PageDown') {
             e.preventDefault();
-            window.scrollBy({ top: window.innerHeight * 0.75, behavior: 'smooth' });
+            window.scrollBy({ top: window.innerHeight * 0.75, behavior: coopScrollBehavior() });
         } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
             e.preventDefault();
-            window.scrollBy({ top: -(window.innerHeight * 0.75), behavior: 'smooth' });
+            window.scrollBy({ top: -(window.innerHeight * 0.75), behavior: coopScrollBehavior() });
         } else if (e.key === 'Home') {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: coopScrollBehavior() });
         } else if (e.key === 'End') {
             e.preventDefault();
-            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: coopScrollBehavior() });
         }
     });
 
@@ -660,7 +669,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             window.scrollBy({
                 top: deltaY < 0 ? scrollAmount : -scrollAmount, /* swipe up = scroll down */
-                behavior: 'smooth'
+                behavior: coopScrollBehavior()
             });
 
             /* Visual feedback: scroll nav flash */
@@ -744,8 +753,10 @@ document.addEventListener('DOMContentLoaded', function() {
        - Touch/finger swipe मा पनि काम गर्छ (CSS-level)
        ============================================================ */
     (function initSmoothScroll() {
+        var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         /* CSS smooth-scroll पहिले enable गर्नुहोस् */
-        document.documentElement.style.scrollBehavior = 'smooth';
+        document.documentElement.style.scrollBehavior = reduceMotion ? 'auto' : 'smooth';
+        if (reduceMotion) return;
 
         /* Anchor links ("#section") मा smooth scroll */
         document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
@@ -885,7 +896,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Scroll to section header
             const appFeaturesSection = document.querySelector('.app-features-section');
             if (appFeaturesSection) {
-                appFeaturesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                appFeaturesSection.scrollIntoView({ behavior: coopScrollBehavior(), block: 'start' });
             }
         });
     }

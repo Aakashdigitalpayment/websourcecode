@@ -737,7 +737,7 @@ function getAppTypeLabel($type) {
                         </div>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="" id="trackerForm" class="needs-validation" novalidate>
+                        <form method="POST" action="" id="trackerForm" class="needs-validation coop-form-sticky" novalidate>
                             <?php echo csrfField(); ?>
                             <div class="row g-3">
                                 <!-- Search Type — expands to col-12 when phone/email (no separate search value) -->

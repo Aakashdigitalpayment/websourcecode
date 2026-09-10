@@ -1633,4 +1633,4 @@ set_exception_handler(function (\Throwable $ex) {
     })();
     </script>
 
-    <script src="../assets/js/coop-mobile.js?v=6.8" defer></script>
+    <script src="../assets/js/coop-mobile.js?v=6.9" defer></script>

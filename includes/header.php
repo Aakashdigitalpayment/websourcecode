@@ -1586,13 +1586,13 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         <!-- RIGHT: Navigation (reuses existing nav styles) -->
         <div class="pfl-nav-area">
             <!-- Mobile Toggle (visible < lg) -->
-            <button type="button" class="pfl-mobile-toggle d-lg-none" id="mobileMenuToggle2" aria-label="Menu" aria-controls="mainNavV2" aria-expanded="false" data-testid="public-mobile-menu-toggle-button">
+            <button type="button" class="pfl-mobile-toggle d-lg-none" id="mobileMenuToggle2" aria-label="<?php echo isEnglish() ? 'Open menu' : 'मेनु खोल्नुहोस्'; ?>" aria-controls="mainNavV2" aria-expanded="false" data-testid="public-mobile-menu-toggle-button">
                 <i class="fas fa-bars"></i>
             </button>
 
             <!-- Navigation — same structure as original -->
             <nav class="main-nav" id="mainNavV2" aria-hidden="true" data-mobile-drawer="public">
-                <button type="button" class="close-menu d-lg-none" id="closeMenuV2" data-testid="public-mobile-menu-close-button">
+                <button type="button" class="close-menu d-lg-none" id="closeMenuV2" aria-label="<?php echo isEnglish() ? 'Close menu' : 'मेनु बन्द गर्नुहोस्'; ?>" data-testid="public-mobile-menu-close-button">
                     <span class="close-menu-label"><i class="fas fa-bars me-2"></i><?php echo isEnglish() ? 'Navigation' : 'मेनु'; ?></span>
                     <i class="fas fa-times"></i>
                 </button>
@@ -2302,7 +2302,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         else bindPflMobileMenu();
     })();
     </script>
-    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.8" defer></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.9" defer></script>
     <script>
     /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {
@@ -2510,7 +2510,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <?php if (count($popupNotices) > 1): ?>
             <!-- Navigation Controls -->
             <div class="popup-nav">
-                <button type="button" class="popup-nav-btn popup-prev" id="popupPrev" title="<?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>" data-testid="notice-popup-prev-button">
+                <button type="button" class="popup-nav-btn popup-prev" id="popupPrev" title="<?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>" aria-label="<?php echo isEnglish() ? 'Previous notice' : 'अघिल्लो सूचना'; ?>" data-testid="notice-popup-prev-button">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="popup-dots" id="popupDots">
@@ -2518,7 +2518,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <button type="button" class="popup-dot <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-testid="notice-popup-dot-<?php echo $index + 1; ?>" aria-label="Notice <?php echo $index + 1; ?>"></button>
                     <?php endforeach; ?>
                 </div>
-                <button type="button" class="popup-nav-btn popup-next" id="popupNext" title="<?php echo isEnglish() ? 'Next' : 'अर्को'; ?>" data-testid="notice-popup-next-button">
+                <button type="button" class="popup-nav-btn popup-next" id="popupNext" title="<?php echo isEnglish() ? 'Next' : 'अर्को'; ?>" aria-label="<?php echo isEnglish() ? 'Next notice' : 'अर्को सूचना'; ?>" data-testid="notice-popup-next-button">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-right"></i>
                 </button>
             </div>

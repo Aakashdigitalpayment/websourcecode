@@ -8567,6 +8567,15 @@ button[type="submit"][aria-busy="true"]::after,
   animation: coop-busy-spin 0.7s linear infinite;
 }
 
+/* Prefer Bootstrap spinner HTML when present (avoid double spinner) */
+button[type="submit"][aria-busy="true"]:has(.spinner-border)::after,
+.btn[aria-busy="true"]:has(.spinner-border)::after,
+button[type="submit"][aria-busy="true"]:has(.fa-spin)::after,
+.btn[aria-busy="true"]:has(.fa-spin)::after {
+  display: none !important;
+  content: none !important;
+}
+
 @keyframes coop-busy-spin {
   to { transform: rotate(360deg); }
 }
@@ -9067,6 +9076,155 @@ body.dark-mode .notice-popup-enhanced .popup-dialog {
   body.auth-portal-page .submit-btn:active,
   body.verify-auth-page .vp-btn:active {
     transform: none !important;
+  }
+}
+
+/* ── Phase 4 safe UX / a11y polish ──────────────────────────────── */
+
+/* Success cards — brand border without relying on page inline styles */
+.form-success-card,
+.success-card.form-success-card {
+  border: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #c8e6c9) !important;
+  border-radius: var(--final-radius-lg) !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+  box-shadow: var(--final-shadow) !important;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.75rem) !important;
+}
+.form-success-card .form-tracking-id,
+.form-success-card .form-tracking-box {
+  letter-spacing: 0.04em;
+}
+
+/* Public / member empty states */
+.coop-empty-state,
+.empty-state,
+.no-results,
+.mem-empty-state {
+  text-align: center;
+  padding: clamp(2rem, 5vw, 3rem) 1.25rem !important;
+  border-radius: var(--final-radius-lg);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
+  color: var(--final-muted);
+}
+.coop-empty-state i,
+.empty-state i,
+.no-results i,
+.mem-empty-state i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  color: var(--primary-color, #1a5f2a);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+}
+
+/* Horizontal tables — subtle edge fade cue on mobile */
+@media (max-width: 767.98px) {
+  .table-responsive {
+    position: relative;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table-responsive::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1.25rem;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85));
+    opacity: 0.9;
+  }
+  body.dark-mode .table-responsive::after {
+    background: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.65));
+  }
+}
+
+/* Sticky submit — room above public/member bottom nav + home indicator */
+.coop-sticky-submit-bar {
+  z-index: 1040 !important;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)) !important;
+}
+@media (min-width: 900px) {
+  .coop-sticky-submit-bar {
+    display: none !important;
+  }
+}
+
+/* Password toggle / icon buttons — clear focus */
+.pw-toggle:focus-visible,
+.btn-icon:focus-visible,
+.popup-close-btn:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* Body text links — clearer affordance without redesign */
+.coop-prose a:not(.btn):not(.nts-btn-primary),
+.notice-detail-card .notice-content a:not(.btn),
+.news-detail-content a:not(.btn) {
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.18em;
+}
+.coop-prose a:not(.btn):hover,
+.notice-detail-card .notice-content a:not(.btn):hover,
+.news-detail-content a:not(.btn):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Print — strip chrome, keep content readable */
+@media print {
+  .skip-link,
+  .mob-bottomnav,
+  .mp-bottom-nav,
+  .mem-bottom-nav,
+  .coop-sticky-submit-bar,
+  .scroll-top,
+  .scroll-to-top,
+  .back-to-top,
+  #scrollToTop,
+  .chatbot-toggle,
+  .pcp-launcher,
+  .acp-launcher,
+  .satisfaction-toggle,
+  .notice-popup-enhanced,
+  .site-header .navbar-toggler,
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  a[href]::after {
+    content: none !important;
+  }
+}
+
+/* Reduced motion — phase 4 extras */
+@media (prefers-reduced-motion: reduce) {
+  .form-success-card,
+  .success-card.form-success-card,
+  .coop-empty-state,
+  .empty-state,
+  .no-results,
+  .mem-empty-state {
+    transition: none !important;
+  }
+
+  /* Never leave scroll-reveal content invisible */
+  .sr-hidden,
+  .sr-hidden.sr-fade-up,
+  .sr-hidden.sr-zoom-in,
+  .sr-hidden.sr-fade-left,
+  .sr-hidden.sr-fade-right {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 /* ===== END final-ui-polish.css ===== */

@@ -213,6 +213,7 @@ try {
 .mem-nav-vote-live{position:relative;}
 .mem-vote-live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16a34a;margin-left:6px;box-shadow:0 0 0 0 rgba(22,163,74,.55);animation:memVoteLivePulse 1.4s infinite;}
 @keyframes memVoteLivePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55);}70%{box-shadow:0 0 0 8px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
+@media (prefers-reduced-motion: reduce){.mem-vote-live-dot{animation:none!important;box-shadow:none!important;}}
 /* Apply / Services disclosure */
 .mem-nav-apply-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:stretch;flex:0 0 auto;}
 .mem-nav-apply-toggle{border:0;cursor:pointer;font:inherit;background:transparent;color:inherit;appearance:none;-webkit-appearance:none;}
@@ -246,7 +247,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 <link rel="stylesheet" href="<?php echo $_siteUrl; ?>assets/css/nepali.datepicker.min.css">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-<script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.8" defer></script>
+<script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.9" defer></script>
 <script src="<?php echo $_siteUrl; ?>assets/js/pwa-register.js?v=3.3" defer></script>
 </head>
 <body class="mem-wrapper">
