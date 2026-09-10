@@ -383,7 +383,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                         </div>
                                         <?php echo coop_public_form_anti_bot_html('prog_prereg', 'cp' . (int)$pg['id'], isEnglish(), 'col-12', $__cpMath); ?>
                                         <div class="col-12">
-                                            <button type="submit" class="btn btn-sm btn-primary">
+                                            <button type="submit" class="btn btn-sm btn-primary coop-touch-cta">
                                                 <i class="fas fa-check-circle me-1"></i><?php echo $_t('Registration Confirm', 'Confirm Registration'); ?>
                                             </button>
                                         </div>

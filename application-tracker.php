@@ -668,7 +668,7 @@ function getAppTypeLabel($type) {
 <section class="tracker-main-section py-3 py-md-4">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-10">
+            <div class="col-lg-10 public-form-shell public-form-shell--wide">
 
                 <!-- Application Type Icons — Eye-Catching Pills -->
                 <div class="tracker-types-strip mb-4">

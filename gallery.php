@@ -213,7 +213,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                         <a href="<?php echo htmlspecialchars($href); ?>" class="gallery-album-card">
                             <div class="gallery-album-cover">
                                 <?php if ($cover !== ''): ?>
-                                <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="" class="img-fluid">
+                                <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="<?php echo htmlspecialchars(galleryAlbumLabel($alb, isEnglish())); ?>" class="img-fluid">
                                 <?php else: ?>
                                 <div class="gallery-album-cover-empty"><i class="fas fa-images" aria-hidden="true"></i></div>
                                 <?php endif; ?>
@@ -305,7 +305,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                         <a href="<?php echo htmlspecialchars($href); ?>" class="gallery-album-card">
                             <div class="gallery-album-cover gallery-video-album-cover">
                                 <?php if ($cover !== ''): ?>
-                                <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="" class="img-fluid">
+                                <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="<?php echo htmlspecialchars(galleryAlbumLabel($alb, isEnglish())); ?>" class="img-fluid">
                                 <?php else: ?>
                                 <div class="gallery-album-cover-empty"><i class="fab fa-youtube" aria-hidden="true"></i></div>
                                 <?php endif; ?>

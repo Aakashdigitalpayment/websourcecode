@@ -232,7 +232,7 @@ HTML;
       <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार, सन्देश, र (भेट/सेवाका लागि) मिति–समय भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>. Add service type, message, and (for visit/services) date–time.'); ?></div>
     </div>
 
-    <form method="POST" id="msrForm" class="needs-validation" novalidate>
+    <form method="POST" id="msrForm" class="needs-validation coop-form-sticky" novalidate>
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 

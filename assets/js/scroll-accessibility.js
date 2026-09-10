@@ -888,10 +888,32 @@
         }
 
         function closeGuide() {
+            document.removeEventListener('keydown', onGuideKeydown, true);
             guide.style.animation = 'none';
             guide.style.transform = 'translateY(100%)';
             guide.style.transition = 'transform .2s ease';
             setTimeout(function () { guide.remove(); backdrop.remove(); }, 200);
+        }
+
+        function onGuideKeydown(e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeGuide();
+                onCancel && onCancel();
+                return;
+            }
+            if (e.key !== 'Tab') return;
+            var focusable = guide.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            var first = focusable[0];
+            var last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
         }
 
         document.getElementById('saPermAllow').addEventListener('click', function () {
@@ -906,6 +928,11 @@
             closeGuide();
             onCancel && onCancel();
         });
+        document.addEventListener('keydown', onGuideKeydown, true);
+        setTimeout(function () {
+            var allowBtn = document.getElementById('saPermAllow');
+            if (allowBtn) try { allowBtn.focus(); } catch (err) {}
+        }, 30);
     }
 
     function toggleEye() {
