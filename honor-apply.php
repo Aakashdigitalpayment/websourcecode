@@ -216,6 +216,8 @@ foreach ($openPrograms as $op) {
             </div>
         </div>
         <?php else: ?>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-xl-7">
         <?php if ($error): ?>
         <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
@@ -240,8 +242,6 @@ foreach ($openPrograms as $op) {
         </div>
         <?php endif; ?>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-9">
                 <div class="card shadow-sm border-0">
                     <div class="card-body p-4">
                         <form method="post" enctype="multipart/form-data" id="honorApplyForm">
