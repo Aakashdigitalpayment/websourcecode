@@ -730,8 +730,8 @@ try {
                 if ($inp.data('ndp-ready')) return;
                 $inp.data('ndp-ready', true);
                 $inp.nepaliDatePicker({ dateFormat: 'YYYY-MM-DD', language: 'nepali' });
-                $inp.closest('.input-group, .nepali-datepicker-wrapper')
-                    .find('.input-group-text, .ndp-trigger')
+                $inp.closest('.input-group, .nepali-datepicker-wrapper, .coop-date-wrap')
+                    .find('.input-group-text, .ndp-trigger, .coop-date-ico')
                     .off('click.ndp').on('click.ndp', function () { $inp.trigger('focus'); });
             });
         };

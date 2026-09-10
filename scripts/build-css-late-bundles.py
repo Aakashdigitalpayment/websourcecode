@@ -10,7 +10,6 @@ CSS = ROOT / "assets" / "css"
 BUNDLES: dict[str, list[str]] = {
     "public-late-bundle.css": [
         "premium-ui.css",
-        "ui-ux-polish.css",
         "mobile-premium-polish.css",
         "public-shell-polish.css",
         "ui-readability-safe-patch.css",
@@ -18,17 +17,14 @@ BUNDLES: dict[str, list[str]] = {
     ],
     "admin-late-bundle.css": [
         "premium-ui.css",
-        "ui-ux-polish.css",
         "mobile-premium-polish.css",
         "admin-shell-polish.css",
-        "admin-bootstrap-unified-patch.css",
         "ui-readability-safe-patch.css",
         "admin-ux-deep-patch.css",
         "final-ui-polish.css",
     ],
     "member-late-bundle.css": [
         "premium-ui.css",
-        "ui-ux-polish.css",
         "mobile-premium-polish.css",
         "member-shell-polish.css",
         "ui-readability-safe-patch.css",

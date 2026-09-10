@@ -140,7 +140,18 @@ body,
 .vp-input:focus {
   border-color: var(--mem-border-focus) !important;
   box-shadow: var(--mem-focus-ring) !important;
-  outline: none !important;
+  outline: none;
+}
+
+.mem-container .form-control:focus-visible,
+.mem-container .form-select:focus-visible,
+.auth-portal-page .form-control:focus-visible,
+.auth-card input:focus-visible,
+.auth-card select:focus-visible,
+.auth-card textarea:focus-visible,
+.vp-input:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }
 
 .mem-container .form-control::placeholder,
@@ -595,7 +606,12 @@ body.mem-wrapper {
 .midx-search-input:focus {
   border-color: var(--mem-border-focus) !important;
   box-shadow: var(--mem-focus-ring) !important;
-  outline: none !important;
+  outline: none;
+}
+
+.midx-search-input:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }
 
 /* ── Auth login portal ───────────────────────────────────────────── */
@@ -670,7 +686,14 @@ body.auth-portal-page .field select:focus,
 body.auth-portal-page .field textarea:focus {
   border-color: var(--mem-border-focus) !important;
   box-shadow: var(--mem-focus-ring) !important;
-  outline: none !important;
+  outline: none;
+}
+
+body.auth-portal-page .field input:focus-visible,
+body.auth-portal-page .field select:focus-visible,
+body.auth-portal-page .field textarea:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }
 
 /* ── Verify portal — extended polish ─────────────────────────────── */
@@ -1026,3 +1049,50 @@ body.verify-auth-page .vp-secure {
     transform: none !important;
   }
 }
+
+/* Phase 4 a11y — Apply/Services panel links stay visible on desktop */
+@media (min-width: 992px) {
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="loan-apply"],
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="account-apply"],
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="digital-service"],
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="service-request"],
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="appointment"],
+  .mem-nav .mem-nav-apply-panel .mem-nav-item[href*="grievance"] {
+    display: flex !important;
+  }
+}
+.mem-nav-apply-toggle:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
+}
+
+/* Lang-aware date field UX */
+.coop-date-wrap {
+  width: 100%;
+  transition: box-shadow 0.15s ease;
+}
+.coop-date-wrap:focus-within {
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, transparent);
+}
+.coop-date-wrap .coop-date-ico {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
+  color: var(--primary-color, #1a5f2a);
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
+  cursor: pointer;
+}
+.coop-date-wrap .form-control,
+.coop-date-wrap .mem-form-control {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.coop-date-hint {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+}
+.mem-form-group .coop-date-wrap + .coop-date-hint,
+.form-group .coop-date-wrap + .coop-date-hint {
+  display: block;
+}
+

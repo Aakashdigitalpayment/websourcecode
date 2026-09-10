@@ -18,29 +18,10 @@ $memberId = (int)$mem['id'];
 $memEmail = trim((string)($mem['email'] ?? ''));
 $memPhone = preg_replace('/[^0-9]/', '', (string)($mem['phone'] ?? ''));
 
-/* KYC-linked profile priority */
-$kycRow = null;
-try {
-    $kycLinkId = (int)($mem['kyc_application_id'] ?? 0);
-    if ($kycLinkId > 0) {
-        $ks = $db->prepare("SELECT * FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $kw = []; $kp = [];
-        if ($memEmail) { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower($memEmail); }
-        if ($memPhone) { $kw[] = 'mobile=?'; $kp[] = $memPhone; }
-        if (!empty($kw)) {
-            $ks = $db->prepare("SELECT * FROM kyc_applications WHERE (" . implode(' OR ', $kw) . ") ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
-            $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-        }
-    }
-} catch (Throwable $e) { $kycRow = null; }
-
+/* KYC-linked profile (SSOT: kyc_application_id → sadasyata; no email/mobile soft match) */
+require __DIR__ . '/../includes/member-portal-identity.php';
 $memName    = trim((string)($kycRow['full_name']    ?? $mem['name']            ?? ''));
-$memSadasyata = trim((string)($kycRow['member_id']  ?? $mem['sadasyata_number']?? ''));
+$memSadasyata = $memSadasyata !== '' ? $memSadasyata : trim((string)($kycRow['member_id'] ?? ''));
 $rPhone     = $memPhone ?: preg_replace('/[^0-9]/', '', (string)($kycRow['mobile'] ?? ''));
 $rEmail     = $memEmail ?: strtolower(trim((string)($kycRow['email'] ?? '')));
 $rAddress   = trim((string)($kycRow['temporary_address'] ?? $kycRow['permanent_address'] ?? ''));
@@ -61,6 +42,9 @@ $successMsg = '';
 $errorMsg   = '';
 $submitted  = [];
 
+require_once __DIR__ . '/../includes/grievance-submit-helper.php';
+require_once __DIR__ . '/../includes/appointment-submit-helper.php';
+
 /* ── Handle POST ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submit') {
     if (!verifyCSRFToken()) {
@@ -70,9 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     } else {
         $svcType    = trim($_POST['service_type'] ?? '');
         $message    = trim(mb_substr((string)($_POST['message'] ?? ''), 0, 2000, 'UTF-8'));
-        $prefDate   = trim($_POST['preferred_date'] ?? '') ?: null;
-        $prefTime   = trim($_POST['preferred_time'] ?? '');
+        $prefDate   = trim((string)($_POST['preferred_date'] ?? ''));
+        $prefTime   = trim((string)($_POST['preferred_time'] ?? ''));
         $branch     = trim(mb_substr((string)($_POST['branch'] ?? ''), 0, 80, 'UTF-8')) ?: $rBranch;
+        $storeMemberId = $memSadasyata !== '' ? $memSadasyata : (string)$memberId;
 
         if (!isset($serviceTypes[$svcType])) {
             $errorMsg = $_t('सेवा प्रकार छान्नुहोस्।', 'Please select service type.');
@@ -80,7 +65,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
             $errorMsg = $_t('सन्देश / विवरण अनिवार्य छ।', 'Message/description is required.');
         } else {
             $svc       = $serviceTypes[$svcType];
-            $trackingId = coop_new_tracking_id('REQ');
             $svcLabel = $serviceTypes[$svcType]['label'] ?? $svcType;
             $corePurpose = $svc['purpose'] ?: 'other';
             $detailPrefix = preg_replace('/^[^\s]+\s*/u', '', $svcLabel);
@@ -88,22 +72,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
             try {
                 if ($svc['table'] === 'grievances') {
-                    $ins = $db->prepare("INSERT INTO grievances
-                        (tracking_id, name, member_id, phone, email, category, subject, description, is_anonymous, status, created_at)
-                        VALUES (?,?,?,?,?,'service',?,?,0,'pending',NOW())");
-                    $ins->execute([$trackingId, $memName, $memSadasyata, $rPhone, $rEmail, $detailPrefix, $detailText]);
+                    $result = submitGrievanceUnified($db, [
+                        'from_member_portal' => true,
+                        'require_contact' => false,
+                        'name' => $memName,
+                        'member_id' => $storeMemberId,
+                        'member_portal_id' => $memberId,
+                        'phone' => $rPhone,
+                        'email' => $rEmail,
+                        'category' => 'service',
+                        'subject' => $detailPrefix,
+                        'description' => $detailText,
+                    ], []);
+                } elseif ($prefDate === '' || $prefTime === '') {
+                    $errorMsg = $_t('भेट/सेवाको लागि मनपर्ने मिति र समय दुवै छान्नुहोस्।', 'Please choose both preferred date and time for this service.');
+                    $result = ['ok' => false];
                 } else {
-                    /* Canonical appointments insert (purpose enum + purpose_detail text). */
-                    $effectiveDate = $prefDate ?: date('Y-m-d');
-                    $effectiveTime = $prefTime ?: '10:00 AM';
-                    $ins = $db->prepare("INSERT INTO appointments
-                        (tracking_id, name, phone, email, member_id, preferred_date, preferred_time, purpose, purpose_detail, branch, status, created_at)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,'pending',NOW())");
-                    $ins->execute([$trackingId, $memName, $rPhone, $rEmail, $memSadasyata, $effectiveDate, $effectiveTime, $corePurpose, $detailText, $branch]);
+                    $result = submitAppointmentUnified($db, [
+                        'from_member_portal' => true,
+                        'require_email' => false,
+                        'name' => $memName,
+                        'phone' => $rPhone,
+                        'email' => $rEmail,
+                        'member_id' => $storeMemberId,
+                        'member_portal_id' => $memberId,
+                        'preferred_date' => $prefDate,
+                        'preferred_time' => $prefTime,
+                        'purpose' => $corePurpose,
+                        'purpose_detail' => $detailText,
+                        'branch' => $branch,
+                    ]);
                 }
-                $successMsg = isEnglish()
-                    ? "Request submitted! Tracking ID: <strong>$trackingId</strong> — You will be notified after admin confirmation."
-                    : "अनुरोध दर्ता भयो! Tracking ID: <strong>$trackingId</strong> — Admin ले confirm गरेपछि सूचित गरिनेछ।";
+                if (!empty($result['ok'])) {
+                    $trackingId = (string)($result['tracking_id'] ?? '');
+                    $successMsg = isEnglish()
+                        ? "Request submitted! Tracking ID: <strong>$trackingId</strong> — You will be notified after admin confirmation."
+                        : "अनुरोध दर्ता भयो! Tracking ID: <strong>$trackingId</strong> — Admin ले confirm गरेपछि सूचित गरिनेछ।";
+                } elseif ($errorMsg === '') {
+                    $errorMsg = isEnglish()
+                        ? (string)($result['error_en'] ?? $result['error'] ?? 'Failed to submit.')
+                        : (string)($result['error'] ?? 'दर्ता गर्न समस्या भयो।');
+                }
             } catch (Throwable $e) {
                 $errorMsg = $_t('दर्ता गर्न समस्या भयो। पुनः प्रयास गर्नुहोस्।', 'Failed to submit. Please try again.');
                 error_log('[service-request] ' . $e->getMessage());
@@ -112,18 +121,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     }
 }
 
-/* Recent requests */
+/* Recent requests — appointments + grievances (portal id + sadasyata + contact) */
 $recentReqs = [];
 try {
-    $rConds = []; $rParams = [];
-    if ($rEmail) { $rConds[] = 'LOWER(email)=?'; $rParams[] = strtolower($rEmail); }
-    if ($rPhone) { $rConds[] = 'phone=?'; $rParams[] = $rPhone; }
-    if (!empty($rConds)) {
-        $st = $db->prepare("SELECT tracking_id, name, purpose, status, preferred_date, created_at FROM appointments
-                            WHERE " . implode(' OR ', $rConds) . " ORDER BY created_at DESC LIMIT 8");
-        $st->execute($rParams);
-        $recentReqs = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $ids = array_values(array_unique(array_filter([
+        (string)$memberId,
+        trim((string)$memSadasyata),
+    ], static fn($v) => $v !== '')));
+    if ($ids === []) {
+        $ids = [(string)$memberId];
     }
+    $ph = implode(',', array_fill(0, count($ids), '?'));
+    $extraA = '';
+    $extraG = '';
+    $paramsA = $ids;
+    $paramsG = $ids;
+    if ($rEmail !== '') {
+        $extraA .= ' OR LOWER(email)=?';
+        $extraG .= ' OR LOWER(email)=?';
+        $paramsA[] = strtolower($rEmail);
+        $paramsG[] = strtolower($rEmail);
+    }
+    if ($rPhone !== '') {
+        $extraA .= ' OR phone=?';
+        $extraG .= ' OR phone=?';
+        $paramsA[] = $rPhone;
+        $paramsG[] = $rPhone;
+    }
+    $sql = "SELECT * FROM (
+                SELECT tracking_id, purpose AS summary, status, created_at
+                  FROM appointments
+                 WHERE member_id IN ($ph)$extraA
+                UNION ALL
+                SELECT tracking_id, subject AS summary, status, created_at
+                  FROM grievances
+                 WHERE member_id IN ($ph)$extraG
+            ) u ORDER BY created_at DESC LIMIT 8";
+    $st = $db->prepare($sql);
+    $st->execute(array_merge($paramsA, $paramsG));
+    $recentReqs = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) { $recentReqs = []; }
 
 $siteName  = getSetting('site_name', 'सहकारी');
@@ -161,7 +197,7 @@ HTML;
 ?>
 <?php require __DIR__ . '/includes/chrome.php'; ?>
 
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -193,10 +229,10 @@ HTML;
   <div class="wf-pane <?= $srActiveTab==='new'?'active':'' ?>" id="sr-pane-new">
     <div class="mem-autofill-banner">
       <i class="fas fa-wand-magic-sparkles"></i>
-      <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार र सन्देश मात्र भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>. Only select service type and message.'); ?></div>
+      <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ। सेवा प्रकार, सन्देश, र (भेट/सेवाका लागि) मिति–समय भर्नुहोस्।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>. Add service type, message, and (for visit/services) date–time.'); ?></div>
     </div>
 
-    <form method="POST">
+    <form method="POST" id="msrForm" class="needs-validation" novalidate>
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 
@@ -212,21 +248,37 @@ HTML;
 
       <div class="mem-form-group">
         <label class="mem-form-label" for="msr_service_type"><?php echo $_t('सेवा प्रकार छान्नुहोस्', 'Select Service Type'); ?> <span class="mem-form-required">*</span></label>
-        <select name="service_type" class="mem-form-control" required id="msr_service_type">
+        <select name="service_type" class="mem-form-control" required id="msr_service_type"
+                data-grievance-key="grievance">
           <option value="">— <?php echo $_t('सेवा छान्नुहोस्', 'Select service'); ?> —</option>
-          <?php foreach ($serviceTypes as $key => $svc): ?>
-          <option value="<?= $key ?>"><?= $svc['label'] ?></option>
+          <?php
+          $postedSvc = trim((string)($_POST['service_type'] ?? ''));
+          foreach ($serviceTypes as $key => $svc):
+          ?>
+          <option value="<?= htmlspecialchars($key, ENT_QUOTES, 'UTF-8') ?>" <?= $postedSvc === $key ? 'selected' : '' ?>><?= $svc['label'] ?></option>
           <?php endforeach; ?>
         </select>
       </div>
 
-      <div class="mem-form-row mem-form-row-2">
+      <div class="mem-form-row mem-form-row-2" id="msrScheduleFields">
         <div class="mem-form-group">
-          <label class="mem-form-label" for="msr_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति (Optional)', 'Preferred Date (Optional)'); ?></label>
-          <input type="date" name="preferred_date" class="mem-form-control" min="<?= date('Y-m-d') ?>" id="msr_preferred_date">
+          <label class="mem-form-label" for="msr_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
+          <?php
+          echo function_exists('coop_date_input_html')
+              ? coop_date_input_html([
+                  'name' => 'preferred_date',
+                  'id' => 'msr_preferred_date',
+                  'class' => 'mem-form-control',
+                  'required' => false,
+                  'value' => (string)($_POST['preferred_date'] ?? ''),
+                  'min_ad' => date('Y-m-d'),
+                  'hint' => false,
+              ])
+              : '<input type="date" name="preferred_date" class="mem-form-control" min="' . date('Y-m-d') . '" id="msr_preferred_date">';
+          ?>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label" for="msr_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?></label>
+          <label class="mem-form-label" for="msr_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required js-sr-sched-req">*</span></label>
           <?php $preferredTimeValue = trim((string)($_POST['preferred_time'] ?? '')); $preferredTimeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30) : []; ?>
           <select name="preferred_time" class="mem-form-control" id="msr_preferred_time">
             <option value="">— <?php echo $_t('समय छान्नुहोस्', 'Select time'); ?> —</option>
@@ -242,6 +294,9 @@ HTML;
             <?php endif; ?>
           </select>
         </div>
+        <?php if (function_exists('coop_date_hint_html')) { echo coop_date_hint_html(); } else { ?>
+        <p class="form-text small text-muted mb-0 js-sr-sched-hint"><?php echo $_t('भेट/सेवा अनुरोधका लागि मिति र समय अनिवार्य। गुनासोमा चाहिँदैन।', 'Date and time are required for visit/service requests; not needed for grievances.'); ?></p>
+        <?php } ?>
       </div>
 
       <div class="mem-form-group">
@@ -251,7 +306,7 @@ HTML;
 
       <div class="mem-form-group">
         <label class="mem-form-label" for="msr_message"><?php echo $_t('विस्तृत सन्देश', 'Detailed Message'); ?> <span class="mem-form-required">*</span></label>
-        <textarea name="message" class="mem-form-control" rows="4" required placeholder="<?php echo $_t('तपाईंको अनुरोधको पूरा विवरण लेख्नुहोस्...', 'Write full details of your request...'); ?>" id="msr_message"></textarea>
+        <textarea name="message" class="mem-form-control" rows="4" required placeholder="<?php echo $_t('तपाईंको अनुरोधको पूरा विवरण लेख्नुहोस्...', 'Write full details of your request...'); ?>" id="msr_message"><?= htmlspecialchars(trim((string)($_POST['message'] ?? '')), ENT_QUOTES, 'UTF-8') ?></textarea>
       </div>
 
       <button type="submit" class="mem-submit-btn">
@@ -283,7 +338,7 @@ HTML;
     ?>
     <div class="recent-card">
       <div>
-        <div class="mp-list-title"><?= htmlspecialchars(mb_substr($rq['purpose'] ?? $rq['tracking_id'],0,60)) ?></div>
+        <div class="mp-list-title"><?= htmlspecialchars(mb_substr((string)($rq['summary'] ?? $rq['purpose'] ?? $rq['tracking_id']), 0, 60)) ?></div>
         <div class="mp-list-meta"><?= date('Y-m-d', strtotime($rq['created_at'])) ?></div>
       </div>
       <div class="mp-status-row">
@@ -299,7 +354,7 @@ HTML;
   </div><!-- /sr-pane-history -->
 
 </div>
-</main>
+</div>
 <script>
 function srShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });
@@ -308,5 +363,28 @@ function srShowTab(btn, paneId) {
     var pane = document.getElementById(paneId);
     if (pane) pane.classList.add('active');
 }
+(function () {
+    var sel = document.getElementById('msr_service_type');
+    var dateEl = document.getElementById('msr_preferred_date');
+    var timeEl = document.getElementById('msr_preferred_time');
+    var sched = document.getElementById('msrScheduleFields');
+    if (!sel || !dateEl || !timeEl || !sched) return;
+    function sync() {
+        var isGrievance = sel.value === (sel.getAttribute('data-grievance-key') || 'grievance');
+        dateEl.required = !isGrievance && sel.value !== '';
+        timeEl.required = !isGrievance && sel.value !== '';
+        sched.style.opacity = isGrievance ? '0.55' : '1';
+        dateEl.disabled = isGrievance;
+        timeEl.disabled = isGrievance;
+        var wrap = dateEl.closest('.coop-date-wrap');
+        if (wrap) wrap.style.pointerEvents = isGrievance ? 'none' : '';
+        if (isGrievance) {
+            dateEl.value = '';
+            timeEl.value = '';
+        }
+    }
+    sel.addEventListener('change', sync);
+    sync();
+})();
 </script>
 <?php require __DIR__ . '/includes/chrome-foot.php'; ?>

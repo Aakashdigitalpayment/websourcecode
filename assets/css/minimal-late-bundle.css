@@ -207,7 +207,16 @@ h1, h2, h3, h4, h5, h6,
 .modal .form-select:focus {
   border-color: var(--pub-border-focus) !important;
   box-shadow: var(--pub-focus-ring) !important;
-  outline: none !important;
+  outline: none;
+}
+
+.form-control:focus-visible,
+.form-select:focus-visible,
+.team-filter-select:focus-visible,
+.modal .form-control:focus-visible,
+.modal .form-select:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }
 
 .form-control::placeholder {
@@ -251,6 +260,12 @@ textarea.form-control {
   border-color: var(--pub-border-focus);
   box-shadow: var(--pub-focus-ring);
   outline: none;
+}
+
+#publicChatPanel input:focus-visible,
+#publicChatPanel textarea:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a);
+  outline-offset: 2px;
 }
 
 #publicChatPanel button[type="submit"],
@@ -3940,7 +3955,48 @@ html[lang="en"] .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
 }
 
 .empty-state {
-  padding: 2.5rem 1rem !important;
+  padding: 2.75rem 1.25rem !important;
+  color: var(--final-muted) !important;
+  text-align: center;
+  border-radius: var(--final-radius-lg);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
+}
+
+.empty-state .empty-state-icon,
+.empty-state > i,
+.empty-state > .fa,
+.empty-state > .fas,
+.empty-state > .far,
+.empty-state > svg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin-bottom: 0.85rem;
+  border-radius: 999px;
+  font-size: 1.35rem;
+  color: var(--primary-color, #1a5f2a);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+}
+
+.empty-state .empty-state-title,
+.empty-state h3,
+.empty-state h4 {
+  margin: 0 0 0.4rem !important;
+  font-family: var(--final-font-head);
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: #1f2d26 !important;
+}
+
+.empty-state .empty-state-desc,
+.empty-state p {
+  margin: 0 auto !important;
+  max-width: 28rem;
+  font-size: 0.9rem !important;
+  line-height: 1.55 !important;
   color: var(--final-muted) !important;
 }
 
@@ -4293,6 +4349,26 @@ body.dark-mode .service-card {
 body.dark-mode .section-header-unified p,
 body.dark-mode .empty-state {
   color: #a8b5ad !important;
+}
+
+body.dark-mode .empty-state {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #1a211d) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #2a3530) !important;
+}
+
+body.dark-mode .empty-state .empty-state-title,
+body.dark-mode .empty-state h3,
+body.dark-mode .empty-state h4 {
+  color: #e8efea !important;
+}
+
+body.dark-mode .empty-state .empty-state-icon,
+body.dark-mode .empty-state > i,
+body.dark-mode .empty-state > .fa,
+body.dark-mode .empty-state > .fas,
+body.dark-mode .empty-state > .far {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #1a211d);
+  color: #9fd4a8;
 }
 
 body.dark-mode[class*="admin-page-"] .main-content {
@@ -6946,5 +7022,617 @@ body.dark-mode .notice-popup-enhanced .popup-view-full-notice {
 
 .notice-popup-enhanced .popup-text.coop-prose p:last-child {
   margin-bottom: 0;
+}
+
+/* Public apply / contact forms — uniform centered shell (Bootstrap cols still apply) */
+.public-form-shell {
+  max-width: 52rem;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 992px) {
+  .public-form-shell.public-form-shell--wide {
+    max-width: 58rem;
+  }
+}
+
+/* Lang-aware date field UX (public forms) */
+.coop-date-wrap {
+  width: 100%;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.coop-date-wrap .coop-date-ico {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
+  color: var(--primary-color, #1a5f2a);
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.coop-date-wrap:focus-within {
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, transparent);
+}
+.coop-date-wrap:focus-within .coop-date-ico {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #fff);
+  color: var(--primary-color, #1a5f2a);
+}
+.coop-date-hint {
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-muted, #6b7280);
+}
+
+/* ── Safe micro-motion UX (additive; respects reduced-motion) ──── */
+
+@keyframes coop-soft-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coop-alert-settle {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Form pages — calm one-shot enter */
+.public-form-shell {
+  animation: coop-soft-enter 0.28s ease both;
+}
+
+/* Scroll reveal utility (activated by coop-mobile.js) */
+.coop-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.38s ease, transform 0.38s ease;
+  will-change: opacity, transform;
+}
+.coop-reveal.is-in {
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+/* Submit busy — matches form-validation.js aria-busy / data-submitting */
+button[type="submit"][aria-busy="true"],
+input[type="submit"][aria-busy="true"],
+.btn[aria-busy="true"],
+form[data-submitting="1"] button[type="submit"],
+form[data-submitting="1"] input[type="submit"],
+form[data-submitting="1"] .btn-primary {
+  position: relative;
+  opacity: 0.82;
+  pointer-events: none;
+  cursor: wait !important;
+}
+
+button[type="submit"][aria-busy="true"]::after,
+.btn[aria-busy="true"]::after {
+  content: "";
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.55em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -0.1em;
+  animation: coop-busy-spin 0.7s linear infinite;
+}
+
+@keyframes coop-busy-spin {
+  to { transform: rotate(360deg); }
+}
+
+form[data-submitting="1"] {
+  opacity: 0.97;
+}
+
+/* Desktop soft press (mobile already has tap scale) */
+@media (hover: hover) and (pointer: fine) {
+  .btn-primary:active:not(:disabled):not([aria-busy="true"]),
+  .btn-success:active:not(:disabled):not([aria-busy="true"]),
+  .nts-btn-primary:active:not(:disabled):not([aria-busy="true"]),
+  .mem-submit-btn:active:not(:disabled):not([aria-busy="true"]) {
+    transform: scale(0.985);
+  }
+
+  .news-card:active,
+  .notice-card:active,
+  .service-card:active,
+  .gallery-card:active,
+  body.mem-wrapper .mem-card:active,
+  body.mem-wrapper .midx-ds-card:active {
+    transform: translateY(0) scale(0.992);
+  }
+}
+
+/* Flash alerts — consistent settle-in */
+.alert.alert-success,
+.alert.alert-danger,
+.alert.alert-warning,
+.alert.alert-info,
+.mem-alert {
+  animation: coop-alert-settle 0.28s ease both;
+}
+
+/* Opt-in list skeleton (use with existing shimmer tokens if needed) */
+.coop-skeleton-row {
+  display: block;
+  height: 0.9rem;
+  margin: 0.55rem 0;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #e8eee9) 25%,
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #f4f7f5) 50%,
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #e8eee9) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease infinite;
+}
+
+.scroll-top,
+.scroll-to-top,
+.back-to-top,
+#scrollToTop {
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.scroll-top:hover,
+.scroll-to-top:hover,
+.back-to-top:hover,
+#scrollToTop:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .public-form-shell,
+  .alert.alert-success,
+  .alert.alert-danger,
+  .alert.alert-warning,
+  .alert.alert-info,
+  .mem-alert,
+  .coop-skeleton-row {
+    animation: none !important;
+  }
+
+  .coop-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  button[type="submit"][aria-busy="true"]::after,
+  .btn[aria-busy="true"]::after {
+    animation: none !important;
+    border-right-color: currentColor;
+    opacity: 0.55;
+  }
+
+  .btn-primary:active,
+  .btn-success:active,
+  .nts-btn-primary:active,
+  .mem-submit-btn:active,
+  .news-card:active,
+  .notice-card:active,
+  .service-card:active,
+  .gallery-card:active,
+  body.mem-wrapper .mem-card:active,
+  body.mem-wrapper .midx-ds-card:active,
+  .scroll-top:hover,
+  .scroll-to-top:hover,
+  .back-to-top:hover,
+  #scrollToTop:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Phase 2 safe UX motion ─────────────────────────────────────── */
+
+@keyframes coop-field-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+@keyframes coop-nav-ink {
+  from { transform: scaleX(0.35); opacity: 0.4; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@keyframes coop-banner-in {
+  from { opacity: 0.92; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Sticky submit — glass bar (overrides inline white from JS) */
+.coop-sticky-submit-bar {
+  background: color-mix(in srgb, #fff 88%, transparent) !important;
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  border-top: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb) !important;
+  box-shadow: 0 -8px 28px rgba(15, 31, 23, 0.1) !important;
+  animation: coop-soft-enter 0.22s ease both;
+}
+.coop-sticky-submit-bar .btn,
+.coop-sticky-submit-bar button[type="submit"] {
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent);
+}
+
+/* Invalid fields — one soft nudge + clearer ring */
+.form-control.is-invalid,
+.form-select.is-invalid,
+textarea.form-control.is-invalid,
+.mem-form-control.is-invalid {
+  animation: coop-field-nudge 0.32s ease;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #dc3545 18%, transparent) !important;
+}
+.invalid-feedback {
+  font-size: 0.8rem !important;
+  font-weight: 550;
+  margin-top: 0.3rem !important;
+}
+
+/* Page banner — gentle presence */
+.page-banner,
+.page-banner-modern {
+  animation: coop-banner-in 0.34s ease both;
+}
+
+/* Public bottom nav active ink */
+.mob-bottomnav a,
+.mob-bn-item {
+  position: relative;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.12s ease;
+}
+.mob-bottomnav a.active::before,
+.mob-bottomnav a[aria-current="page"]::before,
+.mob-bn-item.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22%;
+  right: 22%;
+  height: 2.5px;
+  border-radius: 0 0 3px 3px;
+  background: var(--primary-color, #1a5f2a);
+  transform-origin: center;
+  animation: coop-nav-ink 0.22s ease both;
+}
+
+/* Member bottom nav ink — animate on active */
+.mp-bottom-nav a.active::before,
+.mp-bottom-nav__item.active::before {
+  transform-origin: center;
+  animation: coop-nav-ink 0.22s ease both;
+}
+
+/* FAQ accordion — smoother open feel */
+.faq-accordion .accordion-button,
+.faq-question {
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease !important;
+}
+.faq-accordion .accordion-item {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.faq-accordion .accordion-item:focus-within {
+  box-shadow: 0 6px 18px rgba(15, 31, 23, 0.08);
+}
+
+/* Pagination / filter pills — soft feedback */
+.pagination .page-link {
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .pagination .page-link:hover {
+    transform: translateY(-1px);
+  }
+  .midx-filter-pill {
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
+  }
+  .midx-filter-pill:hover {
+    transform: translateY(-1px);
+  }
+  .midx-ds-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Admin empty table cell */
+body[class*="admin-page-"] .main-content .admin-empty-state {
+  padding: 2.85rem 1.35rem !important;
+  border-radius: var(--final-radius-lg);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
+}
+body[class*="admin-page-"] .main-content .admin-empty-state i,
+body[class*="admin-page-"] .main-content .admin-empty-state .lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.65rem !important;
+  border-radius: 999px;
+  font-size: 1.25rem !important;
+  opacity: 1 !important;
+  color: var(--primary-color, #1a5f2a);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
+}
+body[class*="admin-page-"] .main-content .admin-empty-state p {
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+
+/* Table row settle on hover (public + member dense lists) */
+.table tbody tr {
+  transition: background 0.14s ease;
+}
+
+/* Section headers below fold — opt-in via .coop-reveal class from JS */
+.section-header-unified.coop-reveal:not(.is-in),
+.section-header.coop-reveal:not(.is-in) {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coop-sticky-submit-bar,
+  .page-banner,
+  .page-banner-modern,
+  .form-control.is-invalid,
+  .form-select.is-invalid,
+  textarea.form-control.is-invalid,
+  .mem-form-control.is-invalid,
+  .mob-bottomnav a.active::before,
+  .mob-bottomnav a[aria-current="page"]::before,
+  .mob-bn-item.active::before,
+  .mp-bottom-nav a.active::before,
+  .mp-bottom-nav__item.active::before {
+    animation: none !important;
+  }
+  .pagination .page-link:hover,
+  .midx-filter-pill:hover,
+  .midx-ds-card:hover {
+    transform: none !important;
+  }
+}
+
+/* ── Phase 3 safe UX motion ─────────────────────────────────────── */
+
+@keyframes coop-popup-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coop-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes coop-auth-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coop-fab-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes coop-img-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Notice popup — calmer enter (overrides bouncy legacy) */
+.notice-popup-enhanced.show .popup-overlay {
+  animation: coop-overlay-in 0.22s ease both !important;
+}
+.notice-popup-enhanced.show .popup-dialog,
+.notice-popup-enhanced.show .popup-dialog.popup-v3 {
+  animation: coop-popup-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both !important;
+}
+.notice-popup-enhanced .popup-close-btn,
+.notice-popup-enhanced .popup-nav-btn {
+  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease !important;
+}
+.notice-popup-enhanced .popup-close-btn:active,
+.notice-popup-enhanced .popup-nav-btn:active {
+  transform: scale(0.94);
+}
+.notice-popup-enhanced .popup-progress-bar {
+  transition: width 0.35s ease !important;
+}
+.notice-popup-enhanced .popup-dot {
+  transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+.notice-popup-enhanced .popup-dot.active {
+  transform: scale(1.15);
+}
+
+/* Auth / login / verify — soft card enter */
+body.auth-portal-page .auth-card,
+body.auth-portal-page .vp-main-card,
+body.admin-auth-page .auth-card,
+.mem-login-box {
+  animation: coop-auth-in 0.36s ease both;
+}
+body.auth-portal-page .auth-card button[type="submit"],
+body.auth-portal-page .submit-btn,
+body.verify-auth-page .vp-btn {
+  transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.15s ease !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  body.auth-portal-page .auth-card button[type="submit"]:hover,
+  body.auth-portal-page .submit-btn:hover,
+  body.verify-auth-page .vp-btn:hover {
+    transform: translateY(-1px);
+  }
+  body.auth-portal-page .auth-card button[type="submit"]:active,
+  body.auth-portal-page .submit-btn:active,
+  body.verify-auth-page .vp-btn:active {
+    transform: scale(0.985);
+  }
+}
+
+/* Password reveal control */
+.password-toggle {
+  transition: color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+  border-radius: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.password-toggle:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, transparent);
+}
+.password-toggle:active {
+  transform: scale(0.94);
+}
+
+/* Quick-help FAB + menu */
+.qh-fab {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.15s ease !important;
+}
+.qh-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(15, 31, 23, 0.28) !important;
+}
+.qh-fab:active {
+  transform: scale(0.94);
+}
+.qh-launcher.open .qh-menu {
+  animation: coop-fab-pop 0.22s ease both;
+}
+.qh-item {
+  transition: transform 0.12s ease, background 0.15s ease !important;
+}
+.qh-item:active {
+  transform: scale(0.97);
+}
+
+/* Skip link — clearer brand focus */
+.skip-link:focus,
+.skip-link:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 8px 24px rgba(15, 31, 23, 0.18);
+}
+
+/* Scroll / side nav flash buttons */
+.scroll-nav .scroll-btn,
+.scroll-top,
+.back-to-top,
+#scrollToTop {
+  transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.15s ease !important;
+}
+.scroll-nav .scroll-btn:active {
+  transform: scale(0.94);
+}
+
+/* Card images — soft fade when revealed */
+.news-card img.coop-img-ready,
+.notice-card img.coop-img-ready,
+.gallery-card img.coop-img-ready,
+.service-card img.coop-img-ready {
+  animation: coop-img-fade 0.35s ease both;
+}
+
+/* Member list rows */
+body.mem-wrapper .mem-list-item,
+body.mem-wrapper .midx-list-row,
+body.mem-wrapper .mem-txn-row {
+  transition: background 0.14s ease, transform 0.12s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  body.mem-wrapper .mem-list-item:hover,
+  body.mem-wrapper .midx-list-row:hover,
+  body.mem-wrapper .mem-txn-row:hover {
+    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff);
+  }
+}
+
+/* Bootstrap modal — softer enter when present */
+.modal.fade .modal-dialog {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease !important;
+}
+.modal.show .modal-dialog {
+  transform: none;
+}
+
+/* Dark mode auth/popup tweaks */
+body.dark-mode .notice-popup-enhanced .popup-dialog {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notice-popup-enhanced.show .popup-overlay,
+  .notice-popup-enhanced.show .popup-dialog,
+  .notice-popup-enhanced.show .popup-dialog.popup-v3,
+  body.auth-portal-page .auth-card,
+  body.auth-portal-page .vp-main-card,
+  body.admin-auth-page .auth-card,
+  .mem-login-box,
+  .qh-launcher.open .qh-menu,
+  .news-card img.coop-img-ready,
+  .notice-card img.coop-img-ready,
+  .gallery-card img.coop-img-ready,
+  .service-card img.coop-img-ready {
+    animation: none !important;
+  }
+  .qh-fab:hover,
+  .qh-fab:active,
+  .qh-item:active,
+  .password-toggle:active,
+  .notice-popup-enhanced .popup-close-btn:active,
+  .notice-popup-enhanced .popup-nav-btn:active,
+  .notice-popup-enhanced .popup-dot.active,
+  body.auth-portal-page .auth-card button[type="submit"]:hover,
+  body.auth-portal-page .submit-btn:hover,
+  body.verify-auth-page .vp-btn:hover,
+  body.auth-portal-page .auth-card button[type="submit"]:active,
+  body.auth-portal-page .submit-btn:active,
+  body.verify-auth-page .vp-btn:active {
+    transform: none !important;
+  }
 }
 /* ===== END final-ui-polish.css ===== */

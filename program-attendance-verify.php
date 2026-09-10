@@ -3,6 +3,7 @@
  * Legacy Staff Verify URL — redirects to Registration Desk (Member ID SSOT).
  * Card number = Member ID (sadasyata_number); CVV flow retired.
  */
+header('X-Robots-Tag: noindex, nofollow', true);
 require_once __DIR__ . '/includes/config.php';
 
 if (!isAdminLoggedIn()) {

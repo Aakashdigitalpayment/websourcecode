@@ -3,6 +3,7 @@
  * Member Portal — ऋण आवेदन (Native Loan Application Form)
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/loan-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -23,6 +24,10 @@ $rPhone   = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? 
 $rEmail   = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
 $rAddress = trim((string)($kycRow['permanent_address'] ?? $kycRow['address'] ?? ''));
 $rCitizen = trim((string)($kycRow['citizenship_no'] ?? ''));
+$historyMemberIds = array_values(array_unique(array_filter([
+    (string)$memberId,
+    trim((string)$memSadasyata),
+], static fn($v) => $v !== '')));
 
 /* Loan rates */
 $loanRates = [];
@@ -33,8 +38,9 @@ try {
 /* Recent loan applications */
 $recentLoans = [];
 try {
-    $rl = $db->prepare("SELECT tracking_id, loan_type, loan_amount, status, created_at FROM loan_applications WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-    $rl->execute([$memberId]);
+    $ph = implode(',', array_fill(0, count($historyMemberIds), '?'));
+    $rl = $db->prepare("SELECT tracking_id, loan_type, loan_amount, status, created_at FROM loan_applications WHERE member_id IN ($ph) ORDER BY created_at DESC LIMIT 10");
+    $rl->execute($historyMemberIds);
     $recentLoans = $rl->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {}
 
@@ -47,49 +53,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } else {
-        $loan_type        = trim((string)($_POST['loan_type'] ?? ''));
-        $loan_amount      = (float)($_POST['loan_amount'] ?? 0);
-        $loan_tenure      = (int)($_POST['loan_tenure'] ?? 0);
-        $repayment_method = trim((string)($_POST['repayment_method'] ?? ''));
-        $loan_purpose     = trim((string)($_POST['loan_purpose'] ?? ''));
-        $occupation       = trim((string)($_POST['occupation'] ?? ''));
-        $monthly_income   = (float)($_POST['monthly_income'] ?? 0);
-        $organization     = trim((string)($_POST['organization_name'] ?? ''));
-        $other_income     = trim((string)($_POST['other_income'] ?? ''));
-        $collateral_type  = trim((string)($_POST['collateral_type'] ?? ''));
-        $collateral_desc  = trim((string)($_POST['collateral_desc'] ?? ''));
+        $__nf = __DIR__ . '/../includes/notifications.php';
+        if (is_file($__nf)) { require_once $__nf; }
+        unset($__nf);
+        $result = submitLoanApplicationUnified($db, [
+            'full_name' => $memName,
+            'member_id' => ($memSadasyata !== '' ? $memSadasyata : (string)$memberId),
+            'member_portal_id' => $memberId,
+            'from_member_portal' => true,
+            'mobile' => $rPhone,
+            'email' => $rEmail,
+            'address' => $rAddress,
+            'citizenship_no' => $rCitizen,
+            'loan_type' => trim((string)($_POST['loan_type'] ?? '')),
+            'loan_amount' => $_POST['loan_amount'] ?? 0,
+            'loan_purpose' => trim((string)($_POST['loan_purpose'] ?? '')),
+            'loan_tenure' => $_POST['loan_tenure'] ?? '',
+            'repayment_method' => trim((string)($_POST['repayment_method'] ?? '')),
+            'occupation' => trim((string)($_POST['occupation'] ?? '')),
+            'organization_name' => trim((string)($_POST['organization_name'] ?? '')),
+            'monthly_income' => $_POST['monthly_income'] ?? '',
+            'other_income' => trim((string)($_POST['other_income'] ?? '')),
+            'collateral_type' => trim((string)($_POST['collateral_type'] ?? '')),
+            'collateral_description' => trim((string)($_POST['collateral_desc'] ?? '')),
+            'require_email' => false,
+        ], $_FILES);
 
-        if (!$loan_type)       $errorMsg = $_t('ऋणको प्रकार छान्नुहोस्।', 'Please select loan type.');
-        elseif ($loan_amount < 1000) $errorMsg = $_t('ऋण रकम कम्तिमा रु. १,००० हुनुपर्छ।', 'Loan amount must be at least Rs. 1,000.');
-
-        if (!$errorMsg) {
-            try {
-                $loanTrackingId = coop_new_tracking_id('LNP');
-                $stmt = $db->prepare("INSERT INTO loan_applications
-                    (tracking_id, full_name, member_id, mobile, email, address, citizenship_no,
-                     loan_type, loan_amount, loan_purpose, loan_tenure, repayment_method,
-                     occupation, organization_name, monthly_income, other_income,
-                     collateral_type, collateral_description)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([
-                    $loanTrackingId, $memName, $memberId, $rPhone, $rEmail, $rAddress, $rCitizen,
-                    $loan_type, $loan_amount, $loan_purpose, $loan_tenure ?: null, $repayment_method ?: null,
-                    $occupation ?: null, $organization ?: null, $monthly_income ?: null, $other_income ?: null,
-                    $collateral_type ?: null, $collateral_desc ?: null,
-                ]);
-                /* Reload */
-                $rl2 = $db->prepare("SELECT tracking_id, loan_type, loan_amount, status, created_at FROM loan_applications WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-                $rl2->execute([$memberId]);
-                $recentLoans = $rl2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                $successMsg = $_t('ऋण आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Loan application submitted! Tracking ID: ') . $loanTrackingId;
-                if (function_exists('sendAdminNotification')) {
-                    require_once __DIR__ . '/../includes/notifications.php';
-                    sendAdminNotification('loan_application', ['नाम' => $memName, 'ऋण प्रकार' => $loan_type, 'रकम' => 'रु. ' . number_format($loan_amount)], $loanTrackingId);
-                }
-                logSecurityEvent('loan_application', 'Member portal: ' . $memName . ' (' . $loanTrackingId . ')');
-            } catch (Throwable $e) {
-                $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
-            }
+        if (!empty($result['ok'])) {
+            $loanTrackingId = (string)$result['tracking_id'];
+            /* Reload */
+            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
+            $rl2 = $db->prepare("SELECT tracking_id, loan_type, loan_amount, status, created_at FROM loan_applications WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
+            $rl2->execute($historyMemberIds);
+            $recentLoans = $rl2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $successMsg = $_t('ऋण आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Loan application submitted! Tracking ID: ') . $loanTrackingId;
+            logSecurityEvent('loan_application', 'Member portal: ' . $memName . ' (' . $loanTrackingId . ')');
+        } else {
+            $errorMsg = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
         }
     }
 }
@@ -119,7 +121,7 @@ $pageTitle = $_t('ऋण आवेदन', 'Loan Application') . ' — ' . $site
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 require __DIR__ . '/includes/chrome.php';
 ?>
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -309,7 +311,7 @@ require __DIR__ . '/includes/chrome.php';
   </div>
 
 </div>
-</main>
+</div>
 <script>
 function loanShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });

@@ -3,6 +3,7 @@
  * Member Portal — डिजिटल सेवा अनुरोध (Native Digital Service Form)
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/digital-service-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -20,12 +21,14 @@ $memName      = trim((string)($mem['name'] ?? ''));
 require __DIR__ . '/../includes/member-portal-identity.php';
 $_dstypes = __DIR__ . '/../includes/digital-service-types.php';
 if (is_file($_dstypes)) { require_once $_dstypes; }
-if (is_file(__DIR__ . '/../includes/digital-service-requests-tables.php')) { require_once __DIR__ . '/../includes/digital-service-requests-tables.php'; }
-if (function_exists('ensureDigitalServiceRequestsTables')) { ensureDigitalServiceRequestsTables($db); }
 unset($_dstypes);
 
 $rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
+$historyMemberIds = array_values(array_unique(array_filter([
+    (string)$memberId,
+    trim((string)$memSadasyata),
+], static fn($v) => $v !== '')));
 
 /* Service types — active for form; all (incl. inactive) for history labels */
 $serviceTypes = function_exists('digitalServiceTypesMap')
@@ -38,8 +41,9 @@ $serviceTypesAll = function_exists('digitalServiceTypesMap')
 /* Recent digital service requests */
 $recentRequests = [];
 try {
-    $rr = $db->prepare("SELECT tracking_id, service_type, service_type_np, status, created_at FROM digital_service_requests WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-    $rr->execute([$memberId]);
+    $ph = implode(',', array_fill(0, count($historyMemberIds), '?'));
+    $rr = $db->prepare("SELECT tracking_id, service_type, service_type_np, status, created_at FROM digital_service_requests WHERE member_id IN ($ph) ORDER BY created_at DESC LIMIT 10");
+    $rr->execute($historyMemberIds);
     $recentRequests = $rr->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {}
 
@@ -52,71 +56,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } else {
-        $serviceType      = trim((string)($_POST['service_type'] ?? ''));
-        $accountNumber    = trim((string)($_POST['account_number'] ?? ''));
-        $statementFrom    = trim((string)($_POST['statement_from'] ?? ''));
-        $statementTo      = trim((string)($_POST['statement_to'] ?? ''));
-        $billerName       = trim((string)($_POST['biller_name'] ?? ''));
-        $billReference    = trim((string)($_POST['bill_reference'] ?? ''));
-        $rechargeNumber   = preg_replace('/[^0-9]/', '', (string)($_POST['recharge_number'] ?? ''));
-        $rechargeAmount   = (float)($_POST['recharge_amount'] ?? 0);
-        $serviceAmount    = (float)($_POST['service_amount'] ?? 0);
-        $requestDetails   = trim((string)($_POST['request_details'] ?? ''));
-        $preferredContact = trim((string)($_POST['preferred_contact'] ?? 'phone'));
+        $__nf = __DIR__ . '/../includes/notifications.php';
+        if (is_file($__nf)) { require_once $__nf; }
+        unset($__nf);
+        $result = submitDigitalServiceRequestUnified($db, [
+            'from_member_portal' => true,
+            'requester_name' => $memName,
+            'member_id' => ($memSadasyata !== '' ? $memSadasyata : (string)$memberId),
+            'member_portal_id' => $memberId,
+            'phone' => $rPhone,
+            'email' => $rEmail,
+            'service_type' => trim((string)($_POST['service_type'] ?? '')),
+            'account_number' => trim((string)($_POST['account_number'] ?? '')),
+            'statement_from' => trim((string)($_POST['statement_from'] ?? '')),
+            'statement_to' => trim((string)($_POST['statement_to'] ?? '')),
+            'biller_name' => trim((string)($_POST['biller_name'] ?? '')),
+            'bill_reference' => trim((string)($_POST['bill_reference'] ?? '')),
+            'recharge_number' => preg_replace('/[^0-9]/', '', (string)($_POST['recharge_number'] ?? '')),
+            'recharge_amount' => ($_POST['recharge_amount'] ?? '') !== '' ? (float)$_POST['recharge_amount'] : null,
+            'service_amount' => ($_POST['service_amount'] ?? '') !== '' ? (float)$_POST['service_amount'] : null,
+            'request_details' => trim((string)($_POST['request_details'] ?? '')),
+            'preferred_contact' => trim((string)($_POST['preferred_contact'] ?? 'phone')),
+            'require_contact' => false,
+        ], $_FILES, $serviceTypes);
 
-        if (!$serviceType || !isset($serviceTypes[$serviceType])) {
-            $errorMsg = $_t('सेवा प्रकार छान्नुहोस्।', 'Please select a service type.');
-        }
-
-        if (!$errorMsg) {
-            try {
-                $trackingId = coop_new_tracking_id('DSR');
-                $attachment = '';
-                $needDoc = !empty($serviceTypes[$serviceType]['requires_document']);
-                if (isset($_FILES['attachment']) && (int)($_FILES['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
-                    if (function_exists('uploadFile')) {
-                        $up = uploadFile($_FILES['attachment'], 'digital_services');
-                        if (!empty($up['path'])) {
-                            $attachment = (string)$up['path'];
-                        }
-                    }
-                }
-                if ($needDoc && $attachment === '') {
-                    $errorMsg = $_t('यो सेवाको लागि मान्य संलग्न कागजात अनिवार्य छ।', 'Please attach a valid supporting document for this service.');
-                }
-                if (!$errorMsg) {
-                $stmt = $db->prepare("INSERT INTO digital_service_requests
-                    (tracking_id, requester_name, member_id, phone, email,
-                     service_type, service_type_np, account_number,
-                     statement_from, statement_to, biller_name, bill_reference,
-                     recharge_number, recharge_amount, service_amount, request_details, attachment, preferred_contact)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([
-                    $trackingId, $memName, $memberId, $rPhone, $rEmail,
-                    $serviceType, $serviceTypes[$serviceType]['np'], $accountNumber,
-                    $statementFrom ?: null, $statementTo ?: null,
-                    $billerName, $billReference,
-                    $rechargeNumber ?: null, $rechargeAmount ?: null,
-                    $serviceAmount ?: null, $requestDetails, $attachment,
-                    in_array($preferredContact, ['phone','email','branch'], true) ? $preferredContact : 'phone',
-                ]);
-                /* Reload history */
-                $rr2 = $db->prepare("SELECT tracking_id, service_type, service_type_np, status, created_at FROM digital_service_requests WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-                $rr2->execute([$memberId]);
-                $recentRequests = $rr2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-                $successMsg = $_t('डिजिटल सेवा अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Digital service request submitted! Tracking ID: ') . $trackingId;
-                if (function_exists('sendAdminNotification')) {
-                    require_once __DIR__ . '/../includes/notifications.php';
-                    sendAdminNotification('digital_service_request', [
-                        'नाम' => $memName, 'सेवा' => $serviceTypes[$serviceType]['np'], 'सम्पर्क' => $preferredContact,
-                    ], $trackingId);
-                }
-                logSecurityEvent('digital_service_request', 'Member portal: ' . $memName . ' (' . $trackingId . ')');
-                } /* end if (!$errorMsg) after attachment */
-            } catch (Throwable $e) {
-                $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
-            }
+        if (!empty($result['ok'])) {
+            $trackingId = (string)$result['tracking_id'];
+            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
+            $rr2 = $db->prepare("SELECT tracking_id, service_type, service_type_np, status, created_at FROM digital_service_requests WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
+            $rr2->execute($historyMemberIds);
+            $recentRequests = $rr2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $successMsg = $_t('डिजिटल सेवा अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Digital service request submitted! Tracking ID: ') . $trackingId;
+            logSecurityEvent('digital_service_request', 'Member portal: ' . $memName . ' (' . $trackingId . ')');
+        } else {
+            $errorMsg = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
         }
     }
 }
@@ -144,7 +119,7 @@ $pageTitle = $_t('डिजिटल सेवा अनुरोध', 'Digital 
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 require __DIR__ . '/includes/chrome.php';
 ?>
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -217,12 +192,32 @@ require __DIR__ . '/includes/chrome.php';
       <div id="ds-field-statement" style="display:none;">
         <div class="mem-form-row mem-form-row-2">
           <div class="mem-form-group">
-            <label class="mem-form-label" for="mds_statement_from"><?php echo $_t('स्टेटमेन्ट मिति (देखि)', 'Statement From'); ?></label>
-            <input type="date" name="statement_from" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_from'] ?? '') ?>" id="mds_statement_from">
+            <label class="mem-form-label" for="mds_statement_from"><?php echo $_t('स्टेटमेन्ट मिति (देखि)', 'Statement From'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+            <?php
+            echo function_exists('coop_date_input_html')
+                ? coop_date_input_html([
+                    'name' => 'statement_from',
+                    'id' => 'mds_statement_from',
+                    'class' => 'mem-form-control',
+                    'value' => (string)($_POST['statement_from'] ?? ''),
+                    'hint' => false,
+                ])
+                : '<input type="date" name="statement_from" class="mem-form-control" id="mds_statement_from">';
+            ?>
           </div>
           <div class="mem-form-group">
-            <label class="mem-form-label" for="mds_statement_to"><?php echo $_t('स्टेटमेन्ट मिति (सम्म)', 'Statement To'); ?></label>
-            <input type="date" name="statement_to" class="mem-form-control" value="<?= htmlspecialchars($_POST['statement_to'] ?? '') ?>" id="mds_statement_to">
+            <label class="mem-form-label" for="mds_statement_to"><?php echo $_t('स्टेटमेन्ट मिति (सम्म)', 'Statement To'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+            <?php
+            echo function_exists('coop_date_input_html')
+                ? coop_date_input_html([
+                    'name' => 'statement_to',
+                    'id' => 'mds_statement_to',
+                    'class' => 'mem-form-control',
+                    'value' => (string)($_POST['statement_to'] ?? ''),
+                    'hint' => true,
+                ])
+                : '<input type="date" name="statement_to" class="mem-form-control" id="mds_statement_to">';
+            ?>
           </div>
         </div>
       </div>
@@ -337,7 +332,7 @@ require __DIR__ . '/includes/chrome.php';
   </div>
 
 </div>
-</main>
+</div>
 <script>
 function dsShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });

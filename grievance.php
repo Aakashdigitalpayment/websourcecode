@@ -3,6 +3,7 @@ require_once 'includes/config.php';
 require_once 'includes/ensure-tables.php';
 require_once 'includes/kyc-public-form.php';
 require_once 'includes/contact-spam-guard.php';
+require_once 'includes/grievance-submit-helper.php';
 $pageTitle = isEnglish() ? 'File Grievance' : 'गुनासो दर्ता गर्नुहोस्';
 $pageDescription = isEnglish()
     ? 'Submit and track a grievance with our cooperative grievance officer.'
@@ -95,65 +96,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        /* -------------------------------------------------------
-           Server-side validation — grievance form
-           Non-anonymous: नाम, फोन (10 digits), इमेल (सदस्य होइन भने)
-           गुप्त: नाम छैन; ट्र्याकिङका लागि फोन + इमेल अनिवार्य
-        ------------------------------------------------------- */
-        if (empty($subject)) {
-            $error = isEnglish() ? 'Please enter a subject.' : 'कृपया विषय लेख्नुहोस्।';
-        } elseif (empty($description)) {
-            $error = isEnglish() ? 'Please describe your grievance.' : 'कृपया गुनासोको विवरण लेख्नुहोस्।';
-        } elseif ($is_anonymous && empty($phone)) {
-            $error = isEnglish() ? 'Mobile number is required (for tracking updates).' : 'ट्र्याकिङ/जवाफका लागि मोबाइल अनिवार्य छ।';
-        } elseif ($is_anonymous && !preg_match('/^[0-9]{10}$/', $phone)) {
-            $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-        } elseif ($is_anonymous && empty($email)) {
-            $error = isEnglish() ? 'Email is required (for tracking updates).' : 'ट्र्याकिङ/जवाफका लागि इमेल अनिवार्य छ।';
-        } elseif ($is_anonymous && !isValidEmail($email)) {
-            $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-        } elseif (!$is_anonymous && $isCoopMember !== 'yes' && empty($name)) {
-            $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
-        } elseif (!$is_anonymous && $isCoopMember !== 'yes' && empty($phone)) {
-            $error = isEnglish() ? 'Mobile number is required.' : 'मोबाइल नम्बर अनिवार्य छ।';
-        } elseif (!$is_anonymous && $isCoopMember !== 'yes' && !preg_match('/^[0-9]{10}$/', $phone)) {
-            /* Phone must be exactly 10 digits */
-            $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-        } elseif (!$is_anonymous && $isCoopMember !== 'yes' && empty($email)) {
-            $error = isEnglish() ? 'Email address is required.' : 'इमेल ठेगाना अनिवार्य छ।';
-        } elseif (!$is_anonymous && !empty($email) && !isValidEmail($email)) {
-            /* Email format check */
-            $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-        } else {
-            try {
-                // Handle attachment
-                $attachment = '';
-                if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === 0) {
-                    $uploadResult = uploadFile($_FILES['attachment'], 'grievances');
-                    if ($uploadResult['success']) {
-                        $attachment = $uploadResult['path'];
-                    }
-                }
+        if (!$error) {
+            $__nf = __DIR__ . '/includes/notifications.php';
+            if (is_file($__nf)) { require_once $__nf; }
+            unset($__nf);
 
+            $result = submitGrievanceUnified($db, [
+                'name' => $name,
+                'member_id' => $member_id,
+                'member_portal_id' => $loggedMember ? (int)($loggedMember['id'] ?? 0) : null,
+                'phone' => $phone,
+                'email' => $email,
+                'category' => $category,
+                'subject' => $subject,
+                'description' => $description,
+                'is_anonymous' => $is_anonymous,
+                'require_contact' => ($is_anonymous || $isCoopMember !== 'yes'),
+            ], $_FILES);
 
-                // Generate tracking ID first
-                $tempId = date('YmdHis') . rand(100, 999);
-                $trackingId = coop_new_tracking_id('GRV');
-
-                // Insert with tracking ID
-                $stmt = $db->prepare("INSERT INTO grievances (tracking_id, name, member_id, phone, email, category, subject, description, attachment, is_anonymous, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
-
-                if ($is_anonymous) {
-                    /* नाम सार्वजनिक रूपमा गुप्त; फोन/इमेल ट्र्याकिङ र सम्पर्कका लागि DB मा राखिन्छ */
-                    $stmt->execute([$trackingId, 'Anonymous', '', $phone, $email, $category, $subject, $description, $attachment, 1]);
-                } else {
-                    $stmt->execute([$trackingId, $name, $member_id, $phone, $email, $category, $subject, $description, $attachment, 0]);
-                }
-
+            if (!empty($result['ok'])) {
                 $success = true;
+                $trackingId = (string)$result['tracking_id'];
                 logSecurityEvent('grievance_filed', 'Grievance filed: ' . $subject . ' (Tracking: ' . $trackingId . ')');
-
-                require_once 'includes/notifications.php';
 
                 // Tracking SMS — गुप्त भए पनि फोन दिएमा पठाउने
                 if (!empty($phone)) {
@@ -171,19 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     } catch (Exception $ignored) {}
                 }
-
-                /* Admin notification */
-                sendAdminNotification('grievance', [
-                    'नाम'       => $is_anonymous ? 'Anonymous' : $name,
-                    'सदस्य नं.' => $member_id ?: 'N/A',
-                    'फोन'       => $phone ?: 'N/A',
-                    'इमेल'      => $email ?: 'N/A',
-                    'Category'  => $category,
-                    'विषय'      => $subject,
-                    'मिति'      => date('Y-m-d H:i'),
-                ], $trackingId);
-            } catch (Exception $e) {
-                $error = isEnglish() ? 'Failed to submit grievance: ' . $e->getMessage() : 'गुनासो दर्ता गर्न सकिएन: ' . $e->getMessage();
+            } else {
+                $error = isEnglish()
+                    ? (string)($result['error_en'] ?? $result['error'] ?? 'Failed to submit grievance.')
+                    : (string)($result['error'] ?? 'गुनासो दर्ता गर्न सकिएन।');
             }
         }
     }
@@ -207,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <section class="section-padding">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-lg-8 public-form-shell">
                 <?php if ($success): ?>
                 <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
                     <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>

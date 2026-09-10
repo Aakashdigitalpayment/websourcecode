@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <section class="section-padding">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8 mx-auto">
+            <div class="col-lg-8 mx-auto public-form-shell">
                 <div class="vendor-info-card mb-4">
                     <h4><i class="fas fa-info-circle"></i> <?php echo isEnglish() ? 'Vendor Enlistment Notice' : 'भेन्डर सूचीकरण सम्बन्धी सूचना'; ?></h4>
                     <p>

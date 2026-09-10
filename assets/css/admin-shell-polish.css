@@ -108,7 +108,16 @@ body[class*="admin-page-"],
 .modal .form-select:focus {
   border-color: var(--admin-border-focus) !important;
   box-shadow: var(--admin-focus-ring) !important;
-  outline: none !important;
+  outline: none;
+}
+
+.main-content .form-control:focus-visible,
+.main-content .form-select:focus-visible,
+.main-content .admin-fancy-input:focus-visible,
+.modal .form-control:focus-visible,
+.modal .form-select:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }
 
 .main-content .form-control::placeholder,
@@ -285,12 +294,31 @@ body[class*="admin-page-"],
 }
 
 .main-content .admin-empty-state {
-  padding: 2.4rem 1rem !important;
+  padding: 2.6rem 1.15rem !important;
+  text-align: center;
+  border-radius: var(--admin-radius, 12px);
+}
+
+.main-content .admin-empty-state i,
+.main-content .admin-empty-state .lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.85rem;
+  height: 2.85rem;
+  margin-bottom: 0.55rem;
+  border-radius: 999px;
+  color: var(--primary-color, #1a5f2a);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
 }
 
 .main-content .admin-empty-state p {
   color: var(--admin-muted) !important;
   margin-bottom: 0;
+  max-width: 26rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
 }
 
 /* Prefer horizontal scroll on small screens for dense admin tables */
@@ -1005,4 +1033,196 @@ body.has-bottomnav {
   background: var(--primary-color, #1a5f2a) !important;
   color: var(--text-on-primary, #fff) !important;
   border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ===== Folded from admin-bootstrap-unified-patch.css ===== */
+/**
+ * Admin Bootstrap Unified Patch — additive only.
+ * Loads after bootstrap-admin-overrides.css + admin-shell-polish.css.
+ * Maps hardcoded bootstrap hex to DB theme CSS variables; keeps gradient headers readable.
+ */
+
+.admin-shell .btn.btn-primary,
+.main-content .btn.btn-primary,
+button.btn.btn-primary,
+a.btn.btn-primary {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .btn.btn-primary:hover,
+.admin-shell .btn.btn-primary:focus,
+.main-content .btn.btn-primary:hover,
+.main-content .btn.btn-primary:focus,
+button.btn.btn-primary:hover,
+button.btn.btn-primary:focus,
+a.btn.btn-primary:hover,
+a.btn.btn-primary:focus {
+  background-color: var(--primary-dark, #145620) !important;
+  border-color: var(--primary-dark, #145620) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .btn.btn-outline-primary,
+.main-content .btn.btn-outline-primary {
+  color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.admin-shell .btn.btn-outline-primary:hover,
+.admin-shell .btn.btn-outline-primary:focus,
+.main-content .btn.btn-outline-primary:hover,
+.main-content .btn.btn-outline-primary:focus {
+  background-color: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .form-control:focus,
+.admin-shell .form-select:focus,
+.main-content .form-control:focus,
+.main-content .form-select:focus,
+.admin-wrapper .form-control:focus,
+.admin-wrapper .form-select:focus {
+  border-color: var(--primary-color, #1a5f2a) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent) !important;
+}
+
+.admin-shell .table tbody tr:hover,
+.main-content .table tbody tr:hover {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+.admin-shell .table-striped > tbody > tr:nth-of-type(odd),
+.main-content .table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff) !important;
+}
+
+/* Gradient / brand card headers — unified white-on-brand text */
+.main-content .card-header.gradient-card-header,
+.admin-card .card-header.gradient-card-header,
+.main-content .card-header.bg-gradient-primary,
+.admin-card .card-header.bg-gradient-primary,
+.main-content .card-header.bg-primary:not(.bg-light):not(.bg-white),
+.admin-card .card-header.bg-primary:not(.bg-light):not(.bg-white),
+.main-content .card-header.svc-form-header-grad,
+.admin-card .card-header.svc-form-header-grad,
+.main-content .card-header.sl-form-header,
+.admin-card .card-header.sl-form-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a) 0%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+  border-bottom: none !important;
+}
+
+.main-content .card-header.gradient-card-header *,
+.admin-card .card-header.gradient-card-header *,
+.main-content .card-header.bg-gradient-primary *,
+.admin-card .card-header.bg-gradient-primary *,
+.main-content .card-header.bg-primary:not(.bg-light):not(.bg-white) *,
+.admin-card .card-header.bg-primary:not(.bg-light):not(.bg-white) *,
+.main-content .card-header.svc-form-header-grad *,
+.admin-card .card-header.svc-form-header-grad *,
+.main-content .card-header.sl-form-header *,
+.admin-card .card-header.sl-form-header * {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .gradient-card-header .btn-outline-light,
+.admin-card .gradient-card-header .btn-outline-light {
+  color: #fff !important;
+  border-color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.main-content .gradient-card-header .btn-outline-light:hover,
+.main-content .gradient-card-header .btn-outline-light:focus,
+.admin-card .gradient-card-header .btn-outline-light:hover,
+.admin-card .gradient-card-header .btn-outline-light:focus {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+
+/* Dashboard stat cards — keep gradient + contrasted text */
+.main-content .stat-card.bg-primary,
+.main-content .stat-card.bg-success {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a),
+    var(--primary-light, #2d6b3a)
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .stat-card.bg-primary *,
+.main-content .stat-card.bg-success * {
+  color: var(--text-on-primary, #fff) !important;
+}
+
+/* Interest rates + admin gradient headers */
+.main-content .card-header.ir-head-primary,
+.admin-card .card-header.ir-head-primary {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a) 0%,
+    var(--primary-light, #2d6b3a) 100%
+  ) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.main-content .card-header.ir-head-primary *,
+.admin-card .card-header.ir-head-primary * {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+}
+
+/* Tabs — brand color from theme (not hardcoded hex) */
+.main-content .nav-tabs .nav-link:hover,
+.admin-shell .nav-tabs .nav-link:hover,
+.main-content .ds-tab:hover {
+  color: var(--primary-color, #1a5f2a) !important;
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff) !important;
+}
+
+.main-content .nav-tabs .nav-link.active,
+.admin-shell .nav-tabs .nav-link.active,
+.main-content .ds-tab.active {
+  color: var(--primary-color, #1a5f2a) !important;
+  border-bottom-color: var(--primary-color, #1a5f2a) !important;
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff) !important;
+}
+
+/* Form labels — use theme text token */
+.admin-shell .form-label,
+.main-content .form-label,
+.admin-wrapper .form-label {
+  color: var(--text-primary, #0f1a15) !important;
+}
+
+.main-content .badge.bg-primary,
+.admin-shell .badge.bg-primary {
+  background-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #fff) !important;
+  color: var(--primary-dark, #145620) !important;
+}
+
+/* Phase 4 a11y — nav-group headers as buttons */
+button.nav-group-header {
+  width: calc(100% - 12px);
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+button.nav-group-header:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a) !important;
+  outline-offset: 2px !important;
 }

@@ -488,9 +488,10 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                   placeholder="Short summary for English UI / search snippets"><?php echo htmlspecialchars($settings['meta_description_en'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="stg_meta_keywords" class="form-label"><?php echo $__t('मेटा कीवर्ड (अल्पविरामले छुट्याउनुहोस्)', 'Meta Keywords (comma separated)'); ?></label>
+                        <label for="stg_meta_keywords" class="form-label"><?php echo $__t('मेटा कीवर्ड (वैकल्पिक / अप्रयुक्त)', 'Meta Keywords (optional / unused in head)'); ?></label>
                         <textarea name="meta_keywords" id="stg_meta_keywords" class="form-control" rows="2" maxlength="500"
                                   placeholder="<?php echo $__t('जनउत्थान, Janautthan SACCOS, बचत, ऋण, रुपन्देही, सहकारी', 'Janautthan, SACCOS, savings, loan, Rupandehi, cooperative'); ?>"><?php echo htmlspecialchars($settings['meta_keywords'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                        <div class="form-text"><?php echo $__t('खोज इन्जिनले keywords meta प्रयोग गर्दैनन् — सार्वजनिक head बाट हटाइएको।', 'Search engines ignore keywords meta — omitted from the public head.'); ?></div>
                     </div>
 
                     <hr>

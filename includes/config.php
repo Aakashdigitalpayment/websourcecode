@@ -40,6 +40,8 @@ require_once __DIR__ . '/compatibility.php';
 require_once __DIR__ . '/coop-terms.php';
 /* Member ID SSOT helpers */
 require_once __DIR__ . '/member-ssot.php';
+require_once __DIR__ . '/data-ssot.php';
+require_once __DIR__ . '/coop-date-ui.php';
 /* Public “सदस्य बन्नुस्” → admin assigns Member ID */
 require_once __DIR__ . '/membership-applications.php';
 /* Safe SQL helpers (sqCount / core_safe_count) — admin pages that skip core/init still need these */

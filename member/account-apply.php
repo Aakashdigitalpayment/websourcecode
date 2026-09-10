@@ -3,6 +3,7 @@
  * Member Portal — खाता खोल्ने आवेदन (Native Account Opening Form)
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/account-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -52,58 +53,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } else {
-        $account_type    = trim((string)($_POST['account_type'] ?? ''));
-        $initial_deposit = (float)($_POST['initial_deposit'] ?? 1000);
-        $nominee_name    = trim((string)($_POST['nominee_name'] ?? ''));
-        $nominee_relation= trim((string)($_POST['nominee_relation'] ?? ''));
-        $nominee_phone   = trim((string)($_POST['nominee_phone'] ?? ''));
-        $branch          = trim((string)($_POST['branch'] ?? ''));
-        $notes           = trim((string)($_POST['notes'] ?? ''));
+        $__nf = __DIR__ . '/../includes/notifications.php';
+        if (is_file($__nf)) { require_once $__nf; }
+        unset($__nf);
+        $submitMobile = $rPhone !== '' ? $rPhone : $memPhone;
+        $result = submitAccountApplicationUnified($db, [
+            'from_member_portal' => true,
+            'account_type' => trim((string)($_POST['account_type'] ?? '')),
+            'full_name' => $memName,
+            'full_name_en' => '',
+            'dob_bs' => $rDobBS,
+            'gender' => $rGender,
+            'mobile' => $submitMobile,
+            'email' => $rEmail,
+            'permanent_address' => $rAddress,
+            'citizenship_no' => $rCitizen,
+            'initial_deposit' => $_POST['initial_deposit'] ?? 1000,
+            'nominee_name' => trim((string)($_POST['nominee_name'] ?? '')),
+            'nominee_relation' => trim((string)($_POST['nominee_relation'] ?? '')),
+            'nominee_phone' => trim((string)($_POST['nominee_phone'] ?? '')),
+            'branch' => trim((string)($_POST['branch'] ?? '')),
+            'skip_uploads' => true,
+            'require_email' => false,
+            'require_citizenship' => false,
+        ], $_FILES);
 
-        if (!$account_type) $errorMsg = $_t('खाता प्रकार छान्नुहोस्।', 'Please select account type.');
-        if (!$errorMsg && $rPhone === '' && $memPhone === '') {
-            $errorMsg = $_t('मोबाइल नम्बर आवश्यक छ। प्रोफाइलमा फोन अपडेट गर्नुहोस्।', 'Mobile number required. Update phone on profile.');
-        }
-
-        if (!$errorMsg) {
-            try {
-                $submitMobile = $rPhone !== '' ? $rPhone : $memPhone;
-                $accTrackingId = coop_new_tracking_id('ACC');
-                $stmt = $db->prepare("INSERT INTO account_applications
-                    (tracking_id, account_type, full_name, full_name_en, dob_bs, gender,
-                     mobile, email, permanent_address, citizenship_no,
-                     initial_deposit, nominee_name, nominee_relation, nominee_phone,
-                     branch)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([
-                    $accTrackingId, $account_type,
-                    $memName, '', $rDobBS, $rGender,
-                    $submitMobile, $rEmail, $rAddress, $rCitizen,
-                    $initial_deposit, $nominee_name ?: null, $nominee_relation ?: null, $nominee_phone ?: null,
-                    $branch ?: null,
-                ]);
-                /* Reload history by contact */
-                $conds2 = []; $params2 = [];
-                if ($submitMobile !== '') { $conds2[] = 'mobile=?'; $params2[] = $submitMobile; }
-                if ($rEmail !== '') { $conds2[] = 'email=?'; $params2[] = $rEmail; }
-                if ($conds2) {
-                    $ra2 = $db->prepare(
-                        'SELECT tracking_id, account_type, initial_deposit, status, created_at
-                         FROM account_applications WHERE (' . implode(' OR ', $conds2) . ')
-                         ORDER BY created_at DESC LIMIT 10'
-                    );
-                    $ra2->execute($params2);
-                    $recentAccounts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                }
-                $successMsg = $_t('खाता खोल्ने आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Account application submitted! Tracking ID: ') . $accTrackingId;
-                if (function_exists('sendAdminNotification')) {
-                    require_once __DIR__ . '/../includes/notifications.php';
-                    sendAdminNotification('account_opening', ['नाम' => $memName, 'खाता प्रकार' => $account_type, 'जम्मा' => 'रु. ' . number_format($initial_deposit)], $accTrackingId);
-                }
-                logSecurityEvent('account_application', 'Member portal: ' . $memName . ' (' . $accTrackingId . ')');
-            } catch (Throwable $e) {
-                $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
+        if (!empty($result['ok'])) {
+            $accTrackingId = (string)$result['tracking_id'];
+            $conds2 = []; $params2 = [];
+            if ($submitMobile !== '') { $conds2[] = 'mobile=?'; $params2[] = $submitMobile; }
+            if ($rEmail !== '') { $conds2[] = 'email=?'; $params2[] = $rEmail; }
+            if ($conds2) {
+                $ra2 = $db->prepare(
+                    'SELECT tracking_id, account_type, initial_deposit, status, created_at
+                     FROM account_applications WHERE (' . implode(' OR ', $conds2) . ')
+                     ORDER BY created_at DESC LIMIT 10'
+                );
+                $ra2->execute($params2);
+                $recentAccounts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
             }
+            $successMsg = $_t('खाता खोल्ने आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Account application submitted! Tracking ID: ') . $accTrackingId;
+            logSecurityEvent('account_application', 'Member portal: ' . $memName . ' (' . $accTrackingId . ')');
+        } else {
+            $errorMsg = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
         }
     }
 }
@@ -147,7 +141,7 @@ $pageTitle = $_t('खाता खोल्ने आवेदन', 'Account Ope
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 require __DIR__ . '/includes/chrome.php';
 ?>
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -302,7 +296,7 @@ require __DIR__ . '/includes/chrome.php';
   </div>
 
 </div>
-</main>
+</div>
 <script>
 function accShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });

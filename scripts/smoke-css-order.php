@@ -62,7 +62,6 @@ foreach (['app-public.css', 'app-admin.css', 'app-member.css'] as $sheet) {
 $bundles = [
     'public-late-bundle.css' => [
         'premium-ui.css',
-        'ui-ux-polish.css',
         'mobile-premium-polish.css',
         'public-shell-polish.css',
         'ui-readability-safe-patch.css',

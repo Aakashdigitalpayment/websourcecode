@@ -3,6 +3,7 @@
  * Member Portal — गुनासो दर्ता (Native Grievance Form)
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/grievance-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -21,12 +22,17 @@ require __DIR__ . '/../includes/member-portal-identity.php';
 
 $rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
+$historyMemberIds = array_values(array_unique(array_filter([
+    (string)$memberId,
+    trim((string)$memSadasyata),
+], static fn($v) => $v !== '')));
 
 /* Recent grievances */
 $recentGrievances = [];
 try {
-    $rg = $db->prepare("SELECT tracking_id, category, subject, status, is_anonymous, created_at FROM grievances WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-    $rg->execute([$memberId]);
+    $ph = implode(',', array_fill(0, count($historyMemberIds), '?'));
+    $rg = $db->prepare("SELECT tracking_id, category, subject, status, is_anonymous, created_at FROM grievances WHERE member_id IN ($ph) ORDER BY created_at DESC LIMIT 10");
+    $rg->execute($historyMemberIds);
     $recentGrievances = $rg->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {}
 
@@ -39,46 +45,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
     } else {
-        $category     = trim((string)($_POST['category'] ?? 'other'));
-        $subject      = trim((string)($_POST['subject'] ?? ''));
-        $description  = trim((string)($_POST['description'] ?? ''));
+        $__nf = __DIR__ . '/../includes/notifications.php';
+        if (is_file($__nf)) { require_once $__nf; }
+        unset($__nf);
         $is_anonymous = isset($_POST['is_anonymous']) ? 1 : 0;
+        $result = submitGrievanceUnified($db, [
+            'name' => $memName,
+            'member_id' => ($memSadasyata !== '' ? $memSadasyata : (string)$memberId),
+            'member_portal_id' => $memberId,
+            'from_member_portal' => true,
+            'phone' => $rPhone,
+            'email' => $rEmail,
+            'category' => trim((string)($_POST['category'] ?? 'other')),
+            'subject' => trim((string)($_POST['subject'] ?? '')),
+            'description' => trim((string)($_POST['description'] ?? '')),
+            'is_anonymous' => $is_anonymous,
+            'require_contact' => false,
+        ], $_FILES);
 
-        if (!$subject)      $errorMsg = $_t('विषय अनिवार्य छ।', 'Subject is required.');
-        elseif (!$description) $errorMsg = $_t('विवरण अनिवार्य छ।', 'Description is required.');
-
-        if (!$errorMsg) {
-            try {
-                $trackingId = coop_new_tracking_id('GRV');
-                $attachment = '';
-                if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-                    if (function_exists('uploadFile')) {
-                        $up = uploadFile($_FILES['attachment'], 'grievances');
-                        $attachment = $up['path'] ?? '';
-                    }
-                }
-                $saveName  = $is_anonymous ? '' : $memName;
-                $saveMid   = $is_anonymous ? '' : (string)$memberId;
-                $savePhone = $is_anonymous ? '' : $rPhone;
-                $saveEmail = $is_anonymous ? '' : $rEmail;
-
-                $stmt = $db->prepare("INSERT INTO grievances (tracking_id, name, member_id, phone, email, category, subject, description, attachment, is_anonymous, status) VALUES (?,?,?,?,?,?,?,?,?,?,'pending')");
-                $stmt->execute([$trackingId, $saveName, $saveMid, $savePhone, $saveEmail, $category, $subject, $description, $attachment, $is_anonymous]);
-
-                /* Reload history */
-                $rg2 = $db->prepare("SELECT tracking_id, category, subject, status, is_anonymous, created_at FROM grievances WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-                $rg2->execute([$memberId]);
-                $recentGrievances = $rg2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-                $successMsg = $_t('गुनासो सफलतापूर्वक दर्ता भयो! Tracking ID: ', 'Grievance submitted! Tracking ID: ') . $trackingId;
-                if (function_exists('sendAdminNotification')) {
-                    require_once __DIR__ . '/../includes/notifications.php';
-                    sendAdminNotification('grievance', ['विषय' => $subject, 'वर्ग' => $category, 'नाम' => $saveName ?: 'गुमनाम'], $trackingId);
-                }
-                logSecurityEvent('grievance_filed', 'Member portal: ' . ($is_anonymous ? 'Anonymous' : $memName) . ' (' . $trackingId . ')');
-            } catch (Throwable $e) {
-                $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
-            }
+        if (!empty($result['ok'])) {
+            $trackingId = (string)$result['tracking_id'];
+            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
+            $rg2 = $db->prepare("SELECT tracking_id, category, subject, status, is_anonymous, created_at FROM grievances WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
+            $rg2->execute($historyMemberIds);
+            $recentGrievances = $rg2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $successMsg = $_t('गुनासो सफलतापूर्वक दर्ता भयो! Tracking ID: ', 'Grievance submitted! Tracking ID: ') . $trackingId;
+            logSecurityEvent('grievance_filed', 'Member portal: ' . ($is_anonymous ? 'Anonymous' : $memName) . ' (' . $trackingId . ')');
+        } else {
+            $errorMsg = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
         }
     }
 }
@@ -117,7 +113,7 @@ $pageTitle = $_t('गुनासो दर्ता', 'File Grievance') . ' —
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 require __DIR__ . '/includes/chrome.php';
 ?>
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -249,7 +245,7 @@ require __DIR__ . '/includes/chrome.php';
   </div>
 
 </div>
-</main>
+</div>
 <script>
 function grvShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });

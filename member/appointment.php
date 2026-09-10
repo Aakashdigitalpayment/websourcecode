@@ -3,6 +3,7 @@
  * Member Portal — भेटघाट बुक (Native Appointment Form)
  */
 require_once __DIR__ . '/_bootstrap.php';
+require_once __DIR__ . '/../includes/appointment-submit-helper.php';
 requireMemberLogin();
 memberSecurityHeaders();
 
@@ -21,6 +22,10 @@ require __DIR__ . '/../includes/member-portal-identity.php';
 
 $rPhone = $memPhone ?: trim((string)($kycRow['phone'] ?? $kycRow['mobile'] ?? ''));
 $rEmail = $memEmail ?: trim((string)($kycRow['email'] ?? ''));
+$historyMemberIds = array_values(array_unique(array_filter([
+    (string)$memberId,
+    trim((string)$memSadasyata),
+], static fn($v) => $v !== '')));
 
 /* Branches */
 $branches = [];
@@ -35,8 +40,9 @@ $timeOptions = function_exists('getOfficeTimeOptions') ? getOfficeTimeOptions(30
 /* Recent appointments */
 $recentAppts = [];
 try {
-    $ra = $db->prepare("SELECT * FROM appointments WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-    $ra->execute([$memberId]);
+    $ph = implode(',', array_fill(0, count($historyMemberIds), '?'));
+    $ra = $db->prepare("SELECT * FROM appointments WHERE member_id IN ($ph) ORDER BY created_at DESC LIMIT 10");
+    $ra->execute($historyMemberIds);
     $recentAppts = $ra->fetchAll(PDO::FETCH_ASSOC) ?: [];
 } catch (Throwable $e) {}
 
@@ -49,34 +55,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
     if (!verifyCSRFToken()) {
         $errorMsg = $_t('सुरक्षा जाँच असफल। पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please try again.');
     } else {
-        $purpose        = trim((string)($_POST['purpose'] ?? ''));
-        $purpose_detail = trim((string)($_POST['purpose_detail'] ?? ''));
-        $preferred_date = trim((string)($_POST['preferred_date'] ?? ''));
-        $preferred_time = trim((string)($_POST['preferred_time'] ?? ''));
-        $branch         = trim((string)($_POST['branch'] ?? ''));
-
-        if (!$purpose)        $errorMsg = $_t('उद्देश्य छान्नुहोस्।', 'Please select a purpose.');
-        elseif (!$preferred_date) $errorMsg = $_t('मिति अनिवार्य छ।', 'Preferred date is required.');
-        elseif (!$preferred_time) $errorMsg = $_t('समय छान्नुहोस्।', 'Please select preferred time.');
-
-        if (!$errorMsg) {
-            try {
-                $apptTrackingId = coop_new_tracking_id('APT');
-                $stmt = $db->prepare("INSERT INTO appointments (tracking_id, name, phone, email, member_id, purpose, purpose_detail, preferred_date, preferred_time, branch) VALUES (?,?,?,?,?,?,?,?,?,?)");
-                $stmt->execute([$apptTrackingId, $memName, $rPhone, $rEmail, $memberId, $purpose, $purpose_detail, $preferred_date, $preferred_time, $branch]);
-                /* Reload history */
-                $ra2 = $db->prepare("SELECT * FROM appointments WHERE member_id=? ORDER BY created_at DESC LIMIT 10");
-                $ra2->execute([$memberId]);
-                $recentAppts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                $successMsg = $_t('भेटघाट अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Appointment submitted! Tracking ID: ') . $apptTrackingId;
-                if (function_exists('sendAdminNotification')) {
-                    require_once __DIR__ . '/../includes/notifications.php';
-                    sendAdminNotification('appointment', ['नाम' => $memName, 'फोन' => $rPhone, 'उद्देश्य' => $purpose, 'मिति' => $preferred_date, 'समय' => $preferred_time], $apptTrackingId);
-                }
-                logSecurityEvent('appointment_booking', 'Member portal: ' . $memName . ' (' . $apptTrackingId . ')');
-            } catch (Throwable $e) {
-                $errorMsg = $_t('पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।', 'Could not submit. Please try again.');
-            }
+        $__nf = __DIR__ . '/../includes/notifications.php';
+        if (is_file($__nf)) { require_once $__nf; }
+        unset($__nf);
+        $result = submitAppointmentUnified($db, [
+            'from_member_portal' => true,
+            'visit_kind' => 'member',
+            'name' => $memName,
+            'phone' => $rPhone,
+            'email' => $rEmail,
+            'member_id' => ($memSadasyata !== '' ? $memSadasyata : (string)$memberId),
+            'member_portal_id' => $memberId,
+            'purpose' => trim((string)($_POST['purpose'] ?? '')),
+            'purpose_detail' => trim((string)($_POST['purpose_detail'] ?? '')),
+            'preferred_date' => trim((string)($_POST['preferred_date'] ?? '')),
+            'preferred_time' => trim((string)($_POST['preferred_time'] ?? '')),
+            'branch' => trim((string)($_POST['branch'] ?? '')),
+            'require_email' => false,
+        ]);
+        if (!empty($result['ok'])) {
+            $apptTrackingId = (string)$result['tracking_id'];
+            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
+            $ra2 = $db->prepare("SELECT * FROM appointments WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
+            $ra2->execute($historyMemberIds);
+            $recentAppts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $successMsg = $_t('भेटघाट अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Appointment submitted! Tracking ID: ') . $apptTrackingId;
+            logSecurityEvent('appointment_booking', 'Member portal: ' . $memName . ' (' . $apptTrackingId . ')');
+        } else {
+            $errorMsg = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
         }
     }
 }
@@ -119,7 +127,7 @@ $extraHead = '<style>
 </style>';
 require __DIR__ . '/includes/chrome.php';
 ?>
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container">
 
   <div class="mp-page-head">
@@ -184,8 +192,19 @@ require __DIR__ . '/includes/chrome.php';
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label" for="mapt_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?> <span class="mem-form-required">*</span></label>
-          <input type="date" name="preferred_date" class="mem-form-control" required min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($_POST['preferred_date'] ?? '') ?>" id="mapt_preferred_date">
+          <label class="mem-form-label" for="mapt_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required">*</span></label>
+          <?php
+          echo function_exists('coop_date_input_html')
+              ? coop_date_input_html([
+                  'name' => 'preferred_date',
+                  'id' => 'mapt_preferred_date',
+                  'class' => 'mem-form-control',
+                  'required' => true,
+                  'value' => (string)($_POST['preferred_date'] ?? ''),
+                  'min_ad' => date('Y-m-d'),
+              ])
+              : '<input type="date" name="preferred_date" class="mem-form-control" required id="mapt_preferred_date">';
+          ?>
         </div>
         <div class="mem-form-group">
           <label class="mem-form-label" for="mapt_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required">*</span></label>
@@ -257,7 +276,7 @@ require __DIR__ . '/includes/chrome.php';
   </div>
 
 </div>
-</main>
+</div>
 <script>
 function apptShowTab(btn, paneId) {
     document.querySelectorAll('.wf-tab').forEach(function(t){ t.classList.remove('active'); });

@@ -138,12 +138,30 @@
             origBtn.dataset.stickied = '1';
             var bar = document.createElement('div');
             bar.className = 'coop-sticky-submit-bar';
-            bar.innerHTML = '<button type="submit" class="btn btn-primary w-100" style="height:48px;font-size:1rem;font-weight:700;border-radius:14px;">' + (origBtn.textContent.trim() || 'पेश गर्नुहोस्') + '</button>';
-            bar.style.cssText = 'position:fixed;left:0;right:0;padding:10px 16px 16px;background:#fff;border-top:1px solid var(--border-color,#e5e7eb);box-shadow:0 -4px 16px rgba(0,0,0,.07);display:none;';
+            bar.setAttribute('role', 'region');
+            bar.setAttribute('aria-label', 'Submit');
+            bar.innerHTML = '<button type="submit" class="btn btn-primary w-100">' + (origBtn.textContent.trim() || 'पेश गर्नुहोस्') + '</button>';
+            bar.style.cssText = 'position:fixed;left:0;right:0;padding:10px 16px 16px;display:none;';
             document.body.appendChild(bar);
             bar.querySelector('button').addEventListener('click', function () {
                 origBtn.click();
             });
+            /* Keep sticky label/busy in sync with original submit */
+            try {
+                var mo = new MutationObserver(function () {
+                    var stickyBtn = bar.querySelector('button');
+                    if (!stickyBtn) return;
+                    if (origBtn.getAttribute('aria-busy') === 'true') {
+                        stickyBtn.setAttribute('aria-busy', 'true');
+                        stickyBtn.disabled = true;
+                        stickyBtn.textContent = origBtn.textContent.trim() || stickyBtn.textContent;
+                    } else {
+                        stickyBtn.removeAttribute('aria-busy');
+                        stickyBtn.disabled = !!origBtn.disabled;
+                    }
+                });
+                mo.observe(origBtn, { attributes: true, attributeFilter: ['aria-busy', 'disabled'], childList: true, characterData: true, subtree: true });
+            } catch (err) { /* ignore */ }
             var ob = new IntersectionObserver(function (entries) {
                 bar.style.display = entries[0].isIntersecting ? 'none' : 'block';
             }, { threshold: 0.1 });
@@ -155,6 +173,59 @@
     function lazyImages() {
         document.querySelectorAll('img:not([loading])').forEach(function (img) {
             img.setAttribute('loading', 'lazy');
+        });
+        document.querySelectorAll(
+            '.news-card img, .notice-card img, .gallery-card img, .service-card img'
+        ).forEach(function (img) {
+            if (img.dataset.coopImgBound) return;
+            img.dataset.coopImgBound = '1';
+            function markReady() {
+                img.classList.add('coop-img-ready');
+            }
+            if (img.complete && img.naturalWidth > 0) {
+                markReady();
+            } else {
+                img.addEventListener('load', markReady, { once: true });
+                img.addEventListener('error', markReady, { once: true });
+            }
+        });
+    }
+
+    /* ─── 9. CALM SCROLL REVEAL — opt-in + safe auto targets ─── */
+    function initCoopReveal() {
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var nodes = document.querySelectorAll(
+            '.coop-reveal, .news-card:not([data-aos]), .notice-card:not([data-aos]), .service-card:not([data-aos]), .gallery-card:not([data-aos]), .midx-ds-card:not([data-aos]), .section-header-unified:not([data-aos]), .faq-accordion .accordion-item:not([data-aos])'
+        );
+        if (!nodes.length) return;
+
+        if (reduce || !('IntersectionObserver' in window)) {
+            nodes.forEach(function (el) {
+                el.classList.add('coop-reveal', 'is-in');
+            });
+            return;
+        }
+
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('is-in');
+                io.unobserve(entry.target);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+
+        nodes.forEach(function (el, idx) {
+            /* Skip above-the-fold / already visible — avoid flash */
+            var rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.88 && rect.bottom > 0) {
+                el.classList.add('coop-reveal', 'is-in');
+                return;
+            }
+            el.classList.add('coop-reveal');
+            if (idx < 24) {
+                el.style.transitionDelay = Math.min(idx * 0.04, 0.28) + 's';
+            }
+            io.observe(el);
         });
     }
 
@@ -168,6 +239,7 @@
         guardTableLabels();
         initStickySubmit();
         lazyImages();
+        initCoopReveal();
     }
 
     if (document.readyState === 'loading') {

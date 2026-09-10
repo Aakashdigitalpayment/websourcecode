@@ -281,11 +281,6 @@ if (!function_exists('coopThemeCssUrl')) {
         /* ── 2. Load UI/UX enhancements (color fixes, contrast, accessibility) ── */
         coopThemeLinkDeferred('assets/css/ui-ux-enhancements.css');
 
-        /* ── 2.5. Load Admin Layout & Icon Color Fixes (tab display, icon colors) ── */
-        if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
-            coopThemeLink('assets/css/admin-layout-icon-fixes.css');
-        }
-
         /* ── 3. Load Lucide icons (AkashDigital-style, local vendor) ── */
         if (empty($options['skip_lucide'])) {
             coopThemeLucide();
@@ -301,9 +296,9 @@ if (!function_exists('coopThemeCssUrl')) {
             coopThemeLink('assets/css/bootstrap-admin-overrides.css');
         }
 
-        /* ── 4.6. PRIORITY ICON COLOR FIX - AFTER other mid CSS ── */
+        /* ── 4.6. Admin layout + icon colors (mid-layer, after bootstrap overrides) ── */
         if (in_array($panel, ['admin', 'admin-auth', 'shell'], true)) {
-            coopThemeLink('assets/css/admin-icon-colors-priority.css');
+            coopThemeLink('assets/css/admin-layout-icon-fixes.css');
         }
 
         /* ── 5. DB-computed brand colors AFTER static CSS so !important wins ── */

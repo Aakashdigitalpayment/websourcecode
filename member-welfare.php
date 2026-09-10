@@ -372,7 +372,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <!-- Right Column - Claim Form -->
-            <div class="col-lg-8">
+            <div class="col-lg-8 public-form-shell">
                 <div class="claim-form-card">
                     <div class="form-header text-center mb-4">
                         <div class="form-icon"><i class="fas fa-hand-holding-heart"></i></div>
@@ -492,8 +492,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h5><i class="fas fa-baby"></i> <?php echo isEnglish() ? 'Maternity Details' : 'सुत्केरी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label for="wlf_delivery_date" class="form-label"><?php echo isEnglish() ? 'Delivery Date' : 'प्रसूति मिति'; ?></label>
-                                    <input type="date" name="delivery_date" id="wlf_delivery_date" class="form-control">
+                                    <label for="wlf_delivery_date" class="form-label"><?php echo isEnglish() ? 'Delivery Date' : 'प्रसूति मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'delivery_date','id'=>'wlf_delivery_date','class'=>'form-control','value'=>(string)($_POST['delivery_date'] ?? ''),'hint'=>false]) : '<input type="date" name="delivery_date" id="wlf_delivery_date" class="form-control">'; ?>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_hospital_name" class="form-label"><?php echo isEnglish() ? 'Hospital/Clinic' : 'अस्पताल/क्लिनिक'; ?></label>
@@ -522,8 +522,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="wlf_death_date" class="form-label"><?php echo isEnglish() ? 'Death Date' : 'मृत्यु मिति'; ?></label>
-                                    <input type="date" name="death_date" id="wlf_death_date" class="form-control">
+                                    <label for="wlf_death_date" class="form-label"><?php echo isEnglish() ? 'Death Date' : 'मृत्यु मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'death_date','id'=>'wlf_death_date','class'=>'form-control','value'=>(string)($_POST['death_date'] ?? ''),'hint'=>false]) : '<input type="date" name="death_date" id="wlf_death_date" class="form-control">'; ?>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_death_certificate" class="form-label"><?php echo isEnglish() ? 'Death Certificate' : 'मृत्यु प्रमाणपत्र'; ?></label>
@@ -541,8 +541,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <input type="text" name="disease_illness" id="wlf_disease_illness" class="form-control">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="wlf_treatment_date" class="form-label"><?php echo isEnglish() ? 'Treatment Date' : 'उपचार मिति'; ?></label>
-                                    <input type="date" name="treatment_date" id="wlf_treatment_date" class="form-control">
+                                    <label for="wlf_treatment_date" class="form-label"><?php echo isEnglish() ? 'Treatment Date' : 'उपचार मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
+                                    <?php echo function_exists('coop_date_input_html') ? coop_date_input_html(['name'=>'treatment_date','id'=>'wlf_treatment_date','class'=>'form-control','value'=>(string)($_POST['treatment_date'] ?? ''),'hint'=>true]) : '<input type="date" name="treatment_date" id="wlf_treatment_date" class="form-control">'; ?>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_hospital_clinic" class="form-label"><?php echo isEnglish() ? 'Hospital / Clinic' : 'अस्पताल / क्लिनिक'; ?></label>

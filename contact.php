@@ -281,7 +281,7 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <!-- Contact Form -->
-                <form method="POST" action="contact.php" id="contactForm" class="needs-validation" novalidate>
+                <form method="POST" action="contact.php" id="contactForm" class="needs-validation public-form-shell" novalidate>
                     <?php echo csrfField(); ?>
 
                     <div class="row g-3">

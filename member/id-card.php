@@ -83,34 +83,24 @@ if (is_array($me)) {
     }
 }
 
-/* Step 1.5: KYC-linked details override (name/mobile/email/address/photo consistency) */
+/* Step 1.5: KYC-linked details (SSOT: kyc_application_id → sadasyata; no email/mobile soft match) */
 $kycRow = null;
 try {
-    $kycMemberLinkId = (int)($me['kyc_application_id'] ?? 0);
-    if ($kycMemberLinkId > 0) {
-        $ks = $pdo->prepare("SELECT id, full_name, email, mobile, permanent_address, photo
-                             FROM kyc_applications WHERE id=? LIMIT 1");
-        $ks->execute([$kycMemberLinkId]);
-        $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-    }
-    if (!$kycRow) {
-        $kw = [];
-        $kp = [];
-        if (!empty($me['email'])) { $kw[] = 'LOWER(email)=?'; $kp[] = strtolower(trim((string)$me['email'])); }
-        if (!empty($me['phone'])) { $kw[] = 'mobile=?'; $kp[] = preg_replace('/[^0-9]/', '', (string)$me['phone']); }
-        if (!empty($kw)) {
+    if (function_exists('memberSsotLoadLinkedKyc')) {
+        $kycRow = memberSsotLoadLinkedKyc($pdo, $me);
+    } else {
+        $kycMemberLinkId = (int)($me['kyc_application_id'] ?? 0);
+        if ($kycMemberLinkId > 0) {
             $ks = $pdo->prepare("SELECT id, full_name, email, mobile, permanent_address, photo
-                                 FROM kyc_applications
-                                 WHERE (" . implode(' OR ', $kw) . ")
-                                 ORDER BY id DESC LIMIT 1");
-            $ks->execute($kp);
+                                 FROM kyc_applications WHERE id=? LIMIT 1");
+            $ks->execute([$kycMemberLinkId]);
             $kycRow = $ks->fetch(PDO::FETCH_ASSOC) ?: null;
-            if ($kycRow && empty($me['kyc_application_id'])) {
-                $pdo->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
-                    ->execute([(int)$kycRow['id'], (int)$me['id']]);
-                $me['kyc_application_id'] = (int)$kycRow['id'];
-            }
         }
+    }
+    if ($kycRow && empty($me['kyc_application_id'])) {
+        $pdo->prepare("UPDATE members SET kyc_application_id=? WHERE id=?")
+            ->execute([(int)$kycRow['id'], (int)$me['id']]);
+        $me['kyc_application_id'] = (int)$kycRow['id'];
     }
 } catch (Throwable $e) { $kycRow = null; }
 if ($kycRow) {

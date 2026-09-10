@@ -4,6 +4,8 @@
  */
 declare(strict_types=1);
 
+header('X-Robots-Tag: noindex, nofollow', true);
+
 require_once __DIR__ . '/includes/config.php';
 
 $qs = (string) ($_SERVER['QUERY_STRING'] ?? '');

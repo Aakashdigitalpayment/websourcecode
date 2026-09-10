@@ -2,6 +2,7 @@
 require_once __DIR__ . '/_bootstrap.php'; // bootstrap → config auto-loaded
 require_once 'includes/ensure-tables.php';
 require_once 'includes/contact-spam-guard.php';
+require_once 'includes/appointment-submit-helper.php';
 ensurePublicTables();
 $_kycFile=__DIR__.'/includes/kyc-public-form.php'; if(is_file($_kycFile)){require_once $_kycFile;} unset($_kycFile);
 $pageTitle = isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्';
@@ -33,103 +34,6 @@ try {
     unset($_dbMig);
 } catch (Throwable $e) { /* best-effort */ }
 
-if (!function_exists('appointmentInsertRow')) {
-    /**
-     * Insert into appointments using only columns that exist (avoids hard fail on older DBs).
-     * @param array<string,mixed> $data
-     */
-    function appointmentInsertRow(PDO $db, array $data): void
-    {
-        static $cols = null;
-        if ($cols === null) {
-            $cols = [];
-            try {
-                foreach ($db->query('SHOW COLUMNS FROM appointments') as $row) {
-                    $cols[strtolower((string)($row['Field'] ?? ''))] = true;
-                }
-            } catch (Throwable $e) {
-                $cols = [];
-            }
-        }
-        $use = [];
-        $vals = [];
-        foreach ($data as $col => $val) {
-            $key = strtolower((string)$col);
-            if (!isset($cols[$key])) {
-                continue;
-            }
-            $use[] = '`' . str_replace('`', '', (string)$col) . '`';
-            $vals[] = $val;
-        }
-        if ($use === []) {
-            throw new RuntimeException('appointments table has no matching columns');
-        }
-        $placeholders = implode(',', array_fill(0, count($use), '?'));
-        $sql = 'INSERT INTO appointments (' . implode(',', $use) . ') VALUES (' . $placeholders . ')';
-        $db->prepare($sql)->execute($vals);
-    }
-}
-
-if (!function_exists('appointmentNormalizeDate')) {
-    /**
-     * Public form uses Nepali (BS) datepicker. MySQL DATE needs valid Gregorian (AD).
-     * SQLSTATE 22007 = invalid datetime when BS day/month is not a valid AD calendar date.
-     */
-    function appointmentNormalizeDate(string $raw): string
-    {
-        $s = trim($raw);
-        $s = strtr($s, [
-            '०'=>'0','१'=>'1','२'=>'2','३'=>'3','४'=>'4','५'=>'5','६'=>'6','७'=>'7','८'=>'8','९'=>'9',
-        ]);
-        $s = str_replace(['/', '.'], '-', $s);
-        if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $s, $m)) {
-            return $s;
-        }
-        $y = (int)$m[1];
-        $mo = (int)$m[2];
-        $d = (int)$m[3];
-        $ymd = sprintf('%04d-%02d-%02d', $y, $mo, $d);
-
-        /* BS years used by the public datepicker are typically 2070+ */
-        $looksLikeBs = ($y >= 2070 && $y <= 2100);
-        if ($looksLikeBs) {
-            if (!function_exists('nepali_bs_to_ad_string')) {
-                $conv = __DIR__ . '/includes/nepali-bs-convert.php';
-                if (is_file($conv)) {
-                    require_once $conv;
-                }
-            }
-            if (function_exists('nepali_bs_to_ad_string')) {
-                $ad = nepali_bs_to_ad_string($ymd);
-                if ($ad) {
-                    return $ad;
-                }
-            }
-            if (function_exists('bsToAd')) {
-                $ad = bsToAd($ymd);
-                if ($ad && $ad !== $ymd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
-                    return $ad;
-                }
-            }
-        }
-
-        /* Already AD / Gregorian */
-        if (checkdate($mo, $d, $y)) {
-            return $ymd;
-        }
-
-        /* Last resort: still try BS→AD even for lower years */
-        if (function_exists('nepali_bs_to_ad_string')) {
-            $ad = nepali_bs_to_ad_string($ymd);
-            if ($ad) {
-                return $ad;
-            }
-        }
-
-        return $ymd;
-    }
-}
-
 /* =============================================
    फारम submit भएमा process गर्नुहोस्
    ============================================= */
@@ -152,90 +56,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!$error && $visitKind === 'cooperative') {
-            /* ── सहकारी भ्रमण (separate tab — does not alter member flow) ── */
-            $name           = clean_text($_POST['organization_name'] ?? '', 200);
-            $contactPerson  = clean_text($_POST['contact_person'] ?? '', 120);
-            $phone          = preg_replace('/[^0-9]/', '', clean_text($_POST['phone'] ?? '', 15));
-            $email          = strtolower(clean_text($_POST['email'] ?? '', 254));
-            $orgAddress     = clean_text($_POST['organization_address'] ?? '', 500);
-            $orgWebsite     = function_exists('safe_http_url')
-                ? safe_http_url(clean_text($_POST['organization_website'] ?? '', 255))
-                : clean_text($_POST['organization_website'] ?? '', 255);
-            $purpose_detail = clean_text($_POST['purpose_detail'] ?? '', 1000);
-            $preferred_date = clean_text($_POST['preferred_date'] ?? '', 30);
-            $preferred_time = clean_text($_POST['preferred_time'] ?? '', 30);
-            $branch         = clean_text($_POST['branch'] ?? '', 200);
+            $__nf = __DIR__ . '/includes/notifications.php';
+            if (is_file($__nf)) { require_once $__nf; }
+            unset($__nf);
 
-            if (empty($name)) {
-                $error = isEnglish() ? 'Please enter the cooperative name.' : 'कृपया सहकारीको नाम भर्नुहोस्।';
-            } elseif (empty($contactPerson)) {
-                $error = isEnglish() ? 'Please enter a contact person.' : 'कृपया सम्पर्क व्यक्तिको नाम भर्नुहोस्।';
-            } elseif (empty($phone)) {
-                $error = isEnglish() ? 'Phone number is required.' : 'फोन नम्बर अनिवार्य छ।';
-            } elseif (!preg_match('/^[0-9]{10}$/', $phone)) {
-                $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-            } elseif (!empty($email) && !isValidEmail($email)) {
-                $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-            } elseif (empty($orgAddress)) {
-                $error = isEnglish() ? 'Please enter the cooperative address.' : 'कृपया सहकारीको ठेगाना भर्नुहोस्।';
-            } elseif (empty($purpose_detail)) {
-                $error = isEnglish() ? 'Please enter visit details.' : 'कृपया भ्रमण विवरण भर्नुहोस्।';
-            } elseif (empty($preferred_date)) {
-                $error = isEnglish() ? 'Please select a preferred date.' : 'कृपया मिति छान्नुहोस्।';
-            } elseif (empty($preferred_time)) {
-                $error = isEnglish() ? 'Please select a preferred time.' : 'कृपया समय छान्नुहोस्।';
+            $result = submitAppointmentUnified($db, [
+                'visit_kind' => 'cooperative',
+                'name' => clean_text($_POST['organization_name'] ?? '', 200),
+                'contact_person' => clean_text($_POST['contact_person'] ?? '', 120),
+                'phone' => preg_replace('/[^0-9]/', '', clean_text($_POST['phone'] ?? '', 15)),
+                'email' => strtolower(clean_text($_POST['email'] ?? '', 254)),
+                'organization_address' => clean_text($_POST['organization_address'] ?? '', 500),
+                'organization_website' => clean_text($_POST['organization_website'] ?? '', 255),
+                'purpose_detail' => clean_text($_POST['purpose_detail'] ?? '', 1000),
+                'preferred_date' => clean_text($_POST['preferred_date'] ?? '', 30),
+                'preferred_time' => clean_text($_POST['preferred_time'] ?? '', 30),
+                'branch' => clean_text($_POST['branch'] ?? '', 200),
+            ]);
+            if (!empty($result['ok'])) {
+                $success = true;
+                $successVisitKind = 'cooperative';
+                $apptTrackingId = (string)$result['tracking_id'];
+                logSecurityEvent('appointment_booking', 'Cooperative visit booked: ' . clean_text($_POST['organization_name'] ?? '', 200) . ' (Tracking: ' . $apptTrackingId . ')');
             } else {
-                $preferred_date = appointmentNormalizeDate($preferred_date);
-                $preferred_time = mb_substr($preferred_time, 0, 50, 'UTF-8');
-                $name = mb_substr($name, 0, 200, 'UTF-8');
-                $branch = mb_substr($branch, 0, 200, 'UTF-8');
-                try {
-                    $apptTrackingId = coop_new_tracking_id('APT');
-                    appointmentInsertRow($db, [
-                        'tracking_id' => $apptTrackingId,
-                        'name' => $name,
-                        'phone' => $phone,
-                        'email' => $email,
-                        'member_id' => '',
-                        'purpose' => 'other',
-                        'purpose_detail' => $purpose_detail,
-                        'preferred_date' => $preferred_date,
-                        'preferred_time' => $preferred_time,
-                        'branch' => $branch,
-                        'visit_kind' => 'cooperative',
-                        'organization_address' => $orgAddress,
-                        'organization_website' => $orgWebsite,
-                        'contact_person' => $contactPerson,
-                        'status' => 'pending',
-                    ]);
-                    $success = true;
-                    $successVisitKind = 'cooperative';
-                    logSecurityEvent('appointment_booking', 'Cooperative visit booked: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
-                } catch (Throwable $e) {
-                    error_log('[appointment cooperative] ' . $e->getMessage());
-                    $error = isEnglish()
-                        ? ('Failed to book appointment. Please try again. (' . $e->getCode() . ')')
-                        : ('भेटघाट बुक गर्न सकिएन। कृपया फेरि प्रयास गर्नुहोस्। (' . $e->getCode() . ')');
-                }
-                if ($success) {
-                    try {
-                        $__nf = __DIR__ . '/includes/notifications.php';
-                        if (is_file($__nf)) { require_once $__nf; }
-                        unset($__nf);
-                        sendAdminNotification('appointment', [
-                            'नाम'            => $name,
-                            'प्रकार'         => 'सहकारी भ्रमण',
-                            'सहकारी'         => $name,
-                            'सम्पर्क व्यक्ति' => $contactPerson,
-                            'फोन'            => $phone,
-                            'ठेगाना'         => $orgAddress,
-                            'वेबसाइट'        => $orgWebsite ?: 'N/A',
-                            'मिति'           => $preferred_date . ' ' . $preferred_time,
-                        ], $apptTrackingId);
-                    } catch (Throwable $e) {
-                        error_log('[appointment cooperative notify] ' . $e->getMessage());
-                    }
-                }
+                $error = isEnglish()
+                    ? (string)($result['error_en'] ?? $result['error'] ?? 'Failed to book appointment.')
+                    : (string)($result['error'] ?? 'भेटघाट बुक गर्न सकिएन।');
             }
         } elseif (!$error) {
             /* ── सदस्य / सामान्य भेटघाट (existing flow) ── */
@@ -243,9 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $phone          = preg_replace('/[^0-9]/', '', clean_text($_POST['phone']          ?? '', 15));
             $email          = strtolower(clean_text($_POST['email']          ?? '', 254));
             $member_id      = clean_text($_POST['member_id']      ?? '', 80);
-            $purposeRaw     = clean_text($_POST['purpose']        ?? 'other', 40);
-            $allowedPurpose = ['account_inquiry', 'loan_inquiry', 'kyc_update', 'loan_repayment', 'account_opening', 'other'];
-            $purpose        = in_array($purposeRaw, $allowedPurpose, true) ? $purposeRaw : 'other';
+            $purpose        = clean_text($_POST['purpose']        ?? 'other', 40);
             $purpose_detail = clean_text($_POST['purpose_detail'] ?? '', 500);
             $preferred_date = clean_text($_POST['preferred_date'] ?? '', 30);
             $preferred_time = clean_text($_POST['preferred_time'] ?? '', 30);
@@ -277,65 +121,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            if (!$error && empty($name)) {
-                $error = isEnglish() ? 'Please enter your full name.' : 'कृपया पूरा नाम भर्नुहोस्।';
-            } elseif (!$error && empty($phone)) {
-                $error = isEnglish() ? 'Phone number is required.' : 'फोन नम्बर अनिवार्य छ।';
-            } elseif (!$error && !preg_match('/^[0-9]{10}$/', $phone)) {
-                $error = isEnglish() ? 'Please enter a valid 10-digit mobile number.' : 'कृपया १० अंकको मोबाइल नम्बर राख्नुहोस्।';
-            } elseif (!$error && $isCoopMember !== 'yes' && empty($email)) {
-                $error = isEnglish() ? 'Email address is required.' : 'इमेल ठेगाना अनिवार्य छ।';
-            } elseif (!$error && !empty($email) && !isValidEmail($email)) {
-                $error = isEnglish() ? 'Please enter a valid email address.' : 'कृपया सही इमेल ठेगाना राख्नुहोस्।';
-            } elseif (!$error && empty($preferred_date)) {
-                $error = isEnglish() ? 'Please select a preferred date.' : 'कृपया मिति छान्नुहोस्।';
-            } elseif (!$error && empty($preferred_time)) {
-                $error = isEnglish() ? 'Please select a preferred time.' : 'कृपया समय छान्नुहोस्।';
-            } elseif (!$error) {
-                $preferred_date = appointmentNormalizeDate($preferred_date);
-                $preferred_time = mb_substr($preferred_time, 0, 50, 'UTF-8');
-                $name = mb_substr($name, 0, 200, 'UTF-8');
-                $branch = mb_substr($branch, 0, 200, 'UTF-8');
-                try {
-                    $apptTrackingId = coop_new_tracking_id('APT');
-                    appointmentInsertRow($db, [
-                        'tracking_id' => $apptTrackingId,
-                        'name' => $name,
-                        'phone' => $phone,
-                        'email' => $email,
-                        'member_id' => $member_id,
-                        'purpose' => $purpose,
-                        'purpose_detail' => $purpose_detail,
-                        'preferred_date' => $preferred_date,
-                        'preferred_time' => $preferred_time,
-                        'branch' => $branch,
-                        'visit_kind' => 'member',
-                        'status' => 'pending',
-                    ]);
+            if (!$error) {
+                $__nf = __DIR__ . '/includes/notifications.php';
+                if (is_file($__nf)) { require_once $__nf; }
+                unset($__nf);
+
+                $result = submitAppointmentUnified($db, [
+                    'visit_kind' => 'member',
+                    'name' => $name,
+                    'phone' => $phone,
+                    'email' => $email,
+                    'member_id' => $member_id,
+                    'member_portal_id' => $loggedMember ? (int)($loggedMember['id'] ?? 0) : null,
+                    'purpose' => $purpose,
+                    'purpose_detail' => $purpose_detail,
+                    'preferred_date' => $preferred_date,
+                    'preferred_time' => $preferred_time,
+                    'branch' => $branch,
+                    'require_email' => $isCoopMember !== 'yes',
+                ]);
+                if (!empty($result['ok'])) {
                     $success = true;
                     $successVisitKind = 'member';
+                    $apptTrackingId = (string)$result['tracking_id'];
                     logSecurityEvent('appointment_booking', 'Appointment booked by: ' . $name . ' (Tracking: ' . $apptTrackingId . ')');
-                } catch (Throwable $e) {
-                    error_log('[appointment member] ' . $e->getMessage());
-                    $error = isEnglish() ? 'Failed to book appointment.' : 'भेटघाट बुक गर्न सकिएन।';
-                }
-                if ($success) {
-                    try {
-                        $__nf = __DIR__ . '/includes/notifications.php';
-                        if (is_file($__nf)) { require_once $__nf; }
-                        unset($__nf);
-                        sendAdminNotification('appointment', [
-                            'नाम'       => $name,
-                            'फोन'       => $phone,
-                            'इमेल'      => $email ?: 'N/A',
-                            'सदस्य नं.' => $member_id ?: 'N/A',
-                            'उद्देश्य'   => $purpose,
-                            'मिति'      => $preferred_date . ' ' . $preferred_time,
-                            'सेवा कार्यालय' => $branch ?: 'N/A',
-                        ], $apptTrackingId);
-                    } catch (Throwable $e) {
-                        error_log('[appointment member notify] ' . $e->getMessage());
-                    }
+                } else {
+                    $error = isEnglish()
+                        ? (string)($result['error_en'] ?? $result['error'] ?? 'Failed to book appointment.')
+                        : (string)($result['error'] ?? 'भेटघाट बुक गर्न सकिएन।');
                 }
             }
         }
@@ -452,7 +265,7 @@ $L = getLangStrings();
             </div>
 
             <!-- Form card -->
-            <div class="col-lg-8 order-lg-1">
+            <div class="col-lg-8 order-lg-1 public-form-shell">
                 <div class="card border-0 shadow-sm appt-form-card">
                     <div class="card-header appt-form-card-head border-0 rounded-top-3 py-3 px-4 bg-primary">
                         <h5 class="mb-0 text-white fw-bold">
@@ -624,15 +437,19 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label for="apptDate" class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" name="preferred_date" id="apptDate"
-                                               class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" <?php echo $activeApptTab === 'member' ? 'required' : ''; ?>
-                                               value="<?php echo htmlspecialchars($postIsMember ? ($_POST['preferred_date'] ?? '') : '', ENT_QUOTES); ?>">
-                                        <span class="input-group-text cursor-pointer" onclick="document.getElementById('apptDate').focus();">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </span>
-                                    </div>
+                                    <label for="apptDate" class="form-label"><?php echo isEnglish() ? 'Preferred Date' : 'रुचाइएको मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="req">*</span></label>
+                                    <?php
+                                    echo function_exists('coop_date_input_html')
+                                        ? coop_date_input_html([
+                                            'name' => 'preferred_date',
+                                            'id' => 'apptDate',
+                                            'class' => 'form-control',
+                                            'required' => $activeApptTab === 'member',
+                                            'value' => $postIsMember ? (string)($_POST['preferred_date'] ?? '') : '',
+                                            'min_ad' => date('Y-m-d'),
+                                        ])
+                                        : '<input type="text" name="preferred_date" id="apptDate" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">';
+                                    ?>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="appt_preferred_time" class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>
@@ -743,15 +560,19 @@ $L = getLangStrings();
                             </div>
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6">
-                                    <label for="apptDateCoop" class="form-label"><?php echo isEnglish() ? 'Preferred Date (B.S.)' : 'रुचाइएको मिति (बि.सं.)'; ?> <span class="req">*</span></label>
-                                    <div class="input-group">
-                                        <input type="text" name="preferred_date" id="apptDateCoop"
-                                               class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" required
-                                               value="<?php echo htmlspecialchars(!$postIsMember ? ($_POST['preferred_date'] ?? '') : '', ENT_QUOTES); ?>">
-                                        <span class="input-group-text cursor-pointer" onclick="document.getElementById('apptDateCoop').focus();">
-                                            <i class="fas fa-calendar-alt"></i>
-                                        </span>
-                                    </div>
+                                    <label for="apptDateCoop" class="form-label"><?php echo isEnglish() ? 'Preferred Date' : 'रुचाइएको मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="req">*</span></label>
+                                    <?php
+                                    echo function_exists('coop_date_input_html')
+                                        ? coop_date_input_html([
+                                            'name' => 'preferred_date',
+                                            'id' => 'apptDateCoop',
+                                            'class' => 'form-control',
+                                            'required' => true,
+                                            'value' => !$postIsMember ? (string)($_POST['preferred_date'] ?? '') : '',
+                                            'min_ad' => date('Y-m-d'),
+                                        ])
+                                        : '<input type="text" name="preferred_date" id="apptDateCoop" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" required>';
+                                    ?>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="appt_coop_preferred_time" class="form-label"><?php echo isEnglish() ? 'Preferred Time' : 'रुचाइएको समय'; ?> <span class="req">*</span></label>

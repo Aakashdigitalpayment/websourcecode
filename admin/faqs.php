@@ -1,6 +1,7 @@
 <?php
 /**
  * प्रश्नोत्तर व्यवस्थापन — FAQs Management
+ * SSOT table: faqs (public FAQ page). Chatbot/Help Center uses chatbot_faqs — do not dual-write.
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
 $pageTitle = 'प्रश्नोत्तर व्यवस्थापन';

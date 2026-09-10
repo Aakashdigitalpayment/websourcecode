@@ -178,7 +178,7 @@ require __DIR__ . '/includes/chrome.php';
 .vote-cycle-tenure{background:var(--primary-color);color:#fff;border-radius:999px;padding:.26rem .62rem;font-size:.74rem;font-weight:700;white-space:nowrap;}
 @media (max-width:575px){.vote-cycle-tenure{width:100%;text-align:left;}}
 </style>
-<main class="mp-main py-4">
+<div class="mp-main py-4">
 <div class="mp-container mp-container-medium">
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
         <h1 class="h4 mb-0"><i class="fas fa-check-to-slot me-2"></i><?php echo $_t('मतदान', 'Voting'); ?></h1>
@@ -397,7 +397,7 @@ require __DIR__ . '/includes/chrome.php';
         <?php endif; ?>
     <?php endif; ?>
 </div>
-</main>
+</div>
 <script>
 (function () {
     var el = document.getElementById('voteCountdown');

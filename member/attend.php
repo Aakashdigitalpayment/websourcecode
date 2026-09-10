@@ -424,7 +424,7 @@ HTML;
 ?>
 <?php require __DIR__ . '/includes/chrome.php'; ?>
 
-<main class="mp-main">
+<div class="mp-main">
 <div class="mp-container mp-container-medium">
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
@@ -770,7 +770,7 @@ HTML;
   <?php endif; ?>
 
 </div>
-</main>
+</div>
 <script>
 function showAtTab(tab, btn) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));

@@ -387,6 +387,7 @@ set_exception_handler(function (\Throwable $ex) {
 
 </head>
 <body class="admin-page-<?php echo htmlspecialchars((string)$currentPage, ENT_QUOTES, 'UTF-8'); ?>">
+    <a class="skip-link" href="#main-content"><?php echo $adminT('मुख्य सामग्रीमा जानुहोस्', 'Skip to content'); ?></a>
     <div class="admin-wrapper">
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
@@ -421,12 +422,12 @@ set_exception_handler(function (\Throwable $ex) {
                     <?php if (!empty($_SESSION['is_superadmin'])): ?>
                     <!-- ── Superadmin Tools (SA only — एकै ठाउँ) ── -->
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='superadmin' ? 'open' : ''; ?>" data-group="superadmin">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='superadmin' ? 'open' : ''; ?>" data-group="superadmin" aria-expanded="<?php echo $activeGroup=='superadmin' ? 'true' : 'false'; ?>" aria-controls="group-superadmin">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('सुपरएडमिन', 'Superadmin'); ?></span>
                             <span class="sa-mini-badge">SA</span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='superadmin' ? 'open' : ''; ?>" id="group-superadmin">
                             <li class="<?php echo $currentPage === 'manage-admins' ? 'active' : ''; ?>">
                                 <a href="manage-admins.php">
@@ -489,11 +490,11 @@ set_exception_handler(function (\Throwable $ex) {
                     <!-- ── सामग्री ── -->
                     <?php if (admin_menu_group_visible('samgri')): ?>
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='samgri' ? 'open' : ''; ?>" data-group="samgri">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='samgri' ? 'open' : ''; ?>" data-group="samgri" aria-expanded="<?php echo $activeGroup=='samgri' ? 'true' : 'false'; ?>" aria-controls="group-samgri">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="folder-open"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('सामग्री', 'Content'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='samgri' ? 'open' : ''; ?>" id="group-samgri">
                             <li class="<?php echo $currentPage=='notices' ? 'active' : ''; ?>">
                                 <a href="notices.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i></span><span><?php echo $adminT('सूचनाहरू', 'Notices'); ?></span></a>
@@ -560,11 +561,11 @@ set_exception_handler(function (\Throwable $ex) {
                     <!-- ── मानवीय स्रोत ── -->
                     <?php if (admin_menu_group_visible('toli')): ?>
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" data-group="toli">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" data-group="toli" aria-expanded="<?php echo $activeGroup=='toli' ? 'true' : 'false'; ?>" aria-controls="group-toli">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('मानवीय स्रोत', 'Human Resources'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='toli' ? 'open' : ''; ?>" id="group-toli">
                             <li class="<?php echo $currentPage=='team' ? 'active' : ''; ?>">
                                 <a href="team.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('सञ्चालक / समिति', 'Directors / Committee'); ?></span></a>
@@ -589,12 +590,12 @@ set_exception_handler(function (\Throwable $ex) {
                     <?php if (admin_menu_group_visible('rojgar')): ?>
                     <li class="nav-group-wrap">
                         <?php $rojgarBadge = $adminAlertCounts['job']; ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='rojgar' ? 'open' : ''; ?>" data-group="rojgar">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='rojgar' ? 'open' : ''; ?>" data-group="rojgar" aria-expanded="<?php echo $activeGroup=='rojgar' ? 'true' : 'false'; ?>" aria-controls="group-rojgar">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('रोजगारी', 'Career'); ?></span>
                             <?php if ($rojgarBadge > 0): ?><span class="group-badge"><?php echo $rojgarBadge; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='rojgar' ? 'open' : ''; ?>" id="group-rojgar">
                             <li class="<?php echo $currentPage=='careers' ? 'active' : ''; ?>">
                                 <a href="careers.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i></span><span><?php echo $adminT('रोजगारी पोस्ट', 'Career Posts'); ?></span></a>
@@ -620,12 +621,12 @@ set_exception_handler(function (\Throwable $ex) {
                             + (int)($adminAlertCounts['kyc'] ?? 0)
                             + (int)($adminAlertCounts['kyc_risk'] ?? 0);
                         ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" data-group="sadasya">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" data-group="sadasya" aria-expanded="<?php echo $activeGroup=='sadasya' ? 'true' : 'false'; ?>" aria-controls="group-sadasya">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('सदस्य (Member ID)', 'Members (Member ID)'); ?></span>
                             <?php if ($sadasyaBadge > 0): ?><span class="group-badge"><?php echo $sadasyaBadge; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='sadasya' ? 'open' : ''; ?>" id="group-sadasya">
                             <li class="px-3 pt-2 pb-1 small text-muted" style="list-style:none;opacity:.85;"><?php echo $adminT('१. Ledger', '1. Ledger'); ?></li>
                             <li class="<?php echo $currentPage=='members' ? 'active' : ''; ?>">
@@ -698,12 +699,12 @@ set_exception_handler(function (\Throwable $ex) {
                     <?php if (admin_menu_group_visible('aavedan')): ?>
                     <li class="nav-group-wrap">
                         <?php $aavedan_total = $adminAlertCounts['loan'] + $adminAlertCounts['account'] + $adminAlertCounts['digital'] + $adminAlertCounts['honor'] + $adminAlertCounts['appointment'] + $adminAlertCounts['auction'] + $adminAlertCounts['vendor'] + (int)($adminAlertCounts['marketplace'] ?? 0); ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" data-group="aavedan" aria-expanded="<?php echo $activeGroup=='aavedan' ? 'true' : 'false'; ?>" aria-controls="group-aavedan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('अन्य आवेदन', 'Other applications'); ?></span>
                             <?php if ($aavedan_total > 0): ?><span class="group-badge"><?php echo $aavedan_total; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='aavedan' ? 'open' : ''; ?>" id="group-aavedan">
                             <li class="<?php echo $currentPage=='loans' ? 'active' : ''; ?>">
                                 <a href="loan-applications.php">
@@ -788,12 +789,12 @@ set_exception_handler(function (\Throwable $ex) {
                     <?php if (admin_menu_group_visible('program')): ?>
                     <li class="nav-group-wrap">
                         <?php $program_total = (int)($adminAlertCounts['attend'] ?? 0); ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='program' ? 'open' : ''; ?>" data-group="program">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='program' ? 'open' : ''; ?>" data-group="program" aria-expanded="<?php echo $activeGroup=='program' ? 'true' : 'false'; ?>" aria-controls="group-program">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('कार्यक्रम व्यवस्थापन', 'Program Management'); ?></span>
                             <?php if ($program_total > 0): ?><span class="group-badge"><?php echo $program_total; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='program' ? 'open' : ''; ?>" id="group-program">
                             <li class="<?php echo $currentPage=='program-dashboard' ? 'active' : ''; ?>">
                                 <a href="program-dashboard.php">
@@ -864,11 +865,11 @@ set_exception_handler(function (\Throwable $ex) {
                     <!-- ── निर्वाचन (छुट्टै group) ── -->
                     <?php if (admin_menu_group_visible('nirvachan')): ?>
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='nirvachan' ? 'open' : ''; ?>" data-group="nirvachan">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='nirvachan' ? 'open' : ''; ?>" data-group="nirvachan" aria-expanded="<?php echo $activeGroup=='nirvachan' ? 'true' : 'false'; ?>" aria-controls="group-nirvachan">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="square-check-big"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('निर्वाचन', 'Election'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='nirvachan' ? 'open' : ''; ?>" id="group-nirvachan">
                             <li class="<?php echo $currentPage=='election-information' ? 'active' : ''; ?>">
                                 <a href="election-information.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i></span><span><?php echo $adminT('निर्वाचन जानकारी', 'Election Information'); ?></span></a>
@@ -894,12 +895,12 @@ set_exception_handler(function (\Throwable $ex) {
                     <?php if (admin_menu_group_visible('sampark')): ?>
                     <li class="nav-group-wrap">
                         <?php $sampark_total = $unreadMessages + $adminAlertCounts['feedback'] + $adminAlertCounts['grievance'] + $adminAlertCounts['welfare'] + $adminAlertCounts['appointment']; ?>
-                        <div class="nav-group-header <?php echo $activeGroup=='sampark' ? 'open' : ''; ?>" data-group="sampark">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='sampark' ? 'open' : ''; ?>" data-group="sampark" aria-expanded="<?php echo $activeGroup=='sampark' ? 'true' : 'false'; ?>" aria-controls="group-sampark">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="message-square"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('सम्पर्क', 'Contact'); ?></span>
                             <?php if ($sampark_total > 0): ?><span class="group-badge"><?php echo $sampark_total; ?></span><?php endif; ?>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='sampark' ? 'open' : ''; ?>" id="group-sampark">
                             <li class="<?php echo $currentPage=='messages' ? 'active' : ''; ?>">
                                 <a href="messages.php" class="sidebar-link-flex">
@@ -953,11 +954,11 @@ set_exception_handler(function (\Throwable $ex) {
                     <!-- ── संस्था ── -->
                     <?php if (admin_menu_group_visible('sanstha')): ?>
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='sanstha' ? 'open' : ''; ?>" data-group="sanstha">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='sanstha' ? 'open' : ''; ?>" data-group="sanstha" aria-expanded="<?php echo $activeGroup=='sanstha' ? 'true' : 'false'; ?>" aria-controls="group-sanstha">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('संस्था', 'Institution'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='sanstha' ? 'open' : ''; ?>" id="group-sanstha">
                             <li class="<?php echo $currentPage=='service-centers' ? 'active' : ''; ?>">
                                 <a href="service-centers.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span><span><?php echo $adminT('सेवा कार्यालयहरू', 'Service Offices'); ?></span></a>
@@ -1012,11 +1013,11 @@ set_exception_handler(function (\Throwable $ex) {
                     <!-- ── प्रविधि ── -->
                     <?php if (admin_menu_group_visible('prawidhi')): ?>
                     <li class="nav-group-wrap">
-                        <div class="nav-group-header <?php echo $activeGroup=='prawidhi' ? 'open' : ''; ?>" data-group="prawidhi">
+                        <button type="button" class="nav-group-header <?php echo $activeGroup=='prawidhi' ? 'open' : ''; ?>" data-group="prawidhi" aria-expanded="<?php echo $activeGroup=='prawidhi' ? 'true' : 'false'; ?>" aria-controls="group-prawidhi">
                             <span class="nav-group-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="server"></i></span>
                             <span class="nav-group-label"><?php echo $adminT('प्रविधि', 'Technical'); ?></span>
                             <i class="lucide-icon nav-arrow" aria-hidden="true" data-lucide="chevron-right"></i>
-                        </div>
+                        </button>
                         <ul class="nav-submenu <?php echo $activeGroup=='prawidhi' ? 'open' : ''; ?>" id="group-prawidhi">
                             <li class="<?php echo $currentPage=='system-info' ? 'active' : ''; ?>">
                                 <a href="system-info.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="server"></i></span><span><?php echo $adminT('प्रणाली जानकारी', 'System Info'); ?></span></a>
@@ -1094,7 +1095,7 @@ set_exception_handler(function (\Throwable $ex) {
         </aside>
 
         <!-- Main Content -->
-        <main class="main-content">
+        <main id="main-content" class="main-content" tabindex="-1">
             <!-- Top Navbar -->
             <header class="admin-header admin-header--compact">
                 <div class="header-left">
@@ -1353,6 +1354,7 @@ set_exception_handler(function (\Throwable $ex) {
                 // Close all others
                 headers.forEach(function (h) {
                     h.classList.remove('open');
+                    h.setAttribute('aria-expanded', 'false');
                     var g = h.getAttribute('data-group');
                     var s = document.getElementById('group-' + g);
                     if (s) s.classList.remove('open');
@@ -1360,6 +1362,7 @@ set_exception_handler(function (\Throwable $ex) {
                 // Toggle clicked
                 if (!isOpen) {
                     header.classList.add('open');
+                    header.setAttribute('aria-expanded', 'true');
                     submenu.classList.add('open');
                 }
             });
@@ -1630,4 +1633,4 @@ set_exception_handler(function (\Throwable $ex) {
     })();
     </script>
 
-    <script src="../assets/js/coop-mobile.js?v=6.5" defer></script>
+    <script src="../assets/js/coop-mobile.js?v=6.8" defer></script>
