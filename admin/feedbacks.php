@@ -146,7 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'Document हटाइयो।');
         }
     } catch (Exception $e) {
-        setFlash('error', 'त्रुटि भयो: ' . $e->getMessage());
+        error_log('[feedbacks] ' . $e->getMessage());
+        setFlash('error', 'त्रुटि भयो।');
     }
     redirect('feedbacks.php' . (isset($_GET['view']) ? '?view=' . (int)$_GET['view'] : ''));
 }

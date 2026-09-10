@@ -65,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'सबै menu फेरि देखिने बनाइयो (default)।');
         }
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[menu-control] ' . $e->getMessage());
+        setFlash('error', 'मेनु अद्यावधिक गर्न सकिएन।');
     }
     redirect('menu-control.php');
 }

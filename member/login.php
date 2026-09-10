@@ -225,12 +225,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
             $error = $_t('मान्य मोबाइल नम्बर राख्नुहोस्।', 'Please enter a valid mobile number.');
         } elseif (strlen($password) < 8) {
             $error = $_t('पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।', 'Password must be at least 8 characters.');
-        } elseif (!preg_match('/[A-Z]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा Capital letter (A-Z) हुनुपर्छ।';
-        } elseif (!preg_match('/[a-z]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा small letter (a-z) हुनुपर्छ।';
-        } elseif (!preg_match('/[0-9]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा digit (0-9) हुनुपर्छ।';
+        } elseif (($pwErr = function_exists('memberPasswordPolicyError')
+            ? (isEnglish() ? memberPasswordPolicyErrorEn($password) : memberPasswordPolicyError($password))
+            : null) !== null) {
+            $error = $pwErr;
         } elseif ($password !== $confirm) {
             $error = $_t('दुवै पासवर्ड मेल खाएनन्।', 'Passwords do not match.');
         } else {

@@ -42,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         setFlash('success', 'सुरक्षा सेटिङ सेभ भयो।');
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[security-settings] ' . $e->getMessage());
+        setFlash('error', 'सेटिङ सुरक्षित गर्न सकिएन।');
     }
     redirect('security-settings.php');
 }

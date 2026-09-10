@@ -310,17 +310,57 @@ function memberSecurityHeaders() {
 
 /* ─── Safe redirect (open redirect prevention) ─── */
 function memberSafeRedirect($url) {
-    $parsed = parse_url($url);
-    if (!empty($parsed['host'])) {
-        $siteHost = parse_url(SITE_URL, PHP_URL_HOST);
-        if ($parsed['host'] !== $siteHost) {
-            $url = SITE_URL . 'member/';
+    $fallback = SITE_URL . 'member/';
+    $url = trim((string)$url);
+    if ($url === ''
+        || preg_match('/^\s*(javascript|data|vbscript):/i', $url)
+        || str_contains($url, '\\')
+        || str_contains($url, "\0")
+        || str_starts_with($url, '//')
+        || str_contains($url, '..')
+    ) {
+        header('Location: ' . $fallback);
+        exit;
+    }
+
+    $siteHost = (string)(parse_url(SITE_URL, PHP_URL_HOST) ?? '');
+    $isMemberPath = static function (string $path): bool {
+        $path = '/' . ltrim($path, '/');
+        return $path === '/member' || str_starts_with($path, '/member/');
+    };
+
+    if (preg_match('#^https?://#i', $url)) {
+        $p = parse_url($url);
+        if (!is_array($p) || ($p['host'] ?? '') !== $siteHost) {
+            header('Location: ' . $fallback);
+            exit;
         }
+        $path = (string)($p['path'] ?? '/');
+        /* Allow /subdir/member/... when SITE_URL has a path prefix */
+        $sitePath = rtrim((string)(parse_url(SITE_URL, PHP_URL_PATH) ?? ''), '/');
+        if ($sitePath !== '' && str_starts_with($path, $sitePath . '/')) {
+            $path = substr($path, strlen($sitePath)) ?: '/';
+        }
+        if (!$isMemberPath($path)) {
+            header('Location: ' . $fallback);
+            exit;
+        }
+        header('Location: ' . $url);
+        exit;
     }
-    if (preg_match('/^\s*(javascript|data|vbscript):/i', $url)) {
-        $url = SITE_URL . 'member/';
+
+    /* Relative: member/... or /member/... */
+    $rel = ltrim($url, '/');
+    if ($rel === 'member' || str_starts_with($rel, 'member/')) {
+        header('Location: ' . SITE_URL . $rel);
+        exit;
     }
-    header('Location: ' . $url);
+    if ($isMemberPath($url)) {
+        header('Location: ' . rtrim(SITE_URL, '/') . '/' . ltrim($url, '/'));
+        exit;
+    }
+
+    header('Location: ' . $fallback);
     exit;
 }
 
@@ -518,6 +558,47 @@ function validatePhoneAgainstKYC($phone) {
     } catch (\Throwable $e) {
         return true; /* KYC table नभए bypass गर्नुस् */
     }
+}
+
+/**
+ * Shared member password policy (register / profile / reset).
+ * @return string|null Nepali error message, or null if OK
+ */
+function memberPasswordPolicyError(string $password): ?string
+{
+    if (strlen($password) < 8) {
+        return 'पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        return 'पासवर्डमा कम्तिमा एउटा Capital letter (A-Z) हुनुपर्छ।';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        return 'पासवर्डमा कम्तिमा एउटा small letter (a-z) हुनुपर्छ।';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        return 'पासवर्डमा कम्तिमा एउटा digit (0-9) हुनुपर्छ।';
+    }
+    return null;
+}
+
+/**
+ * @return string|null English error message, or null if OK
+ */
+function memberPasswordPolicyErrorEn(string $password): ?string
+{
+    if (strlen($password) < 8) {
+        return 'Password must be at least 8 characters.';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        return 'Password must include at least one capital letter (A-Z).';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        return 'Password must include at least one lowercase letter (a-z).';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        return 'Password must include at least one digit (0-9).';
+    }
+    return null;
 }
 
 /* ─── Register ─── */

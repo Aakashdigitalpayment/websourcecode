@@ -34,10 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($block === 'honeypot') {
-            $success = true;
             if (function_exists('logSecurityEvent')) {
                 logSecurityEvent('contact_honeypot', 'Contact honeypot tripped');
             }
+            header('Location: contact.php?sent=1');
+            exit;
         } elseif ($block) {
             $error = coop_public_form_guard_message($block, $__en);
         } elseif (empty($name) || empty($message)) {
@@ -49,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db   = getDB();
                 $stmt = $db->prepare("INSERT INTO contact_messages (name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$name, $email, $phone, $subject, $message]);
-                $success = true;
                 logSecurityEvent('contact_form', 'Contact form submitted by: ' . $name);
 
                 if (file_exists(__DIR__ . '/includes/notifications.php')) {
@@ -65,13 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } catch (\Throwable $e) { error_log('contact notify: ' . $e->getMessage()); }
                 }
                 if (function_exists('auditLog')) auditLog('contact_submit', 'contact_messages', null, null, ['name'=>$name]);
+                header('Location: contact.php?sent=1');
+                exit;
             } catch (Exception $e) {
+                error_log('[contact] ' . $e->getMessage());
                 $error = $__en ? 'Failed to send message. Please try later.' : 'सन्देश पठाउन सकिएन। कृपया पछि प्रयास गर्नुहोस्।';
             }
         }
     }
 }
 
+$success = !empty($_GET['sent']);
 $math = coop_math_challenge_issue('contact');
 
 require_once 'includes/header.php';

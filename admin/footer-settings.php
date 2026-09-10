@@ -42,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         setFlash('success', 'फुटर सेटिङ सेभ भयो।');
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[footer-settings] ' . $e->getMessage());
+        setFlash('error', 'सेटिङ सुरक्षित गर्न सकिएन।');
     }
     redirect('footer-settings.php');
 }

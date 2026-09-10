@@ -368,6 +368,40 @@ assertFileContains('loan-apply.php', 'loan-submit-helper.php', 'public loan appl
 assertFileContains('member/loan-apply.php', 'loan-submit-helper.php', 'member loan apply uses shared helper');
 assertFileContains('loan-apply.php', 'submitLoanApplicationUnified', 'public loan apply calls unified submit');
 assertFileContains('member/loan-apply.php', 'submitLoanApplicationUnified', 'member loan apply calls unified submit');
+assertFileContains('member/loan-apply.php', "checkRateLimit('loan_portal_", 'member loan portal rate limit');
+assertFileContains('member/loan-apply.php', 'Location: loan-apply.php?submitted=1', 'member loan PRG after success');
+assertFileContains('member/appointment.php', "checkRateLimit('appt_portal_", 'member appointment portal rate limit');
+assertFileContains('member/appointment.php', 'Location: appointment.php?submitted=1', 'member appointment PRG after success');
+assertFileContains('member/grievance.php', "checkRateLimit('grievance_portal_", 'member grievance portal rate limit');
+assertFileContains('member/grievance.php', 'Location: grievance.php?submitted=1', 'member grievance PRG after success');
+assertFileContains('member/digital-service.php', "checkRateLimit('digital_portal_", 'member digital portal rate limit');
+assertFileContains('member/account-apply.php', "checkRateLimit('account_portal_", 'member account portal rate limit');
+assertFileNotContains('member-welfare.php', 'Failed to submit claim: ', 'public welfare no exception text leak');
+assertFileNotContains('member-welfare.php', 'दाबी दर्ता गर्न सकिएन: ', 'public welfare no Nepali exception text leak');
+assertFileContains('includes/appointment-submit-helper.php', '/* Never store unconverted BS as MySQL DATE */', 'appointment date normalize fail-closed');
+assertFileContains('includes/appointment-submit-helper.php', 'Past dates are not allowed', 'appointment rejects past dates');
+assertFileContains('includes/loan-submit-helper.php', "'failed' => false", 'loan upload fail-closed shape');
+assertFileContains('includes/grievance-submit-helper.php', 'allowedCategories', 'grievance category allowlist');
+assertFileContains('includes/config.php', "preg_match('/^[a-z0-9_\\-]+$/i', \$folder)", 'uploadFile folder allowlist');
+assertFileContains('includes/config.php', 'सानो फाइल राख्नुहोस्।', 'upload error text no ini leak');
+assertFileNotContains('includes/config.php', "upload_max_filesize=' . \$up", 'upload error text hides php ini sizes');
+assertFileContains('includes/welfare-claims-submit-helper.php', 'UPLOAD_FAILED', 'welfare upload fail-closed');
+assertFileContains('includes/config.php', 'function coop_safe_cta_url', 'safe CTA URL helper');
+assertFileContains('includes/config.php', 'function coop_safe_webhook_url', 'webhook SSRF guard helper');
+assertFileContains('includes/config.php', 'random_bytes(8)', 'tracking id 64-bit entropy');
+assertFileContains('admin/settings.php', 'google_client_secret_clear', 'oauth secret clear checkbox');
+assertFileNotContains('admin/settings.php', "value=\"<?php echo htmlspecialchars(\$settings['google_client_secret']", 'oauth google secret not echoed in HTML');
+assertFileContains('admin/settings.php', "'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url'", 'social URLs sanitized on save');
+assertFileContains('includes/header.php', 'coop_safe_cta_url', 'header social links sanitized');
+assertFileContains('admin/sliders.php', 'coop_safe_cta_url', 'slider button URL sanitized');
+assertFileContains('career-detail.php', '[career-detail apply]', 'career apply logs exceptions');
+assertFileNotContains('career-detail.php', '$error = $e->getMessage()', 'career apply no exception echo');
+assertFileContains('member/election-vote.php', '[election-vote]', 'election vote logs exceptions');
+assertFileContains('admin/about-settings.php', "uploadFile(\$file, 'about'", 'about settings uses uploadFile');
+assertFileContains('admin/member-of-year.php', "uploadFile(\$_FILES['photo'], 'member-spotlight'", 'member-of-year uses uploadFile');
+assertFileContains('includes/notifications.php', 'coop_safe_webhook_url', 'SMS webhook SSRF guard');
+assertFileContains('includes/member-auth.php', "str_starts_with(\$rel, 'member/')", 'memberSafeRedirect member-only paths');
+assertFileContains('member/password-reset-request.php', 'Same generic copy as unknown account', 'password reset no sent_to leak');
 assertFileContains('includes/grievance-submit-helper.php', 'function submitGrievanceUnified', 'shared grievance submit helper');
 assertFileContains('grievance.php', 'grievance-submit-helper.php', 'public grievance uses shared helper');
 assertFileContains('member/grievance.php', 'grievance-submit-helper.php', 'member grievance uses shared helper');
@@ -461,6 +495,20 @@ assertFileContains('admin/print-form.php', 'type="button" onclick="history.back(
 assertFileContains('includes/satisfaction-widget.php', 'type="button" class="satisfaction-toggle"', 'satisfaction toggle typed');
 assertFileContains('includes/footer.php', 'type="button" id="uiTestClose"', 'ui-test panel buttons typed');
 assertFileContains('auction.php', 'type="button" class="auc2-fchip active"', 'auction filter chips typed');
+
+// Password policy + PRG + credentials hardening (backend round 3)
+assertFileContains('includes/member-auth.php', 'function memberPasswordPolicyError', 'shared member password policy');
+assertFileContains('member/profile.php', 'memberPasswordPolicyError', 'profile uses password policy');
+assertFileContains('member/login.php', 'memberPasswordPolicyError', 'register uses password policy');
+assertFileContains('member/password-reset-request.php', 'memberPasswordPolicyError', 'reset uses password policy');
+assertFileContains('contact.php', "Location: contact.php?sent=1", 'contact PRG redirect');
+assertFileContains('contact.php', "\$success = !empty(\$_GET['sent'])", 'contact success from GET');
+assertFileContains('honor-apply.php', 'honor-apply.php?submitted=1', 'honor PRG redirect');
+assertFileContains('honor-apply.php', "!empty(\$_GET['submitted'])", 'honor success from GET');
+assertFileContains('admin/credentials.php', 'safe_http_url', 'credentials site_url sanitized');
+assertFileContains('admin/credentials.php', "error' => 'Unable to reveal'", 'credentials reveal no exception leak');
+assertFileContains('admin/help-center.php', "error_log('[help-center]", 'help-center logs exceptions');
+assertFileContains('admin/manage-admins.php', "error_log('[manage-admins]", 'manage-admins logs exceptions');
 
 // Ensure high-traffic interactive buttons declare an explicit type=
 $typedButtonFiles = [

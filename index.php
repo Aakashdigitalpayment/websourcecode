@@ -223,10 +223,13 @@ $L = getLangStrings();
                                         $__btnLabel = trim((string) $__btnLabel);
                                     }
                                     $__btnUrl = trim((string) ($slider['button_url'] ?? ''));
+                                    if (function_exists('coop_safe_cta_url')) {
+                                        $__btnUrl = coop_safe_cta_url($__btnUrl);
+                                    }
                                     ?>
                                     <?php if ($__btnLabel !== ''): ?>
                                     <div class="hero-actions-modern">
-                                        <a href="<?php echo e($__btnUrl !== '' ? $__btnUrl : '#'); ?>" class="btn hero-btn-modern">
+                                        <a href="<?php echo e($__btnUrl !== '' && $__btnUrl !== '#' ? $__btnUrl : '#'); ?>" class="btn hero-btn-modern">
                                             <span class="btn-content">
                                                 <span class="btn-label"><?php echo e($__btnLabel); ?></span>
                                                 <i class="fas fa-arrow-right btn-icon" aria-hidden="true"></i>

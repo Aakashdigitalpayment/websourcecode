@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare('UPDATE why_choose_features SET is_active = 1 - is_active WHERE id = ?')->execute([(int) ($_POST['id'] ?? 0)]);
             setFlash('success', 'स्थिति परिवर्तन भयो।');
         }
-    } catch (Exception $e) { setFlash('error', 'त्रुटि भयो: ' . $e->getMessage()); }
+    } catch (Exception $e) { error_log('[why-choose] ' . $e->getMessage()); setFlash('error', 'त्रुटि भयो।'); }
     if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('why-choose.php');
 }

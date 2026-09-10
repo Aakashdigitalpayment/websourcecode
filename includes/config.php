@@ -504,6 +504,67 @@ function safe_http_url(?string $url): string
 }
 
 /**
+ * Outbound CTA / social link — http(s) via safe_http_url, or same-site relative path.
+ */
+function coop_safe_cta_url(?string $url): string
+{
+    $url = trim((string)$url);
+    if ($url === '' || $url === '#') {
+        return '#';
+    }
+    $url = str_replace(["\0", "\r", "\n", "\t"], '', $url);
+    if (preg_match('#^(javascript|data|vbscript|file):#i', $url)) {
+        return '#';
+    }
+    /* Same-site relative path (no scheme, no //, no ..) */
+    if (isset($url[0]) && $url[0] === '/' && !str_starts_with($url, '//') && !str_contains($url, '..')) {
+        if (preg_match('#^/[A-Za-z0-9._~/\-?=&%+,]*$#', $url)) {
+            return $url;
+        }
+        return '#';
+    }
+    $safe = safe_http_url($url);
+    return $safe !== '' ? $safe : '#';
+}
+
+/**
+ * Webhook / custom SMS API URL — https only, no private/reserved hosts (SSRF baseline).
+ */
+function coop_safe_webhook_url(?string $url): string
+{
+    $url = safe_http_url($url);
+    if ($url === '' || !preg_match('#^https://#i', $url)) {
+        return '';
+    }
+    $host = strtolower((string)(parse_url($url, PHP_URL_HOST) ?? ''));
+    if ($host === '' || $host === 'localhost' || str_ends_with($host, '.localhost') || str_ends_with($host, '.local')) {
+        return '';
+    }
+    $candidates = [];
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        $candidates[] = $host;
+    } else {
+        $resolved = @gethostbynamel($host);
+        if (is_array($resolved)) {
+            $candidates = $resolved;
+        }
+    }
+    if ($candidates === []) {
+        /* DNS failed — reject rather than call unknown host */
+        return '';
+    }
+    foreach ($candidates as $ip) {
+        if ($ip === '169.254.169.254') {
+            return '';
+        }
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return '';
+        }
+    }
+    return $url;
+}
+
+/**
  * Per-install HMAC secret — never use a shared public fallback for signing.
  * Priority: AUTH_SECRET → SECRET_KEY → includes/.auth-secret → auto-create random file.
  */
@@ -567,12 +628,12 @@ function coopVerifyHmac(string $payload, string $sig): bool
 }
 
 /**
- * Stronger public tracking IDs: PREFIX-YYYYMMDD-XXXXXXXX (32 bits entropy in suffix).
+ * Stronger public tracking IDs: PREFIX-YYYYMMDD-XXXXXXXXXXXXXXXX (64 bits entropy in suffix).
  */
 function coop_new_tracking_id(string $prefix): string
 {
     $prefix = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $prefix) ?: 'TRK');
-    return $prefix . '-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4)));
+    return $prefix . '-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(8)));
 }
 
 /**
@@ -1663,6 +1724,12 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
         return ['success' => false, 'message' => 'Upload error'];
     }
 
+    $folder = trim((string)$folder);
+    if ($folder === '' || !preg_match('/^[a-z0-9_\-]+$/i', $folder)) {
+        error_log('[uploadFile] rejected folder: ' . $folder);
+        return ['success' => false, 'message' => 'Invalid upload folder.'];
+    }
+
     $fileName = $file['name'];
     $fileSize = $file['size'];
     $fileTmp = $file['tmp_name'];
@@ -1763,6 +1830,15 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
             case 'welfare_claims':
                 $maxWidth = 1200;
                 $maxHeight = 1200;
+                break;
+            case 'about':
+                $maxWidth = 1200;
+                $maxHeight = 900;
+                break;
+            case 'member-spotlight':
+                $maxWidth = 800;
+                $maxHeight = 800;
+                $crop = true;
                 break;
             case 'seo':
                 /* Open Graph / social share — ~1.91:1 */
@@ -2142,25 +2218,19 @@ function coop_upload_error_text(int $code): string
 {
     $up = (string) (ini_get('upload_max_filesize') ?: '?');
     $pm = (string) (ini_get('post_max_size') ?: '?');
-    if ($code === UPLOAD_ERR_INI_SIZE) {
-        return 'फाइल server limit भन्दा ठूलो छ (upload_max_filesize=' . $up . ', post_max_size=' . $pm . ')। सानो फाइल राख्नुहोस्।';
-    }
-    if ($code === UPLOAD_ERR_FORM_SIZE) {
-        return 'फाइल form को अधिकतम साइज नाघ्यो।';
+    if ($code === UPLOAD_ERR_INI_SIZE || $code === UPLOAD_ERR_FORM_SIZE) {
+        error_log('[upload] size limit hit code=' . $code . ' up_max=' . $up . ' post_max=' . $pm);
+        return 'फाइल धेरै ठूलो छ। सानो फाइल राख्नुहोस्।';
     }
     if ($code === UPLOAD_ERR_PARTIAL) {
         return 'फाइल पूरा अपलोड भएन। पुनः प्रयास गर्नुहोस्।';
     }
-    if ($code === UPLOAD_ERR_NO_TMP_DIR) {
-        return 'सर्भर temporary folder उपलब्ध छैन।';
+    if ($code === UPLOAD_ERR_NO_TMP_DIR || $code === UPLOAD_ERR_CANT_WRITE || $code === UPLOAD_ERR_EXTENSION) {
+        error_log('[upload] server error code=' . $code);
+        return 'फाइल अपलोड गर्न सकिएन। कृपया पछि प्रयास गर्नुहोस्।';
     }
-    if ($code === UPLOAD_ERR_CANT_WRITE) {
-        return 'सर्भरले फाइल लेख्न सकेन (permission)।';
-    }
-    if ($code === UPLOAD_ERR_EXTENSION) {
-        return 'Server extension ले upload रोक्यो।';
-    }
-    return 'फाइल अपलोड असफल (code ' . $code . ')।';
+    error_log('[upload] failed code=' . $code);
+    return 'फाइल अपलोड असफल भयो। पुनः प्रयास गर्नुहोस्।';
 }
 
 // Check CSRF and redirect if invalid

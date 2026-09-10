@@ -65,7 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', 'Occurrence हटाइयो।');
         }
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[program-occurrences] ' . $e->getMessage());
+        setFlash('error', 'Occurrence सुरक्षित गर्न सकिएन।');
     }
     redirect('program-occurrences.php' . ($parentId > 0 ? ('?parent_id=' . $parentId) : ''));
 }

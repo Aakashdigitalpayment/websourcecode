@@ -104,7 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[sahakari-calendar] ' . $e->getMessage());
+        setFlash('error', 'कार्यक्रम सुरक्षित गर्न सकिएन।');
     }
     redirect('sahakari-calendar-events.php?year=' . max(1970, min(2100, $redirectYear)));
 }

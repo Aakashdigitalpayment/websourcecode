@@ -167,7 +167,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     } catch (Throwable $e) {
-        setFlash('error', $e->getMessage());
+        error_log('[programs] ' . $e->getMessage());
+        setFlash('error', 'कार्यक्रम सुरक्षित गर्न सकिएन।');
     }
     if (function_exists('clearHomepageCache')) clearHomepageCache();
     redirect('programs.php');

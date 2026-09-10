@@ -11,10 +11,6 @@ if (is_file($kycPublicFormFile)) {
     require_once $kycPublicFormFile;
 }
 
-$pageTitle = isEnglish() ? 'Honor Application' : 'सम्मान आवेदन';
-require_once 'includes/header.php';
-$L = getLangStrings();
-
 $db = getDB();
 ensureHonorTables($db);
 
@@ -50,7 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         clean_text($_POST['description'] ?? '', 4000),
         clean_text($_POST['business_note'] ?? '', 255),
     ], true)) === 'honeypot') {
-        $success = true;
+        header('Location: honor-apply.php?submitted=1');
+        exit;
     } elseif ($__bot) {
         $error = coop_public_form_guard_message($__bot, isEnglish());
     } else {
@@ -111,16 +108,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ], $_FILES);
 
             if (!empty($result['ok'])) {
-                $success = true;
                 $trackingId = (string)$result['tracking_id'];
                 if (function_exists('logSecurityEvent')) {
                     logSecurityEvent('honor_application_submitted', 'Honor application ' . $trackingId);
                 }
-            } else {
-                $error = isEnglish()
-                    ? (string)($result['error_en'] ?? $result['error'] ?? 'Submit failed.')
-                    : (string)($result['error'] ?? 'दर्ता असफल।');
+                header('Location: honor-apply.php?submitted=1&tid=' . urlencode($trackingId));
+                exit;
             }
+            $error = isEnglish()
+                ? (string)($result['error_en'] ?? $result['error'] ?? 'Submit failed.')
+                : (string)($result['error'] ?? 'दर्ता असफल।');
         }
 
         $selectedProgramId = $programId;
@@ -128,6 +125,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $activeProgram = $programMeta[$selectedProgramId] ?? $activeProgram;
     }
 }
+
+if (!empty($_GET['submitted'])) {
+    $success = true;
+    if (!empty($_GET['tid'])) {
+        $trackingId = preg_replace('/[^A-Za-z0-9_\-]/', '', (string)$_GET['tid']);
+    }
+}
+
+$pageTitle = isEnglish() ? 'Honor Application' : 'सम्मान आवेदन';
+require_once 'includes/header.php';
+$L = getLangStrings();
 
 $catJson = [];
 foreach ($openPrograms as $op) {

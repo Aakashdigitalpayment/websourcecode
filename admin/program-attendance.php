@@ -394,7 +394,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
             } catch (Throwable $e) {
-                setFlash('error', 'नयाँ सदस्य बनाउन समस्या भयो: ' . $e->getMessage());
+                error_log('[program-attendance] ' . $e->getMessage());
+                setFlash('error', 'नयाँ सदस्य बनाउन समस्या भयो।');
             }
         }
     } elseif ($action === 'reject_attendance_request') {

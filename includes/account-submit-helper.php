@@ -7,7 +7,7 @@
 if (!function_exists('accountUploadDocuments')) {
     /**
      * @param array<string,mixed> $files
-     * @return array{photo:string,citizenship_front:string,citizenship_back:string,signature:string}
+     * @return array{photo:string,citizenship_front:string,citizenship_back:string,signature:string,failed:bool}
      */
     function accountUploadDocuments(array $files): array
     {
@@ -16,17 +16,28 @@ if (!function_exists('accountUploadDocuments')) {
             'citizenship_front' => '',
             'citizenship_back' => '',
             'signature' => '',
+            'failed' => false,
         ];
         if (!function_exists('uploadFile')) {
             return $out;
         }
-        foreach (array_keys($out) as $key) {
-            if (!isset($files[$key]) || ($files[$key]['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+        foreach (['photo', 'citizenship_front', 'citizenship_back', 'signature'] as $key) {
+            if (!isset($files[$key])) {
+                continue;
+            }
+            $err = (int)($files[$key]['error'] ?? UPLOAD_ERR_NO_FILE);
+            if ($err === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+            if ($err !== UPLOAD_ERR_OK) {
+                $out['failed'] = true;
                 continue;
             }
             $result = uploadFile($files[$key], 'accounts');
             if (!empty($result['success']) && !empty($result['path'])) {
                 $out[$key] = (string)$result['path'];
+            } else {
+                $out['failed'] = true;
             }
         }
         return $out;
@@ -94,6 +105,13 @@ if (!function_exists('submitAccountApplicationUnified')) {
             $citizenshipIssuedDate = coop_date_ui_normalize_ad($citizenshipIssuedDate);
         } elseif ($citizenshipIssuedDate !== '' && function_exists('appointmentNormalizeDate')) {
             $citizenshipIssuedDate = appointmentNormalizeDate($citizenshipIssuedDate);
+        }
+        if (trim((string)($payload['citizenship_issued_date'] ?? '')) !== '' && $citizenshipIssuedDate === '') {
+            return [
+                'ok' => false,
+                'error' => 'नागरिकता जारी मिति अमान्य छ।',
+                'error_en' => 'Citizenship issued date is invalid.',
+            ];
         }
         $citizenshipIssuedPlace = trim((string)($payload['citizenship_issued_place'] ?? ''));
         $fatherName = trim((string)($payload['father_name'] ?? ''));
@@ -172,8 +190,15 @@ if (!function_exists('submitAccountApplicationUnified')) {
         }
 
         $docs = $skipUploads
-            ? ['photo' => '', 'citizenship_front' => '', 'citizenship_back' => '', 'signature' => '']
+            ? ['photo' => '', 'citizenship_front' => '', 'citizenship_back' => '', 'signature' => '', 'failed' => false]
             : accountUploadDocuments($files);
+        if (!empty($docs['failed'])) {
+            return [
+                'ok' => false,
+                'error' => 'कागजात अपलोड असफल भयो। फाइल प्रकार/साइज जाँचेर पुनः प्रयास गर्नुहोस्।',
+                'error_en' => 'Document upload failed. Check file type/size and try again.',
+            ];
+        }
 
         $trackingId = function_exists('coop_new_tracking_id')
             ? coop_new_tracking_id('ACC')

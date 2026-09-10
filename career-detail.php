@@ -198,7 +198,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
             }
             redirect('career-detail.php?id=' . $jobId . '&applied=1&tid=' . urlencode($trackingId));
         } catch (Exception $e) {
-            $error = $e->getMessage();
+            error_log('[career-detail apply] ' . $e->getMessage());
+            $error = isEnglish()
+                ? 'Could not submit application. Please try again.'
+                : 'आवेदन पेश गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।';
             $showApplyForm = true;
         }
     }

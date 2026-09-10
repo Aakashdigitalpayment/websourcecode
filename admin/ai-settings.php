@@ -70,7 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } catch (Throwable $e) {
         $prefix = (($action ?? '') === 'test') ? 'Test असफल: ' : '';
-        setFlash('error', $prefix . $e->getMessage());
+        error_log('[ai-settings] ' . $e->getMessage());
+        setFlash('error', $prefix . 'कार्य असफल भयो।');
     }
     redirect('ai-settings.php');
 }

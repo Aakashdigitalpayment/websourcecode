@@ -55,7 +55,7 @@ if (!function_exists('appointmentNormalizeDate')) {
         ]);
         $s = str_replace(['/', '.'], '-', $s);
         if (!preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $s, $m)) {
-            return $s;
+            return '';
         }
         $y = (int)$m[1];
         $mo = (int)$m[2];
@@ -72,30 +72,25 @@ if (!function_exists('appointmentNormalizeDate')) {
             }
             if (function_exists('nepali_bs_to_ad_string')) {
                 $ad = nepali_bs_to_ad_string($ymd);
-                if ($ad) {
+                if (is_string($ad) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
                     return $ad;
                 }
             }
             if (function_exists('bsToAd')) {
                 $ad = bsToAd($ymd);
-                if ($ad && $ad !== $ymd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
+                if (is_string($ad) && $ad !== $ymd && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ad)) {
                     return $ad;
                 }
             }
+            /* Never store unconverted BS as MySQL DATE */
+            return '';
         }
 
-        if (checkdate($mo, $d, $y)) {
+        if ($y >= 1900 && $y <= 2100 && checkdate($mo, $d, $y)) {
             return $ymd;
         }
 
-        if (function_exists('nepali_bs_to_ad_string')) {
-            $ad = nepali_bs_to_ad_string($ymd);
-            if ($ad) {
-                return $ad;
-            }
-        }
-
-        return $ymd;
+        return '';
     }
 }
 
@@ -256,6 +251,36 @@ if (!function_exists('submitAppointmentUnified')) {
         }
 
         $preferredDate = appointmentNormalizeDate($preferredDate);
+        if ($preferredDate === '' || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $preferredDate)) {
+            return [
+                'ok' => false,
+                'error' => 'मिति अमान्य छ। कृपया पात्रोबाट सही मिति छान्नुहोस्।',
+                'error_en' => 'Invalid date. Please pick a valid calendar date.',
+            ];
+        }
+        if ($preferredDate < date('Y-m-d')) {
+            return [
+                'ok' => false,
+                'error' => 'विगतको मिति छान्न मिल्दैन। आज वा पछिको मिति छान्नुहोस्।',
+                'error_en' => 'Past dates are not allowed. Please choose today or a future date.',
+            ];
+        }
+        if (function_exists('getOfficeTimeOptions')) {
+            $timeOpts = getOfficeTimeOptions();
+            if (is_array($timeOpts) && $timeOpts !== []) {
+                $allowedTimes = array_values(array_unique(array_merge(
+                    array_map('strval', array_keys($timeOpts)),
+                    array_map('strval', array_values($timeOpts))
+                )));
+                if (!in_array($preferredTime, $allowedTimes, true)) {
+                    return [
+                        'ok' => false,
+                        'error' => 'कृपया सूचीबाट समय छान्नुहोस्।',
+                        'error_en' => 'Please select a time from the list.',
+                    ];
+                }
+            }
+        }
         $preferredTime = mb_substr($preferredTime, 0, 50, 'UTF-8');
         $name = mb_substr($name, 0, 200, 'UTF-8');
         $branch = mb_substr($branch, 0, 200, 'UTF-8');

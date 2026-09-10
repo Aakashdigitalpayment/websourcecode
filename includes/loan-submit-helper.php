@@ -9,22 +9,29 @@ if (!function_exists('loanUploadDocuments')) {
      * Upload documents[] the same way public loan-apply does.
      *
      * @param array<string,mixed> $files
+     * @return array{paths:string,failed:bool}
      */
-    function loanUploadDocuments(array $files): string
+    function loanUploadDocuments(array $files): array
     {
         if (!isset($files['documents']) || empty($files['documents']['name'][0])) {
-            return '';
+            return ['paths' => '', 'failed' => false];
         }
         if (!function_exists('uploadFile')) {
-            return '';
+            return ['paths' => '', 'failed' => true];
         }
         $uploadedFiles = [];
+        $failed = false;
         $names = $files['documents']['name'];
         if (!is_array($names)) {
-            return '';
+            return ['paths' => '', 'failed' => false];
         }
         foreach ($names as $key => $name) {
-            if (($files['documents']['error'][$key] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            $err = (int)($files['documents']['error'][$key] ?? UPLOAD_ERR_NO_FILE);
+            if ($err === UPLOAD_ERR_NO_FILE || trim((string)$name) === '') {
+                continue;
+            }
+            if ($err !== UPLOAD_ERR_OK) {
+                $failed = true;
                 continue;
             }
             $singleFile = [
@@ -37,9 +44,11 @@ if (!function_exists('loanUploadDocuments')) {
             $result = uploadFile($singleFile, 'loan');
             if (!empty($result['success']) && !empty($result['path'])) {
                 $uploadedFiles[] = $result['path'];
+            } else {
+                $failed = true;
             }
         }
-        return implode(',', $uploadedFiles);
+        return ['paths' => implode(',', $uploadedFiles), 'failed' => $failed];
     }
 }
 
@@ -160,7 +169,15 @@ if (!function_exists('submitLoanApplicationUnified')) {
             ];
         }
 
-        $documents = loanUploadDocuments($files);
+        $upload = loanUploadDocuments($files);
+        if (!empty($upload['failed'])) {
+            return [
+                'ok' => false,
+                'error' => 'कागजात अपलोड असफल भयो। फाइल प्रकार/साइज जाँचेर पुनः प्रयास गर्नुहोस्।',
+                'error_en' => 'Document upload failed. Check file type/size and try again.',
+            ];
+        }
+        $documents = (string)($upload['paths'] ?? '');
         $trackingId = function_exists('coop_new_tracking_id')
             ? coop_new_tracking_id('LNP')
             : ('LNP' . date('YmdHis') . random_int(1000, 9999));

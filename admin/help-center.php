@@ -92,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (Exception $e) {
-        setFlash('error', 'त्रुटि भयो: ' . $e->getMessage());
+        error_log('[help-center] ' . $e->getMessage());
+        setFlash('error', 'त्रुटि भयो। कृपया फेरि प्रयास गर्नुहोस्।');
         redirect('help-center.php');
     }
 }

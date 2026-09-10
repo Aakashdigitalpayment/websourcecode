@@ -101,7 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_notif'])) {
             }
             setFlash('success', "Bulk Notification {$sent} जना सदस्यलाई सफलतापूर्वक पठाइयो।");
         } catch (Throwable $e) {
-            setFlash('error', 'Bulk send गर्दा त्रुटि भयो: ' . $e->getMessage());
+            error_log('[admin/members bulk] ' . $e->getMessage());
+            setFlash('error', 'Bulk send गर्दा त्रुटि भयो।');
         }
         redirect('members.php');
     }

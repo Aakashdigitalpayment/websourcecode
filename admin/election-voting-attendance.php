@@ -145,7 +145,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('success', $isBallot ? 'Manual ballot सुरक्षित भयो।' : 'Attendance only सुरक्षित भयो — सदस्य Portal बाट अझै मत हाल्न सक्नुहुन्छ।');
         } catch (Throwable $e) {
             if ($db->inTransaction()) $db->rollBack();
-            setFlash('error', $e->getMessage());
+            error_log('[election-voting-attendance] ' . $e->getMessage());
+            setFlash('error', 'उपस्थिति सुरक्षित गर्न सकिएन।');
         }
         redirect('election-voting-attendance.php?cycle=' . $cycleId);
     }

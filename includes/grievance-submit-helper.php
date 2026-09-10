@@ -7,20 +7,28 @@
 if (!function_exists('grievanceUploadAttachment')) {
     /**
      * @param array<string,mixed> $files
+     * @return array{path:string,failed:bool}
      */
-    function grievanceUploadAttachment(array $files): string
+    function grievanceUploadAttachment(array $files): array
     {
-        if (!isset($files['attachment']) || ($files['attachment']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            return '';
+        if (!isset($files['attachment'])) {
+            return ['path' => '', 'failed' => false];
+        }
+        $err = (int)($files['attachment']['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            return ['path' => '', 'failed' => false];
+        }
+        if ($err !== UPLOAD_ERR_OK) {
+            return ['path' => '', 'failed' => true];
         }
         if (!function_exists('uploadFile')) {
-            return '';
+            return ['path' => '', 'failed' => true];
         }
         $result = uploadFile($files['attachment'], 'grievances');
         if (!empty($result['success']) && !empty($result['path'])) {
-            return (string)$result['path'];
+            return ['path' => (string)$result['path'], 'failed' => false];
         }
-        return '';
+        return ['path' => '', 'failed' => true];
     }
 }
 
@@ -43,7 +51,12 @@ if (!function_exists('submitGrievanceUnified')) {
         $phone = preg_replace('/[^0-9]/', '', (string)($payload['phone'] ?? ''));
         $email = strtolower(trim((string)($payload['email'] ?? '')));
         $category = trim((string)($payload['category'] ?? 'other'));
-        if ($category === '') {
+        $allowedCategories = [
+            'service', 'staff', 'service_quality', 'staff_behavior',
+            'account_issue', 'loan_issue', 'delay', 'digital_service',
+            'billing', 'other',
+        ];
+        if ($category === '' || !in_array($category, $allowedCategories, true)) {
             $category = 'other';
         }
         $subject = trim((string)($payload['subject'] ?? ''));
@@ -161,7 +174,15 @@ if (!function_exists('submitGrievanceUnified')) {
             }
         }
 
-        $attachment = grievanceUploadAttachment($files);
+        $upload = grievanceUploadAttachment($files);
+        if (!empty($upload['failed'])) {
+            return [
+                'ok' => false,
+                'error' => 'संलग्न फाइल अपलोड असफल भयो। फाइल प्रकार/साइज जाँचेर पुनः प्रयास गर्नुहोस्।',
+                'error_en' => 'Attachment upload failed. Check file type/size and try again.',
+            ];
+        }
+        $attachment = (string)($upload['path'] ?? '');
         $trackingId = function_exists('coop_new_tracking_id')
             ? coop_new_tracking_id('GRV')
             : ('GRV' . date('YmdHis') . random_int(1000, 9999));

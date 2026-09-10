@@ -31,8 +31,14 @@ $phone = getSetting('phone', '061590067');
 $mobile = getSetting('mobile', '9827157000');
 $email = getSetting('email', 'info@sahakari.org.np');
 $address = getSetting('address', 'काठमाडौं, नेपाल');
-$facebookUrl = getSetting('facebook_url', '#');
-$youtubeUrl = getSetting('youtube_url', '#');
+$facebookUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('facebook_url', ''))
+    : (getSetting('facebook_url', '#') ?: '#');
+$youtubeUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('youtube_url', ''))
+    : (getSetting('youtube_url', '#') ?: '#');
+if ($facebookUrl === '') { $facebookUrl = '#'; }
+if ($youtubeUrl === '') { $youtubeUrl = '#'; }
 $twitterUrl = getSetting('twitter_url', '');
 $instagramUrl = getSetting('instagram_url', '');
 $logo = function_exists('getLocalizedLogoPath')
@@ -1910,12 +1916,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>" lang="ne" hreflang="ne" aria-label="<?php echo isEnglish() ? 'Nepali' : 'नेपाली'; ?>"<?php echo $currentLang === 'np' ? ' aria-current="true"' : ''; ?>>NP</a>
                         </li>
                         <li class="internet-banking-btn">
-                            <a href="<?php echo getSetting('internet_banking_url', '#'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">
+                            <a href="<?php echo htmlspecialchars(function_exists('coop_safe_cta_url') ? coop_safe_cta_url(getSetting('internet_banking_url', '')) : (getSetting('internet_banking_url', '#') ?: '#'), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">
                                 <i class="fas fa-laptop"></i>
                             </a>
                         </li>
-                        <li><a href="<?php echo $facebookUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
-                        <li><a href="<?php echo $youtubeUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
+                        <li><a href="<?php echo htmlspecialchars($facebookUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
+                        <li><a href="<?php echo htmlspecialchars($youtubeUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
                         <li><a href="mailto:<?php echo $email; ?>"><i class="fas fa-envelope"></i></a></li>
                             <li class="topbar-search-btn d-none d-lg-inline-block">
                                 <a href="#" id="topbarSearchBtn"

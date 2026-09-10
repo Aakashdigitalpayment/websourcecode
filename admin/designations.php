@@ -47,7 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('designations.php');
         }
     } catch (Throwable $e) {
-        setFlash('error', 'त्रुटि: ' . $e->getMessage());
+        error_log('[designations] ' . $e->getMessage());
+        setFlash('error', 'पद सुरक्षित गर्न सकिएन।');
         redirect('designations.php');
     }
 }

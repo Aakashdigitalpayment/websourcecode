@@ -34,7 +34,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && ($_POST['ajax'] ?? '') === 
         cred_log_action($id, 'reveal');
         echo json_encode(['ok' => true, 'password' => $pw]);
     } catch (\Throwable $e) {
-        echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
+        error_log('[credentials reveal] ' . $e->getMessage());
+        echo json_encode(['ok' => false, 'error' => 'Unable to reveal']);
     }
     exit;
 }
@@ -83,7 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create' || $action === 'update') {
         $id        = (int)($_POST['id'] ?? 0);
         $siteName  = trim($_POST['site_name'] ?? '');
-        $siteUrl   = trim($_POST['site_url'] ?? '');
+        $siteUrlRaw = trim($_POST['site_url'] ?? '');
+        $siteUrl   = function_exists('safe_http_url') ? safe_http_url($siteUrlRaw) : $siteUrlRaw;
         $siteLogo  = trim($_POST['site_logo'] ?? '');
         $username  = trim($_POST['username'] ?? '');
         $password  = $_POST['password'] ?? '';
@@ -91,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $notes     = trim($_POST['notes'] ?? '');
 
         if (!$siteName || !$siteUrl || !$username) {
-            setFlash('error', 'Site name, URL र username आवश्यक।');
+            setFlash('error', 'Site name, valid http(s) URL र username आवश्यक।');
         } else {
             try {
                 if ($action === 'create') {
@@ -131,7 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     setFlash('success', 'Credential अद्यावधिक गरियो।');
                 }
             } catch (\Throwable $e) {
-                setFlash('error', 'Error: ' . e($e->getMessage()));
+                error_log('[credentials save] ' . $e->getMessage());
+                setFlash('error', 'Credential सुरक्षित गर्न सकिएन।');
             }
         }
         header('Location: credentials.php'); exit;

@@ -100,7 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('election-results.php?cycle=' . $cycleId);
         }
     } catch (Throwable $e) {
-        setFlash('error', 'त्रुटि: ' . $e->getMessage());
+        error_log('[election-results] ' . $e->getMessage());
+        setFlash('error', 'नतिजा सुरक्षित गर्न सकिएन।');
         redirect('election-results.php?cycle=' . $cycleId);
     }
 }

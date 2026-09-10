@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     setFlash('success', '"' . htmlspecialchars($fullName) . '" admin user सफलतापूर्वक बनाइयो।');
                 }
             } catch (Exception $e) {
-                setFlash('error', 'त्रुटि: ' . $e->getMessage());
+                error_log('[manage-admins] ' . $e->getMessage());
+                setFlash('error', 'कार्य असफल भयो।');
             }
         }
         redirect('manage-admins.php');
@@ -117,7 +118,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     setFlash('success', $msg);
                 }
             } catch (Exception $e) {
-                setFlash('error', 'त्रुटि: ' . $e->getMessage());
+                error_log('[manage-admins] ' . $e->getMessage());
+                setFlash('error', 'कार्य असफल भयो।');
             }
         }
         redirect('manage-admins.php');
@@ -137,7 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$newStatus, $targetId]);
                 setFlash('success', 'Status अपडेट भयो।');
             } catch (Exception $e) {
-                setFlash('error', 'त्रुटि: ' . $e->getMessage());
+                error_log('[manage-admins] ' . $e->getMessage());
+                setFlash('error', 'कार्य असफल भयो।');
             }
         }
         redirect('manage-admins.php');
@@ -156,7 +159,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    ->execute([$targetId]);
                 setFlash('success', 'Admin user मेटाइयो।');
             } catch (Exception $e) {
-                setFlash('error', 'त्रुटि: ' . $e->getMessage());
+                error_log('[manage-admins] ' . $e->getMessage());
+                setFlash('error', 'कार्य असफल भयो।');
             }
         }
         redirect('manage-admins.php');

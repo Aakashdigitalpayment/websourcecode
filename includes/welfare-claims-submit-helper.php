@@ -31,14 +31,24 @@ if (!function_exists('welfareClaimTypeLabelNp')) {
 }
 
 if (!function_exists('welfareUploadSupportingDocuments')) {
+    /**
+     * @return array{paths:string,failed:bool}
+     */
     function welfareUploadSupportingDocuments($files)
     {
         $uploadedFiles = [];
+        $failed = false;
         if (!isset($files['documents']) || !isset($files['documents']['name']) || !is_array($files['documents']['name'])) {
-            return '';
+            return ['paths' => '', 'failed' => false];
         }
         foreach ($files['documents']['tmp_name'] as $key => $tmp) {
-            if (($files['documents']['error'][$key] ?? 1) !== 0) {
+            $err = (int)($files['documents']['error'][$key] ?? UPLOAD_ERR_NO_FILE);
+            $name = trim((string)($files['documents']['name'][$key] ?? ''));
+            if ($err === UPLOAD_ERR_NO_FILE || $name === '') {
+                continue;
+            }
+            if ($err !== UPLOAD_ERR_OK) {
+                $failed = true;
                 continue;
             }
             $singleFile = [
@@ -51,23 +61,35 @@ if (!function_exists('welfareUploadSupportingDocuments')) {
             $uploadResult = uploadFile($singleFile, 'welfare_claims');
             if (!empty($uploadResult['success']) && !empty($uploadResult['path'])) {
                 $uploadedFiles[] = $uploadResult['path'];
+            } else {
+                $failed = true;
             }
         }
-        return implode(',', $uploadedFiles);
+        return ['paths' => implode(',', $uploadedFiles), 'failed' => $failed];
     }
 }
 
 if (!function_exists('welfareUploadDeathCertificate')) {
+    /**
+     * @return array{path:string,failed:bool}
+     */
     function welfareUploadDeathCertificate($files)
     {
-        if (!isset($files['death_certificate']) || ($files['death_certificate']['error'] ?? 1) !== 0) {
-            return '';
+        if (!isset($files['death_certificate'])) {
+            return ['path' => '', 'failed' => false];
+        }
+        $err = (int)($files['death_certificate']['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            return ['path' => '', 'failed' => false];
+        }
+        if ($err !== UPLOAD_ERR_OK) {
+            return ['path' => '', 'failed' => true];
         }
         $uploadResult = uploadFile($files['death_certificate'], 'welfare_claims');
         if (!empty($uploadResult['success']) && !empty($uploadResult['path'])) {
-            return $uploadResult['path'];
+            return ['path' => (string)$uploadResult['path'], 'failed' => false];
         }
-        return '';
+        return ['path' => '', 'failed' => true];
     }
 }
 
@@ -94,16 +116,24 @@ if (!function_exists('submitWelfareClaimUnified')) {
     function submitWelfareClaimUnified($db, $payload, $files)
     {
         $trackingId = coop_new_tracking_id('WLF');
-        $claimType = $payload['claim_type'] ?? 'other';
+        $claimType = (string)($payload['claim_type'] ?? 'other');
+        $map = function_exists('welfareClaimTypesMap') ? welfareClaimTypesMap($db instanceof PDO ? $db : null, false) : [];
+        if ($map !== [] && !isset($map[$claimType])) {
+            throw new InvalidArgumentException('INVALID_CLAIM_TYPE');
+        }
         $claimTypeNp = welfareClaimTypeLabelNp($claimType);
 
-        $map = function_exists('welfareClaimTypesMap') ? welfareClaimTypesMap($db instanceof PDO ? $db : null, false) : [];
         if (!empty($map[$claimType]['requires_document']) && !welfareHasSupportingDocuments($files)) {
             throw new InvalidArgumentException('DOC_REQUIRED');
         }
 
-        $documents = welfareUploadSupportingDocuments($files);
-        $deathCertificate = welfareUploadDeathCertificate($files);
+        $docsUpload = welfareUploadSupportingDocuments($files);
+        $deathUpload = welfareUploadDeathCertificate($files);
+        if (!empty($docsUpload['failed']) || !empty($deathUpload['failed'])) {
+            throw new InvalidArgumentException('UPLOAD_FAILED');
+        }
+        $documents = (string)($docsUpload['paths'] ?? '');
+        $deathCertificate = (string)($deathUpload['path'] ?? '');
 
         if (!empty($map[$claimType]['requires_document']) && $documents === '') {
             throw new InvalidArgumentException('DOC_REQUIRED');
