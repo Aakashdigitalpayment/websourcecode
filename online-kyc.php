@@ -1192,12 +1192,12 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
             <i class="fas fa-exclamation-circle me-1"></i><?php echo e($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
-        <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});});</script>
+        <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e){var r=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;e.scrollIntoView({behavior:r?'auto':'smooth',block:'center'});}});</script>
         <?php endif; ?>
 
         <?php if (!$isMemberLoggedIn): ?>
         <div class="row justify-content-center mb-3">
-            <div class="col-lg-10">
+            <div class="col-lg-10 public-form-shell public-form-shell--wide">
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <a href="?path=member" class="btn <?php echo $publicPath === 'member' ? 'btn-success' : 'btn-outline-success'; ?>">
                         <i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'I am a member (Online KYM)' : 'म सदस्य हुँ (Online केवाइएम)'; ?>
@@ -1217,7 +1217,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         : 'Member ID छैन? यो छोटो अनुरोध पठाउनुहोस्। Admin ले Member ID दिएपछि त्यही ID ले Online केवाइएम भर्नुहोस्।'; ?>
                 </div>
                 <div class="kyc-form-box mb-3">
-                    <form method="POST" class="kyc-form needs-validation" novalidate>
+                    <form method="POST" class="kyc-form needs-validation coop-form-sticky" novalidate>
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="membership_join_submit" value="1">
                         <div class="form-section">
@@ -1268,7 +1268,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                 <?php if (!$publicGateOk): ?>
                 <div class="kyc-form-box mb-3 border border-success border-opacity-25">
-                    <form method="POST" class="needs-validation" novalidate>
+                    <form method="POST" class="needs-validation coop-form-sticky" novalidate>
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="public_kym_verify" value="1">
                         <div class="form-section">
@@ -1313,7 +1313,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                     </button>
                 </div>
                 <div id="publicQuickKycPanel" class="kyc-form-box mb-3" style="display:<?php echo isset($_POST['public_quick_submit']) ? 'block' : 'none'; ?>;">
-                    <form method="POST" class="kyc-form needs-validation" novalidate>
+                    <form method="POST" class="kyc-form needs-validation coop-form-sticky" novalidate>
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="public_quick_submit" value="1">
                         <div class="form-section">
@@ -1345,7 +1345,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
         <?php if ($isMemberLoggedIn || ($publicPath === 'member' && $publicGateOk)): ?>
         <div class="row justify-content-center" id="fullKycRow" style="<?php echo (!$isMemberLoggedIn && isset($_POST['public_quick_submit'])) ? 'display:none;' : ''; ?>">
-            <div class="col-lg-10">
+            <div class="col-lg-10 public-form-shell public-form-shell--wide">
                 <div class="kyc-form-box" data-aos="fade-up">
                     <div class="form-header text-center mb-4">
                         <div class="form-icon"><i class="fas fa-user-check"></i></div>
@@ -2106,8 +2106,8 @@ document.addEventListener('DOMContentLoaded', function () {
     t.addEventListener('click', function () {
         var showQuick = (p.style.display === 'none');
         syncPanels(showQuick);
-        if (showQuick) p.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        else full.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (showQuick) p.scrollIntoView({ behavior: (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)?'auto':'smooth', block: 'start' });
+        else full.scrollIntoView({ behavior: (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)?'auto':'smooth', block: 'start' });
     });
 });
 
@@ -2914,7 +2914,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             var wrap = decl.closest('.form-section') || decl.parentElement;
             if (wrap) { wrap.style.outline = '2px solid #dc3545'; wrap.style.borderRadius = '6px'; }
-            decl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            decl.scrollIntoView({ behavior: (window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)?'auto':'smooth', block: 'center' });
             return;
         }
         form.setAttribute('data-kym-submitting', '1');

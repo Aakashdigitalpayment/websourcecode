@@ -218,7 +218,7 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
             <div class="pf-card-top">
                 <div class="pf-card-logo" aria-hidden="true">
                     <?php if ($logo !== ''): ?>
-                        <img src="<?php echo htmlspecialchars($logo); ?>" alt="" loading="lazy">
+                        <img src="<?php echo htmlspecialchars($logo); ?>" alt="<?php echo htmlspecialchars($name); ?>" loading="lazy">
                     <?php else: ?>
                         <i class="fas fa-handshake"></i>
                     <?php endif; ?>
@@ -311,7 +311,7 @@ $featured = array_values(array_filter($filtered, static fn($f) => !empty($f['is_
                         <div class="pf-table-partner">
                             <div class="pf-table-logo" aria-hidden="true">
                                 <?php if ($logo !== ''): ?>
-                                    <img src="<?php echo htmlspecialchars($logo); ?>" alt="" loading="lazy">
+                                    <img src="<?php echo htmlspecialchars($logo); ?>" alt="<?php echo htmlspecialchars($name); ?>" loading="lazy">
                                 <?php else: ?>
                                     <i class="fas fa-handshake"></i>
                                 <?php endif; ?>

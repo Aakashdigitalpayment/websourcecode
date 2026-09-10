@@ -153,12 +153,22 @@ $_fnSecondary[] = ['href'=>$_fnUrl,                              'icon'=>'globe'
     var bellBtn = document.getElementById('bellBtn');
     var bellDd  = document.getElementById('bellDropdown');
     if (bellBtn && bellDd) {
-        bellBtn.addEventListener('click', function (e) { e.stopPropagation(); bellDd.classList.toggle('open'); });
+        bellBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = bellDd.classList.toggle('open');
+            bellBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
         document.addEventListener('click', function (e) {
             if (bellDd.contains(e.target) || e.target === bellBtn) return;
             bellDd.classList.remove('open');
+            bellBtn.setAttribute('aria-expanded', 'false');
         });
     }
+
+    /* Desktop side-nav current page for AT */
+    document.querySelectorAll('.mem-nav-item.active').forEach(function (el) {
+        el.setAttribute('aria-current', 'page');
+    });
 
     /* ── Bottom nav active highlight ── */
     (function () {

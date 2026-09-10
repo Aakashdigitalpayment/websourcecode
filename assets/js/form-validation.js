@@ -72,15 +72,19 @@
             fb.id = 'univ-fb-' + (input.id || ('f' + Math.random().toString(36).slice(2, 8)));
         }
         input.setAttribute('aria-describedby', fb.id);
-        if (isValid) {
+    if (isValid) {
             fb.textContent = '';
-            fb.style.color = '#198754';
+            fb.style.color = 'var(--success-color, #198754)';
+            fb.setAttribute('role', 'status');
+            fb.setAttribute('aria-live', 'polite');
             input.classList.remove('is-invalid');
             input.classList.add('is-valid');
             input.removeAttribute('aria-invalid');
         } else {
             fb.textContent = message;
-            fb.style.color = '#dc3545';
+            fb.style.color = 'var(--danger-color, #dc3545)';
+            fb.setAttribute('role', 'alert');
+            fb.setAttribute('aria-live', 'assertive');
             input.classList.remove('is-valid');
             input.classList.add('is-invalid');
             input.setAttribute('aria-invalid', 'true');

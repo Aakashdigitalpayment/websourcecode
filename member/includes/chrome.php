@@ -301,6 +301,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         <button type="button" id="pushEnableBtn"
                 class="mem-pwa-btn"
                 title="<?php echo $_t('Push Notification सक्षम गर्नुहोस्', 'Enable Push Notifications'); ?>"
+                aria-label="<?php echo $_t('Push Notification सक्षम गर्नुहोस्', 'Enable Push Notifications'); ?>"
                 style="display:none;"
                 onclick="coopSubscribePush()">
             <i class="fas fa-bell-slash" id="pushBellIcon" style="color:#f59e0b;"></i>
@@ -308,10 +309,10 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 
         <!-- Bell -->
         <div class="bell-wrap">
-            <a class="mem-bell-btn mem-lang-btn" href="<?php echo htmlspecialchars($_langToggleUrl, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo $_t('भाषा परिवर्तन', 'Switch Language'); ?>">
+            <a class="mem-bell-btn mem-lang-btn" href="<?php echo htmlspecialchars($_langToggleUrl, ENT_QUOTES, 'UTF-8'); ?>" title="<?php echo $_t('भाषा परिवर्तन', 'Switch Language'); ?>" aria-label="<?php echo $_t('भाषा परिवर्तन', 'Switch Language'); ?>">
                 <small class="mem-lang-code"><?php echo htmlspecialchars($_langBadge); ?></small>
             </a>
-            <button type="button" class="mem-bell-btn" id="bellBtn" title="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" type="button">
+            <button type="button" class="mem-bell-btn" id="bellBtn" title="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" aria-label="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-bell"></i>
                 <?php if ($_unread > 0): ?><span class="mem-notif-dot"><?php echo $_unread > 9 ? '9+' : $_unread; ?></span><?php endif; ?>
             </button>

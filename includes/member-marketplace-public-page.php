@@ -228,7 +228,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
     <article class="mkt-card">
         <a class="mkt-card-media" href="<?php echo htmlspecialchars($href); ?>">
             <?php if ($img !== ''): ?>
-                <img src="<?php echo htmlspecialchars($img); ?>" alt="" loading="lazy">
+                <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy">
             <?php else: ?>
                 <span class="mkt-card-fallback" aria-hidden="true"><i class="fas <?php echo htmlspecialchars($icon); ?>"></i></span>
             <?php endif; ?>
@@ -332,7 +332,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
         <article class="mkt-detail">
             <div class="mkt-detail-media">
                 <?php if ($dImg !== ''): ?>
-                    <img src="<?php echo htmlspecialchars($dImg); ?>" alt="">
+                    <img src="<?php echo htmlspecialchars($dImg); ?>" alt="<?php echo htmlspecialchars((string) $detail['title']); ?>">
                 <?php else: ?>
                     <div class="mkt-card-fallback mkt-detail-fallback"><i class="fas <?php echo htmlspecialchars(mpCategoryIcon($mpKind, (string) $detail['category'])); ?>"></i></div>
                 <?php endif; ?>

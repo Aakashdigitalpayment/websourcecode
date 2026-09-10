@@ -495,7 +495,7 @@ assertFileContains('includes/header.php', 'type="button" class="mobile-menu-togg
 assertFileContains('contact.php', 'type="button" class="btn ct-btn-primary btn-lg w-100" data-bs-toggle="modal"', 'contact modal open typed');
 assertFileContains('application-tracker.php', 'type="button" class="tracker-tab-btn active"', 'tracker tabs typed');
 assertFileContains('member/password-reset-request.php', 'type="submit" class="btn btn-outline-danger btn-sm w-100"', 'password-reset cancel typed submit');
-assertFileContains('cooperative-programs.php', 'type="submit" class="btn btn-sm btn-primary"', 'program prereg submit typed');
+assertFileContains('cooperative-programs.php', 'type="submit" class="btn btn-sm btn-primary coop-touch-cta"', 'program prereg submit typed');
 assertFileContains('admin/help-guide.php', 'id="hgSearch"', 'help-guide search field');
 assertFileContains('admin/help-guide.php', 'autocomplete="off"', 'help-guide search autocomplete off');
 assertFileContains('admin/print-form.php', 'type="button" onclick="history.back()"', 'print-form back typed');
@@ -509,6 +509,11 @@ assertFileContains('member/includes/chrome-foot.php', 'form-validation.js', 'mem
 assertFileContains('member/includes/chrome-foot.php', 'aria-expanded', 'member More drawer aria-expanded');
 assertFileContains('includes/footer.php', 'prefers-reduced-motion: reduce', 'footer AOS/scroll-reveal respects reduce');
 assertFileContains('includes/header.php', 'Close menu', 'mobile menu close aria-label');
+
+assertFileContains('member/service-request.php', 'coop-form-sticky', 'member service-request sticky submit');
+assertFileContains('online-kyc.php', 'public-form-shell', 'kyc uses public form shell');
+assertFileContains('assets/js/scroll-accessibility.js', 'onGuideKeydown', 'SA permission guide focus trap / Escape');
+assertFileContains('member/includes/chrome.php', 'aria-label="<?php echo $_t(\'सूचनाहरू\'', 'member bell aria-label');
 
 assertFileContains('auction.php', 'type="button" class="auc2-fchip active"', 'auction filter chips typed');
 
