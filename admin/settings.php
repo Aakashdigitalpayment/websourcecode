@@ -21,7 +21,29 @@ checkCSRF();
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
         /* Footer credits → footer-settings.php; 2FA policy → security-settings.php (Superadmin) */
         /* footer_text is not editable — copyright is derived from site_name via coop_footer_copyright_text() */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'facebook_app_id', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = [
+
+            'site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description',
+
+            'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline',
+
+            'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification',
+
+            'phone', 'mobile', 'email', 'address', 'facebook_url',
+
+            'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short',
+
+            'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url',
+
+            'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start',
+
+            'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color',
+
+            'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'facebook_app_id',
+
+            'pwa_app_name', 'pwa_short_name'
+
+        ];
         /* OAuth secrets: update only when non-empty (blank password field must not wipe). Cleared via checkbox. */
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:

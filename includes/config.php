@@ -2453,25 +2453,6 @@ function truncateText($text, $length = 100, $suffix = '...') {
     return rtrim($cut) . $suffix;
 }
 
-// Adjust color brightness (for dynamic theme)
-function adjustBrightness($hex, $steps) {
-    // Remove # if present
-    $hex = ltrim($hex, '#');
-
-    // Convert to RGB
-    $r = hexdec(substr($hex, 0, 2));
-    $g = hexdec(substr($hex, 2, 2));
-    $b = hexdec(substr($hex, 4, 2));
-
-    // Adjust brightness
-    $r = max(0, min(255, $r + $steps));
-    $g = max(0, min(255, $g + $steps));
-    $b = max(0, min(255, $b + $steps));
-
-    // Convert back to hex
-    return sprintf("#%02x%02x%02x", $r, $g, $b);
-}
-
 // Start session if not started - with proper error handling
 if (session_status() === PHP_SESSION_NONE) {
     /* GC lifetime — server-side session expire */

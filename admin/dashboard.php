@@ -127,7 +127,21 @@ $sadasyaBadge = $stats['requests'] + $stats['pwResets'];
       $welfareRecent=$pdo->query("SELECT id, member_name AS claimant_name, claim_type, status, claim_amount, created_at FROM member_welfare_claims ORDER BY created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
   } catch (Throwable $e) { error_log("[dashboard welfare] ".$e->getMessage()); }
   $welfareBadge=$welfarePending+$welfareReview;
-  $welfareClaimTypes=['maternity'=>['np'=>'सुत्केरी सुविधा','icon'=>'fa-baby','color'=>'var(--secondary-color)','bg'=>'color-mix(in srgb, var(--secondary-color) 12%, white)'],'death'=>['np'=>'मृत्यु सुविधा','icon'=>'fa-heart-broken','color'=>'var(--primary-dark)','bg'=>'color-mix(in srgb, var(--primary-dark) 10%, white)'],'insurance'=>['np'=>'बीमा दाबी','icon'=>'fa-shield-halved','color'=>'var(--secondary-color)','bg'=>'color-mix(in srgb, var(--secondary-color) 12%, white)'],'medical'=>['np'=>'उपचार खर्च','icon'=>'fa-hospital','color'=>'var(--primary-light)','bg'=>'color-mix(in srgb, var(--primary-light) 12%, white)'],'accident'=>['np'=>'दुर्घटना सुविधा','icon'=>'fa-triangle-exclamation','color'=>'var(--accent-color)','bg'=>'color-mix(in srgb, var(--accent-color) 12%, white)'],'other'=>['np'=>'अन्य सुविधा','icon'=>'fa-gift','color'=>'var(--primary-color)','bg'=>'color-mix(in srgb, var(--primary-color) 10%, white)']];
+  $welfareClaimTypes = [
+
+      'maternity' => ['np'=>'सुत्केरी सुविधा','icon'=>'fa-baby','color'=>'var(--secondary-color)','bg'=>'color-mix(in srgb, var(--secondary-color) 12%, white)'],
+
+      'death' => ['np'=>'मृत्यु सुविधा','icon'=>'fa-heart-broken','color'=>'var(--primary-dark)','bg'=>'color-mix(in srgb, var(--primary-dark) 10%, white)'],
+
+      'insurance' => ['np'=>'बीमा दाबी','icon'=>'fa-shield-halved','color'=>'var(--secondary-color)','bg'=>'color-mix(in srgb, var(--secondary-color) 12%, white)'],
+
+      'medical' => ['np'=>'उपचार खर्च','icon'=>'fa-hospital','color'=>'var(--primary-light)','bg'=>'color-mix(in srgb, var(--primary-light) 12%, white)'],
+
+      'accident' => ['np'=>'दुर्घटना सुविधा','icon'=>'fa-triangle-exclamation','color'=>'var(--accent-color)','bg'=>'color-mix(in srgb, var(--accent-color) 12%, white)'],
+
+      'other' => ['np'=>'अन्य सुविधा','icon'=>'fa-gift','color'=>'var(--primary-color)','bg'=>'color-mix(in srgb, var(--primary-color) 10%, white)']
+
+  ];
 
 /* Recent activity */
 $log = [];

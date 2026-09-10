@@ -470,20 +470,6 @@ function currentMember() {
 }
 
 /**
- * Safe members column list for UI/list (no password_hash / 2FA secrets).
- * has_password = 1|0 for Email-login badge without exposing the hash.
- */
-if (!function_exists('memberSafeListSelectSql')) {
-    function memberSafeListSelectSql(): string
-    {
-        return "id, name, email, phone, sadasyata_number, avatar_url, google_id, facebook_id, "
-            . "kyc_application_id, is_active, approval_status, created_at, member_card_no, address, dob, gender, "
-            . "card_expires_at, id_card_generated, "
-            . "CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password";
-    }
-}
-
-/**
  * Strip auth secrets from a members row before rendering / logging.
  * By default also maps password_hash → has_password and drops the hash.
  *

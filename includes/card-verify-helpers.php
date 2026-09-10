@@ -264,21 +264,6 @@ if (!function_exists('generateCardVerification')) {
     }
 }
 
-if (!function_exists('generateCardNumber')) {
-    /**
-     * v10.4 (Issue #1, Issue #3): Build the visible card number that BOTH
-     * the member card photo and the admin panel must show identically.
-     *
-     * Format: <PREFIX>-YYYY-NNNNN  (PREFIX from domain, YYYY = issue year,
-     * NNNNN = zero-padded members.id)
-     */
-    function generateCardNumber(int $memberDbId, ?string $issuedDate = null): string {
-        $prefix = getCardPrefix();
-        $year   = $issuedDate ? date('Y', strtotime($issuedDate)) : date('Y');
-        return $prefix . '-' . $year . '-' . str_pad((string) $memberDbId, 5, '0', STR_PAD_LEFT);
-    }
-}
-
 if (!function_exists('normalizeCardCode')) {
     /**
      * v10.4: accepts ANY 3-letter prefix (or none) and re-formats to the

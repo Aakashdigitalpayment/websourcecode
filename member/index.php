@@ -318,24 +318,6 @@ require __DIR__ . '/includes/chrome.php';
         ]);
     }
     ?>
-    <?php /* legacy block removed; old foreach kept commented for safety */ ?>
-    <?php if (false): ?>
-        <div class="midx-ds-grid">
-                <?php
-                foreach ($digitalServices as $ds): ?>
-                <a href="<?php echo htmlspecialchars($ds['href']); ?>"
-                   <?php if (!empty($ds['target'])): ?>target="<?php echo $ds['target']; ?>" rel="noopener noreferrer"<?php endif; ?>
-                   class="midx-ds-card midx-ds-card-bg" style="--midx-ds-bg:<?php echo htmlspecialchars($ds['bg'], ENT_QUOTES, 'UTF-8'); ?>;">
-                    <div class="midx-ds-icon-wrap midx-ds-icon-bg" style="--midx-ds-color:<?php echo htmlspecialchars($ds['color'], ENT_QUOTES, 'UTF-8'); ?>;">
-                        <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class(($ds['iconLib'] ?? 'fas') . ' ' . ($ds['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?> midx-ds-icon"></i>
-                    </div>
-                    <div class="midx-ds-label"><?php echo $ds['label']; ?></div>
-                    <div class="midx-ds-desc"><?php echo $ds['desc']; ?></div>
-                </a>
-                <?php endforeach; ?>
-            </div>
-    <?php endif; ?>
-
     <!-- Two-column: Recent apps + Notifications -->
     <div class="mem-grid-2 midx-grid-2" id="recent-apps">
 
