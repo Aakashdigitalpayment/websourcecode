@@ -56,7 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('election-posts.php');
         }
     } catch (Throwable $e) {
-        setFlash('error', 'त्रुटि: ' . $e->getMessage());
+        error_log('[election-posts] ' . $e->getMessage());
+        setFlash('error', 'पद सुरक्षित गर्न सकिएन।');
         redirect('election-posts.php');
     }
 }

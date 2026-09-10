@@ -204,12 +204,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } catch (Exception $ignored) {}
 
             } catch (Exception $e) {
+                error_log('[welfare public] ' . $e->getMessage());
                 if ($e->getMessage() === 'DOC_REQUIRED') {
                     $error = isEnglish()
                         ? 'Please attach supporting documents for this claim type.'
                         : 'यो दाबी प्रकारको लागि सहयोगी कागजात अनिवार्य छ।';
+                } elseif ($e->getMessage() === 'UPLOAD_FAILED') {
+                    $error = isEnglish()
+                        ? 'Document upload failed. Check file type/size and try again.'
+                        : 'कागजात अपलोड असफल भयो। फाइल प्रकार/साइज जाँचेर पुनः प्रयास गर्नुहोस्।';
                 } else {
-                    $error = isEnglish() ? 'Failed to submit claim: ' . $e->getMessage() : 'दाबी दर्ता गर्न सकिएन: ' . $e->getMessage();
+                    $error = isEnglish()
+                        ? 'Failed to submit claim. Please try again.'
+                        : 'दाबी दर्ता गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।';
                 }
             }
         }
@@ -380,7 +387,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p><?php echo isEnglish() ? 'Fill the form below to submit your welfare claim' : 'तल दिइएको फारम भर्नुहोस्'; ?></p>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation claim-form" id="welfareClaimForm" novalidate>
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation claim-form coop-form-sticky" id="welfareClaimForm" novalidate>
                         <?php echo csrfField(); ?>
                         <?php if ($loggedMember): ?>
                         <div class="alert alert-success py-2 small mb-3">

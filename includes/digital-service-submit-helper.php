@@ -80,6 +80,14 @@ if (!function_exists('submitDigitalServiceRequestUnified')) {
         } elseif ($statementTo !== '' && function_exists('appointmentNormalizeDate')) {
             $statementTo = appointmentNormalizeDate($statementTo);
         }
+        if ((trim((string)($payload['statement_from'] ?? '')) !== '' && $statementFrom === '')
+            || (trim((string)($payload['statement_to'] ?? '')) !== '' && $statementTo === '')) {
+            return [
+                'ok' => false,
+                'error' => 'स्टेटमेन्ट मिति अमान्य छ। कृपया सही मिति छान्नुहोस्।',
+                'error_en' => 'Statement date is invalid. Please pick a valid date.',
+            ];
+        }
         $billerName = trim((string)($payload['biller_name'] ?? ''));
         $billReference = trim((string)($payload['bill_reference'] ?? ''));
         $rechargeNumber = preg_replace('/[^0-9]/', '', (string)($payload['recharge_number'] ?? ''));

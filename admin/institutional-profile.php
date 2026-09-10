@@ -190,9 +190,10 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['flash_success'] = 'प्रोफाइल अपडेट भयो।';
             }
         } catch (Exception $e) {
+            error_log('[institutional-profile] ' . $e->getMessage());
             $msg = str_contains($e->getMessage(), 'Duplicate')
                 ? 'यो आ.व. / महिनाको प्रोफाइल पहिले नै छ।'
-                : 'त्रुटि: ' . $e->getMessage();
+                : 'त्रुटि भयो।';
             $_SESSION['flash_error'] = $msg;
             $redirect = $action === 'add' ? $selfUrl . '?action=add' : $selfUrl . '?action=edit&id=' . $id;
             header('Location: ' . $redirect);
@@ -212,7 +213,8 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_success'] = 'स्थिति परिवर्तन भयो।';
             if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
-            $_SESSION['flash_error'] = 'त्रुटि: ' . $e->getMessage();
+            error_log('[institutional-profile] ' . $e->getMessage());
+            $_SESSION['flash_error'] = 'त्रुटि भयो।';
         }
         header('Location: ' . $selfUrl);
         exit;
@@ -226,7 +228,8 @@ if ($tableExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['flash_success'] = 'रेकर्ड हटाइयो।';
             if (function_exists('clearHomepageCache')) clearHomepageCache();
         } catch (Exception $e) {
-            $_SESSION['flash_error'] = 'त्रुटि: ' . $e->getMessage();
+            error_log('[institutional-profile] ' . $e->getMessage());
+            $_SESSION['flash_error'] = 'त्रुटि भयो।';
         }
         header('Location: ' . $selfUrl);
         exit;

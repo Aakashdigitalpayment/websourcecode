@@ -117,7 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                 $alreadyVoted = electionMemberHasBallot($db, $cycleId, $memberId);
                 $flash = $_t('तपाईंले पहिल्यै मतदान गरिसक्नु भएको छ।', 'You have already voted.'); $flashType = 'warning';
             } else {
-                $flash = $_t('त्रुटि', 'Error') . ': ' . $e->getMessage(); $flashType = 'danger';
+                error_log('[election-vote] ' . $e->getMessage());
+                $flash = $_t('मत रेकर्ड गर्न समस्या भयो। कृपया पुनः प्रयास गर्नुहोस्।', 'Could not record your vote. Please try again.'); $flashType = 'danger';
             }
         }
         } // end non-empty picks

@@ -33,43 +33,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     /* History photo upload */
     if ($action === 'upload_history_photo') {
         if (!empty($_FILES['history_photo']['name'])) {
-            $file      = $_FILES['history_photo'];
-            $ext       = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            $allowed   = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-            $maxSize   = 5 * 1024 * 1024; /* 5MB */
-
-            if (!in_array($ext, $allowed)) {
-                $errors[] = 'Only JPG, PNG, GIF, WebP images allowed.';
-            } elseif ($file['size'] > $maxSize) {
-                $errors[] = 'File size must be under 5MB.';
-            } elseif ($file['error'] !== UPLOAD_ERR_OK) {
-                $errors[] = 'Upload error: ' . $file['error'];
-            } elseif (@getimagesize($file['tmp_name']) === false) {
-                $errors[] = 'मान्य image file मात्र अपलोड गर्नुहोस्।';
+            $file = $_FILES['history_photo'];
+            if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                $errors[] = function_exists('coop_upload_error_text')
+                    ? coop_upload_error_text((int)$file['error'])
+                    : 'Upload error.';
             } else {
-                /* Upload directory — assets/uploads/about/ */
-                $uploadDir = ROOT_PATH . 'assets/uploads/about/';
-                if (!is_dir($uploadDir)) {
-                    mkdir($uploadDir, 0755, true);
-                }
-
-                /* Old photo delete गर्नुहोस् */
-                $oldPhoto = getSetting('history_photo', '');
-                if ($oldPhoto && file_exists(ROOT_PATH . $oldPhoto)) {
-                    @unlink(ROOT_PATH . $oldPhoto);
-                }
-
-                /* New filename — unique */
-                $filename  = 'history_' . time() . '.' . $ext;
-                $targetPath = $uploadDir . $filename;
-
-                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                    $relativePath = 'assets/uploads/about/' . $filename;
-                    updateSetting('history_photo', $relativePath);
+                $upload = uploadFile($file, 'about', 5 * 1024 * 1024);
+                if (!empty($upload['success']) && !empty($upload['path'])) {
+                    $oldPhoto = getSetting('history_photo', '');
+                    if ($oldPhoto && file_exists(ROOT_PATH . $oldPhoto) && $oldPhoto !== $upload['path']) {
+                        @unlink(ROOT_PATH . $oldPhoto);
+                    }
+                    updateSetting('history_photo', $upload['path']);
                     setFlash('success', 'History photo upload भयो।');
                     redirect('about-settings.php');
                 } else {
-                    $errors[] = 'File save गर्न सकिएन। Directory permissions जाँच गर्नुहोस्।';
+                    $errors[] = $upload['message'] ?? 'File save गर्न सकिएन।';
                 }
             }
         } else {

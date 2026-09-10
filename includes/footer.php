@@ -750,13 +750,21 @@ try {
                 document.body.classList.add('aos-safe');
                 return;
             }
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) {
+                document.body.classList.add('aos-safe');
+                return;
+            }
             AOS.init({
                 duration: 420,
                 easing: 'ease-out-cubic',
                 once: true,
                 mirror: false,
                 offset: 40,
-                delay: 0
+                delay: 0,
+                disable: function () {
+                    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                }
             });
             /* If AOS misses nodes, never leave content invisible */
             setTimeout(function () {
@@ -864,6 +872,10 @@ try {
 
         /* --- सबै matching elements observe गर्छ --- */
         document.addEventListener('DOMContentLoaded', function() {
+            var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) {
+                return;
+            }
             var allElements = [];
 
             SELECTORS.forEach(function(sel) {
@@ -953,12 +965,12 @@ try {
     <!-- Footer logo stack styles: assets/css/public-shell-polish.css -->
 
 <!-- v9.6 Mobile bottom-nav (public) -->
-<nav class="mob-bottomnav" aria-label="Quick nav">
-    <a href="<?php echo SITE_URL; ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>member/" class="mob-bn-item"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
+<nav class="mob-bottomnav" aria-label="<?php echo isEnglish() ? 'Quick navigation' : 'छिटो नेभिगेसन'; ?>">
+    <a href="<?php echo SITE_URL; ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"<?php echo ($currentPage??'')==='index'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"<?php echo ($currentPage??'')==='services'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"<?php echo ($currentPage??'')==='notices'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"<?php echo ($currentPage??'')==='contact'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
+    <a href="<?php echo SITE_URL; ?>member/" class="mob-bn-item" aria-label="<?php echo isEnglish()?'Member portal':'सदस्य पोर्टल'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
 </nav>
 <script>document.body.classList.add('has-bottomnav');</script>
 <?php

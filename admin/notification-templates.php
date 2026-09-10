@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'test_
                 'ऋण रकम'=>'Rs. 50,000','मिति'=>date('Y-m-d'),
             ], 'TEST-'.date('His'));
             setFlash('success','Test notification trigger भयो (Email + SMS gateway settings अनुसार)। Inbox/log check गर्नुहोस्।');
-        } catch (Exception $e) { setFlash('error','Test failed: '.$e->getMessage()); }
+        } catch (Exception $e) { error_log('[notification-templates] ' . $e->getMessage()); setFlash('error','Test failed.'); }
     }
     redirect('notification-templates.php');
 }

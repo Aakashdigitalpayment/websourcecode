@@ -111,7 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             setFlash('success', $__t('गुनासो अपडेट भयो।', 'Grievance updated.'));
         } catch (Exception $e) {
-            setFlash('error', $__t('त्रुटि भयो', 'An error occurred') . ': ' . $e->getMessage());
+            error_log('[grievances] ' . $e->getMessage());
+            setFlash('error', $__t('त्रुटि भयो।', 'An error occurred.'));
         }
         redirect('grievances.php' . ($id ? '?view=' . $id : ''));
     }

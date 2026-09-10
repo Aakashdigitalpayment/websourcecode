@@ -43,7 +43,11 @@ $trackingId = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submit') {
     if (!verifyCSRFToken()) {
-        $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
+        header('Location: grievance.php?err=csrf');
+        exit;
+    } elseif (!checkRateLimit('grievance_portal_' . $memberId, 5, 3600)) {
+        header('Location: grievance.php?err=ratelimit');
+        exit;
     } else {
         $__nf = __DIR__ . '/../includes/notifications.php';
         if (is_file($__nf)) { require_once $__nf; }
@@ -65,17 +69,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!empty($result['ok'])) {
             $trackingId = (string)$result['tracking_id'];
-            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
-            $rg2 = $db->prepare("SELECT tracking_id, category, subject, status, is_anonymous, created_at FROM grievances WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
-            $rg2->execute($historyMemberIds);
-            $recentGrievances = $rg2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            $successMsg = $_t('गुनासो सफलतापूर्वक दर्ता भयो! Tracking ID: ', 'Grievance submitted! Tracking ID: ') . $trackingId;
             logSecurityEvent('grievance_filed', 'Member portal: ' . ($is_anonymous ? 'Anonymous' : $memName) . ' (' . $trackingId . ')');
-        } else {
-            $errorMsg = isEnglish()
-                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
-                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+            header('Location: grievance.php?submitted=1&tid=' . urlencode($trackingId) . '&tab=history');
+            exit;
         }
+        $errorMsg = isEnglish()
+            ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+            : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+    }
+}
+
+if (!empty($_GET['submitted']) && !empty($_GET['tid'])) {
+    $trackingId = preg_replace('/[^A-Za-z0-9_\-]/', '', (string)$_GET['tid']);
+    $successMsg = $_t('गुनासो सफलतापूर्वक दर्ता भयो! Tracking ID: ', 'Grievance submitted! Tracking ID: ') . $trackingId;
+}
+if (!empty($_GET['err'])) {
+    if ($_GET['err'] === 'csrf') {
+        $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
+    } elseif ($_GET['err'] === 'ratelimit') {
+        $errorMsg = $_t('धेरै अनुरोधहरू भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     }
 }
 
@@ -147,7 +159,7 @@ require __DIR__ . '/includes/chrome.php';
       <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 

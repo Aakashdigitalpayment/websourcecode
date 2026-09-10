@@ -188,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['do_password'])) {
         $isOAuthOnly = empty($mem['password_hash']);  /* OAuth account, no password yet */
 
         if (!$newpw) $error = 'नयाँ पासवर्ड राख्नुहोस्।';
-        elseif (strlen($newpw) < 8) $error = 'नयाँ पासवर्ड कम्तीमा ८ अक्षर हुनुपर्छ।';
+        elseif (($pwErr = memberPasswordPolicyError($newpw)) !== null) $error = $pwErr;
         elseif ($newpw !== $confirm) $error = 'नयाँ पासवर्ड र Confirm मिलेन।';
         elseif (!$isOAuthOnly && !password_verify($current, $mem['password_hash'])) {
             /* Existing password change — current must match */
@@ -380,7 +380,8 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                         <?php endif; ?>
                         <div class="mem-field">
                             <label for="mem_new_pw">नयाँ पासवर्ड</label>
-                            <input type="password" name="new_pw" id="mem_new_pw" required placeholder="कम्तीमा ८ अक्षर" minlength="8" autocomplete="new-password">
+                            <input type="password" name="new_pw" id="mem_new_pw" required placeholder="८+ अक्षर, A-Z, a-z, 0-9" minlength="8" autocomplete="new-password"
+                                   pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{8,}" title="कम्तिमा ८ अक्षर + A-Z + a-z + 0-9">
                         </div>
                         <div class="mem-field">
                             <label for="mem_confirm_pw">पुनः नयाँ पासवर्ड</label>

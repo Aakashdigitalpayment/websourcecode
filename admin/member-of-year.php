@@ -46,21 +46,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (empty($errors)) {
             $photoPath = clean_text($_POST['existing_photo'] ?? '');
-            if (!empty($_FILES['photo']['name']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-                $file = $_FILES['photo'];
-                $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-                if (!in_array($ext, ['jpg','jpeg','png','gif','webp'])) {
-                    $errors[] = 'केवल JPG, PNG, WebP images allowed।';
-                } elseif (@getimagesize($file['tmp_name']) === false) {
-                    $errors[] = 'मान्य छवि फाइल मात्र अपलोड गर्नुहोस्।';
-                } elseif ($file['size'] > 4 * 1024 * 1024) {
-                    $errors[] = 'Photo size 4MB भन्दा कम हुनुपर्छ।';
+            if (!empty($_FILES['photo']['name']) && ($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+                if (($_FILES['photo']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+                    $errors[] = function_exists('coop_upload_error_text')
+                        ? coop_upload_error_text((int)$_FILES['photo']['error'])
+                        : 'Photo upload error.';
                 } else {
-                    if ($photoPath && file_exists(ROOT_PATH . $photoPath)) @unlink(ROOT_PATH . $photoPath);
-                    $fname = 'spotlight_' . date('Ymd_His') . '_' . uniqid() . '.' . $ext;
-                    if (move_uploaded_file($file['tmp_name'], $uploadDir . $fname)) {
-                        $photoPath = 'assets/uploads/member-spotlight/' . $fname;
-                    } else { $errors[] = 'Photo upload गर्न सकिएन।'; }
+                    $upload = uploadFile($_FILES['photo'], 'member-spotlight', 4 * 1024 * 1024);
+                    if (!empty($upload['success']) && !empty($upload['path'])) {
+                        if ($photoPath && file_exists(ROOT_PATH . $photoPath) && $photoPath !== $upload['path']) {
+                            @unlink(ROOT_PATH . $photoPath);
+                        }
+                        $photoPath = $upload['path'];
+                    } else {
+                        $errors[] = $upload['message'] ?? 'Photo upload गर्न सकिएन।';
+                    }
                 }
             }
         }

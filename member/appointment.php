@@ -53,7 +53,11 @@ $apptTrackingId = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submit') {
     if (!verifyCSRFToken()) {
-        $errorMsg = $_t('सुरक्षा जाँच असफल। पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please try again.');
+        header('Location: appointment.php?err=csrf');
+        exit;
+    } elseif (!checkRateLimit('appt_portal_' . $memberId, 8, 3600)) {
+        header('Location: appointment.php?err=ratelimit');
+        exit;
     } else {
         $__nf = __DIR__ . '/../includes/notifications.php';
         if (is_file($__nf)) { require_once $__nf; }
@@ -75,17 +79,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
         ]);
         if (!empty($result['ok'])) {
             $apptTrackingId = (string)$result['tracking_id'];
-            $ph2 = implode(',', array_fill(0, count($historyMemberIds), '?'));
-            $ra2 = $db->prepare("SELECT * FROM appointments WHERE member_id IN ($ph2) ORDER BY created_at DESC LIMIT 10");
-            $ra2->execute($historyMemberIds);
-            $recentAppts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            $successMsg = $_t('भेटघाट अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Appointment submitted! Tracking ID: ') . $apptTrackingId;
             logSecurityEvent('appointment_booking', 'Member portal: ' . $memName . ' (' . $apptTrackingId . ')');
-        } else {
-            $errorMsg = isEnglish()
-                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
-                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+            header('Location: appointment.php?submitted=1&tid=' . urlencode($apptTrackingId) . '&tab=history');
+            exit;
         }
+        $errorMsg = isEnglish()
+            ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+            : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+    }
+}
+
+if (!empty($_GET['submitted']) && !empty($_GET['tid'])) {
+    $apptTrackingId = preg_replace('/[^A-Za-z0-9_\-]/', '', (string)$_GET['tid']);
+    $successMsg = $_t('भेटघाट अनुरोध सफलतापूर्वक पेश भयो! Tracking ID: ', 'Appointment submitted! Tracking ID: ') . $apptTrackingId;
+}
+if (!empty($_GET['err'])) {
+    if ($_GET['err'] === 'csrf') {
+        $errorMsg = $_t('सुरक्षा जाँच असफल। पुनः प्रयास गर्नुहोस्।', 'Security check failed. Please try again.');
+    } elseif ($_GET['err'] === 'ratelimit') {
+        $errorMsg = $_t('धेरै अनुरोधहरू भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     }
 }
 
@@ -161,7 +173,7 @@ require __DIR__ . '/includes/chrome.php';
       <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
-    <form method="POST">
+    <form method="POST" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 

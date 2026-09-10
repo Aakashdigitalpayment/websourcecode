@@ -34,10 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
 
         if ($block === 'honeypot') {
-            $success = true;
             if (function_exists('logSecurityEvent')) {
                 logSecurityEvent('contact_honeypot', 'Contact honeypot tripped');
             }
+            header('Location: contact.php?sent=1');
+            exit;
         } elseif ($block) {
             $error = coop_public_form_guard_message($block, $__en);
         } elseif (empty($name) || empty($message)) {
@@ -49,7 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $db   = getDB();
                 $stmt = $db->prepare("INSERT INTO contact_messages (name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$name, $email, $phone, $subject, $message]);
-                $success = true;
                 logSecurityEvent('contact_form', 'Contact form submitted by: ' . $name);
 
                 if (file_exists(__DIR__ . '/includes/notifications.php')) {
@@ -65,13 +65,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } catch (\Throwable $e) { error_log('contact notify: ' . $e->getMessage()); }
                 }
                 if (function_exists('auditLog')) auditLog('contact_submit', 'contact_messages', null, null, ['name'=>$name]);
+                header('Location: contact.php?sent=1');
+                exit;
             } catch (Exception $e) {
+                error_log('[contact] ' . $e->getMessage());
                 $error = $__en ? 'Failed to send message. Please try later.' : 'सन्देश पठाउन सकिएन। कृपया पछि प्रयास गर्नुहोस्।';
             }
         }
     }
 }
 
+$success = !empty($_GET['sent']);
 $math = coop_math_challenge_issue('contact');
 
 require_once 'includes/header.php';
@@ -281,7 +285,7 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <!-- Contact Form -->
-                <form method="POST" action="contact.php" id="contactForm" class="needs-validation public-form-shell" novalidate>
+                <form method="POST" action="contact.php" id="contactForm" class="needs-validation public-form-shell coop-form-sticky" novalidate>
                     <?php echo csrfField(); ?>
 
                     <div class="row g-3">
@@ -302,9 +306,9 @@ require_once 'includes/header.php';
                         <!-- फोन -->
                         <div class="col-md-6">
                             <label for="contact_phone" class="form-label"><?php echo isEnglish() ? 'Phone' : 'फोन नम्बर'; ?></label>
-                            <input type="tel" name="phone" id="contact_phone" class="form-control"
+                            <input type="tel" name="phone" id="contact_phone" class="form-control no-univ-phone"
                                    value="<?php echo htmlspecialchars($_POST['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>" autocomplete="tel">
+                                   placeholder="<?php echo isEnglish() ? 'Your phone' : 'तपाईंको फोन'; ?>" autocomplete="tel" data-univ-phone="off">
                         </div>
                         <!-- विषय -->
                         <div class="col-md-6">

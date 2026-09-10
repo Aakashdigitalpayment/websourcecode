@@ -51,7 +51,11 @@ $accTrackingId = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submit') {
     if (!verifyCSRFToken()) {
-        $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
+        header('Location: account-apply.php?err=csrf');
+        exit;
+    } elseif (!checkRateLimit('account_portal_' . $memberId, 5, 3600)) {
+        header('Location: account-apply.php?err=ratelimit');
+        exit;
     } else {
         $__nf = __DIR__ . '/../includes/notifications.php';
         if (is_file($__nf)) { require_once $__nf; }
@@ -80,25 +84,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
 
         if (!empty($result['ok'])) {
             $accTrackingId = (string)$result['tracking_id'];
-            $conds2 = []; $params2 = [];
-            if ($submitMobile !== '') { $conds2[] = 'mobile=?'; $params2[] = $submitMobile; }
-            if ($rEmail !== '') { $conds2[] = 'email=?'; $params2[] = $rEmail; }
-            if ($conds2) {
-                $ra2 = $db->prepare(
-                    'SELECT tracking_id, account_type, initial_deposit, status, created_at
-                     FROM account_applications WHERE (' . implode(' OR ', $conds2) . ')
-                     ORDER BY created_at DESC LIMIT 10'
-                );
-                $ra2->execute($params2);
-                $recentAccounts = $ra2->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            }
-            $successMsg = $_t('खाता खोल्ने आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Account application submitted! Tracking ID: ') . $accTrackingId;
             logSecurityEvent('account_application', 'Member portal: ' . $memName . ' (' . $accTrackingId . ')');
-        } else {
-            $errorMsg = isEnglish()
-                ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
-                : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+            header('Location: account-apply.php?submitted=1&tid=' . urlencode($accTrackingId) . '&tab=history');
+            exit;
         }
+        $errorMsg = isEnglish()
+            ? (string)($result['error_en'] ?? $result['error'] ?? 'Could not submit. Please try again.')
+            : (string)($result['error'] ?? 'पेश गर्न सकिएन। पुनः प्रयास गर्नुहोस्।');
+    }
+}
+
+if (!empty($_GET['submitted']) && !empty($_GET['tid'])) {
+    $accTrackingId = preg_replace('/[^A-Za-z0-9_\-]/', '', (string)$_GET['tid']);
+    $successMsg = $_t('खाता खोल्ने आवेदन सफलतापूर्वक पेश भयो! Tracking ID: ', 'Account application submitted! Tracking ID: ') . $accTrackingId;
+}
+if (!empty($_GET['err'])) {
+    if ($_GET['err'] === 'csrf') {
+        $errorMsg = $_t('सुरक्षा जाँच असफल।', 'Security check failed.');
+    } elseif ($_GET['err'] === 'ratelimit') {
+        $errorMsg = $_t('धेरै अनुरोधहरू भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     }
 }
 
@@ -175,7 +179,7 @@ require __DIR__ . '/includes/chrome.php';
       <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
-    <form method="POST">
+    <form method="POST" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit">
 

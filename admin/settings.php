@@ -21,7 +21,8 @@ checkCSRF();
         /* site_version थपियो — admin ले version number अपडेट गर्न सक्छ */
         /* Footer credits → footer-settings.php; 2FA policy → security-settings.php (Superadmin) */
         /* footer_text is not editable — copyright is derived from site_name via coop_footer_copyright_text() */
-        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'google_client_secret', 'facebook_app_id', 'facebook_app_secret', 'pwa_app_name', 'pwa_short_name'];
+        $textSettings = ['site_name', 'site_name_en', 'site_slogan', 'site_slogan_en', 'meta_description', 'meta_description_en', 'meta_keywords', 'seo_title', 'seo_title_en', 'seo_tagline', 'seo_tagline_en', 'site_city', 'site_city_en', 'address_en', 'google_site_verification', 'phone', 'mobile', 'email', 'address', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url', 'whatsapp_number', 'about_short', 'hero_title', 'hero_subtitle', 'internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'google_map_url', 'working_hours', 'saturday_hours', 'office_time_start', 'office_time_end', 'primary_color', 'secondary_color', 'header_color', 'footer_color', 'topbar_color', 'site_version', 'site_launch_date', 'google_client_id', 'facebook_app_id', 'pwa_app_name', 'pwa_short_name'];
+        /* OAuth secrets: update only when non-empty (blank password field must not wipe). Cleared via checkbox. */
 
         /* Color inputs सुरक्षित/valid hex मा मात्र save गर्ने:
            invalid value ले UI text invisible/unstyled बनाउने risk कम हुन्छ। */
@@ -74,11 +75,26 @@ checkCSRF();
                     if ($normalized !== '') {
                         $value = $normalized;
                     }
-                } elseif (in_array($key, ['internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url'], true)) {
+                } elseif (in_array($key, ['internet_banking_url', 'web_login_url', 'play_store_url', 'app_store_url', 'facebook_url', 'youtube_url', 'twitter_url', 'instagram_url'], true)) {
                     $value = function_exists('safe_http_url') ? safe_http_url((string)$value) : trim((string)$value);
                 }
                 updateSetting($key, $value);
             }
+        }
+        /* OAuth secrets — blank field keeps existing; checkbox clears */
+        $gSecret = trim((string)($_POST['google_client_secret'] ?? ''));
+        if ($gSecret !== '') {
+            updateSetting('google_client_secret', $gSecret);
+        }
+        if (!empty($_POST['google_client_secret_clear'])) {
+            updateSetting('google_client_secret', '');
+        }
+        $fSecret = trim((string)($_POST['facebook_app_secret'] ?? ''));
+        if ($fSecret !== '') {
+            updateSetting('facebook_app_secret', $fSecret);
+        }
+        if (!empty($_POST['facebook_app_secret_clear'])) {
+            updateSetting('facebook_app_secret', '');
         }
         /* Keep legacy footer_text in sync with site_name (display still uses coop_footer_copyright_text) */
         if (isset($_POST['site_name']) || isset($_POST['site_name_en'])) {
@@ -284,7 +300,8 @@ checkCSRF();
         exit();
 
     } catch (Exception $e) {
-        $updateError = $e->getMessage();
+        error_log('[settings] ' . $e->getMessage());
+        $updateError = '';
         setFlash('error', $__t('त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।', 'An error occurred. Please try again later.'));
     }
 }
@@ -694,8 +711,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <div class="col-md-6">
                             <label for="stg_google_client_secret" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client Secret</label>
                             <input type="password" name="google_client_secret" id="stg_google_client_secret" class="form-control font-monospace"
-                                   value="<?php echo htmlspecialchars($settings['google_client_secret'] ?? ''); ?>"
-                                   placeholder="GOCSPX-..." autocomplete="off">
+                                   value=""
+                                   placeholder="<?php echo !empty($settings['google_client_secret']) ? '•••••••• (leave blank to keep)' : 'GOCSPX-...'; ?>"
+                                   autocomplete="new-password">
+                            <?php if (!empty($settings['google_client_secret'])): ?>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" name="google_client_secret_clear" id="stg_google_secret_clear" value="1">
+                                <label class="form-check-label small text-muted" for="stg_google_secret_clear"><?php echo $__t('Secret हटाउनुहोस्', 'Clear secret'); ?></label>
+                            </div>
+                            <?php endif; ?>
                         </div>
                         <div class="col-md-6">
                             <label for="stg_facebook_app_id" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App ID</label>
@@ -706,8 +730,15 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <div class="col-md-6">
                             <label for="stg_facebook_app_secret" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App Secret</label>
                             <input type="password" name="facebook_app_secret" id="stg_facebook_app_secret" class="form-control font-monospace"
-                                   value="<?php echo htmlspecialchars($settings['facebook_app_secret'] ?? ''); ?>"
-                                   placeholder="abcdef1234..." autocomplete="off">
+                                   value=""
+                                   placeholder="<?php echo !empty($settings['facebook_app_secret']) ? '•••••••• (leave blank to keep)' : 'abcdef1234...'; ?>"
+                                   autocomplete="new-password">
+                            <?php if (!empty($settings['facebook_app_secret'])): ?>
+                            <div class="form-check mt-1">
+                                <input class="form-check-input" type="checkbox" name="facebook_app_secret_clear" id="stg_facebook_secret_clear" value="1">
+                                <label class="form-check-label small text-muted" for="stg_facebook_secret_clear"><?php echo $__t('Secret हटाउनुहोस्', 'Clear secret'); ?></label>
+                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 

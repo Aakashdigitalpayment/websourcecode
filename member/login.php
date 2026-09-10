@@ -225,12 +225,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
             $error = $_t('मान्य मोबाइल नम्बर राख्नुहोस्।', 'Please enter a valid mobile number.');
         } elseif (strlen($password) < 8) {
             $error = $_t('पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ।', 'Password must be at least 8 characters.');
-        } elseif (!preg_match('/[A-Z]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा Capital letter (A-Z) हुनुपर्छ।';
-        } elseif (!preg_match('/[a-z]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा small letter (a-z) हुनुपर्छ।';
-        } elseif (!preg_match('/[0-9]/', $password)) {
-            $error = 'पासवर्डमा कम्तिमा एउटा digit (0-9) हुनुपर्छ।';
+        } elseif (($pwErr = function_exists('memberPasswordPolicyError')
+            ? (isEnglish() ? memberPasswordPolicyErrorEn($password) : memberPasswordPolicyError($password))
+            : null) !== null) {
+            $error = $pwErr;
         } elseif ($password !== $confirm) {
             $error = $_t('दुवै पासवर्ड मेल खाएनन्।', 'Passwords do not match.');
         } else {
@@ -634,7 +632,7 @@ body {
                 <label for="loginPw"><?php echo $_t('पासवर्ड', 'Password'); ?></label>
                 <div class="pw-wrap">
                     <input type="password" name="password" id="loginPw" placeholder="••••••••" required autocomplete="current-password">
-                    <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)" aria-label="Show password" aria-pressed="false" title="Show password"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
+                    <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)" aria-label="<?php echo $_t('पासवर्ड देखाउनुहोस्', 'Show password'); ?>" aria-pressed="false" title="<?php echo $_t('पासवर्ड देखाउनुहोस्', 'Show password'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
                 </div>
             </div>
             <div class="forgot-wrap">
@@ -686,7 +684,7 @@ body {
                 <label for="regPw"><?php echo $_t('पासवर्ड', 'Password'); ?> <span class="req-star">*</span></label>
                 <div class="pw-wrap">
                     <input type="password" name="password" id="regPw" placeholder="<?php echo $_t('८+ अक्षर, A-Z, a-z, 0-9 सहित', '8+ chars with A-Z, a-z, 0-9'); ?>" required minlength="8" autocomplete="new-password">
-                    <button type="button" class="pw-toggle" onclick="togglePw('regPw',this)" aria-label="Show password" aria-pressed="false" title="Show password"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
+                    <button type="button" class="pw-toggle" onclick="togglePw('regPw',this)" aria-label="<?php echo $_t('पासवर्ड देखाउनुहोस्', 'Show password'); ?>" aria-pressed="false" title="<?php echo $_t('पासवर्ड देखाउनुहोस्', 'Show password'); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i></button>
                 </div>
                 <div class="pw-strength" id="pwStrength"></div>
                 <ul class="pw-rules" id="pwRules">
@@ -743,10 +741,21 @@ function togglePw(id, btn) {
     var inp = document.getElementById(id);
     var show = inp.type === 'password';
     inp.type = show ? 'text' : 'password';
-    btn.querySelector('i').className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+    var icon = btn.querySelector('i');
+    if (icon) {
+        icon.setAttribute('data-lucide', show ? 'eye-off' : 'eye');
+        icon.className = 'lucide-icon';
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            try { window.lucide.createIcons({ nodes: [icon] }); } catch (e) {}
+        }
+    }
+    var en = (document.documentElement.lang || '').toLowerCase().indexOf('en') === 0;
+    var label = show
+        ? (en ? 'Hide password' : 'पासवर्ड लुकाउनुहोस्')
+        : (en ? 'Show password' : 'पासवर्ड देखाउनुहोस्');
     btn.setAttribute('aria-pressed', show ? 'true' : 'false');
-    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-    btn.setAttribute('title', show ? 'Hide password' : 'Show password');
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
 }
 /* Loading state — double-submit रोक्ने */
 document.querySelectorAll('form').forEach(function(form){

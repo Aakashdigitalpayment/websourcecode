@@ -99,6 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'submi
                 error_log('[welfare portal] ' . $e->getMessage());
                 if ($e->getMessage() === 'DOC_REQUIRED') {
                     header('Location: welfare.php?err=doc_required');
+                } elseif ($e->getMessage() === 'UPLOAD_FAILED') {
+                    header('Location: welfare.php?err=upload_failed');
                 } else {
                     header('Location: welfare.php?err=submit_failed');
                 }
@@ -141,6 +143,7 @@ if (!empty($_GET['err'])) {
     elseif ($errKey === 'ratelimit') $errorMsg = $_t('धेरै अनुरोधहरू भए। १ घण्टापछि पुनः प्रयास गर्नुहोस्।', 'Too many requests. Please try again after 1 hour.');
     elseif ($errKey === 'no_type')   $errorMsg = $_t('दाबी प्रकार छान्नुहोस्।', 'Please select claim type.');
     elseif ($errKey === 'doc_required') $errorMsg = $_t('यो दाबी प्रकारको लागि सहयोगी कागजात अनिवार्य छ।', 'Please attach supporting documents for this claim type.');
+    elseif ($errKey === 'upload_failed') $errorMsg = $_t('कागजात अपलोड असफल भयो। फाइल प्रकार/साइज जाँचेर पुनः प्रयास गर्नुहोस्।', 'Document upload failed. Check file type/size and try again.');
     else                             $errorMsg = $_t('दाबी दर्ता गर्न समस्या भयो। पुनः प्रयास गर्नुहोस्।', 'Failed to submit claim. Please try again.');
 }
 
@@ -359,7 +362,7 @@ HTML;
       <div><?php echo $_t('तपाईंको नाम, फोन र ठेगाना <strong>KYM बाट auto-fill</strong> भएको छ — तल देखिन्छ। केवल दाबीको विवरण भर्नुहोस्।', 'Your name, phone and address are <strong>auto-filled from KYM</strong> — shown below. Fill only claim details.'); ?></div>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="coop-form-sticky">
       <?= $csrfField ?>
       <input type="hidden" name="action" value="submit_claim">
 

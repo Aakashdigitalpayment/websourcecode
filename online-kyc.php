@@ -1355,7 +1355,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                             : (isEnglish() ? 'Only empty fields are saved on the public form.' : 'Public फारममा खाली field मात्र सुरक्षित हुन्छ।'); ?></p>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="kyc-form needs-validation" id="fullKymForm" novalidate>
+                    <form method="POST" enctype="multipart/form-data" class="kyc-form needs-validation coop-form-sticky" id="fullKymForm" novalidate>
                         <?php echo csrfField(); ?>
                         <div id="kymProgressStrip" class="kym-progress-strip mb-2" role="group" aria-label="<?php echo isEnglish() ? 'Form progress' : 'फारम प्रगति'; ?>">
                             <span id="kymStepCounter" class="kym-step-counter" role="status" aria-live="polite"></span>

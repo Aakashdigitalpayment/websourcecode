@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['pr_sent_to']   = $result['sent_to'];
                     $_SESSION['pr_step']      = 2;
                     $step    = 2;
-                    $success = $_t("OTP पठाइयो — ", "OTP sent to ") . htmlspecialchars($result['sent_to']) . '.';
+                    /* Same generic copy as unknown account — avoid confirming identity via destination */
+                    $success = $genericOk;
                 } elseif ($result['channel'] === 'none') {
                     $error = $_t('SMS/Email gateway configure भएको छैन। Admin लाई request पठाउनुहोस्।', 'SMS/Email gateway is not configured. Please send admin request.');
                 } else {
@@ -109,8 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$memberId || !$otpOk) {
             $error = 'Session expired.'; $step = 1;
             unset($_SESSION['pr_member_id'],$_SESSION['pr_otp_ok'],$_SESSION['pr_step']);
-        } elseif (strlen($pass1) < 8) {
-            $error = $_t('पासवर्ड कम्तिमा 8 अक्षरको हुनुपर्छ।', 'Password must be at least 8 characters.'); $step = 3;
+        } elseif (($pwErr = function_exists('memberPasswordPolicyError')
+            ? (isEnglish() ? memberPasswordPolicyErrorEn($pass1) : memberPasswordPolicyError($pass1))
+            : (strlen($pass1) < 8 ? $_t('पासवर्ड कम्तिमा 8 अक्षरको हुनुपर्छ।', 'Password must be at least 8 characters.') : null)
+        ) !== null) {
+            $error = $pwErr; $step = 3;
         } elseif ($pass1 !== $pass2) {
             $error = $_t('दुवै पासवर्ड मेल खाएनन्।', 'Passwords do not match.'); $step = 3;
         } else {

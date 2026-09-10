@@ -47,7 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $title    = clean_text($_POST['title']       ?? '');
         $subtitle = clean_text($_POST['subtitle']    ?? '');
         $btn_text = clean_text($_POST['button_text'] ?? '');
-        $btn_url  = clean_text($_POST['button_url']  ?? '');
+        $btn_url  = function_exists('coop_safe_cta_url')
+            ? coop_safe_cta_url($_POST['button_url'] ?? '')
+            : clean_text($_POST['button_url'] ?? '');
+        if ($btn_url === '#') {
+            $btn_url = '';
+        }
         $order    = (int)($_POST['display_order']  ?? 0);
         $is_active = isset($_POST['is_active']) ? 1 : 0;
 

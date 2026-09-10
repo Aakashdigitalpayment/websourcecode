@@ -65,24 +65,32 @@
             fb = document.createElement('div');
             fb.className = 'univ-feedback';
             fb.style.cssText = 'font-size:12px; margin-top:3px;';
+            fb.setAttribute('role', 'alert');
             parent.parentNode && parent.parentNode.insertBefore(fb, parent.nextSibling);
         }
+        if (!fb.id) {
+            fb.id = 'univ-fb-' + (input.id || ('f' + Math.random().toString(36).slice(2, 8)));
+        }
+        input.setAttribute('aria-describedby', fb.id);
         if (isValid) {
             fb.textContent = '';
             fb.style.color = '#198754';
             input.classList.remove('is-invalid');
             input.classList.add('is-valid');
+            input.removeAttribute('aria-invalid');
         } else {
             fb.textContent = message;
             fb.style.color = '#dc3545';
             input.classList.remove('is-valid');
             input.classList.add('is-invalid');
+            input.setAttribute('aria-invalid', 'true');
         }
     }
 
     /* Clear validation state */
     function clearFeedback(input) {
         input.classList.remove('is-valid', 'is-invalid');
+        input.removeAttribute('aria-invalid');
         var parent = input.closest('.input-group') || input.parentNode;
         var fb = parent.querySelector('.univ-feedback') ||
                  (parent.parentNode && parent.parentNode.querySelector('.univ-feedback'));
@@ -93,6 +101,10 @@
        Phone inputs — attach validation
     ===================================================== */
     document.querySelectorAll(PHONE_FIELDS_SELECTOR).forEach(function (input) {
+        /* Contact / optional landline — skip Nepal-mobile-only rule */
+        if (input.classList.contains('no-univ-phone') || input.getAttribute('data-univ-phone') === 'off') {
+            return;
+        }
         /* Skip already-has-pattern inputs — auction.php already handles them */
         /* But still add input event to clean non-numeric chars */
 
@@ -176,9 +188,13 @@
 
             /* Validate all phone fields in this form */
             form.querySelectorAll(PHONE_FIELDS_SELECTOR).forEach(function (inp) {
+                if (inp.classList.contains('no-univ-phone') || inp.getAttribute('data-univ-phone') === 'off') {
+                    return;
+                }
                 var val = inp.value.trim();
                 if (val && !isValidNepalPhone(val)) {
                     inp.classList.add('is-invalid');
+                    inp.setAttribute('aria-invalid', 'true');
                     inp.focus();
                     hasError = true;
                 }
@@ -214,7 +230,9 @@
                 /* Scroll to first invalid field */
                 var firstInvalid = form.querySelector('.is-invalid, :invalid');
                 if (firstInvalid) {
-                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    firstInvalid.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' });
+                    try { firstInvalid.focus({ preventScroll: true }); } catch (err) { firstInvalid.focus(); }
                 }
                 return false;
             }

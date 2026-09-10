@@ -147,7 +147,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
     } catch (Exception $e) {
-        setFlash('error', 'कार्य गर्दा त्रुटि भयो: ' . $e->getMessage());
+        error_log('[auctions] ' . $e->getMessage());
+        setFlash('error', 'कार्य गर्दा त्रुटि भयो।');
         redirect('auctions.php');
     }
 }

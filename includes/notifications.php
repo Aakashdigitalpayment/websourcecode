@@ -290,14 +290,15 @@ function sendSMSNotification($eventType, $message) {
             } elseif ($gateway === 'aakash') {
                 /* Aakash SMS — another Nepal provider */
                 $apiUrl = getSetting('notify_sms_api_url', '');
+                $apiUrl = function_exists('coop_safe_webhook_url') ? coop_safe_webhook_url($apiUrl) : (function_exists('safe_http_url') ? safe_http_url($apiUrl) : $apiUrl);
                 if ($apiUrl) {
-                    $ch = curl_init($apiUrl . '?' . http_build_query([
+                    $ch = curl_init($apiUrl . (str_contains($apiUrl, '?') ? '&' : '?') . http_build_query([
                         'auth'    => $apiToken,
                         'msisdn'  => $phone,
                         'message' => $smsText,
                         'senderid'=> $senderId,
                     ]));
-                    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>10]);
+                    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>10, CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS, CURLOPT_REDIR_PROTOCOLS=>CURLPROTO_HTTPS, CURLOPT_FOLLOWLOCATION=>false]);
                     $response = curl_exec($ch);
                     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
@@ -308,6 +309,7 @@ function sendSMSNotification($eventType, $message) {
             } elseif ($gateway === 'webhook') {
                 /* Custom webhook — admin ले आफ्नै API URL configure गर्न सक्छ */
                 $apiUrl = getSetting('notify_sms_api_url', '');
+                $apiUrl = function_exists('coop_safe_webhook_url') ? coop_safe_webhook_url($apiUrl) : (function_exists('safe_http_url') ? safe_http_url($apiUrl) : $apiUrl);
                 if ($apiUrl) {
                     $ch = curl_init($apiUrl);
                     curl_setopt_array($ch, [
@@ -316,12 +318,17 @@ function sendSMSNotification($eventType, $message) {
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
                         CURLOPT_TIMEOUT        => 10,
+                        CURLOPT_PROTOCOLS      => CURLPROTO_HTTPS,
+                        CURLOPT_REDIR_PROTOCOLS=> CURLPROTO_HTTPS,
+                        CURLOPT_FOLLOWLOCATION => false,
                     ]);
                     $response = curl_exec($ch);
                     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     curl_close($ch);
                     $sent  = ($httpCode >= 200 && $httpCode < 300);
                     $error = $sent ? '' : "HTTP {$httpCode}";
+                } else {
+                    $error = 'SMS webhook URL invalid or blocked';
                 }
             }
         } catch (Exception $e) {

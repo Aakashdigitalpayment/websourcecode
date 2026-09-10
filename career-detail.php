@@ -198,7 +198,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $allowOnlineApply) {
             }
             redirect('career-detail.php?id=' . $jobId . '&applied=1&tid=' . urlencode($trackingId));
         } catch (Exception $e) {
-            $error = $e->getMessage();
+            error_log('[career-detail apply] ' . $e->getMessage());
+            $error = isEnglish()
+                ? 'Could not submit application. Please try again.'
+                : 'आवेदन पेश गर्न सकिएन। कृपया पुनः प्रयास गर्नुहोस्।';
             $showApplyForm = true;
         }
     }
@@ -352,7 +355,7 @@ $L = getLangStrings();
                     <h3><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Online Application Form' : 'अनलाइन आवेदन फारम'; ?></h3>
                     <p class="form-subtitle"><?php echo isEnglish() ? 'Fill out the form below to apply for this position. Fields marked with * are required.' : 'यस पदको लागि आवेदन दिन तलको फारम भर्नुहोस्। * चिन्ह भएका फिल्डहरू अनिवार्य छन्।'; ?></p>
 
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation job-application-form" novalidate action="career-detail.php?id=<?php echo (int)$jobId; ?>#apply-form">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation job-application-form coop-form-sticky" novalidate action="career-detail.php?id=<?php echo (int)$jobId; ?>#apply-form">
                         <?php echo csrfField(); ?>
                         <div class="form-section">
                             <h5><?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>

@@ -31,8 +31,14 @@ $phone = getSetting('phone', '061590067');
 $mobile = getSetting('mobile', '9827157000');
 $email = getSetting('email', 'info@sahakari.org.np');
 $address = getSetting('address', 'काठमाडौं, नेपाल');
-$facebookUrl = getSetting('facebook_url', '#');
-$youtubeUrl = getSetting('youtube_url', '#');
+$facebookUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('facebook_url', ''))
+    : (getSetting('facebook_url', '#') ?: '#');
+$youtubeUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('youtube_url', ''))
+    : (getSetting('youtube_url', '#') ?: '#');
+if ($facebookUrl === '') { $facebookUrl = '#'; }
+if ($youtubeUrl === '') { $youtubeUrl = '#'; }
 $twitterUrl = getSetting('twitter_url', '');
 $instagramUrl = getSetting('instagram_url', '');
 $logo = function_exists('getLocalizedLogoPath')
@@ -1580,13 +1586,13 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         <!-- RIGHT: Navigation (reuses existing nav styles) -->
         <div class="pfl-nav-area">
             <!-- Mobile Toggle (visible < lg) -->
-            <button type="button" class="pfl-mobile-toggle d-lg-none" id="mobileMenuToggle2" aria-label="Menu" aria-controls="mainNavV2" aria-expanded="false" data-testid="public-mobile-menu-toggle-button">
+            <button type="button" class="pfl-mobile-toggle d-lg-none" id="mobileMenuToggle2" aria-label="<?php echo isEnglish() ? 'Open menu' : 'मेनु खोल्नुहोस्'; ?>" aria-controls="mainNavV2" aria-expanded="false" data-testid="public-mobile-menu-toggle-button">
                 <i class="fas fa-bars"></i>
             </button>
 
             <!-- Navigation — same structure as original -->
             <nav class="main-nav" id="mainNavV2" aria-hidden="true" data-mobile-drawer="public">
-                <button type="button" class="close-menu d-lg-none" id="closeMenuV2" data-testid="public-mobile-menu-close-button">
+                <button type="button" class="close-menu d-lg-none" id="closeMenuV2" aria-label="<?php echo isEnglish() ? 'Close menu' : 'मेनु बन्द गर्नुहोस्'; ?>" data-testid="public-mobile-menu-close-button">
                     <span class="close-menu-label"><i class="fas fa-bars me-2"></i><?php echo isEnglish() ? 'Navigation' : 'मेनु'; ?></span>
                     <i class="fas fa-times"></i>
                 </button>
@@ -1910,12 +1916,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <a href="?lang=np" class="lang-btn <?php echo $currentLang === 'np' ? 'active' : ''; ?>" lang="ne" hreflang="ne" aria-label="<?php echo isEnglish() ? 'Nepali' : 'नेपाली'; ?>"<?php echo $currentLang === 'np' ? ' aria-current="true"' : ''; ?>>NP</a>
                         </li>
                         <li class="internet-banking-btn">
-                            <a href="<?php echo getSetting('internet_banking_url', '#'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">
+                            <a href="<?php echo htmlspecialchars(function_exists('coop_safe_cta_url') ? coop_safe_cta_url(getSetting('internet_banking_url', '')) : (getSetting('internet_banking_url', '#') ?: '#'), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" title="<?php echo isEnglish() ? 'Internet Banking' : 'इन्टरनेट बैंकिङ'; ?>" rel="noopener noreferrer">
                                 <i class="fas fa-laptop"></i>
                             </a>
                         </li>
-                        <li><a href="<?php echo $facebookUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
-                        <li><a href="<?php echo $youtubeUrl; ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
+                        <li><a href="<?php echo htmlspecialchars($facebookUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-facebook-f"></i></a></li>
+                        <li><a href="<?php echo htmlspecialchars($youtubeUrl, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-youtube"></i></a></li>
                         <li><a href="mailto:<?php echo $email; ?>"><i class="fas fa-envelope"></i></a></li>
                             <li class="topbar-search-btn d-none d-lg-inline-block">
                                 <a href="#" id="topbarSearchBtn"
@@ -2296,7 +2302,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
         else bindPflMobileMenu();
     })();
     </script>
-    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.8" defer></script>
+    <script src="<?php echo SITE_URL; ?>assets/js/coop-mobile.js?v=6.9" defer></script>
     <script>
     /* Cascade flyout: keep category parent links from jumping to # on desktop click */
     (function () {
@@ -2504,7 +2510,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
             <?php if (count($popupNotices) > 1): ?>
             <!-- Navigation Controls -->
             <div class="popup-nav">
-                <button type="button" class="popup-nav-btn popup-prev" id="popupPrev" title="<?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>" data-testid="notice-popup-prev-button">
+                <button type="button" class="popup-nav-btn popup-prev" id="popupPrev" title="<?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>" aria-label="<?php echo isEnglish() ? 'Previous notice' : 'अघिल्लो सूचना'; ?>" data-testid="notice-popup-prev-button">
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="popup-dots" id="popupDots">
@@ -2512,7 +2518,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <button type="button" class="popup-dot <?php echo $index === 0 ? 'active' : ''; ?>" data-index="<?php echo $index; ?>" data-testid="notice-popup-dot-<?php echo $index + 1; ?>" aria-label="Notice <?php echo $index + 1; ?>"></button>
                     <?php endforeach; ?>
                 </div>
-                <button type="button" class="popup-nav-btn popup-next" id="popupNext" title="<?php echo isEnglish() ? 'Next' : 'अर्को'; ?>" data-testid="notice-popup-next-button">
+                <button type="button" class="popup-nav-btn popup-next" id="popupNext" title="<?php echo isEnglish() ? 'Next' : 'अर्को'; ?>" aria-label="<?php echo isEnglish() ? 'Next notice' : 'अर्को सूचना'; ?>" data-testid="notice-popup-next-button">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-right"></i>
                 </button>
             </div>

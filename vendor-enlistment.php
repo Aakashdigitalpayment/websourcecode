@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p><?php echo isEnglish() ? 'Fill the form to register as an authorized vendor' : 'अधिकृत भेन्डरको रूपमा दर्ता हुन फारम भर्नुहोस्'; ?></p>
                     </div>
 
-                    <form method="POST" action="" class="vendor-form needs-validation" novalidate>
+                    <form method="POST" action="" class="vendor-form needs-validation coop-form-sticky" novalidate>
     <?php echo csrfField(); ?>
                         <div class="row">
                             <div class="col-md-6 mb-3">

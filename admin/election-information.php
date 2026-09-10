@@ -154,7 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('election-information.php?milestones=' . $cid);
         }
     } catch (Throwable $e) {
-        setFlash('error', 'त्रुटि: ' . $e->getMessage());
+        error_log('[election-information] ' . $e->getMessage());
+        setFlash('error', 'जानकारी सुरक्षित गर्न सकिएन।');
         redirect('election-information.php');
     }
 }

@@ -136,7 +136,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect('election-candidates.php?cycle=' . $cycleId);
         }
     } catch (Throwable $e) {
-        setFlash('error', 'त्रुटि: ' . $e->getMessage());
+        error_log('[election-candidates] ' . $e->getMessage());
+        setFlash('error', 'उम्मेदवार सुरक्षित गर्न सकिएन।');
         redirect('election-candidates.php?cycle=' . $cycleId);
     }
 }

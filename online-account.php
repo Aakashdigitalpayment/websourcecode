@@ -255,7 +255,7 @@ try {
                         <p><?php echo isEnglish() ? 'Fill the form below to open a new account' : 'नयाँ खाता खोल्न तलको फारम भर्नुहोस्'; ?></p>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="account-form needs-validation" id="accountOpenForm" novalidate>
+                    <form method="POST" enctype="multipart/form-data" class="account-form needs-validation coop-form-sticky" id="accountOpenForm" novalidate>
                         <?php echo csrfField(); ?>
                         <?php if ($loggedMember):
                             $kycForDisplay = isset($kycMerge) ? $kycMerge : null;

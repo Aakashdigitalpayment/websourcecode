@@ -266,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <p><?php echo isEnglish() ? 'Your grievance will be addressed directly by our management' : 'तपाईंको गुनासो हाम्रो व्यवस्थापनले प्रत्यक्ष रूपमा सम्बोधन गर्नेछ'; ?></p>
                     </div>
 
-                    <form method="POST" enctype="multipart/form-data" class="needs-validation grievance-form" id="grievanceForm" novalidate>
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation grievance-form coop-form-sticky" id="grievanceForm" novalidate>
                         <?php echo csrfField(); ?>
 
                         <!-- Anonymous Option -->
