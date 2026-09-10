@@ -332,6 +332,28 @@ html[lang="en"] .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
   letter-spacing: 0.01em;
 }
 
+/* Homepage service cards — center “थप जान्नुहोस्” with icon/title axis */
+.service-card .service-link,
+.service-card .service-link-modern,
+.service-card-modern .service-link,
+.service-card-modern .service-link-modern {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  gap: 0.4rem;
+}
+.service-card .service-link:hover,
+.service-card .service-link-modern:hover,
+.service-card-modern .service-link:hover,
+.service-card-modern .service-link-modern:hover {
+  transform: translateY(-1px) !important;
+}
+
 .pagination .page-link {
   border-radius: 8px !important;
   margin: 0 2px;
