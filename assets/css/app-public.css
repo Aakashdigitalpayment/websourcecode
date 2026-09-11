@@ -15990,7 +15990,7 @@ a:hover { color: var(--primary-dark, #144a21); }
 .section-header h3,
 .section-header-unified h2 {
     font-weight: 800 !important;
-    color: #111827 !important;
+    color: var(--coop-section-title, #111827) !important;
     margin-bottom: .4rem !important;
 }
 .section-header p,
@@ -20432,7 +20432,7 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 }
 .notices-section .section-header h2,
 .notices-section .section-header-unified h2 {
-    color: #111827 !important;
+    color: var(--coop-section-title, #111827) !important;
 }
 .notices-section .section-header p,
 .notices-section .section-header-unified p {
@@ -25025,7 +25025,7 @@ body.dark-mode .main-footer .footer-social a {
 }
 .notices-section .section-header h2,
 .notices-section .section-header.section-header-unified h2 {
-    color: #111827 !important;
+    color: var(--coop-section-title, #111827) !important;
 }
 .notices-section .section-header p,
 .notices-section .section-header.section-header-unified p {
