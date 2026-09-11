@@ -858,8 +858,7 @@ body.dark-mode .rate-card-enhanced h5,
 body.dark-mode .rates-box-enhanced h5,
 body.dark-mode .mvv-card h4,
 body.dark-mode .form-card-title,
-body.dark-mode .form-section-title,
-body.dark-mode .tools-category-card h5 {
+body.dark-mode .form-section-title {
   color: var(--primary-on-dark, #86efac) !important;
 }
 body.dark-mode .rate-name {
@@ -877,10 +876,18 @@ body.dark-mode .download-info h5 {
   color: #f3f6f9 !important;
 }
 
-/* Tools widget */
+/* Tools widget — primary headers match rates/notices cards */
 body.dark-mode .tools-category-card h5 {
-  color: var(--primary-on-dark, #86efac) !important;
-  background: rgba(var(--primary-rgb, 26, 95, 42), 0.18) !important;
+  color: #fff !important;
+  background: linear-gradient(
+    135deg,
+    var(--primary-dark, #144a21),
+    var(--primary-color, #1a5f2a)
+  ) !important;
+}
+body.dark-mode .tools-category-card h5 i {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.22) !important;
 }
 body.dark-mode .tools-mini-link {
   background: var(--bg-soft, #1f2a3a) !important;

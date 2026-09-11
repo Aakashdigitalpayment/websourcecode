@@ -7557,30 +7557,32 @@ body.chatbot-open {
 
 .tools-category-card {
     background: #fff;
-    border: 1px solid rgba(0,0,0,.08);
-    border-radius: 12px;
-    padding: 0 14px 14px;
+    border: 1px solid rgba(var(--primary-rgb, 26, 95, 42), .1);
+    border-radius: 16px;
+    padding: 0 0 14px;
     height: 100%;
-    box-shadow: 0 4px 14px rgba(0,0,0,.06);
+    box-shadow: 0 2px 12px rgba(var(--primary-rgb, 26, 95, 42), .07);
     overflow: hidden;
     transition: transform .28s ease, box-shadow .28s ease;
 }
 
 .tools-category-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 18px 45px rgba(0,0,0,.14);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(var(--primary-rgb, 26, 95, 42), .14);
 }
 
 .tools-category-card h5 {
     font-size: .95rem;
     color: #fff;
     font-weight: 700;
-    margin: 0 -14px 12px;
-    padding: 10px 14px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-    background-size: 200% 100%;
-    animation: toolsHeaderShimmer 5s ease-in-out infinite;
-    border-radius: 12px 12px 0 0;
+    margin: 0 0 12px;
+    padding: 14px 16px;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, #144a21),
+        var(--primary-color, #1a5f2a)
+    );
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -7591,41 +7593,23 @@ body.chatbot-open {
 }
 
 .tools-category-card:hover h5 {
-    animation-play-state: paused;
-    filter: brightness(1.05);
+    filter: brightness(1.04);
 }
 
 .tools-category-card h5 i {
     width: 24px;
     height: 24px;
-    border-radius: 7px;
+    border-radius: 6px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,.18);
+    background: rgba(255, 255, 255, .22);
     color: #fff;
     font-size: .8rem;
 }
 
 .tools-category-card h5::after {
-    content: "";
-    position: absolute;
-    top: -60%;
-    right: -16%;
-    width: 140px;
-    height: 140px;
-    background: radial-gradient(circle, rgba(255,255,255,.18), transparent 70%);
-    animation: toolsHeaderFloat 6s ease-in-out infinite;
-}
-
-@keyframes toolsHeaderShimmer {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-}
-
-@keyframes toolsHeaderFloat {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(8px, -6px) scale(1.05); }
+    display: none;
 }
 
 .tools-links-grid {
@@ -16972,19 +16956,24 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 .tools-category-card {
     background: var(--white, #fff);
     border-radius: 16px;
-    padding: 1.25rem 1.25rem 1.5rem;
+    padding: 0 0 1.25rem;
     box-shadow: 0 2px 12px rgba(var(--primary-rgb,26,95,42), .07);
     border: 1px solid rgba(var(--primary-rgb,26,95,42), .1);
     height: 100%;
+    overflow: hidden;
 }
 .tools-category-card h5 {
-    font-size: .9rem !important;
+    font-size: .95rem !important;
     font-weight: 700 !important;
-    color: var(--primary-dark, #144a21) !important;
-    margin: 0 0 .9rem !important;
-    padding: 8px 10px !important;
-    background: rgba(var(--primary-rgb,26,95,42), .07) !important;
-    border-radius: 8px !important;
+    color: #fff !important;
+    margin: 0 0 1rem !important;
+    padding: 14px 16px !important;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, #144a21),
+        var(--primary-color, #1a5f2a)
+    ) !important;
+    border-radius: 0 !important;
     border-bottom: none !important;
     animation: none !important;
     display: flex !important;
@@ -16992,18 +16981,27 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     justify-content: center !important;
     text-align: center !important;
     gap: 8px !important;
+    filter: none !important;
 }
 .tools-category-card h5 i {
-    background: var(--primary-color) !important;
-    color: var(--text-on-primary, #fff) !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #fff !important;
     border-radius: 6px !important;
-    width: 22px !important; height: 22px !important;
-    font-size: .75rem !important;
+    width: 24px !important;
+    height: 24px !important;
+    font-size: .8rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.tools-category-card h5::after {
+    display: none !important;
 }
 .tools-links-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
+    padding: 0 1.15rem;
 }
 .tools-mini-link {
     display: flex; flex-direction: column; align-items: center;

@@ -1880,8 +1880,7 @@ body.dark-mode .rate-card-enhanced h5,
 body.dark-mode .rates-box-enhanced h5,
 body.dark-mode .mvv-card h4,
 body.dark-mode .form-card-title,
-body.dark-mode .form-section-title,
-body.dark-mode .tools-category-card h5 {
+body.dark-mode .form-section-title {
   color: var(--primary-on-dark, #86efac) !important;
 }
 body.dark-mode .rate-name {
