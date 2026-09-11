@@ -41,8 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
             $res = memberLogin($loginId, $password, true);
             $ipLogin = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
             $credOkErrors = ['pending_approval', 'rejected', 'renewal_required'];
+            $isRateLimited = (($res['code'] ?? '') === 'rate_limited');
             if (isset($res['error'])) {
-                if (!in_array($res['error'], $credOkErrors, true) && function_exists('recordLoginAttempt')) {
+                if (!$isRateLimited && !in_array($res['error'], $credOkErrors, true) && function_exists('recordLoginAttempt')) {
                     recordLoginAttempt($loginId, $ipLogin);
                 } elseif (in_array($res['error'], $credOkErrors, true) && function_exists('resetLoginAttempts')) {
                     resetLoginAttempts($loginId, $ipLogin);
@@ -62,6 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
                     /* Issue #3: 5-year card म्याद सकियो */
                     $info  = 'renewal';
                     $error = $_t('🔄 तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', '🔄 Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
+                } elseif ($isRateLimited) {
+                    $error = htmlspecialchars($_t(
+                        (string)$res['error'],
+                        (string)($res['error_en'] ?? $res['error'])
+                    ));
                 } else {
                     $error = htmlspecialchars($res['error']);
                 }
