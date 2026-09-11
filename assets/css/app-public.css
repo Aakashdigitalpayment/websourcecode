@@ -15377,6 +15377,12 @@ body.header-v2 .pfl-nav-area .nav-menu .dropdown li a i {
     width: 16px;
     text-align: center;
 }
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a .lucide-icon,
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a svg.lucide-icon,
+body.header-v2 .pfl-nav-area .nav-menu .dropdown li a i svg {
+    color: var(--primary-color);
+    stroke: var(--primary-color);
+}
 
 .pfl-mobile-toggle {
     display: none;
