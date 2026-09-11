@@ -749,6 +749,7 @@ function memberLogin($email, $password, bool $skipSession = false) {
     if (!empty($rl['blocked'])) {
         $wait = (int)($rl['wait'] ?? 15);
         return [
+            'code' => 'rate_limited',
             'error' => 'धेरै गलत प्रयास। कृपया ' . $wait . ' मिनेटपछि फेरि प्रयास गर्नुहोस्।',
             'error_en' => 'Too many failed attempts. Please try again in ' . $wait . ' minutes.',
         ];
