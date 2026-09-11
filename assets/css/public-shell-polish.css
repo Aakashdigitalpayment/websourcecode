@@ -881,7 +881,7 @@ body.dark-mode .tools-category-card h5 {
   color: #fff !important;
   background: linear-gradient(
     135deg,
-    var(--primary-dark, #144a21),
+    var(--primary-dark, var(--primary-color, #1a5f2a)),
     var(--primary-color, #1a5f2a)
   ) !important;
 }
