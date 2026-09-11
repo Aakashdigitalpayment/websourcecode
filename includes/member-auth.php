@@ -428,20 +428,10 @@ function memberIsLoggedIn() {
      * same carrier; if it breaks, user is asked to log in again — acceptable
      * trade-off vs. silent account takeover.
      */
-    $expectedUA = $_SESSION['member_agent_hash'] ?? '';
-    $expectedIP = $_SESSION['member_ip_partial'] ?? '';
-
-    /* UA fingerprint check disabled — mobile browsers (WebView, Chrome on Android,
-     * iOS Safari) frequently vary UA between requests causing false logouts.
-     * IP /24 check below is sufficient for session binding security.
+    /* UA fingerprint intentionally not enforced — mobile WebViews vary UA.
+     * IP /24 partial binding below remains the session device check.
      */
-    if (false && $expectedUA !== '') {
-        $currentUA = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
-        if ($currentUA !== $expectedUA) {
-            error_log('member-auth: UA fingerprint mismatch for member_id=' . (int)$_SESSION['member_id']);
-            return false;
-        }
-    }
+    $expectedIP = $_SESSION['member_ip_partial'] ?? '';
     if ($expectedIP !== '') {
         $ip = function_exists('coop_client_ip') ? coop_client_ip() : ($_SERVER['REMOTE_ADDR'] ?? '');
         $currentIPp = function_exists('coop_ip_network_key') ? coop_ip_network_key($ip) : implode('.', array_slice(explode('.', $ip), 0, 3));
@@ -467,20 +457,6 @@ function currentMember() {
         unset($row['twofa_secret'], $row['twofa_backup_codes']);
     }
     return $row;
-}
-
-/**
- * Safe members column list for UI/list (no password_hash / 2FA secrets).
- * has_password = 1|0 for Email-login badge without exposing the hash.
- */
-if (!function_exists('memberSafeListSelectSql')) {
-    function memberSafeListSelectSql(): string
-    {
-        return "id, name, email, phone, sadasyata_number, avatar_url, google_id, facebook_id, "
-            . "kyc_application_id, is_active, approval_status, created_at, member_card_no, address, dob, gender, "
-            . "card_expires_at, id_card_generated, "
-            . "CASE WHEN password_hash IS NOT NULL AND TRIM(password_hash) <> '' THEN 1 ELSE 0 END AS has_password";
-    }
 }
 
 /**
@@ -768,6 +744,16 @@ function memberLogin($email, $password, bool $skipSession = false) {
     try { ensureMemberTables(); } catch (\Throwable $e) { /* schema verify fail भए पनि login प्रयास */ }
 
     $email = strtolower(trim($email));
+
+    $rl = memberCheckRateLimit($email);
+    if (!empty($rl['blocked'])) {
+        $wait = (int)($rl['wait'] ?? 15);
+        return [
+            'error' => 'धेरै गलत प्रयास। कृपया ' . $wait . ' मिनेटपछि फेरि प्रयास गर्नुहोस्।',
+            'error_en' => 'Too many failed attempts. Please try again in ' . $wait . ' minutes.',
+        ];
+    }
+
     try {
         $st = $db->prepare("SELECT * FROM members WHERE (email=? OR sadasyata_number=?) AND is_active=1 LIMIT 1");
         $st->execute([$email, $email]);
@@ -777,9 +763,17 @@ function memberLogin($email, $password, bool $skipSession = false) {
         return ['error' => 'Login प्रक्रियामा त्रुटि भयो। पछि प्रयास गर्नुहोस्।'];
     }
 
-    if (!$m) return ['error' => 'इमेल / सदस्यता नम्बर फेला परेन वा account निष्क्रिय छ।'];
+    if (!$m) {
+        memberRecordFailedLogin($email);
+        return ['error' => 'इमेल / सदस्यता नम्बर फेला परेन वा account निष्क्रिय छ।'];
+    }
     if (!$m['password_hash']) return ['error' => 'यो account Google/Facebook बाट बनेको हो — पासवर्ड सेट गरिएको छैन। पहिले Google/Facebook बाट लगिन गर्नुहोस्, त्यसपछि "मेरो प्रोफाइल" मा गएर पासवर्ड सेट गर्नुहोस्।'];
-    if (!password_verify($password, $m['password_hash'])) return ['error' => 'पासवर्ड मिलेन। पुनः प्रयास गर्नुहोस्।'];
+    if (!password_verify($password, $m['password_hash'])) {
+        memberRecordFailedLogin($email);
+        return ['error' => 'पासवर्ड मिलेन। पुनः प्रयास गर्नुहोस्।'];
+    }
+
+    memberClearRateLimit($email);
 
     $gate = memberLoginEligibilityError($m, $db);
     if ($gate !== null) {

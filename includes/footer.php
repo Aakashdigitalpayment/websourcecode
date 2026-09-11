@@ -1022,7 +1022,8 @@ function copyTrk(id,btn){
             if (e.defaultPrevented) return;
             if(this.checkValidity && !this.checkValidity()) return;
             var btn = this.querySelector('[type="submit"]:not([data-no-spin])');
-            if(btn && !btn.disabled){
+            /* form-validation.js owns busy label when already submitting */
+            if(btn && !btn.disabled && btn.getAttribute('aria-busy') !== 'true' && this.getAttribute('data-submitting') !== '1'){
                 btn.dataset.origHtml = btn.innerHTML;
                 btn.disabled = true;
                 btn.setAttribute('aria-busy', 'true');

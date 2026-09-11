@@ -1880,8 +1880,7 @@ body.dark-mode .rate-card-enhanced h5,
 body.dark-mode .rates-box-enhanced h5,
 body.dark-mode .mvv-card h4,
 body.dark-mode .form-card-title,
-body.dark-mode .form-section-title,
-body.dark-mode .tools-category-card h5 {
+body.dark-mode .form-section-title {
   color: var(--primary-on-dark, #86efac) !important;
 }
 body.dark-mode .rate-name {
@@ -8191,22 +8190,6 @@ form[data-submitting="1"] {
   animation: coop-alert-settle 0.28s ease both;
 }
 
-/* Opt-in list skeleton (use with existing shimmer tokens if needed) */
-.coop-skeleton-row {
-  display: block;
-  height: 0.9rem;
-  margin: 0.55rem 0;
-  border-radius: 8px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #e8eee9) 25%,
-    color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #f4f7f5) 50%,
-    color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #e8eee9) 75%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.35s ease infinite;
-}
-
 .scroll-top,
 .scroll-to-top,
 .back-to-top,
@@ -8227,8 +8210,7 @@ form[data-submitting="1"] {
   .alert.alert-danger,
   .alert.alert-warning,
   .alert.alert-info,
-  .mem-alert,
-  .coop-skeleton-row {
+  .mem-alert {
     animation: none !important;
   }
 
@@ -8675,10 +8657,9 @@ body.dark-mode .notice-popup-enhanced .popup-dialog {
 }
 
 /* Public / member empty states */
-.coop-empty-state,
 .empty-state,
 .no-results,
-.mem-empty-state {
+.mem-empty {
   text-align: center;
   padding: clamp(2rem, 5vw, 3rem) 1.25rem !important;
   border-radius: var(--final-radius-lg);
@@ -8686,10 +8667,9 @@ body.dark-mode .notice-popup-enhanced .popup-dialog {
   border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
   color: var(--final-muted);
 }
-.coop-empty-state i,
 .empty-state i,
 .no-results i,
-.mem-empty-state i {
+.mem-empty i {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -8788,10 +8768,9 @@ body.dark-mode .notice-popup-enhanced .popup-dialog {
 @media (prefers-reduced-motion: reduce) {
   .form-success-card,
   .success-card.form-success-card,
-  .coop-empty-state,
   .empty-state,
   .no-results,
-  .mem-empty-state {
+  .mem-empty {
     transition: none !important;
   }
 
@@ -8819,10 +8798,9 @@ body.dark-mode .success-card.form-success-card {
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #334155) !important;
   color: #e5e7eb !important;
 }
-body.dark-mode .coop-empty-state,
 body.dark-mode .empty-state,
 body.dark-mode .no-results,
-body.dark-mode .mem-empty-state {
+body.dark-mode .mem-empty {
   background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #111827) !important;
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #334155) !important;
   color: #cbd5e1 !important;
