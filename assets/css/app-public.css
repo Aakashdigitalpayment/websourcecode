@@ -7579,8 +7579,8 @@ body.chatbot-open {
     padding: 14px 16px;
     background: linear-gradient(
         135deg,
-        var(--primary-dark, #144a21),
-        var(--primary-color, #1a5f2a)
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
     );
     border-radius: 0;
     display: flex;
@@ -11810,7 +11810,11 @@ body.notice-popup-open {
 }
 
 .rates-box-enhanced .rates-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #0d5a1c 50%, var(--primary-color) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
+    );
     background-size: 200% 100%;
     animation: ratesHeaderShimmer 4s ease-in-out infinite;
     padding: 10px 16px;
@@ -12125,7 +12129,11 @@ body.notice-popup-open {
 }
 
 .notices-box-enhanced .notices-header {
-    background: linear-gradient(135deg, var(--secondary-color) 0%, #e8a800 50%, var(--secondary-color) 100%);
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
+    );
     background-size: 200% 100%;
     animation: noticeHeaderShimmer 4s ease-in-out infinite;
     padding: 10px 16px;
@@ -16970,8 +16978,8 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
     padding: 14px 16px !important;
     background: linear-gradient(
         135deg,
-        var(--primary-dark, #144a21),
-        var(--primary-color, #1a5f2a)
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
     ) !important;
     border-radius: 0 !important;
     border-bottom: none !important;
@@ -17072,9 +17080,11 @@ textarea.form-control { min-height: 110px !important; resize: vertical !importan
 }
 .rates-header,
 .notices-header {
-    background: linear-gradient(135deg,
-        var(--primary-dark, #144a21),
-        var(--primary-color, #1a5f2a));
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
+    );
     padding: 14px 20px;
     color: #fff;
     display: flex;
@@ -20400,9 +20410,11 @@ body:has(.preview-wrap) { font-family: 'Mukta','Noto Sans Devanagari',-apple-sys
 .notices-box-enhanced .notices-header,
 .notice-card .notice-card-header,
 .notice-list-card > .card-header {
-    background: linear-gradient(135deg,
-        var(--primary-dark, #144a21),
-        var(--primary-color, #1a5f2a)) !important;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
+    ) !important;
     color: var(--text-on-primary, #fff) !important;
 }
 .notices-box-enhanced .notices-header h3,

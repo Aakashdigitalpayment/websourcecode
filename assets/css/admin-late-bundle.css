@@ -7939,18 +7939,23 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
   padding: 0.5rem 0.65rem !important;
 }
 
-/* ── Homepage notices: match interest-rates green card system ── */
+/* ── Homepage notices: match interest-rates brand card system ── */
 .rates-notices-section .notices-box-enhanced {
-  border: 1px solid rgba(26, 95, 42, 0.08) !important;
-  box-shadow: 0 15px 60px rgba(26, 95, 42, 0.12) !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, transparent) !important;
+  box-shadow: 0 15px 60px color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent) !important;
 }
 
 .rates-notices-section .notices-box-enhanced:hover {
-  box-shadow: 0 25px 80px rgba(26, 95, 42, 0.18) !important;
+  box-shadow: 0 25px 80px color-mix(in srgb, var(--primary-color, #1a5f2a) 20%, transparent) !important;
 }
 
-.rates-notices-section .notices-box-enhanced .notices-header {
-  background: linear-gradient(135deg, var(--primary-color, #1a5f2a) 0%, #0d5a1c 50%, var(--primary-color, #1a5f2a) 100%) !important;
+.rates-notices-section .notices-box-enhanced .notices-header,
+.rates-notices-section .rates-box-enhanced .rates-header {
+  background: linear-gradient(
+    135deg,
+    var(--primary-dark, var(--primary-color, #1a5f2a)),
+    var(--primary-color, #1a5f2a)
+  ) !important;
   animation: none !important;
 }
 
