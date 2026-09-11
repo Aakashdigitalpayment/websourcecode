@@ -8841,9 +8841,9 @@ body.dark-mode .mkt-inq-form {
      C) Swap the two --coop-nav-idle-* lines below to the legacy values
    ════════════════════════════════════════════════════════════════ */
 :root {
-  /* Brand idle (current trial) */
-  --coop-nav-idle-text: var(--primary-color, #1a5f2a);
-  --coop-nav-idle-icon: var(--primary-color, #1a5f2a);
+  /* Brand idle — use primary-ink for WCAG text on light nav surfaces */
+  --coop-nav-idle-text: var(--primary-ink, var(--primary-color, #1a5f2a));
+  --coop-nav-idle-icon: var(--primary-ink, var(--primary-color, #1a5f2a));
   /* Legacy (uncomment these + comment brand lines above to revert in place):
   --coop-nav-idle-text: #0b3b1a;
   --coop-nav-idle-icon: #0b3b1a;
@@ -8948,7 +8948,8 @@ body.dark-mode .mkt-inq-form {
      C) Set --coop-section-title: #111827; below
    ════════════════════════════════════════════════════════════════ */
 :root {
-  --coop-section-title: var(--primary-color, #1a5f2a);
+  /* WCAG-safe brand text on light panels (falls back to primary) */
+  --coop-section-title: var(--primary-ink, var(--primary-color, #1a5f2a));
   /* Legacy black title:
   --coop-section-title: #111827;
   */
@@ -8969,11 +8970,15 @@ html:not([data-section-title="legacy"]) body:not(.dark-mode) .ip-section-intro h
 
 /* Keep white titles on brand / photo bands */
 html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .section-header h3,
 html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .home-heading-unified,
 html:not([data-section-title="legacy"]) body:not(.dark-mode) .app-download-section .home-heading-unified,
 html:not([data-section-title="legacy"]) body:not(.dark-mode) .mobile-app-section .home-heading-unified,
 html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner .page-title-modern,
-html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner-modern .page-title-modern {
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner-modern .page-title-modern,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner-modern .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .hero-section .section-header h2 {
   color: var(--text-on-primary, #fff) !important;
   -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
 }
