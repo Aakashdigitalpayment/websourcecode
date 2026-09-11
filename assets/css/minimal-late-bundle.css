@@ -7862,9 +7862,9 @@ body.dark-mode .mkt-inq-form {
      C) Swap the two --coop-nav-idle-* lines below to the legacy values
    ════════════════════════════════════════════════════════════════ */
 :root {
-  /* Brand idle (current trial) */
-  --coop-nav-idle-text: var(--primary-color, #1a5f2a);
-  --coop-nav-idle-icon: var(--primary-color, #1a5f2a);
+  /* Brand idle — use primary-ink for WCAG text on light nav surfaces */
+  --coop-nav-idle-text: var(--primary-ink, var(--primary-color, #1a5f2a));
+  --coop-nav-idle-icon: var(--primary-ink, var(--primary-color, #1a5f2a));
   /* Legacy (uncomment these + comment brand lines above to revert in place):
   --coop-nav-idle-text: #0b3b1a;
   --coop-nav-idle-icon: #0b3b1a;
@@ -7902,23 +7902,47 @@ body.dark-mode .mkt-inq-form {
     opacity: 0.95 !important;
   }
 
-  /* Hover / active: keep white on primary pill */
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a:hover,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li.active > a {
+  /* Hover / active / open: white on primary pill (must beat idle specificity) */
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a {
     color: var(--text-on-primary, #fff) !important;
   }
 
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a:hover > i,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a:hover .mnav-main-icon,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a:hover .lucide-icon,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a:hover svg,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li.active > a > i,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li.active > a .mnav-main-icon,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li.active > a .lucide-icon,
-  html:not([data-nav-idle="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li.active > a svg {
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover .mnav-main-label,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a .mnav-main-label,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a .mnav-main-label,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a .mnav-main-label,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a .mnav-main-label {
+    color: var(--text-on-primary, #fff) !important;
+  }
+
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover > i,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover .mnav-main-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover .lucide-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:not(.active) > a:hover svg,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a > i,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a .mnav-main-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a .lucide-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li:hover > a svg,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a > i,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a .mnav-main-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a .lucide-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.has-dropdown:hover > a svg,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a > i,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a .mnav-main-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a .lucide-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.open > a svg,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a > i,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a .mnav-main-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a .lucide-icon,
+  html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu > li.active > a svg {
     color: var(--text-on-primary, #fff) !important;
     stroke: var(--text-on-primary, #fff) !important;
     opacity: 1 !important;
+    -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
   }
 
   html:not([data-nav-idle="legacy"]) body.header-v2:not(.dark-mode) .pfl-nav-area .nav-menu .dropdown li > a:hover {
@@ -7931,5 +7955,52 @@ body.dark-mode .mkt-inq-form {
     color: var(--primary-color) !important;
     stroke: var(--primary-color) !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   TRIAL — Brand-colored public section titles (light backgrounds)
+   Covers homepage / page .section-header titles like
+   "अन्य डिजिटल सेवाहरू", "ब्याज तथा सूचना विवरण".
+   Leaves body copy, cards, and white-on-brand banners alone.
+
+   REVERT (any one):
+     A) Delete this TRIAL block, rebuild late bundles
+     B) <html data-section-title="legacy">
+     C) Set --coop-section-title: #111827; below
+   ════════════════════════════════════════════════════════════════ */
+:root {
+  /* WCAG-safe brand text on light panels (falls back to primary) */
+  --coop-section-title: var(--primary-ink, var(--primary-color, #1a5f2a));
+  /* Legacy black title:
+  --coop-section-title: #111827;
+  */
+}
+
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .section-header h3,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .section-header-unified h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .section-header.section-header-unified h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .notices-section .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .notices-section .section-header-unified h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .rates-notices-section .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .tools-widget-section .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .ip-section-intro h2 {
+  color: var(--coop-section-title) !important;
+  -webkit-text-fill-color: var(--coop-section-title) !important;
+}
+
+/* Keep white titles on brand / photo bands */
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .section-header h3,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .cta-section .home-heading-unified,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .app-download-section .home-heading-unified,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .mobile-app-section .home-heading-unified,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner .page-title-modern,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner-modern .page-title-modern,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .page-banner-modern .section-header h2,
+html:not([data-section-title="legacy"]) body:not(.dark-mode) .hero-section .section-header h2 {
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
 }
 /* ===== END final-ui-polish.css ===== */
