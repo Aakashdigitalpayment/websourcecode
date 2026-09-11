@@ -2143,32 +2143,39 @@ body, .admin-shell, .member-page                   {
    FIX-PASS 2 (2026-06-10) — targeted issues from user feedback
    ══════════════════════════════════════════════════════════════════════ */
 
-/* ── A. PUBLIC HOMEPAGE: "अन्य डिजिटल सेवाहरू" cards — h5 contrast ── */
-/* Earlier rule in app-public.css used white-on-gradient; later override used
-   light-green-on-light-green which was reported as "white on light gray" in
-   some browser cache states. Force a guaranteed-readable dark-green text on
-   soft-green chip for h5 inside .tools-category-card. */
+/* ── A. PUBLIC HOMEPAGE: "अन्य डिजिटल सेवाहरू" — match rates/notices brand headers ── */
 .tools-widget-section .tools-category-card h5,
 .tools-category-card.tools-cat-forms h5,
 .tools-category-card.tools-cat-tools h5,
 .tools-category-card.tools-cat-member h5 {
-    color: var(--primary-dark, #144a21) !important;
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #ffffff) !important;
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #ffffff) !important;
-    border-radius: 10px !important;
-    padding: 10px 14px !important;
+    color: var(--text-on-primary, #fff) !important;
+    background: linear-gradient(
+        135deg,
+        var(--primary-dark, var(--primary-color)),
+        var(--primary-color)
+    ) !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 0 1rem !important;
+    padding: 14px 16px !important;
     text-shadow: none !important;
     animation: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 8px !important;
 }
 .tools-widget-section .tools-category-card.tools-cat-member h5 {
-    font-size: 0.82rem !important;
+    font-size: 0.95rem !important;
 }
 .tools-widget-section .tools-category-card h5 i,
 .tools-category-card h5 i {
     color: var(--text-on-primary, #fff) !important;
-    background: var(--primary-color, #1a5f2a) !important;
+    background: rgba(255, 255, 255, 0.22) !important;
     border-radius: 6px !important;
-    width: 24px !important; height: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
