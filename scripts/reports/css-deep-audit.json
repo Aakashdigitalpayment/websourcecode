@@ -8,8 +8,8 @@
     "font_ssot": "coopThemeGoogleFontsHtml + global.css --font-primary/--font-heading",
     "css_dedupe": "shell polish = panel base; final-ui-polish = intentional last override; remove identical mid-layer copies only"
   },
-  "css_file_count": 72,
-  "total_bytes": 3681059,
+  "css_file_count": 73,
+  "total_bytes": 3683860,
   "important_total": 22491,
   "frozen_app": [
     "app-admin.css",
@@ -25,7 +25,7 @@
   ],
   "page_css_count": 34,
   "unreferenced_css": [],
-  "lucide_markers_php_approx": 8042,
+  "lucide_markers_php_approx": 8080,
   "static_fas_far_i_tags": 0,
   "top_fonts": [
     [
@@ -588,6 +588,20 @@
     }
   ],
   "css_files": [
+    {
+      "name": "about-success-stories.css",
+      "bytes": 2801,
+      "lines": 138,
+      "frozen": false,
+      "is_bundle": false,
+      "is_page": false,
+      "is_polish": false,
+      "is_app": false,
+      "font_face": 0,
+      "important": 0,
+      "lucide": 0,
+      "fas_far": 0
+    },
     {
       "name": "admin-auth-login-fixes.css",
       "bytes": 20720,

@@ -70,6 +70,10 @@ foreach ($robotsNeedles as $needle => $why) {
 assertFileContains('sitemap.php', 'application/xml', 'sitemap XML content-type');
 assertFileContains('sitemap.php', 'about.php', 'sitemap includes about');
 assertFileContains('sitemap.php', 'services.php', 'sitemap includes services');
+assertFileContains('sitemap.php', 'success-stories.php', 'sitemap includes success stories');
+assertFileContains('sitemap.php', 'chairman-message.php', 'sitemap includes chairman');
+assertFileContains('sitemap.php', 'vision-mission.php', 'sitemap includes vision-mission');
+assertFileContains('sitemap.php', 'why-choose.php', 'sitemap includes why-choose');
 assertFileContains('sitemap.php', '<urlset', 'sitemap writes urlset');
 
 // Public header SEO / a11y anchors

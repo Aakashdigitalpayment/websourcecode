@@ -8,6 +8,7 @@ Run:
   python3 scripts/extract-app-css-section.py                         # dry-run smallest
   python3 scripts/extract-app-css-section.py --write --all-first-pr   # all first_pr shadows
   python3 scripts/extract-app-css-section.py --write --all-second-pr  # mid-size second wave
+  python3 scripts/extract-app-css-section.py --write --all-third-pr   # ≤110KB third wave
   python3 scripts/extract-app-css-section.py --write --section mem-utils.css
   python3 scripts/extract-app-css-section.py --verify                 # sha match check
 """
@@ -46,7 +47,17 @@ SECOND_PR = {
     "member.css",
     "unified-portal.css",
 }
+# Third wave: named sections ≤ THIRD_PR_MAX_BYTES only (today: member theme-overrides-v4).
+# Admin/public theme-overrides-v4 (130KB+/166KB+) stay deferred with style/public-modern/admin.css.
+THIRD_PR = {
+    "theme-overrides-v4.css",
+}
+THIRD_PR_MAX_BYTES = 110_000
 SHADOW_BANNER_RE = re.compile(r"(?s)^/\* SHADOW EXTRACT from .*?\*/\n")
+REGEN_CMD = (
+    "python3 scripts/extract-app-css-section.py --write "
+    "--all-first-pr --all-second-pr --all-third-pr"
+)
 
 
 def sections_in(sheet: Path) -> list[dict]:
@@ -79,9 +90,36 @@ def banner_for(s: dict) -> str:
         f"/* SHADOW EXTRACT from {s['from_sheet']} — do not edit app-* for polish.\n"
         f" * Source bytes={s['bytes']} sha256={s['sha256']}\n"
         f" * Future PR: thin @import shim; keep app-* frozen until verified.\n"
-        f" * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr\n"
+        f" * Regenerate: {REGEN_CMD}\n"
         f" */\n"
     )
+
+
+def third_pr_eligible(s: dict) -> bool:
+    return s["name"] in THIRD_PR and int(s["bytes"]) <= THIRD_PR_MAX_BYTES
+
+
+def required_shadow_keys(all_secs: list[dict]) -> set[tuple[str, str]]:
+    keys: set[tuple[str, str]] = set()
+    for s in all_secs:
+        if s["name"] in FIRST_PR or s["name"] in SECOND_PR or third_pr_eligible(s):
+            keys.add((s["from_sheet"], s["name"]))
+    return keys
+
+
+def select_sections(all_secs: list[dict], wanted_names: list[str]) -> list[dict]:
+    selected: list[dict] = []
+    for s in all_secs:
+        if s["name"] not in wanted_names:
+            continue
+        if s["name"] in THIRD_PR and not third_pr_eligible(s):
+            print(
+                f"  skip deferred {s['from_sheet']} → {s['name']}: "
+                f"{s['bytes']:,} bytes > {THIRD_PR_MAX_BYTES:,} THIRD_PR cap"
+            )
+            continue
+        selected.append(s)
+    return selected
 
 
 def verify_shadows(all_secs: list[dict]) -> int:
@@ -118,12 +156,10 @@ def verify_shadows(all_secs: list[dict]) -> int:
             continue
         print(f"  OK {stem} sha={live_sha}")
         ok += 1
-    # Require every FIRST_PR + SECOND_PR section that exists in app-* to have a shadow
-    required = FIRST_PR | SECOND_PR
+    # Require every FIRST/SECOND + eligible THIRD section to have a shadow
     missing = []
-    for s in all_secs:
-        if s["name"] not in required:
-            continue
+    for key in sorted(required_shadow_keys(all_secs)):
+        s = by_key[key]
         rel = ROOT / shadow_rel(s)
         if not rel.is_file():
             missing.append(shadow_rel(s))
@@ -149,6 +185,11 @@ def main() -> int:
         help="Select every SECOND_PR (mid-size) section present in app-* sheets",
     )
     ap.add_argument(
+        "--all-third-pr",
+        action="store_true",
+        help=f"Select THIRD_PR sections ≤{THIRD_PR_MAX_BYTES} bytes (member theme-overrides-v4 today)",
+    )
+    ap.add_argument(
         "--verify",
         action="store_true",
         help="Check existing shadows match live app-* section sha (no write)",
@@ -171,24 +212,32 @@ def main() -> int:
         return verify_shadows(all_secs)
 
     wanted = list(args.section)
-    if args.all_first_pr and args.all_second_pr:
-        wanted = sorted(FIRST_PR | SECOND_PR)
-    elif args.all_first_pr:
-        wanted = sorted(FIRST_PR)
-    elif args.all_second_pr:
-        wanted = sorted(SECOND_PR)
-    elif not wanted:
+    waves: list[str] = []
+    if args.all_first_pr:
+        waves.append("first")
+        wanted.extend(sorted(FIRST_PR))
+    if args.all_second_pr:
+        waves.append("second")
+        wanted.extend(sorted(SECOND_PR))
+    if args.all_third_pr:
+        waves.append("third")
+        wanted.extend(sorted(THIRD_PR))
+    wanted = list(dict.fromkeys(wanted))  # preserve order, unique
+
+    if not wanted:
         cands = [s for s in all_secs if s["name"] in FIRST_PR]
         cands.sort(key=lambda s: s["bytes"])
         if cands:
             wanted = [cands[0]["name"]]
 
-    selected = [s for s in all_secs if s["name"] in wanted]
+    selected = select_sections(all_secs, wanted)
     if not selected:
         print("No matching sections for", wanted)
         return 1
 
     print("=== app-* section shadow extract (safe — no app-* rewrite) ===")
+    if waves:
+        print(f"  waves={'+'.join(waves)}")
     written: list[dict] = []
     for s in selected:
         rel = shadow_rel(s)
@@ -218,6 +267,8 @@ def main() -> int:
                 "wrote": bool(args.write),
                 "all_first_pr": bool(args.all_first_pr),
                 "all_second_pr": bool(args.all_second_pr),
+                "all_third_pr": bool(args.all_third_pr),
+                "third_pr_max_bytes": THIRD_PR_MAX_BYTES,
                 "sections": written,
             },
             indent=2,

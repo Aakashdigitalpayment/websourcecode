@@ -128,6 +128,9 @@ require_once 'includes/admin-ui.php';
         'History section photo र content manage गर्नुहोस्।',
         '<a class="btn btn-outline-success btn-sm" href="member-success-stories.php"><i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i>' . adminLangT('सदस्य सफलताका कथा', 'Success Stories') . '</a>'
         . '<a class="btn btn-outline-secondary btn-sm" href="../success-stories.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>Success Stories</a>'
+        . '<a class="btn btn-outline-secondary btn-sm" href="../chairman-message.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="user-round" aria-hidden="true"></i>' . adminLangT('अध्यक्ष', 'Chairman') . '</a>'
+        . '<a class="btn btn-outline-secondary btn-sm" href="../ceo-message.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i>CEO</a>'
+        . '<a class="btn btn-outline-secondary btn-sm" href="../vision-mission.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>' . adminLangT('दृष्टि', 'Vision') . '</a>'
     );
     if ($flash = getFlash()):
     ?>

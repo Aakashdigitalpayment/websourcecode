@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
  * Source bytes=31906 sha256=848ea9ddbf6c4f7f
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== member-portal-v2.css ========== */
 /**

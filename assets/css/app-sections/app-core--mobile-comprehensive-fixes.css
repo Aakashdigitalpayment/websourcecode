@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
  * Source bytes=9664 sha256=2d3ce3b675a504aa
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== mobile-comprehensive-fixes.css ========== */
 /* ═══════════════════════════════════════════════════════════════════

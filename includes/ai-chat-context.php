@@ -297,16 +297,25 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 $tokens
             ) + ($leadershipQ ? 12 : 4);
             $push('leadership', $english ? 'Leadership' : 'नेतृत्व', $leadBody, $leadScore, $pageUrl('chairman-message.php'));
+            if ($lead['ceo_name'] !== '' || $lead['ceo_msg'] !== '') {
+                $push(
+                    'leadership_ceo',
+                    $english ? 'CEO message' : 'प्रमुख कार्यकारीको सन्देश',
+                    $leadBody,
+                    $leadScore,
+                    $pageUrl('ceo-message.php')
+                );
+            }
         }
 
         /* Vision / mission */
         $vision = (string)getSetting($english ? 'vision_content_en' : 'vision_content_np', getSetting('vision_content_np', ''));
         $mission = (string)getSetting($english ? 'mission_content_en' : 'mission_content_np', getSetting('mission_content_np', ''));
         if ($vision !== '') {
-            $push('about', 'भिजन', ai_chat_snip($vision, 360), ai_chat_score_text('भिजन vision ' . $vision, $tokens) + 1);
+            $push('about', 'भिजन', ai_chat_snip($vision, 360), ai_chat_score_text('भिजन vision ' . $vision, $tokens) + 1, $pageUrl('vision-mission.php'));
         }
         if ($mission !== '') {
-            $push('about', 'मिसन', ai_chat_snip($mission, 360), ai_chat_score_text('मिसन mission ' . $mission, $tokens) + 1);
+            $push('about', 'मिसन', ai_chat_snip($mission, 360), ai_chat_score_text('मिसन mission ' . $mission, $tokens) + 1, $pageUrl('vision-mission.php'));
         }
 
         $faqLimit = $mode === 'leadership' ? 12 : 35;
@@ -542,7 +551,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
             $d = $english
                 ? (string)(($row['desc_en'] ?? '') !== '' ? $row['desc_en'] : ($row['desc_np'] ?? ''))
                 : (string)(($row['desc_np'] ?? '') !== '' ? $row['desc_np'] : ($row['desc_en'] ?? ''));
-            $push('feature', $t !== '' ? $t : 'किन छान्ने', ai_chat_snip($d, 200), ai_chat_score_text($t . ' ' . $d, $tokens), $pageUrl('about.php'));
+            $push('feature', $t !== '' ? $t : 'किन छान्ने', ai_chat_snip($d, 200), ai_chat_score_text($t . ' ' . $d, $tokens), $pageUrl('why-choose.php'));
         }
 
         foreach ($safeQuery($db, 'SELECT partner_name, location, facility_type, description FROM partner_facilities WHERE is_active = 1 ORDER BY display_order LIMIT 12') as $row) {

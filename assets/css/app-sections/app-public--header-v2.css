@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-public.css — do not edit app-* for polish.
  * Source bytes=35943 sha256=665e2a0cf07ddafe
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== header-v2.css ========== */
 /* ============================================================

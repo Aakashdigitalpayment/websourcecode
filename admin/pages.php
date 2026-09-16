@@ -570,9 +570,14 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             </thead>
                                             <tbody>
                                                 <?php $i = 1; foreach ($staticPagesResolved as $key => $info):
-                                                    $__staticPublic = ($key === 'chairman_message')
-                                                        ? '../chairman-message.php'
-                                                        : (($key === 'ceo_message') ? '../ceo-message.php' : '');
+                                                    $__staticPublic = '';
+                                                    if ($key === 'chairman_message') {
+                                                        $__staticPublic = '../chairman-message.php';
+                                                    } elseif ($key === 'ceo_message') {
+                                                        $__staticPublic = '../ceo-message.php';
+                                                    } elseif ($key === 'vision_content' || $key === 'mission_content') {
+                                                        $__staticPublic = '../vision-mission.php';
+                                                    }
                                                 ?>
                                                 <tr>
                                                     <td><?php echo $i++; ?></td>

@@ -491,6 +491,8 @@ $__aboutNavActive = in_array($currentPage, [
     'success-stories',
     'chairman-message',
     'ceo-message',
+    'vision-mission',
+    'why-choose',
 ], true);
 $L = getLangStrings();
 
@@ -1190,11 +1192,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                         <ul class="dropdown">
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#history"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
-                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#vision"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#values"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
+                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
                             <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                         </ul>
@@ -1572,11 +1575,12 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                 <ul class="dropdown">
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#history"><i class="lucide-icon" aria-hidden="true" data-lucide="clock"></i> <?php echo isEnglish() ? 'History' : 'हाम्रो इतिहास'; ?></a></li>
-                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#vision"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php"><i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i> <?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#values"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i> <?php echo htmlspecialchars(isEnglish() ? $valuesMenuLabelEn : $valuesMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i> <?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
+                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i> <?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></a></li>
                                     <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                                 </ul>

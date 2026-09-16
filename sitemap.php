@@ -59,6 +59,11 @@ $staticPhp = [
     ['service-centers.php', '0.8', 'monthly'],
     ['election-information.php', '0.75', 'weekly'],
     ['institutional-profile.php', '0.75', 'monthly'],
+    ['chairman-message.php', '0.75', 'monthly'],
+    ['ceo-message.php', '0.75', 'monthly'],
+    ['success-stories.php', '0.75', 'monthly'],
+    ['vision-mission.php', '0.75', 'monthly'],
+    ['why-choose.php', '0.7', 'monthly'],
     ['appointment.php', '0.7', 'monthly'],
     ['grievance.php', '0.65', 'monthly'],
 

@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-member.css — do not edit app-* for polish.
  * Source bytes=4341 sha256=8de850d43c47f57f
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== mem-utils.css ========== */
 /**

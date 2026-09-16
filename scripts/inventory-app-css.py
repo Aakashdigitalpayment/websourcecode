@@ -99,7 +99,9 @@ def main() -> int:
     print(f"  TOTAL page CSS: {page_total:,} bytes")
 
     # Rank named app-* sections not yet mirrored by *-page.css (plan only — no extract).
+    sections_dir = CSS / "app-sections"
     split_candidates: list[dict] = []
+    shadowed: list[dict] = []
     for sheet_name, meta in sheets.items():
         for sec in meta.get("named_sections") or []:
             sec_name = str(sec.get("name") or "")
@@ -110,14 +112,19 @@ def main() -> int:
                 continue
             if (CSS / sec_name).is_file():
                 continue
-            split_candidates.append(
-                {
-                    "from_sheet": sheet_name,
-                    "section": sec_name,
-                    "bytes": int(sec.get("bytes") or 0),
-                    "start": int(sec.get("start") or 0),
-                }
-            )
+            row = {
+                "from_sheet": sheet_name,
+                "section": sec_name,
+                "bytes": int(sec.get("bytes") or 0),
+                "start": int(sec.get("start") or 0),
+            }
+            stub = sheet_name.replace(".css", "")
+            shadow_path = sections_dir / f"{stub}--{sec_name}"
+            if shadow_path.is_file():
+                row["shadow"] = f"assets/css/app-sections/{stub}--{sec_name}"
+                shadowed.append(row)
+                continue
+            split_candidates.append(row)
     split_candidates.sort(key=lambda r: r["bytes"], reverse=True)
     mega = {
         "style.css",
@@ -127,18 +134,43 @@ def main() -> int:
         "theme-overrides-v4.css",
         "unified-portal.css",
         "member.css",
+        "coop-core.css",
     }
+    third_pr_max = 110_000
     first_pr = [
         c
         for c in split_candidates
         if c["section"] not in mega and int(c["bytes"]) <= 40000
     ][:15]
+    # Third wave: theme-overrides-v4 (and similar) only when ≤110KB and not yet shadowed.
+    third_pr = [
+        c
+        for c in split_candidates
+        if c["section"] == "theme-overrides-v4.css" and int(c["bytes"]) <= third_pr_max
+    ]
+    deferred_mega = [
+        c
+        for c in split_candidates
+        if int(c["bytes"]) > third_pr_max
+        or (
+            c["section"] in mega
+            and c["section"] not in {"theme-overrides-v4.css"}
+            and int(c["bytes"]) > 40000
+        )
+    ]
     print(f"\n=== Split candidates (named sections w/o extracted twin) top 12 ===")
     for row in split_candidates[:12]:
         print(f"  {row['from_sheet']} → {row['section']}: {row['bytes']:,} bytes")
     print(f"\n=== First-PR safe extract candidates (≤40KB, non-mega) ===")
     for row in first_pr:
         print(f"  {row['from_sheet']} → {row['section']}: {row['bytes']:,} bytes")
+    print(f"\n=== Shadowed named sections (mirrors only; app-* still live SSOT) ===")
+    print(f"  count={len(shadowed)}")
+    print(f"\n=== Third-PR safe extract candidates (theme-overrides-v4 ≤{third_pr_max // 1000}KB, unshadowed) ===")
+    for row in third_pr:
+        print(f"  {row['from_sheet']} → {row['section']}: {row['bytes']:,} bytes")
+    if not third_pr:
+        print("  (none — shadowed or over cap; mega admin/public theme-overrides stay deferred)")
 
     build = ROOT / "scripts" / "build-css-late-bundles.py"
     print("\n=== Late-bundle policy ===")
@@ -155,9 +187,15 @@ def main() -> int:
             policy["concat_app_sheets"][sheet] = present
             print(f"  concat {sheet}=", present)
     print("\nNext split PR: extract by SECTION INDEX only; keep app-* as thin import shim.")
-    print("Shadow extract (no rewrite): python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr")
+    print(
+        "Shadow extract (no rewrite): python3 scripts/extract-app-css-section.py "
+        "--write --all-first-pr --all-second-pr --all-third-pr"
+    )
     print("Shadow verify: python3 scripts/extract-app-css-section.py --verify")
-    print("Large bodies (style/public-modern/admin.css…) deferred — mid-size SECOND_PR only beyond first_pr.")
+    print(
+        "Large bodies (style/public-modern/admin.css + admin/public theme-overrides-v4) "
+        "deferred — THIRD_PR is ≤110KB only."
+    )
     print("Do not rewrite app-* bodies for polish — use *-page.css / shell-polish / final-ui-polish.")
     print("Bangs deferred: app-* body rewrite (shadow extract OK), privilege LEVEL mass UPDATE, FA→Lucide name rewrite.")
     print("Safe alts: section shadows; alias-only roles; icon FA spelling canonicalize + dual-read.")
@@ -167,7 +205,7 @@ def main() -> int:
         out_path = REPORT_DIR / "app-css-split-plan.json"
         payload = {
             "policy": "FROZEN PANEL BASE — inventory only; no body rewrite in this track",
-            "next_pr": "Extract first_pr_candidates by named SECTION markers; leave app-* as thin import shim",
+            "next_pr": "Extract first/second/third_pr by named SECTION markers; leave app-* as thin import shim",
             "deferred_bangs": {
                 "fab_brands": "keep Font Awesome Brands (Lucide has no brand set)",
                 "icon_picker_storage": "continue storing FA class strings; Lucide preview only",
@@ -180,7 +218,10 @@ def main() -> int:
                 "roles": "coop_normalize_admin_role_aliases + admin_canonical_db_role on writes/login",
                 "icons": "coop_nav_icon_html render + coop_canonical_icon_for_storage writes + coop_canonicalize_icon_db_rows (FA spelling)",
             },
-            "shadow_extract": "scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr → assets/css/app-sections/; --verify for sha match",
+            "shadow_extract": (
+                "scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr "
+                "--all-third-pr → assets/css/app-sections/; --verify for sha match"
+            ),
             "icon_db_tool": "scripts/inventory-icon-db-canonicalize.php",
             "total_app_bytes": total,
             "sheets": sheets,
@@ -188,6 +229,10 @@ def main() -> int:
             "page_css_total_bytes": page_total,
             "split_candidates": split_candidates[:40],
             "first_pr_candidates": first_pr,
+            "third_pr_candidates": third_pr,
+            "third_pr_max_bytes": third_pr_max,
+            "shadowed_sections_count": len(shadowed),
+            "deferred_mega_sections": deferred_mega[:20],
             "late_bundle": policy,
         }
         out_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

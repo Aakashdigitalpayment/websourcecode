@@ -515,7 +515,15 @@ assertFileContains('admin/member-of-year.php', "uploadFile(\$_FILES['photo'], 'm
 assertFileContains('admin/member-success-stories.php', "uploadFile(\$_FILES['photo'], \$uploadSub", 'member success stories uses uploadFile');
 assertFileContains('admin/member-success-stories.php', 'verifyCSRFToken', 'member success stories CSRF');
 assertFileContains('includes/member-success-stories-tables.php', 'member_success_stories', 'success stories table helper');
+assertFileContains('vision-mission.php', 'vision_content', 'vision-mission dedicated page');
+assertFileContains('why-choose.php', 'why_choose_features', 'why-choose dedicated page');
+assertFileContains('includes/header.php', 'vision-mission.php', 'nav vision dedicated page');
+assertFileContains('includes/header.php', 'why-choose.php', 'nav why-choose dedicated page');
 assertFileContains('success-stories.php', 'fetchActiveMemberSuccessStories', 'success stories dedicated page');
+assertFileContains('includes/ai-chat-instant.php', 'chairman-message.php', 'AI chat links chairman dedicated page');
+assertFileContains('includes/ai-chat-instant.php', 'ceo-message.php', 'AI chat links ceo dedicated page');
+assertFileNotContains('includes/ai-chat-instant.php', "'#chairman'", 'AI chat no stale about#chairman');
+assertFileContains('about.php', "h === '#ceo' || h === '#ceo-message'", 'about redirects #ceo hash');
 assertFileContains('includes/header.php', 'success-stories.php', 'nav about dropdown success stories page');
 assertFileContains('includes/header.php', 'chairman-message.php', 'nav chairman dedicated page');
 assertFileContains('includes/header.php', 'ceo-message.php', 'nav ceo dedicated page');
@@ -723,7 +731,10 @@ assertFileContains('scripts/inventory-icon-db-canonicalize.php', 'NOT FA→Lucid
 assertFileContains('scripts/extract-app-css-section.py', 'SHADOW EXTRACT', 'app-* section shadow extract script');
 assertFileContains('scripts/extract-app-css-section.py', '--verify', 'shadow extract verify mode');
 assertFileContains('scripts/extract-app-css-section.py', 'SECOND_PR', 'shadow extract second-wave mid-size set');
+assertFileContains('scripts/extract-app-css-section.py', 'THIRD_PR', 'shadow extract third-wave ≤110KB set');
+assertFileContains('scripts/extract-app-css-section.py', '--all-third-pr', 'shadow extract third-wave flag');
 assertFileContains('scripts/inventory-app-css.py', 'extract-app-css-section.py', 'app-* inventory documents shadow extract');
+assertFileContains('scripts/inventory-app-css.py', '--all-third-pr', 'inventory documents third-wave shadow extract');
 assertFileContains('includes/config.php', "['help_topics', 'icon', 'fas fa-question-circle']", 'icon canonicalize covers help_topics');
 assertFileContains('includes/config.php', "['important_links', 'icon', 'fas fa-link']", 'icon canonicalize covers important_links');
 assertFileContains('includes/welfare-claim-types.php', "DEFAULT 'fas fa-gift'", 'welfare schema default uses fas spelling');

@@ -10,6 +10,10 @@ $pageTitle = isEnglish() ? 'Chairman\'s Message' : 'अध्यक्षको 
 $pageDescription = isEnglish()
     ? 'Message from the Chairman of our cooperative.'
     : 'हाम्रो सहकारीका अध्यक्षको सन्देश।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/leadership-message-page.css')
+        : '');
 require_once __DIR__ . '/includes/header.php';
 $L = function_exists('getLangStrings') ? getLangStrings() : [];
 $name = (string) $lead['chairman_name'];

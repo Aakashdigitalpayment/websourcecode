@@ -691,10 +691,13 @@ if (empty($whyFeatures)) {
             </div>
         <?php endforeach; ?>
         </div>
+        <div class="text-center mt-2" data-aos="fade-up">
+            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php" class="btn btn-outline-primary">
+                <i class="lucide-icon me-1" data-lucide="arrow-right" aria-hidden="true"></i><?php echo isEnglish() ? 'View all reasons' : 'सबै कारणहरू हेर्नुहोस्'; ?>
+            </a>
+        </div>
     </div>
 </section>
-
-<!-- Leadership Messages Section -->
 <?php
 $chairmanMessageSetting  = getSetting('chairman_message_np', '');
 $chairmanName     = '';

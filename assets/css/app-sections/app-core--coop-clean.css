@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
  * Source bytes=15029 sha256=fc120d1156ca2508
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== coop-clean.css ========== */
 /**

@@ -80,6 +80,7 @@ echo adminPageHeader(
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2">
         <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i>जम्मा: ' . count($features) . ' कारणहरू
      </span>'
+    . '<a class="btn btn-outline-secondary btn-sm" href="../why-choose.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>Public page</a>'
 );
 if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']);
 ?>

@@ -1,6 +1,6 @@
 {
   "policy": "FROZEN PANEL BASE \u2014 inventory only; no body rewrite in this track",
-  "next_pr": "Extract first_pr_candidates by named SECTION markers; leave app-* as thin import shim",
+  "next_pr": "Extract first/second/third_pr by named SECTION markers; leave app-* as thin import shim",
   "deferred_bangs": {
     "fab_brands": "keep Font Awesome Brands (Lucide has no brand set)",
     "icon_picker_storage": "continue storing FA class strings; Lucide preview only",
@@ -13,7 +13,7 @@
     "roles": "coop_normalize_admin_role_aliases + admin_canonical_db_role on writes/login",
     "icons": "coop_nav_icon_html render + coop_canonical_icon_for_storage writes + coop_canonicalize_icon_db_rows (FA spelling)"
   },
-  "shadow_extract": "scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr \u2192 assets/css/app-sections/; --verify for sha match",
+  "shadow_extract": "scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr \u2192 assets/css/app-sections/; --verify for sha match",
   "icon_db_tool": "scripts/inventory-icon-db-canonicalize.php",
   "total_app_bytes": 1857595,
   "sheets": {
@@ -340,188 +340,48 @@
       "section": "theme-overrides-v4.css",
       "bytes": 130693,
       "start": 430243
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "theme-overrides-v4.css",
-      "bytes": 95673,
-      "start": 121080
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "unified-portal.css",
-      "bytes": 82655,
-      "start": 115054
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "member.css",
-      "bytes": 66938,
-      "start": 4811
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "coop-core.css",
-      "bytes": 49306,
-      "start": 50719
-    },
-    {
-      "from_sheet": "app-public.css",
-      "section": "header-v2.css",
-      "bytes": 35943,
-      "start": 332839
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "member-portal-v2.css",
-      "bytes": 31906,
-      "start": 71749
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "auth-portals-unified.css",
-      "bytes": 17425,
-      "start": 103655
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "coop-clean.css",
-      "bytes": 15029,
-      "start": 100025
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "design-tokens.css",
-      "bytes": 13255,
-      "start": 555
-    },
-    {
-      "from_sheet": "app-admin.css",
-      "section": "design-tokens.css",
-      "bytes": 12314,
-      "start": 803
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "animations.css",
-      "bytes": 10651,
-      "start": 22494
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "mobile-comprehensive-fixes.css",
-      "bytes": 9664,
-      "start": 41055
-    },
-    {
-      "from_sheet": "app-admin.css",
-      "section": "admin-mobile.css",
-      "bytes": 8818,
-      "start": 421425
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "theme-variables.css",
-      "bytes": 8684,
-      "start": 13810
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "mobile-menu-improvements.css",
-      "bytes": 7910,
-      "start": 33145
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "mem-utils.css",
-      "bytes": 4341,
-      "start": 470
-    },
-    {
-      "from_sheet": "app-admin.css",
-      "section": "admin-tokens.css",
-      "bytes": 3780,
-      "start": 13117
     }
   ],
-  "first_pr_candidates": [
+  "first_pr_candidates": [],
+  "third_pr_candidates": [],
+  "third_pr_max_bytes": 110000,
+  "shadowed_sections_count": 17,
+  "deferred_mega_sections": [
     {
       "from_sheet": "app-public.css",
-      "section": "header-v2.css",
-      "bytes": 35943,
-      "start": 332839
+      "section": "style.css",
+      "bytes": 331906,
+      "start": 933
     },
     {
-      "from_sheet": "app-member.css",
-      "section": "member-portal-v2.css",
-      "bytes": 31906,
-      "start": 71749
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "auth-portals-unified.css",
-      "bytes": 17425,
-      "start": 103655
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "coop-clean.css",
-      "bytes": 15029,
-      "start": 100025
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "design-tokens.css",
-      "bytes": 13255,
-      "start": 555
+      "from_sheet": "app-public.css",
+      "section": "public-modern.css",
+      "bytes": 234489,
+      "start": 368782
     },
     {
       "from_sheet": "app-admin.css",
-      "section": "design-tokens.css",
-      "bytes": 12314,
-      "start": 803
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "animations.css",
-      "bytes": 10651,
-      "start": 22494
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "mobile-comprehensive-fixes.css",
-      "bytes": 9664,
-      "start": 41055
+      "section": "admin.css",
+      "bytes": 211304,
+      "start": 16897
     },
     {
       "from_sheet": "app-admin.css",
-      "section": "admin-mobile.css",
-      "bytes": 8818,
-      "start": 421425
+      "section": "admin-modern.css",
+      "bytes": 193224,
+      "start": 228201
     },
     {
-      "from_sheet": "app-core.css",
-      "section": "theme-variables.css",
-      "bytes": 8684,
-      "start": 13810
-    },
-    {
-      "from_sheet": "app-core.css",
-      "section": "mobile-menu-improvements.css",
-      "bytes": 7910,
-      "start": 33145
-    },
-    {
-      "from_sheet": "app-member.css",
-      "section": "mem-utils.css",
-      "bytes": 4341,
-      "start": 470
+      "from_sheet": "app-public.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 166764,
+      "start": 603271
     },
     {
       "from_sheet": "app-admin.css",
-      "section": "admin-tokens.css",
-      "bytes": 3780,
-      "start": 13117
+      "section": "theme-overrides-v4.css",
+      "bytes": 130693,
+      "start": 430243
     }
   ],
   "late_bundle": {

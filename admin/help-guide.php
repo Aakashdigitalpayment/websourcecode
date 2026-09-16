@@ -738,8 +738,9 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <h5>🏛️ About / Institutional Profile:</h5>
       <div class="hg-step">
         <a href="about-settings.php">About Settings</a> र <a href="institutional-profile.php">Institutional Profile</a> pages मा संस्थाको इतिहास, mission, vision, registration numbers edit गर्नुहोस्।
+        दृष्टि/लक्ष्य public: <code>vision-mission.php</code> · किन छान्ने: <a href="why-choose.php">Why Choose</a> → <code>../why-choose.php</code>।
         सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → public <code>success-stories.php</code> (About ड्रपडाउन अन्तिम)।
-        अध्यक्ष/CEO सन्देश: <code>chairman-message.php</code> / <code>ceo-message.php</code> (About Settings बाट)।
+        अध्यक्ष/CEO सन्देश: <code>chairman-message.php</code> / <code>ceo-message.php</code> (Pages → Static / About Settings बाट)।
       </div>
 
       <h5>🌐 Info Officer (RTI):</h5>

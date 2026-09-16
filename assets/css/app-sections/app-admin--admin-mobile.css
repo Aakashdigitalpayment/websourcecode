@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-admin.css — do not edit app-* for polish.
  * Source bytes=8818 sha256=2b4ae0ea3b75825b
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== admin-mobile.css ========== */
 /**

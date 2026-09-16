@@ -54,9 +54,11 @@ $hasCeoMsg = trim((string)($lead['ceo_message'] ?? '')) !== '';
 <script>
 (function () {
   var h = (location.hash || '').toLowerCase();
-  if (h === '#success-stories') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/success-stories.php'); ?>);
+  if (h === '#success-stories' || h === '#success') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/success-stories.php'); ?>);
   else if (h === '#chairman' || h === '#chairman-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/chairman-message.php'); ?>);
-  else if (h === '#ceo-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/ceo-message.php'); ?>);
+  else if (h === '#ceo' || h === '#ceo-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/ceo-message.php'); ?>);
+  else if (h === '#vision' || h === '#mission' || h === '#vision-mission') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/vision-mission.php'); ?>);
+  else if (h === '#why-choose' || h === '#why-us') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/why-choose.php'); ?>);
 })();
 </script>
 <?php
@@ -92,10 +94,6 @@ if ($aboutVisual === '') {
 $hasAboutVisual = $aboutVisual !== '';
 
 // Static section titles (admin editable via pages static sections)
-$visionTitleNp = getSetting('vision_content_title_np', 'हाम्रो दृष्टिकोण');
-$visionTitleEn = getSetting('vision_content_title_en', 'Our Vision');
-$missionTitleNp = getSetting('mission_content_title_np', 'हाम्रो लक्ष्य');
-$missionTitleEn = getSetting('mission_content_title_en', 'Our Mission');
 $valuesTitleNp = getSetting('values_content_title_np', 'हाम्रो मूल मान्यताहरू');
 $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
 ?>
@@ -245,60 +243,24 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
     </div>
 </section>
 
-<!-- Vision & Mission Section - Eye Catching Design -->
-<section class="vision-section-v2 section-padding bg-light" id="vision">
+<!-- Vision & Mission — teaser; full content on vision-mission.php -->
+<section class="vision-section-v2 section-padding bg-light" id="vision-teaser">
     <div class="container">
-        <div class="section-header text-center mb-5" data-aos="fade-up">
+        <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
                 <span class="section-badge">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
                     <?php echo isEnglish() ? 'Our Purpose' : 'हाम्रो उद्देश्य'; ?>
                 </span>
             </div>
-            <h2><?php echo isEnglish() ? 'Vision & Mission' : 'दृष्टि र लक्ष्य'; ?></h2>
+            <h2><?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></h2>
             <div class="section-divider"></div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="vision-card-v2 vision">
-                    <div class="vision-card-glow"></div>
-                    <div class="vision-icon-v2">
-                        <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
-                    </div>
-                    <div class="vision-card-content coop-prose">
-                        <h4><?php echo htmlspecialchars(isEnglish() ? $visionTitleEn : $visionTitleNp, ENT_QUOTES, 'UTF-8'); ?></h4>
-                        <?php
-                        $visionContent = isEnglish() ? getSetting('vision_content_en', '') : getSetting('vision_content_np', '');
-                        if ($visionContent):
-                            echo coop_render_cms_prose($visionContent);
-                        else:
-                        ?>
-                        <p><?php echo isEnglish() ? 'To be the most trusted and preferred cooperative in our community.' : 'समुदायमा सबैभन्दा विश्वसनीय र रुचाइएको सहकारी संस्था बन्नु।'; ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vision-card-decoration"></div>
-                </div>
-            </div>
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="vision-card-v2 mission">
-                    <div class="vision-card-glow"></div>
-                    <div class="vision-icon-v2">
-                        <i class="lucide-icon" data-lucide="target" aria-hidden="true"></i>
-                    </div>
-                    <div class="vision-card-content coop-prose">
-                        <h4><?php echo htmlspecialchars(isEnglish() ? $missionTitleEn : $missionTitleNp, ENT_QUOTES, 'UTF-8'); ?></h4>
-                        <?php
-                        $missionContent = isEnglish() ? getSetting('mission_content_en', '') : getSetting('mission_content_np', '');
-                        if ($missionContent):
-                            echo coop_render_cms_prose($missionContent);
-                        else:
-                        ?>
-                        <p><?php echo isEnglish() ? 'To provide quality financial services while promoting the spirit of cooperation and helping members achieve their financial goals.' : 'सहकारिताको भावनालाई प्रवर्द्धन गर्दै सदस्यहरूलाई उनीहरूको वित्तीय लक्ष्य हासिल गर्न मद्दत गर्ने गुणस्तरीय वित्तीय सेवा प्रदान गर्नु।'; ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vision-card-decoration"></div>
-                </div>
-            </div>
+            <p class="mb-3"><?php echo isEnglish()
+                ? 'Read our full vision and mission on the dedicated page.'
+                : 'पूर्ण दृष्टि र लक्ष्य छुट्टै पृष्ठमा पढ्नुहोस्।'; ?></p>
+            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php" class="btn btn-primary">
+                <i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo isEnglish() ? 'View Vision & Mission' : 'दृष्टि र लक्ष्य हेर्नुहोस्'; ?>
+            </a>
         </div>
     </div>
 </section>
@@ -314,8 +276,8 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <h2><?php echo isEnglish() ? 'More about us' : 'हाम्रो बारे थप'; ?></h2>
             <div class="section-divider"></div>
             <p><?php echo isEnglish()
-                ? 'Leadership messages, member stories, and institutional profile — each on its own page.'
-                : 'नेतृत्व सन्देश, सदस्य कथा र संस्थागत प्रोफाइल — प्रत्येक छुट्टै पृष्ठमा।'; ?></p>
+                ? 'Leadership messages, member stories, vision, and institutional profile — each on its own page.'
+                : 'नेतृत्व सन्देश, सदस्य कथा, दृष्टि र संस्थागत प्रोफाइल — प्रत्येक छुट्टै पृष्ठमा।'; ?></p>
         </div>
         <div class="row g-3 justify-content-center">
             <?php if ($hasChairMsg): ?>
@@ -334,10 +296,22 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                 </a>
             </div>
             <?php endif; ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="90">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
             <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="120">
                 <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php" class="value-card text-decoration-none d-block h-100">
                     <div class="value-icon"><i class="lucide-icon" data-lucide="building-2" aria-hidden="true"></i></div>
                     <h5><?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></h5>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="150">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></h5>
                 </a>
             </div>
             <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="180">

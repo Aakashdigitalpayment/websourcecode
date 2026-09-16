@@ -3,6 +3,8 @@
   "wrote": true,
   "all_first_pr": true,
   "all_second_pr": true,
+  "all_third_pr": true,
+  "third_pr_max_bytes": 110000,
   "sections": [
     {
       "from_sheet": "app-core.css",
@@ -115,6 +117,13 @@
       "bytes": 17425,
       "sha256": "5f275fb3e9a712a5",
       "shadow": "assets/css/app-sections/app-member--auth-portals-unified.css"
+    },
+    {
+      "from_sheet": "app-member.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 95673,
+      "sha256": "0dc7fcac76a2b0aa",
+      "shadow": "assets/css/app-sections/app-member--theme-overrides-v4.css"
     }
   ]
 }

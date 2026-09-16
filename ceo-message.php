@@ -13,6 +13,10 @@ $pageTitle = isEnglish()
 $pageDescription = isEnglish()
     ? ('Message from the ' . $lead['ceo_designation_en'] . ' of our cooperative.')
     : ('हाम्रो सहकारीका ' . $lead['ceo_designation_np'] . 'को सन्देश।');
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/leadership-message-page.css')
+        : '');
 require_once __DIR__ . '/includes/header.php';
 $L = function_exists('getLangStrings') ? getLangStrings() : [];
 $name = (string) $lead['ceo_name'];

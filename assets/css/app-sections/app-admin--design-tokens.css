@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-admin.css — do not edit app-* for polish.
  * Source bytes=12314 sha256=6b518c56667fd68c
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== design-tokens.css ========== */
 /* ============================================================

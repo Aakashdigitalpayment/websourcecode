@@ -1,7 +1,7 @@
 /* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
  * Source bytes=8684 sha256=d9a27c04dbce3b5f
  * Future PR: thin @import shim; keep app-* frozen until verified.
- * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
  */
 /* ========== theme-variables.css ========== */
 :root {
