@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.3');
+define('THEME_VERSION', '2.4');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);

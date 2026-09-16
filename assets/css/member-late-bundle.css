@@ -8543,12 +8543,18 @@ html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .border-success {
    Typography SSOT lock (beats frozen Mukta / system stacks)
    Body = Inter + Noto Sans Devanagari; Headings = Plus Jakarta Sans.
    Loaded last — safe override; FA / Lucide excluded.
+   Completes multi-page uniform fonts/colors without rewriting app-*.
    ═══════════════════════════════════════════════════════════════ */
 html:not([data-font-lock="legacy"]) body {
   font-family: var(--final-font-body) !important;
-  color: var(--text-primary, var(--shell-text, #1a2e1f));
+  color: var(--text-primary, var(--shell-text, #1a2e1f)) !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Soft page chrome follows brand surfaces (not fixed #f8faf9 green-gray) */
+html:not([data-font-lock="legacy"]) body:not(.dark-mode):not(.auth-portal-page):not(.verify-auth-page) {
+  background-color: var(--bg-page, #f8fafc) !important;
 }
 
 html:not([data-font-lock="legacy"]) body :is(
@@ -8565,13 +8571,27 @@ html:not([data-font-lock="legacy"]) body :is(
 }
 
 html:not([data-font-lock="legacy"]) body :is(
-  p, li, td, th, label, small,
+  p, li, td, th, label, small, span, a, button,
   .btn, .form-control, .form-select, .form-label,
   .nav-link, .dropdown-item, .breadcrumb-item,
   .table, .alert, .badge, .input-group-text,
   .mob-bottomnav, .main-footer, .qh-menu, .qh-item,
-  .sidebar-nav, .card-body, .card-text
+  .sidebar-nav, .card-body, .card-text,
+  .pfl-top-bar, .pfl-quick-links, .pfl-top-actions,
+  .pfl-top-bar a, .pfl-top-bar button, .pfl-top-bar span,
+  .pfl-nav-area, .pfl-nav-area a, .pfl-nav-area .mnav-main-label,
+  .nav-menu, .nav-menu a, .dropdown, .sub-menu,
+  .section-badge, .award-desc, .award-by, .notice-item,
+  .stat-label, .stat-number, .cta-content, .cta-content p
 ):not(.fas):not(.far):not(.fab):not(.fa):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(.lucide-icon) {
+  font-family: var(--final-font-body) !important;
+}
+
+/* Headings in chrome that frozen CSS painted with Mukta */
+html:not([data-font-lock="legacy"]) body.header-v2 .pfl-nav-area .nav-menu > li > a,
+html:not([data-font-lock="legacy"]) body.header-v2 .pfl-nav-area .nav-menu .dropdown li a,
+html:not([data-font-lock="legacy"]) body.header-v2 #mainNavV2 .nav-menu > li > a,
+html:not([data-font-lock="legacy"]) body.header-v2 #mainNavV2 .nav-menu .dropdown li a {
   font-family: var(--final-font-body) !important;
 }
 
