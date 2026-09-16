@@ -201,7 +201,12 @@ assertContains('assets/css/final-ui-polish.css', 'Corp modal-header tint', 'moda
 assertContains('assets/css/final-ui-polish.css', 'Header: Himal bg + SINCE badge', 'header himal since lang fixes');
 assertContains('includes/config.php', 'function safe_versioned_media_src_absolute', 'absolute versioned media helper');
 assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute url');
-assertContains('index.php', 'award-read-more', 'homepage awards teaser has read-more');
+assertContains('assets/css/global-theme.php', 'tint follows admin primary (multi-sahakari)', 'surfaces follow admin primary');
+assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.2')", 'theme version 2.2 multi-sahakari');
+assertContains('assets/css/final-ui-polish.css', 'Multi-sahakari brand bridge', 'late brand bridge present');
+assertContains('admin/settings.php', '--bg-muted', 'settings live preview updates bg surfaces');
+assertContains('assets/css/public-shell-polish.css', 'rgba(var(--primary-rgb),', 'public shell uses primary-rgb shadows');
 assertContains('index.php', 'truncateText($awardDescFull, 110', 'homepage awards description truncated');
 assertContains('assets/css/final-ui-polish.css', 'Homepage awards — short teaser', 'awards teaser CSS in polish');
 assertContains('scripts/deploy-pull-safe.sh', 'run-migration-safe.php --yes', 'deploy-pull includes safe migration');

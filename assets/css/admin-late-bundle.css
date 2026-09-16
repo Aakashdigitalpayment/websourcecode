@@ -1602,7 +1602,7 @@ body[class*="admin-page-"],
   background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #e5e7eb) !important;
   color: var(--primary-color, #1a5f2a) !important;
-  box-shadow: 0 2px 6px rgba(26, 95, 42, 0.08) !important;
+  box-shadow: 0 2px 6px rgba(var(--primary-rgb), 0.08) !important;
 }
 
 .admin-header-icon .lucide-icon,
@@ -1621,12 +1621,12 @@ body[class*="admin-page-"],
 .main-content .btn-success {
   border-radius: 10px !important;
   font-weight: 650 !important;
-  box-shadow: 0 1px 2px rgba(26, 95, 42, 0.12) !important;
+  box-shadow: 0 1px 2px rgba(var(--primary-rgb), 0.12) !important;
 }
 
 .main-content .btn-primary:hover,
 .main-content .btn-success:hover {
-  box-shadow: 0 3px 8px rgba(26, 95, 42, 0.18) !important;
+  box-shadow: 0 3px 8px rgba(var(--primary-rgb), 0.18) !important;
 }
 
 @media (max-width: 767.98px) {
@@ -5235,7 +5235,7 @@ textarea:focus-visible,
   letter-spacing: 0.04em !important;
   text-transform: uppercase !important;
   border: none !important;
-  box-shadow: 0 4px 12px rgba(26, 95, 42, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.2) !important;
 }
 
 .section-header .section-badge i,
@@ -5505,7 +5505,7 @@ html[lang="en"] .pfl-top-right .pfl-lang-wrap .pfl-lang-link {
   color: var(--final-muted) !important;
   text-align: center;
   border-radius: var(--final-radius-lg);
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, var(--bg-page, #f8fafc));
   border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
 }
 
@@ -6195,7 +6195,7 @@ body:has(.card > .card-top) .card-top {
 .notice-popup-enhanced .popup-photo-only-link:hover .popup-photo-only-img,
 .notice-popup-enhanced .popup-photo-only-link:focus-visible .popup-photo-only-img {
   opacity: 0.92;
-  outline: 2px solid rgba(26, 95, 42, 0.35);
+  outline: 2px solid rgba(var(--primary-rgb), 0.35);
   outline-offset: 2px;
 }
 
@@ -6403,7 +6403,7 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content .btn-light:hover,
 .cta-section .cta-content .ir-cta-btn:hover,
 .cta-section .cta-content a.btn:not(.btn-outline-light):not(.btn-outline-primary):not(.btn-primary):not(.btn-success):hover {
-  background: #f0fdf4 !important;
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
   color: var(--primary-dark, #145021) !important;
   -webkit-text-fill-color: var(--primary-dark, #145021) !important;
 }
@@ -7839,7 +7839,7 @@ body.dark-mode .job-detail-footer {
   min-width: 1.75rem;
   padding: 0.2rem 0.55rem;
   border-radius: 999px;
-  background: rgba(26, 95, 42, 0.92);
+  background: rgba(var(--primary-rgb), 0.92);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -8219,7 +8219,7 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 }
 
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced {
-  background: linear-gradient(145deg, var(--light-green, #e8f5e9) 0%, #eef8f0 100%) !important;
+  background: linear-gradient(145deg, var(--bg-muted, var(--light-green, #e8f5e9)) 0%, color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff) 100%) !important;
   border: 1px solid rgba(var(--primary-rgb, 26, 95, 42), 0.1) !important;
   border-radius: 16px !important;
 }
@@ -8635,14 +8635,14 @@ body.dark-mode .pfl-lm-weblogin {
   font-weight: 600;
   line-height: 1.35;
   text-decoration: none !important;
-  box-shadow: 0 4px 14px rgba(26, 95, 42, 0.22);
+  box-shadow: 0 4px 14px rgba(var(--primary-rgb), 0.22);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .notice-popup-enhanced .popup-view-full-notice:hover,
 .notice-popup-enhanced .popup-view-full-notice:focus-visible {
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(26, 95, 42, 0.28);
+  box-shadow: 0 6px 18px rgba(var(--primary-rgb), 0.28);
   color: #fff !important;
 }
 
@@ -9024,7 +9024,7 @@ textarea.form-control.is-invalid,
 body[class*="admin-page-"] .main-content .admin-empty-state {
   padding: 2.85rem 1.35rem !important;
   border-radius: var(--final-radius-lg);
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, var(--bg-page, #f8fafc));
   border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
 }
 body[class*="admin-page-"] .main-content .admin-empty-state i,
@@ -9332,7 +9332,7 @@ body.dark-mode .notice-popup-enhanced .popup-dialog {
   text-align: center;
   padding: clamp(2rem, 5vw, 3rem) 1.25rem !important;
   border-radius: var(--final-radius-lg);
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, #f8faf9);
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 3.5%, var(--bg-page, #f8fafc));
   border: 1px dashed color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #d7e0db);
   color: var(--final-muted);
 }
@@ -9822,5 +9822,32 @@ html body .qh-menu .qh-item .qh-ic.wa .fab {
   color: #fff !important;
   stroke: #fff !important;
   -webkit-text-fill-color: #fff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Multi-sahakari brand bridge (THEME 2.2+)
+   Admin Settings → primary/secondary/footer drive CSS vars.
+   Late layer: remint common frozen hardcode greens to tokens so
+   each coop site follows its own colours (no app-* rewrite).
+   ═══════════════════════════════════════════════════════════════ */
+html:not([data-brand-lock="legacy"]) body:not(.dark-mode) {
+  --coop-brand-soft: var(--bg-soft);
+  --coop-brand-muted: var(--bg-muted);
+}
+
+/* Soft panels that often stayed Material green in frozen CSS */
+html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .bg-success-subtle,
+html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .alert-success {
+  background-color: var(--bg-muted) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, transparent) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+}
+
+html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .text-success {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+}
+
+html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .border-success {
+  border-color: var(--primary-color, #1a5f2a) !important;
 }
 /* ===== END final-ui-polish.css ===== */
