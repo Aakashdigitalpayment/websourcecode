@@ -185,6 +185,7 @@ assertContains('assets/css/final-ui-polish.css', '.main-footer .footer-contact .
 assertContains('assets/css/final-ui-polish.css', 'html body .qh-menu .qh-item .qh-ic svg', 'qh-ic wells force white Lucide glyphs');
 assertContains('assets/css/final-ui-polish.css', '.qh-fab svg.qh-i-close', 'qh-fab Lucide open/close targets svg');
 assertContains('assets/css/final-ui-polish.css', 'body.dark-mode .main-footer .footer-contact .lucide-icon', 'dark footer keeps light contact icons');
+assertContains('assets/css/final-ui-polish.css', 'restore icon↔text space', 'footer contact icon-text gap restored');
 assertContains('assets/css/final-ui-polish.css', '.cta-section .cta-content .ir-cta-btn', 'CTA solid buttons include ir-cta-btn');
 assertContains('assets/css/final-ui-polish.css', 'white-on-white', 'CTA white-on-white root documented');
 assertContains('assets/css/ui-readability-safe-patch.css', 'Do NOT paint bare `div` with -webkit-text-fill-color', 'readability no longer fills CTA divs');

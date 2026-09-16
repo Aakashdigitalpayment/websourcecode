@@ -5768,7 +5768,10 @@ textarea.form-control {
 }
 
 .main-footer .footer-contact li {
-  margin-bottom: 0.38rem !important;
+  margin-bottom: 0.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.7rem !important; /* app-public sets gap:0 — restore icon↔text space */
 }
 
 .mob-bottomnav {
@@ -9680,6 +9683,7 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic
 /* Footer contact + social — primary ink on light footer-top */
 .main-footer .footer-contact li {
   align-items: center !important;
+  gap: 0.7rem !important;
 }
 .main-footer .footer-contact .lucide-icon,
 .main-footer .footer-contact svg,
@@ -9703,6 +9707,7 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic
   min-height: 18px !important;
   flex-shrink: 0 !important;
   stroke-width: 2 !important;
+  margin: 0 !important; /* avoid double-spacing with flex gap */
 }
 
 .main-footer .footer-social a:hover .lucide-icon,
