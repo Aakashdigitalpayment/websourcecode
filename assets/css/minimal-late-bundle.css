@@ -8694,4 +8694,17 @@ html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .footer-main a:hover,
 html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-top a:hover:not(.btn):not(.footer-social a) {
   color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
 }
+
+/* Report card type icon wells = brand fill → force on-primary Lucide (not primary-ink) */
+html:not([data-brand-lock="legacy"]) .report-card .report-icon,
+html:not([data-brand-lock="legacy"]) .report-card .report-icon .lucide-icon,
+html:not([data-brand-lock="legacy"]) .report-card .report-icon svg,
+html:not([data-brand-lock="legacy"]) .report-card .report-icon svg.lucide,
+html:not([data-brand-lock="legacy"]) .report-card .report-icon i {
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
 /* ===== END final-ui-polish.css ===== */
