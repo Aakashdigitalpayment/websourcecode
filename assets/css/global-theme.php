@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.4');
+define('THEME_VERSION', '2.5');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);
@@ -98,7 +98,8 @@ $__rgb = function (string $hex): string {
    ═══════════════════════════════════════════════════════════ */
 $_p  = $__hex((string) getSetting('primary_color',   '#1a5f2a'), '#1a5f2a'); // Primary brand
 $_s  = $__hex((string) getSetting('secondary_color', '#c0392b'), '#c0392b'); // Accent/secondary
-$_h  = $__hex((string) getSetting('header_color',    $_s),       $_s);       // Header/topbar
+$_h  = $__hex((string) getSetting('header_color',    $_s),       $_s);       // Header strip
+$_t  = $__hex((string) getSetting('topbar_color',    $_h),       $_h);       // Top utility bar
 $_f  = $__hex((string) getSetting('footer_color',    $_p),       $_p);       // Footer
 
 /* Shades */
@@ -107,12 +108,14 @@ $_pLight  = $__shift($_p, -28);
 $_pXLight = $__shift($_p, -48);
 $_sDark   = $__shift($_s, 30);
 $_hDark   = $__shift($_h, 30);
+$_tDark   = $__shift($_t, 30);
 $_fDark   = $__shift($_f, 24);
 
 /* Foreground text colors */
 $_onP = $__textOnGradient($_p, $_pDark);
 $_onS = $__textOnGradient($_s, $_sDark);
 $_onH = $__textOnGradient($_h, $_hDark);
+$_onT = $__textOnGradient($_t, $_tDark);
 $_onF = $__textOnGradient($_f, $_fDark);
 
 /* Ink for brand-as-text on light/dark surfaces (readable when primary is pale) */
@@ -158,11 +161,14 @@ $__sDark = $_sDark ?? '#9f3025';
 $__sRgb = $_sRgb ?? '192, 57, 43';
 $__h = $_h ?? $__s;
 $__hDark = $_hDark ?? $__sDark;
+$__t = $_t ?? $__h;
+$__tDark = $_tDark ?? $__hDark;
 $__f = $_f ?? $__p;
 $__fDark = $_fDark ?? '#134826';
 $__onP = $_onP ?? '#ffffff';
 $__onS = $_onS ?? '#ffffff';
 $__onH = $_onH ?? '#ffffff';
+$__onT = $_onT ?? $__onH;
 $__onF = $_onF ?? '#ffffff';
 $__pInk = $_pInk ?? $__p;
 $__sInk = $_sInk ?? $__s;
@@ -194,16 +200,24 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
 
     --header-color:     <?= $__h ?>;
     --header-dark:      <?= $__hDark ?>;
-    --topbar-bg:        <?= $__h ?>;
+    --topbar-bg:        <?= $__t ?>;
+    --topbar-dark:      <?= $__tDark ?>;
 
     --footer-color:     <?= $__f ?>;
     --footer-dark:      <?= $__fDark ?>;
 
-    /* ── Text on brand backgrounds ── */
+    /* ── Text on brand backgrounds (WCAG auto) ── */
     --text-on-primary:   <?= $__onP ?>;
     --text-on-secondary: <?= $__onS ?>;
     --text-on-header:    <?= $__onH ?>;
     --text-on-footer:    <?= $__onF ?>;
+    --text-on-topbar:    <?= $__onT ?>;
+    /* Icons on brand fills — same as text-on-* (never hardcode #fff) */
+    --icon-on-primary:   var(--text-on-primary);
+    --icon-on-secondary: var(--text-on-secondary);
+    --icon-on-header:    var(--text-on-header);
+    --icon-on-footer:    var(--text-on-footer);
+    --icon-on-topbar:    var(--text-on-topbar);
 
     /* ── Shadows derived from brand ── */
     --shadow-primary:  <?= $__shadowP ?>;
@@ -338,15 +352,31 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
 .progress-bar                                { background-color: var(--primary-color) !important; }
 
 /* Header / Topbar */
-.top-bar, .topbar, .site-topbar, .header-top, .navbar-top { background-color: var(--header-color) !important; color: var(--text-on-header) !important; }
-.top-bar a, .topbar a, .site-topbar a       { color: var(--text-on-header) !important; }
+.top-bar, .topbar, .site-topbar, .pfl-top-bar, .header-utility-bar {
+    background-color: var(--topbar-bg, var(--header-color)) !important;
+    color: var(--text-on-topbar, var(--text-on-header)) !important;
+}
+.header-top, .navbar-top {
+    background-color: var(--header-color) !important;
+    color: var(--text-on-header) !important;
+}
+.top-bar a, .topbar a, .site-topbar a, .pfl-top-bar a {
+    color: var(--text-on-topbar, var(--text-on-header)) !important;
+}
 
-/* Footer */
-footer, .site-footer, .footer-main, .main-footer { background-color: var(--footer-color) !important; color: var(--text-on-footer) !important; }
-footer a, .site-footer a, .main-footer a:not(.btn) {
+/* Footer — only dark bottom bar uses footer_color (top stays light panel) */
+.main-footer .footer-bottom,
+.site-footer .footer-bottom,
+.footer-bottom {
+    background-color: var(--footer-color) !important;
+    color: var(--text-on-footer) !important;
+}
+.main-footer .footer-bottom a:not(.btn),
+.footer-bottom a:not(.btn) {
     color: color-mix(in srgb, var(--text-on-footer) 88%, transparent);
 }
-footer a:hover, .site-footer a:hover, .main-footer a:not(.btn):hover {
+.main-footer .footer-bottom a:not(.btn):hover,
+.footer-bottom a:not(.btn):hover {
     color: var(--text-on-footer);
 }
 
@@ -753,58 +783,63 @@ body.verify-page .vp-page-logo img     {
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── A. TOPBAR / HEADER ─────────────────────────────────────── */
-.top-bar, .topbar, .site-topbar,
-.header-top, .navbar-top, .quick-links-bar,
-.header-utility-bar                            {
+/* Utility top strip uses topbar tokens; header strip stays header_* */
+.top-bar, .topbar, .site-topbar, .pfl-top-bar,
+.header-utility-bar, .quick-links-bar          {
+    background-color: var(--topbar-bg, var(--header-color)) !important;
+    color:            var(--text-on-topbar, var(--text-on-header)) !important;
+}
+.header-top, .navbar-top                       {
     background-color: var(--header-color) !important;
     color:            var(--text-on-header) !important;
 }
-.top-bar *,  .topbar *,  .site-topbar *,
-.header-top *, .navbar-top *, .quick-links-bar *,
-.header-utility-bar *                          {
+.top-bar *,  .topbar *,  .site-topbar *, .pfl-top-bar *,
+.header-utility-bar *, .quick-links-bar *      {
+    color: var(--text-on-topbar, var(--text-on-header)) !important;
+}
+.header-top *, .navbar-top *                   {
     color: var(--text-on-header) !important;
 }
-/* Links inside topbar get own contrast colour */
-.top-bar a, .topbar a, .site-topbar a,
-.header-top a, .quick-links-bar a             {
+.top-bar a, .topbar a, .site-topbar a, .pfl-top-bar a,
+.quick-links-bar a                             {
+    color: var(--text-on-topbar, var(--text-on-header)) !important;
+}
+.header-top a                                  {
     color: var(--text-on-header) !important;
 }
 .top-bar a:hover, .topbar a:hover,
-.site-topbar a:hover, .quick-links-bar a:hover {
+.site-topbar a:hover, .pfl-top-bar a:hover,
+.quick-links-bar a:hover {
     opacity: .82 !important;
-    color:   var(--text-on-header) !important;
+    color:   var(--text-on-topbar, var(--text-on-header)) !important;
 }
-/* Icons stay same colour */
-.top-bar i, .topbar i, .site-topbar i         {
-    color: var(--text-on-header) !important;
+.top-bar i, .topbar i, .site-topbar i, .pfl-top-bar i {
+    color: var(--icon-on-topbar, var(--text-on-topbar)) !important;
 }
 
-/* ── B. FOOTER ───────────────────────────────────────────────── */
-footer, .site-footer, .footer-main,
-.main-footer, .footer-wrap, .footer-top        {
+/* ── B. FOOTER ─────────────────────────────────────────────────
+   footer-bottom / dark brand bars use footer_color + text-on-footer.
+   footer-top is a light panel (logos) — do NOT force white glyphs there. */
+.main-footer .footer-bottom,
+.site-footer .footer-bottom,
+footer .footer-bottom,
+.footer-bottom                                 {
     background-color: var(--footer-color) !important;
     color:            var(--text-on-footer) !important;
 }
-footer *, .site-footer *, .footer-main *,
-.main-footer *, .footer-wrap *                 {
+.main-footer .footer-bottom *,
+.site-footer .footer-bottom *,
+.footer-bottom *                               {
     color: var(--text-on-footer) !important;
 }
-footer a, .site-footer a, .footer-main a,
-.main-footer a                                 {
+.main-footer .footer-bottom a,
+.footer-bottom a                               {
     color: color-mix(in srgb, var(--text-on-footer) 88%, transparent) !important;
 }
-footer a:hover, .site-footer a:hover,
-.footer-main a:hover                           {
+.main-footer .footer-bottom a:hover,
+.footer-bottom a:hover                         {
     color: var(--text-on-footer) !important;
     opacity: .9 !important;
-}
-footer h1, footer h2, footer h3, footer h4,
-footer h5, footer h6,
-.site-footer h1, .site-footer h2, .site-footer h3,
-.site-footer h4, .site-footer h5, .site-footer h6,
-.footer-main h1, .footer-main h2, .footer-main h3,
-.footer-main h4, .footer-main h5, .footer-main h6  {
-    color: var(--text-on-footer) !important;
 }
 
 /* ── C. HERO / SLIDER SECTION ───────────────────────────────── */

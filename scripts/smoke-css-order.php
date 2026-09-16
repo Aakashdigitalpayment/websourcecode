@@ -206,7 +206,14 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.4')", 'theme version 2.4 font/color complete');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.5')", 'theme version 2.5 auto-contrast');
+assertContains('assets/css/global-theme.php', '--text-on-topbar:', 'topbar has WCAG text token');
+assertContains('assets/css/global-theme.php', '--icon-on-primary:', 'icon-on-primary token present');
+assertContains('assets/css/global-theme.php', "getSetting('topbar_color'", 'topbar_color drives --topbar-bg');
+assertContains('assets/css/final-ui-polish.css', 'var(--primary-ink, var(--primary-color, #1a5f2a)) !important;', 'footer contact uses primary-ink');
+assertContains('assets/css/final-ui-polish.css', 'Admin colour change → use --primary-ink', 'auto-contrast remaps documented');
+assertContains('admin/settings.php', 'textOnGradient', 'settings preview uses gradient WCAG contrast');
+assertContains('admin/settings.php', "--icon-on-topbar'", 'settings live-preview sets icon-on-topbar');
 assertContains('assets/css/final-ui-polish.css', 'Completes multi-page uniform fonts/colors', 'typography lock completion marker');
 assertContains('assets/css/final-ui-polish.css', '.pfl-top-bar', 'typography lock covers top bar Mukta');
 assertContains('assets/css/final-ui-polish.css', 'background-color: var(--bg-page', 'body bg uses brand surface token');
