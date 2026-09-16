@@ -387,6 +387,9 @@ assertContains('reports.php', 'report-actions-icons', 'reports icon-only action 
 assertContains('reports.php', 'report-action-share', 'reports share action present');
 assertContains('reports.php', 'data-share-text', 'share includes report details payload');
 assertContains('assets/css/reports-page.css', '.report-action-btn', 'reports icon button styles');
+assertContains('assets/css/reports-page.css', 'position: fixed', 'share menu uses fixed positioning');
+assertContains('reports.php', 'showFallbackMenu', 'share has desktop fallback menu');
+assertContains('reports.php', 'AbortError', 'web share cancel does not force fallback');
 assertContains('includes/header.php', 'success-stories.php', 'about dropdown links success stories page');
 assertContains('includes/header.php', 'chairman-message.php', 'about dropdown links chairman page');
 assertContains('includes/header.php', 'ceo-message.php', 'about dropdown links ceo page');

@@ -83,17 +83,16 @@
   height: 1.05rem !important;
 }
 
-/* Fallback share menu (desktop without Web Share API) */
 .report-share-menu {
-  position: absolute;
-  z-index: 40;
+  position: fixed;
+  z-index: 1200;
   min-width: 11.5rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
   padding: 0.35rem;
-  margin-top: 0.35rem;
   background: var(--bg-card, #fff);
   border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
   border-radius: 12px;
-  box-shadow: 0 10px 28px rgba(15, 31, 23, 0.14);
+  box-shadow: 0 10px 28px rgba(15, 31, 23, 0.18);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -122,13 +121,21 @@
 }
 
 .report-share-menu button:hover,
-.report-share-menu a:hover {
+.report-share-menu a:hover,
+.report-share-menu button:focus-visible,
+.report-share-menu a:focus-visible {
   background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
   color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  outline: none;
 }
 
 .report-actions-icons {
   position: relative;
+  overflow: visible !important;
+}
+
+.report-card {
+  overflow: visible !important; /* share menu must not clip */
 }
 
 @media (max-width: 575.98px) {
