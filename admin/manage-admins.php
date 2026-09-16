@@ -464,15 +464,16 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                                 <!-- Actions -->
                                 <td class="pe-3" data-label="कार्यहरू">
-                                    <div class="d-flex align-items-center justify-content-center gap-1 flex-wrap">
+                                    <div class="adm-action-icons d-flex align-items-center justify-content-center gap-1 flex-wrap">
 
-                                        <!-- Password Reset button -->
+                                        <!-- Password Reset -->
                                         <button type="button"
-                                                class="btn btn-sm btn-warning ma-reset-btn"
+                                                class="adm-icon-btn adm-icon-btn--edit ma-reset-btn"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#resetModal<?php echo (int)$adm['id']; ?>"
-                                                title="Password Reset">
-                                            <i class="lucide-icon me-1" data-lucide="key" aria-hidden="true"></i>Reset
+                                                title="Password Reset"
+                                                aria-label="Password Reset">
+                                            <i class="lucide-icon" data-lucide="key" aria-hidden="true"></i>
                                         </button>
 
                                         <!-- 2FA QR Reset (device change / mismatch) -->
@@ -486,9 +487,10 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                             <input type="hidden" name="target_id" value="<?php echo (int) $adm['id']; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                             <button type="submit"
-                                                    class="btn btn-sm btn-outline-danger"
-                                                    title="2FA QR Reset">
-                                                <i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>2FA
+                                                    class="adm-icon-btn"
+                                                    title="2FA QR Reset"
+                                                    aria-label="2FA QR Reset">
+                                                <i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
@@ -504,8 +506,9 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                             <input type="hidden" name="new_status" value="<?php echo $adm['is_active'] ? 0 : 1; ?>">
                                             <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                             <button type="submit"
-                                                    class="btn btn-sm <?php echo $adm['is_active'] ? 'btn-outline-secondary' : 'btn-outline-success'; ?>"
-                                                    title="<?php echo $adm['is_active'] ? 'Deactivate' : 'Activate'; ?>">
+                                                    class="adm-icon-btn <?php echo $adm['is_active'] ? '' : 'adm-icon-btn--view'; ?>"
+                                                    title="<?php echo $adm['is_active'] ? 'Deactivate' : 'Activate'; ?>"
+                                                    aria-label="<?php echo $adm['is_active'] ? 'Deactivate' : 'Activate'; ?>">
                                                 <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo $adm['is_active'] ? 'ban' : 'check'; ?>"></i>
                                             </button>
                                         </form>

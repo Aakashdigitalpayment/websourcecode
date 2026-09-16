@@ -10015,4 +10015,62 @@ html:not([data-brand-lock="legacy"]) .report-card .report-icon i {
   fill: none !important;
   opacity: 1 !important;
 }
+
+
+/* Manage-admins action column — icon-only buttons (no truncated Reset / stray glyphs) */
+body.admin-page-manage-admins .adm-action-icons {
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  gap: 6px !important;
+  align-items: center;
+  justify-content: center;
+}
+body.admin-page-manage-admins .adm-action-icons .adm-icon-btn,
+body.admin-page-manage-admins .adm-action-icons .ma-reset-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  line-height: 1 !important;
+  font-size: 0 !important; /* hide any leftover text nodes */
+  white-space: nowrap;
+}
+body.admin-page-manage-admins .adm-action-icons .adm-icon-btn .lucide-icon,
+body.admin-page-manage-admins .adm-action-icons .adm-icon-btn svg,
+body.admin-page-manage-admins .adm-action-icons .ma-reset-btn .lucide-icon,
+body.admin-page-manage-admins .adm-action-icons .ma-reset-btn svg {
+  width: 16px !important;
+  height: 16px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  display: block !important;
+  stroke: currentColor !important;
+  color: inherit !important;
+}
+body.admin-page-manage-admins .adm-action-icons .ma-reset-btn {
+  color: #b45309 !important;
+  border: 1px solid color-mix(in srgb, #f59e0b 45%, #e5e7eb) !important;
+  background: #fffbeb !important;
+}
+body.admin-page-manage-admins .adm-action-icons .ma-reset-btn:hover {
+  color: #92400e !important;
+  border-color: #f59e0b !important;
+  background: #fef3c7 !important;
+}
+body.admin-page-manage-admins .ma-role-badge .lucide-icon,
+body.admin-page-manage-admins .ma-role-badge svg,
+body.admin-page-manage-admins .badge .lucide-icon,
+body.admin-page-manage-admins .badge svg {
+  width: 12px !important;
+  height: 12px !important;
+  vertical-align: -0.1em;
+  display: inline-block !important;
+}
 /* ===== END final-ui-polish.css ===== */
