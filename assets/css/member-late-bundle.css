@@ -84,7 +84,7 @@ p, li, td, th, label, span,
 
 /* ── 3. TEXT SELECTION ──────────────────────────────────────────────────
    ──────────────────────────────────────────────────────────────────── */
-::selection { background: rgba(22,101,52,0.14); }
+::selection { background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent); }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    PUBLIC SITE
@@ -3759,8 +3759,13 @@ button.qh-item {
   --final-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
   --final-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.1);
   --final-muted: var(--shell-muted, #5b6b62);
-  --final-font-body: var(--prem-font-body, var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif));
-  --final-font-head: var(--prem-font-head, var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif));
+  /* Ensure aliases exist even when premium-ui is skipped (minimal late bundle) */
+  --prem-font-body: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif);
+  --prem-font-head: var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif);
+  --shell-font-body: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, -apple-system, 'Segoe UI', sans-serif);
+  --shell-font-head: var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif);
+  --final-font-body: var(--prem-font-body);
+  --final-font-head: var(--prem-font-head);
   /* Phase 2b contracts — values match existing last-word rules (do not restyle) */
   --final-control-radius: 10px;
   --final-btn-weight: 600;
@@ -8532,5 +8537,59 @@ html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .text-success {
 
 html:not([data-brand-lock="legacy"]) body:not(.dark-mode) .border-success {
   border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Typography SSOT lock (beats frozen Mukta / system stacks)
+   Body = Inter + Noto Sans Devanagari; Headings = Plus Jakarta Sans.
+   Loaded last — safe override; FA / Lucide excluded.
+   ═══════════════════════════════════════════════════════════════ */
+html:not([data-font-lock="legacy"]) body {
+  font-family: var(--final-font-body) !important;
+  color: var(--text-primary, var(--shell-text, #1a2e1f));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html:not([data-font-lock="legacy"]) body :is(
+  h1, h2, h3, h4, h5, h6,
+  .h1, .h2, .h3, .h4, .h5, .h6,
+  .page-title, .page-title-modern, .admin-page-title,
+  .section-header h2, .section-header-unified h2,
+  .home-heading-unified, .card-header, .modal-title,
+  .mem-card-title, .mp-page-head .mem-page-title,
+  .pfl-brand-text, .footer-widget h4
+) {
+  font-family: var(--final-font-head) !important;
+  letter-spacing: -0.015em;
+}
+
+html:not([data-font-lock="legacy"]) body :is(
+  p, li, td, th, label, small,
+  .btn, .form-control, .form-select, .form-label,
+  .nav-link, .dropdown-item, .breadcrumb-item,
+  .table, .alert, .badge, .input-group-text,
+  .mob-bottomnav, .main-footer, .qh-menu, .qh-item,
+  .sidebar-nav, .card-body, .card-text
+):not(.fas):not(.far):not(.fab):not(.fa):not(.fa-solid):not(.fa-regular):not(.fa-brands):not(.lucide-icon) {
+  font-family: var(--final-font-body) !important;
+}
+
+/* Nepali helper class — Noto first, still SSOT (no Mukta) */
+html:not([data-font-lock="legacy"]) body .text-nepali,
+html:not([data-font-lock="legacy"]) body .nepali-text {
+  font-family: var(--font-nepali, 'Noto Sans Devanagari', 'Inter', system-ui, sans-serif) !important;
+}
+
+/* Keep icon fonts intact when body font is forced */
+html:not([data-font-lock="legacy"]) body :is(.fas, .far, .fa, .fa-solid, .fa-regular),
+html:not([data-font-lock="legacy"]) body i.fas,
+html:not([data-font-lock="legacy"]) body i.far,
+html:not([data-font-lock="legacy"]) body i.fa {
+  font-family: "Font Awesome 6 Free" !important;
+}
+html:not([data-font-lock="legacy"]) body :is(.fab, .fa-brands),
+html:not([data-font-lock="legacy"]) body i.fab {
+  font-family: "Font Awesome 6 Brands" !important;
 }
 /* ===== END final-ui-polish.css ===== */
