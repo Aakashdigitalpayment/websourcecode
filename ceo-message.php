@@ -46,29 +46,25 @@ $message = (string) $lead['ceo_message'];
             <p class="mb-0"><?php echo isEnglish() ? 'CEO message will appear here soon.' : 'CEO सन्देश चाँडै यहाँ देखिनेछ।'; ?></p>
         </div>
         <?php else: ?>
-        <div class="leadership-message-full" data-aos="fade-up">
-            <div class="row align-items-center flex-md-row-reverse">
-                <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
-                    <div class="leader-photo-large">
-                        <?php if ($photo !== ''): ?>
-                        <img src="<?php echo e(safe_versioned_media_src($photo)); ?>" alt="<?php echo e($name); ?>" loading="lazy" decoding="async">
-                        <?php else: ?>
-                        <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
-                        <?php endif; ?>
-                    </div>
-                    <h4 class="mt-3"><?php echo e($name); ?></h4>
-                    <span class="leader-position"><?php echo htmlspecialchars((string) $ceoDesignation, ENT_QUOTES, 'UTF-8'); ?></span>
+        <article class="leadership-message-full leadership-message-stack" data-aos="fade-up">
+            <header class="leader-identity">
+                <div class="leader-photo-large">
+                    <?php if ($photo !== ''): ?>
+                    <img src="<?php echo e(safe_versioned_media_src($photo)); ?>" alt="<?php echo e($name); ?>" loading="lazy" decoding="async">
+                    <?php else: ?>
+                    <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
+                    <?php endif; ?>
                 </div>
-                <div class="col-lg-9 col-md-8">
-                    <div class="message-content-full">
-                        <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
-                        <div class="message-text-full coop-prose">
-                            <?php echo coop_render_cms_prose($message); ?>
-                        </div>
-                    </div>
+                <h2 class="leader-name"><?php echo e($name); ?></h2>
+                <span class="leader-position"><?php echo htmlspecialchars((string) $ceoDesignation, ENT_QUOTES, 'UTF-8'); ?></span>
+            </header>
+            <div class="message-content-full">
+                <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
+                <div class="message-text-full coop-prose">
+                    <?php echo coop_render_cms_prose($message); ?>
                 </div>
             </div>
-        </div>
+        </article>
         <?php endif; ?>
         <div class="text-center mt-4">
             <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php" class="btn btn-outline-primary">
