@@ -1,6 +1,7 @@
-/* Dedicated chairman / CEO message pages — stacked: photo/name → prose */
+/* Dedicated chairman / CEO message pages — stacked: photo/name → prose
+   Must fully override frozen app-public absolute-quote / side padding. */
 
-.leadership-messages-about .leadership-message-full {
+.leadership-messages-about .leadership-message-stack.leadership-message-full {
   background: var(--bg-card, #fff);
   border-radius: 16px;
   padding: clamp(1.5rem, 3vw, 2.5rem);
@@ -22,7 +23,7 @@
   border-bottom: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, transparent);
 }
 
-.leader-photo-large {
+.leadership-message-stack .leader-photo-large {
   width: 148px;
   height: 148px;
   border-radius: 50%;
@@ -33,14 +34,14 @@
   flex-shrink: 0;
 }
 
-.leader-photo-large img {
+.leadership-message-stack .leader-photo-large img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.photo-placeholder-large {
+.leadership-message-stack .photo-placeholder-large {
   width: 100%;
   height: 100%;
   background: var(--bg-muted, var(--light-bg, #eef5f0));
@@ -61,7 +62,7 @@
   line-height: 1.3;
 }
 
-.leader-position {
+.leadership-message-stack .leader-position {
   display: inline-block;
   color: var(--primary-ink, var(--primary-color, #1a5f2a));
   font-weight: 600;
@@ -69,26 +70,30 @@
   letter-spacing: 0.02em;
 }
 
-/* Message body — readable column, justified Nepali/EN prose */
-.message-content-full {
+/* Message body — beat frozen padding-left:50px + absolute quote */
+.leadership-message-stack .message-content-full {
   position: relative;
-  padding-top: 0.35rem;
-  padding-left: 0;
+  padding: 0.35rem 0 0 !important;
   max-width: 40rem;
   margin-inline: auto;
 }
 
-.quote-icon-large {
+.leadership-message-stack .quote-icon-large {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
   display: block;
-  width: 1.75rem;
-  height: 1.75rem;
-  margin: 0 auto 0.85rem;
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  margin: 0 auto 0.85rem !important;
+  font-size: inherit !important;
   color: var(--primary-ink, var(--primary-color, #1a5f2a));
   opacity: 0.35;
   stroke: currentColor;
 }
 
-.message-text-full {
+.leadership-message-stack .message-text-full {
   line-height: 1.85;
   color: var(--text-primary, #1a2e1f);
   font-size: 1.02rem;
@@ -97,40 +102,43 @@
   hyphens: auto;
 }
 
-.message-text-full p {
+.leadership-message-stack .message-text-full p {
   margin-bottom: 1.05rem;
   text-align: justify;
 }
 
-.message-text-full p:last-child {
+.leadership-message-stack .message-text-full p:last-child {
   margin-bottom: 0;
 }
 
-.message-text-full strong,
-.message-text-full b {
+.leadership-message-stack .message-text-full strong,
+.leadership-message-stack .message-text-full b {
   color: var(--primary-ink, var(--primary-color, #1a5f2a));
   font-weight: 700;
 }
 
 @media (max-width: 767px) {
-  .leadership-messages-about .leadership-message-full {
+  .leadership-messages-about .leadership-message-stack.leadership-message-full {
     padding: 1.25rem 1.1rem 1.5rem;
     border-radius: 14px;
   }
 
-  .leader-photo-large {
+  .leadership-message-stack .leader-photo-large {
     width: 120px;
     height: 120px;
   }
 
-  .message-text-full {
+  .leadership-message-stack .message-content-full {
+    padding-top: 0.25rem !important;
+  }
+
+  .leadership-message-stack .message-text-full {
     font-size: 0.98rem;
     line-height: 1.8;
-    /* Soft justify on narrow screens — still aligned, less rivering */
     text-align: start;
   }
 
-  .message-text-full p {
+  .leadership-message-stack .message-text-full p {
     text-align: start;
   }
 }

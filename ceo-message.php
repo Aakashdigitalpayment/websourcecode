@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/leadership-message-helpers.php';
 
 $lead = coop_load_leadership_messages(function_exists('getDB') ? getDB() : null);
-$ceoDesignation = isEnglish() ? $lead['ceo_designation_en'] : $lead['ceo_designation_np'];
+$designation = isEnglish() ? $lead['ceo_designation_en'] : $lead['ceo_designation_np'];
 $pageTitle = isEnglish()
     ? ($lead['ceo_designation_en'] . '\'s Message')
     : ($lead['ceo_designation_np'] . 'को सन्देश');
@@ -22,6 +22,8 @@ $L = function_exists('getLangStrings') ? getLangStrings() : [];
 $name = (string) $lead['ceo_name'];
 $photo = (string) $lead['ceo_photo'];
 $message = (string) $lead['ceo_message'];
+$emptyMsg = isEnglish() ? 'CEO message will appear here soon.' : 'CEO सन्देश चाँडै यहाँ देखिनेछ।';
+$placeholderIcon = 'briefcase';
 ?>
 
 <section class="page-banner page-banner-modern">
@@ -43,20 +45,20 @@ $message = (string) $lead['ceo_message'];
     <div class="container">
         <?php if ($message === ''): ?>
         <div class="text-center text-muted py-5">
-            <p class="mb-0"><?php echo isEnglish() ? 'CEO message will appear here soon.' : 'CEO सन्देश चाँडै यहाँ देखिनेछ।'; ?></p>
+            <p class="mb-0"><?php echo htmlspecialchars($emptyMsg, ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
         <?php else: ?>
-        <article class="leadership-message-full leadership-message-stack" data-aos="fade-up">
+        <article class="leadership-message-full leadership-message-stack" id="ceo-message-body" data-aos="fade-up">
             <header class="leader-identity">
                 <div class="leader-photo-large">
                     <?php if ($photo !== ''): ?>
                     <img src="<?php echo e(safe_versioned_media_src($photo)); ?>" alt="<?php echo e($name); ?>" loading="lazy" decoding="async">
                     <?php else: ?>
-                    <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
+                    <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="<?php echo htmlspecialchars($placeholderIcon, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i></div>
                     <?php endif; ?>
                 </div>
                 <h2 class="leader-name"><?php echo e($name); ?></h2>
-                <span class="leader-position"><?php echo htmlspecialchars((string) $ceoDesignation, ENT_QUOTES, 'UTF-8'); ?></span>
+                <span class="leader-position"><?php echo htmlspecialchars((string) $designation, ENT_QUOTES, 'UTF-8'); ?></span>
             </header>
             <div class="message-content-full">
                 <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
