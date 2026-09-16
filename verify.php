@@ -434,10 +434,10 @@ if (!$__err && !empty($result['error'])) $__err = $result['error'];
 
         <!-- Auto-unlocked message (hidden until countdown done) -->
         <div id="vp-unlocked-msg" style="display:none;margin-top:18px;">
-            <div style="background:#f0fdf4;border:2px solid #86efac;border-radius:10px;padding:14px 18px;color:#16a34a;font-weight:600;margin-bottom:14px;">
+            <div style="background:var(--bg-muted, #f0fdf4);border:2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #fff);border-radius:10px;padding:14px 18px;color:var(--primary-ink, var(--primary-color, #1a5f2a));font-weight:600;margin-bottom:14px;">
                 <i class="lucide-icon me-2" data-lucide="lock-open" aria-hidden="true"></i><?= $_t('समय सकियो। अब पुनः प्रयास गर्न सक्नुहुन्छ।', 'Time is up. You can try again now.') ?>
             </div>
-            <a href="verify.php" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--primary-color,#1a5f2a),#0e9b53);color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem;">
+            <a href="verify.php" style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:linear-gradient(135deg,var(--primary-color,#1a5f2a),var(--primary-dark,#145021));color:var(--text-on-primary,#fff);text-decoration:none;border-radius:8px;font-weight:700;font-size:.95rem;">
                 <i class="lucide-icon" data-lucide="rotate-cw" aria-hidden="true"></i> <?= $_t('फेरि प्रयास गर्नुहोस्', 'Try Again') ?>
             </a>
         </div>

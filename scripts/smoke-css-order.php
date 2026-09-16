@@ -201,7 +201,10 @@ assertContains('assets/css/final-ui-polish.css', 'Corp modal-header tint', 'moda
 assertContains('assets/css/final-ui-polish.css', 'Header: Himal bg + SINCE badge', 'header himal since lang fixes');
 assertContains('includes/config.php', 'function safe_versioned_media_src_absolute', 'absolute versioned media helper');
 assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute url');
-assertContains('assets/css/global-theme.php', 'tint follows admin primary (multi-sahakari)', 'surfaces follow admin primary');
+assertContains('verify.php', 'var(--primary-dark,#145021)', 'verify retry button uses primary-dark not hardcoded teal');
+assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient stop');
+assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
+assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
 assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.2')", 'theme version 2.2 multi-sahakari');
 assertContains('assets/css/final-ui-polish.css', 'Multi-sahakari brand bridge', 'late brand bridge present');
