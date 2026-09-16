@@ -157,7 +157,7 @@ if (!function_exists('coopIpBuildChartSeries')) {
 }
 
 if (!function_exists('coopIpFormatAmtFull')) {
-    /** Full NPR amount for posters / ledgers (Indian grouping, e.g. 22,94,00,700/-). */
+    /** Full NPR amount for posters / ledgers (Indian grouping + NP digits, e.g. रू. ५,५४,७१,४००/-). */
     function coopIpFormatAmtFull(float $v, bool $en = false): string
     {
         if ($v <= 0) {
@@ -171,6 +171,12 @@ if (!function_exists('coopIpFormatAmtFull')) {
             $rest = substr($digits, 0, -3);
             $rest = preg_replace('/\B(?=(\d{2})+(?!\d))/', ',', $rest);
             $grouped = $rest . ',' . $last3;
+        }
+        if (!$en) {
+            $grouped = strtr($grouped, [
+                '0' => '०', '1' => '१', '2' => '२', '3' => '३', '4' => '४',
+                '5' => '५', '6' => '६', '7' => '७', '8' => '८', '9' => '९',
+            ]);
         }
         return ($en ? 'Rs. ' : 'रू. ') . $grouped . '/-';
     }
