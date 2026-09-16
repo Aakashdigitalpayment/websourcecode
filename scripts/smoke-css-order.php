@@ -202,6 +202,8 @@ assertContains('assets/css/final-ui-polish.css', 'Header: Himal bg + SINCE badge
 assertContains('includes/config.php', 'function safe_versioned_media_src_absolute', 'absolute versioned media helper');
 assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute url');
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
+assertContains('scripts/deploy-pull-safe.sh', 'run-migration-safe.php --yes', 'deploy-pull includes safe migration');
+assertContains('scripts/run-migration-safe.php', 'Safe CLI migration', 'CLI migration script present');
 
 // Page-scoped KYC capture CSS still loaded (not orphaned)
 assertContains('member/password-reset-request.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'password-reset uses versioned Bootstrap URL');

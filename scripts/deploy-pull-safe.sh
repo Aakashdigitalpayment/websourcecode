@@ -58,6 +58,22 @@ if [[ ! -f "$HRM_DROP_FLAG" ]] && command -v php >/dev/null 2>&1; then
 fi
 
 echo ""
+echo "==> Safe schema migration (idempotent install.sql)..."
+set +e
+php scripts/run-migration-safe.php --yes
+mig_rc=$?
+set -e
+if [[ "$mig_rc" -eq 0 ]]; then
+  echo "==> Migration OK"
+elif [[ "$mig_rc" -eq 2 ]]; then
+  echo "==> Migration skipped (DB not configured on this host)"
+else
+  echo "==> Migration reported errors (non-fatal for pull; check output or run: php scripts/run-migration-safe.php --yes)"
+fi
+
+echo ""
 echo "==> Pull complete."
+echo "    Manual two-step (same as above):"
+echo "      cd ~/public_html && git pull origin main && php scripts/run-migration-safe.php --yes"
 echo "    Optional smoke: php scripts/smoke-security.php"
 echo "    If CSS looks stale: python3 scripts/build-css-late-bundles.py (usually not needed on live pull)"

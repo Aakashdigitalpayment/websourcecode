@@ -750,6 +750,11 @@ assertFileContains('includes/config.php', "['help_topics', 'icon', 'fas fa-quest
 assertFileContains('includes/config.php', "['important_links', 'icon', 'fas fa-link']", 'icon canonicalize covers important_links');
 assertFileContains('includes/welfare-claim-types.php', "DEFAULT 'fas fa-gift'", 'welfare schema default uses fas spelling');
 assertFileContains('database/install.sql', "DEFAULT 'fas fa-gift'", 'install.sql welfare icon default fas spelling');
+assertFileContains('scripts/run-migration-safe.php', 'install.sql', 'CLI safe migration uses install.sql');
+assertFileContains('scripts/run-migration-safe.php', 'DROP', 'CLI migration skips DROP/TRUNCATE');
+assertFileContains('scripts/run-migration-safe.php', '--yes', 'CLI migration requires --yes');
+assertFileContains('scripts/run-migration-safe.php', 'coop_record_schema_migration', 'CLI migration records schema version');
+assertFileContains('scripts/deploy-pull-safe.sh', 'run-migration-safe.php --yes', 'deploy-pull runs safe migration');
 assertFileContains('admin/run-migration.php', 'coop_canonicalize_icon_db_rows', 'migration applies FA icon spelling canonicalize');
 assertFileContains('admin/index.php', 'coop_normalize_admin_role_aliases', 'login normalizes role aliases');
 assertFileContains('admin/index.php', 'Alias-only role spelling (same as password login', '2FA login documents alias-only normalize');
