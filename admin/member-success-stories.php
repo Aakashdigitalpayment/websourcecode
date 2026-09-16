@@ -201,7 +201,7 @@ $formOpen = $edit || !empty($errors) || isset($_GET['new']);
     'fa-book-open',
     adminLangT('सदस्य बनेपछि जीवन/आर्जन सुधार र संस्थाले गरेको सहयोग — About ड्रपडाउनमा।', 'Life/livelihood improvement after joining and how the cooperative helped — About dropdown.'),
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . count($records) . '</span>'
-    . '<a class="btn btn-outline-secondary btn-sm" href="../about.php#success-stories" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>About</a>'
+    . '<a class="btn btn-outline-secondary btn-sm" href="../success-stories.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>Public page</a>'
 ); ?>
 
 <?php if (!empty($errors)): ?>

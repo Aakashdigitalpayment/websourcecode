@@ -1,7 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once __DIR__ . '/includes/team-chart-helpers.php';
-require_once __DIR__ . '/includes/member-success-stories-tables.php';
+require_once __DIR__ . '/includes/leadership-message-helpers.php';
 $pageTitle = isEnglish() ? 'About Us' : 'हाम्रो बारेमा';
 /* Prefer Admin SEO meta_description; only fall back to about_short when SEO meta is empty */
 $__aboutMeta = trim((string) getSetting(isEnglish() ? 'meta_description_en' : 'meta_description', ''));
@@ -18,10 +18,6 @@ if ($__aboutMeta === '') {
             : substr(strip_tags($aboutShort), 0, 158);
     }
 }
-$extraHead = (isset($extraHead) ? (string) $extraHead : '')
-    . (function_exists('coopThemeLinkHtml')
-        ? coopThemeLinkHtml('assets/css/about-success-stories.css')
-        : '');
 require_once 'includes/header.php';
 ?>
 
@@ -47,12 +43,18 @@ try {
     }
 }
 
-$successStories = [];
-try {
-    $successStories = fetchActiveMemberSuccessStories($db instanceof PDO ? $db : null, 48);
-} catch (Throwable $e) {
-    $successStories = [];
-}
+$lead = coop_load_leadership_messages($db instanceof PDO ? $db : null);
+$hasChairMsg = trim((string)($lead['chairman_message'] ?? '')) !== '';
+$hasCeoMsg = trim((string)($lead['ceo_message'] ?? '')) !== '';
+?>
+<script>
+(function () {
+  var h = (location.hash || '').toLowerCase();
+  if (h === '#success-stories') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/success-stories.php'); ?>);
+  else if (h === '#chairman' || h === '#chairman-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/chairman-message.php'); ?>);
+  else if (h === '#ceo-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/ceo-message.php'); ?>);
+})();
+</script>
 
 // Get about page image from settings (admin controlled) — missing file = no broken image tag
 $aboutImageSetting = trim((string) getSetting('about_page_image', ''));
@@ -298,133 +300,51 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
 </section>
 
 
-<!-- Leadership Messages Section -->
-<?php
-// Get from settings first
-$chairmanMessageSetting = getSetting('chairman_message_np', '');
-$chairmanNameSetting = getSetting('chairman_name', '');
-$chairmanPhotoSetting = getSetting('chairman_photo', '');
-$ceoMessageSetting = getSetting('ceo_message_np', '');
-$ceoNameSetting = getSetting('ceo_name', '');
-$ceoPhotoSetting = getSetting('ceo_photo', '');
-$ceoDesignationNp = trim((string)getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
-$ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executive Officer'));
-
-// Fallback: Get chairman/CEO from team_members table based on is_chairman/is_ceo flags
-try {
-    $needChair = empty($chairmanNameSetting) || empty($chairmanMessageSetting);
-    $needCeo = empty($ceoNameSetting) || empty($ceoMessageSetting);
-    if (($needChair || $needCeo) && isset($db) && $db instanceof PDO) {
-        $leaders = $db->query("SELECT * FROM team_members WHERE is_active = 1 AND (is_chairman = 1 OR is_ceo = 1) LIMIT 4")->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        $chairFromTeam = null;
-        $ceoFromTeam = null;
-        foreach ($leaders as $lm) {
-            if ($chairFromTeam === null && !empty($lm['is_chairman'])) $chairFromTeam = $lm;
-            if ($ceoFromTeam === null && !empty($lm['is_ceo'])) $ceoFromTeam = $lm;
-        }
-        if ($needChair && $chairFromTeam) {
-            if (empty($chairmanNameSetting)) {
-                $chairmanNameSetting = $chairFromTeam['name_np'] ?: $chairFromTeam['name'];
-            }
-            if (empty($chairmanPhotoSetting)) {
-                $chairmanPhotoSetting = $chairFromTeam['photo'];
-            }
-            if (empty($chairmanMessageSetting)) {
-                $chairmanMessageSetting = $chairFromTeam['position_np'] ?: $chairFromTeam['position'];
-            }
-        }
-        if ($needCeo && $ceoFromTeam) {
-            if (empty($ceoNameSetting)) {
-                $ceoNameSetting = $ceoFromTeam['name_np'] ?: $ceoFromTeam['name'];
-            }
-            if (empty($ceoPhotoSetting)) {
-                $ceoPhotoSetting = $ceoFromTeam['photo'];
-            }
-            if (empty($ceoMessageSetting)) {
-                $ceoMessageSetting = $ceoFromTeam['position_np'] ?: $ceoFromTeam['position'];
-            }
-        }
-    }
-} catch (Throwable $e) { /* silent fallback */ }
-
-// Use settings or team member data
-$chairmanName = $chairmanNameSetting ?: 'अध्यक्ष';
-$chairmanPhoto = $chairmanPhotoSetting;
-$chairmanMessage = $chairmanMessageSetting;
-$ceoName = $ceoNameSetting ?: 'प्रमुख कार्यकारी अधिकृत';
-$ceoPhoto = $ceoPhotoSetting;
-$ceoMessage = $ceoMessageSetting;
-?>
-<?php if ($chairmanMessage || $ceoMessage): ?>
-<section class="leadership-messages-about section-padding bg-light" id="chairman">
+<!-- Leadership / related pages (dedicated pages — like Institutional Profile) -->
+<section class="section-padding bg-light" id="about-related">
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="lucide-icon" data-lucide="quote" aria-hidden="true"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="link" aria-hidden="true"></i> <?php echo isEnglish() ? 'Explore' : 'थप जान्नुहोस्'; ?></span>
             </div>
-            <h2><?php echo isEnglish() ? 'Messages from Leadership' : 'नेतृत्वबाट सन्देश'; ?></h2>
+            <h2><?php echo isEnglish() ? 'More about us' : 'हाम्रो बारे थप'; ?></h2>
             <div class="section-divider"></div>
-            <p><?php echo isEnglish() ? ('Words from our Chairman and ' . $ceoDesignationEn) : ('हाम्रो अध्यक्ष र ' . $ceoDesignationNp . 'का शब्दहरू'); ?></p>
+            <p><?php echo isEnglish()
+                ? 'Leadership messages, member stories, and institutional profile — each on its own page.'
+                : 'नेतृत्व सन्देश, सदस्य कथा र संस्थागत प्रोफाइल — प्रत्येक छुट्टै पृष्ठमा।'; ?></p>
         </div>
-
-        <?php if ($chairmanMessage): ?>
-        <div class="leadership-message-full mb-5" id="chairman-message">
-            <div class="row align-items-center">
-                <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
-                    <div class="leader-photo-large">
-                        <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo e(safe_versioned_media_src($chairmanPhoto)); ?>" alt="<?php echo e($chairmanName); ?>" loading="lazy" decoding="async">
-                        <?php else: ?>
-                        <div class="photo-placeholder-large">
-                            <i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <h4 class="mt-3"><?php echo e($chairmanName); ?></h4>
-                    <span class="leader-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
-                </div>
-                <div class="col-lg-9 col-md-8">
-                    <div class="message-content-full">
-                        <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
-                        <div class="message-text-full coop-prose">
-                            <?php echo coop_render_cms_prose($chairmanMessage); ?>
-                        </div>
-                    </div>
-                </div>
+        <div class="row g-3 justify-content-center">
+            <?php if ($hasChairMsg): ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="user-round" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
+            <?php endif; ?>
+            <?php if ($hasCeoMsg): ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="60">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
+            <?php endif; ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="120">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="building-2" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></h5>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="180">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="book-open" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></h5>
+                </a>
             </div>
         </div>
-        <?php endif; ?>
-
-        <?php if ($ceoMessage): ?>
-        <div class="leadership-message-full" id="ceo-message">
-            <div class="row align-items-center flex-md-row-reverse">
-                <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
-                    <div class="leader-photo-large">
-                        <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo e(safe_versioned_media_src($ceoPhoto)); ?>" alt="<?php echo e($ceoName); ?>" loading="lazy" decoding="async">
-                        <?php else: ?>
-                        <div class="photo-placeholder-large">
-                            <i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <h4 class="mt-3"><?php echo e($ceoName); ?></h4>
-                    <span class="leader-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
-                </div>
-                <div class="col-lg-9 col-md-8">
-                    <div class="message-content-full">
-                        <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>
-                        <div class="message-text-full coop-prose">
-                            <?php echo coop_render_cms_prose($ceoMessage); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 </section>
-<?php endif; ?>
 
 <!-- Core Values Section - Consolidated -->
 <section class="values-section section-padding" id="values">
@@ -498,97 +418,6 @@ $ceoMessage = $ceoMessageSetting;
     </div>
 </section>
 <?php endif; ?>
-
-<!-- Member Success Stories -->
-<section class="mss-section section-padding" id="success-stories">
-    <div class="container">
-        <div class="section-header text-center mb-4" data-aos="fade-up">
-            <div class="section-badge-wrap">
-                <span class="section-badge"><i class="lucide-icon" data-lucide="book-open" aria-hidden="true"></i> <?php echo isEnglish() ? 'Success Stories' : 'सफलताका कथा'; ?></span>
-            </div>
-            <h2><?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></h2>
-            <div class="section-divider"></div>
-            <p><?php echo isEnglish()
-                ? 'How members improved their livelihood after joining — and how our cooperative helped.'
-                : 'सदस्य बनेपछि जीवन र आर्जनमा कसरी सुधार भयो — र संस्थाले कसरी सहयोग गर्‍यो।'; ?></p>
-        </div>
-
-        <?php if (empty($successStories)): ?>
-        <div class="text-center text-muted py-4" data-aos="fade-up">
-            <i class="lucide-icon mb-2 d-block opacity-25" data-lucide="book-open" aria-hidden="true" style="font-size:2.5rem;"></i>
-            <p class="mb-0"><?php echo isEnglish() ? 'Member success stories will appear here soon.' : 'सदस्यका सफलताका कथाहरू चाँडै यहाँ देखिनेछन्।'; ?></p>
-        </div>
-        <?php else: ?>
-        <div class="mss-grid">
-            <?php foreach ($successStories as $i => $story):
-                $en = isEnglish();
-                $name = $en
-                    ? (trim((string)($story['member_name_en'] ?? '')) !== '' ? $story['member_name_en'] : $story['member_name'])
-                    : (trim((string)($story['member_name'] ?? '')) !== '' ? $story['member_name'] : ($story['member_name_en'] ?? ''));
-                $headline = $en
-                    ? (trim((string)($story['headline_en'] ?? '')) !== '' ? $story['headline_en'] : $story['headline_np'])
-                    : (trim((string)($story['headline_np'] ?? '')) !== '' ? $story['headline_np'] : ($story['headline_en'] ?? ''));
-                $body = $en
-                    ? (trim((string)($story['story_en'] ?? '')) !== '' ? $story['story_en'] : $story['story_np'])
-                    : (trim((string)($story['story_np'] ?? '')) !== '' ? $story['story_np'] : ($story['story_en'] ?? ''));
-                $help = $en
-                    ? (trim((string)($story['institution_help_en'] ?? '')) !== '' ? $story['institution_help_en'] : ($story['institution_help_np'] ?? ''))
-                    : (trim((string)($story['institution_help_np'] ?? '')) !== '' ? $story['institution_help_np'] : ($story['institution_help_en'] ?? ''));
-                $loc = $en
-                    ? (trim((string)($story['location_en'] ?? '')) !== '' ? $story['location_en'] : ($story['location'] ?? ''))
-                    : (trim((string)($story['location'] ?? '')) !== '' ? $story['location'] : ($story['location_en'] ?? ''));
-                $prof = $en
-                    ? (trim((string)($story['profession_en'] ?? '')) !== '' ? $story['profession_en'] : ($story['profession'] ?? ''))
-                    : (trim((string)($story['profession'] ?? '')) !== '' ? $story['profession'] : ($story['profession_en'] ?? ''));
-                $since = trim((string)($story['member_since'] ?? ''));
-                $photo = trim((string)($story['photo'] ?? ''));
-                $photoOk = $photo !== '' && is_readable(ROOT_PATH . ltrim($photo, '/'));
-                $photoSrc = $photoOk
-                    ? (function_exists('safe_versioned_media_src') ? safe_versioned_media_src($photo) : (function_exists('safe_media_src') ? safe_media_src($photo) : $photo))
-                    : '';
-            ?>
-            <article class="mss-card" data-aos="fade-up" data-aos-delay="<?php echo (int)min(300, $i * 80); ?>">
-                <div class="mss-card-top">
-                    <?php if ($photoSrc !== ''): ?>
-                    <img class="mss-photo" src="<?php echo htmlspecialchars($photoSrc, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8'); ?>" loading="lazy" decoding="async" width="72" height="72">
-                    <?php else: ?>
-                    <div class="mss-photo mss-photo-ph" aria-hidden="true"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></div>
-                    <?php endif; ?>
-                    <div class="mss-meta">
-                        <h3><?php echo htmlspecialchars((string)$name, ENT_QUOTES, 'UTF-8'); ?></h3>
-                        <?php if (trim((string)$headline) !== ''): ?>
-                        <p class="mss-headline"><?php echo htmlspecialchars((string)$headline, ENT_QUOTES, 'UTF-8'); ?></p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php if ($since !== '' || trim((string)$loc) !== '' || trim((string)$prof) !== ''): ?>
-                <div class="mss-chips">
-                    <?php if ($since !== ''): ?>
-                    <span class="mss-chip"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i><?php echo htmlspecialchars($since, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <?php endif; ?>
-                    <?php if (trim((string)$loc) !== ''): ?>
-                    <span class="mss-chip"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars((string)$loc, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <?php endif; ?>
-                    <?php if (trim((string)$prof) !== ''): ?>
-                    <span class="mss-chip"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i><?php echo htmlspecialchars((string)$prof, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
-                <?php if (trim((string)$body) !== ''): ?>
-                <p class="mss-story"><?php echo htmlspecialchars((string)$body, ENT_QUOTES, 'UTF-8'); ?></p>
-                <?php endif; ?>
-                <?php if (trim((string)$help) !== ''): ?>
-                <div class="mss-help">
-                    <div class="mss-help-label"><i class="lucide-icon" data-lucide="handshake" aria-hidden="true"></i><?php echo isEnglish() ? 'How we helped' : 'संस्थाले गरेको सहयोग'; ?></div>
-                    <p><?php echo htmlspecialchars((string)$help, ENT_QUOTES, 'UTF-8'); ?></p>
-                </div>
-                <?php endif; ?>
-            </article>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
-    </div>
-</section>
 
 <!-- Statistics -->
 <section class="stats-section" id="stats">

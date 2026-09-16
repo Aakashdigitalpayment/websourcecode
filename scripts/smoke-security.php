@@ -515,8 +515,11 @@ assertFileContains('admin/member-of-year.php', "uploadFile(\$_FILES['photo'], 'm
 assertFileContains('admin/member-success-stories.php', "uploadFile(\$_FILES['photo'], \$uploadSub", 'member success stories uses uploadFile');
 assertFileContains('admin/member-success-stories.php', 'verifyCSRFToken', 'member success stories CSRF');
 assertFileContains('includes/member-success-stories-tables.php', 'member_success_stories', 'success stories table helper');
-assertFileContains('about.php', 'fetchActiveMemberSuccessStories', 'about loads success stories');
-assertFileContains('includes/header.php', 'about.php#success-stories', 'nav about dropdown success stories last');
+assertFileContains('success-stories.php', 'fetchActiveMemberSuccessStories', 'success stories dedicated page');
+assertFileContains('includes/header.php', 'success-stories.php', 'nav about dropdown success stories page');
+assertFileContains('includes/header.php', 'chairman-message.php', 'nav chairman dedicated page');
+assertFileContains('includes/header.php', 'ceo-message.php', 'nav ceo dedicated page');
+assertFileContains('includes/leadership-message-helpers.php', 'coop_load_leadership_messages', 'leadership helper present');
 assertFileContains('includes/notifications.php', 'coop_safe_webhook_url', 'SMS webhook SSRF guard');
 assertFileContains('includes/member-auth.php', "str_starts_with(\$rel, 'member/')", 'memberSafeRedirect member-only paths');
 assertFileContains('member/password-reset-request.php', 'Same generic copy as unknown account', 'password reset no sent_to leak');

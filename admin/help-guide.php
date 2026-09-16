@@ -367,7 +367,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>बायाँ menu → संस्था → <a href="member-success-stories.php">सदस्य सफलताका कथा</a>।</li>
         <li><span class="kbd">नयाँ कथा</span> → सदस्य नाम, शीर्षक, कथा (जीवन/आर्जन सुधार), र संस्थाले गरेको सहयोग भर्नुहोस्।</li>
         <li>फोटो, स्थान, पेशा, सदस्य भएको वर्ष ऐच्छिक। English फिल्ड EN भाषामा देखिन्छ।</li>
-        <li><b>सक्रिय</b> राख्नुहोस् — Public <a href="../about.php#success-stories" target="_blank" rel="noopener noreferrer">About → सदस्यको सफलताको कथा</a> मा देखिन्छ।</li>
+        <li><b>सक्रिय</b> राख्नुहोस् — Public <a href="../success-stories.php" target="_blank" rel="noopener noreferrer">सदस्यको सफलताको कथा</a> पृष्ठमा देखिन्छ।</li>
         <li>Edit / लुकाउने / Delete सूचीबाट गर्न सकिन्छ। बहु सदस्यका कथाहरू क्रम (display order) ले मिलाउन सकिन्छ।</li>
       </ol>
     </section>
@@ -738,7 +738,8 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <h5>🏛️ About / Institutional Profile:</h5>
       <div class="hg-step">
         <a href="about-settings.php">About Settings</a> र <a href="institutional-profile.php">Institutional Profile</a> pages मा संस्थाको इतिहास, mission, vision, registration numbers edit गर्नुहोस्।
-        सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → About ड्रपडाउन अन्तिम मेनु।
+        सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → public <code>success-stories.php</code> (About ड्रपडाउन अन्तिम)।
+        अध्यक्ष/CEO सन्देश: <code>chairman-message.php</code> / <code>ceo-message.php</code> (About Settings बाट)।
       </div>
 
       <h5>🌐 Info Officer (RTI):</h5>

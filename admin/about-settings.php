@@ -127,7 +127,7 @@ require_once 'includes/admin-ui.php';
         'fa-building-columns',
         'History section photo र content manage गर्नुहोस्।',
         '<a class="btn btn-outline-success btn-sm" href="member-success-stories.php"><i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i>' . adminLangT('सदस्य सफलताका कथा', 'Success Stories') . '</a>'
-        . '<a class="btn btn-outline-secondary btn-sm" href="../about.php#success-stories" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>About</a>'
+        . '<a class="btn btn-outline-secondary btn-sm" href="../success-stories.php" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>Success Stories</a>'
     );
     if ($flash = getFlash()):
     ?>
