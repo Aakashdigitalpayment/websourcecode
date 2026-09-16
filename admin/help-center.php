@@ -4,8 +4,12 @@
  * Public FAQ page uses faqs — do not dual-write between the two.
  */
 $pageTitle = 'सहायता केन्द्र व्यवस्थापन (Help Center)';
-require_once __DIR__ . '/includes/admin-page-boot.php';
+require_once '../includes/config.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
+
+if (!isAdminLoggedIn()) {
+    redirect(ADMIN_URL . 'index.php');
+}
 
 /* ── Early CSRF Protection ── */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
@@ -158,8 +162,8 @@ if ($action === 'add' || $action === 'edit') {
         'सहायता केन्द्र व्यवस्थापन',
         'fa-headset',
         'च्याटबट FAQ प्रश्नहरू — थप्नुहोस्, सम्पादन गर्नुहोस् र व्यवस्थापन गर्नुहोस्।',
-        '<a href="?action=add" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ प्रश्न थप्नुहोस्</a>'
-        . ' <a href="help-guide.php" class="btn btn-outline-success"><i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i>Quick Guide</a>'
+        '<a href="?action=add" class="btn btn-primary"><i class="fas fa-plus me-1"></i>नयाँ प्रश्न थप्नुहोस्</a>'
+        . ' <a href="help-guide.php" class="btn btn-outline-success"><i class="fas fa-book-open me-1"></i>Quick Guide</a>'
         . ' ' . adminStatLink('?is_active=0', 'warning', 'निष्क्रिय', $inactiveCount)
         . ' ' . adminStatLink('help-center.php', 'secondary', 'जम्मा', $totalCount)
     );
@@ -172,7 +176,7 @@ if ($action === 'add' || $action === 'edit') {
 
 <?php if (!$tableExists): ?>
 <div class="alert alert-danger">
-    <i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i>
+    <i class="fas fa-exclamation-triangle me-2"></i>
     chatbot_faqs टेबल छैन। कृपया <a href="run-migration.php">यहाँ क्लिक गरेर</a> database migration चलाउनुहोस्।
 </div>
 <?php endif; ?>
@@ -184,7 +188,7 @@ if ($action === 'add' || $action === 'edit') {
 <div class="card admin-table-card">
     <div class="card-header gradient-card-header">
         <h5 class="mb-0">
-            <i class="lucide-icon me-2" data-lucide="<?php echo ($action === 'edit') ? 'pencil' : 'circle-plus'; ?>" aria-hidden="true"></i>
+            <i class="fas fa-<?php echo ($action === 'edit') ? 'edit' : 'plus-circle'; ?> me-2"></i>
             <?php echo ($action === 'edit') ? 'सहायता प्रश्न सम्पादन गर्नुहोस्' : 'नयाँ सहायता प्रश्न थप्नुहोस्'; ?>
         </h5>
     </div>
@@ -222,8 +226,8 @@ if ($action === 'add' || $action === 'edit') {
                     <label for="hc_category" class="form-label fw-semibold">वर्ग</label>
                     <select name="category" id="hc_category" class="form-select">
                         <?php foreach (['general'=>'सामान्य','interest'=>'ब्याज दर','membership'=>'सदस्यता','loan'=>'ऋण','service'=>'सेवा'] as $val=>$lbl): ?>
-                        <option value="<?php echo e($val); ?>" <?php echo (($editItem['category'] ?? 'general') === $val) ? 'selected' : ''; ?>>
-                            <?php echo e($lbl); ?>
+                        <option value="<?php echo $val; ?>" <?php echo (($editItem['category'] ?? 'general') === $val) ? 'selected' : ''; ?>>
+                            <?php echo $lbl; ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
@@ -247,85 +251,10 @@ if ($action === 'add' || $action === 'edit') {
                 </div>
                 <div class="col-12 border-top pt-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
-                        <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo ($action === 'edit') ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?>
+                        <i class="fas fa-save me-1"></i><?php echo ($action === 'edit') ? 'अपडेट गर्नुहोस्' : 'सेभ गर्नुहोस्'; ?>
                     </button>
                     <a href="help-center.php" class="btn btn-secondary">
-                        <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
-                    </a>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<?php /* ══════════════════════════════════════
-          EDIT FORM
-   ══════════════════════════════════════ */ ?>
-<?php elseif (false && $action === 'edit' && $editItem): ?>
-<div class="card admin-table-card">
-    <div class="card-header gradient-card-header">
-        <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>सहायता प्रश्न सम्पादन गर्नुहोस्</h5>
-    </div>
-    <div class="card-body">
-        <form method="POST" action="help-center.php">
-            <?php echo csrfField(); ?>
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" name="id" value="<?php echo (int)$editItem['id']; ?>">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="hc_edit_question" class="form-label fw-semibold">प्रश्न (नेपाली) <span class="text-danger">*</span></label>
-                    <input type="text" name="question" id="hc_edit_question" class="form-control" required
-                           value="<?php echo htmlspecialchars($editItem['question'] ?? ''); ?>">
-                </div>
-                <div class="col-md-6">
-                    <label for="hc_edit_question_en" class="form-label fw-semibold">Question (English)</label>
-                    <input type="text" name="question_en" id="hc_edit_question_en" class="form-control"
-                           value="<?php echo htmlspecialchars($editItem['question_en'] ?? ''); ?>">
-                </div>
-                <div class="col-md-6">
-                    <label for="hc_edit_answer" class="form-label fw-semibold">उत्तर (नेपाली) <span class="text-danger">*</span></label>
-                    <textarea name="answer" id="hc_edit_answer" class="form-control" rows="5" required
-                    ><?php echo htmlspecialchars($editItem['answer'] ?? ''); ?></textarea>
-                </div>
-                <div class="col-md-6">
-                    <label for="hc_edit_answer_en" class="form-label fw-semibold">Answer (English)</label>
-                    <textarea name="answer_en" id="hc_edit_answer_en" class="form-control" rows="5"
-                    ><?php echo htmlspecialchars($editItem['answer_en'] ?? ''); ?></textarea>
-                </div>
-                <div class="col-md-4">
-                    <label for="hc_edit_category" class="form-label fw-semibold">वर्ग</label>
-                    <select name="category" id="hc_edit_category" class="form-select">
-                        <?php foreach (['general'=>'सामान्य','interest'=>'ब्याज दर','membership'=>'सदस्यता','loan'=>'ऋण','service'=>'सेवा'] as $val=>$lbl): ?>
-                        <option value="<?php echo e($val); ?>" <?php echo ($editItem['category'] ?? '') === $val ? 'selected' : ''; ?>>
-                            <?php echo e($lbl); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="hc_edit_keywords" class="form-label fw-semibold">खोज कुञ्जी शब्दहरू</label>
-                    <input type="text" name="keywords" id="hc_edit_keywords" class="form-control"
-                           value="<?php echo htmlspecialchars($editItem['keywords'] ?? ''); ?>">
-                    <small class="text-muted">अल्पविराम (,) ले विभाजित गर्नुहोस्</small>
-                </div>
-                <div class="col-md-4">
-                    <label for="hc_edit_order" class="form-label fw-semibold">क्रम नम्बर</label>
-                    <input type="number" name="display_order" id="hc_edit_order" class="form-control" min="0"
-                           value="<?php echo (int)($editItem['display_order'] ?? 0); ?>">
-                </div>
-                <div class="col-12">
-                    <div class="form-check">
-                        <input type="checkbox" name="is_active" id="edit_is_active" class="form-check-input"
-                               <?php echo ($editItem['is_active'] ?? 0) ? 'checked' : ''; ?>>
-                        <label class="form-check-label" for="edit_is_active">सक्रिय</label>
-                    </div>
-                </div>
-                <div class="col-12 border-top pt-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-warning">
-                        <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्
-                    </button>
-                    <a href="help-center.php" class="btn btn-secondary">
-                        <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
+                        <i class="fas fa-times me-1"></i>रद्द
                     </a>
                 </div>
             </div>
@@ -342,17 +271,17 @@ if ($action === 'add' || $action === 'edit') {
 <!-- Stat Mini Row -->
 <div class="stat-mini-row no-print">
     <a href="help-center.php" class="stat-mini <?php echo !$categoryFilter&&!$search?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="headphones" aria-hidden="true"></i></div>
+        <div class="sm-icon ic-total"><i class="fas fa-headset"></i></div>
         <div class="sm-val"><?php echo $totalCount; ?></div>
         <div class="sm-lbl">जम्मा प्रश्न</div>
     </a>
     <a href="help-center.php" class="stat-mini <?php echo $categoryFilter===''&&!$search?'':''; ?>">
-        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="toggle-right" aria-hidden="true"></i></div>
+        <div class="sm-icon ic-approved"><i class="fas fa-toggle-on"></i></div>
         <div class="sm-val"><?php echo $activeCount; ?></div>
         <div class="sm-lbl">सक्रिय</div>
     </a>
     <a href="help-center.php" class="stat-mini">
-        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="toggle-left" aria-hidden="true"></i></div>
+        <div class="sm-icon ic-rejected"><i class="fas fa-toggle-off"></i></div>
         <div class="sm-val"><?php echo $inactiveCount; ?></div>
         <div class="sm-lbl">निष्क्रिय</div>
     </a>
@@ -366,22 +295,22 @@ if ($action === 'add' || $action === 'edit') {
             <select name="category" class="afb-select">
                 <option value="">सबै वर्ग</option>
                 <?php foreach (['general'=>'सामान्य','interest'=>'ब्याज दर','membership'=>'सदस्यता','loan'=>'ऋण','service'=>'सेवा'] as $val=>$lbl): ?>
-                <option value="<?php echo e($val); ?>" <?php echo $categoryFilter===$val?'selected':''; ?>><?php echo e($lbl); ?></option>
+                <option value="<?php echo $val; ?>" <?php echo $categoryFilter===$val?'selected':''; ?>><?php echo $lbl; ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         <div class="afb-group afb-search">
             <label>खोज्नुहोस्</label>
             <div class="afb-search-wrap">
-                <i class="lucide-icon afb-search-icon" data-lucide="search" aria-hidden="true"></i>
+                <i class="fas fa-search afb-search-icon"></i>
                 <input type="text" name="search" class="afb-input"
                        value="<?php echo htmlspecialchars($search); ?>"
                        placeholder="प्रश्न, उत्तर, keyword...">
             </div>
         </div>
-        <button type="submit" class="afb-btn-search"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
+        <button type="submit" class="afb-btn-search"><i class="fas fa-search me-1"></i>खोज</button>
         <?php if ($categoryFilter || $search): ?>
-        <a href="help-center.php" class="afb-btn-reset"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रिसेट</a>
+        <a href="help-center.php" class="afb-btn-reset"><i class="fas fa-times me-1"></i>रिसेट</a>
         <?php endif; ?>
     </form>
 </div>
@@ -389,7 +318,7 @@ if ($action === 'add' || $action === 'edit') {
 <!-- FAQ Table -->
 <div class="app-table">
     <div class="tbl-header-bar">
-        <span class="tbl-title"><i class="lucide-icon me-2" data-lucide="circle-help" aria-hidden="true"></i>FAQ सूची</span>
+        <span class="tbl-title"><i class="fas fa-question-circle me-2"></i>FAQ सूची</span>
         <span class="tbl-count"><?php echo count($helpItems); ?> प्रश्न</span>
     </div>
     <div class="table-responsive">
@@ -431,7 +360,7 @@ if ($action === 'add' || $action === 'edit') {
                         <td>
                             <a href="?action=edit&id=<?php echo (int)$item['id']; ?>"
                                class="btn btn-sm btn-primary" title="सम्पादन">
-                                    <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
+                                    <i class="fas fa-edit"></i>
                             </a>
                             <form method="POST" class="svc-inline-form"
                                   onsubmit="return confirm('के तपाईं यो प्रश्न मेटाउन निश्चित हुनुहुन्छ?');">
@@ -439,7 +368,7 @@ if ($action === 'add' || $action === 'edit') {
                                 <input type="hidden" name="action" value="delete">
                                 <input type="hidden" name="id" value="<?php echo (int)$item['id']; ?>">
                                 <button type="submit" class="btn btn-sm btn-danger" title="मेटाउनुहोस्">
-                                    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
+                                    <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                         </td>

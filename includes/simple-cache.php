@@ -111,36 +111,10 @@ function clearHomepageCache(): void {
     clearCache('nav_team_menu_v1');
     clearCache('nav_team_menu_v2');
     clearCache('nav_career_badge_v1');
+    clearCache('nav_career_badge_v3');
     clearCache('nav_notices_extra_v1');
     clearCache('nav_cms_pages_v1');
     clearCache('nav_cms_pages_v2');
 }
 
-/**
- * Clear all cache files
- */
-function clearAllCache() {
-    $cacheDir = __DIR__ . '/../cache';
-    if (is_dir($cacheDir)) {
-        $files = glob($cacheDir . '/cache_*.json');
-        foreach ($files as $file) {
-            @unlink($file);
-        }
-    }
-}
-
-/**
- * Get cache size in bytes
- */
-function getCacheSize() {
-    $cacheDir = __DIR__ . '/../cache';
-    $size = 0;
-    if (is_dir($cacheDir)) {
-        $files = glob($cacheDir . '/cache_*.json');
-        foreach ($files as $file) {
-            $size += filesize($file);
-        }
-    }
-    return $size;
-}
 ?>

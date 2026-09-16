@@ -444,6 +444,17 @@ assertFileContains('includes/totp-2fa.php', 'otpauth://totp/', 'Google Authentic
 assertFileContains('includes/member-auth.php', "'need_2fa' => true", 'OAuth returns 2FA challenge');
 assertFileContains('includes/member-auth.php', 'function memberLoginEligibilityError', 'shared login eligibility gate');
 assertFileContains('includes/member-auth.php', 'memberLoginEligibilityError($m, $db)', 'OAuth uses eligibility gate');
+assertFileContains('includes/member-auth.php', 'memberCheckRateLimit($email)', 'memberLogin checks per-email rate limit');
+assertFileContains('includes/member-auth.php', 'memberRecordFailedLogin($email)', 'memberLogin records failed attempts');
+assertFileContains('includes/member-auth.php', 'memberClearRateLimit($email)', 'memberLogin clears rate limit on success');
+assertFileContains('includes/member-auth.php', "'code' => 'rate_limited'", 'memberLogin rate limit returns stable code');
+assertFileContains('member/login.php', "=== 'rate_limited'", 'login skips DB attempt bump while session-locked');
+assertFileContains('includes/footer.php', "getAttribute('data-submitting') !== '1'", 'footer spinner skips when form-validation owns busy');
+assertFileNotContains('includes/member-auth.php', 'if (false && $expectedUA', 'dead UA fingerprint branch removed');
+assertFileNotContains('assets/css/app-public.css', '#0d5a1c', 'rates header no hardcoded green middle stop');
+assertFileContains('assets/css/global-theme.php', 'match rates/notices brand headers', 'digital cards forced to solid brand headers');
+assertFileContains('assets/css/final-ui-polish.css', '--coop-section-title: var(--primary-ink', 'section titles use WCAG primary-ink');
+assertFileContains('assets/css/final-ui-polish.css', '--coop-nav-idle-text: var(--primary-ink', 'idle nav uses WCAG primary-ink');
 assertFileContains('member/oauth.php', 'oauthFinishWithTwoFa', 'OAuth finishes via 2FA');
 assertFileContains('member/oauth.php', "pending_approval", 'OAuth maps pending approval errors');
 assertFileContains('member/login.php', "'mode' => 'backup_ack'", 'member 2FA backup codes ack step');
