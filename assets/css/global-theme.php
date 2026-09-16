@@ -2198,11 +2198,6 @@ body, .admin-shell, .member-page                   {
     justify-content: center !important;
     font-size: 0.8rem !important;
 }
-/* Kill old shimmer pseudo-element that creates white wash on h5 */
-.tools-widget-section .tools-category-card h5::after,
-.tools-category-card h5::after {
-    display: none !important;
-}
 
 /* ── B. HRM .btn-coop — Devanagari-safe padding + no text clip ── */
 /* HRM pages use .btn-coop (NOT Bootstrap .btn), so our earlier .btn overflow
