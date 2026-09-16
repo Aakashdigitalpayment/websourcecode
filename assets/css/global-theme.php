@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.6');
+define('THEME_VERSION', '2.7');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);
@@ -119,28 +119,20 @@ $_onT = $__textOnGradient($_t, $_tDark);
 $_onF = $__textOnGradient($_f, $_fDark);
 
 /*
- * Bright brand bars (vivid orange/yellow): WCAG picks dark ink, but dark-on-orange
- * looks muddy for tiny topbar/footer glyphs. Darken the bar until white wins.
+ * Bright brand bars (vivid orange/yellow): WCAG may pick dark ink, which looks
+ * muddy on orange. Keep the admin-selected bar colour (do NOT darken to rust)
+ * and force white glyphs — matches settings preview + brand fidelity.
  */
-$__ensureWhiteOnBar = function (string $hex) use ($__textOn, $__shift): array {
+$__forceWhiteGlyphsOnBrightBar = function (string $hex, string $onText) use ($__textOn): string {
     if ($__textOn($hex) === '#ffffff') {
-        return [$hex, '#ffffff'];
+        return $onText === '#ffffff' ? $onText : '#ffffff';
     }
-    $cur = $hex;
-    for ($i = 0; $i < 12; $i++) {
-        $cur = $__shift($cur, 28);
-        if ($__textOn($cur) === '#ffffff') {
-            return [$cur, '#ffffff'];
-        }
-    }
-    return ['#1f2937', '#ffffff'];
+    /* Bright surface — prefer white chrome text over dark-on-orange */
+    return '#ffffff';
 };
-[$_h, $_onH] = $__ensureWhiteOnBar($_h);
-[$_t, $_onT] = $__ensureWhiteOnBar($_t);
-[$_f, $_onF] = $__ensureWhiteOnBar($_f);
-$_hDark = $__shift($_h, 30);
-$_tDark = $__shift($_t, 30);
-$_fDark = $__shift($_f, 24);
+$_onH = $__forceWhiteGlyphsOnBrightBar($_h, $_onH);
+$_onT = $__forceWhiteGlyphsOnBrightBar($_t, $_onT);
+$_onF = $__forceWhiteGlyphsOnBrightBar($_f, $_onF);
 
 /* Ink for brand-as-text on light/dark surfaces (readable when primary is pale) */
 $__brandInk = function (string $hex, string $darker) use ($__textOn): string {
