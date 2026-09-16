@@ -304,6 +304,12 @@ assertNotContains('admin/site-license-blocked.php', "font-family: 'Mukta'", 'lic
 assertContains('includes/header.php', 'if (!empty($extraHead))', 'public header supports $extraHead');
 assertContains('institutional-profile.php', "coopThemeLinkHtml('assets/css/institutional-profile.css')", 'institutional profile loads extracted CSS');
 assertContains('assets/css/institutional-profile.css', '.ip-filter-wrap', 'institutional profile CSS extracted');
+assertContains('includes/institutional-profile-helpers.php', 'function coopIpWelfareReliefByType', 'IP helpers expose welfare SSOT aggregator');
+assertContains('institutional-profile.php', 'coopIpWelfareReliefByType', 'monthly IP pulls welfare types from member-welfare SSOT');
+assertContains('institutional-profile.php', 'data-ip-poster', 'monthly IP share poster payload');
+assertContains('institutional-profile.php', 'id="ipPosterModal"', 'monthly IP share poster modal');
+assertContains('assets/css/institutional-profile.css', '.ip-relief-table', 'IP welfare relief table styles');
+assertContains('assets/css/institutional-profile.css', '.ip-poster-sheet', 'IP social share poster styles');
 assertContains('assets/css/global-theme.php', "var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif)", 'global-theme font fallback matches SSOT');
 assertContains('assets/css/final-ui-polish.css', "font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important", 'header nav font uses SSOT');
 assertContains('assets/css/member-kyc-print-page.css', "font-family: var(--font-primary", 'kyc-print font uses SSOT with Arial fallback');
