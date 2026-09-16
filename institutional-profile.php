@@ -369,7 +369,9 @@ if ($ipChartSeries['count'] >= 2):
             $_fy = trim((string)($p['fiscal_year'] ?? ''));
             $_dateBs = trim((string)($p['report_date_bs'] ?? ''));
             $_monthName = ipMonthLabel($rm, $isEn);
-            $_filterText = strtolower(trim($_fy . ' ' . $_monthName . ' ' . $_dateBs . ' कुल सदस्य शेयर पूँजी जगेडा कोष कुल बचत ऋण लगानी बैंक नगद स्थिर सम्पत्ति कुल सम्पत्ति राहत कल्याण welfare'));
+            $_filterText = strtolower(trim($_fy . ' ' . $_monthName . ' ' . $_dateBs . ' ' . ($isEn
+                ? 'members share capital reserve fund institutional capital other funds deposits loan investment liquidity bank cash fixed assets total assets welfare relief facilities'
+                : 'कुल सदस्य शेयर पूँजी जगेडा कोष कुल बचत ऋण लगानी बैंक नगद स्थिर सम्पत्ति कुल सम्पत्ति राहत कल्याण welfare')));
             $isCur = ($currentProfile && (int)($currentProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '');
@@ -913,10 +915,16 @@ if ($ipChartSeries['count'] >= 2):
 
   function focusables() {
     if (!dialog) return [];
-    return Array.prototype.slice.call(dialog.querySelectorAll(
+    var nodes = Array.prototype.slice.call(dialog.querySelectorAll(
       'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )).filter(function (el) {
-      return el.offsetParent !== null || el === document.activeElement;
+    ));
+    if (openMenu) {
+      nodes = nodes.concat(Array.prototype.slice.call(openMenu.querySelectorAll('[role="menuitem"]')));
+    }
+    return nodes.filter(function (el) {
+      if (el === document.activeElement) return true;
+      if (openMenu && openMenu.contains(el)) return true;
+      return el.offsetParent !== null;
     });
   }
 
@@ -928,7 +936,7 @@ if ($ipChartSeries['count'] >= 2):
   }
 
   function placeMenu(menu, anchor) {
-    document.body.appendChild(menu);
+    (dialog || document.body).appendChild(menu);
     openMenu = menu;
     var rect = anchor.getBoundingClientRect();
     var pad = 8;
@@ -942,6 +950,10 @@ if ($ipChartSeries['count'] >= 2):
     }
     menu.style.left = Math.round(left) + 'px';
     menu.style.top = Math.round(top) + 'px';
+    var first = menu.querySelector('[role="menuitem"]');
+    if (first && typeof first.focus === 'function') {
+      window.setTimeout(function () { first.focus(); }, 0);
+    }
   }
 
   function copyText(full) {
