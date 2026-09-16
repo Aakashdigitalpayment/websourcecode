@@ -83,6 +83,22 @@
   height: 1.05rem !important;
 }
 
+/* Type wells use brand gradients (app-public) — Lucide must use WCAG on-primary,
+   not primary-ink (dark-on-dark after admin colour change). */
+.report-card .report-icon {
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+}
+.report-card .report-icon .lucide-icon,
+.report-card .report-icon svg,
+.report-card .report-icon svg.lucide,
+.report-card .report-icon i {
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  fill: none !important;
+  opacity: 1 !important;
+}
+
 .report-share-menu {
   position: fixed;
   z-index: 1200;
