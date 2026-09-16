@@ -575,7 +575,7 @@ if ($ipChartSeries['count'] >= 2):
         <header class="ip-poster-brand">
           <div class="ip-poster-brand-row">
             <img id="ipPosterLogo" class="ip-poster-logo" alt="" hidden>
-            <div>
+            <div class="ip-poster-brand-text">
               <h2 id="ipPosterSite" class="ip-poster-site"></h2>
               <p id="ipPosterPeriod" class="ip-poster-period"></p>
             </div>

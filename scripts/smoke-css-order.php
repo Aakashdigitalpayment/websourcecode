@@ -315,6 +315,8 @@ assertContains('institutional-profile.php', 'data-ip-poster', 'monthly IP share 
 assertContains('institutional-profile.php', 'id="ipPosterModal"', 'monthly IP share poster modal');
 assertContains('assets/css/institutional-profile.css', '.ip-relief-table', 'IP welfare relief table styles');
 assertContains('assets/css/institutional-profile.css', '.ip-poster-sheet', 'IP social share poster styles');
+assertContains('assets/css/institutional-profile.css', '.ip-poster-brand-row', 'IP poster brand row layout');
+assertContains('assets/css/institutional-profile.css', '.ip-poster-stat', 'IP poster stats centered cards');
 assertContains('assets/css/institutional-profile.css', 'body.ip-poster-printing', 'IP poster print gated on open class');
 assertContains('assets/css/institutional-profile.css', '.ip-share-menu', 'IP share fallback menu mirrors reports');
 assertContains('institutional-profile.php', 'ip-poster-printing', 'IP print class toggled from share poster');
