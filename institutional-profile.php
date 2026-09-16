@@ -256,7 +256,7 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
         $renderFeatured(
             $fp,
             $fi === 0 ? ($isEn ? 'Latest month' : 'नवीनतम महिना') : ($isEn ? 'Earlier month' : 'अघिल्लो प्रकाशित'),
-            'आ.व. ' . ($fp['fiscal_year'] ?? '') . ' · ' . ipMonthLabel($fm, $isEn),
+            ($isEn ? 'FY ' : 'आ.व. ') . ($fp['fiscal_year'] ?? '') . ' · ' . ipMonthLabel($fm, $isEn),
             !empty($fp['report_date_bs']) ? (($isEn ? 'As of ' : 'मिति ') . $fp['report_date_bs']) : '',
             $fi === 0,
             $isEn
@@ -307,7 +307,7 @@ if ($ipChartSeries['count'] >= 2):
             <select id="ipFiscalYearFilter" class="ip-filter-select" aria-label="Fiscal Year Filter">
                 <option value=""><?php echo $isEn ? 'All Fiscal Years' : 'सबै आ.व.'; ?></option>
                 <?php foreach ($fiscalYears as $fy): ?>
-                <option value="<?php echo htmlspecialchars($fy, ENT_QUOTES, 'UTF-8'); ?>">आ.व. <?php echo htmlspecialchars($fy, ENT_QUOTES, 'UTF-8'); ?></option>
+                <option value="<?php echo htmlspecialchars($fy, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $isEn ? 'FY ' : 'आ.व. '; ?><?php echo htmlspecialchars($fy, ENT_QUOTES, 'UTF-8'); ?></option>
                 <?php endforeach; ?>
             </select>
 
@@ -383,7 +383,7 @@ if ($ipChartSeries['count'] >= 2):
                  data-testid="institutional-profile-month-card-<?php echo $rowNo; ?>">
             <div class="ip-month-tile-head">
                 <div>
-                    <strong data-testid="institutional-profile-fiscal-year-<?php echo $rowNo; ?>">आ.व. <?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
+                    <strong data-testid="institutional-profile-fiscal-year-<?php echo $rowNo; ?>"><?php echo $isEn ? 'FY ' : 'आ.व. '; ?><?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
                     <span class="ip-month-badge"><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i> <?php echo htmlspecialchars($_monthName); ?></span>
                     <?php if (!empty($p['report_date_bs'])): ?>
                     <span data-testid="institutional-profile-published-date-<?php echo $rowNo; ?>"><?php echo htmlspecialchars($p['report_date_bs']); ?><?php if (!empty($p['report_date_ad'])): ?> / <?php echo date('d M Y', strtotime($p['report_date_ad'])); ?><?php endif; ?></span>
@@ -808,13 +808,17 @@ if ($ipChartSeries['count'] >= 2):
 
     function ipCloseDoc() {
         var modal = document.getElementById('ipDocModal');
+        if (!modal || modal.style.display !== 'flex') return;
         modal.style.display = 'none';
         document.getElementById('ipDocBody').innerHTML = '';
         document.body.style.overflow = '';
     }
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') ipCloseDoc();
+        if (e.key !== 'Escape') return;
+        var poster = document.getElementById('ipPosterModal');
+        if (poster && !poster.hidden) return;
+        ipCloseDoc();
     });
 
     window.ipOpenDoc  = ipOpenDoc;
@@ -826,7 +830,7 @@ if ($ipChartSeries['count'] >= 2):
 (function () {
   var modal = document.getElementById('ipPosterModal');
   if (!modal) return;
-  var sheet = document.getElementById('ipPosterSheet');
+  var dialog = modal.querySelector('.ip-poster-dialog');
   var siteEl = document.getElementById('ipPosterSite');
   var periodEl = document.getElementById('ipPosterPeriod');
   var ribbonEl = document.getElementById('ipPosterRibbon');
@@ -836,10 +840,18 @@ if ($ipChartSeries['count'] >= 2):
   var welBody = document.querySelector('#ipPosterWelfareTable tbody');
   var welFoot = document.querySelector('#ipPosterWelfareTable tfoot');
   var welSec = document.getElementById('ipPosterWelfareSection');
+  var closeBtn = document.getElementById('ipPosterClose');
+  var shareBtn = document.getElementById('ipPosterNativeShare');
   var current = null;
+  var lastTrigger = null;
+  var openMenu = null;
+  var fyPrefix = <?php echo json_encode($isEn ? 'FY ' : 'आ.व. ', JSON_UNESCAPED_UNICODE); ?>;
+  var totalLabel = <?php echo json_encode($isEn ? 'Total' : 'जम्मा', JSON_UNESCAPED_UNICODE); ?>;
   var labels = {
     copied: <?php echo json_encode($isEn ? 'Report text copied.' : 'विवरण कपी भयो।', JSON_UNESCAPED_UNICODE); ?>,
-    shareFail: <?php echo json_encode($isEn ? 'Sharing is not available on this device.' : 'यो यन्त्रमा सेयर उपलब्ध छैन।', JSON_UNESCAPED_UNICODE); ?>
+    wa: <?php echo json_encode('WhatsApp', JSON_UNESCAPED_UNICODE); ?>,
+    fb: <?php echo json_encode('Facebook', JSON_UNESCAPED_UNICODE); ?>,
+    copy: <?php echo json_encode($isEn ? 'Copy details' : 'विवरण कपी गर्नुहोस्', JSON_UNESCAPED_UNICODE); ?>
   };
 
   function fillRows(tbody, rows, cols) {
@@ -855,10 +867,29 @@ if ($ipChartSeries['count'] >= 2):
     });
   }
 
+  function setWelfareFooter(count, amount) {
+    welFoot.innerHTML = '';
+    var tr = document.createElement('tr');
+    var cells = [totalLabel, String(count || 0), String(amount || '')];
+    cells.forEach(function (text) {
+      var th = document.createElement('th');
+      th.textContent = text;
+      tr.appendChild(th);
+    });
+    welFoot.appendChild(tr);
+  }
+
+  function fyLine(d) {
+    var parts = [];
+    if (d.fy) parts.push(fyPrefix + d.fy);
+    if (d.month) parts.push(d.month);
+    return parts.join(' · ');
+  }
+
   function buildShareText(d) {
     var lines = [];
     lines.push(d.site || '');
-    lines.push((d.fy ? ('आ.व. ' + d.fy) : '') + (d.month ? (' · ' + d.month) : ''));
+    lines.push(fyLine(d));
     if (d.dateBs) lines.push(<?php echo json_encode($isEn ? 'As of ' : 'मिति ', JSON_UNESCAPED_UNICODE); ?> + d.dateBs);
     lines.push('');
     lines.push(<?php echo json_encode($isEn ? 'Financial details' : 'वित्तीय विवरण', JSON_UNESCAPED_UNICODE); ?>);
@@ -874,16 +905,106 @@ if ($ipChartSeries['count'] >= 2):
       d.welfare.forEach(function (r) {
         lines.push('- ' + r.label + ': ' + r.count + ' | ' + r.amount);
       });
-      lines.push(<?php echo json_encode($isEn ? 'Total' : 'जम्मा', JSON_UNESCAPED_UNICODE); ?> + ': ' + (d.welfareTotalCount || 0) + ' | ' + (d.welfareTotalAmount || ''));
+      lines.push(totalLabel + ': ' + (d.welfareTotalCount || 0) + ' | ' + (d.welfareTotalAmount || ''));
     }
     if (d.pageUrl) lines.push('\n' + d.pageUrl);
     return lines.filter(Boolean).join('\n');
   }
 
-  function openPoster(data) {
+  function focusables() {
+    if (!dialog) return [];
+    return Array.prototype.slice.call(dialog.querySelectorAll(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter(function (el) {
+      return el.offsetParent !== null || el === document.activeElement;
+    });
+  }
+
+  function closeMenu() {
+    if (openMenu) {
+      openMenu.remove();
+      openMenu = null;
+    }
+  }
+
+  function placeMenu(menu, anchor) {
+    document.body.appendChild(menu);
+    openMenu = menu;
+    var rect = anchor.getBoundingClientRect();
+    var pad = 8;
+    var mw = menu.offsetWidth || 184;
+    var mh = menu.offsetHeight || 140;
+    var left = rect.left + (rect.width / 2) - (mw / 2);
+    left = Math.max(pad, Math.min(left, window.innerWidth - mw - pad));
+    var top = rect.bottom + 6;
+    if (top + mh > window.innerHeight - pad) {
+      top = Math.max(pad, rect.top - mh - 6);
+    }
+    menu.style.left = Math.round(left) + 'px';
+    menu.style.top = Math.round(top) + 'px';
+  }
+
+  function copyText(full) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(full).then(function () {
+        window.alert(labels.copied);
+      }).catch(function () {
+        window.prompt(labels.copy, full);
+      });
+      return;
+    }
+    window.prompt(labels.copy, full);
+  }
+
+  function showFallbackMenu(btn, title, text, url) {
+    closeMenu();
+    var full = String(text || title || '').trim();
+    var page = String(url || '').trim();
+    if (page && full.indexOf(page) === -1) {
+      full = full ? (full + '\n' + page) : page;
+    }
+    var menu = document.createElement('div');
+    menu.className = 'ip-share-menu';
+    menu.setAttribute('role', 'menu');
+
+    var wa = document.createElement('a');
+    wa.href = 'https://wa.me/?text=' + encodeURIComponent(full);
+    wa.target = '_blank';
+    wa.rel = 'noopener noreferrer';
+    wa.setAttribute('role', 'menuitem');
+    wa.textContent = labels.wa;
+    wa.addEventListener('click', closeMenu);
+
+    var fb = document.createElement('a');
+    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href)
+      + '&quote=' + encodeURIComponent(String(text || title || '').slice(0, 240));
+    fb.target = '_blank';
+    fb.rel = 'noopener noreferrer';
+    fb.setAttribute('role', 'menuitem');
+    fb.textContent = labels.fb;
+    fb.addEventListener('click', closeMenu);
+
+    var cp = document.createElement('button');
+    cp.type = 'button';
+    cp.setAttribute('role', 'menuitem');
+    cp.textContent = labels.copy;
+    cp.addEventListener('click', function () {
+      copyText(full);
+      closeMenu();
+    });
+
+    menu.appendChild(wa);
+    menu.appendChild(fb);
+    menu.appendChild(cp);
+    placeMenu(menu, btn);
+  }
+
+  function openPoster(data, trigger) {
     current = data || {};
+    lastTrigger = trigger || null;
+    closeMenu();
     siteEl.textContent = current.site || '';
-    periodEl.textContent = [current.fy ? ('आ.व. ' + current.fy) : '', current.month || '', current.dateBs || ''].filter(Boolean).join(' · ');
+    periodEl.textContent = [fyLine(current), current.dateBs || ''].filter(Boolean).join(' · ');
     ribbonEl.textContent = <?php echo json_encode($isEn
       ? 'Official monthly institutional summary for members & public'
       : 'सदस्य तथा सर्वसाधारणका लागि आधिकारिक मासिक संस्थागत सारांश', JSON_UNESCAPED_UNICODE); ?>;
@@ -899,16 +1020,18 @@ if ($ipChartSeries['count'] >= 2):
     (current.stats || []).forEach(function (s) {
       var div = document.createElement('div');
       div.className = 'ip-poster-stat';
-      div.innerHTML = '<span></span><strong></strong>';
-      div.querySelector('span').textContent = s.label || '';
-      div.querySelector('strong').textContent = s.value || '';
+      var span = document.createElement('span');
+      var strong = document.createElement('strong');
+      span.textContent = s.label || '';
+      strong.textContent = s.value || '';
+      div.appendChild(span);
+      div.appendChild(strong);
       statsEl.appendChild(div);
     });
     if ((current.welfare || []).length) {
       welSec.hidden = false;
       fillRows(welBody, current.welfare, ['label', 'count', 'amount']);
-      welFoot.innerHTML = '<tr><th>' + <?php echo json_encode($isEn ? 'Total' : 'जम्मा', JSON_UNESCAPED_UNICODE); ?> + '</th><th>' +
-        String(current.welfareTotalCount || 0) + '</th><th>' + String(current.welfareTotalAmount || '') + '</th></tr>';
+      setWelfareFooter(current.welfareTotalCount, current.welfareTotalAmount);
     } else {
       welSec.hidden = true;
       welBody.innerHTML = '';
@@ -916,56 +1039,100 @@ if ($ipChartSeries['count'] >= 2):
     }
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
+    window.setTimeout(function () {
+      if (closeBtn) closeBtn.focus();
+    }, 0);
   }
 
   function closePoster() {
+    closeMenu();
+    document.body.classList.remove('ip-poster-printing');
     modal.hidden = true;
     document.body.style.overflow = '';
     current = null;
+    if (lastTrigger && typeof lastTrigger.focus === 'function') {
+      lastTrigger.focus();
+    }
+    lastTrigger = null;
   }
 
   document.addEventListener('click', function (ev) {
-    var btn = ev.target && ev.target.closest ? ev.target.closest('.ip-share-btn') : null;
-    if (!btn) return;
-    ev.preventDefault();
-    var raw = btn.getAttribute('data-ip-poster') || '{}';
-    var data;
-    try { data = JSON.parse(raw); } catch (e) { data = {}; }
-    openPoster(data);
+    var t = ev.target;
+    if (!t || !t.closest) return;
+    var btn = t.closest('.ip-share-btn');
+    if (btn) {
+      ev.preventDefault();
+      var raw = btn.getAttribute('data-ip-poster') || '{}';
+      var data;
+      try { data = JSON.parse(raw); } catch (e) { data = {}; }
+      openPoster(data, btn);
+      return;
+    }
+    if (!t.closest('.ip-share-menu')) {
+      closeMenu();
+    }
   });
 
-  document.getElementById('ipPosterClose').addEventListener('click', closePoster);
+  closeBtn.addEventListener('click', closePoster);
   modal.addEventListener('click', function (ev) {
     if (ev.target === modal) closePoster();
   });
+
   document.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Escape' && !modal.hidden) closePoster();
+    if (modal.hidden) return;
+    if (ev.key === 'Escape') {
+      if (openMenu) {
+        closeMenu();
+        return;
+      }
+      closePoster();
+      return;
+    }
+    if (ev.key !== 'Tab' || !dialog) return;
+    var nodes = focusables();
+    if (!nodes.length) return;
+    var first = nodes[0];
+    var last = nodes[nodes.length - 1];
+    if (ev.shiftKey && document.activeElement === first) {
+      ev.preventDefault();
+      last.focus();
+    } else if (!ev.shiftKey && document.activeElement === last) {
+      ev.preventDefault();
+      first.focus();
+    }
   });
 
   document.getElementById('ipPosterCopy').addEventListener('click', function () {
     if (!current) return;
-    var text = buildShareText(current);
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { window.alert(labels.copied); });
-    } else {
-      window.prompt(labels.copied, text);
-    }
+    copyText(buildShareText(current));
   });
 
   document.getElementById('ipPosterPrint').addEventListener('click', function () {
+    if (modal.hidden) return;
+    document.body.classList.add('ip-poster-printing');
     window.print();
   });
+  window.addEventListener('afterprint', function () {
+    document.body.classList.remove('ip-poster-printing');
+  });
 
-  document.getElementById('ipPosterNativeShare').addEventListener('click', function () {
+  shareBtn.addEventListener('click', function () {
     if (!current) return;
     var text = buildShareText(current);
     var title = (current.site || '') + ' — ' + (current.month || '');
-    if (navigator.share) {
-      navigator.share({ title: title, text: text, url: current.pageUrl || location.href }).catch(function () {});
+    var url = current.pageUrl || location.href;
+    if (typeof navigator.share === 'function') {
+      navigator.share({ title: title, text: text, url: url }).catch(function (err) {
+        if (err && err.name === 'AbortError') return;
+        showFallbackMenu(shareBtn, title, text, url);
+      });
       return;
     }
-    var wa = 'https://wa.me/?text=' + encodeURIComponent(text);
-    window.open(wa, '_blank', 'noopener,noreferrer');
+    if (openMenu) {
+      closeMenu();
+      return;
+    }
+    showFallbackMenu(shareBtn, title, text, url);
   });
 })();
 </script>

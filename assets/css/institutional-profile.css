@@ -338,7 +338,7 @@
 .ip-poster-dialog {
   width: min(720px, 100%);
   max-height: 94vh;
-  background: #f3f6f4;
+  background: var(--bg-muted, #f3f6f4);
   border-radius: 14px;
   overflow: hidden;
   display: flex;
@@ -351,13 +351,13 @@
   justify-content: space-between;
   gap: 10px;
   padding: 10px 12px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  background: var(--bg-card, #fff);
+  border-bottom: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb);
 }
 .ip-poster-toolbar-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .ip-poster-tool-btn {
   border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
-  background: #fff;
+  background: var(--bg-card, #fff);
   color: var(--primary-ink, var(--primary-color, #1a5f2a));
   border-radius: 8px;
   padding: 0.4rem 0.65rem;
@@ -365,10 +365,14 @@
   font-weight: 700;
   cursor: pointer;
 }
+.ip-poster-tool-btn:focus-visible {
+  outline: 2px solid var(--primary-color, #1a5f2a);
+  outline-offset: 2px;
+}
 .ip-poster-close { font-size: 1.1rem; line-height: 1; min-width: 2rem; }
 .ip-poster-scroll { overflow: auto; padding: 12px; }
 .ip-poster-sheet {
-  background: #fff;
+  background: var(--bg-card, #fff);
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #e5e7eb);
@@ -445,8 +449,8 @@
   gap: 8px;
 }
 .ip-poster-stat {
-  background: color-mix(in srgb, var(--secondary-color, #c0392b) 12%, #fff7ed);
-  border: 1px solid color-mix(in srgb, var(--secondary-color, #c0392b) 28%, #fed7aa);
+  background: color-mix(in srgb, var(--secondary-color, #c0392b) 12%, var(--bg-card, #fff));
+  border: 1px solid color-mix(in srgb, var(--secondary-color, #c0392b) 28%, var(--bg-muted, #f3f6f4));
   border-radius: 10px;
   padding: 0.55rem 0.65rem;
 }
@@ -454,31 +458,76 @@
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #9a3412;
+  color: var(--secondary-dark, var(--secondary-color, #c0392b));
 }
 .ip-poster-stat strong {
   display: block;
   margin-top: 0.15rem;
   font-size: 0.92rem;
-  color: #7c2d12;
+  color: var(--secondary-dark, #922b21);
 }
 .ip-poster-note {
   margin: 0.35rem 0 0;
   font-size: 0.72rem;
-  color: #6b7280;
+  color: var(--text-muted, #6b7280);
+}
+
+/* Fallback share menu — same pattern as reports-page.css */
+.ip-share-menu {
+  position: fixed;
+  z-index: 100100;
+  min-width: 11.5rem;
+  max-width: min(18rem, calc(100vw - 1.5rem));
+  padding: 0.35rem;
+  background: var(--bg-card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 31, 23, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.ip-share-menu button,
+.ip-share-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary, #1a2e1f);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ip-share-menu button:hover,
+.ip-share-menu a:hover,
+.ip-share-menu button:focus-visible,
+.ip-share-menu a:focus-visible {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  outline: none;
 }
 
 @media print {
-  body * { visibility: hidden !important; }
-  #ipPosterModal, #ipPosterModal * { visibility: visible !important; }
-  #ipPosterModal {
+  body.ip-poster-printing * { visibility: hidden !important; }
+  body.ip-poster-printing #ipPosterModal,
+  body.ip-poster-printing #ipPosterModal * { visibility: visible !important; }
+  body.ip-poster-printing #ipPosterModal {
     position: static !important;
     background: #fff !important;
     display: block !important;
     padding: 0 !important;
   }
-  .ip-poster-toolbar { display: none !important; }
-  .ip-poster-dialog, .ip-poster-scroll, .ip-poster-sheet {
+  body.ip-poster-printing .ip-poster-toolbar,
+  body.ip-poster-printing .ip-share-menu { display: none !important; }
+  body.ip-poster-printing .ip-poster-dialog,
+  body.ip-poster-printing .ip-poster-scroll,
+  body.ip-poster-printing .ip-poster-sheet {
     box-shadow: none !important;
     max-height: none !important;
     overflow: visible !important;
