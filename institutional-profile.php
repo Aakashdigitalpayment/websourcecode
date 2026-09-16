@@ -95,7 +95,9 @@ $ipSiteName = trim((string) (function_exists('getSetting')
     ? getSetting($isEn ? 'site_name_en' : 'site_name', getSetting('site_name', 'सहकारी'))
     : 'सहकारी'));
 $ipSiteLogo = '';
-if (function_exists('getSetting')) {
+if (function_exists('getLocalizedLogoPath')) {
+    $ipSiteLogo = trim((string) getLocalizedLogoPath(''));
+} elseif (function_exists('getSetting')) {
     $ipSiteLogo = trim((string) getSetting($isEn ? 'logo_en' : 'logo_np', getSetting('site_logo', getSetting('logo', ''))));
 }
 if ($ipSiteLogo !== '' && function_exists('safe_versioned_media_src')) {
@@ -580,10 +582,8 @@ if ($ipChartSeries['count'] >= 2):
         <header class="ip-poster-brand">
           <div class="ip-poster-brand-row">
             <img id="ipPosterLogo" class="ip-poster-logo" alt="" hidden>
-            <div class="ip-poster-brand-text">
-              <h2 id="ipPosterSite" class="ip-poster-site"></h2>
-              <p id="ipPosterPeriod" class="ip-poster-period"></p>
-            </div>
+            <h2 id="ipPosterSite" class="ip-poster-site" hidden></h2>
+            <p id="ipPosterPeriod" class="ip-poster-period"></p>
           </div>
           <div class="ip-poster-ribbon" id="ipPosterRibbon"></div>
         </header>
@@ -1025,12 +1025,17 @@ if ($ipChartSeries['count'] >= 2):
     ribbonEl.textContent = <?php echo json_encode($isEn
       ? 'Official monthly institutional summary for members & public'
       : 'सदस्य तथा सर्वसाधारणका लागि आधिकारिक मासिक संस्थागत सारांश', JSON_UNESCAPED_UNICODE); ?>;
+    /* Prefer banner logo (includes name) — hide duplicate text name when logo exists */
     if (current.logo) {
       logoEl.src = current.logo;
+      logoEl.alt = current.site || '';
       logoEl.hidden = false;
+      siteEl.hidden = true;
     } else {
       logoEl.removeAttribute('src');
+      logoEl.alt = '';
       logoEl.hidden = true;
+      siteEl.hidden = !(current.site || '');
     }
     fillRows(finBody, current.finance || [], ['label', 'value']);
     statsEl.innerHTML = '';

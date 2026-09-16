@@ -308,7 +308,8 @@ assertContains('institutional-profile.php', "coopThemeLinkHtml('assets/css/insti
 assertContains('assets/css/institutional-profile.css', '.ip-filter-wrap', 'institutional profile CSS extracted');
 assertContains('includes/institutional-profile-helpers.php', 'function coopIpWelfareReliefByType', 'IP helpers expose welfare SSOT aggregator');
 assertContains('includes/institutional-profile-helpers.php', "strtr(\$grouped", 'full amount uses Nepali digits for NP UI');
-assertContains('institutional-profile.php', 'function ipFullAmt', 'IP page uses full ledger amounts like share poster');
+assertContains('institutional-profile.php', 'getLocalizedLogoPath', 'IP poster uses header banner logo path');
+assertContains('assets/css/institutional-profile.css', 'max-height: 96px', 'IP poster logo is wide banner style');
 assertContains('institutional-profile.php', 'ipFullAmt((float)$p[\'share_capital\'])', 'month ledger share capital is full amount');
 assertContains('includes/institutional-profile-helpers.php', 'COALESCE(paid_at, reviewed_at, created_at)', 'welfare cutoff uses effective claim date');
 assertContains('includes/institutional-profile-helpers.php', "return '';", 'undated IP profile skips today welfare fallback');
