@@ -310,6 +310,10 @@ assertContains('institutional-profile.php', 'data-ip-poster', 'monthly IP share 
 assertContains('institutional-profile.php', 'id="ipPosterModal"', 'monthly IP share poster modal');
 assertContains('assets/css/institutional-profile.css', '.ip-relief-table', 'IP welfare relief table styles');
 assertContains('assets/css/institutional-profile.css', '.ip-poster-sheet', 'IP social share poster styles');
+assertContains('assets/css/institutional-profile.css', 'body.ip-poster-printing', 'IP poster print gated on open class');
+assertContains('assets/css/institutional-profile.css', '.ip-share-menu', 'IP share fallback menu mirrors reports');
+assertContains('institutional-profile.php', 'ip-poster-printing', 'IP print class toggled from share poster');
+assertContains('institutional-profile.php', 'showFallbackMenu', 'IP share uses reports-style fallback menu');
 assertContains('assets/css/global-theme.php', "var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif)", 'global-theme font fallback matches SSOT');
 assertContains('assets/css/final-ui-polish.css', "font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important", 'header nav font uses SSOT');
 assertContains('assets/css/member-kyc-print-page.css', "font-family: var(--font-primary", 'kyc-print font uses SSOT with Arial fallback');
