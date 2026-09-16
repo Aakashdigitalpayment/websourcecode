@@ -407,17 +407,18 @@
   text-align: center;
 }
 .ip-poster-logo {
-  width: 56px;
-  height: 56px;
+  display: block;
+  width: min(100%, 420px);
+  max-width: 100%;
+  height: auto;
+  max-height: 96px;
   object-fit: contain;
+  object-position: center;
   background: #fff;
-  border-radius: 10px;
-  padding: 4px;
+  border-radius: 12px;
+  padding: 8px 12px;
   flex-shrink: 0;
-}
-.ip-poster-brand-text {
-  width: 100%;
-  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 .ip-poster-site {
   margin: 0;
@@ -427,10 +428,14 @@
   color: var(--text-on-primary, #fff);
   text-align: center;
 }
+.ip-poster-site[hidden],
+.ip-poster-logo[hidden] {
+  display: none !important;
+}
 .ip-poster-period {
-  margin: 0.2rem 0 0;
+  margin: 0.15rem 0 0;
   font-size: 0.85rem;
-  opacity: 0.92;
+  opacity: 0.95;
   color: var(--text-on-primary, #fff);
   text-align: center;
 }
