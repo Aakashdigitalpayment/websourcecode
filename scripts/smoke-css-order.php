@@ -206,7 +206,10 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.3')", 'theme version 2.3 typography lock');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.4')", 'theme version 2.4 font/color complete');
+assertContains('assets/css/final-ui-polish.css', 'Completes multi-page uniform fonts/colors', 'typography lock completion marker');
+assertContains('assets/css/final-ui-polish.css', '.pfl-top-bar', 'typography lock covers top bar Mukta');
+assertContains('assets/css/final-ui-polish.css', 'background-color: var(--bg-page', 'body bg uses brand surface token');
 assertContains('assets/css/final-ui-polish.css', 'Typography SSOT lock', 'final polish locks Inter/Jakarta over Mukta');
 assertContains('assets/css/final-ui-polish.css', '--shell-font-body: var(--font-primary', 'final ensures shell font aliases');
 assertContains('assets/css/premium-ui.css', 'color-mix(in srgb, var(--primary-color', 'premium selection uses primary tint');
