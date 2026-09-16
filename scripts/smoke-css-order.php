@@ -375,6 +375,8 @@ assertContains('ceo-message.php', "coopThemeLinkHtml('assets/css/leadership-mess
 assertContains('ceo-message.php', 'leadership-message-stack', 'ceo stacked photo-above layout');
 assertContains('assets/css/leadership-message-page.css', '.leadership-messages-about', 'leadership page CSS present');
 assertContains('assets/css/leadership-message-page.css', 'leadership-message-stack', 'stack layout CSS present');
+assertContains('assets/css/leadership-message-page.css', 'max-width: min(56rem, 100%)', 'leadership card wider default');
+assertContains('assets/css/leadership-message-page.css', 'max-width: none', 'message body uses full card width');
 assertContains('assets/css/leadership-message-page.css', 'position: static !important', 'stack quote resets frozen absolute');
 assertContains('assets/css/leadership-message-page.css', '.leadership-message-stack .message-content-full', 'stack scopes message content');
 assertContains('includes/leadership-message-helpers.php', 'chairman_designation_en', 'chairman designation mirrors CEO');
