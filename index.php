@@ -1088,8 +1088,26 @@ if (empty($appFeatures)) {
                             <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo date('Y', strtotime($award['award_date'])); ?>
                         </span>
                         <?php endif; ?>
-                        <?php if (!empty($award['description']) || !empty($award['description_np'])): ?>
-                        <p class="award-desc"><?php echo e(isEnglish() ? ($award['description'] ?? $award['description_np']) : ($award['description_np'] ?? $award['description'])); ?></p>
+                        <?php if (!empty($award['description']) || !empty($award['description_np'])):
+                            $awardDescFull = trim((string)(isEnglish()
+                                ? ($award['description'] ?? $award['description_np'] ?? '')
+                                : ($award['description_np'] ?? $award['description'] ?? '')));
+                            $awardDescTeaser = function_exists('truncateText')
+                                ? truncateText($awardDescFull, 110, '…')
+                                : (mb_strlen($awardDescFull, 'UTF-8') > 110
+                                    ? rtrim(mb_substr($awardDescFull, 0, 110, 'UTF-8')) . '…'
+                                    : $awardDescFull);
+                            $awardDescLong = (function_exists('mb_strlen')
+                                ? mb_strlen($awardDescFull, 'UTF-8')
+                                : strlen($awardDescFull)) > 110;
+                        ?>
+                        <p class="award-desc"><?php echo e($awardDescTeaser); ?></p>
+                        <?php if ($awardDescLong): ?>
+                        <a class="award-read-more" href="awards.php?id=<?php echo (int)($award['id'] ?? 0); ?>">
+                            <?php echo isEnglish() ? 'Read more' : 'थप पढ्नुहोस्'; ?>
+                            <i class="lucide-icon" aria-hidden="true" data-lucide="arrow-right"></i>
+                        </a>
+                        <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>

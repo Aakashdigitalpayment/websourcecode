@@ -201,7 +201,9 @@ assertContains('assets/css/final-ui-polish.css', 'Corp modal-header tint', 'moda
 assertContains('assets/css/final-ui-polish.css', 'Header: Himal bg + SINCE badge', 'header himal since lang fixes');
 assertContains('includes/config.php', 'function safe_versioned_media_src_absolute', 'absolute versioned media helper');
 assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'header himal absolute url');
-assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
+assertContains('index.php', 'award-read-more', 'homepage awards teaser has read-more');
+assertContains('index.php', 'truncateText($awardDescFull, 110', 'homepage awards description truncated');
+assertContains('assets/css/final-ui-polish.css', 'Homepage awards — short teaser', 'awards teaser CSS in polish');
 assertContains('scripts/deploy-pull-safe.sh', 'run-migration-safe.php --yes', 'deploy-pull includes safe migration');
 assertContains('scripts/run-migration-safe.php', 'Safe CLI migration', 'CLI migration script present');
 

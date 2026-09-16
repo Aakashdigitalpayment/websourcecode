@@ -6931,6 +6931,39 @@ body.page-loaded .page-loader {
   height: auto;
 }
 
+/* Homepage awards — short teaser + read-more (full text on awards.php) */
+.awards-section .award-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  max-height: 4.8em;
+  margin-bottom: 0.55rem !important;
+  line-height: 1.55 !important;
+  text-align: center;
+}
+.awards-section .award-read-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--primary-color, #1a5f2a) !important;
+  text-decoration: none !important;
+}
+.awards-section .award-read-more:hover {
+  color: var(--primary-dark, #145021) !important;
+  text-decoration: underline !important;
+}
+.awards-section .award-read-more .lucide-icon,
+.awards-section .award-read-more svg {
+  width: 14px !important;
+  height: 14px !important;
+  stroke: currentColor !important;
+}
+
+
 /* Dark mode — gallery / pagination / banner crumbs */
 body.dark-mode .gallery-tabs-wrapper {
   background: color-mix(in srgb, #1a2420 92%, var(--primary-color, #1a5f2a)) !important;
