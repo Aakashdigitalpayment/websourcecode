@@ -86,11 +86,30 @@ $isEn = isEnglish();
 $fiscalYears = [];
 $monthSet = [];
 $ipChartSeries = ['labels' => [], 'deposit' => [], 'loan' => [], 'assets' => [], 'members' => [], 'count' => 0];
+$ipSiteName = trim((string) (function_exists('getSetting')
+    ? getSetting($isEn ? 'site_name_en' : 'site_name', getSetting('site_name', 'सहकारी'))
+    : 'सहकारी'));
+$ipSiteLogo = '';
+if (function_exists('getSetting')) {
+    $ipSiteLogo = trim((string) getSetting($isEn ? 'logo_en' : 'logo_np', getSetting('site_logo', getSetting('logo', ''))));
+}
+if ($ipSiteLogo !== '' && function_exists('safe_versioned_media_src')) {
+    $ipSiteLogo = safe_versioned_media_src($ipSiteLogo);
+} elseif ($ipSiteLogo !== '' && function_exists('getAssetUrl')) {
+    $ipSiteLogo = getAssetUrl(ltrim($ipSiteLogo, '/'));
+}
+$ipWelfareByUpto = [];
 foreach ($profiles as &$_pRow) {
     $_pRow['_month'] = ipResolveMonth($_pRow);
     $fy = trim((string)($_pRow['fiscal_year'] ?? ''));
     if ($fy !== '') $fiscalYears[$fy] = true;
     if ($_pRow['_month'] > 0) $monthSet[$_pRow['_month']] = true;
+    $upto = coopIpProfileUptoAdDate($_pRow);
+    $_pRow['_upto_ad'] = $upto;
+    if (!isset($ipWelfareByUpto[$upto]) && isset($db) && $db instanceof PDO) {
+        $ipWelfareByUpto[$upto] = coopIpWelfareReliefByType($db, $upto, $isEn);
+    }
+    $_pRow['_welfare'] = $ipWelfareByUpto[$upto] ?? [];
 }
 unset($_pRow);
 $fiscalYears = array_keys($fiscalYears);
@@ -350,7 +369,7 @@ if ($ipChartSeries['count'] >= 2):
             $_fy = trim((string)($p['fiscal_year'] ?? ''));
             $_dateBs = trim((string)($p['report_date_bs'] ?? ''));
             $_monthName = ipMonthLabel($rm, $isEn);
-            $_filterText = strtolower(trim($_fy . ' ' . $_monthName . ' ' . $_dateBs . ' कुल सदस्य शेयर पूँजी जगेडा कोष कुल बचत ऋण लगानी बैंक नगद स्थिर सम्पत्ति कुल सम्पत्ति'));
+            $_filterText = strtolower(trim($_fy . ' ' . $_monthName . ' ' . $_dateBs . ' कुल सदस्य शेयर पूँजी जगेडा कोष कुल बचत ऋण लगानी बैंक नगद स्थिर सम्पत्ति कुल सम्पत्ति राहत कल्याण welfare'));
             $isCur = ($currentProfile && (int)($currentProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $isPrev = ($previousProfile && (int)($previousProfile['id'] ?? 0) === (int)($p['id'] ?? 0));
             $tileCls = 'ip-month-tile' . ($isCur || $isPrev ? ' is-highlight' : '');
@@ -383,55 +402,148 @@ if ($ipChartSeries['count'] >= 2):
             <div class="ip-month-ledger">
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(1); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> कुल सदस्य</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-total-members-value-<?php echo $rowNo; ?>"><?php echo number_format((int)$p['total_members']); ?></strong><?php if (!empty($p['total_balance_member'])): ?><em><?php echo number_format((int)$p['total_balance_member']); ?> शेष</em><?php endif; ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo $isEn ? 'Total members' : 'कुल सदस्य'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-total-members-value-<?php echo $rowNo; ?>"><?php echo number_format((int)$p['total_members']); ?></strong><?php if (!empty($p['total_balance_member'])): ?><em><?php echo number_format((int)$p['total_balance_member']); ?> <?php echo $isEn ? 'active' : 'शेष'; ?></em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(2); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="coins" aria-hidden="true"></i> शेयर पूँजी</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-share-capital-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['share_capital']); ?></strong><?php if (!empty($p['share_capital_percent'])): ?><em><?php echo htmlspecialchars((string)$p['share_capital_percent']); ?>% वृद्धि</em><?php endif; ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="coins" aria-hidden="true"></i> <?php echo $isEn ? 'Share capital' : 'शेयर पूँजी'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-share-capital-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['share_capital']); ?></strong><?php if (!empty($p['share_capital_percent'])): ?><em><?php echo htmlspecialchars((string)$p['share_capital_percent']); ?>% <?php echo $isEn ? 'growth' : 'वृद्धि'; ?></em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(3); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> जगेडा कोष</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-reserved-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)($p['reserved_fund'] ?? 0)); ?></strong><?php if (!empty($p['reserved_fund_percent'])): ?><em><?php echo htmlspecialchars((string)$p['reserved_fund_percent']); ?>% वृद्धि</em><?php endif; ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> <?php echo $isEn ? 'Reserve fund' : 'जगेडा कोष'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-reserved-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)($p['reserved_fund'] ?? 0)); ?></strong><?php if (!empty($p['reserved_fund_percent'])): ?><em><?php echo htmlspecialchars((string)$p['reserved_fund_percent']); ?>% <?php echo $isEn ? 'growth' : 'वृद्धि'; ?></em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(4); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="layers" aria-hidden="true"></i> अन्य कोष</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-other-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($otherFund); ?></strong></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="building-2" aria-hidden="true"></i> <?php echo $isEn ? 'Institutional capital' : 'कुल संस्थागत पूँजी'; ?></span>
+                    <span class="ip-month-value"><strong><?php echo ipShortAmt((float)($p['reserved_fund'] ?? 0) + (float)($p['other_fund'] ?? 0)); ?></strong><em><?php echo $isEn ? 'Reserve + other' : 'जगेडा + अन्य'; ?></em></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(5); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i> कुल बचत</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-deposit-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['deposit']); ?></strong><?php if (!empty($p['deposit_percent'])): ?><em><?php echo htmlspecialchars((string)$p['deposit_percent']); ?>% वृद्धि</em><?php endif; ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="layers" aria-hidden="true"></i> <?php echo $isEn ? 'Other funds' : 'अन्य कोष'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-other-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($otherFund); ?></strong></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(6); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i> ऋण लगानी</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-loan-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['loan']); ?></strong><?php if ($totalLoanMembers > 0): ?><em><?php echo number_format($totalLoanMembers); ?> ऋणी सदस्य</em><?php endif; ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i> <?php echo $isEn ? 'Total deposits' : 'कुल बचत'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-deposit-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['deposit']); ?></strong><?php if (!empty($p['deposit_percent'])): ?><em><?php echo htmlspecialchars((string)$p['deposit_percent']); ?>% <?php echo $isEn ? 'growth' : 'वृद्धि'; ?></em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(7); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i> बैंक तथा नगद</span>
-                    <span class="ip-month-value"><strong data-testid="institutional-profile-bank-cash-balance-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($bankCashBalance); ?></strong></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i> <?php echo $isEn ? 'Loan investment' : 'लगानीमा रहेको ऋण'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-loan-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['loan']); ?></strong><?php if ($totalLoanMembers > 0): ?><em><?php echo number_format($totalLoanMembers); ?> <?php echo $isEn ? 'borrowers' : 'ऋणी सदस्य'; ?></em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(8); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> स्थिर सम्पत्ति</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="wallet" aria-hidden="true"></i> <?php echo $isEn ? 'Liquidity (bank & cash)' : 'तरलता (बैंक तथा नगद)'; ?></span>
+                    <span class="ip-month-value"><strong data-testid="institutional-profile-bank-cash-balance-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($bankCashBalance); ?></strong><?php if (!empty($p['liquidity_percent'])): ?><em><?php echo (float)$p['liquidity_percent']; ?>%</em><?php endif; ?></span>
+                </div>
+                <div class="ip-month-ledger-row">
+                    <span class="ip-month-sn"><?php echo ipNepaliNumber(9); ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> <?php echo $isEn ? 'Fixed assets' : 'स्थिर सम्पत्ति'; ?></span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-fixed-assets-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($fixedAssets); ?></strong></span>
                 </div>
                 <div class="ip-month-ledger-row ip-month-total">
-                    <span class="ip-month-sn"><?php echo ipNepaliNumber(9); ?></span>
-                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> कुल सम्पत्ति</span>
+                    <span class="ip-month-sn"><?php echo ipNepaliNumber(10); ?></span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> <?php echo $isEn ? 'Total assets' : 'कुल सम्पत्ति'; ?></span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-total-assets-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['total_assets']); ?></strong></span>
                 </div>
             </div>
+
+            <?php
+            $welfareRows = is_array($p['_welfare'] ?? null) ? $p['_welfare'] : [];
+            $welfareCountSum = 0;
+            $welfareAmtSum = 0.0;
+            foreach ($welfareRows as $_wr) {
+                $welfareCountSum += (int) ($_wr['count'] ?? 0);
+                $welfareAmtSum += (float) ($_wr['amount'] ?? 0);
+            }
+            $posterPayload = [
+                'site' => $ipSiteName,
+                'logo' => $ipSiteLogo,
+                'fy' => $_fy,
+                'month' => $_monthName,
+                'dateBs' => $_dateBs,
+                'dateAd' => trim((string) ($p['report_date_ad'] ?? ($p['_upto_ad'] ?? ''))),
+                'finance' => [
+                    ['label' => $isEn ? 'Share capital' : 'शेयर पूँजी', 'value' => coopIpFormatAmtFull((float) ($p['share_capital'] ?? 0), $isEn)],
+                    ['label' => $isEn ? 'Reserve fund' : 'जगेडा कोष', 'value' => coopIpFormatAmtFull((float) ($p['reserved_fund'] ?? 0), $isEn)],
+                    ['label' => $isEn ? 'Institutional capital' : 'कुल संस्थागत पूँजी', 'value' => coopIpFormatAmtFull((float) ($p['reserved_fund'] ?? 0) + (float) ($p['other_fund'] ?? 0), $isEn)],
+                    ['label' => $isEn ? 'Other funds' : 'अन्य कोषहरुको रकम', 'value' => coopIpFormatAmtFull($otherFund, $isEn)],
+                    ['label' => $isEn ? 'Total deposits' : 'कुल बचत', 'value' => coopIpFormatAmtFull((float) ($p['deposit'] ?? 0), $isEn)],
+                    ['label' => $isEn ? 'Loan investment' : 'लगानीमा रहेको ऋण', 'value' => coopIpFormatAmtFull((float) ($p['loan'] ?? 0), $isEn)],
+                    ['label' => $isEn ? 'Total assets' : 'कुल सम्पत्ति', 'value' => coopIpFormatAmtFull((float) ($p['total_assets'] ?? 0), $isEn)],
+                ],
+                'stats' => [
+                    ['label' => $isEn ? 'Liquidity amount' : 'तरलता रकम', 'value' => coopIpFormatAmtFull($bankCashBalance, $isEn)],
+                    ['label' => $isEn ? 'Liquidity %' : 'तरलता प्रतिशत', 'value' => !empty($p['liquidity_percent']) ? ((float) $p['liquidity_percent'] . '%') : '—'],
+                    ['label' => $isEn ? 'Members' : 'सदस्य संख्या', 'value' => number_format((int) ($p['total_members'] ?? 0))],
+                    ['label' => $isEn ? 'Borrower members' : 'कुल ऋणी सदस्य', 'value' => number_format($totalLoanMembers)],
+                ],
+                'welfare' => array_map(static function ($r) use ($isEn) {
+                    return [
+                        'label' => (string) ($r['label'] ?? ''),
+                        'count' => (int) ($r['count'] ?? 0),
+                        'amount' => coopIpFormatAmtFull((float) ($r['amount'] ?? 0), $isEn),
+                    ];
+                }, $welfareRows),
+                'welfareTotalCount' => $welfareCountSum,
+                'welfareTotalAmount' => coopIpFormatAmtFull($welfareAmtSum, $isEn),
+                'pageUrl' => rtrim((string) SITE_URL, '/') . '/institutional-profile.php',
+            ];
+            $posterJson = htmlspecialchars((string) json_encode($posterPayload, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8');
+            ?>
+
+            <?php if (!empty($welfareRows)): ?>
+            <div class="ip-relief-block" data-testid="institutional-profile-relief-<?php echo $rowNo; ?>">
+                <div class="ip-relief-head">
+                    <strong><i class="lucide-icon" data-lucide="heart-handshake" aria-hidden="true"></i> <?php echo $isEn ? 'Member welfare facilities' : 'सदस्य राहत / कल्याण सुविधा'; ?></strong>
+                    <span><?php echo $isEn ? 'From member-welfare (upto this report)' : 'member-welfare बाट (यो प्रतिवेदनसम्म)'; ?></span>
+                </div>
+                <div class="ip-relief-table-wrap">
+                    <table class="ip-relief-table">
+                        <thead>
+                            <tr>
+                                <th><?php echo $isEn ? 'Facility' : 'सुविधाको प्रकार'; ?></th>
+                                <th><?php echo $isEn ? 'Count' : 'संख्या'; ?></th>
+                                <th><?php echo $isEn ? 'Amount' : 'रकम'; ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($welfareRows as $wr): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars((string) $wr['label'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td><?php echo number_format((int) $wr['count']); ?></td>
+                                <td><?php echo htmlspecialchars(coopIpFormatAmtFull((float) $wr['amount'], $isEn), ENT_QUOTES, 'UTF-8'); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th><?php echo $isEn ? 'Total' : 'जम्मा'; ?></th>
+                                <th><?php echo number_format($welfareCountSum); ?></th>
+                                <th><?php echo htmlspecialchars(coopIpFormatAmtFull($welfareAmtSum, $isEn), ENT_QUOTES, 'UTF-8'); ?></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <div class="ip-month-tile-foot">
                 <?php if (!empty($p['npa_percent'])): ?><span class="ip-mini-chip">NPA <?php echo (float)$p['npa_percent']; ?>%</span><?php endif; ?>
                 <?php if (!empty($p['npl_percent'])): ?><span class="ip-mini-chip">NPL <?php echo (float)$p['npl_percent']; ?>%</span><?php endif; ?>
                 <?php if (!empty($p['liquidity_percent'])): ?><span class="ip-mini-chip">Liq <?php echo (float)$p['liquidity_percent']; ?>%</span><?php endif; ?>
+                <button type="button"
+                        class="ip-share-btn"
+                        data-ip-poster="<?php echo $posterJson; ?>"
+                        title="<?php echo $isEn ? 'Share monthly report' : 'मासिक विवरण सेयर गर्नुहोस्'; ?>"
+                        aria-label="<?php echo $isEn ? 'Share monthly institutional report' : 'मासिक संस्थागत विवरण सेयर'; ?>">
+                    <i class="lucide-icon" data-lucide="share-2" aria-hidden="true"></i>
+                    <span><?php echo $isEn ? 'Share' : 'सेयर'; ?></span>
+                </button>
             </div>
         </article>
         <?php endforeach; ?>
@@ -443,6 +555,62 @@ if ($ipChartSeries['count'] >= 2):
 </div><!-- .container -->
 </section>
 
+
+<!-- Monthly share poster (social-ready layout) -->
+<div id="ipPosterModal" class="ip-poster-modal" hidden data-testid="institutional-profile-share-modal">
+  <div class="ip-poster-dialog" role="dialog" aria-modal="true" aria-labelledby="ipPosterTitle">
+    <div class="ip-poster-toolbar">
+      <strong id="ipPosterTitle"><?php echo $isEn ? 'Monthly institutional report' : 'मासिक संस्थागत विवरण'; ?></strong>
+      <div class="ip-poster-toolbar-actions">
+        <button type="button" class="ip-poster-tool-btn" id="ipPosterNativeShare"><?php echo $isEn ? 'Share' : 'सेयर'; ?></button>
+        <button type="button" class="ip-poster-tool-btn" id="ipPosterCopy"><?php echo $isEn ? 'Copy text' : 'पाठ कपी'; ?></button>
+        <button type="button" class="ip-poster-tool-btn" id="ipPosterPrint"><?php echo $isEn ? 'Print / PDF' : 'प्रिन्ट / PDF'; ?></button>
+        <button type="button" class="ip-poster-tool-btn ip-poster-close" id="ipPosterClose" aria-label="<?php echo $isEn ? 'Close' : 'बन्द'; ?>">×</button>
+      </div>
+    </div>
+    <div class="ip-poster-scroll">
+      <article class="ip-poster-sheet" id="ipPosterSheet">
+        <header class="ip-poster-brand">
+          <div class="ip-poster-brand-row">
+            <img id="ipPosterLogo" class="ip-poster-logo" alt="" hidden>
+            <div>
+              <h2 id="ipPosterSite" class="ip-poster-site"></h2>
+              <p id="ipPosterPeriod" class="ip-poster-period"></p>
+            </div>
+          </div>
+          <div class="ip-poster-ribbon" id="ipPosterRibbon"></div>
+        </header>
+
+        <section class="ip-poster-section">
+          <h3><?php echo $isEn ? 'Financial & other details' : 'वित्तीय तथा अन्य विवरण'; ?></h3>
+          <table class="ip-poster-table" id="ipPosterFinanceTable">
+            <thead><tr><th><?php echo $isEn ? 'Description' : 'विवरण'; ?></th><th><?php echo $isEn ? 'Amount' : 'रकम रु.'; ?></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="ip-poster-stats" id="ipPosterStats"></div>
+        </section>
+
+        <section class="ip-poster-section" id="ipPosterWelfareSection">
+          <h3><?php echo $isEn ? 'Member welfare facilities (cumulative)' : 'सदस्य राहत सुविधाको अवस्था (हालसम्म)'; ?></h3>
+          <table class="ip-poster-table" id="ipPosterWelfareTable">
+            <thead>
+              <tr>
+                <th><?php echo $isEn ? 'Facility type' : 'सुविधाको प्रकार'; ?></th>
+                <th><?php echo $isEn ? 'Count' : 'संख्या'; ?></th>
+                <th><?php echo $isEn ? 'Amount' : 'रकम रु.'; ?></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+          <p class="ip-poster-note"><?php echo $isEn
+            ? 'Welfare types & totals come from Member Welfare (single source).'
+            : 'राहत प्रकार तथा रकम सदस्य कल्याण (member-welfare) बाट — एउटै स्रोत।'; ?></p>
+        </section>
+      </article>
+    </div>
+  </div>
+</div>
 
 <!-- Document Preview Modal -->
 <div id="ipDocModal" data-testid="institutional-profile-document-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)ipCloseDoc()">
@@ -652,6 +820,154 @@ if ($ipChartSeries['count'] >= 2):
     window.ipOpenDoc  = ipOpenDoc;
     window.ipCloseDoc = ipCloseDoc;
 }());
+</script>
+
+<script>
+(function () {
+  var modal = document.getElementById('ipPosterModal');
+  if (!modal) return;
+  var sheet = document.getElementById('ipPosterSheet');
+  var siteEl = document.getElementById('ipPosterSite');
+  var periodEl = document.getElementById('ipPosterPeriod');
+  var ribbonEl = document.getElementById('ipPosterRibbon');
+  var logoEl = document.getElementById('ipPosterLogo');
+  var finBody = document.querySelector('#ipPosterFinanceTable tbody');
+  var statsEl = document.getElementById('ipPosterStats');
+  var welBody = document.querySelector('#ipPosterWelfareTable tbody');
+  var welFoot = document.querySelector('#ipPosterWelfareTable tfoot');
+  var welSec = document.getElementById('ipPosterWelfareSection');
+  var current = null;
+  var labels = {
+    copied: <?php echo json_encode($isEn ? 'Report text copied.' : 'विवरण कपी भयो।', JSON_UNESCAPED_UNICODE); ?>,
+    shareFail: <?php echo json_encode($isEn ? 'Sharing is not available on this device.' : 'यो यन्त्रमा सेयर उपलब्ध छैन।', JSON_UNESCAPED_UNICODE); ?>
+  };
+
+  function fillRows(tbody, rows, cols) {
+    tbody.innerHTML = '';
+    (rows || []).forEach(function (r) {
+      var tr = document.createElement('tr');
+      cols.forEach(function (c) {
+        var td = document.createElement('td');
+        td.textContent = r[c] != null ? String(r[c]) : '';
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  function buildShareText(d) {
+    var lines = [];
+    lines.push(d.site || '');
+    lines.push((d.fy ? ('आ.व. ' + d.fy) : '') + (d.month ? (' · ' + d.month) : ''));
+    if (d.dateBs) lines.push(<?php echo json_encode($isEn ? 'As of ' : 'मिति ', JSON_UNESCAPED_UNICODE); ?> + d.dateBs);
+    lines.push('');
+    lines.push(<?php echo json_encode($isEn ? 'Financial details' : 'वित्तीय विवरण', JSON_UNESCAPED_UNICODE); ?>);
+    (d.finance || []).forEach(function (r) {
+      lines.push('- ' + r.label + ': ' + r.value);
+    });
+    (d.stats || []).forEach(function (r) {
+      lines.push('- ' + r.label + ': ' + r.value);
+    });
+    if ((d.welfare || []).length) {
+      lines.push('');
+      lines.push(<?php echo json_encode($isEn ? 'Member welfare facilities' : 'सदस्य राहत सुविधा', JSON_UNESCAPED_UNICODE); ?>);
+      d.welfare.forEach(function (r) {
+        lines.push('- ' + r.label + ': ' + r.count + ' | ' + r.amount);
+      });
+      lines.push(<?php echo json_encode($isEn ? 'Total' : 'जम्मा', JSON_UNESCAPED_UNICODE); ?> + ': ' + (d.welfareTotalCount || 0) + ' | ' + (d.welfareTotalAmount || ''));
+    }
+    if (d.pageUrl) lines.push('\n' + d.pageUrl);
+    return lines.filter(Boolean).join('\n');
+  }
+
+  function openPoster(data) {
+    current = data || {};
+    siteEl.textContent = current.site || '';
+    periodEl.textContent = [current.fy ? ('आ.व. ' + current.fy) : '', current.month || '', current.dateBs || ''].filter(Boolean).join(' · ');
+    ribbonEl.textContent = <?php echo json_encode($isEn
+      ? 'Official monthly institutional summary for members & public'
+      : 'सदस्य तथा सर्वसाधारणका लागि आधिकारिक मासिक संस्थागत सारांश', JSON_UNESCAPED_UNICODE); ?>;
+    if (current.logo) {
+      logoEl.src = current.logo;
+      logoEl.hidden = false;
+    } else {
+      logoEl.removeAttribute('src');
+      logoEl.hidden = true;
+    }
+    fillRows(finBody, current.finance || [], ['label', 'value']);
+    statsEl.innerHTML = '';
+    (current.stats || []).forEach(function (s) {
+      var div = document.createElement('div');
+      div.className = 'ip-poster-stat';
+      div.innerHTML = '<span></span><strong></strong>';
+      div.querySelector('span').textContent = s.label || '';
+      div.querySelector('strong').textContent = s.value || '';
+      statsEl.appendChild(div);
+    });
+    if ((current.welfare || []).length) {
+      welSec.hidden = false;
+      fillRows(welBody, current.welfare, ['label', 'count', 'amount']);
+      welFoot.innerHTML = '<tr><th>' + <?php echo json_encode($isEn ? 'Total' : 'जम्मा', JSON_UNESCAPED_UNICODE); ?> + '</th><th>' +
+        String(current.welfareTotalCount || 0) + '</th><th>' + String(current.welfareTotalAmount || '') + '</th></tr>';
+    } else {
+      welSec.hidden = true;
+      welBody.innerHTML = '';
+      welFoot.innerHTML = '';
+    }
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePoster() {
+    modal.hidden = true;
+    document.body.style.overflow = '';
+    current = null;
+  }
+
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target && ev.target.closest ? ev.target.closest('.ip-share-btn') : null;
+    if (!btn) return;
+    ev.preventDefault();
+    var raw = btn.getAttribute('data-ip-poster') || '{}';
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { data = {}; }
+    openPoster(data);
+  });
+
+  document.getElementById('ipPosterClose').addEventListener('click', closePoster);
+  modal.addEventListener('click', function (ev) {
+    if (ev.target === modal) closePoster();
+  });
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && !modal.hidden) closePoster();
+  });
+
+  document.getElementById('ipPosterCopy').addEventListener('click', function () {
+    if (!current) return;
+    var text = buildShareText(current);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { window.alert(labels.copied); });
+    } else {
+      window.prompt(labels.copied, text);
+    }
+  });
+
+  document.getElementById('ipPosterPrint').addEventListener('click', function () {
+    window.print();
+  });
+
+  document.getElementById('ipPosterNativeShare').addEventListener('click', function () {
+    if (!current) return;
+    var text = buildShareText(current);
+    var title = (current.site || '') + ' — ' + (current.month || '');
+    if (navigator.share) {
+      navigator.share({ title: title, text: text, url: current.pageUrl || location.href }).catch(function () {});
+      return;
+    }
+    var wa = 'https://wa.me/?text=' + encodeURIComponent(text);
+    window.open(wa, '_blank', 'noopener,noreferrer');
+  });
+})();
 </script>
 
 <?php if (!empty($ipChartSeries) && ($ipChartSeries['count'] ?? 0) >= 2): ?>
