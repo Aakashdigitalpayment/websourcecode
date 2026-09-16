@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.5');
+define('THEME_VERSION', '2.6');
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
     $v = trim($raw);
@@ -117,6 +117,30 @@ $_onS = $__textOnGradient($_s, $_sDark);
 $_onH = $__textOnGradient($_h, $_hDark);
 $_onT = $__textOnGradient($_t, $_tDark);
 $_onF = $__textOnGradient($_f, $_fDark);
+
+/*
+ * Bright brand bars (vivid orange/yellow): WCAG picks dark ink, but dark-on-orange
+ * looks muddy for tiny topbar/footer glyphs. Darken the bar until white wins.
+ */
+$__ensureWhiteOnBar = function (string $hex) use ($__textOn, $__shift): array {
+    if ($__textOn($hex) === '#ffffff') {
+        return [$hex, '#ffffff'];
+    }
+    $cur = $hex;
+    for ($i = 0; $i < 12; $i++) {
+        $cur = $__shift($cur, 28);
+        if ($__textOn($cur) === '#ffffff') {
+            return [$cur, '#ffffff'];
+        }
+    }
+    return ['#1f2937', '#ffffff'];
+};
+[$_h, $_onH] = $__ensureWhiteOnBar($_h);
+[$_t, $_onT] = $__ensureWhiteOnBar($_t);
+[$_f, $_onF] = $__ensureWhiteOnBar($_f);
+$_hDark = $__shift($_h, 30);
+$_tDark = $__shift($_t, 30);
+$_fDark = $__shift($_f, 24);
 
 /* Ink for brand-as-text on light/dark surfaces (readable when primary is pale) */
 $__brandInk = function (string $hex, string $darker) use ($__textOn): string {

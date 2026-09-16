@@ -148,6 +148,48 @@ if (isset($_POST['toggle_active'])) {
     redirect('members.php');
 }
 
+/* ── Reset member 2FA (device change / QR mismatch) ── */
+if (isset($_POST['reset_member_2fa'])) {
+    checkCSRF();
+    $mid = (int) ($_POST['member_id'] ?? 0);
+    if ($mid < 1) {
+        setFlash('error', 'अमान्य member ID।');
+        redirect('members.php');
+    }
+    try {
+        $sets = [];
+        if (function_exists('safeColumnExists')) {
+            if (safeColumnExists('members', 'twofa_enabled')) {
+                $sets[] = 'twofa_enabled = 0';
+            }
+            if (safeColumnExists('members', 'twofa_secret')) {
+                $sets[] = 'twofa_secret = NULL';
+            }
+            if (safeColumnExists('members', 'twofa_backup_codes')) {
+                $sets[] = 'twofa_backup_codes = NULL';
+            }
+            if (safeColumnExists('members', 'twofa_enabled_at')) {
+                $sets[] = 'twofa_enabled_at = NULL';
+            }
+        } else {
+            $sets = ['twofa_enabled = 0', 'twofa_secret = NULL', 'twofa_backup_codes = NULL', 'twofa_enabled_at = NULL'];
+        }
+        if (!$sets) {
+            setFlash('error', '2FA columns उपलब्ध छैनन्।');
+        } else {
+            $db->prepare('UPDATE members SET ' . implode(', ', $sets) . ' WHERE id = ?')->execute([$mid]);
+            if (function_exists('writeAuditLog')) {
+                writeAuditLog('member_2fa_reset', "Reset 2FA for member ID: {$mid}", 'member', $mid);
+            }
+            setFlash('success', 'Member 2FA reset भयो। अर्को login मा नयाँ QR scan गर्नुपर्छ।');
+        }
+    } catch (Throwable $e) {
+        error_log('[members] 2fa reset: ' . $e->getMessage());
+        setFlash('error', '2FA reset असफल भयो।');
+    }
+    redirect('members.php?view=' . $mid);
+}
+
 /* ── Update shared profile (name/phone/email/address) + sync to linked KYM ── */
 if (isset($_POST['update_member_profile'])) {
     checkCSRF();
@@ -896,6 +938,22 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         <?php echo $viewMember['is_active'] ? 'निष्क्रिय गर्नुहोस्' : 'सक्रिय गर्नुहोस्'; ?>
                     </button>
                 </form>
+                <?php
+                $memTwofaOn = !empty($viewMember['twofa_enabled']) && trim((string) ($viewMember['twofa_secret'] ?? '')) !== '';
+                if ($memTwofaOn):
+                ?>
+                <form method="POST" class="mt-2">
+                    <?php echo csrfField(); ?>
+                    <input type="hidden" name="reset_member_2fa" value="1">
+                    <input type="hidden" name="member_id" value="<?php echo (int) $viewMember['id']; ?>">
+                    <button type="submit" class="btn btn-sm w-100 btn-outline-warning"
+                            onclick="return confirm('यस member को 2FA QR reset गर्ने?\n\nअर्को login मा नयाँ QR scan गर्नुपर्छ।')">
+                        <i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>
+                        2FA QR Reset
+                    </button>
+                    <div class="small text-muted mt-1">Device change / QR mismatch मा प्रयोग गर्नुहोस्।</div>
+                </form>
+                <?php endif; ?>
             </div>
         </div>
     </div>
