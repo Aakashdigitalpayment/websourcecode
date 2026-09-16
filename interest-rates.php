@@ -128,7 +128,7 @@ try {
                     <p>हाम्रो कार्यालयमा आउनुहोस् वा सम्पर्क गर्नुहोस्।</p>
                 </div>
                 <div class="col-lg-4 text-lg-end">
-                    <a href="contact.php" class="btn ir-cta-btn btn-lg">सम्पर्क गर्नुहोस्</a>
+                    <a href="contact.php" class="btn btn-light btn-lg">सम्पर्क गर्नुहोस्</a>
                 </div>
             </div>
         </div>

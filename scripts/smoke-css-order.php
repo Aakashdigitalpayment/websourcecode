@@ -180,6 +180,18 @@ assertContains('assets/css/final-ui-polish.css', 'hide side chevrons on all view
 assertContains('assets/css/final-ui-polish.css', 'labels + lucide/FA follow admin primary', 'header nav uses primary color');
 assertContains('assets/css/final-ui-polish.css', 'even quick-link grid', 'footer quick links even grid');
 assertContains('includes/footer.php', 'footer-links-cols', 'footer quick links use even grid class');
+assertContains('assets/css/final-ui-polish.css', 'Icon contrast fixes (Lucide + light footer + colored wells)', 'icon contrast root-cause block');
+assertContains('assets/css/final-ui-polish.css', '.main-footer .footer-contact .lucide-icon', 'footer contact Lucide stroke on light footer');
+assertContains('assets/css/final-ui-polish.css', 'html body .qh-menu .qh-item .qh-ic svg', 'qh-ic wells force white Lucide glyphs');
+assertContains('assets/css/final-ui-polish.css', '.qh-fab svg.qh-i-close', 'qh-fab Lucide open/close targets svg');
+assertContains('assets/css/final-ui-polish.css', 'body.dark-mode .main-footer .footer-contact .lucide-icon', 'dark footer keeps light contact icons');
+assertContains('assets/css/final-ui-polish.css', '.cta-section .cta-content .ir-cta-btn', 'CTA solid buttons include ir-cta-btn');
+assertContains('assets/css/final-ui-polish.css', 'white-on-white', 'CTA white-on-white root documented');
+assertContains('assets/css/ui-readability-safe-patch.css', 'Do NOT paint bare `div` with -webkit-text-fill-color', 'readability no longer fills CTA divs');
+assertContains('interest-rates.php', 'btn btn-light btn-lg', 'interest-rates CTA uses btn-light');
+assertContains('assets/css/verify-page.css', '.vp-card-head-icon svg.lucide', 'verify card-head Lucide white stroke');
+assertContains('includes/footer.php', 'data-lucide="help-circle"', 'FAQ well uses help-circle Lucide name');
+assertContains('assets/css/public-late-bundle.css', 'Icon contrast fixes (Lucide + light footer + colored wells)', 'public late embeds icon contrast');
 assertContains('assets/css/final-ui-polish.css', 'Drop legacy app-public red/yellow dot on public section dividers only', 'section divider dot override');
 assertContains('assets/css/final-ui-polish.css', 'Admin modal keeps flex line dividers', 'admin modal divider scoped');
 assertContains('assets/css/final-ui-polish.css', 'Disable duplicate h2 ornaments', 'section h2 pseudo cleanup');
