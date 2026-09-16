@@ -214,6 +214,10 @@ assertContains('assets/css/final-ui-polish.css', 'var(--primary-ink, var(--prima
 assertContains('assets/css/final-ui-polish.css', 'Admin colour change → use --primary-ink', 'auto-contrast remaps documented');
 assertContains('admin/settings.php', 'textOnGradient', 'settings preview uses gradient WCAG contrast');
 assertContains('admin/settings.php', "--icon-on-topbar'", 'settings live-preview sets icon-on-topbar');
+assertContains('assets/css/final-ui-polish.css', 'Auto-contrast leftovers (THEME 2.5+)', 'auto-contrast leftovers block');
+assertContains('assets/css/global-theme.php', 'Do NOT force color on all descendants', 'topbar no longer paints dropdown panels');
+assertContains('assets/css/global-theme.php', '.list-group-item.active', 'list-group active has text-on-primary');
+assertContains('assets/css/global-theme.php', 'color: var(--primary-ink, var(--primary-color)) !important;', 'text-primary uses primary-ink');
 assertContains('assets/css/final-ui-polish.css', 'Completes multi-page uniform fonts/colors', 'typography lock completion marker');
 assertContains('assets/css/final-ui-polish.css', '.pfl-top-bar', 'typography lock covers top bar Mukta');
 assertContains('assets/css/final-ui-polish.css', 'background-color: var(--bg-page', 'body bg uses brand surface token');
