@@ -369,9 +369,13 @@ assertContains('success-stories.php', 'fetchActiveMemberSuccessStories', 'succes
 assertContains('success-stories.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'success stories page CSS');
 assertContains('chairman-message.php', 'coop_load_leadership_messages', 'chairman dedicated page');
 assertContains('chairman-message.php', "coopThemeLinkHtml('assets/css/leadership-message-page.css')", 'chairman page CSS');
+assertContains('chairman-message.php', 'leadership-message-stack', 'chairman stacked photo-above layout');
 assertContains('ceo-message.php', 'coop_load_leadership_messages', 'ceo dedicated page');
 assertContains('ceo-message.php', "coopThemeLinkHtml('assets/css/leadership-message-page.css')", 'ceo page CSS');
+assertContains('ceo-message.php', 'leadership-message-stack', 'ceo stacked photo-above layout');
 assertContains('assets/css/leadership-message-page.css', '.leadership-messages-about', 'leadership page CSS present');
+assertContains('assets/css/leadership-message-page.css', 'leadership-message-stack', 'stack layout CSS present');
+assertContains('assets/css/leadership-message-page.css', 'text-align: justify', 'message prose justified');
 assertContains('includes/header.php', 'success-stories.php', 'about dropdown links success stories page');
 assertContains('includes/header.php', 'chairman-message.php', 'about dropdown links chairman page');
 assertContains('includes/header.php', 'ceo-message.php', 'about dropdown links ceo page');
