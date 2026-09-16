@@ -336,9 +336,9 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
 /* ─── Bootstrap overrides: सबै panel मा consistent ─── */
 .btn-primary, .bg-primary                    { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
 .btn-primary:hover, .btn-primary:focus       { background-color: var(--primary-dark) !important; border-color: var(--primary-dark) !important; color: var(--text-on-primary) !important; }
-.btn-outline-primary                         { color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
+.btn-outline-primary                         { color: var(--primary-ink, var(--primary-color)) !important; border-color: var(--primary-color) !important; }
 .btn-outline-primary:hover                   { background-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
-.text-primary                                { color: var(--primary-color) !important; }
+.text-primary                                { color: var(--primary-ink, var(--primary-color)) !important; }
 .border-primary                              { border-color: var(--primary-color) !important; }
 
 .form-control:focus, .form-select:focus      { border-color: var(--primary-color) !important; box-shadow: var(--shadow-focus) !important; }
@@ -348,8 +348,8 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
 .nav-pills .nav-link.active,
 .nav-tabs .nav-link.active                   { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
 .page-item.active .page-link                 { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
-.list-group-item.active                      { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; }
-.progress-bar                                { background-color: var(--primary-color) !important; }
+.list-group-item.active                      { background-color: var(--primary-color) !important; border-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
+.progress-bar                                { background-color: var(--primary-color) !important; color: var(--text-on-primary) !important; }
 
 /* Header / Topbar */
 .top-bar, .topbar, .site-topbar, .pfl-top-bar, .header-utility-bar {
@@ -360,7 +360,11 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     background-color: var(--header-color) !important;
     color: var(--text-on-header) !important;
 }
-.top-bar a, .topbar a, .site-topbar a, .pfl-top-bar a {
+/* Direct utility links only — not dropdown panel links */
+.top-bar .pfl-quick-links > li > a,
+.pfl-top-bar .pfl-quick-links > li > a,
+.pfl-top-bar .pfl-top-actions > a,
+.pfl-top-bar .pfl-lang-wrap > a {
     color: var(--text-on-topbar, var(--text-on-header)) !important;
 }
 
@@ -716,8 +720,8 @@ small, .small                          { color: var(--text-muted); }
 
 /* ── Footer links ── */
 .foot-link                             { color: var(--text-muted) !important; }
-.foot-link a                           { color: var(--primary-color) !important; }
-.foot-link a:hover                     { color: var(--primary-dark) !important; }
+.foot-link a                           { color: var(--primary-ink, var(--primary-color)) !important; }
+.foot-link a:hover                     { color: var(--primary-dark, var(--primary-ink)) !important; }
 
 /* ── Dropdowns ── */
 .dropdown-menu                         {
@@ -728,7 +732,7 @@ small, .small                          { color: var(--text-muted); }
 .dropdown-item                         { color: var(--text-primary) !important; }
 .dropdown-item:hover, .dropdown-item:focus {
     background: var(--bg-hover) !important;
-    color: var(--primary-color) !important;
+    color: var(--primary-ink, var(--primary-color)) !important;
 }
 .dropdown-item.active, .dropdown-item:active {
     background: var(--primary-color) !important;
@@ -783,7 +787,9 @@ body.verify-page .vp-page-logo img     {
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── A. TOPBAR / HEADER ─────────────────────────────────────── */
-/* Utility top strip uses topbar tokens; header strip stays header_* */
+/* Utility top strip uses topbar tokens; header strip stays header_*
+   Do NOT force color on all descendants — dropdowns (.pfl-drop,
+   .pfl-login-menu, .dropdown-menu) sit on light panels. */
 .top-bar, .topbar, .site-topbar, .pfl-top-bar,
 .header-utility-bar, .quick-links-bar          {
     background-color: var(--topbar-bg, var(--header-color)) !important;
@@ -793,28 +799,48 @@ body.verify-page .vp-page-logo img     {
     background-color: var(--header-color) !important;
     color:            var(--text-on-header) !important;
 }
-.top-bar *,  .topbar *,  .site-topbar *, .pfl-top-bar *,
-.header-utility-bar *, .quick-links-bar *      {
+.top-bar > .container > a, .topbar > .container > a,
+.site-topbar > .container > a, .pfl-top-bar > .container > a,
+.top-bar .pfl-quick-links > li > a,
+.pfl-top-bar .pfl-quick-links > li > a,
+.top-bar .pfl-top-actions > a, .pfl-top-bar .pfl-top-actions > a,
+.top-bar .pfl-top-actions > button, .pfl-top-bar .pfl-top-actions > button,
+.pfl-top-bar .pfl-lang-wrap > a, .quick-links-bar > a,
+.header-utility-bar > a                        {
     color: var(--text-on-topbar, var(--text-on-header)) !important;
 }
-.header-top *, .navbar-top *                   {
+.header-top a, .navbar-top a                   {
     color: var(--text-on-header) !important;
 }
-.top-bar a, .topbar a, .site-topbar a, .pfl-top-bar a,
-.quick-links-bar a                             {
-    color: var(--text-on-topbar, var(--text-on-header)) !important;
-}
-.header-top a                                  {
-    color: var(--text-on-header) !important;
-}
-.top-bar a:hover, .topbar a:hover,
-.site-topbar a:hover, .pfl-top-bar a:hover,
-.quick-links-bar a:hover {
+.top-bar .pfl-quick-links > li > a:hover,
+.pfl-top-bar .pfl-quick-links > li > a:hover,
+.pfl-top-bar .pfl-top-actions > a:hover,
+.quick-links-bar > a:hover {
     opacity: .82 !important;
     color:   var(--text-on-topbar, var(--text-on-header)) !important;
 }
-.top-bar i, .topbar i, .site-topbar i, .pfl-top-bar i {
+.top-bar .pfl-quick-links > li > a > i,
+.pfl-top-bar .pfl-quick-links > li > a > i,
+.pfl-top-bar .pfl-top-actions > a > i,
+.pfl-top-bar .pfl-top-actions > button > i,
+.top-bar > .container > a > i                  {
     color: var(--icon-on-topbar, var(--text-on-topbar)) !important;
+}
+
+/* Light panels that open from the topbar — never inherit topbar fg */
+.pfl-top-bar .pfl-drop,
+.pfl-top-bar .pfl-login-menu,
+.top-bar .dropdown-menu,
+.topbar .dropdown-menu,
+.site-topbar .dropdown-menu {
+    color: var(--text-primary, #1f2937) !important;
+}
+.pfl-top-bar .pfl-drop a,
+.pfl-top-bar .pfl-login-menu a,
+.top-bar .dropdown-menu .dropdown-item,
+.topbar .dropdown-menu .dropdown-item {
+    color: var(--primary-ink, var(--text-primary, #1f2937)) !important;
+    opacity: 1 !important;
 }
 
 /* ── B. FOOTER ─────────────────────────────────────────────────
@@ -1641,7 +1667,7 @@ body.auth-portal-page .tab-btn                      {
 }
 body.auth-portal-page .tab-btn.active               {
     background:    var(--bg-card, #fff) !important;
-    color:         var(--primary-color, #1a5f2a) !important;
+    color:         var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
     box-shadow:    0 1px 4px rgba(0,0,0,.08) !important;
 }
 
@@ -2116,12 +2142,12 @@ ul.nav-pills.admin-inner-tabstrip .nav-link:not(.active) {
 }
 .admin-bottom-nav .admin-nav-item.active,
 .admin-bottom-nav .admin-nav-item:hover            {
-    color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
     background: rgba(var(--primary-rgb, 26,95,42), .10) !important;
 }
 .admin-bottom-nav .admin-nav-item.active i,
 .admin-bottom-nav .admin-nav-item:hover i          {
-    color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
 }
 
 /* ── 6. NAV-TABS ICONS visibility (Bootstrap default behaviour) ── */
@@ -2132,7 +2158,7 @@ ul.nav-pills.admin-inner-tabstrip .nav-link:not(.active) {
 
 /* ── 7. STAT-UNIFORM CARD — final visible icon + value ───────────── */
 .stat-uniform-card .stat-uniform-icon              {
-    color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
     font-size: 1.4rem !important;
     margin-bottom: 4px !important;
     opacity: 1 !important;
@@ -2548,7 +2574,7 @@ button > i:only-child, a > i:only-child                {
 }
 .admin-table-card .table thead th {
     background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.14)) !important;
-    color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
     font-weight: 700 !important;
     font-size: 0.8rem !important;
 }
@@ -2560,7 +2586,7 @@ button > i:only-child, a > i:only-child                {
 }
 .coop-table thead th {
     background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.14)) !important;
-    color: var(--primary-color, #1a5f2a) !important;
+    color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
     font-weight: 600 !important;
     border-bottom: 2px solid var(--primary-color, #1a5f2a) !important;
 }
