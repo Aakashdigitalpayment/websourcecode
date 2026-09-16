@@ -1297,6 +1297,28 @@ function textOnColor(hex) {
     return contrastBlack > contrastWhite ? '#111827' : '#ffffff';
 }
 
+/* Match global-theme.php $__textOnGradient — worst stop of a 2-color fill */
+function textOnGradient(hexA, hexB) {
+    var a = hexA || '#000000';
+    var b = hexB || a;
+    function contrast(fg, bg) {
+        bg = String(bg || '').replace('#', '');
+        if (bg.length !== 6) return fg === '#ffffff' ? 21 : 1;
+        function lin(c) {
+            c = c / 255;
+            return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        }
+        var r = lin(parseInt(bg.slice(0, 2), 16));
+        var g = lin(parseInt(bg.slice(2, 4), 16));
+        var bl = lin(parseInt(bg.slice(4, 6), 16));
+        var lum = 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+        return fg === '#ffffff' ? (1.05 / (lum + 0.05)) : ((lum + 0.05) / 0.05);
+    }
+    var whiteWorst = Math.min(contrast('#ffffff', a), contrast('#ffffff', b));
+    var blackWorst = Math.min(contrast('#111827', a), contrast('#111827', b));
+    return blackWorst > whiteWorst ? '#111827' : '#ffffff';
+}
+
 function brandInk(hex, darker) {
     if (textOnColor(hex) === '#ffffff') return hex;
     if (textOnColor(darker) === '#ffffff') return darker;
@@ -1320,15 +1342,25 @@ function applyPreview(colors) {
     var tc  = colors.topbar_color    || DEFAULTS.topbar_color;
     var pcDark = darken(pc, 0.22);
     var scDark = darken(sc, 0.18);
-    var onP = textOnColor(pc);
-    var onS = textOnColor(sc);
-    var onH = textOnColor(hc);
-    var onF = textOnColor(fc);
+    var hcDark = darken(hc, 0.2);
+    var fcDark = darken(fc, 0.25);
+    var tcDark = darken(tc, 0.15);
+    var onP = textOnGradient(pc, pcDark);
+    var onS = textOnGradient(sc, scDark);
+    var onH = textOnGradient(hc, hcDark);
+    var onF = textOnGradient(fc, fcDark);
+    var onTop = textOnGradient(tc, tcDark);
     var pInk = brandInk(pc, pcDark);
     var sInk = brandInk(sc, scDark);
 
-    if (prevTopbar)  prevTopbar.style.background = 'linear-gradient(90deg,'+tc+','+darken(tc,0.15)+')';
-    if (prevHeader)  prevHeader.style.background = 'linear-gradient(135deg,'+hc+','+darken(hc,0.2)+')';
+    if (prevTopbar)  {
+        prevTopbar.style.background = 'linear-gradient(90deg,'+tc+','+tcDark+')';
+        prevTopbar.style.color = onTop;
+    }
+    if (prevHeader)  {
+        prevHeader.style.background = 'linear-gradient(135deg,'+hc+','+hcDark+')';
+        prevHeader.style.color = onH;
+    }
 
     if (prevHero) {
         prevHero.style.background = 'linear-gradient(135deg,'+pc+' 0%,'+darken(pc,0.25)+' 100%)';
@@ -1339,7 +1371,10 @@ function applyPreview(colors) {
         prevBtnPrim.style.color = onS;
         prevBtnPrim.style.boxShadow  = '0 2px 8px ' + sc + '66';
     }
-    if (prevFooter)  prevFooter.style.background = 'linear-gradient(135deg,'+fc+','+darken(fc,0.25)+')';
+    if (prevFooter)  {
+        prevFooter.style.background = 'linear-gradient(135deg,'+fc+','+darken(fc,0.25)+')';
+        prevFooter.style.color = onF;
+    }
 
     // Card icons
     cardIcons.forEach(function(el) {
@@ -1364,6 +1399,12 @@ function applyPreview(colors) {
     root.style.setProperty('--text-on-secondary', onS);
     root.style.setProperty('--text-on-header', onH);
     root.style.setProperty('--text-on-footer', onF);
+    root.style.setProperty('--text-on-topbar', onTop);
+    root.style.setProperty('--icon-on-primary', onP);
+    root.style.setProperty('--icon-on-header', onH);
+    root.style.setProperty('--icon-on-footer', onF);
+    root.style.setProperty('--icon-on-secondary', onS);
+    root.style.setProperty('--icon-on-topbar', onTop);
     /* Surfaces follow primary so preview matches multi-sahakari theming */
     root.style.setProperty('--bg-page', 'color-mix(in srgb, ' + pc + ' 4%, #f8fafc)');
     root.style.setProperty('--bg-soft', 'color-mix(in srgb, ' + pc + ' 6%, #f8fafc)');

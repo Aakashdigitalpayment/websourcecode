@@ -5133,10 +5133,11 @@ textarea:focus-visible,
   margin-bottom: 0.55rem !important;
 }
 
-/* Public unified section titles — restore brand green (later app-public forced #111827) */
+/* Public unified section titles — restore brand green via WCAG primary-ink
+   (pale admin primary stays readable on light panels) */
 .section-header.section-header-unified h2,
 .section-header.section-header-unified h3 {
-  color: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
 }
 
 .section-header-unified p,
@@ -5232,7 +5233,7 @@ textarea:focus-visible,
   align-items: center !important;
   gap: 0.35rem !important;
   background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-dark, #144a21)) !important;
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
   padding: 0.4rem 1rem !important;
   border-radius: 999px !important;
   font-size: 0.78rem !important;
@@ -5246,7 +5247,7 @@ textarea:focus-visible,
 .section-header .section-badge i,
 .section-header-unified .section-badge i,
 .section-badge-wrap .section-badge i {
-  color: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 
 /* Dark hero/banner sections keep a subtle white center dot */
@@ -6381,8 +6382,8 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content .btn-light,
 .cta-section .cta-content .ir-cta-btn,
 .cta-section .cta-content a.btn:not(.btn-outline-light):not(.btn-outline-primary):not(.btn-primary):not(.btn-success) {
-  color: var(--primary-color, #1a5f2a) !important;
-  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  -webkit-text-fill-color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   background: #fff !important;
   border: 1px solid rgba(255, 255, 255, 0.85) !important;
   font-weight: 700 !important;
@@ -6397,8 +6398,8 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content a.btn:not(.btn-outline-light) .lucide-icon,
 .cta-section .cta-content a.btn:not(.btn-outline-light) i,
 .cta-section .cta-content a.btn:not(.btn-outline-light) svg {
-  color: var(--primary-color, #1a5f2a) !important;
-  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  -webkit-text-fill-color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   background: transparent !important;
   border: 0 !important;
   stroke: currentColor !important;
@@ -6409,8 +6410,8 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content .ir-cta-btn:hover,
 .cta-section .cta-content a.btn:not(.btn-outline-light):not(.btn-outline-primary):not(.btn-primary):not(.btn-success):hover {
   background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff) !important;
-  color: var(--primary-dark, #145021) !important;
-  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+  color: var(--primary-ink, var(--primary-dark, #145021)) !important;
+  -webkit-text-fill-color: var(--primary-ink, var(--primary-dark, #145021)) !important;
 }
 
 .cta-section .cta-content .btn-light:hover .lucide-icon,
@@ -6419,13 +6420,13 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content .ir-cta-btn:hover .lucide-icon,
 .cta-section .cta-content .ir-cta-btn:hover i,
 .cta-section .cta-content .ir-cta-btn:hover svg {
-  color: var(--primary-dark, #145021) !important;
-  -webkit-text-fill-color: var(--primary-dark, #145021) !important;
+  color: var(--primary-ink, var(--primary-dark, #145021)) !important;
+  -webkit-text-fill-color: var(--primary-ink, var(--primary-dark, #145021)) !important;
 }
 
 .cta-section .cta-content .btn-outline-light {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
   background: transparent !important;
   border-width: 2px !important;
   font-weight: 600 !important;
@@ -6433,9 +6434,9 @@ body:has(.card > .card-top) .card-top {
 .cta-section .cta-content .btn-outline-light .lucide-icon,
 .cta-section .cta-content .btn-outline-light i,
 .cta-section .cta-content .btn-outline-light svg {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  stroke: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 
 /* ── PUBLIC: Quick-help FAB icon contrast ──────────────────────── */
@@ -6448,10 +6449,10 @@ body:has(.card > .card-top) .card-top {
 .qh-fab .lucide-icon,
 .qh-fab svg,
 .qh-fab svg.lucide {
-  color: #fff !important;
-  stroke: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
   fill: none !important;
-  -webkit-text-fill-color: #fff !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 
 .qh-fab {
@@ -6954,11 +6955,11 @@ body.page-loaded .page-loader {
   gap: 0.35rem;
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   text-decoration: none !important;
 }
 .awards-section .award-read-more:hover {
-  color: var(--primary-dark, #145021) !important;
+  color: var(--primary-dark, var(--primary-ink, #145021)) !important;
   text-decoration: underline !important;
 }
 .awards-section .award-read-more .lucide-icon,
@@ -8072,7 +8073,7 @@ body.dark-mode .gallery-album-cover {
 .mkt-dot { margin: 0 4px; }
 .mkt-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; padding-top: 8px; }
 .mkt-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 8px; font-size: .8rem; font-weight: 700; text-decoration: none; }
-.mkt-btn-call { background: var(--primary-color, #1a5f2a); color: #fff; }
+.mkt-btn-call { background: var(--primary-color, #1a5f2a); color: var(--text-on-primary, #fff); }
 .mkt-btn-wa { background: #128c7e; color: #fff; }
 .mkt-btn-more { background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff); color: var(--primary-color, #1a5f2a); }
 .mkt-btn-icon { width: 2.1rem; height: 2.1rem; padding: 0; justify-content: center; border-radius: 999px; }
@@ -8146,13 +8147,13 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .day {
   font-size: 1.08rem !important;
   line-height: 1 !important;
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
 }
 
 .rates-notices-section .notices-box-enhanced .notice-item-enhanced .notice-date-box .month {
   font-size: 0.62rem !important;
   line-height: 1.15 !important;
-  color: rgba(255, 255, 255, 0.95) !important;
+  color: color-mix(in srgb, var(--text-on-primary, #fff) 95%, transparent) !important;
   text-transform: uppercase !important;
   letter-spacing: 0.02em !important;
 }
@@ -8271,13 +8272,13 @@ body.dark-mode .mkt-card-title, body.dark-mode .mkt-detail h2 { color: #e8efe9; 
 .rates-notices-section .notices-box-enhanced .notices-footer .btn.home-btn-outline-primary {
   background: var(--primary-color, #1a5f2a) !important;
   border-color: var(--primary-color, #1a5f2a) !important;
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
 }
 
 .rates-notices-section .notices-box-enhanced .notices-footer .btn.home-btn-outline-primary:hover {
   background: var(--primary-dark, #144a21) !important;
   border-color: var(--primary-dark, #144a21) !important;
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
 }
 
 /* ── Institutional stats: readable labels (was 0.63/0.61rem) ── */
@@ -8635,7 +8636,7 @@ body.dark-mode .pfl-lm-weblogin {
   padding: 0.55rem 1.1rem;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2e7d32));
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
   font-size: 0.92rem;
   font-weight: 600;
   line-height: 1.35;
@@ -8648,7 +8649,7 @@ body.dark-mode .pfl-lm-weblogin {
 .notice-popup-enhanced .popup-view-full-notice:focus-visible {
   transform: translateY(-1px);
   box-shadow: 0 6px 18px rgba(var(--primary-rgb), 0.28);
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
 }
 
 .notice-popup-enhanced .popup-inline-image {
@@ -9711,12 +9712,32 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic
 
 /* ═══════════════════════════════════════════════════════════════
    Icon contrast fixes (Lucide + light footer + colored wells)
-   Root: (1) footer-top is light (#f4f6f5) but global-theme still forces
+   Root: (1) footer-top is light (#f4f6f5) but older theme rules forced
    text-on-footer white on * — Lucide stroke becomes invisible.
    (2) nav-idle polish painted ALL .qh-ic glyphs primary — green-on-green
    for .qh-ic.help / .ai wells. (3) qh-fab open/close only targeted `i`,
    so Lucide SVGs both stayed visible.
+   Admin colour change → use --primary-ink / --text-on-* / --icon-on-*
+   (never hardcode #fff on brand fills; never bare primary on light panels).
    ═══════════════════════════════════════════════════════════════ */
+
+/* Footer top stays light panel (logos); bottom bar keeps brand footer_color */
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #f4f6f5) !important;
+  color: var(--text-primary, #1f2937) !important;
+}
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-top {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #f4f6f5) !important;
+  color: var(--text-primary, #1f2937) !important;
+}
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-widget h4,
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-sahakari-name {
+  color: var(--primary-ink, var(--primary-dark, #14532d)) !important;
+}
+html:not([data-footer-lock="legacy"]) body:not(.dark-mode) .main-footer .footer-bottom {
+  background: var(--footer-color, var(--primary-color, #1a5f2a)) !important;
+  color: var(--text-on-footer, #fff) !important;
+}
 
 /* Footer contact + social — primary ink on light footer-top */
 .main-footer .footer-contact li {
@@ -9733,11 +9754,11 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic
 .main-footer .footer-social i,
 .main-footer .footer-social a .lucide-icon,
 .main-footer .footer-social a svg {
-  color: var(--primary-color, #1a5f2a) !important;
-  stroke: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  stroke: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   fill: none !important;
   opacity: 1 !important;
-  -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
+  -webkit-text-fill-color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   overflow: visible !important;
   width: 18px !important;
   height: 18px !important;
@@ -9751,9 +9772,9 @@ html:not([data-nav-idle="legacy"]) body:not(.dark-mode) .qh-menu .qh-item .qh-ic
 .main-footer .footer-social a:hover .lucide-icon,
 .main-footer .footer-social a:hover svg,
 .main-footer .footer-social a:hover i {
-  color: #fff !important;
-  stroke: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 
 /* Dark mode footer is dark again — restore light glyphs */
@@ -9773,14 +9794,14 @@ body.dark-mode .main-footer .footer-social a svg {
   -webkit-text-fill-color: #fff !important;
 }
 
-/* Footer-bottom stays dark — keep light glyphs */
+/* Footer-bottom stays dark brand — WCAG text-on-footer glyphs */
 .main-footer .footer-bottom .lucide-icon,
 .main-footer .footer-bottom svg,
 .main-footer .footer-bottom svg.lucide,
 .main-footer .footer-bottom i {
-  color: rgba(255, 255, 255, 0.92) !important;
-  stroke: rgba(255, 255, 255, 0.92) !important;
-  -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  color: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
+  stroke: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-footer, var(--text-on-footer, #fff)) !important;
 }
 
 /* Quick-help colored wells — ALWAYS white glyph (overrides nav-idle primary tint) */
@@ -9811,9 +9832,9 @@ html body .qh-menu .qh-item .qh-ic.wa .fab {
 .qh-fab .lucide-icon.qh-i-open,
 .qh-fab svg.qh-i-open {
   display: inline-flex !important;
-  color: #fff !important;
-  stroke: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 .qh-launcher.open .qh-fab .qh-i-open,
 .qh-launcher.open .qh-fab .lucide-icon.qh-i-open,
@@ -9824,9 +9845,9 @@ html body .qh-menu .qh-item .qh-ic.wa .fab {
 .qh-launcher.open .qh-fab .lucide-icon.qh-i-close,
 .qh-launcher.open .qh-fab svg.qh-i-close {
   display: inline-flex !important;
-  color: #fff !important;
-  stroke: #fff !important;
-  -webkit-text-fill-color: #fff !important;
+  color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  stroke: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
+  -webkit-text-fill-color: var(--icon-on-primary, var(--text-on-primary, #fff)) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
