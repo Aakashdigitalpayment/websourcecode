@@ -215,6 +215,8 @@ assertContains('assets/css/final-ui-polish.css', 'Admin colour change → use --
 assertContains('admin/settings.php', 'textOnGradient', 'settings preview uses gradient WCAG contrast');
 assertContains('admin/settings.php', "--icon-on-topbar'", 'settings live-preview sets icon-on-topbar');
 assertContains('assets/css/final-ui-polish.css', 'Auto-contrast leftovers (THEME 2.5+)', 'auto-contrast leftovers block');
+assertContains('assets/css/final-ui-polish.css', '.report-card .report-icon .lucide-icon', 'report card icon wells use on-primary Lucide');
+assertContains('assets/css/reports-page.css', '.report-card .report-icon .lucide-icon', 'reports-page forces on-primary type icons');
 assertContains('assets/css/global-theme.php', 'Do NOT force color on all descendants', 'topbar no longer paints dropdown panels');
 assertContains('assets/css/global-theme.php', '.list-group-item.active', 'list-group active has text-on-primary');
 assertContains('assets/css/global-theme.php', 'color: var(--primary-ink, var(--primary-color)) !important;', 'text-primary uses primary-ink');
