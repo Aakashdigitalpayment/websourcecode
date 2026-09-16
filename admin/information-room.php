@@ -2,6 +2,7 @@
 /**
  * Information Room — Admin CRUD (board decisions, policies, bylaws)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string) ($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -199,9 +200,9 @@ if ($editId > 0) {
     $__t('Information Room', 'Information Room'),
     'fa-vault',
     $__t('बोर्ड निर्णय, नीति, कार्यविधि, बिनियम — admin मात्र अपडेट; authorized सदस्य हेर्न सक्छन्।', 'Board decisions, policies, procedures, bylaws — admin-only updates; authorized members can view.'),
-    '<a href="information-room-browse.php" class="btn btn-sm btn-outline-primary me-2"><i class="fas fa-eye me-1"></i>'
+    '<a href="information-room-browse.php" class="btn btn-sm btn-outline-primary me-2"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>'
     . $__t('हेर्नुहोस् (Reader)', 'Browse (Reader)') . '</a>'
-    . '<a href="information-room-logs.php" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-clipboard-list me-1"></i>'
+    . '<a href="information-room-logs.php" class="btn btn-sm btn-outline-secondary me-2"><i class="lucide-icon me-1" data-lucide="clipboard-list" aria-hidden="true"></i>'
     . $__t('पहुँच लग', 'Access log') . '</a>'
     . '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2">'
     . $__t('जम्मा', 'Total') . ': ' . count($items) . '</span>'
@@ -291,20 +292,20 @@ if ($editId > 0) {
                                                class="adm-icon-btn adm-icon-btn--view"
                                                title="<?php echo $__t('हेर्नुहोस्', 'View'); ?>"
                                                aria-label="<?php echo $__t('हेर्नुहोस्', 'View'); ?>">
-                                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                             </a>
                                             <a href="information-room.php?edit=<?php echo (int) $row['id']; ?>#ir-form"
                                                class="adm-icon-btn adm-icon-btn--edit"
                                                title="<?php echo $__t('सम्पादन', 'Edit'); ?>"
                                                aria-label="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                                <i class="fas fa-pen" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i>
                                             </a>
                                             <button type="submit"
                                                     form="ir-delete-<?php echo (int) $row['id']; ?>"
                                                     class="adm-icon-btn adm-icon-btn--delete"
                                                     title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"
                                                     aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>">
-                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                             </button>
                                         </div>
                                     </td>
@@ -344,17 +345,17 @@ if ($editId > 0) {
 
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?></label>
-                            <input type="text" name="title_np" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string) ($editRow['title_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ir_title_np" class="form-label"><?php echo $__t('शीर्षक (नेपाली)', 'Title (Nepali)'); ?></label>
+                            <input type="text" name="title_np" id="ir_title_np" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string) ($editRow['title_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo $__t('शीर्षक (English)', 'Title (English)'); ?></label>
-                            <input type="text" name="title" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string) ($editRow['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ir_title" class="form-label"><?php echo $__t('शीर्षक (English)', 'Title (English)'); ?></label>
+                            <input type="text" name="title" id="ir_title" class="form-control" maxlength="255" value="<?php echo htmlspecialchars((string) ($editRow['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                             <div class="form-text"><?php echo $__t('नेपाली वा English मध्ये कम्तीमा एक अनिवार्य।', 'At least one of Nepali or English title is required.'); ?></div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label"><?php echo $__t('श्रेणी', 'Category'); ?></label>
-                            <select name="category" class="form-select">
+                            <label for="ir_category" class="form-label"><?php echo $__t('श्रेणी', 'Category'); ?></label>
+                            <select name="category" id="ir_category" class="form-select">
                                 <?php foreach ($cats as $k => $c): ?>
                                 <option value="<?php echo htmlspecialchars($k, ENT_QUOTES, 'UTF-8'); ?>" <?php echo (($editRow['category'] ?? 'other') === $k) ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($c['np'] . ' / ' . $c['en'], ENT_QUOTES, 'UTF-8'); ?>
@@ -363,32 +364,32 @@ if ($editId > 0) {
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label"><?php echo $__t('बैठक/निर्णय मिति', 'Meeting/Decision Date'); ?></label>
-                            <input type="date" name="meeting_date" class="form-control" value="<?php echo htmlspecialchars((string) ($editRow['meeting_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ir_meeting_date" class="form-label"><?php echo $__t('बैठक/निर्णय मिति', 'Meeting/Decision Date'); ?></label>
+                            <input type="date" name="meeting_date" id="ir_meeting_date" class="form-control" value="<?php echo htmlspecialchars((string) ($editRow['meeting_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label"><?php echo $__t('सन्दर्भ नं.', 'Reference No.'); ?></label>
-                            <input type="text" name="reference_no" class="form-control" maxlength="100" value="<?php echo htmlspecialchars((string) ($editRow['reference_no'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+                            <label for="ir_reference_no" class="form-label"><?php echo $__t('सन्दर्भ नं.', 'Reference No.'); ?></label>
+                            <input type="text" name="reference_no" id="ir_reference_no" class="form-control" maxlength="100" value="<?php echo htmlspecialchars((string) ($editRow['reference_no'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo $__t('विवरण (नेपाली)', 'Description (Nepali)'); ?></label>
-                            <textarea name="description_np" class="form-control" rows="3"><?php echo htmlspecialchars((string) ($editRow['description_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            <label for="ir_description_np" class="form-label"><?php echo $__t('विवरण (नेपाली)', 'Description (Nepali)'); ?></label>
+                            <textarea name="description_np" id="ir_description_np" class="form-control" rows="3"><?php echo htmlspecialchars((string) ($editRow['description_np'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo $__t('विवरण (English)', 'Description (English)'); ?></label>
-                            <textarea name="description" class="form-control" rows="3"><?php echo htmlspecialchars((string) ($editRow['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
+                            <label for="ir_description" class="form-label"><?php echo $__t('विवरण (English)', 'Description (English)'); ?></label>
+                            <textarea name="description" id="ir_description" class="form-control" rows="3"><?php echo htmlspecialchars((string) ($editRow['description'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><?php echo $__t('कागजात फाइल', 'Document file'); ?> <?php echo $editRow ? '' : '*'; ?></label>
-                            <input type="file" name="file" class="form-control" accept=".pdf,image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" <?php echo $editRow ? '' : 'required'; ?>>
+                            <label for="ir_file" class="form-label"><?php echo $__t('कागजात फाइल', 'Document file'); ?> <?php echo $editRow ? '' : '*'; ?></label>
+                            <input type="file" name="file" id="ir_file" class="form-control" accept=".pdf,image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" <?php echo $editRow ? '' : 'required'; ?>>
                             <div class="form-text"><?php echo $__t('PDF वा JPG/PNG/WebP मात्र (preview का लागि)।', 'PDF or JPG/PNG/WebP only (for preview).'); ?></div>
                             <?php if ($editRow && !empty($editRow['file_path'])): ?>
                             <div class="form-text"><?php echo $__t('हाल:', 'Current:'); ?> <?php echo htmlspecialchars(basename((string) $editRow['file_path']), ENT_QUOTES, 'UTF-8'); ?></div>
                             <?php endif; ?>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
-                            <input type="number" name="display_order" class="form-control" value="<?php echo (int) ($editRow['display_order'] ?? 0); ?>">
+                            <label for="ir_display_order" class="form-label"><?php echo $__t('क्रम', 'Order'); ?></label>
+                            <input type="number" name="display_order" id="ir_display_order" class="form-control" value="<?php echo (int) ($editRow['display_order'] ?? 0); ?>">
                         </div>
                         <div class="col-md-3 d-flex flex-column justify-content-end gap-2">
                             <div class="form-check">

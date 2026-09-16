@@ -101,5 +101,81 @@ if (preg_match('/id="noticesTable"[\s\S]*?colspan=/', $notices)) {
     ok('noticesTable has no colspan empty-row trap');
 }
 
+$config = (string) file_get_contents($root . '/includes/config.php');
+foreach (['function safeAddColumn', 'function safeAddIndex', 'function safeWidenEnumColumn'] as $fn) {
+    if (!str_contains($config, $fn)) {
+        fail("missing {$fn}");
+    } else {
+        ok("{$fn} present");
+    }
+}
+if (!str_contains($config, 'Identifiers only — definition comes from trusted PHP literals')) {
+    fail('safeAddColumn identifier harden missing');
+} else {
+    ok('safeAddColumn identifier harden present');
+}
+if (!str_contains($config, 'additive ENUM widen only')) {
+    fail('safeWidenEnumColumn additive note missing');
+} else {
+    ok('safeWidenEnumColumn additive note present');
+}
+
+$auth = (string) file_get_contents($root . '/includes/auth-roles.php');
+if (!str_contains($auth, 'safeWidenEnumColumn')) {
+    fail('coop_widen_admin_role_enum should prefer safeWidenEnumColumn');
+} else {
+    ok('role ENUM widen uses safeWidenEnumColumn');
+}
+
+$auction = (string) file_get_contents($root . '/includes/auction-tables.php');
+if (!str_contains($auction, 'safeWidenEnumColumn')) {
+    fail('auction_notices status should prefer safeWidenEnumColumn');
+} else {
+    ok('auction status ENUM via safeWidenEnumColumn');
+}
+
+$ensurePublic = (string) file_get_contents($root . '/includes/ensure-tables.php');
+if (!str_contains($ensurePublic, 'safeWidenEnumColumn') || !str_contains($ensurePublic, 'member_id_cards')) {
+    fail('member_id_cards status should prefer safeWidenEnumColumn');
+} else {
+    ok('member_id_cards status via safeWidenEnumColumn');
+}
+if (!str_contains($auth, 'function coop_normalize_admin_role_aliases')) {
+    fail('alias-only role normalize helper missing');
+} else {
+    ok('role alias normalize helper present');
+}
+if (!str_contains($auth, "SET `role` = 'super_admin' WHERE `role` = 'superadmin'")) {
+    fail('role normalize must be alias-only UPDATE');
+} else {
+    ok('role normalize is alias-only UPDATE');
+}
+
+$schemaMig = (string) file_get_contents($root . '/includes/schema-migrations.php');
+if (!str_contains($schemaMig, 'function coop_record_schema_migration')) {
+    fail('schema-migrations ledger helper missing');
+} else {
+    ok('schema_migrations ledger helper present');
+}
+
+$runMig = (string) file_get_contents($root . '/admin/run-migration.php');
+if (!str_contains($runMig, 'coop_record_schema_migration')) {
+    fail('run-migration should record schema version');
+} else {
+    ok('run-migration records schema version');
+}
+
+$ensureAdmin = (string) file_get_contents($root . '/admin/includes/ensure-admin-tables.php');
+if (!str_contains($ensureAdmin, "safeAddColumn(\$db, 'institutional_profile'")) {
+    fail('ensure-admin-tables should use safeAddColumn for institutional_profile');
+} else {
+    ok('ensure-admin-tables institutional_profile via safeAddColumn');
+}
+if (!str_contains($ensureAdmin, 'v15-schema-mig-role-alias-2026')) {
+    fail('admin schema lock should bump for role alias + ledger');
+} else {
+    ok('admin schema lock v15 role-alias');
+}
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed > 0 ? 1 : 0);

@@ -1141,7 +1141,7 @@
         panel.innerHTML =
             /* ── Toggle handle (always visible) ── */
             '<button type="button" id="saPanelToggle" class="sa-toggle-btn" aria-expanded="false" aria-controls="saPanelControls" title="Accessibility Scroll Controls&#10;आवाज / क्यामेरा / छिटो / बिस्तारै">' +
-                '<i class="fas fa-universal-access sa-toggle-icon" aria-hidden="true"></i>' +
+                '<i class="lucide-icon sa-toggle-icon" aria-hidden="true" data-lucide="accessibility"></i>' +
                 '<span class="visually-hidden">Scroll accessibility</span>' +
             '</button>' +
 
@@ -1154,11 +1154,11 @@
                 /* ── UP / DOWN scroll buttons ── */
                 '<div class="sa-scroll-row">' +
                     '<button type="button" id="saBtnUp"   class="sa-scroll-btn" title="माथि जानुहोस् (Scroll Up)">' +
-                        '<i class="fas fa-chevron-up" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon" aria-hidden="true" data-lucide="chevron-up"></i>' +
                         '<span class="sa-scroll-label">माथि</span>' +
                     '</button>' +
                     '<button type="button" id="saBtnDown" class="sa-scroll-btn" title="तला जानुहोस् (Scroll Down)">' +
-                        '<i class="fas fa-chevron-down" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i>' +
                         '<span class="sa-scroll-label">तला</span>' +
                     '</button>' +
                 '</div>' +
@@ -1172,13 +1172,13 @@
                 /* Speed control row — 3 pills */
                 '<div class="sa-speed-row">' +
                     '<button type="button" id="saSpeed-slow"   class="sa-speed" data-speed="slow"   title="बिस्तारै (slow)" aria-label="बिस्तारै">' +
-                        '<i class="fas fa-gauge-simple-low" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon" aria-hidden="true" data-lucide="gauge"></i>' +
                     '</button>' +
                     '<button type="button" id="saSpeed-normal" class="sa-speed sa-speed--active" data-speed="normal" title="सामान्य (normal)" aria-label="सामान्य">' +
-                        '<i class="fas fa-gauge" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon" aria-hidden="true" data-lucide="circle-gauge"></i>' +
                     '</button>' +
                     '<button type="button" id="saSpeed-fast"   class="sa-speed" data-speed="fast"   title="छिटो (fast)" aria-label="छिटो">' +
-                        '<i class="fas fa-bolt" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon" aria-hidden="true" data-lucide="zap"></i>' +
                     '</button>' +
                 '</div>' +
 
@@ -1195,12 +1195,12 @@
                 '<div class="sa-btn-row">' +
                     '<button type="button" id="saBtnVoice" class="sa-btn" aria-pressed="false" ' +
                         'title="नेपाली Voice Scroll&#10;माथि / तला / छिटो / बिस्तारै / जारी माथि / रोक">' +
-                        '<i class="fas fa-microphone sa-btn-icon" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon sa-btn-icon" aria-hidden="true" data-lucide="mic"></i>' +
                         '<span class="sa-btn-label">आवाज</span>' +
                     '</button>' +
                     '<button type="button" id="saBtnCamera" class="sa-btn" aria-pressed="false" ' +
                         'title="हात Gesture Scroll&#10;हात माथि = scroll up&#10;हात तला = scroll down">' +
-                        '<i class="fas fa-hand sa-btn-icon" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon sa-btn-icon" aria-hidden="true" data-lucide="hand"></i>' +
                         '<span class="sa-btn-label">हात</span>' +
                     '</button>' +
                 '</div>' +
@@ -1209,18 +1209,18 @@
                 '<div class="sa-btn-row">' +
                     '<button type="button" id="saBtnEye" class="sa-btn" aria-pressed="false" ' +
                         'title="अनुहार Tracking Scroll&#10;अनुहार माथि = scroll up&#10;अनुहार तला = scroll down">' +
-                        '<i class="fas fa-eye sa-btn-icon" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon sa-btn-icon" aria-hidden="true" data-lucide="eye"></i>' +
                         '<span class="sa-btn-label">आँखा</span>' +
                     '</button>' +
                     '<button type="button" id="saBtnTilt" class="sa-btn" aria-pressed="false" ' +
                         'title="Mobile Tilt Scroll&#10;फोन अगाडि झुकाउनुस् = scroll down&#10;फोन पछाडि = scroll up">' +
-                        '<i class="fas fa-mobile-screen-button sa-btn-icon" aria-hidden="true"></i>' +
+                        '<i class="lucide-icon sa-btn-icon" aria-hidden="true" data-lucide="smartphone"></i>' +
                         '<span class="sa-btn-label">झुकाव</span>' +
                     '</button>' +
                 '</div>' +
 
                 /* Help row */
-                '<div class="sa-hint"><i class="fas fa-circle-info me-1" aria-hidden="true"></i>On हुँदा मात्र mic/camera</div>' +
+                '<div class="sa-hint"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="info"></i>On हुँदा मात्र mic/camera</div>' +
 
             '</div>';
 
@@ -1230,6 +1230,9 @@
         toastEl.setAttribute('aria-live', 'polite');
 
         document.body.appendChild(panel);
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ nodes: panel.querySelectorAll('[data-lucide]') });
+        }
         document.body.appendChild(toastEl);
 
         /* Panel toggle */

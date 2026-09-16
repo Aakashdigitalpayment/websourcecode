@@ -3,6 +3,7 @@
  * Admin: साझेदार सुविधा व्यवस्थापन (Partner Facilities CRUD)
  * Pattern: services.php जस्तै — Tab UI (List + Add/Edit)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'साझेदार सुविधा व्यवस्थापन';
 $currentPage = 'partner-facilities';
 require_once 'includes/admin-header.php';
@@ -190,7 +191,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                 </div>
             </div>
         </td>
-        <td><span class="text-muted"><i class="fas fa-location-dot me-1 text-success pf-location-icon"></i><?php echo htmlspecialchars($f['location'] ?: '—'); ?></span></td>
+        <td><span class="text-muted"><i class="lucide-icon me-1 text-success pf-location-icon" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($f['location'] ?: '—'); ?></span></td>
         <td><?php if ($f['facility_type']): ?><span class="badge pf-type-badge"><?php echo htmlspecialchars((string)$f['facility_type']); ?></span><?php else: echo '—'; endif; ?></td>
         <td class="text-center">
             <?php $d = partnerDiscountDisplay($f); echo $d !== '' ? '<span class="badge bg-warning text-dark fw-bold">' . htmlspecialchars($d) . '</span>' : '<span class="text-muted">—</span>'; ?>
@@ -206,7 +207,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
         </td>
         <td class="text-center">
             <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-pf"
-                    data-id="<?php echo $uid; ?>"
+                    data-id="<?php echo (int)$uid; ?>"
                     data-name="<?php echo htmlspecialchars((string)$f['partner_name'], ENT_QUOTES); ?>"
                     data-name-en="<?php echo htmlspecialchars((string)($f['partner_name_en'] ?? ''), ENT_QUOTES); ?>"
                     data-location="<?php echo htmlspecialchars((string)$f['location'], ENT_QUOTES); ?>"
@@ -224,20 +225,20 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                     data-active="<?php echo !empty($f['is_active']) ? '1' : '0'; ?>"
                     data-featured="<?php echo !empty($f['is_featured']) ? '1' : '0'; ?>"
                     data-has-pin="<?php echo !empty($f['pin_hash']) ? '1' : '0'; ?>"
-                    title="सम्पादन"><i class="fas fa-edit"></i></button>
+                    title="सम्पादन"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></button>
             <?php if (!empty($f['is_active'])): ?>
             <form method="POST" class="svc-inline-form" onsubmit="return confirm('निष्क्रिय गर्ने?');">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="deactivate">
-                <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button type="submit" class="adm-icon-btn" title="निष्क्रिय" aria-label="निष्क्रिय"><i class="fas fa-archive" aria-hidden="true"></i></button>
+                <input type="hidden" name="id" value="<?php echo (int)$uid; ?>">
+                <button type="submit" class="adm-icon-btn" title="निष्क्रिय" aria-label="निष्क्रिय"><i class="lucide-icon" data-lucide="archive" aria-hidden="true"></i></button>
             </form>
             <?php endif; ?>
             <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $usage > 0 ? 'लग भएकाले निष्क्रिय मात्र हुन्छ। जारी?' : 'मेट्ने निश्चित?'; ?>');">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                 <input type="hidden" name="action" value="delete">
-                <input type="hidden" name="id" value="<?php echo $uid; ?>">
-                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                <input type="hidden" name="id" value="<?php echo (int)$uid; ?>">
+                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
             </form>
         </td>
     </tr>
@@ -250,18 +251,18 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
     'साझेदार सुविधा व्यवस्थापन',
     'fa-handshake',
     'सदस्य छुट — public सूची + verify desk लग। Public: <a href="../partner-facilities.php" target="_blank" rel="noopener noreferrer">partner-facilities.php</a>',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($facilities) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($facilitiesLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 me-2"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($facilitiesArch) . '</span>'
-    . '<a class="btn btn-outline-success btn-sm" href="../verify.php" target="_blank" rel="noopener noreferrer"><i class="fas fa-id-card me-1"></i>Verify</a>'
-    . ' <a class="btn btn-outline-secondary btn-sm" href="vendor-enlistment.php"><i class="fas fa-store me-1"></i>Vendor</a>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($facilities) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय: ' . count($facilitiesLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>अभिलेख: ' . count($facilitiesArch) . '</span>'
+    . '<a class="btn btn-outline-success btn-sm" href="../verify.php" target="_blank" rel="noopener noreferrer"><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>Verify</a>'
+    . ' <a class="btn btn-outline-secondary btn-sm" href="vendor-enlistment.php"><i class="lucide-icon me-1" data-lucide="store" aria-hidden="true"></i>Vendor</a>'
 ); ?>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
 
 <?php if ($viewLogsMissing): ?>
 <div class="alert alert-warning d-flex align-items-center justify-content-between flex-wrap gap-2" id="pf-usage-logs">
-    <span><i class="fas fa-triangle-exclamation me-2"></i>साझेदार भेटिएन वा लग लोड गर्न सकिएन (ID: <?php echo (int)$viewLogsId; ?>).</span>
+    <span><i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i>साझेदार भेटिएन वा लग लोड गर्न सकिएन (ID: <?php echo (int)$viewLogsId; ?>).</span>
     <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary">सूचीमा फर्कनुहोस्</a>
 </div>
 <?php endif; ?>
@@ -270,7 +271,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 <div class="card admin-table-card mb-3" id="pf-usage-logs">
     <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white">
         <div>
-            <strong><i class="fas fa-clock-rotate-left me-2 text-success"></i>सेवा लग — <?php echo htmlspecialchars((string)$viewLogsPartner['partner_name']); ?></strong>
+            <strong><i class="lucide-icon me-2 text-success" data-lucide="history" aria-hidden="true"></i>सेवा लग — <?php echo htmlspecialchars((string)$viewLogsPartner['partner_name']); ?></strong>
             <?php if (!empty($viewLogsPartner['partner_code'])): ?>
                 <code class="ms-2 small"><?php echo htmlspecialchars((string)$viewLogsPartner['partner_code']); ?></code>
             <?php endif; ?>
@@ -279,7 +280,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
             <span class="badge bg-light text-muted border ms-1">पछिल्ला <?php echo count($viewLogsRows); ?> देखाइएको</span>
             <?php endif; ?>
         </div>
-        <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-xmark me-1"></i>बन्द</a>
+        <a href="partner-facilities.php" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>बन्द</a>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive" style="max-height:420px;overflow:auto;">
@@ -322,13 +323,13 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="pfTabs">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#pf-list" id="pf-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>सुविधा सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सुविधा सूची
             <span class="badge bg-success ms-1"><?php echo count($facilities); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#pf-form" id="pf-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="pfFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="pfFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -338,7 +339,7 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
         <div class="card admin-table-card svc-flat-top-card">
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3 flex-wrap">
                 <div class="input-group input-group-sm pf-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 pf-list-search" placeholder="संस्था, स्थान, code खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <select class="form-select form-select-sm pf-type-filter" id="pfTypeFilter">
@@ -371,9 +372,9 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                                 <tbody>
                                 <?php if (empty($facilitiesLive)): ?>
                                     <tr><td colspan="9" class="text-center py-5 text-muted">
-                                        <i class="fas fa-handshake fa-3x mb-2 d-block opacity-25"></i>
+                                        <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="handshake" aria-hidden="true"></i>
                                         सक्रिय साझेदार छैन।
-                                        <button type="button" class="btn btn-sm btn-success mt-2" onclick="document.getElementById('pf-form-btn').click()"><i class="fas fa-plus me-1"></i>थप्नुहोस्</button>
+                                        <button type="button" class="btn btn-sm btn-success mt-2" onclick="document.getElementById('pf-form-btn').click()"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>थप्नुहोस्</button>
                                     </td></tr>
                                 <?php else:
                                     $sn = 1;
@@ -422,8 +423,8 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
     <div class="tab-pane fade" id="pf-form">
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
-                <h5 class="mb-0 fw-bold" id="pfFormTitle"><i class="fas fa-plus-circle me-2"></i>नयाँ साझेदार सुविधा थप्नुहोस्</h5>
-                <button type="button" class="btn btn-light btn-sm" id="btnCancelPf"><i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्</button>
+                <h5 class="mb-0 fw-bold" id="pfFormTitle"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ साझेदार सुविधा थप्नुहोस्</h5>
+                <button type="button" class="btn btn-light btn-sm" id="btnCancelPf"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्</button>
             </div>
             <div class="card-body p-4">
                 <form method="POST" id="pfForm" class="needs-validation" enctype="multipart/form-data" novalidate>
@@ -522,13 +523,13 @@ $renderPfRow = static function (array $f, int $sn, array $usageMap, string $csrf
                     </div>
 
                     <div class="alert alert-info small mt-3 mb-0">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         प्रत्येक साझेदारलाई <strong>Desk code</strong> (PF-XXXXXX) दिइन्छ — verify.php मा सेवा लग गर्दा छान्न सजिलो। PIN सेट गरे सेवा लग गर्दा PIN चाहिन्छ।
                     </div>
 
                     <div class="mt-4 d-flex gap-2">
-                        <button type="submit" class="btn btn-success px-4"><i class="fas fa-save me-2"></i><span id="pfSubmitLabel">सुविधा सेभ गर्नुहोस्</span></button>
-                        <button type="button" class="btn btn-outline-secondary" id="btnResetPf"><i class="fas fa-rotate-left me-1"></i>Reset</button>
+                        <button type="submit" class="btn btn-success px-4"><i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i><span id="pfSubmitLabel">सुविधा सेभ गर्नुहोस्</span></button>
+                        <button type="button" class="btn btn-outline-secondary" id="btnResetPf"><i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i>Reset</button>
                     </div>
                 </form>
             </div>
@@ -594,7 +595,7 @@ document.querySelectorAll('.btn-edit-pf').forEach(function (btn) {
         document.getElementById('pff_clear_pin').checked = false;
         var prev = document.getElementById('pff_logo_preview');
         if (prev) prev.textContent = this.dataset.logo ? ('अवस्थित: ' + this.dataset.logo) : '';
-        document.getElementById('pfFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>साझेदार सुविधा सम्पादन';
+        document.getElementById('pfFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>साझेदार सुविधा सम्पादन';
         document.getElementById('pfFormTabLabel').textContent = 'सम्पादन';
         document.getElementById('pfSubmitLabel').textContent = 'अपडेट गर्नुहोस्';
         document.getElementById('pf-form-btn').click();
@@ -612,7 +613,7 @@ document.getElementById('btnResetPf')?.addEventListener('click', function () {
     document.getElementById('pff_active').checked = true;
     document.getElementById('pff_clear_pin_wrap').style.display = 'none';
     document.getElementById('pff_logo_preview').textContent = '';
-    document.getElementById('pfFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ साझेदार सुविधा थप्नुहोस्';
+    document.getElementById('pfFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ साझेदार सुविधा थप्नुहोस्';
     document.getElementById('pfFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     document.getElementById('pfSubmitLabel').textContent = 'सुविधा सेभ गर्नुहोस्';
 });

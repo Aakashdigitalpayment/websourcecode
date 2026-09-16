@@ -21,7 +21,7 @@ if (!irMemberHasAccess($mem)) {
     http_response_code(403);
     $pageTitle = (function_exists('isEnglish') && isEnglish() ? 'Access denied' : 'पहुँच अस्वीकृत') . ' — ' . SITE_NAME;
     require __DIR__ . '/includes/chrome.php';
-    echo '<div class="alert alert-warning mt-3"><i class="fas fa-lock me-2"></i>';
+    echo '<div class="alert alert-warning mt-3"><i class="lucide-icon me-2" data-lucide="lock" aria-hidden="true"></i>';
     echo function_exists('isEnglish') && isEnglish()
         ? 'Information Room is not enabled for your account. Contact the cooperative office.'
         : 'तपाईंको खातामा Information Room सक्षम छैन। सहकारी कार्यालयमा सम्पर्क गर्नुहोस्।';
@@ -41,13 +41,15 @@ if ($catFilter !== '' && !isset(irCategories()[$catFilter])) {
 
 $items = irFetchActiveItems($db, $catFilter);
 $pageTitle = $_t('Information Room', 'Information Room') . ' — ' . SITE_NAME;
-$extraHead = '<link rel="stylesheet" href="../assets/css/information-room.css?v=' . (@filemtime(__DIR__ . '/../assets/css/information-room.css') ?: time()) . '">';
+$extraHead = function_exists('coopThemeLinkHtml')
+    ? coopThemeLinkHtml('assets/css/information-room.css')
+    : '<link rel="stylesheet" href="../assets/css/information-room.css">';
 
 require __DIR__ . '/includes/chrome.php';
 ?>
 
 <div class="mem-page-head mb-3">
-    <h1 class="h4 mb-1"><i class="fas fa-vault me-2 text-success"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
+    <h1 class="h4 mb-1"><i class="lucide-icon me-2 text-success" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></h1>
     <p class="text-muted small mb-0"><?php echo $_t(
         'बोर्ड निर्णय, नीति, कार्यविधि र बिनियम — अनुमति प्राप्त सदस्यका लागि।',
         'Board decisions, policies, procedures and bylaws — for authorized members.'
@@ -78,12 +80,12 @@ require __DIR__ . '/includes/chrome.php';
             <div><?php echo $_t('मिति', 'Date'); ?>: <?php echo htmlspecialchars((string) $row['meeting_date'], ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
             <?php if (empty($row['allow_download'])): ?>
-            <div class="text-warning-emphasis"><i class="fas fa-eye me-1"></i><?php echo $_t('हेर्न मात्र', 'View only'); ?></div>
+            <div class="text-warning-emphasis"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo $_t('हेर्न मात्र', 'View only'); ?></div>
             <?php endif; ?>
         </div>
         <div class="ir-card-actions">
             <a href="information-room-view.php?id=<?php echo (int) $row['id']; ?>" class="btn btn-sm btn-success w-100">
-                <i class="fas fa-book-open me-1"></i><?php echo $_t('पढ्नुहोस्', 'Read'); ?>
+                <i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i><?php echo $_t('पढ्नुहोस्', 'Read'); ?>
             </a>
         </div>
     </article>

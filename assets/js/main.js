@@ -462,8 +462,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Smooth Scroll for anchor links - but not for dropdown toggles
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        // Skip if this is a dropdown toggle (has fa-chevron-down icon)
-        if (anchor.querySelector('.fa-chevron-down') || anchor.closest('.has-dropdown')) {
+        // Skip if this is a dropdown toggle (has chevron icon)
+        if (anchor.querySelector('.fa-chevron-down, .lucide-icon[data-lucide="chevron-down"], [data-lucide="chevron-down"]') || anchor.closest('.has-dropdown')) {
             return;
         }
 

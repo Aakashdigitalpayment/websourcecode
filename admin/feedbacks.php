@@ -10,6 +10,7 @@
  *   — Admin internal note (केवल admin ले देख्छ, member देख्दैन)
  *   — Document upload (admin ले attachment जोड्न सक्छ)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Feedback / सुझाव व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -238,29 +239,29 @@ function attachmentName($path) {
     );
     if ($flash = getFlash()):
     ?>
-    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
     <!-- ── Stat Mini Row ── -->
     <div class="stat-mini-row no-print">
         <a href="feedbacks.php" class="stat-mini <?php echo !$filterStatus&&!$filterType?'active-filter':''; ?>">
-            <div class="sm-icon ic-total"><i class="fas fa-comments"></i></div>
+            <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="messages-square" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo array_sum($counts); ?></div>
             <div class="sm-lbl">जम्मा</div>
         </a>
         <a href="?status=pending" class="stat-mini <?php echo $filterStatus==='pending'?'active-filter':''; ?>">
-            <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
-            <div class="sm-val"><?php echo $counts['pending']; ?></div>
+            <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
+            <div class="sm-val"><?php echo (int)$counts['pending']; ?></div>
             <div class="sm-lbl">पेन्डिङ</div>
         </a>
         <a href="?status=reviewed" class="stat-mini <?php echo $filterStatus==='reviewed'?'active-filter':''; ?>">
-            <div class="sm-icon ic-process"><i class="fas fa-eye"></i></div>
-            <div class="sm-val"><?php echo $counts['reviewed']; ?></div>
+            <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></div>
+            <div class="sm-val"><?php echo (int)$counts['reviewed']; ?></div>
             <div class="sm-lbl">हेरिएको</div>
         </a>
         <a href="?status=resolved" class="stat-mini <?php echo $filterStatus==='resolved'?'active-filter':''; ?>">
-            <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
-            <div class="sm-val"><?php echo $counts['resolved']; ?></div>
+            <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
+            <div class="sm-val"><?php echo (int)$counts['resolved']; ?></div>
             <div class="sm-lbl">समाधान</div>
         </a>
     </div>
@@ -272,7 +273,7 @@ function attachmentName($path) {
     <div class="card shadow-sm mb-4 arv-legacy-detail">
         <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                <i class="fas fa-comment-dots me-2"></i>Feedback विवरण
+                <i class="lucide-icon me-2" data-lucide="message-circle" aria-hidden="true"></i>Feedback विवरण
                 <?php
                     $vfTrack = !empty($viewFeedback['tracking_id'])
                         ? $viewFeedback['tracking_id']
@@ -283,7 +284,7 @@ function attachmentName($path) {
                 </code>
             </h5>
             <a href="feedbacks.php" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्किनुहोस्
+                <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्किनुहोस्
             </a>
         </div>
 
@@ -292,7 +293,7 @@ function attachmentName($path) {
 
                 <!-- LEFT: Member Information -->
                 <div class="col-lg-5">
-                    <h6 class="fw-bold mb-2 text-muted"><i class="fas fa-user me-1"></i>सदस्य जानकारी</h6>
+                    <h6 class="fw-bold mb-2 text-muted"><i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i>सदस्य जानकारी</h6>
                     <table class="table adm-detail-table">
                         <tr>
                             <th>नाम</th>
@@ -329,7 +330,7 @@ function attachmentName($path) {
                     </table>
 
                     <!-- Member को सन्देश -->
-                    <h6 class="fw-bold mb-2 text-muted"><i class="fas fa-envelope me-1"></i>सदस्यको सन्देश</h6>
+                    <h6 class="fw-bold mb-2 text-muted"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i>सदस्यको सन्देश</h6>
                     <div class="bg-light border rounded p-3 mb-3"
                          style="min-height:90px;white-space:pre-wrap;font-size:0.95rem;">
                         <?php echo nl2br(htmlspecialchars($viewFeedback['message'])); ?>
@@ -338,7 +339,7 @@ function attachmentName($path) {
                     <!-- Admin Reply — member ले application-tracker मा देख्छ -->
                     <?php if (!empty($viewFeedback['admin_reply'])): ?>
                     <h6 class="fw-bold mb-2" style="color:var(--primary-color);">
-                        <i class="fas fa-reply me-1"></i>Admin जवाफ
+                        <i class="lucide-icon me-1" data-lucide="reply" aria-hidden="true"></i>Admin जवाफ
                         <small class="text-muted fw-normal">(Member ले tracker मा देख्छ)</small>
                     </h6>
                     <div class="bg-success bg-opacity-10 border border-success rounded p-3 mb-3"
@@ -350,7 +351,7 @@ function attachmentName($path) {
                     <!-- Admin Internal Note — member देख्दैन -->
                     <?php if (!empty($viewFeedback['admin_note'])): ?>
                     <h6 class="fw-bold mb-2" style="color:#6f4e00;">
-                        <i class="fas fa-sticky-note me-1"></i>Admin आन्तरिक टिप्पणी
+                        <i class="lucide-icon me-1" data-lucide="sticky-note" aria-hidden="true"></i>Admin आन्तरिक टिप्पणी
                         <small class="text-muted fw-normal">(केवल admin देख्छ)</small>
                     </h6>
                     <div class="rounded p-3 mb-3"
@@ -362,10 +363,10 @@ function attachmentName($path) {
                     <!-- Admin Attachment — upload गरिएको document -->
                     <?php if (!empty($viewFeedback['admin_attachment'])): ?>
                     <h6 class="fw-bold mb-2 text-primary">
-                        <i class="fas fa-paperclip me-1"></i>संलग्न Document
+                        <i class="lucide-icon me-1" data-lucide="paperclip" aria-hidden="true"></i>संलग्न Document
                     </h6>
                     <div class="d-flex align-items-center gap-2 p-2 border rounded bg-light mb-3">
-                        <i class="fas fa-file-alt fa-lg text-primary"></i>
+                        <i class="lucide-icon lucide-lg text-primary" data-lucide="file-text" aria-hidden="true"></i>
                         <div class="flex-grow-1">
                             <div class="small fw-semibold">
                                 <?php echo htmlspecialchars(attachmentName($viewFeedback['admin_attachment'])); ?>
@@ -373,22 +374,22 @@ function attachmentName($path) {
                         </div>
                         <a href="<?php echo htmlspecialchars(attachmentUrl($viewFeedback['admin_attachment'])); ?>"
                            class="btn btn-sm btn-outline-primary" target="_blank" download rel="noopener noreferrer">
-                            <i class="fas fa-download me-1"></i>Download
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i>Download
                         </a>
                         <!-- Document हटाउने -->
                         <form method="POST" style="display:inline;"
                               onsubmit="return confirm('यो document हटाउने?');">
                             <input type="hidden" name="action" value="remove_attachment">
-                            <input type="hidden" name="id"     value="<?php echo $viewFeedback['id']; ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="id"     value="<?php echo (int)$viewFeedback['id']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <button type="submit" class="btn btn-sm btn-outline-danger" title="Document हटाउनुहोस्">
-                                <i class="fas fa-trash"></i>
+                                <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                             </button>
                         </form>
                     </div>
                     <?php endif; ?>
                     <?php if (!empty($feedbackHistory)): ?>
-                    <h6 class="fw-bold mb-2 text-primary"><i class="fas fa-clock-rotate-left me-1"></i>Status / Comment History</h6>
+                    <h6 class="fw-bold mb-2 text-primary"><i class="lucide-icon me-1" data-lucide="history" aria-hidden="true"></i>Status / Comment History</h6>
                     <div class="mb-3">
                         <?php echo arvLogList($feedbackHistory); ?>
                     </div>
@@ -399,33 +400,33 @@ function attachmentName($path) {
                 <div class="col-lg-7">
                     <div class="card border-0 shadow-sm">
                         <div class="card-header gradient-card-header py-2">
-                            <i class="fas fa-edit me-2"></i>Status अपडेट / जवाफ / Note / Document
+                            <i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>Status अपडेट / जवाफ / Note / Document
                         </div>
                         <div class="card-body">
 
                             <!-- enctype="multipart/form-data" — file upload को लागि अनिवार्य -->
                             <form method="POST" action="" enctype="multipart/form-data">
                                 <input type="hidden" name="action" value="update_status">
-                                <input type="hidden" name="id"     value="<?php echo $viewFeedback['id']; ?>">
-                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="id"     value="<?php echo (int)$viewFeedback['id']; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                                 <!-- Status dropdown -->
                                 <div class="mb-3">
                                     <label for="fb_status" class="form-label fw-semibold">
-                                        <i class="fas fa-circle-dot me-1"></i>अवस्था (Status)
+                                        <i class="lucide-icon me-1" data-lucide="circle-dot" aria-hidden="true"></i>अवस्था (Status)
                                     </label>
                                     <select name="status" id="fb_status" class="form-select">
                                         <option value="pending"
                                             <?php echo $viewFeedback['status'] === 'pending'  ? 'selected' : ''; ?>>
-                                            ⏳ Pending — समीक्षाधीन
+                                            Pending — समीक्षाधीन
                                         </option>
                                         <option value="reviewed"
                                             <?php echo $viewFeedback['status'] === 'reviewed' ? 'selected' : ''; ?>>
-                                            👁 Reviewed — हेरिएको
+                                            Reviewed — हेरिएको
                                         </option>
                                         <option value="resolved"
                                             <?php echo $viewFeedback['status'] === 'resolved' ? 'selected' : ''; ?>>
-                                            ✅ Resolved — समाधान भयो
+                                            Resolved — समाधान भयो
                                         </option>
                                     </select>
                                 </div>
@@ -433,7 +434,7 @@ function attachmentName($path) {
                                 <!-- Admin Reply — member ले application-tracker मा देख्छ -->
                                 <div class="mb-3">
                                     <label for="fb_admin_reply" class="form-label fw-semibold">
-                                        <i class="fas fa-reply me-1 text-success"></i>
+                                        <i class="lucide-icon me-1 text-success" data-lucide="reply" aria-hidden="true"></i>
                                         Admin जवाफ
                                         <span class="text-muted fw-normal small">
                                             — Member ले Application Tracker मा देख्छ
@@ -448,18 +449,18 @@ function attachmentName($path) {
                                 <div class="arv-notify-row mb-3">
                                     <label class="arv-notify-toggle">
                                         <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                        <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                        <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                     </label>
                                     <div class="arv-notify-channels">
-                                        <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                        <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                        <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                        <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                     </div>
                                 </div>
 
                                 <!-- Admin Internal Note — केवल admin को लागि -->
                                 <div class="mb-3">
                                     <label for="fb_admin_note" class="form-label fw-semibold">
-                                        <i class="fas fa-sticky-note me-1" style="color:#d4900a;"></i>
+                                        <i class="lucide-icon me-1" data-lucide="sticky-note" aria-hidden="true" style="color:#d4900a;"></i>
                                         Admin आन्तरिक टिप्पणी (Note)
                                         <span class="text-muted fw-normal small">
                                             — Member ले देख्दैन, admin को internal memo मात्र
@@ -474,7 +475,7 @@ function attachmentName($path) {
                                 <!-- Document Upload — admin ले attach गर्छ -->
                                 <div class="mb-4">
                                     <label for="fb_admin_attachment" class="form-label fw-semibold">
-                                        <i class="fas fa-paperclip me-1 text-primary"></i>
+                                        <i class="lucide-icon me-1 text-primary" data-lucide="paperclip" aria-hidden="true"></i>
                                         Document संलग्न गर्नुहोस्
                                         <span class="text-muted fw-normal small">
                                             — PDF, Word, Image (max 5MB)
@@ -485,7 +486,7 @@ function attachmentName($path) {
                                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
                                     <?php if (!empty($viewFeedback['admin_attachment'])): ?>
                                     <div class="form-text text-primary">
-                                        <i class="fas fa-info-circle me-1"></i>
+                                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                                         हाल संलग्न: <strong><?php echo htmlspecialchars(attachmentName($viewFeedback['admin_attachment'])); ?></strong>
                                         — नयाँ file upload गर्नुभयो भने पुरानो replace हुन्छ।
                                     </div>
@@ -498,10 +499,10 @@ function attachmentName($path) {
 
                                 <div class="d-flex gap-2">
                                     <button type="submit" class="btn btn-primary px-4">
-                                        <i class="fas fa-save me-1"></i>अपडेट गर्नुहोस्
+                                        <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्
                                     </button>
                                     <a href="feedbacks.php" class="btn btn-outline-secondary">
-                                        <i class="fas fa-arrow-left me-1"></i>फिर्ता
+                                        <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>फिर्ता
                                     </a>
                                 </div>
                             </form>
@@ -514,10 +515,10 @@ function attachmentName($path) {
                         <form method="POST" style="display:inline;"
                               onsubmit="return confirm('यो feedback पूरै मेटाउने? (यो कार्य फिर्ता हुँदैन।)');">
                             <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id"     value="<?php echo $viewFeedback['id']; ?>">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="id"     value="<?php echo (int)$viewFeedback['id']; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-trash me-1"></i>यो Feedback मेटाउनुहोस्
+                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>यो Feedback मेटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -539,9 +540,9 @@ function attachmentName($path) {
                 <label>स्थिति</label>
                 <select name="status" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                     <option value="">सबै स्थिति</option>
-                    <option value="pending"  <?php echo $filterStatus==='pending'?'selected':''; ?>>⏳ पेन्डिङ</option>
-                    <option value="reviewed" <?php echo $filterStatus==='reviewed'?'selected':''; ?>>👁 हेरिएको</option>
-                    <option value="resolved" <?php echo $filterStatus==='resolved'?'selected':''; ?>>✅ समाधान</option>
+                    <option value="pending"  <?php echo $filterStatus==='pending'?'selected':''; ?>>पेन्डिङ</option>
+                    <option value="reviewed" <?php echo $filterStatus==='reviewed'?'selected':''; ?>>हेरिएको</option>
+                    <option value="resolved" <?php echo $filterStatus==='resolved'?'selected':''; ?>>समाधान</option>
                 </select>
             </div>
             <div class="col-md-3 col-6">
@@ -557,13 +558,13 @@ function attachmentName($path) {
             <div class="col-md-4 col-12">
                 <label>खोज्नुहोस्</label>
                 <div class="input-group input-group-sm">
-                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" name="search" class="form-control" value="<?php echo htmlspecialchars($filterSearch); ?>" placeholder="नाम, ट्र्याकिङ ID, फोन...">
                 </div>
             </div>
             <div class="col-md-2 col-6">
-                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-                <?php if ($filterStatus||$filterType||$filterSearch !== ''): ?><a href="feedbacks.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
+                <?php if ($filterStatus||$filterType||$filterSearch !== ''): ?><a href="feedbacks.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>हटाउनुहोस्</a><?php endif; ?>
             </div>
         </form>
     </div>
@@ -571,7 +572,7 @@ function attachmentName($path) {
     <!-- ── Table ── -->
     <div class="card border-0 shadow-sm" style="border-radius:10px;overflow:hidden;">
         <div class="tbl-header-bar no-print">
-            <h6><i class="fas fa-comments me-2 text-primary"></i>Feedback सूची</h6>
+            <h6><i class="lucide-icon me-2 text-primary" data-lucide="messages-square" aria-hidden="true"></i>Feedback सूची</h6>
             <span class="result-count-badge"><?php echo count($feedbacks); ?> रेकर्ड</span>
         </div>
         <div class="table-responsive admin-table-card">
@@ -635,17 +636,17 @@ function attachmentName($path) {
                                 <div class="mt-1 d-flex flex-wrap gap-1">
                                     <?php if (!empty($fb['admin_reply'])): ?>
                                     <span class="badge bg-success bg-opacity-75" style="font-size:0.65rem;" title="Admin जवाफ छ">
-                                        <i class="fas fa-reply me-1"></i>जवाफ
+                                        <i class="lucide-icon me-1" data-lucide="reply" aria-hidden="true"></i>जवाफ
                                     </span>
                                     <?php endif; ?>
                                     <?php if (!empty($fb['admin_note'])): ?>
                                     <span class="badge" style="background:#d4900a;font-size:0.65rem;" title="Admin Note छ">
-                                        <i class="fas fa-sticky-note me-1"></i>Note
+                                        <i class="lucide-icon me-1" data-lucide="sticky-note" aria-hidden="true"></i>Note
                                     </span>
                                     <?php endif; ?>
                                     <?php if (!empty($fb['admin_attachment'])): ?>
                                     <span class="badge bg-primary bg-opacity-75" style="font-size:0.65rem;" title="Document संलग्न छ">
-                                        <i class="fas fa-paperclip me-1"></i>Doc
+                                        <i class="lucide-icon me-1" data-lucide="paperclip" aria-hidden="true"></i>Doc
                                     </span>
                                     <?php endif; ?>
                                 </div>
@@ -654,17 +655,17 @@ function attachmentName($path) {
                             <!-- Actions -->
                             <td>
                                 <div class="adm-action-icons">
-                                    <a href="?view=<?php echo $fb['id']; ?>"
+                                    <a href="?view=<?php echo (int)$fb['id']; ?>"
                                        class="adm-icon-btn adm-icon-btn--view" title="विवरण हेर्नुहोस् / अपडेट गर्नुहोस्" aria-label="View">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                     </a>
                                     <form method="POST" class="adm-icon-form"
                                           onsubmit="return confirm('यो feedback मेटाउने?');">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id"     value="<?php echo $fb['id']; ?>">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="id"     value="<?php echo (int)$fb['id']; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="Delete">
-                                            <i class="fas fa-trash-can"></i>
+                                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -675,7 +676,7 @@ function attachmentName($path) {
                         <?php if (empty($feedbacks)): ?>
                         <tr>
                             <td colspan="8" class="text-center text-muted py-5">
-                                <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-3 d-block opacity-25" data-lucide="inbox" aria-hidden="true"></i>
                                 कुनै feedback उपलब्ध छैन।
                             </td>
                         </tr>

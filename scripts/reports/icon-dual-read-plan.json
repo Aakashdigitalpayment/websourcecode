@@ -1,0 +1,89 @@
+{
+  "policy": "Dual-read icons \u2014 no FA\u2192Lucide DB mass UPDATE in this track",
+  "safe": {
+    "render": "coop_nav_icon_html / fa_to_lucide",
+    "write": "coop_canonical_icon_for_storage (FA normalize + bare Lucide + fab keep)",
+    "brands": "fab stays Font Awesome"
+  },
+  "deferred_bang": "UPDATE icon columns from fas fa-* to bare Lucide names across existing rows",
+  "schema_fa_defaults_sample": [
+    {
+      "file": "includes/digital-service-types.php",
+      "default": "fas fa-laptop"
+    },
+    {
+      "file": "includes/satisfaction-links-tables.php",
+      "default": "fas fa-smile"
+    },
+    {
+      "file": "includes/team-menu-categories.php",
+      "default": "fas fa-users-gear"
+    },
+    {
+      "file": "includes/team-menu-categories.php",
+      "default": "fas fa-folder"
+    },
+    {
+      "file": "includes/welfare-claim-types.php",
+      "default": "fas fa-gift"
+    },
+    {
+      "file": "includes/why-choose-tables.php",
+      "default": "fas fa-star"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-star"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-file-lines"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-file-lines"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-file-lines"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-link"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-question-circle"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-star"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-users-gear"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-users-gear"
+    },
+    {
+      "file": "admin/includes/ensure-admin-tables.php",
+      "default": "fas fa-th-large"
+    }
+  ],
+  "schema_fa_defaults_count": 16,
+  "write_paths_wired": [
+    "admin/app-features.php",
+    "admin/committees.php",
+    "admin/digital-service-types.php",
+    "admin/pages.php",
+    "admin/satisfaction-settings.php",
+    "admin/services.php",
+    "admin/team.php",
+    "admin/useful-links.php",
+    "admin/welfare-claim-types.php",
+    "admin/why-choose.php"
+  ],
+  "missing_write_canonicalize": []
+}

@@ -1246,7 +1246,7 @@ CREATE TABLE IF NOT EXISTS welfare_claim_types (
     slug VARCHAR(60) NOT NULL,
     name_np VARCHAR(160) NOT NULL,
     name_en VARCHAR(160) DEFAULT '',
-    icon VARCHAR(80) NOT NULL DEFAULT 'fa-gift',
+    icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-gift',
     color VARCHAR(40) NOT NULL DEFAULT '#ff9800',
     form_profile VARCHAR(40) NOT NULL DEFAULT 'other',
     display_order INT NOT NULL DEFAULT 0,

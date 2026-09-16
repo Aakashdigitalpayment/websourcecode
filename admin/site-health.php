@@ -1,5 +1,6 @@
 <?php
 /* ── Auto-create folder action (AJAX POST from "Create Folder" button) ── */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['folder_key'], $_POST['csrf_token'])) {
     require_once 'includes/admin-header.php';   /* loads session + CSRF helpers */
     header('Content-Type: application/json');
@@ -189,7 +190,7 @@ echo '<script>window.CSRF_TOKEN=' . json_encode($csrfToken) . ';</script>';
 echo adminPageHeader(
     'Site Health Check', 'fa-heart-pulse',
     'Database, PHP, folders, र cPanel setup एकै ठाउँमा check गर्नुहोस्',
-    '<a href="site-health.php" class="btn btn-outline-light btn-sm"><i class="fas fa-rotate me-1"></i>Re-check</a>'
+    '<a href="site-health.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="rotate" aria-hidden="true"></i>Re-check</a>'
 );
 ?>
 <div class="container-fluid py-4">
@@ -260,7 +261,7 @@ echo adminPageHeader(
                                         <button type="button"
                                             class="btn btn-sm btn-outline-primary ms-2"
                                             onclick="createFolder('<?php echo htmlspecialchars($check['folder_key']); ?>', <?php echo $idx; ?>, this)"
-                                        ><i class="fas fa-folder-plus me-1"></i>Create</button>
+                                        ><i class="lucide-icon me-1" data-lucide="folder-plus" aria-hidden="true"></i>Create</button>
                                     </span>
                                 <?php else: ?>
                                     <?php echo htmlspecialchars($check['fix'] ?: 'No action needed.'); ?>
@@ -280,7 +281,7 @@ echo adminPageHeader(
 /* ── One-click "Create Folder" handler for Site Health ── */
 function createFolder(folderKey, rowIdx, btn) {
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Creating…';
+    btn.innerHTML = '<i class="lucide-icon lucide-spin me-1" data-lucide="loader-2" aria-hidden="true"></i>Creating…';
     const csrf = window.CSRF_TOKEN || '';
     const fd = new FormData();
     fd.append('action',      'create_folder');
@@ -295,17 +296,17 @@ function createFolder(folderKey, rowIdx, btn) {
                 document.getElementById('health-msg-' + rowIdx).textContent =
                     'Folder exists and is writable';
                 document.getElementById('health-fix-' + rowIdx).innerHTML =
-                    '<span class="text-success"><i class="fas fa-check me-1"></i>' +
+                    '<span class="text-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>' +
                     htmlEsc(data.msg) + '</span>';
             } else {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-folder-plus me-1"></i>Retry';
+                btn.innerHTML = '<i class="lucide-icon me-1" data-lucide="folder-plus" aria-hidden="true"></i>Retry';
                 alert('Error: ' + data.msg);
             }
         })
         .catch(() => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-folder-plus me-1"></i>Retry';
+            btn.innerHTML = '<i class="lucide-icon me-1" data-lucide="folder-plus" aria-hidden="true"></i>Retry';
             alert('Network error — please try again.');
         });
 }
@@ -320,7 +321,7 @@ function htmlEsc(s) {
       <div class="card border-0 shadow-sm mt-4">
           <div class="card-header bg-white border-bottom d-flex align-items-center justify-content-between py-3">
               <div>
-                  <i class="fas fa-eye me-2 text-primary"></i>
+                  <i class="lucide-icon me-2 text-primary" data-lucide="eye" aria-hidden="true"></i>
                   <span class="fw-semibold">Form Field Preview</span>
                   <span class="text-muted small ms-2">— सबै field types को visual consistency यहाँ check गर्नुहोस्</span>
               </div>
@@ -383,7 +384,7 @@ function htmlEsc(s) {
                           ?>
                           <div class="col-md-6 col-xl-4">
                               <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_1">
-                                  <i class="fas <?php echo $inp['icon']; ?> me-1"></i><?php echo $inp['label']; ?>
+                                  <?php echo coop_nav_icon_html('fas ' . $inp['icon'], 'fas fa-circle', 'me-1'); ?><?php echo $inp['label']; ?>
                                   <code class="ms-1 text-muted" style="font-size:.7rem;">type="<?php echo $inp['type']; ?>"</code>
                               </label>
                               <?php if ($inp['type'] === 'range'): ?>
@@ -590,20 +591,20 @@ function htmlEsc(s) {
                               $extra = isset($s['extra']) ? $s['extra'] : '';
                           ?>
                           <div class="col-md-6 col-xl-4">
-                              <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_12"><?php echo $s['label']; ?></label>
+                              <label class="form-label fw-semibold small text-muted mb-1" for="sh_field_12"><?php echo e($s['label']); ?></label>
                               <input type="text"
-                                     class="form-control <?php echo $s['cls']; ?>"
+                                     class="form-control <?php echo e($s['cls']); ?>"
                                      value="<?php echo htmlspecialchars($s['val']); ?>"
                                      placeholder="<?php echo htmlspecialchars($s['ph']); ?>"
                                      <?php echo $extra; ?> id="sh_field_12">
                               <?php if (!empty($s['err'])): ?>
-                                  <div class="invalid-feedback"><?php echo $s['err']; ?></div>
+                                  <div class="invalid-feedback"><?php echo e($s['err']); ?></div>
                               <?php endif; ?>
                               <?php if (!empty($s['ok'])): ?>
-                                  <div class="valid-feedback"><?php echo $s['ok']; ?></div>
+                                  <div class="valid-feedback"><?php echo e($s['ok']); ?></div>
                               <?php endif; ?>
                               <?php if (!empty($s['help']) && empty($s['err']) && empty($s['ok'])): ?>
-                                  <div class="form-text"><?php echo $s['help']; ?></div>
+                                  <div class="form-text"><?php echo e($s['help']); ?></div>
                               <?php endif; ?>
                           </div>
                           <?php endforeach; ?>
@@ -617,7 +618,7 @@ function htmlEsc(s) {
                           <div class="col-md-6">
                               <label class="form-label fw-semibold small" for="sh_field_13">Prefix icon / text</label>
                               <div class="input-group input-group-sm">
-                                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                  <span class="input-group-text"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></span>
                                   <input type="text" class="form-control" placeholder="सदस्यको नाम" id="sh_field_13">
                               </div>
                           </div>
@@ -631,7 +632,7 @@ function htmlEsc(s) {
                           <div class="col-md-6">
                               <label class="form-label fw-semibold small" for="sh_field_15">Both sides</label>
                               <div class="input-group input-group-sm">
-                                  <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                  <span class="input-group-text"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></span>
                                   <input type="tel" class="form-control" placeholder="९८xxxxxxxx" id="sh_field_15">
                                   <span class="input-group-text">NP</span>
                               </div>
@@ -640,13 +641,13 @@ function htmlEsc(s) {
                               <label class="form-label fw-semibold small" for="sh_field_16">With button</label>
                               <div class="input-group input-group-sm">
                                   <input type="text" class="form-control" placeholder="खोज्नुहोस्…" id="sh_field_16">
-                                  <button class="btn btn-primary" type="button" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
+                                  <button class="btn btn-primary" type="button" aria-label="Search" title="Search"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></button>
                               </div>
                           </div>
                           <div class="col-md-6">
                               <label class="form-label fw-semibold small" for="sh_field_17">Invalid group</label>
                               <div class="input-group input-group-sm has-validation">
-                                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                  <span class="input-group-text"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></span>
                                   <input type="email" class="form-control is-invalid" placeholder="email@domain.com" id="sh_field_17">
                                   <div class="invalid-feedback">Valid email आवश्यक छ।</div>
                               </div>
@@ -676,7 +677,7 @@ function htmlEsc(s) {
                               <div class="input-group input-group-sm">
                                   <input type="password" class="form-control" id="fp-pw-field" value="secret1234" autocomplete="off">
                                   <button class="btn btn-outline-secondary" type="button" id="fp-pw-toggle" title="Show/Hide">
-                                      <i class="fas fa-eye" id="fp-pw-icon"></i>
+                                      <i class="lucide-icon" data-lucide="eye" aria-hidden="true" id="fp-pw-icon"></i>
                                   </button>
                               </div>
                           </div>
@@ -687,8 +688,8 @@ function htmlEsc(s) {
           </div><!-- /.card-body -->
 
           <div class="card-footer bg-light border-top small text-muted d-flex justify-content-between align-items-center py-2">
-              <span><i class="fas fa-circle-info me-1"></i>यो section केवल visual reference हो — कुनै पनि data submit हुँदैन।</span>
-              <button type="button" class="btn btn-sm btn-outline-secondary" id="fp-reset-btn"><i class="fas fa-rotate-left me-1"></i>Reset Fields</button>
+              <span><i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>यो section केवल visual reference हो — कुनै पनि data submit हुँदैन।</span>
+              <button type="button" class="btn btn-sm btn-outline-secondary" id="fp-reset-btn"><i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i>Reset Fields</button>
           </div>
       </div><!-- /.card form field preview -->
 
@@ -724,7 +725,7 @@ function htmlEsc(s) {
                   if (!field) return;
                   navigator.clipboard.writeText(field.value).then(function() {
                       var orig = copyBtn.innerHTML;
-                      copyBtn.innerHTML = '<i class="fas fa-check text-success"></i>';
+                      copyBtn.innerHTML = '<i class="lucide-icon text-success" data-lucide="check" aria-hidden="true"></i>';
                       setTimeout(function() { copyBtn.innerHTML = orig; }, 1500);
                   }).catch(function() {
                       field.select();
@@ -742,7 +743,15 @@ function htmlEsc(s) {
                   if (!field) return;
                   var shown = field.type === 'text';
                   field.type = shown ? 'password' : 'text';
-                  if (icon) { icon.className = shown ? 'fas fa-eye' : 'fas fa-eye-slash'; }
+                  if (icon) {
+                      icon.className = 'lucide-icon';
+                      icon.setAttribute('data-lucide', shown ? 'eye' : 'eye-off');
+                      icon.setAttribute('aria-hidden', 'true');
+                      icon.innerHTML = '';
+                      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                          window.lucide.createIcons({ nodes: [icon] });
+                      }
+                  }
               });
           }
 
@@ -759,7 +768,15 @@ function htmlEsc(s) {
                   var field = document.getElementById('fp-pw-field');
                   if (field) { field.type = 'password'; }
                   var icon = document.getElementById('fp-pw-icon');
-                  if (icon) { icon.className = 'fas fa-eye'; }
+                  if (icon) {
+                      icon.className = 'lucide-icon';
+                      icon.setAttribute('data-lucide', 'eye');
+                      icon.setAttribute('aria-hidden', 'true');
+                      icon.innerHTML = '';
+                      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                          window.lucide.createIcons({ nodes: [icon] });
+                      }
+                  }
               });
           }
       })();

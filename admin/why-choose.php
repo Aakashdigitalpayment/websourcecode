@@ -4,9 +4,8 @@
  * Admin page: CRUD for homepage "Why Choose Us" feature cards
  */
 $pageTitle = 'किन हामीलाई छान्ने?';
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 $db = getDB();
 
@@ -39,6 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if ($action === 'add' || $action === 'edit') {
             $icon     = clean_text($_POST['icon']     ?? 'fas fa-star');
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-star');
+            }
             $title_np = clean_text($_POST['title_np'] ?? '');
             $title_en = clean_text($_POST['title_en'] ?? $title_np);
             $desc_np  = $_POST['desc_np'] ?? '';
@@ -76,7 +78,7 @@ echo adminPageHeader(
     'fa-star',
     'गृहपृष्ठमा देखिने "किन हामीलाई छान्ने?" खण्डका कारणहरू।',
     '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2">
-        <i class="fas fa-list me-1"></i>जम्मा: ' . count($features) . ' कारणहरू
+        <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i>जम्मा: ' . count($features) . ' कारणहरू
      </span>'
 );
 if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']);
@@ -84,7 +86,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
 
 <!-- Popular FA icons quick picker (reference) -->
 <div class="alert alert-info py-2 mb-3 small">
-    <i class="fas fa-info-circle me-1"></i>
+    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
     <strong>Icon classes:</strong>
     <code>fas fa-shield-alt</code> &nbsp;
     <code>fas fa-percentage</code> &nbsp;
@@ -97,19 +99,19 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
     <code>fas fa-headset</code> &nbsp;
     <code>fas fa-award</code>
     &nbsp;—&nbsp;
-    <a href="https://fontawesome.com/icons" target="_blank" class="alert-link" rel="noopener noreferrer">सबै icon हेर्नुस् <i class="fas fa-external-link-alt"></i></a>
+    <a href="https://fontawesome.com/icons" target="_blank" class="alert-link" rel="noopener noreferrer">सबै icon हेर्नुस् <i class="lucide-icon" data-lucide="external-link" aria-hidden="true"></i></a>
 </div>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#wc-list" id="wc-list-btn">
-            <i class="fas fa-list me-2"></i>कारणहरूको सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>कारणहरूको सूची
             <span class="badge bg-success ms-1"><?php echo count($features); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#wc-form" id="wc-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="wcFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="wcFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -140,7 +142,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                         <td class="text-center">
                             <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white"
                                   style="width:38px;height:38px;background:var(--bs-success);">
-                                <i class="<?php echo e($f['icon']); ?>"></i>
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($f['icon'], 'fas fa-circle') : ''; ?>
                             </span>
                         </td>
                         <td>
@@ -155,7 +157,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                             <form method="POST" style="display:inline">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="toggle">
-                                <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
+                                <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
                                 <button type="submit" class="btn btn-sm <?php echo $f['is_active'] ? 'btn-success' : 'btn-outline-secondary'; ?>">
                                     <?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?>
                                 </button>
@@ -163,7 +165,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                         </td>
                         <td class="text-center">
                             <button type="button" class="adm-icon-btn adm-icon-btn--edit wc-edit-btn"
-                                    data-id="<?php echo $f['id']; ?>"
+                                    data-id="<?php echo (int)$f['id']; ?>"
                                     data-icon="<?php echo e($f['icon']); ?>"
                                     data-title_np="<?php echo e($f['title_np']); ?>"
                                     data-title_en="<?php echo e($f['title_en']); ?>"
@@ -171,15 +173,15 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                                     data-desc_en="<?php echo e($f['desc_en'] ?? ''); ?>"
                                     data-sort_order="<?php echo (int)$f['sort_order']; ?>"
                                     data-is_active="<?php echo (int)$f['is_active']; ?>">
-                                <i class="fas fa-edit"></i>
+                                <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                             </button>
                             <form method="POST" style="display:inline"
                                   onsubmit="return confirm('\"<?php echo addslashes($f['title_np']); ?>\" हटाउने?')">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
+                                <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
                                 <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete">
-                                    <i class="fas fa-trash" aria-hidden="true"></i>
+                                    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                 </button>
                             </form>
                         </td>
@@ -192,7 +194,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
         <!-- Live Preview -->
         <div class="card mt-4" style="border-left:4px solid var(--primary-color);">
             <div class="card-header" style="background:#f0f9f2;">
-                <h6 class="mb-0 text-success"><i class="fas fa-eye me-2"></i>गृहपृष्ठमा यसरी देखिन्छ</h6>
+                <h6 class="mb-0 text-success"><i class="lucide-icon me-2" data-lucide="eye" aria-hidden="true"></i>गृहपृष्ठमा यसरी देखिन्छ</h6>
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -201,7 +203,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                         <div class="text-center p-3 border rounded-3 h-100 bg-white">
                             <div class="mx-auto mb-2 d-flex align-items-center justify-content-center rounded-circle text-white"
                                  style="width:52px;height:52px;background:var(--bs-success);">
-                                <i class="<?php echo e($f['icon']); ?> fa-lg"></i>
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($f['icon'], 'fas fa-circle', 'fa-lg') : ''; ?>
                             </div>
                             <h6 class="mb-1 fw-bold" style="font-size:14px;"><?php echo e($f['title_np']); ?></h6>
                             <p class="mb-0 text-muted" style="font-size:12px;"><?php echo e($f['desc_np'] ?? ''); ?></p>
@@ -227,7 +229,7 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
                         <div class="col-md-4">
                             <label for="wcIcon" class="form-label fw-semibold">Font Awesome Icon Class <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text" id="iconPreview"><i class="fas fa-star"></i></span>
+                                <span class="input-group-text" id="iconPreview"><i class="lucide-icon" data-lucide="star" aria-hidden="true"></i></span>
                                 <input type="text" name="icon" id="wcIcon" class="form-control"
                                        value="fas fa-star" placeholder="fas fa-shield-alt" required
                                        oninput="document.getElementById('iconPreview').innerHTML='<i class=\''+this.value.trim()+'\'></i>'">
@@ -275,11 +277,11 @@ if (!empty($flash)) echo adminAlert($flash['type'] === 'success' ? 'success' : '
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-success px-4">
-                            <i class="fas fa-save me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>
                             <span id="wcSubmitLabel">थप्नुहोस्</span>
                         </button>
                         <button type="button" class="btn btn-outline-secondary" onclick="wcReset()">
-                            <i class="fas fa-undo me-1"></i> रद्द गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="undo-2" aria-hidden="true"></i> रद्द गर्नुहोस्
                         </button>
                     </div>
                 </form>
@@ -295,7 +297,7 @@ function wcReset() {
     document.getElementById('wcFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     document.getElementById('wcSubmitLabel').textContent = 'थप्नुहोस्';
     document.getElementById('wcForm').reset();
-    document.getElementById('iconPreview').innerHTML = '<i class="fas fa-star"></i>';
+    document.getElementById('iconPreview').innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
 }
 
 document.querySelectorAll('.wc-edit-btn').forEach(function(btn) {
@@ -310,7 +312,14 @@ document.querySelectorAll('.wc-edit-btn').forEach(function(btn) {
         document.getElementById('wcDescEn').value = d.desc_en;
         document.getElementById('wcSort').value = d.sort_order;
         document.getElementById('wcActive').checked = d.is_active == '1';
-        document.getElementById('iconPreview').innerHTML = '<i class="' + d.icon + '"></i>';
+        if (window.FaIconPicker && typeof window.FaIconPicker.setPreview === 'function') {
+            window.FaIconPicker.setPreview(document.getElementById('iconPreview'), d.icon || 'fas fa-star');
+        } else {
+            document.getElementById('iconPreview').innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons({ nodes: document.getElementById('iconPreview').querySelectorAll('[data-lucide]') });
+            }
+        }
         document.getElementById('wcFormTabLabel').textContent = 'सम्पादन गर्नुहोस्';
         document.getElementById('wcSubmitLabel').textContent = 'अपडेट गर्नुहोस्';
         document.getElementById('wc-form-btn').click();

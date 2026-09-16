@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'बोलपत्र व्यवस्थापन';
 $currentPage = 'auction-bids';
 require_once 'includes/admin-header.php';
@@ -144,7 +145,7 @@ try {
     'बोलपत्र व्यवस्थापन' . ($auction ? ' — ' . htmlspecialchars($auction['title']) : ''),
     'fa-list-ol',
     'लिलामीमा परेका बोलपत्रहरूको सूची र स्थिति व्यवस्थापन।',
-    '<a href="auctions.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i>लिलामीमा फर्कनुहोस्</a>'
+    '<a href="auctions.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>लिलामीमा फर्कनुहोस्</a>'
 ); ?>
 <?php $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['message']); ?>
 
@@ -164,23 +165,23 @@ try {
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="<?php echo $auction_id?'?auction_id='.$auction_id:'auction-bids.php'; ?>" class="stat-mini <?php echo !$bidStatusFilter?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-gavel"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="gavel" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo array_sum($bidCounts); ?></div>
         <div class="sm-lbl">जम्मा</div>
     </a>
     <a href="?<?php echo $auction_id?'auction_id='.$auction_id.'&':''; ?>bid_status=pending" class="stat-mini <?php echo $bidStatusFilter==='pending'?'active-filter':''; ?>">
-        <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
-        <div class="sm-val"><?php echo $bidCounts['pending']; ?></div>
+        <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$bidCounts['pending']; ?></div>
         <div class="sm-lbl">पेन्डिङ</div>
     </a>
     <a href="?<?php echo $auction_id?'auction_id='.$auction_id.'&':''; ?>bid_status=accepted" class="stat-mini <?php echo $bidStatusFilter==='accepted'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
-        <div class="sm-val"><?php echo $bidCounts['accepted']; ?></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$bidCounts['accepted']; ?></div>
         <div class="sm-lbl">स्वीकृत</div>
     </a>
     <a href="?<?php echo $auction_id?'auction_id='.$auction_id.'&':''; ?>bid_status=rejected" class="stat-mini <?php echo $bidStatusFilter==='rejected'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
-        <div class="sm-val"><?php echo $bidCounts['rejected']; ?></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
+        <div class="sm-val"><?php echo (int)$bidCounts['rejected']; ?></div>
         <div class="sm-lbl">अस्वीकृत</div>
     </a>
 </div>
@@ -188,26 +189,26 @@ try {
 <!-- ── Bid Filter Bar ── -->
 <div class="adm-filter-bar no-print">
     <form method="GET" class="row g-2 align-items-end">
-        <?php if ($auction_id): ?><input type="hidden" name="auction_id" value="<?php echo $auction_id; ?>"><?php endif; ?>
+        <?php if ($auction_id): ?><input type="hidden" name="auction_id" value="<?php echo (int)$auction_id; ?>"><?php endif; ?>
         <div class="col-md-3 col-6">
             <label>स्थिति</label>
             <select name="bid_status" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                 <option value="">सबै स्थिति</option>
-                <option value="pending"  <?php echo $bidStatusFilter==='pending'?'selected':''; ?>>⏳ पेन्डिङ</option>
-                <option value="accepted" <?php echo $bidStatusFilter==='accepted'?'selected':''; ?>>✅ स्वीकृत</option>
-                <option value="rejected" <?php echo $bidStatusFilter==='rejected'?'selected':''; ?>>❌ अस्वीकृत</option>
+                <option value="pending"  <?php echo $bidStatusFilter==='pending'?'selected':''; ?>>पेन्डिङ</option>
+                <option value="accepted" <?php echo $bidStatusFilter==='accepted'?'selected':''; ?>>स्वीकृत</option>
+                <option value="rejected" <?php echo $bidStatusFilter==='rejected'?'selected':''; ?>>अस्वीकृत</option>
             </select>
         </div>
         <div class="col-md-7 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <span class="input-group-text bg-white"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                 <input type="text" name="bid_search" class="form-control" value="<?php echo htmlspecialchars($bidSearch); ?>" placeholder="बोलपत्रदाताको नाम, फोन, इमेल...">
             </div>
         </div>
         <div class="col-md-2 col-6">
-            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-            <?php if ($bidStatusFilter||$bidSearch): ?><a href="auction-bids.php<?php echo $auction_id?'?auction_id='.$auction_id:''; ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
+            <?php if ($bidStatusFilter||$bidSearch): ?><a href="auction-bids.php<?php echo $auction_id?'?auction_id='.$auction_id:''; ?>" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>हटाउनुहोस्</a><?php endif; ?>
         </div>
     </form>
 </div>
@@ -215,7 +216,7 @@ try {
 <!-- ── Bids Table ── -->
 <div class="card border-0 shadow-sm" style="border-radius:10px;overflow:hidden;">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-list-ol me-2 text-primary"></i>बोलपत्र सूची</h6>
+        <h6><i class="lucide-icon me-2 text-primary" data-lucide="list-ordered" aria-hidden="true"></i>बोलपत्र सूची</h6>
         <span class="result-count-badge"><?php echo count($bids); ?> बोलपत्र</span>
     </div>
     <div class="table-responsive">
@@ -243,9 +244,9 @@ try {
                             <?php endif; ?>
                         </td>
                         <td>
-                            <i class="fas fa-phone"></i> <?php echo htmlspecialchars($bid['bidder_phone']); ?>
+                            <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo htmlspecialchars($bid['bidder_phone']); ?>
                             <?php if (!empty($bid['bidder_email'])): ?>
-                            <br><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($bid['bidder_email']); ?>
+                            <br><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo htmlspecialchars($bid['bidder_email']); ?>
                             <?php endif; ?>
                         </td>
                         <td class="fw-bold text-success">रु. <?php echo number_format((float)$bid['bid_amount']); ?></td>
@@ -259,7 +260,7 @@ try {
                         <td class="no-print">
                             <div class="adm-action-icons dropdown">
                                 <button type="button" class="adm-icon-btn adm-icon-btn--edit dropdown-toggle" data-bs-toggle="dropdown" title="कार्य" aria-label="Actions">
-                                    <i class="fas fa-sliders"></i>
+                                    <i class="lucide-icon" data-lucide="sliders-horizontal" aria-hidden="true"></i>
                                 </button>
                                 <ul class="dropdown-menu">
                                     <li>
@@ -268,7 +269,7 @@ try {
                                             <input type="hidden" name="id" value="<?php echo (int)$bid['id']; ?>">
                                             <input type="hidden" name="status" value="accepted">
                                             <button type="submit" name="update_bid" class="dropdown-item text-success">
-                                                <i class="fas fa-check me-1"></i>स्वीकृत
+                                                <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत
                                             </button>
                                         </form>
                                     </li>
@@ -278,7 +279,7 @@ try {
                                             <input type="hidden" name="id" value="<?php echo (int)$bid['id']; ?>">
                                             <input type="hidden" name="status" value="rejected">
                                             <button type="submit" name="update_bid" class="dropdown-item text-danger">
-                                                <i class="fas fa-times me-1"></i>अस्वीकृत
+                                                <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>अस्वीकृत
                                             </button>
                                         </form>
                                     </li>
@@ -289,7 +290,7 @@ try {
                                             <input type="hidden" name="delete_bid" value="1">
                                             <input type="hidden" name="bid_id" value="<?php echo (int)$bid['id']; ?>">
                                             <button type="submit" class="dropdown-item text-danger">
-                                                <i class="fas fa-trash me-1"></i>मेटाउनुहोस्
+                                                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>मेटाउनुहोस्
                                             </button>
                                         </form>
                                     </li>
@@ -300,7 +301,7 @@ try {
                     <?php endforeach; ?>
                     <?php if (empty($bids)): ?>
                     <tr><td colspan="7" class="text-center py-4 text-muted">
-                        <i class="fas fa-inbox fa-2x d-block mb-2"></i>कुनै बोलपत्र छैन
+                        <i class="lucide-icon lucide-2x d-block mb-2" data-lucide="inbox" aria-hidden="true"></i>कुनै बोलपत्र छैन
                     </td></tr>
                     <?php endif; ?>
                 </tbody>

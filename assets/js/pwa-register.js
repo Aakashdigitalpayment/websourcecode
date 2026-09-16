@@ -159,16 +159,19 @@
         '</div>',
         '<button type="button" class="pwa-bi-install-btn"',
                 ' onclick="pwaTriggerInstall()" aria-label="Install App">',
-          '<i class="fas fa-download"></i> Install',
+          '<i class="lucide-icon" aria-hidden="true" data-lucide="download"></i> Install',
         '</button>',
         '<button type="button" class="pwa-bi-close"',
                 ' onclick="pwaDismissBanner()" aria-label="Dismiss">',
-          '<i class="fas fa-times"></i>',
+          '<i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>',
         '</button>',
       '</div>'
     ].join('');
 
     document.body.appendChild(banner);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ nodes: banner.querySelectorAll('[data-lucide]') });
+    }
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         banner.classList.add('pwa-banner-show');
@@ -202,13 +205,13 @@
     var steps;
     if (isIOS) {
       steps = [
-        '<b><i class="fas fa-share-from-square"></i> Share</b> बटन (तलतिर) थिच्नुहोस्',
+        '<b><i class="lucide-icon" aria-hidden="true" data-lucide="share-2"></i> Share</b> बटन (तलतिर) थिच्नुहोस्',
         '<b>"Add to Home Screen"</b> छान्नुहोस्',
         '<b>"Add"</b> थिच्नुहोस् — सकियो!'
       ].map(function (s, i) { return '<li>' + (i + 1) + '. ' + s + '</li>'; }).join('');
     } else if (isAndroid) {
       steps = [
-        '<b><i class="fas fa-ellipsis-vertical"></i> Menu</b> (माथि दायाँ) खोल्नुहोस्',
+        '<b><i class="lucide-icon" aria-hidden="true" data-lucide="ellipsis-vertical"></i> Menu</b> (माथि दायाँ) खोल्नुहोस्',
         '<b>"Install app"</b> वा <b>"Add to Home screen"</b> छान्नुहोस्',
         '<b>"Install"</b> थिच्नुहोस् — सकियो!'
       ].map(function (s, i) { return '<li>' + (i + 1) + '. ' + s + '</li>'; }).join('');
@@ -241,7 +244,7 @@
             '<div class="pwa-guide-sub">Install App — browser native dialog</div>',
           '</div>',
           '<button type="button" class="pwa-guide-x" onclick="this.closest(\'.pwa-guide-overlay\').remove()">',
-            '<i class="fas fa-times"></i>',
+            '<i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>',
           '</button>',
         '</div>',
         '<ol class="pwa-guide-steps">', steps, '</ol>',
@@ -251,6 +254,9 @@
       '</div>'
     ].join('');
     document.body.appendChild(ov);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ nodes: ov.querySelectorAll('[data-lucide]') });
+    }
     ov.addEventListener('click', function (e) { if (e.target === ov) ov.remove(); });
 
     var primary = document.getElementById('pwa-guide-primary');
@@ -285,7 +291,7 @@
     var bar = document.createElement('div');
     bar.id = 'pwa-update-bar';
     bar.innerHTML = [
-      '<span><i class="fas fa-rotate" style="margin-right:6px;"></i>',
+      '<span><i class="lucide-icon" aria-hidden="true" data-lucide="refresh-cw" style="margin-right:6px;"></i>',
         'नयाँ संस्करण उपलब्ध छ!</span>',
       '<div style="display:flex;gap:8px;flex-shrink:0;">',
         '<button id="pwa-upd-now">Update गर्नुहोस्</button>',
@@ -293,6 +299,9 @@
       '</div>'
     ].join('');
     document.body.appendChild(bar);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ nodes: bar.querySelectorAll('[data-lucide]') });
+    }
     document.getElementById('pwa-upd-now').onclick = function () {
       _reloadOnControllerChange = true;
       if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'स्थान / सत्र';
 $currentPage = 'program-occurrences';
 require_once 'includes/admin-header.php';
@@ -89,15 +90,15 @@ if ($editId > 0) {
 ?>
 <div class="container-fluid py-3">
   <?php echo adminPageHeader('स्थान / सत्र (Occurrences)', 'map-pin', 'Multi-location AGM जस्ता कार्यक्रमका लागि Banepa, Panauti, … स्थान/मिति/QR यहाँ व्यवस्थापन गर्नुहोस्।',
-      '<a href="programs.php" class="btn btn-outline-secondary btn-sm">' . (function_exists('icon') ? icon('arrow-left', 14, 'margin-right:4px;') : '<i class="fas fa-arrow-left me-1"></i>') . 'कार्यक्रम सूची</a>'); ?>
+      '<a href="programs.php" class="btn btn-outline-secondary btn-sm">' . (function_exists('icon') ? icon('arrow-left', 14, 'margin-right:4px;') : '<i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>') . 'कार्यक्रम सूची</a>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
   <div class="card admin-table-card mb-3">
     <div class="card-body">
       <form method="GET" class="row g-2 align-items-end">
         <div class="col-md-8">
-          <label class="form-label">Parent कार्यक्रम (Multi-location)</label>
-          <select name="parent_id" class="form-select" required onchange="this.form.submit()">
+          <label for="pocc_parent_id" class="form-label">Parent कार्यक्रम (Multi-location)</label>
+          <select name="parent_id" id="pocc_parent_id" class="form-select" required onchange="this.form.submit()">
             <option value="">— छान्नुहोस् —</option>
             <?php foreach ($multiPrograms as $mp): ?>
               <option value="<?php echo (int)$mp['id']; ?>" <?php echo $parentId === (int)$mp['id'] ? 'selected' : ''; ?>>
@@ -124,17 +125,18 @@ if ($editId > 0) {
         <input type="hidden" name="action" value="save">
         <input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>">
         <input type="hidden" name="id" value="<?php echo (int)($edit['id'] ?? 0); ?>">
-        <div class="col-md-4"><label class="form-label">स्थान *</label><input name="location_name" class="form-control" required value="<?php echo htmlspecialchars($edit['location_name'] ?? ''); ?>"></div>
-        <div class="col-md-3"><label class="form-label">मिति (वि.सं.)</label><input name="event_date" class="form-control nepali-datepicker" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>"></div>
-        <div class="col-md-2"><label class="form-label">सुरु</label><input name="start_time" class="form-control" placeholder="09:00" value="<?php echo htmlspecialchars($edit['start_time'] ?? ''); ?>"></div>
-        <div class="col-md-2"><label class="form-label">अन्त्य</label><input name="end_time" class="form-control" placeholder="17:00" value="<?php echo htmlspecialchars($edit['end_time'] ?? ''); ?>"></div>
-        <div class="col-md-1"><label class="form-label">क्रम</label><input type="number" name="sort_order" class="form-control" value="<?php echo (int)($edit['sort_order'] ?? 0); ?>"></div>
-        <div class="col-md-3"><label class="form-label">Window सुरु (BS)</label><input name="attendance_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
-        <div class="col-md-3"><label class="form-label">Window अन्त्य (BS)</label><input name="attendance_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
+        <div class="col-md-4"><label for="pocc_location_name" class="form-label">स्थान *</label><input name="location_name" id="pocc_location_name" class="form-control" required value="<?php echo htmlspecialchars($edit['location_name'] ?? ''); ?>"></div>
+        <div class="col-md-3"><label for="pocc_event_date" class="form-label">मिति (वि.सं.)</label><input name="event_date" id="pocc_event_date" class="form-control nepali-datepicker" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>"></div>
+        <div class="col-md-2"><label for="pocc_start_time" class="form-label">सुरु</label><input name="start_time" id="pocc_start_time" class="form-control" placeholder="09:00" value="<?php echo htmlspecialchars($edit['start_time'] ?? ''); ?>"></div>
+        <div class="col-md-2"><label for="pocc_end_time" class="form-label">अन्त्य</label><input name="end_time" id="pocc_end_time" class="form-control" placeholder="17:00" value="<?php echo htmlspecialchars($edit['end_time'] ?? ''); ?>"></div>
+        <div class="col-md-1"><label for="pocc_sort_order" class="form-label">क्रम</label><input type="number" name="sort_order" id="pocc_sort_order" class="form-control" value="<?php echo (int)($edit['sort_order'] ?? 0); ?>"></div>
+        <div class="col-md-3"><label for="pocc_att_open_bs" class="form-label">Window सुरु (BS)</label><input name="attendance_open_bs" id="pocc_att_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label for="pocc_att_open_time" class="form-label">समय</label><input type="time" name="attendance_open_time" id="pocc_att_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
+        <div class="col-md-3"><label for="pocc_att_close_bs" class="form-label">Window अन्त्य (BS)</label><input name="attendance_close_bs" id="pocc_att_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label for="pocc_att_close_time" class="form-label">समय</label><input type="time" name="attendance_close_time" id="pocc_att_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
+        <div class="col-12"><div class="form-text">यही occurrence को उपस्थिति window — parent QR fallback भन्दा पहिले यो लागू हुन्छ।</div></div>
         <div class="col-12"><label class="form-check-label"><input type="checkbox" class="form-check-input me-1" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active'] === 1 ? 'checked' : ''; ?>>Active</label></div>
-        <div class="col-12"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button><?php if ($edit): ?><a href="program-occurrences.php?parent_id=<?php echo (int)$parentId; ?>" class="btn btn-outline-secondary">रद्द</a><?php endif; ?></div>
+        <div class="col-12"><button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ</button><?php if ($edit): ?><a href="program-occurrences.php?parent_id=<?php echo (int)$parentId; ?>" class="btn btn-outline-secondary">रद्द</a><?php endif; ?></div>
       </form>
     </div>
   </div>
@@ -170,8 +172,8 @@ if ($editId > 0) {
               </td>
               <td><?php echo $attCount; ?></td>
               <td>
-                <a href="program-occurrences.php?parent_id=<?php echo (int)$parentId; ?>&edit=<?php echo (int)$o['id']; ?>" class="btn btn-sm btn-outline-secondary py-0"><i class="fas fa-pen"></i></a>
-                <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="fas fa-trash"></i></button></form>
+                <a href="program-occurrences.php?parent_id=<?php echo (int)$parentId; ?>&edit=<?php echo (int)$o['id']; ?>" class="btn btn-sm btn-outline-secondary py-0"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
+                <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="parent_id" value="<?php echo (int)$parentId; ?>"><input type="hidden" name="id" value="<?php echo (int)$o['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-danger py-0"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button></form>
               </td>
             </tr>
           <?php endforeach; endif; ?>

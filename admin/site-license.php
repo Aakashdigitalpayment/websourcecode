@@ -2,6 +2,7 @@
 /**
  * Superadmin मात्र: साइट म्याद + Pay Now / भुक्तानी ref + अन्तिम मिति सेभ (अरू admin लाई पहुँच छैन)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle  = 'साइट म्याद';
 $currentPage = 'site-license';
 require_once 'includes/admin-header.php';
@@ -86,7 +87,7 @@ if ($pendingCount > 0) {
 echo adminPageHeader('साइट म्याद (लाइसेन्स)', 'fa-calendar-check', 'Superadmin मात्र — भुक्तानी / Pay Now / मिति यहीँ', '');
 if ($flash = getFlash()):
 ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':($flash['type']==='warning'?'warning':'danger'); ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':($flash['type']==='warning'?'exclamation-triangle':'exclamation-circle'); ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':($flash['type']==='warning'?'warning':'danger'); ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':($flash['type']==='warning'?'triangle-alert':'circle-alert'); ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <div class="container-fluid py-3">
@@ -95,7 +96,7 @@ if ($flash = getFlash()):
             <!-- भुक्तानी सम्पर्क सेटिङ -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <h5 class="mb-3"><i class="fas fa-wallet me-2 text-success"></i>नवीकरण भुक्तानी (सरल)</h5>
+                    <h5 class="mb-3"><i class="lucide-icon me-2 text-success" data-lucide="wallet" aria-hidden="true"></i>नवीकरण भुक्तानी (सरल)</h5>
                     <p class="text-muted small mb-3">
                         <strong>स्पष्ट:</strong> तल Khalti / eSewa मा राखिएको नम्बर <strong>भुक्तानी ग्रहण गर्ने खाता</strong> हो (लाइसेन्स प्रदायक / विक्रेता)।
                         <strong>ग्राहक (सहकारी) ले आफ्नो</strong> Khalti वा eSewa wallet बाट <em>त्यही नम्बरमा</em> रकम पठाउँछ — आफ्नो नम्बर होइन।
@@ -124,7 +125,7 @@ if ($flash = getFlash()):
                             <input type="text" name="esewa_id" id="sl_esewa_id" class="form-control" value="<?php echo htmlspecialchars($esewaId, ENT_QUOTES, 'UTF-8'); ?>">
                         </div>
                         <div class="col-12">
-                            <button type="submit" class="btn btn-outline-success"><i class="fas fa-save me-1"></i>भुक्तानी सेटिङ सेभ</button>
+                            <button type="submit" class="btn btn-outline-success"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>भुक्तानी सेटिङ सेभ</button>
                         </div>
                     </form>
                 </div>
@@ -137,7 +138,7 @@ if ($flash = getFlash()):
                         <strong>सजिलो नियम:</strong> तल <strong>बि.सं.</strong> क्यालेन्डरबाट छान्नुहोस्। अन्तिम दिनसम्म साइट चल्छ; त्यसपछि <strong>Expired</strong> — सार्वजनिक र साधारण admin बन्द; Superadmin मात्र यहाँ।
                     </p>
                     <div class="alert alert-secondary border py-2 small mb-3 mb-md-4">
-                        <strong class="d-block mb-1"><i class="fas fa-list-ol me-1"></i>नवीकरण क्रम</strong>
+                        <strong class="d-block mb-1"><i class="lucide-icon me-1" data-lucide="list-ordered" aria-hidden="true"></i>नवीकरण क्रम</strong>
                         <span class="text-muted">①</span> <strong>कार्यालय Admin</strong> (Superadmin बाहेक) ले <strong><code>/admin/</code></strong> वा <strong>म्याद सकियो</strong> रोक पृष्ठमा Pay Now गरी <strong>भुक्तानी सूचना</strong> पठाउँछन् — रकम Superadmin सेटिङ मात्र।
                         <span class="text-muted">②</span> <strong>Superadmin</strong> ले <strong>यही «साइट म्याद»</strong> मा पेन्डिङ सूचना देख्छन्।
                         <span class="text-muted">③</span> Superadmin ले तल <strong>म्याद सेभ</strong> गरी नयाँ बि.सं. राख्छन्।
@@ -156,7 +157,7 @@ if ($flash = getFlash()):
 
                     <?php if ($expired && $pendingRow): ?>
                         <div class="alert alert-warning border-warning">
-                            <div class="fw-bold mb-2"><i class="fas fa-hourglass-half me-1"></i>भुक्तानी सूचना पेन्डिङ</div>
+                            <div class="fw-bold mb-2"><i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i>भुक्तानी सूचना पेन्डिङ</div>
                             <div class="small mb-2">भुक्तानी पुष्टि भइसकेपछि <strong>यही Superadmin</strong> ले तल <strong>म्याद सेभ</strong> गरी नयाँ मिति राख्नुहोस्। विक्रेता इमेल सूचना मात्र सहायक हो। <strong>दोहोरो भुक्तानी नगर्नुहोस्।</strong></div>
                             <ul class="small mb-3 ps-3">
                                 <li>गेटवेइ: <strong><?php echo htmlspecialchars((string)$pendingRow['gateway'], ENT_QUOTES, 'UTF-8'); ?></strong></li>
@@ -174,7 +175,7 @@ if ($flash = getFlash()):
                         </div>
                     <?php elseif ($expired && !$pendingRow): ?>
                         <div class="alert alert-info border py-3 mb-0">
-                            <div class="fw-semibold mb-1"><i class="fas fa-building me-1"></i>भुक्तानी सूचना कार्यालयबाट</div>
+                            <div class="fw-semibold mb-1"><i class="lucide-icon me-1" data-lucide="building" aria-hidden="true"></i>भुक्तानी सूचना कार्यालयबाट</div>
                             <p class="small mb-0">कार्यालय Admin ले <strong><code>/admin/</code></strong> (लग इन नगरीकन) वा लग इन भएपछि रोकिएको <strong>म्याद सकियो</strong> पृष्ठबाट <strong>Pay Now + भुक्तानी सूचना</strong> पठाउँछन्। रकम सधैं यहाँ सेट गरेको मात्र (बदल्न मिल्दैन)। Superadmin ले <strong>पेन्डिङ</strong> यहीँ देख्छन् — अनि तल मिति सेभ गर्नुहोस्।</p>
                         </div>
                     <?php endif; ?>
@@ -199,7 +200,7 @@ if ($flash = getFlash()):
                                value="<?php echo htmlspecialchars($untilBs, ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="form-text mb-3">खाली छोडेर सेभ = म्याद जाँच बन्द। नयाँ मिति सेभ = साइट पुनः चालु; पेन्डिङ भुक्तानी सूचना स्वतः सफा हुन्छ। यो कदम <strong>Superadmin</strong> ले नै गर्छ।</div>
 
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>म्याद सेभ गर्नुहोस्</button>
+                        <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>म्याद सेभ गर्नुहोस्</button>
                     </form>
                 </div>
             </div>

@@ -176,63 +176,26 @@ try {
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <title><?php echo htmlspecialchars($pageTitle); ?></title>
-<!-- Bootstrap utility compatibility layer (self-hosted, replaces CDN Bootstrap) -->
-<link rel="stylesheet" href="../assets/css/member-bs-compat.css?v=<?= filemtime(__DIR__."/../../assets/css/member-bs-compat.css") ?>">
-<!-- Design tokens + base styles (core.css) must load before app-member.css -->
-<link rel="stylesheet" href="../assets/css/app-core.css?v=<?= filemtime(__DIR__."/../../assets/css/app-core.css") ?>">
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/member-bs-compat.css');
+    coopThemeLink('assets/css/app-core.css');
+} else {
+    echo '<link rel="stylesheet" href="../assets/css/member-bs-compat.css">' . "\n";
+    echo '<link rel="stylesheet" href="../assets/css/app-core.css">' . "\n";
+}
+?>
 <!-- Member portal styles come from coopThemeHeadAssets('member') — do not double-link app-member.css -->
-<!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted) -->
+<!-- Bell / apply-menu CSS: assets/css/member-shell-polish.css (member-late-bundle) -->
 
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('member'); } ?>
-<style>
-/* ── Member Bell Dropdown (unified) ── */
-.bell-wrap{position:relative;}
-.bell-dropdown{display:none;position:absolute;top:calc(100% + 8px);right:0;width:340px;max-height:460px;overflow-y:auto;background:white;border-radius:12px;box-shadow:0 10px 30px rgba(var(--primary-rgb,26,95,42),.18);z-index:1000;color:var(--text-color,#1f2937);}
-.bell-dropdown.open{display:block;}
-.bell-dd-head{padding:12px 14px;border-bottom:1px solid color-mix(in srgb, var(--primary-color) 14%, #e5e7eb);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:var(--text-on-primary,white);border-radius:12px 12px 0 0;}
-.bell-dd-head .title{font-weight:700;font-size:.9rem;}
-.bell-dd-head .badge{background:var(--secondary-color);color:var(--text-on-secondary,var(--text-on-primary,white));font-size:.7rem;padding:2px 7px;border-radius:10px;font-weight:700;}
-.bell-dd-empty{padding:30px 16px;text-align:center;color:var(--text-light,#6b7280);font-size:.85rem;}
-.bell-dd-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid color-mix(in srgb, var(--primary-color) 10%, #f3f4f6);cursor:pointer;transition:background .15s;}
-.bell-dd-item:hover{background:color-mix(in srgb, var(--primary-color) 8%, white);}
-.bell-dd-item.unread{background:color-mix(in srgb, var(--primary-color) 12%, white);}
-.bell-dd-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem;}
-.bell-dd-body{flex:1;min-width:0;}
-.bell-dd-title{font-weight:600;font-size:.82rem;color:var(--text-color,#111827);}
-.bell-dd-msg{font-size:.74rem;color:var(--text-light,#6b7280);margin-top:2px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-.bell-dd-time{font-size:.68rem;color:var(--text-muted,#9ca3af);margin-top:3px;}
-.bell-dd-foot{padding:10px 14px;text-align:center;border-top:1px solid color-mix(in srgb, var(--primary-color) 14%, #e5e7eb);background:color-mix(in srgb, var(--primary-color) 8%, white);border-radius:0 0 12px 12px;}
-.bell-dd-foot a{color:var(--primary-color);font-weight:600;font-size:.82rem;text-decoration:none;}
-.mem-bell-btn{position:relative;background:none;border:0;cursor:pointer;color:inherit;padding:8px;border-radius:8px;transition:background .15s;}
-.mem-bell-btn:hover{background:rgba(255,255,255,.15);}
-.mem-bell-btn .mem-notif-dot{position:absolute;top:4px;right:4px;background:var(--secondary-color);color:var(--text-on-secondary,var(--text-on-primary,white));border-radius:10px;font-size:.62rem;font-weight:700;padding:1px 5px;min-width:16px;text-align:center;}
-.mem-lang-btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;}
-.mem-lang-code{font-size:12px;font-weight:800;line-height:1;}
-.mem-nav-item-rel{position:relative;}
-.mem-notif-dot-inline{position:static;margin-left:4px;}
-.mem-nav-vote-live{position:relative;}
-.mem-vote-live-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#16a34a;margin-left:6px;box-shadow:0 0 0 0 rgba(22,163,74,.55);animation:memVoteLivePulse 1.4s infinite;}
-@keyframes memVoteLivePulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.55);}70%{box-shadow:0 0 0 8px rgba(22,163,74,0);}100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}}
-@media (prefers-reduced-motion: reduce){.mem-vote-live-dot{animation:none!important;box-shadow:none!important;}}
-/* Apply / Services disclosure */
-.mem-nav-apply-wrap{position:relative;display:inline-flex;flex-direction:column;align-items:stretch;flex:0 0 auto;}
-.mem-nav-apply-toggle{border:0;cursor:pointer;font:inherit;background:transparent;color:inherit;appearance:none;-webkit-appearance:none;}
-.mem-nav-apply-toggle .mem-nav-apply-chevron{display:inline-block;margin-left:4px;font-size:.65em;transition:transform .2s ease;}
-.mem-nav-apply-wrap.open .mem-nav-apply-chevron{transform:rotate(180deg);}
-.mem-nav-apply-panel{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:40;min-width:min(240px,80vw);padding:8px;border-radius:12px;background:#fff;box-shadow:0 10px 28px rgba(15,23,42,.14);border:1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 14%, #e5e7eb);}
-.mem-nav-apply-wrap.open .mem-nav-apply-panel{display:flex;flex-direction:column;gap:4px;}
-.mem-nav-apply-panel .mem-nav-item{display:flex !important;align-items:center;gap:8px;width:100%;text-align:left;padding:8px 10px !important;border-radius:8px;white-space:nowrap;}
-.mem-nav-apply-panel .mem-nav-item i{display:inline-block !important;margin:0 !important;font-size:.9rem !important;}
-@media (max-width: 899px){
-  .mem-nav-apply-wrap{flex:0 0 auto;}
-  .mem-nav-apply-panel{left:auto;right:0;}
-}
-</style>
 <?php echo $extraHead; ?>
 <meta name="pwa-app-name"   content="<?php echo htmlspecialchars($_pwaAppName,   ENT_QUOTES, 'UTF-8'); ?>">
 <meta name="pwa-short-name" content="<?php echo htmlspecialchars($_pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
 <link rel="manifest" href="<?php echo htmlspecialchars(rtrim((string)$_siteUrl, '/') . '/manifest.php', ENT_QUOTES, 'UTF-8'); ?>">
+<?php if (function_exists('coopThemeColorMeta')) { coopThemeColorMeta(); } else { ?>
 <meta name="theme-color" content="#1a5f2a">
+<?php } ?>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <?php
 if (!function_exists('getPwaIconPublicUrl') && is_file(__DIR__ . '/../../includes/pwa-icons.php')) {
@@ -244,20 +207,17 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 ?>
 <link rel="apple-touch-icon" href="<?php echo htmlspecialchars($_pwaApple, ENT_QUOTES, 'UTF-8'); ?>">
 <link rel="icon" href="<?php echo htmlspecialchars(function_exists('getPwaIconPublicUrl') ? getPwaIconPublicUrl(192, false) : $_pwaApple, ENT_QUOTES, 'UTF-8'); ?>" type="image/png" sizes="192x192">
-<link rel="stylesheet" href="<?php echo $_siteUrl; ?>assets/css/nepali.datepicker.min.css">
+<link rel="stylesheet" href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/css/nepali.datepicker.min.css">
 <meta name="vapid-public-key" content="<?php echo htmlspecialchars((string) COOP_VAPID_PUBLIC_KEY, ENT_QUOTES, 'UTF-8'); ?>">
 <script>if(window.matchMedia('(display-mode:standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa-standalone');</script>
-<script src="<?php echo $_siteUrl; ?>assets/js/coop-mobile.js?v=6.9" defer></script>
-<script src="<?php echo $_siteUrl; ?>assets/js/pwa-register.js?v=3.3" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/coop-mobile.js?v=6.9" defer></script>
+<script src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>assets/js/pwa-register.js?v=3.3" defer></script>
 </head>
 <body class="mem-wrapper">
 <a class="skip-link" href="#main-content"><?php echo $_t('मुख्य सामग्रीमा जानुहोस्', 'Skip to content'); ?></a>
 
 <!-- ══ Offline Banner ══ -->
-<div id="coopOfflineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;
-  background:#1a5f2a;color:#fff;padding:9px 16px;font-size:.82rem;font-weight:600;
-  display:none;align-items:center;justify-content:space-between;gap:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.22);" role="alert" aria-live="polite">
+<div id="coopOfflineBanner" role="alert" aria-live="polite">
   <span>
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
          stroke-width="2.2" stroke-linecap="round" style="vertical-align:-2px;margin-right:6px;">
@@ -277,11 +237,11 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 
 <!-- ══ Unified Topbar ══ -->
 <div class="mem-topbar">
-    <a href="<?php echo $_siteUrl; ?>member/" class="mem-topbar-brand <?php echo !empty($_logoPath) ? 'has-logo' : 'no-logo'; ?>">
+    <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/" class="mem-topbar-brand <?php echo !empty($_logoPath) ? 'has-logo' : 'no-logo'; ?>">
         <?php if ($_logoPath): ?>
-        <img src="<?php echo $_siteUrl . htmlspecialchars($_logoPath); ?>" alt="Logo">
+        <img src="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8') . htmlspecialchars($_logoPath); ?>" alt="Logo">
         <?php else: ?>
-        <div class="mem-logo-fallback"><i class="fas fa-leaf"></i></div>
+        <div class="mem-logo-fallback"><i class="lucide-icon" data-lucide="leaf" aria-hidden="true"></i></div>
         <div class="mem-brand-text">
             <span class="mem-brand-name"><?php echo htmlspecialchars($_siteName); ?></span>
             <span class="mem-brand-sub"><?php echo $_t('सदस्य पोर्टल', 'MEMBER PORTAL'); ?></span>
@@ -294,7 +254,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         <a href="#" onclick="event.preventDefault();if(typeof pwaTriggerInstall==='function')pwaTriggerInstall();"
            class="pwa-install-btn mem-pwa-btn"
            title="<?php echo $_t('App Install गर्नुहोस्', 'Install App'); ?>">
-            <i class="fas fa-mobile-screen-button"></i>
+            <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i>
         </a>
 
         <!-- Push Notification Enable Button -->
@@ -304,7 +264,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                 aria-label="<?php echo $_t('Push Notification सक्षम गर्नुहोस्', 'Enable Push Notifications'); ?>"
                 style="display:none;"
                 onclick="coopSubscribePush()">
-            <i class="fas fa-bell-slash" id="pushBellIcon" style="color:#f59e0b;"></i>
+            <i class="lucide-icon" data-lucide="bell-off" aria-hidden="true" id="pushBellIcon" style="color:#f59e0b;"></i>
         </button>
 
         <!-- Bell -->
@@ -313,32 +273,32 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                 <small class="mem-lang-code"><?php echo htmlspecialchars($_langBadge); ?></small>
             </a>
             <button type="button" class="mem-bell-btn" id="bellBtn" title="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" aria-label="<?php echo $_t('सूचनाहरू', 'Notifications'); ?>" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell"></i>
+                <i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i>
                 <?php if ($_unread > 0): ?><span class="mem-notif-dot"><?php echo $_unread > 9 ? '9+' : $_unread; ?></span><?php endif; ?>
             </button>
             <div class="bell-dropdown" id="bellDropdown">
                 <div class="bell-dd-head">
-                    <span class="title"><i class="fas fa-bell"></i> <?php echo $_t('सूचनाहरू', 'Notifications'); ?></span>
+                    <span class="title"><i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i> <?php echo $_t('सूचनाहरू', 'Notifications'); ?></span>
                     <?php if ($_unread > 0): ?><span class="badge"><?php echo $_unread; ?> <?php echo $_t('नयाँ', 'new'); ?></span><?php endif; ?>
                 </div>
                 <?php if (empty($_bellNotifs)): ?>
                 <div class="bell-dd-empty">
-                    <i class="fas fa-bell-slash" style="font-size:1.4rem;display:block;margin-bottom:6px;opacity:.5;"></i>
+                    <i class="lucide-icon" data-lucide="bell-off" aria-hidden="true" style="font-size:1.4rem;display:block;margin-bottom:6px;opacity:.5;"></i>
                     <?php echo $_t('कुनै सूचना छैन।', 'No notifications.'); ?>
                 </div>
                 <?php else:
                     $_iconMap = [
-                        'success'=>['fas fa-circle-check','var(--primary-color)','color-mix(in srgb, var(--primary-color) 12%, white)'],
-                        'error'  =>['fas fa-circle-xmark','var(--secondary-color)','color-mix(in srgb, var(--secondary-color) 14%, white)'],
-                        'warning'=>['fas fa-triangle-exclamation','var(--secondary-color)','color-mix(in srgb, var(--secondary-color) 12%, white)'],
-                        'info'   =>['fas fa-circle-info','var(--accent-color,#17a2b8)','color-mix(in srgb, var(--accent-color,#17a2b8) 12%, white)'],
+                        'success'=>['circle-check','var(--primary-color)','color-mix(in srgb, var(--primary-color) 12%, white)'],
+                        'error'  =>['circle-x','var(--secondary-color)','color-mix(in srgb, var(--secondary-color) 14%, white)'],
+                        'warning'=>['triangle-alert','var(--secondary-color)','color-mix(in srgb, var(--secondary-color) 12%, white)'],
+                        'info'   =>['info','var(--accent-color,#17a2b8)','color-mix(in srgb, var(--accent-color,#17a2b8) 12%, white)'],
                     ];
                     foreach ($_bellNotifs as $_n):
                         $_ic = $_iconMap[$_n['type']] ?? $_iconMap['info'];
                 ?>
-                <div class="bell-dd-item <?php echo !$_n['is_read'] ? 'unread' : ''; ?>" onclick="window.location='<?php echo $_siteUrl; ?>member/notifications.php'">
+                <div class="bell-dd-item <?php echo !$_n['is_read'] ? 'unread' : ''; ?>" onclick="window.location='<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/notifications.php'">
                     <div class="bell-dd-icon" style="background:<?php echo $_ic[2]; ?>;color:<?php echo $_ic[1]; ?>;">
-                        <i class="<?php echo $_ic[0]; ?>"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo htmlspecialchars($_ic[0], ENT_QUOTES, 'UTF-8'); ?>"></i>
                     </div>
                     <div class="bell-dd-body">
                         <div class="bell-dd-title"><?php echo htmlspecialchars($_n['title']); ?></div>
@@ -348,7 +308,7 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                 </div>
                 <?php endforeach; endif; ?>
                 <div class="bell-dd-foot">
-                    <a href="<?php echo $_siteUrl; ?>member/notifications.php"><?php echo $_t('सबै सूचना हेर्नुहोस्', 'View all notifications'); ?> →</a>
+                    <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/notifications.php"><?php echo $_t('सबै सूचना हेर्नुहोस्', 'View all notifications'); ?> →</a>
                 </div>
             </div>
         </div>
@@ -366,8 +326,8 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
         </div>
         <?php endif; ?>
         <span class="mem-topbar-name"><?php echo htmlspecialchars($_memName); ?></span>
-        <a href="<?php echo $_siteUrl; ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout">
-            <i class="fas fa-sign-out-alt"></i><span class="mem-logout-text"> <?php echo $_t('लगआउट', 'Logout'); ?></span>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/logout.php" class="mem-topbar-btn mem-topbar-logout">
+            <i class="lucide-icon" data-lucide="log-out" aria-hidden="true"></i><span class="mem-logout-text"> <?php echo $_t('लगआउट', 'Logout'); ?></span>
         </a>
     </div>
 </div>
@@ -376,27 +336,27 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
 
     <!-- ══ Unified Nav ══ -->
     <nav class="mem-nav">
-        <a href="<?php echo $_siteUrl; ?>member/" class="mem-nav-item <?php echo $_active==='dashboard'?'active':''; ?>"><i class="fas fa-house"></i><?php echo $_t('ड्यासबोर्ड', 'Dashboard'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/tracker.php" class="mem-nav-item <?php echo $_active==='tracker'?'active':''; ?>"><i class="fas fa-magnifying-glass-chart"></i><?php echo $_t('ट्र्याकर', 'Tracker'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/notifications.php" class="mem-nav-item mem-nav-item-rel <?php echo $_active==='notifications'?'active':''; ?>">
-            <i class="fas fa-bell"></i><?php echo $_t('सूचनाहरू', 'Notifications'); ?>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/" class="mem-nav-item <?php echo $_active==='dashboard'?'active':''; ?>"><i class="lucide-icon" data-lucide="house" aria-hidden="true"></i><?php echo $_t('ड्यासबोर्ड', 'Dashboard'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/tracker.php" class="mem-nav-item <?php echo $_active==='tracker'?'active':''; ?>"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i><?php echo $_t('ट्र्याकर', 'Tracker'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/notifications.php" class="mem-nav-item mem-nav-item-rel <?php echo $_active==='notifications'?'active':''; ?>">
+            <i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i><?php echo $_t('सूचनाहरू', 'Notifications'); ?>
             <?php if ($_unread > 0): ?><span class="mem-notif-dot mem-notif-dot-inline"><?php echo $_unread; ?></span><?php endif; ?>
         </a>
         <?php if ($_hasIdCard): ?>
-        <a href="<?php echo $_siteUrl; ?>member/id-card.php" class="mem-nav-item <?php echo $_active==='idcard'?'active':''; ?>"><i class="fas fa-id-card"></i><?php echo $_t('परिचयपत्र', 'ID Card'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/id-card.php" class="mem-nav-item <?php echo $_active==='idcard'?'active':''; ?>"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i><?php echo $_t('परिचयपत्र', 'ID Card'); ?></a>
         <?php endif; ?>
-        <a href="<?php echo $_siteUrl; ?>member/welfare.php" class="mem-nav-item <?php echo $_active==='welfare'?'active':''; ?>"><i class="fas fa-heart-pulse"></i><?php echo $_t('कल्याण दाबी', 'Welfare Claim'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/welfare.php" class="mem-nav-item <?php echo $_active==='welfare'?'active':''; ?>"><i class="lucide-icon" data-lucide="heart-pulse" aria-hidden="true"></i><?php echo $_t('कल्याण दाबी', 'Welfare Claim'); ?></a>
         <?php if (!empty($_hasInfoRoom)): ?>
-        <a href="<?php echo $_siteUrl; ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="fas fa-vault"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/information-room.php" class="mem-nav-item <?php echo $_active==='info-room'?'active':''; ?>"><i class="lucide-icon" data-lucide="vault" aria-hidden="true"></i><?php echo $_t('Information Room', 'Information Room'); ?></a>
         <?php endif; ?>
         <?php if ($_electionState === 'voting'): ?>
-        <a href="<?php echo $_siteUrl; ?>member/election-vote.php" class="mem-nav-item mem-nav-vote-live <?php echo $_active==='election'?'active':''; ?>"><i class="fas fa-check-to-slot"></i><?php echo $_t('मतदान', 'Vote'); ?> <span class="mem-vote-live-dot" aria-hidden="true"></span></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/election-vote.php" class="mem-nav-item mem-nav-vote-live <?php echo $_active==='election'?'active':''; ?>"><i class="lucide-icon" data-lucide="vote" aria-hidden="true"></i><?php echo $_t('मतदान', 'Vote'); ?> <span class="mem-vote-live-dot" aria-hidden="true"></span></a>
         <?php elseif ($_electionState === 'candidates'): ?>
-        <a href="<?php echo $_siteUrl; ?>member/election-vote.php" class="mem-nav-item <?php echo $_active==='election'?'active':''; ?>"><i class="fas fa-users"></i><?php echo $_t('उम्मेदवारहरू', 'Candidates'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/election-vote.php" class="mem-nav-item <?php echo $_active==='election'?'active':''; ?>"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i><?php echo $_t('उम्मेदवारहरू', 'Candidates'); ?></a>
         <?php endif; ?>
-        <a href="<?php echo $_siteUrl; ?>member/scan.php" class="mem-nav-item <?php echo $_active==='scan'?'active':''; ?>"><i class="fas fa-qrcode"></i><?php echo $_t('QR स्क्यान', 'QR Scan'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/attend.php" class="mem-nav-item <?php echo $_active==='attend'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('उपस्थिति', 'Attendance'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/marketplace.php" class="mem-nav-item <?php echo $_active==='marketplace'?'active':''; ?>"><i class="fas fa-store"></i><?php echo $_t('बजार / सीप', 'Market / Skills'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/scan.php" class="mem-nav-item <?php echo $_active==='scan'?'active':''; ?>"><i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i><?php echo $_t('QR स्क्यान', 'QR Scan'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/attend.php" class="mem-nav-item <?php echo $_active==='attend'?'active':''; ?>"><i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i><?php echo $_t('उपस्थिति', 'Attendance'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/marketplace.php" class="mem-nav-item <?php echo $_active==='marketplace'?'active':''; ?>"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i><?php echo $_t('बजार / सीप', 'Market / Skills'); ?></a>
         <?php
         $_applyKeys = ['service', 'apply-appointment', 'apply-loan', 'apply-account', 'apply-digital', 'apply-grievance'];
         $_applyOpen = in_array($_active, $_applyKeys, true);
@@ -407,21 +367,21 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
                     id="memNavApplyToggle"
                     aria-expanded="<?php echo $_applyOpen ? 'true' : 'false'; ?>"
                     aria-controls="mem-nav-apply-panel">
-                <i class="fas fa-file-signature"></i><?php echo $_t('आवेदन / सेवा', 'Apply / Services'); ?>
+                <i class="lucide-icon" data-lucide="file-pen" aria-hidden="true"></i><?php echo $_t('आवेदन / सेवा', 'Apply / Services'); ?>
                 <span class="mem-nav-apply-chevron" aria-hidden="true">▾</span>
             </button>
             <div class="mem-nav-apply-panel" id="mem-nav-apply-panel" role="group" aria-label="<?php echo htmlspecialchars($_t('आवेदन / सेवा', 'Apply / Services'), ENT_QUOTES, 'UTF-8'); ?>">
-                <a href="<?php echo $_siteUrl; ?>member/service-request.php" class="mem-nav-item <?php echo $_active==='service'?'active':''; ?>"><i class="fas fa-concierge-bell"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?></a>
-                <a href="<?php echo $_siteUrl; ?>member/appointment.php" class="mem-nav-item <?php echo $_active==='apply-appointment'?'active':''; ?>"><i class="fas fa-calendar-check"></i><?php echo $_t('भेटघाट', 'Appointment'); ?></a>
-                <a href="<?php echo $_siteUrl; ?>member/loan-apply.php" class="mem-nav-item <?php echo $_active==='apply-loan'?'active':''; ?>"><i class="fas fa-hand-holding-dollar"></i><?php echo $_t('ऋण आवेदन', 'Loan Apply'); ?></a>
-                <a href="<?php echo $_siteUrl; ?>member/account-apply.php" class="mem-nav-item <?php echo $_active==='apply-account'?'active':''; ?>"><i class="fas fa-landmark"></i><?php echo $_t('खाता खोल्ने', 'Open Account'); ?></a>
-                <a href="<?php echo $_siteUrl; ?>member/digital-service.php" class="mem-nav-item <?php echo $_active==='apply-digital'?'active':''; ?>"><i class="fas fa-laptop"></i><?php echo $_t('डिजिटल सेवा', 'Digital Service'); ?></a>
-                <a href="<?php echo $_siteUrl; ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="fas fa-comment-dots"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/service-request.php" class="mem-nav-item <?php echo $_active==='service'?'active':''; ?>"><i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i><?php echo $_t('सेवा अनुरोध', 'Service Request'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/appointment.php" class="mem-nav-item <?php echo $_active==='apply-appointment'?'active':''; ?>"><i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i><?php echo $_t('भेटघाट', 'Appointment'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/loan-apply.php" class="mem-nav-item <?php echo $_active==='apply-loan'?'active':''; ?>"><i class="lucide-icon" data-lucide="hand-coins" aria-hidden="true"></i><?php echo $_t('ऋण आवेदन', 'Loan Apply'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/account-apply.php" class="mem-nav-item <?php echo $_active==='apply-account'?'active':''; ?>"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i><?php echo $_t('खाता खोल्ने', 'Open Account'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/digital-service.php" class="mem-nav-item <?php echo $_active==='apply-digital'?'active':''; ?>"><i class="lucide-icon" data-lucide="laptop" aria-hidden="true"></i><?php echo $_t('डिजिटल सेवा', 'Digital Service'); ?></a>
+                <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/grievance.php" class="mem-nav-item <?php echo $_active==='apply-grievance'?'active':''; ?>"><i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i><?php echo $_t('गुनासो', 'Grievance'); ?></a>
             </div>
         </div>
-        <a href="<?php echo $_siteUrl; ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="fas fa-certificate"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="fas fa-user-circle"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
-        <a href="<?php echo $_siteUrl; ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="fas fa-globe"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/certificate.php" class="mem-nav-item <?php echo $_active==='certificate'?'active':''; ?>"><i class="lucide-icon" data-lucide="badge" aria-hidden="true"></i><?php echo $_t('प्रमाणपत्र', 'Certificates'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/profile.php" class="mem-nav-item <?php echo $_active==='profile'?'active':''; ?>"><i class="lucide-icon" data-lucide="circle-user" aria-hidden="true"></i><?php echo $_t('प्रोफाइल', 'Profile'); ?></a>
+        <a href="<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>" class="mem-nav-item" target="_blank" rel="noopener noreferrer"><i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i><?php echo $_t('मुख्य साइट', 'Main Site'); ?></a>
     </nav>
 
 <script>
@@ -497,21 +457,23 @@ $_pwaApple = function_exists('getPwaIconPublicUrl')
   function setSubscribed(yes) {
     try { localStorage.setItem(STORAGE, yes ? '1' : '0'); } catch (_) {}
     if (!btn) return;
-    if (yes) {
-      icon.className  = 'fas fa-bell';
-      icon.style.color = 'var(--primary-color, #1a5f2a)';
-      btn.title = 'Push Notification सक्षम छ';
-    } else {
-      icon.className  = 'fas fa-bell-slash';
-      icon.style.color = '#f59e0b';
-      btn.title = 'Push Notification सक्षम गर्नुहोस्';
+    if (icon) {
+      icon.className = 'lucide-icon';
+      icon.setAttribute('data-lucide', yes ? 'bell' : 'bell-off');
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = '';
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons({ nodes: [icon] });
+      }
+      icon.style.color = yes ? 'var(--primary-color, #1a5f2a)' : '#f59e0b';
     }
+    btn.title = yes ? 'Push Notification सक्षम छ' : 'Push Notification सक्षम गर्नुहोस्';
   }
 
   /* ── Save subscription to server ─────────────────────────────── */
   function saveToServer(subscription) {
     var obj = subscription.toJSON();
-    fetch('<?php echo $_siteUrl; ?>member/push-subscribe.php', {
+    fetch('<?php echo htmlspecialchars($_siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/push-subscribe.php', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({

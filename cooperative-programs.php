@@ -166,6 +166,10 @@ foreach ($programs as $p) {
 $listPrograms = ($viewTab === 'past') ? $pastPrograms : $upcomingPrograms;
 $openPreregCount = count(array_filter($upcomingPrograms, static fn($p) => !empty($p['pre_registration_open'])));
 
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/cooperative-programs-page.css')
+        : '');
 require_once 'includes/header.php';
 $memberPortalAttend = rtrim(SITE_URL, '/') . '/member/attend.php';
 $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
@@ -178,7 +182,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
             <h1 class="page-title-modern"><?php echo $_t('सहकारी कार्यक्रम', 'Cooperative Programs'); ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-modern">
-                    <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>" class="breadcrumb-link-modern"><?php echo $_t('गृहपृष्ठ', 'Home'); ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="breadcrumb-link-modern"><?php echo $_t('गृहपृष्ठ', 'Home'); ?></a></li>
                     <li class="breadcrumb-item active"><?php echo $_t('सहकारी कार्यक्रम', 'Cooperative Programs'); ?></li>
                 </ol>
             </nav>
@@ -190,7 +194,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
     <div class="container">
         <div class="cp-hero-inner">
             <div class="cp-hero-icon">
-                <i class="fas fa-calendar-check"></i>
+                <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i>
             </div>
             <div class="cp-hero-text">
                 <h2><?php echo $_t('सहकारी कार्यक्रमहरू', 'Cooperative Programs'); ?></h2>
@@ -239,16 +243,16 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                         <h3><?php echo $_t('स्थलमा QR', 'Scan QR at venue'); ?></h3>
                         <p><?php echo $_t('Member Portal → Scan / Attend बाट कार्यक्रम QR स्क्यान गर्नुहोस्।', 'Use Member Portal → Scan / Attend with the program QR.'); ?></p>
                         <div class="d-flex flex-wrap gap-2 mt-2">
-                            <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars($memberPortalScan); ?>"><i class="fas fa-camera me-1"></i><?php echo $_t('स्क्यान', 'Scan'); ?></a>
-                            <a class="btn btn-sm btn-outline-success" href="<?php echo htmlspecialchars($memberPortalAttend); ?>"><i class="fas fa-clipboard-check me-1"></i><?php echo $_t('Attend', 'Attend'); ?></a>
+                            <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars($memberPortalScan); ?>"><i class="lucide-icon me-1" data-lucide="camera" aria-hidden="true"></i><?php echo $_t('स्क्यान', 'Scan'); ?></a>
+                            <a class="btn btn-sm btn-outline-success" href="<?php echo htmlspecialchars($memberPortalAttend); ?>"><i class="lucide-icon me-1" data-lucide="clipboard-check" aria-hidden="true"></i><?php echo $_t('Attend', 'Attend'); ?></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="cp-howto-card">
                         <span class="cp-howto-num">3</span>
-                        <h3><?php echo $_t('Admin approve', 'Admin approve'); ?></h3>
-                        <p><?php echo $_t('QR अनुरोध Admin ले approve गरेपछि उपस्थिति इतिहासमा देखिन्छ।', 'After admin approves the QR request, it appears in your attendance history.'); ?></p>
+                        <h3><?php echo $_t('उपस्थिति गणना', 'Attendance counts'); ?></h3>
+                        <p><?php echo $_t('Instant कार्यक्रममा scan पछि तुरुन्तै गणना; अन्यमा Admin approve पछि इतिहासमा देखिन्छ।', 'Instant programs count right after scan; others appear in history after admin approval.'); ?></p>
                     </div>
                 </div>
             </div>
@@ -265,7 +269,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
 
         <?php if (empty($listPrograms)): ?>
         <div class="cp-empty" data-aos="fade-up">
-            <div class="cp-empty-icon"><i class="fas fa-calendar-times"></i></div>
+            <div class="cp-empty-icon"><i class="lucide-icon" data-lucide="calendar-x" aria-hidden="true"></i></div>
             <h5 class="mb-2"><?php echo $viewTab === 'past'
                 ? $_t('भइसकेका कार्यक्रम छैनन्', 'No past programs')
                 : $_t('हाल सक्रिय कार्यक्रम उपलब्ध छैन', 'No Active Programs Available'); ?></h5>
@@ -275,7 +279,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
 
         <div class="cp-section-sub">
             <h3>
-                <i class="fas fa-list-ul"></i>
+                <i class="lucide-icon" data-lucide="list" aria-hidden="true"></i>
                 <?php echo $viewTab === 'past' ? $_t('भइसकेका कार्यक्रम', 'Past Programs') : $_t('आगामी कार्यक्रमहरू', 'Upcoming Programs'); ?>
                 <span class="badge bg-success ms-1" style="font-size:.72rem;"><?php echo count($listPrograms); ?></span>
             </h3>
@@ -303,11 +307,11 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                         <div class="cp-head-right">
                             <h5><?php echo htmlspecialchars($pg['title']); ?></h5>
                             <?php if (!empty($pg['pre_registration_open']) && !$isPassed): ?>
-                                <span class="cp-open-badge"><i class="fas fa-user-plus"></i><?php echo $_t('Pre-reg खुला', 'Pre-reg Open'); ?></span>
+                                <span class="cp-open-badge"><i class="lucide-icon" data-lucide="user-plus" aria-hidden="true"></i><?php echo $_t('Pre-reg खुला', 'Pre-reg Open'); ?></span>
                             <?php elseif ($isPassed): ?>
-                                <span class="cp-closed-badge"><i class="fas fa-check"></i><?php echo $_t('भइसक्यो', 'Past'); ?></span>
+                                <span class="cp-closed-badge"><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i><?php echo $_t('भइसक्यो', 'Past'); ?></span>
                             <?php else: ?>
-                                <span class="cp-closed-badge"><i class="fas fa-lock"></i><?php echo $_t('Pre-reg बन्द', 'Pre-reg Closed'); ?></span>
+                                <span class="cp-closed-badge"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i><?php echo $_t('Pre-reg बन्द', 'Pre-reg Closed'); ?></span>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -316,17 +320,17 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                         <div class="cp-meta-row">
                             <?php if ($evDate): ?>
                             <span class="cp-pill cp-pill-date">
-                                <i class="fas fa-calendar-alt"></i>
+                                <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                                 <?php echo htmlspecialchars($evDate); ?>
                             </span>
                             <?php else: ?>
-                            <span class="cp-pill cp-pill-tba"><i class="fas fa-clock"></i><?php echo $_t('मिति घोषणा हुनेछ', 'Date TBA'); ?></span>
+                            <span class="cp-pill cp-pill-tba"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i><?php echo $_t('मिति घोषणा हुनेछ', 'Date TBA'); ?></span>
                             <?php endif; ?>
                             <?php if (!empty($pg['event_time'])): ?>
-                            <span class="cp-pill cp-pill-time"><i class="fas fa-clock"></i><?php echo htmlspecialchars($pg['event_time']); ?></span>
+                            <span class="cp-pill cp-pill-time"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i><?php echo htmlspecialchars($pg['event_time']); ?></span>
                             <?php endif; ?>
                             <?php if (!empty($pg['location'])): ?>
-                            <span class="cp-pill cp-pill-loc"><i class="fas fa-map-marker-alt"></i><?php echo htmlspecialchars($pg['location']); ?></span>
+                            <span class="cp-pill cp-pill-loc"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($pg['location']); ?></span>
                             <?php endif; ?>
                         </div>
 
@@ -340,7 +344,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                     data-bs-toggle="collapse"
                                     data-bs-target="#preRegForm<?php echo (int)$pg['id']; ?>"
                                     aria-expanded="<?php echo $showForm ? 'true' : 'false'; ?>">
-                                <i class="fas fa-user-check"></i>
+                                <i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i>
                                 <?php echo $_t('Pre-register गर्नुहोस्', 'Pre-register Now'); ?>
                             </button>
 
@@ -348,7 +352,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                  id="preRegForm<?php echo (int)$pg['id']; ?>">
                                 <div class="cp-prereg-inner">
                                     <div class="cp-prereg-title">
-                                        <i class="fas fa-clipboard-list"></i>
+                                        <i class="lucide-icon" data-lucide="clipboard-list" aria-hidden="true"></i>
                                         <?php echo $_t('छिटो Pre-Registration', 'Quick Pre-Registration'); ?>
                                     </div>
                                     <p class="small text-muted mb-2"><?php echo $_t('सदस्य पोर्टलबाट पनि pre-register गर्न सकिन्छ।', 'You can also pre-register from the Member Portal.'); ?>
@@ -357,11 +361,11 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                     <?php if ($showForm): ?>
                                     <div class="alert py-2 px-3 mb-2 <?php echo $preregSaved ? 'alert-success' : ($preregAlready ? 'alert-warning' : 'alert-danger'); ?>" style="font-size:.84rem;">
                                         <?php if ($preregSaved): ?>
-                                            <i class="fas fa-check-circle me-1"></i><?php echo $_t('Registration सफल भयो!', 'Registration successful!'); ?>
+                                            <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $_t('Registration सफल भयो!', 'Registration successful!'); ?>
                                         <?php elseif ($preregAlready): ?>
-                                            <i class="fas fa-info-circle me-1"></i><?php echo $_t('पहिल्यै registration भइसक्यो।', 'Already registered.'); ?>
+                                            <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo $_t('पहिल्यै registration भइसक्यो।', 'Already registered.'); ?>
                                         <?php else: ?>
-                                            <i class="fas fa-exclamation-circle me-1"></i><?php echo htmlspecialchars($preregError); ?>
+                                            <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i><?php echo htmlspecialchars($preregError); ?>
                                         <?php endif; ?>
                                     </div>
                                     <?php endif; ?>
@@ -384,7 +388,7 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
                                         <?php echo coop_public_form_anti_bot_html('prog_prereg', 'cp' . (int)$pg['id'], isEnglish(), 'col-12', $__cpMath); ?>
                                         <div class="col-12">
                                             <button type="submit" class="btn btn-sm btn-primary coop-touch-cta">
-                                                <i class="fas fa-check-circle me-1"></i><?php echo $_t('Registration Confirm', 'Confirm Registration'); ?>
+                                                <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $_t('Registration Confirm', 'Confirm Registration'); ?>
                                             </button>
                                         </div>
                                     </form>
@@ -397,11 +401,11 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
 
                     <div class="cp-card-footer">
                         <a href="<?php echo htmlspecialchars($memberPortalAttend); ?>" class="cp-att-btn">
-                            <i class="fas fa-id-card"></i>
+                            <i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i>
                             <?php echo $_t('सदस्य पोर्टल — उपस्थिति', 'Member Portal — Attendance'); ?>
                         </a>
                         <a href="<?php echo htmlspecialchars($memberPortalScan); ?>" class="cp-att-btn cp-att-btn-alt">
-                            <i class="fas fa-qrcode"></i>
+                            <i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i>
                             <?php echo $_t('QR स्क्यान', 'QR Scan'); ?>
                         </a>
                     </div>
@@ -415,29 +419,6 @@ $memberPortalScan = rtrim(SITE_URL, '/') . '/member/scan.php';
     </div>
 </section>
 
-<style>
-.cp-howto-card {
-  background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px 16px 14px;
-  height: 100%; box-shadow: 0 4px 14px rgba(0,0,0,.04); position: relative;
-}
-.cp-howto-num {
-  display: inline-flex; width: 28px; height: 28px; border-radius: 999px; align-items: center; justify-content: center;
-  background: color-mix(in srgb, var(--primary-color, #1a8754) 14%, white); color: var(--primary-dark, #0a4a25);
-  font-weight: 800; font-size: .85rem; margin-bottom: 8px;
-}
-.cp-howto-card h3 { font-size: .95rem; font-weight: 800; margin: 0 0 6px; color: #111827; }
-.cp-howto-card p { font-size: .8rem; color: #6b7280; margin: 0; line-height: 1.5; }
-.cp-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.cp-tab {
-  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
-  background: #fff; border: 1px solid #e5e7eb; color: #374151; text-decoration: none; font-weight: 700; font-size: .85rem;
-}
-.cp-tab.active { background: var(--primary-color, #1a8754); border-color: transparent; color: #fff; }
-.cp-tab .badge { background: rgba(0,0,0,.08); color: inherit; }
-.cp-tab.active .badge { background: rgba(255,255,255,.25); }
-.cp-card-past { opacity: .92; }
-.cp-card-footer { display: flex; flex-wrap: wrap; gap: 8px; }
-.cp-att-btn-alt { background: #fff !important; color: var(--primary-dark, #0a4a25) !important; border: 1px solid color-mix(in srgb, var(--primary-color, #1a8754) 35%, #ddd); }
-</style>
+
 
 <?php require_once 'includes/footer.php'; ?>

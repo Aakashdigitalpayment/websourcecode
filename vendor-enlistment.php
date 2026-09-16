@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="row">
             <div class="col-lg-8 mx-auto public-form-shell">
                 <div class="vendor-info-card mb-4">
-                    <h4><i class="fas fa-info-circle"></i> <?php echo isEnglish() ? 'Vendor Enlistment Notice' : 'भेन्डर सूचीकरण सम्बन्धी सूचना'; ?></h4>
+                    <h4><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i> <?php echo isEnglish() ? 'Vendor Enlistment Notice' : 'भेन्डर सूचीकरण सम्बन्धी सूचना'; ?></h4>
                     <p>
                         <?php echo isEnglish()
                             ? 'We invite all interested vendors to register with our cooperative for the supply of goods and services. Please fill out the form below with accurate information.'
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <?php if ($success): ?>
                 <div class="text-center py-5 px-4 rounded-4 shadow-sm mb-4" style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:2px solid #c8e6c9;">
-                    <div style="font-size:4rem;color:var(--primary-light);"><i class="fas fa-store"></i></div>
+                    <div style="font-size:4rem;color:var(--primary-light);"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i></div>
                     <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Vendor Application Submitted!' : 'भेन्डर आवेदन सफलतापूर्वक पेश भयो!'; ?></h3>
                     <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will review your application and contact you soon.' : 'हामी तपाईंको आवेदन समीक्षा गरी छिट्टै सम्पर्क गर्नेछौं।'; ?></p>
                     <?php if ($vndTrackingId): ?>
@@ -132,21 +132,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID — save this!' : 'तपाईंको Tracking ID — सुरक्षित राख्नुहोस्!'; ?></div>
                         <div class="d-flex align-items-center gap-2 mb-2">
                             <div class="fw-bold fs-5 text-success font-monospace" id="vndTrkId"><?php echo e($vndTrackingId); ?></div>
-                            <button type="button" onclick="copyTrk('vndTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="fas fa-copy"></i></button>
+                            <button type="button" onclick="copyTrk('vndTrkId',this)" class="btn btn-sm btn-outline-success py-0 px-2" title="Copy" style="font-size:11px;line-height:1.8;"><i class="lucide-icon" data-lucide="copy" aria-hidden="true"></i></button>
                         </div>
                         <div class="small text-muted"><a href="application-tracker.php" class="text-success text-decoration-none fw-semibold">यहाँ बाट</a> Application Tracker मा स्थिति हेर्नुहोस्।</div>
                     </div>
                     <?php endif; ?>
                     <div class="mt-3">
-                        <a href="<?php echo SITE_URL; ?>" class="btn btn-success px-4 me-2"><i class="fas fa-home me-1"></i><?php echo $L['home']; ?></a>
-                        <a href="vendor-enlistment.php" class="btn btn-outline-secondary px-4"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?></a>
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success px-4 me-2"><i class="lucide-icon me-1" data-lucide="house" aria-hidden="true"></i><?php echo $L['home']; ?></a>
+                        <a href="vendor-enlistment.php" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?></a>
                     </div>
                 </div>
                 <?php else: ?>
 
                 <?php if ($error): ?>
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-1"></i><?php echo e($error); ?>
+                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i><?php echo e($error); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});});</script>
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="vendor-form-card">
                     <div class="form-header text-center mb-4">
-                        <div class="form-icon"><i class="fas fa-store"></i></div>
+                        <div class="form-icon"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i></div>
                         <h3><?php echo isEnglish() ? 'Vendor Registration Form' : 'भेन्डर दर्ता फारम'; ?></h3>
                         <p><?php echo isEnglish() ? 'Fill the form to register as an authorized vendor' : 'अधिकृत भेन्डरको रूपमा दर्ता हुन फारम भर्नुहोस्'; ?></p>
                     </div>
@@ -230,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-paper-plane me-1"></i>
+                                <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
                             </button>
                         </div>

@@ -5,19 +5,20 @@
  */
 
 :root {
-  --admin-font-body: var(--prem-font-body, var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif));
-  --admin-font-head: var(--prem-font-head, var(--font-heading, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif));
+  --admin-font-body: var(--shell-font-body);
+  --admin-font-head: var(--shell-font-head);
+  /* Keep admin radius / bottom-nav distinct from public/member shells */
   --admin-radius: 10px;
   --admin-radius-sm: 8px;
   --admin-border: color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb));
-  --admin-border-focus: var(--primary-color, #1a5f2a);
+  --admin-border-focus: var(--shell-border-focus);
   --admin-surface: var(--bg-card, #ffffff);
   --admin-surface-soft: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, var(--bg-soft, #f5faf6));
   --admin-surface-tray: color-mix(in srgb, var(--primary-color, #1a5f2a) 7%, var(--bg-page, #f8faf9));
-  --admin-text: var(--text-primary, #0f1a15);
-  --admin-muted: var(--text-muted, #5b6b62);
+  --admin-text: var(--text-primary, var(--shell-text));
+  --admin-muted: var(--text-muted, var(--shell-muted));
   --admin-bottom-nav-h: 68px;
-  --admin-focus-ring: var(--shadow-focus, 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent));
+  --admin-focus-ring: var(--shadow-focus, var(--shell-focus-ring));
   --admin-row-hover: color-mix(in srgb, var(--primary-color, #1a5f2a) 5%, #fff);
   --admin-action-view: var(--color-info, #0891b2);
   --admin-action-danger: var(--color-danger, #dc2626);
@@ -294,22 +295,16 @@ body[class*="admin-page-"],
 }
 
 .main-content .admin-empty-state {
-  padding: 2.6rem 1.15rem !important;
+  /* Visual padding/background: final-ui-polish (avoids double override). */
   text-align: center;
-  border-radius: var(--admin-radius, 12px);
 }
 
 .main-content .admin-empty-state i,
 .main-content .admin-empty-state .lucide-icon {
+  /* Icon chip visual: final-ui-polish. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.85rem;
-  height: 2.85rem;
-  margin-bottom: 0.55rem;
-  border-radius: 999px;
-  color: var(--primary-color, #1a5f2a);
-  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
 }
 
 .main-content .admin-empty-state p {
@@ -319,6 +314,18 @@ body[class*="admin-page-"],
   margin-left: auto;
   margin-right: auto;
   line-height: 1.55;
+}
+
+.main-content .admin-empty-state .admin-empty-state-title {
+  font-size: var(--font-size-sm, var(--text-sm, 0.8125rem));
+  font-weight: 600;
+  color: var(--text-muted, var(--admin-muted, #6b7280));
+  margin-top: 8px;
+}
+
+.main-content .admin-empty-state .admin-empty-state-sub {
+  font-size: var(--font-size-xs, var(--text-xs, 0.75rem));
+  color: var(--text-muted, var(--admin-muted, #6b7280));
 }
 
 /* Prefer horizontal scroll on small screens for dense admin tables */
@@ -349,10 +356,6 @@ body[class*="admin-page-"],
   gap: 0.65rem;
 }
 
-.main-content .admin-page-header {
-  margin-bottom: 1rem !important;
-}
-
 .main-content .admin-page-subtitle-text {
   font-style: normal !important;
   color: var(--admin-muted) !important;
@@ -377,6 +380,7 @@ body[class*="admin-page-"],
 
 /* ── Page header strip (subtitle bar under title) ──────────────────── */
 .main-content .admin-page-header {
+  margin-bottom: 1rem !important;
   display: flex !important;
   flex-wrap: wrap !important;
   align-items: center !important;
@@ -765,9 +769,15 @@ body[class*="admin-page-"],
 .main-content .table .fas,
 .main-content .table .far,
 .main-content .btn .fas,
-.main-content .btn .far {
+.main-content .btn .far,
+.main-content .table .lucide-icon,
+.main-content .table .lucide-icon svg,
+.main-content .btn .lucide-icon,
+.main-content .btn .lucide-icon svg {
   font-size: 0.9em;
   line-height: 1;
+  width: 1em;
+  height: 1em;
 }
 
 /* Restore FA font after premium/admin Inter !important body fonts.
@@ -1226,3 +1236,5 @@ button.nav-group-header:focus-visible {
   outline: 2px solid var(--primary-color, #1a5f2a) !important;
   outline-offset: 2px !important;
 }
+
+/* Lucide size/spin utilities → assets/css/lucide-icon-utils.css (late-bundle) */

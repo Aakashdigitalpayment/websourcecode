@@ -4,6 +4,7 @@
  * Admin Messages — सम्पर्क सन्देश व्यवस्थापन
  * =====================================================
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'सम्पर्क सन्देशहरू';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -63,7 +64,7 @@ if ($action === 'view' && isset($_GET['id'])) {
         'सन्देश विवरण',
         'fa-envelope-open',
         'प्राप्त सन्देशको पूर्ण जानकारी',
-        '<a href="messages.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i>फिर्ता</a>'
+        '<a href="messages.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>फिर्ता</a>'
     );
 
     $flash = getFlash(); if ($flash) echo adminAlert($flash['type'], $flash['message']);
@@ -71,7 +72,7 @@ if ($action === 'view' && isset($_GET['id'])) {
 
     <div class="card admin-table-card mb-4 arv-legacy-detail">
         <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="fas fa-envelope-open me-2"></i>
+            <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="mail-open" aria-hidden="true"></i>
                 <?php echo htmlspecialchars($message['name']); ?> को सन्देश
             </h5>
             <span class="badge bg-light text-dark">
@@ -83,13 +84,13 @@ if ($action === 'view' && isset($_GET['id'])) {
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="p-3 rounded-3 msg-info-card msg-info-sender">
-                        <div class="text-muted small mb-1"><i class="fas fa-user me-1"></i>प्रेषक</div>
+                        <div class="text-muted small mb-1"><i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i>प्रेषक</div>
                         <div class="fw-bold"><?php echo htmlspecialchars($message['name']); ?></div>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="p-3 rounded-3 msg-info-card msg-info-email">
-                        <div class="text-muted small mb-1"><i class="fas fa-envelope me-1"></i>इमेल</div>
+                        <div class="text-muted small mb-1"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i>इमेल</div>
                         <div class="fw-bold">
                             <?php if (!empty($message['email'])): ?>
                             <a href="mailto:<?php echo htmlspecialchars($message['email']); ?>" class="text-primary text-decoration-none">
@@ -104,7 +105,7 @@ if ($action === 'view' && isset($_GET['id'])) {
                 <?php if (!empty($message['phone'])): ?>
                 <div class="col-md-4">
                     <div class="p-3 rounded-3 msg-info-card msg-info-phone">
-                        <div class="text-muted small mb-1"><i class="fas fa-phone me-1"></i>फोन</div>
+                        <div class="text-muted small mb-1"><i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i>फोन</div>
                         <div class="fw-bold">
                             <a href="tel:<?php echo htmlspecialchars($message['phone']); ?>" class="text-dark text-decoration-none">
                                 <?php echo htmlspecialchars($message['phone']); ?>
@@ -117,14 +118,14 @@ if ($action === 'view' && isset($_GET['id'])) {
 
             <?php if (!empty($message['subject'])): ?>
             <div class="mb-3 p-3 rounded-3 msg-subject-box">
-                <strong class="text-success"><i class="fas fa-tag me-2"></i>विषय:</strong>
+                <strong class="text-success"><i class="lucide-icon me-2" data-lucide="tag" aria-hidden="true"></i>विषय:</strong>
                 <?php echo htmlspecialchars($message['subject']); ?>
             </div>
             <?php endif; ?>
 
             <!-- सन्देश body -->
             <div class="p-4 rounded-3 mb-4 msg-body-wrap">
-                <h6 class="text-success fw-bold mb-3"><i class="fas fa-comment me-2"></i>सन्देश:</h6>
+                <h6 class="text-success fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="message-circle" aria-hidden="true"></i>सन्देश:</h6>
                 <p class="mb-0 msg-body-text">
                     <?php echo nl2br(htmlspecialchars($message['message'])); ?>
                 </p>
@@ -135,20 +136,20 @@ if ($action === 'view' && isset($_GET['id'])) {
                 <?php if (!empty($message['email'])): ?>
                 <a href="mailto:<?php echo htmlspecialchars($message['email']); ?>?subject=Re: <?php echo htmlspecialchars($message['subject'] ?? 'Your Message'); ?>"
                    class="btn btn-primary">
-                    <i class="fas fa-reply me-1"></i>जवाफ दिनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="reply" aria-hidden="true"></i>जवाफ दिनुहोस्
                 </a>
                 <?php elseif (!empty($message['phone'])): ?>
                 <a href="tel:<?php echo htmlspecialchars($message['phone']); ?>" class="btn btn-primary">
-                    <i class="fas fa-phone me-1"></i>फोन गर्नुहोस्
+                    <i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true"></i>फोन गर्नुहोस्
                 </a>
                 <?php endif; ?>
                 <form method="POST" class="d-inline" onsubmit="return confirm('के तपाईं यो सन्देश स्थायी रूपमा मेट्न चाहनुहुन्छ?')">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="delete_id" value="<?php echo (int)$message['id']; ?>">
-                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash me-1"></i>मेट्नुहोस्</button>
+                    <button type="submit" class="btn btn-danger"><i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>मेट्नुहोस्</button>
                 </form>
                 <a href="messages.php" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </a>
             </div>
         </div>
@@ -205,17 +206,17 @@ if ($action === 'view' && isset($_GET['id'])) {
     ?>
     <div class="stat-mini-row no-print">
         <a href="messages.php" class="stat-mini <?php echo $filter==='all'?'active-filter':''; ?>">
-            <div class="sm-icon ic-total"><i class="fas fa-inbox"></i></div>
+            <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="inbox" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $totalCount; ?></div>
             <div class="sm-lbl">जम्मा सन्देश</div>
         </a>
         <a href="messages.php?filter=unread" class="stat-mini <?php echo $filter==='unread'?'active-filter':''; ?>">
-            <div class="sm-icon ic-rejected"><i class="fas fa-envelope"></i></div>
+            <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $unreadCount; ?></div>
             <div class="sm-lbl">नपढेको</div>
         </a>
         <a href="messages.php?filter=read" class="stat-mini <?php echo $filter==='read'?'active-filter':''; ?>">
-            <div class="sm-icon ic-approved"><i class="fas fa-envelope-open"></i></div>
+            <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="mail-open" aria-hidden="true"></i></div>
             <div class="sm-val"><?php echo $readCount; ?></div>
             <div class="sm-lbl">पढेको</div>
         </a>
@@ -235,15 +236,15 @@ if ($action === 'view' && isset($_GET['id'])) {
             <div class="afb-group afb-search">
                 <label>खोज्नुहोस्</label>
                 <div class="afb-search-wrap">
-                    <i class="fas fa-search afb-search-icon"></i>
+                    <i class="lucide-icon afb-search-icon" data-lucide="search" aria-hidden="true"></i>
                     <input type="text" name="search" class="afb-input"
                            value="<?php echo htmlspecialchars($msgSearch ?? ''); ?>"
                            placeholder="नाम, इमेल, विषय, सन्देश...">
                 </div>
             </div>
-            <button type="submit" class="afb-btn-search"><i class="fas fa-search me-1"></i>खोज</button>
+            <button type="submit" class="afb-btn-search"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
             <?php if ($filter !== 'all' || !empty($msgSearch)): ?>
-            <a href="messages.php" class="afb-btn-reset"><i class="fas fa-times me-1"></i>रिसेट</a>
+            <a href="messages.php" class="afb-btn-reset"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रिसेट</a>
             <?php endif; ?>
         </form>
     </div>
@@ -252,7 +253,7 @@ if ($action === 'view' && isset($_GET['id'])) {
     <div class="app-table">
         <div class="tbl-header-bar">
             <span class="tbl-title">
-                <i class="fas fa-envelope me-2"></i>सन्देश सूची
+                <i class="lucide-icon me-2" data-lucide="mail" aria-hidden="true"></i>सन्देश सूची
                 <?php if ($filter !== 'all'): ?>
                 <small class="ms-1 opacity-75">(<?php echo $filter==='unread'?'नपढेको':'पढेको'; ?>)</small>
                 <?php endif; ?>
@@ -274,7 +275,7 @@ if ($action === 'view' && isset($_GET['id'])) {
                     <tbody>
                     <?php if (empty($messages)): ?>
                         <tr><td colspan="6" class="text-center py-5 text-muted">
-                            <i class="fas fa-inbox fa-3x mb-3 d-block opacity-25"></i>
+                            <i class="lucide-icon lucide-3x mb-3 d-block opacity-25" data-lucide="inbox" aria-hidden="true"></i>
                             कुनै सन्देश छैन
                         </td></tr>
                     <?php else: foreach ($messages as $i => $msg): ?>
@@ -300,14 +301,14 @@ if ($action === 'view' && isset($_GET['id'])) {
                             </td>
                             <td class="text-center">
                                 <div class="adm-action-icons">
-                                    <a href="messages.php?action=view&id=<?php echo $msg['id']; ?>"
+                                    <a href="messages.php?action=view&id=<?php echo (int)$msg['id']; ?>"
                                        class="adm-icon-btn adm-icon-btn--view" title="हेर्नुहोस्" aria-label="View">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                     </a>
                                     <form method="POST" class="adm-icon-form" onsubmit="return confirm('सन्देश मेट्ने?')">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="delete_id" value="<?php echo (int)$msg['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेट्नुहोस्" aria-label="Delete"><i class="fas fa-trash-can"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेट्नुहोस्" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </div>
                             </td>

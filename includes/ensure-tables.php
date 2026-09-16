@@ -160,16 +160,25 @@ function ensurePublicTables(): void {
             INDEX idx_appt_status_created (status, created_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        /* Old DBs: columns may be missing from older CREATE — keep ALTER try/catch */
-        foreach ([
-            "ALTER TABLE appointments ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL",
-            "ALTER TABLE appointments ADD COLUMN visit_kind VARCHAR(20) NOT NULL DEFAULT 'member'",
-            'ALTER TABLE appointments ADD COLUMN organization_address VARCHAR(500) NULL',
-            'ALTER TABLE appointments ADD COLUMN organization_website VARCHAR(255) NULL',
-            'ALTER TABLE appointments ADD COLUMN contact_person VARCHAR(120) NULL',
-            "ALTER TABLE appointments ADD COLUMN admin_attachment VARCHAR(500) DEFAULT ''",
-        ] as $sql) {
-            try { $db->exec($sql); } catch (Throwable $e) {}
+        /* Old DBs: columns may be missing from older CREATE */
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'appointments', 'tracking_id', 'VARCHAR(60) UNIQUE NULL');
+            safeAddColumn($db, 'appointments', 'visit_kind', "VARCHAR(20) NOT NULL DEFAULT 'member'");
+            safeAddColumn($db, 'appointments', 'organization_address', 'VARCHAR(500) NULL');
+            safeAddColumn($db, 'appointments', 'organization_website', 'VARCHAR(255) NULL');
+            safeAddColumn($db, 'appointments', 'contact_person', 'VARCHAR(120) NULL');
+            safeAddColumn($db, 'appointments', 'admin_attachment', "VARCHAR(500) DEFAULT ''");
+        } else {
+            foreach ([
+                "ALTER TABLE appointments ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL",
+                "ALTER TABLE appointments ADD COLUMN visit_kind VARCHAR(20) NOT NULL DEFAULT 'member'",
+                'ALTER TABLE appointments ADD COLUMN organization_address VARCHAR(500) NULL',
+                'ALTER TABLE appointments ADD COLUMN organization_website VARCHAR(255) NULL',
+                'ALTER TABLE appointments ADD COLUMN contact_person VARCHAR(120) NULL',
+                "ALTER TABLE appointments ADD COLUMN admin_attachment VARCHAR(500) DEFAULT ''",
+            ] as $sql) {
+                try { $db->exec($sql); } catch (Throwable $e) {}
+            }
         }
 
         /* ──────────────────────────────────────────────────
@@ -206,16 +215,24 @@ function ensurePublicTables(): void {
             INDEX idx_tracking (tracking_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        foreach ([
-            'ALTER TABLE loan_applications ADD COLUMN other_income TEXT NULL AFTER monthly_income',
-            'ALTER TABLE loan_applications ADD COLUMN collateral_value DECIMAL(15,2) NULL AFTER collateral_description',
-            'ALTER TABLE loan_applications ADD COLUMN guarantor_relation VARCHAR(100) NULL AFTER guarantor_name',
-            'ALTER TABLE loan_applications ADD COLUMN guarantor_address TEXT NULL AFTER guarantor_phone',
-            'ALTER TABLE loan_applications ADD COLUMN documents TEXT NULL AFTER branch'
-        ] as $sql) {
-            try {
-                $db->exec($sql);
-            } catch (Throwable $e) {
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'loan_applications', 'other_income', 'TEXT NULL AFTER monthly_income');
+            safeAddColumn($db, 'loan_applications', 'collateral_value', 'DECIMAL(15,2) NULL AFTER collateral_description');
+            safeAddColumn($db, 'loan_applications', 'guarantor_relation', 'VARCHAR(100) NULL AFTER guarantor_name');
+            safeAddColumn($db, 'loan_applications', 'guarantor_address', 'TEXT NULL AFTER guarantor_phone');
+            safeAddColumn($db, 'loan_applications', 'documents', 'TEXT NULL AFTER branch');
+        } else {
+            foreach ([
+                'ALTER TABLE loan_applications ADD COLUMN other_income TEXT NULL AFTER monthly_income',
+                'ALTER TABLE loan_applications ADD COLUMN collateral_value DECIMAL(15,2) NULL AFTER collateral_description',
+                'ALTER TABLE loan_applications ADD COLUMN guarantor_relation VARCHAR(100) NULL AFTER guarantor_name',
+                'ALTER TABLE loan_applications ADD COLUMN guarantor_address TEXT NULL AFTER guarantor_phone',
+                'ALTER TABLE loan_applications ADD COLUMN documents TEXT NULL AFTER branch'
+            ] as $sql) {
+                try {
+                    $db->exec($sql);
+                } catch (Throwable $e) {
+                }
             }
         }
 
@@ -309,12 +326,16 @@ function ensurePublicTables(): void {
             INDEX idx_tracking (tracking_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-        foreach ([
-            'ALTER TABLE account_applications ADD COLUMN citizenship_issued_date VARCHAR(40) NULL AFTER citizenship_no'
-        ] as $sql) {
-            try {
-                $db->exec($sql);
-            } catch (Throwable $e) {
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'account_applications', 'citizenship_issued_date', 'VARCHAR(40) NULL AFTER citizenship_no');
+        } else {
+            foreach ([
+                'ALTER TABLE account_applications ADD COLUMN citizenship_issued_date VARCHAR(40) NULL AFTER citizenship_no'
+            ] as $sql) {
+                try {
+                    $db->exec($sql);
+                } catch (Throwable $e) {
+                }
             }
         }
 
@@ -440,8 +461,14 @@ function ensurePublicTables(): void {
                 return $r && $r->rowCount() > 0;
             } catch (\Throwable $e) { return true; /* table नभए पनि skip */ }
         };
-        /* helper: column थप गर्ने */
+        /* helper: column थप गर्ने — prefer safeAddColumn when SQL is standard ADD COLUMN */
         $addColumn = function(string $sql) use ($db): void {
+            if (function_exists('safeAddColumn')
+                && preg_match('/ALTER\s+TABLE\s+`?([A-Za-z_][A-Za-z0-9_]*)`?\s+ADD\s+COLUMN\s+`?([A-Za-z_][A-Za-z0-9_]*)`?\s+(.+)$/is', trim($sql), $m)
+            ) {
+                safeAddColumn($db, $m[1], $m[2], trim($m[3]));
+                return;
+            }
             try { $db->exec($sql); } catch (\Throwable $e) { /* skip */ }
         };
         /* helper: index छ/छैन check गर्ने */
@@ -453,6 +480,20 @@ function ensurePublicTables(): void {
         };
         /* helper: index add गर्ने */
         $addIndex = function(string $table, string $idxName, string $cols) use ($db, $hasIndex): void {
+            if (function_exists('safeAddIndex')) {
+                $parts = preg_split('/\s*,\s*/', trim($cols)) ?: [];
+                $names = [];
+                foreach ($parts as $p) {
+                    $p = trim($p, " \t`");
+                    if ($p !== '' && preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $p)) {
+                        $names[] = $p;
+                    }
+                }
+                if ($names !== []) {
+                    safeAddIndex($db, $table, $idxName, $names);
+                    return;
+                }
+            }
             if ($hasIndex($table, $idxName)) return;
             try { $db->exec("ALTER TABLE `{$table}` ADD INDEX `{$idxName}` ({$cols})"); } catch (\Throwable $e) {}
         };
@@ -528,7 +569,17 @@ function ensurePublicTables(): void {
             }
         }
         try {
-            $db->exec("ALTER TABLE member_id_cards MODIFY COLUMN status ENUM('active','expired','revoked','locked') DEFAULT 'active'");
+            if (function_exists('safeWidenEnumColumn')) {
+                safeWidenEnumColumn(
+                    $db,
+                    'member_id_cards',
+                    'status',
+                    ['active', 'expired', 'revoked', 'locked'],
+                    'active'
+                );
+            } else {
+                $db->exec("ALTER TABLE member_id_cards MODIFY COLUMN status ENUM('active','expired','revoked','locked') DEFAULT 'active'");
+            }
         } catch (\Throwable $e) { /* skip if unsupported / already ok */ }
 
         /* v10.4 KYC capture — औंठा छाप, structured address (online-kyc.php) */
@@ -719,6 +770,12 @@ function ensurePublicTables(): void {
             . "Delete this file र admin/db-setup.php बाट Migration Runner चलाउँदा\n"
             . "schema पुनः verify हुन्छ।\n"
         );
+        if (is_file(__DIR__ . '/schema-migrations.php')) {
+            require_once __DIR__ . '/schema-migrations.php';
+        }
+        if (function_exists('coop_record_schema_migration')) {
+            coop_record_schema_migration($db, $schemaVersion, 'ensurePublicTables lock write');
+        }
 
     } catch (\Throwable $e) {
         /* Silent fail — tables नबने पनि page break नगर्ने */

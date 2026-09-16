@@ -14,7 +14,7 @@ $L = getLangStrings();
         <h1><?php echo $L['date_converter']; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $L['date_converter']; ?></li>
             </ol>
         </nav>
@@ -29,7 +29,7 @@ $L = getLangStrings();
                 <div class="tool-card">
                     <div class="tool-header">
                         <div class="tool-icon">
-                            <i class="fas fa-calendar-alt"></i>
+                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                         </div>
                         <h3><?php echo $L['date_converter']; ?></h3>
                         <p><?php echo isEnglish() ? 'Convert between Bikram Sambat (BS) and Anno Domini (AD)' : 'विक्रम संवत (बि.सं.) र ईसवी सन् (ई.सं.) बीच रूपान्तरण गर्नुहोस्'; ?></p>
@@ -39,12 +39,12 @@ $L = getLangStrings();
                         <ul class="nav nav-tabs nav-fill" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="bs-ad-tab" data-bs-toggle="tab" data-bs-target="#bs-ad" type="button" role="tab">
-                                    <i class="fas fa-arrow-right"></i> <?php echo $L['bs_to_ad']; ?>
+                                    <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i> <?php echo $L['bs_to_ad']; ?>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="ad-bs-tab" data-bs-toggle="tab" data-bs-target="#ad-bs" type="button" role="tab">
-                                    <i class="fas fa-arrow-left"></i> <?php echo $L['ad_to_bs']; ?>
+                                    <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo $L['ad_to_bs']; ?>
                                 </button>
                             </li>
                         </ul>
@@ -53,13 +53,13 @@ $L = getLangStrings();
                             <!-- BS to AD -->
                             <div class="tab-pane fade show active" id="bs-ad" role="tabpanel">
                                 <form id="bsToAdForm" class="converter-form">
-                                    <h5><i class="fas fa-calendar-alt text-primary me-2"></i><?php echo isEnglish() ? 'Enter Bikram Sambat Date' : 'विक्रम संवत मिति प्रविष्ट गर्नुहोस्'; ?></h5>
+                                    <h5><i class="lucide-icon text-primary me-2" data-lucide="calendar" aria-hidden="true"></i><?php echo isEnglish() ? 'Enter Bikram Sambat Date' : 'विक्रम संवत मिति प्रविष्ट गर्नुहोस्'; ?></h5>
                                     <div class="date-select-group">
                                         <div class="date-select-wrapper">
                                             <select class="form-select" id="bsYear" required>
                                                 <option value=""><?php echo isEnglish() ? 'Year' : 'वर्ष'; ?></option>
                                                 <?php for ($i = 2070; $i <= 2110; $i++): ?>
-                                                <option value="<?php echo $i; ?>" <?php echo ($i == 2082) ? 'selected' : ''; ?>><?php echo $i; ?></option>
+                                                <option value="<?php echo (int)$i; ?>" <?php echo ($i == 2082) ? 'selected' : ''; ?>><?php echo $i; ?></option>
                                                 <?php endfor; ?>
                                             </select>
                                         </div>
@@ -84,13 +84,13 @@ $L = getLangStrings();
                                             <select class="form-select" id="bsDay" required>
                                                 <option value=""><?php echo isEnglish() ? 'Day' : 'दिन'; ?></option>
                                                 <?php for ($i = 1; $i <= 32; $i++): ?>
-                                                <option value="<?php echo $i; ?>"><?php echo $i; ?></option>
+                                                <option value="<?php echo (int)$i; ?>"><?php echo $i; ?></option>
                                                 <?php endfor; ?>
                                             </select>
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary mt-4">
-                                        <i class="fas fa-sync-alt me-2"></i> <?php echo $L['convert']; ?>
+                                        <i class="lucide-icon me-2" data-lucide="refresh-cw" aria-hidden="true"></i> <?php echo $L['convert']; ?>
                                     </button>
                                 </form>
                                 <div id="bsToAdResult" class="converter-result" style="display: none;">
@@ -109,7 +109,7 @@ $L = getLangStrings();
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-primary mt-3">
-                                        <i class="fas fa-sync-alt"></i> <?php echo $L['convert']; ?>
+                                        <i class="lucide-icon" data-lucide="refresh-cw" aria-hidden="true"></i> <?php echo $L['convert']; ?>
                                     </button>
                                 </form>
                                 <div id="adToBsResult" class="converter-result" style="display: none;">

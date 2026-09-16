@@ -4,6 +4,10 @@ $pageTitle = isEnglish() ? 'Committees' : 'समिति/उपसमिति
 $pageDescription = isEnglish()
     ? 'Board, audit and sub-committees — roles and members of our cooperative.'
     : 'संचालक, लेखा सुपरिवेक्षण र उपसमितिहरू — हाम्रो सहकारीका भूमिका तथा सदस्यहरू।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/committees-page.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -263,7 +267,7 @@ $currentHeroDesc = $isManagementView
         <h1><?php echo isEnglish() ? 'Committees & Sub-committees' : 'समिति/उपसमिति'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Committees' : 'समिति'; ?></li>
             </ol>
         </nav>
@@ -279,7 +283,7 @@ $currentHeroDesc = $isManagementView
                 <!-- Committee type dropdown -->
                 <div class="col-sm-6 col-md-5">
                     <div class="coop-select-wrap">
-                        <i class="fas fa-users coop-select-icon"></i>
+                        <i class="lucide-icon coop-select-icon" data-lucide="users" aria-hidden="true"></i>
                         <select id="committeeTypeSelect" class="form-select coop-select-field"
                                 onchange="location.href=this.value"
                                 aria-label="<?php echo isEnglish() ? 'Select committee type' : 'समिति प्रकार छान्नुहोस्'; ?>">
@@ -301,7 +305,7 @@ $currentHeroDesc = $isManagementView
                 <?php if (!empty($allTenureOptions)): ?>
                 <div class="col-sm-6 col-md-4">
                     <div class="coop-select-wrap">
-                        <i class="fas fa-calendar-alt coop-select-icon"></i>
+                        <i class="lucide-icon coop-select-icon" data-lucide="calendar" aria-hidden="true"></i>
                         <select class="form-select coop-select-field"
                                 onchange="location.href=this.value"
                                 aria-label="<?php echo isEnglish() ? 'Select tenure year' : 'कार्यकाल छान्नुहोस्'; ?>">
@@ -337,13 +341,13 @@ $currentHeroDesc = $isManagementView
                     <?php if (!$showPast): ?>
                     <a href="?past=1<?php echo $selectedType ? '&type='.$selectedType : ''; ?>"
                        class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-history me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="history" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Past Committees' : 'विगतका समितिहरू'; ?>
                     </a>
                     <?php else: ?>
                     <a href="committees.php<?php echo $selectedType ? '?type='.$selectedType : ''; ?>"
                        class="btn btn-primary btn-sm">
-                        <i class="fas fa-users me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Current Committees' : 'हालका समितिहरू'; ?>
                     </a>
                     <?php endif; ?>
@@ -353,41 +357,7 @@ $currentHeroDesc = $isManagementView
         </div>
     </div>
 </section>
-<style>
-.coop-select-wrap {
-    position: relative !important;
-    display: block !important;
-}
-.coop-select-icon {
-    position: absolute !important;
-    left: 14px !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    color: var(--primary-color, #1a5f2a) !important;
-    font-size: .85rem !important;
-    pointer-events: none !important;
-    z-index: 2 !important;
-}
-.coop-select-field.form-select,
-.coop-select-field {
-    padding: .5rem 2.25rem .5rem 2.75rem !important;
-    border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 30%, #e5e7eb) !important;
-    border-radius: 10px !important;
-    font-size: .93rem !important;
-    color: var(--text-primary, #1a2e1f) !important;
-    background-color: #fff !important;
-    background-position: right .75rem center !important;
-    cursor: pointer !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05) !important;
-    transition: border-color .18s, box-shadow .18s;
-    min-height: 44px !important;
-}
-.coop-select-field:focus {
-    border-color: var(--primary-color, #1a5f2a) !important;
-    box-shadow: 0 0 0 .2rem color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent) !important;
-    outline: none !important;
-}
-</style>
+
 
 <!-- Current Committees -->
 <?php if (!$showPast && !empty($currentCommittees)): ?>
@@ -395,7 +365,7 @@ $currentHeroDesc = $isManagementView
     <div class="container">
 <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
 <div class="section-badge-wrap">
-<span class="section-badge"><i class="fas fa-users"></i> <?php echo $currentBadgeTitle; ?></span>
+<span class="section-badge"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo $currentBadgeTitle; ?></span>
 </div>
 <h2><?php echo $currentHeroTitle; ?></h2>
 <div class="section-divider"></div>
@@ -406,11 +376,11 @@ $currentHeroDesc = $isManagementView
         <div class="committee-block mb-5" data-aos="fade-up">
             <div class="committee-header">
                 <h3>
-                    <i class="fas fa-users-cog"></i>
+                    <i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i>
                     <?php echo isEnglish() ? $committee['type']['name'] : $committee['type']['name_np']; ?>
                 </h3>
                 <span class="tenure-badge">
-                    <i class="fas fa-calendar-alt"></i>
+                    <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?>
                     <?php echo $committee['tenure']['tenure_name']; ?>
                 </span>
@@ -426,7 +396,7 @@ $currentHeroDesc = $isManagementView
                                 <img src="<?php echo safe_media_src($member['photo']); ?>" loading="lazy"  alt="<?php echo e($member['name']); ?>">
                             <?php else: ?>
                                 <div class="team-placeholder-circular">
-                                    <i class="fas fa-user"></i>
+                                    <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -436,18 +406,18 @@ $currentHeroDesc = $isManagementView
                             <p class="team-name-en"><?php echo e($member['name_en']); ?></p>
                             <?php endif; ?>
                             <span class="team-position-badge">
-                                <?php echo isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']; ?>
+                                <?php echo e(isEnglish() ? ($member['position_en'] ?: $member['position']) : $member['position']); ?>
                             </span>
                             <?php if ($member['phone'] || $member['email']): ?>
                             <div class="team-contact-circular">
                                 <?php if ($member['phone']): ?>
-                                <a href="tel:<?php echo $member['phone']; ?>" title="<?php echo $member['phone']; ?>">
-                                    <i class="fas fa-phone"></i>
+                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>">
+                                    <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i>
                                 </a>
                                 <?php endif; ?>
                                 <?php if ($member['email']): ?>
-                                <a href="mailto:<?php echo $member['email']; ?>" title="<?php echo $member['email']; ?>">
-                                    <i class="fas fa-envelope"></i>
+                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>">
+                                    <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i>
                                 </a>
                                 <?php endif; ?>
                             </div>
@@ -459,7 +429,7 @@ $currentHeroDesc = $isManagementView
             </div>
             <?php else: ?>
             <div class="empty-committee text-center py-4">
-                <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                <i class="lucide-icon lucide-3x text-muted mb-3" data-lucide="users" aria-hidden="true"></i>
                 <p class="text-muted"><?php echo isEnglish() ? 'No members available' : 'सदस्यहरू उपलब्ध छैनन्'; ?></p>
             </div>
             <?php endif; ?>
@@ -482,11 +452,11 @@ $currentHeroDesc = $isManagementView
         <div class="committee-block past mb-5" data-aos="fade-up">
             <div class="committee-header">
                 <h3>
-                    <i class="fas fa-history"></i>
+                    <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>
                     <?php echo isEnglish() ? $committee['type']['name'] : $committee['type']['name_np']; ?>
                 </h3>
                 <span class="tenure-badge past">
-                    <i class="fas fa-calendar-alt"></i>
+                    <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?>
                     <?php echo $committee['tenure']['tenure_name']; ?>
                     (<?php echo date('Y', strtotime($committee['tenure']['start_date'])); ?> - <?php echo date('Y', strtotime($committee['tenure']['end_date'])); ?>)
@@ -503,7 +473,7 @@ $currentHeroDesc = $isManagementView
                                 <img src="<?php echo safe_media_src($member['photo']); ?>" loading="lazy"  alt="<?php echo e($member['name']); ?>">
                             <?php else: ?>
                                 <div class="team-placeholder-circular">
-                                    <i class="fas fa-user"></i>
+                                    <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -529,7 +499,7 @@ $currentHeroDesc = $isManagementView
 <section class="section-padding">
     <div class="container">
         <div class="empty-state text-center py-5">
-            <i class="fas fa-users-cog fa-4x text-muted mb-3"></i>
+            <i class="lucide-icon lucide-4x text-muted mb-3" data-lucide="users-round" aria-hidden="true"></i>
             <h4><?php echo isEnglish() ? 'No Committee Information Available' : 'समिति जानकारी उपलब्ध छैन'; ?></h4>
             <p class="text-muted"><?php echo isEnglish() ? 'Committee information will be available soon.' : 'समिति जानकारी चाँडै उपलब्ध हुनेछ।'; ?></p>
         </div>

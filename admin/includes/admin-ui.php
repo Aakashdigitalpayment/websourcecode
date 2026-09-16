@@ -68,7 +68,7 @@ function adminPageHeader(string $title, string $icon = 'fa-cog', string $subtitl
     /* icon — convert FA name to Lucide, fallback to original */
     $lucideIcon = function_exists('fa_to_lucide') ? fa_to_lucide($icon) : $icon;
     $iconHtml = '<span class="admin-page-header-icon flex-shrink-0">'
-              . (function_exists('icon') ? icon($lucideIcon, 18) : '<i class="fas ' . htmlspecialchars($icon) . '"></i>')
+              . (function_exists('icon') ? icon($lucideIcon, 18) : '<i class="lucide-icon" data-lucide="' . htmlspecialchars(preg_replace('/^fa-/', '', $lucideIcon) ?: 'circle', ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>')
               . '</span>';
 
     /* Title topbar मा पहिले नै देखिन्छ — यहाँ subtitle + icon मात्र राख्ने */
@@ -92,9 +92,9 @@ function adminPageHeader(string $title, string $icon = 'fa-cog', string $subtitl
 function adminAlert(string $type, string $msg, bool $dismiss = true): string {
     if (empty(trim($msg))) return '';
     $lucideIcons = [
-        'success' => 'check-circle',
-        'danger'  => 'x-circle',
-        'warning' => 'alert-triangle',
+        'success' => 'circle-check',
+        'danger'  => 'circle-x',
+        'warning' => 'triangle-alert',
         'info'    => 'info'
     ];
     $lucideIcon = $lucideIcons[$type] ?? 'info';
@@ -118,13 +118,13 @@ function adminEmptyRow(int $colspan = 6, string $msg = '', string $sub = ''): st
     if ($msg === '') $msg = adminUiT('कुनै डाटा उपलब्ध छैन।', 'No data available.');
     if ($sub === '') $sub = adminUiT('माथिको बटनबाट नयाँ थप्नुहोस्।', 'Use the button above to add new records.');
     $iconHtml = function_exists('icon')
-        ? icon('inbox', 40, 'color:#d1d5db;')
+        ? icon('inbox', 40)
         : '<i class="lucide-icon" aria-hidden="true" data-lucide="inbox"></i>';
     return '<tr><td colspan="' . $colspan . '" class="text-center admin-empty-state">'
          . $iconHtml
-         . '<div style="font-size:var(--fs-sm,0.9rem);font-weight:600;color:#6b7280;margin-top:8px;">'
+         . '<div class="admin-empty-state-title">'
          . htmlspecialchars($msg) . '</div>'
-         . '<p style="font-size:var(--fs-xs,0.8rem);">' . htmlspecialchars($sub) . '</p>'
+         . '<p class="admin-empty-state-sub">' . htmlspecialchars($sub) . '</p>'
          . '</td></tr>';
 }
 
@@ -191,7 +191,7 @@ function adminStatusBadge(string $status): string {
     $s = $map[strtolower($status)] ?? ['bg' => 'color-mix(in srgb, var(--primary-color) 10%, #ffffff)', 'color' => 'var(--primary-dark,var(--primary-color))', 'icon' => 'circle', 'label' => $status];
     $iconHtml = function_exists('icon')
         ? icon($s['icon'], 12)
-        : '<i class="fas fa-circle" style="font-size:0.65rem;"></i>';
+        : '<i class="lucide-icon" data-lucide="circle" aria-hidden="true" style="width:0.65rem;height:0.65rem;"></i>';
     return '<span class="badge" style="'
          . 'background:' . $s['bg'] . ';color:' . $s['color'] . ';'
          . 'border-radius:20px;padding:4px 10px;font-weight:600;font-size:var(--fs-xs,0.72rem);'
@@ -226,7 +226,7 @@ function adminStatLink(string $url, string $color, string $label, $count, bool $
    ────────────────────────────────────────────────────────────── */
 function adminAddBtn(string $label, string $href = '#', string $icon = 'fa-plus', string $onclick = ''): string {
     $lucideIcon = function_exists('fa_to_lucide') ? fa_to_lucide($icon) : $icon;
-    $iconHtml = function_exists('icon') ? icon($lucideIcon, 15) : '<i class="fas ' . htmlspecialchars($icon) . '"></i>';
+    $iconHtml = function_exists('icon') ? icon($lucideIcon, 15) : '<i class="lucide-icon" data-lucide="' . htmlspecialchars(ltrim($lucideIcon, 'fa-'), ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>';
     $onclickAttr = $onclick ? ' onclick="' . htmlspecialchars($onclick, ENT_QUOTES) . '"' : '';
     if ($href !== '#') {
         return '<a href="' . htmlspecialchars($href) . '" class="btn btn-primary" aria-label="' . htmlspecialchars($label, ENT_QUOTES) . '"' . $onclickAttr . '>'
@@ -271,7 +271,7 @@ function adminDeleteBtn(int $recordId, string $csrfToken, string $confirmMsg = '
          . '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($csrfToken) . '">'
          . $extraFields
          . '<button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="हटाउनुहोस्" aria-label="हटाउनुहोस्">'
-         . '<i class="fas fa-trash" aria-hidden="true"></i></button></form>';
+         . '<i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button></form>';
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -283,11 +283,11 @@ function adminEditBtn(string $onclick = '', string $href = '#'): string {
         return '<button type="button" class="adm-icon-btn adm-icon-btn--edit" '
              . 'onclick="' . htmlspecialchars($onclick, ENT_QUOTES) . '" '
              . 'title="सम्पादन" aria-label="सम्पादन">'
-             . '<i class="fas fa-pen" aria-hidden="true"></i></button>';
+             . '<i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></button>';
     }
     return '<a href="' . htmlspecialchars($href) . '" class="adm-icon-btn adm-icon-btn--edit" '
          . 'title="सम्पादन" aria-label="सम्पादन">'
-         . '<i class="fas fa-pen" aria-hidden="true"></i></a>';
+         . '<i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>';
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -298,7 +298,7 @@ function adminViewBtn(string $href, string $label = ''): string {
     return '<a href="' . htmlspecialchars($href) . '" class="adm-icon-btn adm-icon-btn--view" '
          . 'title="' . htmlspecialchars($label !== '' ? $label : 'हेर्नुहोस्', ENT_QUOTES) . '" '
          . 'aria-label="' . htmlspecialchars($label !== '' ? $label : 'हेर्नुहोस्', ENT_QUOTES) . '">'
-         . '<i class="fas fa-eye" aria-hidden="true"></i></a>';
+         . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>';
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -355,7 +355,7 @@ function adminSectionCard(string $title, string $icon, string $color, string $bo
     return '<div class="card mb-3 admin-section-card">'
          . '<div class="card-header py-2 px-3" style="' . $hdrStyle . '">'
          . '<h6 class="mb-0" style="' . $s['txt'] . 'display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;">'
-         . (function_exists('icon') ? icon(fa_to_lucide($icon), 16) : '<i class="fas ' . htmlspecialchars($icon) . '"></i>')
+         . (function_exists('icon') ? icon(fa_to_lucide($icon), 16) : '<i class="lucide-icon" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide($icon) : ltrim($icon,'fa-'), ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>')
          . htmlspecialchars($title) . '</h6></div>'
          . '<div class="card-body p-3">' . $body . '</div></div>';
 }
@@ -371,7 +371,7 @@ function adminTableCard(string $tableHtml, bool $noPad = true, string $headerTit
     $headerHtml = '';
     if ($headerTitle) {
         $iconHtml = $headerIcon
-            ? (function_exists('icon') ? icon(fa_to_lucide($headerIcon), 18, 'margin-right:8px;') : '<i class="fas ' . htmlspecialchars($headerIcon) . ' me-2"></i>')
+            ? (function_exists('icon') ? icon(fa_to_lucide($headerIcon), 18, 'margin-right:8px;') : '<i class="lucide-icon me-2" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide($headerIcon) : ltrim($headerIcon,'fa-'), ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>')
             : '';
         $rightHtml = $headerRight ? '<div>' . $headerRight . '</div>' : '';
         $headerHtml = '<div class="card-header d-flex align-items-center justify-content-between">'
@@ -505,7 +505,7 @@ function adminHelpTip(string $mainText, array $steps = [], string $icon = 'fa-ci
     }
     return '<div class="admin-help-tip mb-3">'
          . '<span class="help-icon">'
-         . (function_exists('icon') ? icon(fa_to_lucide($icon), 14) : '<i class="fas ' . htmlspecialchars($icon) . '"></i>')
+         . (function_exists('icon') ? icon(fa_to_lucide($icon), 14) : '<i class="lucide-icon" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide($icon) : ltrim($icon,'fa-'), ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>')
          . '</span>'
          . '<div><span>' . htmlspecialchars($mainText) . '</span>' . $stepsHtml . '</div>'
          . '</div>';
@@ -525,7 +525,7 @@ function adminQuickStat(string $label, int|string $value, string $icon = 'fa-cir
     $style = $colors[$color] ?? $colors['primary'];
     $iconHtml = function_exists('icon')
         ? icon(fa_to_lucide($icon), 12)
-        : '<i class="fas ' . htmlspecialchars($icon) . '" style="font-size:.7rem;"></i>';
+        : '<i class="lucide-icon" data-lucide="' . htmlspecialchars(function_exists('fa_to_lucide') ? fa_to_lucide($icon) : ltrim($icon,'fa-'), ENT_QUOTES, 'UTF-8') . '" aria-hidden="true" style="width:.7rem;height:.7rem;"></i>';
     return '<span style="display:inline-flex;align-items:center;gap:6px;'
          . $style . 'padding:4px 12px;border-radius:20px;font-size:.8rem;font-weight:600;">'
          . $iconHtml

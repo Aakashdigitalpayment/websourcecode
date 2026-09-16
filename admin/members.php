@@ -6,12 +6,8 @@
  * IMPORTANT: load deps + data BEFORE admin-header output.
  * Heavy schema backfill after header was blanking the main pane on large imports.
  */
-if (!defined('IS_ADMIN_PAGE')) {
-    define('IS_ADMIN_PAGE', true);
-}
-require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/member-auth.php';
-require_once __DIR__ . '/../includes/auth-roles.php';
 require_once __DIR__ . '/../includes/member-ssot.php';
 require_once __DIR__ . '/../includes/information-room-tables.php';
 require_once __DIR__ . '/includes/admin-ui.php';
@@ -546,17 +542,17 @@ try {
 
 <?php if (!empty($showAllActiveFallback)): ?>
 <div class="alert alert-warning mb-3">
-    <i class="fas fa-info-circle me-2"></i>
+    <i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>
     सक्रिय/निष्क्रिय फिल्टर मिलेन — सबै सदस्य देखाइँदैछ। Import पछिको डेटा ठिकै छ कि जाँच्नुहोस्।
 </div>
 <?php endif; ?>
 
 <?php if ($flash = getFlash()): ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <?php if ($listError !== ''): ?>
-<div class="alert alert-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i><?php echo htmlspecialchars($listError, ENT_QUOTES, 'UTF-8'); ?>
+<div class="alert alert-danger mb-3"><i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i><?php echo htmlspecialchars($listError, ENT_QUOTES, 'UTF-8'); ?>
 <?php if ($listErrorDetail !== ''): ?>
 <div class="small mt-1 text-muted"><code><?php echo htmlspecialchars(function_exists('mb_substr') ? mb_substr($listErrorDetail, 0, 240, 'UTF-8') : substr($listErrorDetail, 0, 240), ENT_QUOTES, 'UTF-8'); ?></code></div>
 <?php endif; ?>
@@ -599,7 +595,7 @@ if ($viewKyc && !empty($viewKyc['id'])) {
     <h4 class="mb-0"><?php echo $memEditMode ? 'प्रोफाइल सम्पादन' : 'Member विवरण'; ?></h4>
     <?php if (!$memEditMode): ?>
     <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>&edit=1" class="btn btn-sm btn-primary ms-auto">
-        <i class="fas fa-user-pen me-1"></i>प्रोफाइल सम्पादन
+        <i class="lucide-icon me-1" data-lucide="user-pen" aria-hidden="true"></i>प्रोफाइल सम्पादन
     </a>
     <?php else: ?>
     <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-secondary ms-auto">रद्द / फर्कनुहोस्</a>
@@ -616,7 +612,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 <div class="card border-0 shadow-sm mb-3 border-start border-4 border-info">
     <div class="card-body py-3 d-flex flex-wrap align-items-center gap-3">
         <div class="flex-grow-1">
-            <div class="fw-bold text-info mb-1"><i class="fas fa-id-card me-1"></i>KYM (नागरिकता, परिवार, कागजात)</div>
+            <div class="fw-bold text-info mb-1"><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>KYM (नागरिकता, परिवार, कागजात)</div>
             <div class="small text-muted mb-0">Member form बाट edit हुँदैन — KYM पृष्ठमा सच्याउनुहोस् (auto sync)।</div>
             <?php if ($viewKyc): ?>
             <div class="small mt-2 text-muted">
@@ -626,7 +622,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <?php endif; ?>
         </div>
         <a href="<?php echo htmlspecialchars($memKycEditUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-info text-white px-4">
-            <i class="fas fa-arrow-right me-1"></i>KYM सम्पादन
+            <i class="lucide-icon me-1" data-lucide="arrow-right" aria-hidden="true"></i>KYM सम्पादन
         </a>
     </div>
 </div>
@@ -643,7 +639,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 <!-- Member shared profile only — deep KYM is on kyc-applications.php (no duplicate tab) -->
 <div class="card border-0 shadow-sm mb-3" style="border-left:4px solid var(--primary-color,#1a5f2a) !important;">
     <div class="card-header bg-white py-3">
-        <div class="fw-bold text-success mb-1"><i class="fas fa-user-pen me-2"></i>सदस्य सम्पर्क / व्यक्तिगत सच्याउनुहोस्</div>
+        <div class="fw-bold text-success mb-1"><i class="lucide-icon me-2" data-lucide="user-pen" aria-hidden="true"></i>सदस्य सम्पर्क / व्यक्तिगत सच्याउनुहोस्</div>
         <div class="small text-muted mb-0">Import correction वा सम्पर्क fix — save पछि linked KYM मा sync। नागरिकता/परिवार → KYM पृष्ठ।</div>
     </div>
     <div class="card-body pt-2">
@@ -658,7 +654,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <div class="row g-3 mb-3 pb-3 border-bottom">
                 <div class="col-md-4">
                     <label class="form-label fw-semibold" for="mem_edit_sid">सदस्यता नं. / Member ID</label>
-                    <input type="text" id="mem_edit_sid" class="form-control bg-light" value="<?php echo $memEditSid; ?>" disabled readonly>
+                    <input type="text" id="mem_edit_sid" class="form-control bg-light" value="<?php echo e($memEditSid); ?>" disabled readonly>
                     <div class="form-text">पहिचान कोड — परिवर्तन हुँदैन।</div>
                 </div>
             </div>
@@ -666,12 +662,12 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <ul class="nav nav-tabs admin-nav-tabs mb-3" id="memEditTabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="memTabContactBtn" data-bs-toggle="tab" data-bs-target="#memTabContact" type="button" role="tab">
-                        <i class="fas fa-address-book me-1"></i>सम्पर्क
+                        <i class="lucide-icon me-1" data-lucide="contact" aria-hidden="true"></i>सम्पर्क
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="memTabPersonalBtn" data-bs-toggle="tab" data-bs-target="#memTabPersonal" type="button" role="tab">
-                        <i class="fas fa-user me-1"></i>व्यक्तिगत
+                        <i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i>व्यक्तिगत
                     </button>
                 </li>
             </ul>
@@ -682,22 +678,22 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         <div class="col-md-8">
                             <label class="form-label fw-semibold" for="mem_edit_name">पूरा नाम <span class="text-danger">*</span></label>
                             <input type="text" name="name" id="mem_edit_name" class="form-control form-control-lg" required maxlength="200"
-                                   value="<?php echo $memEditName; ?>" autocomplete="name">
+                                   value="<?php echo e($memEditName); ?>" autocomplete="name">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold" for="mem_edit_phone">मोबाइल <span class="text-danger">*</span></label>
                             <input type="tel" name="phone" id="mem_edit_phone" class="form-control form-control-lg" required maxlength="20"
-                                   value="<?php echo $memEditPhone; ?>" inputmode="numeric" autocomplete="tel">
+                                   value="<?php echo e($memEditPhone); ?>" inputmode="numeric" autocomplete="tel">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold" for="mem_edit_email">इमेल</label>
                             <input type="email" name="email" id="mem_edit_email" class="form-control" maxlength="200"
-                                   value="<?php echo $memEditEmail; ?>" autocomplete="email">
+                                   value="<?php echo e($memEditEmail); ?>" autocomplete="email">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold" for="mem_edit_address">ठेगाना</label>
                             <input type="text" name="address" id="mem_edit_address" class="form-control" maxlength="300"
-                                   value="<?php echo $memEditAddress; ?>" autocomplete="street-address">
+                                   value="<?php echo e($memEditAddress); ?>" autocomplete="street-address">
                         </div>
                     </div>
                 </div>
@@ -724,7 +720,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 
             <div class="d-flex flex-wrap gap-2 pt-3 mt-2 border-top">
                 <button type="submit" class="btn btn-success btn-lg px-4">
-                    <i class="fas fa-save me-1"></i>सम्पर्क/व्यक्तिगत सुरक्षित
+                    <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सम्पर्क/व्यक्तिगत सुरक्षित
                 </button>
                 <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-outline-secondary btn-lg">रद्द</a>
             </div>
@@ -755,7 +751,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <?php if (!$memEditMode): ?>
                 <div class="mt-3">
                     <a href="members.php?view=<?php echo (int)$viewMember['id']; ?>&edit=1" class="btn btn-primary btn-sm w-100">
-                        <i class="fas fa-user-pen me-1"></i>प्रोफाइल सम्पादन
+                        <i class="lucide-icon me-1" data-lucide="user-pen" aria-hidden="true"></i>प्रोफाइल सम्पादन
                     </a>
                 </div>
                 <?php endif; ?>
@@ -840,7 +836,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <?php if ($viewCard && (!empty($viewCard['cvv']) || $adminFaceId !== '')): ?>
             <div class="card-body border-top mem-card-secret">
                 <div class="fw-bold small text-warning-emphasis mb-2">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> ID Card विवरण
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> ID Card विवरण
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="text-muted small">सदस्यता नं. / Member ID</span>
@@ -856,19 +852,19 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             </div>
             <?php endif; ?>
             <div class="card-body border-top">
-                <div class="fw-bold small mb-2 text-success"><i class="fas fa-link me-1"></i>Shortcuts</div>
+                <div class="fw-bold small mb-2 text-success"><i class="lucide-icon me-1" data-lucide="link" aria-hidden="true"></i>Shortcuts</div>
                 <div class="d-grid gap-2">
                     <?php if ($memKycEditUrl !== ''): ?>
                     <a href="<?php echo htmlspecialchars($memKycEditUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-id-card me-1"></i>KYM सम्पादन
+                        <i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i>KYM सम्पादन
                     </a>
                     <?php elseif (!empty($viewMember['sadasyata_number'])): ?>
                     <a href="kyc-applications.php?search=<?php echo urlencode((string)$viewMember['sadasyata_number']); ?>" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-search me-1"></i>KYM खोज (Member ID)
+                        <i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>KYM खोज (Member ID)
                     </a>
                     <?php endif; ?>
                     <a href="member-online-portal.php?view=<?php echo (int)$viewMember['id']; ?>" class="btn btn-sm btn-outline-success">
-                        <i class="fas fa-globe me-1"></i>Portal unlock / approve
+                        <i class="lucide-icon me-1" data-lucide="globe" aria-hidden="true"></i>Portal unlock / approve
                     </a>
                     <?php if (empty($viewMember['has_password']) && empty($viewMember['password_hash'])): ?>
                     <div class="small text-muted">पासवर्ड छैन — सदस्यले register गरेर सेट गर्नुपर्छ, वा import temp password प्रयोग।</div>
@@ -883,7 +879,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <?php $irEnabled = !empty($viewMember['information_room_enabled']); ?>
                     <button type="submit" class="btn btn-sm w-100 <?php echo $irEnabled ? 'btn-outline-warning' : 'btn-outline-success'; ?>"
                             onclick="return confirm('Information Room access <?php echo $irEnabled ? 'disable' : 'enable'; ?> गर्ने?');">
-                        <i class="fas fa-vault me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="vault" aria-hidden="true"></i>
                         <?php echo $irEnabled ? 'Information Room Disable' : 'Information Room Enable'; ?>
                     </button>
                     <div class="small text-muted mt-2">Enable गरेपछि सदस्यको Member Portal मा Information Room menu देखिन्छ।</div>
@@ -893,10 +889,10 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <form method="POST">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="toggle_active" value="1">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <button type="submit" class="btn btn-sm w-100 <?php echo $viewMember['is_active'] ? 'btn-outline-danger' : 'btn-outline-success'; ?>"
                             onclick="return confirm('Member status बदल्ने?')">
-                        <i class="fas fa-<?php echo $viewMember['is_active'] ? 'ban' : 'check'; ?> me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="<?php echo $viewMember['is_active'] ? 'ban' : 'check'; ?>" aria-hidden="true"></i>
                         <?php echo $viewMember['is_active'] ? 'निष्क्रिय गर्नुहोस्' : 'सक्रिय गर्नुहोस्'; ?>
                     </button>
                 </form>
@@ -914,7 +910,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <form method="POST">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="send_notif" value="1">
-                    <input type="hidden" name="member_id" value="<?php echo $viewMember['id']; ?>">
+                    <input type="hidden" name="member_id" value="<?php echo (int)$viewMember['id']; ?>">
                     <div class="row g-2">
                         <div class="col-md-8">
                             <label class="form-label small fw-semibold" for="mem_notif_title">शीर्षक <span class="text-danger">*</span></label>
@@ -924,10 +920,10 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         <div class="col-md-4">
                             <label class="form-label small fw-semibold" for="mem_notif_type">प्रकार</label>
                             <select name="notif_type" id="mem_notif_type" class="form-select">
-                                <option value="info">📘 सूचना</option>
-                                <option value="success">✅ सफलता</option>
-                                <option value="warning">⚠️ सतर्कता</option>
-                                <option value="error">❌ अस्वीकृति</option>
+                                <option value="info">सूचना</option>
+                                <option value="success">सफलता</option>
+                                <option value="warning">सतर्कता</option>
+                                <option value="error">अस्वीकृति</option>
                             </select>
                         </div>
                         <div class="col-12">
@@ -937,7 +933,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-success btn-sm">
-                                <i class="fas fa-paper-plane me-1"></i>Notification पठाउनुहोस्
+                                <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>Notification पठाउनुहोस्
                             </button>
                         </div>
                     </div>
@@ -950,13 +946,13 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <div class="card-header bg-white p-0">
                 <ul class="nav nav-tabs admin-nav-tabs px-3 pt-2" id="memTabs">
                     <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabApps">
-                        <i class="fas fa-file-alt me-1"></i>आवेदनहरू (<?php echo count($viewApps); ?>)
+                        <i class="lucide-icon me-1" data-lucide="file-text" aria-hidden="true"></i>आवेदनहरू (<?php echo count($viewApps); ?>)
                     </a></li>
                     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabNotifs">
                         <i class="lucide-icon me-1" aria-hidden="true" data-lucide="bell"></i>Notifications (<?php echo count($viewNotifs); ?>)
                     </a></li>
                     <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabProgramAtt">
-                        <i class="fas fa-calendar-check me-1"></i>उपस्थिति (<?php echo count($viewProgramAttendance); ?>)
+                        <i class="lucide-icon me-1" data-lucide="calendar-check" aria-hidden="true"></i>उपस्थिति (<?php echo count($viewProgramAttendance); ?>)
                     </a></li>
                 </ul>
             </div>
@@ -964,7 +960,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <!-- Applications tab -->
                 <div class="tab-pane fade show active p-3" id="tabApps">
                     <?php if (empty($viewApps)): ?>
-                    <div class="text-center text-muted py-4"><i class="lucide-icon fa-2x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="inbox"></i>कुनै आवेदन छैन</div>
+                    <div class="text-center text-muted py-4"><i class="lucide-icon lucide-2x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="inbox"></i>कुनै आवेदन छैन</div>
                     <?php else: ?>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover">
@@ -973,7 +969,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                             <?php foreach ($viewApps as $app): ?>
                             <tr>
                                 <td><span class="badge mem-service-badge" data-service-color="<?php echo htmlspecialchars($app['service_color'] ?? '#16a34a', ENT_QUOTES, 'UTF-8'); ?>">
-                                    <i class="fas <?php echo $app['service_icon']; ?> me-1"></i><?php echo $app['service_name']; ?>
+                                    <?php echo coop_nav_icon_html('fas ' . coop_sanitize_icon_class($app['service_icon'] ?? ''), 'fas fa-circle', 'me-1'); ?><?php echo e($app['service_name']); ?>
                                 </span></td>
                                 <td class="small"><?php echo htmlspecialchars(mb_strimwidth($app['detail']??'', 0, 35, '…')); ?></td>
                                 <td><?php echo memberStatusBadge($app['status']); ?></td>
@@ -989,7 +985,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <!-- Notifications tab -->
                 <div class="tab-pane fade p-3" id="tabNotifs">
                     <?php if (empty($viewNotifs)): ?>
-                    <div class="text-center text-muted py-4"><i class="fas fa-bell-slash fa-2x mb-2 d-block opacity-25"></i>कुनै notification छैन</div>
+                    <div class="text-center text-muted py-4"><i class="lucide-icon lucide-2x mb-2 d-block opacity-25" data-lucide="bell-off" aria-hidden="true"></i>कुनै notification छैन</div>
                     <?php else: ?>
                     <?php
                     $icMap = ['success'=>'bg-success','error'=>'bg-danger','warning'=>'bg-warning','info'=>'bg-primary'];
@@ -1012,7 +1008,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <!-- Program attendance tab -->
                 <div class="tab-pane fade p-3" id="tabProgramAtt">
                     <?php if (empty($viewProgramAttendance)): ?>
-                    <div class="text-center text-muted py-4"><i class="fas fa-calendar-xmark fa-2x mb-2 d-block opacity-25"></i>कुनै कार्यक्रम उपस्थिति record छैन</div>
+                    <div class="text-center text-muted py-4"><i class="lucide-icon lucide-2x mb-2 d-block opacity-25" data-lucide="calendar-x" aria-hidden="true"></i>कुनै कार्यक्रम उपस्थिति record छैन</div>
                     <?php else: ?>
                     <div class="table-responsive">
                         <table class="table table-sm table-hover mb-0">
@@ -1049,10 +1045,10 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 <div class="alert alert-warning border-start border-warning border-4 d-flex align-items-center justify-content-between mb-3" role="alert">
     <div>
         <i class="lucide-icon me-2" aria-hidden="true" data-lucide="clock"></i>
-        <strong><?php echo $stats['pending']; ?> Member</strong> दर्ता अनुमोदन प्रतीक्षामा छ।
+        <strong><?php echo (int)$stats['pending']; ?> Member</strong> दर्ता अनुमोदन प्रतीक्षामा छ।
     </div>
     <a href="member-online-portal.php?status=pending" class="btn btn-warning btn-sm fw-bold">
-        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="check-circle"></i>अनुमोदन गर्नुहोस् →
+        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="circle-check"></i>अनुमोदन गर्नुहोस् →
     </a>
 </div>
 <?php endif; ?>
@@ -1061,11 +1057,11 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
 <?php if (!empty($stats['renewal']) && $stats['renewal'] > 0): ?>
 <div class="alert alert-info border-start border-info border-4 d-flex align-items-center justify-content-between mb-3" role="alert">
     <div>
-        <i class="fas fa-rotate me-2"></i>
-        <strong><?php echo $stats['renewal']; ?> Member</strong> को card म्याद सकिएको छ — renewal प्रतीक्षामा।
+        <i class="lucide-icon me-2" data-lucide="rotate" aria-hidden="true"></i>
+        <strong><?php echo (int)$stats['renewal']; ?> Member</strong> को card म्याद सकिएको छ — renewal प्रतीक्षामा।
     </div>
     <a href="?search=" class="btn btn-info btn-sm fw-bold text-white">
-        <i class="fas fa-list me-1"></i>हेर्नुहोस् →
+        <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i>हेर्नुहोस् →
     </a>
 </div>
 <?php endif; ?>
@@ -1106,13 +1102,13 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                 <a href="members.php<?php echo $memSub === 'arch' ? '?mem_sub=arch' : ''; ?>" class="btn btn-sm btn-outline-secondary">Clear</a>
             <?php endif; ?>
             <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#bulkNotifModal" title="सबै सदस्यलाई एकैचोटि सूचना पठाउनुहोस्">
-                <i class="fas fa-bullhorn me-1"></i>Bulk Notification
+                <i class="lucide-icon me-1" data-lucide="megaphone" aria-hidden="true"></i>Bulk Notification
             </button>
             <a href="member-import.php" class="btn btn-sm btn-success" title="पुराना सदस्य CSV बाट import">
-                <i class="fas fa-file-csv me-1"></i>Bulk Import
+                <i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Bulk Import
             </a>
             <a href="member-ssot-duplicates.php" class="btn btn-sm btn-outline-warning" title="दोहोरो Member ID जाँच">
-                <i class="fas fa-clone me-1"></i>Duplicate IDs
+                <i class="lucide-icon me-1" data-lucide="copy" aria-hidden="true"></i>Duplicate IDs
             </a>
         </form>
         <small class="text-muted">
@@ -1126,7 +1122,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
         <?php echo adminListSubtabQueryLinks('mem-sub', $countLiveMembers, $countArchMembers, 'mem_sub', $memSub, 'members.php', $memPreserveQ); ?>
         <?php if (empty($members)): ?>
         <div class="text-center text-muted py-5 px-3">
-            <i class="fas fa-user-slash fa-3x mb-3 opacity-25"></i>
+            <i class="lucide-icon lucide-3x mb-3 opacity-25" data-lucide="user-x" aria-hidden="true"></i>
             <div><?php
                 if ($listError !== '') {
                     echo 'सूची अहिले देखाइएन।';
@@ -1203,7 +1199,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                         <?php
                         $as = $m['approval_status'] ?? 'pending';
                         $asBadge = ['pending'=>'bg-warning text-dark','approved'=>'bg-success','rejected'=>'bg-danger','renewal_pending'=>'bg-info text-dark'];
-                        $asLabel = ['pending'=>'⏳ Pending','approved'=>'✅ Approved','rejected'=>'❌ Rejected','renewal_pending'=>'🔄 Renewal'];
+                        $asLabel = ['pending'=>'Pending','approved'=>'Approved','rejected'=>'Rejected','renewal_pending'=>'Renewal'];
                         $bClass  = $asBadge[$as] ?? 'bg-secondary';
                         $bLabel  = $asLabel[$as] ?? $as;
                         echo "<br><span class='badge $bClass mem-status-pill'>$bLabel</span>";
@@ -1212,26 +1208,26 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
                     <td>
                         <div class="d-inline-flex align-items-center gap-1 flex-wrap adm-action-icons" role="group">
                             <a href="members.php?view=<?php echo (int)$m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="Member विवरण" aria-label="Member विवरण">
-                                <i class="fas fa-user" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                             </a>
                             <a href="members.php?view=<?php echo (int)$m['id']; ?>&edit=1" class="adm-icon-btn adm-icon-btn--edit" title="प्रोफाइल सम्पादन" aria-label="प्रोफाइल सम्पादन">
-                                <i class="fas fa-user-pen" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="user-pen" aria-hidden="true"></i>
                             </a>
                             <a href="member-online-portal.php?view=<?php echo (int)$m['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="Portal" aria-label="Portal">
-                                <i class="fas fa-globe" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i>
                             </a>
                             <?php if (!empty($m['kyc_application_id'])): ?>
                             <a href="kyc-applications.php?view=<?php echo (int)$m['kyc_application_id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="केवाइएम" aria-label="केवाइएम">
-                                <i class="fas fa-id-card" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i>
                             </a>
                             <?php elseif (!empty($m['sadasyata_number'])): ?>
                             <a href="kyc-applications.php?search=<?php echo urlencode((string)$m['sadasyata_number']); ?>" class="adm-icon-btn" title="केवाइएम खोज" aria-label="केवाइएम खोज">
-                                <i class="fas fa-search" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="search" aria-hidden="true"></i>
                             </a>
                             <?php endif; ?>
                             <?php if ($as === 'pending' || $as === 'renewal_pending'): ?>
                             <a href="member-online-portal.php?status=<?php echo $as === 'renewal_pending' ? 'renewal_pending' : 'pending'; ?>" class="adm-icon-btn adm-icon-btn--edit" title="अनुमोदन" aria-label="अनुमोदन">
-                                <i class="fas fa-check" aria-hidden="true"></i>
+                                <i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>
                             </a>
                             <?php endif; ?>
                         </div>
@@ -1301,40 +1297,40 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <input type="hidden" name="send_notif" value="1">
             <input type="hidden" name="notif_target" value="all">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title"><i class="fas fa-bullhorn me-2"></i>सबै सदस्यलाई Notification पठाउनुहोस्</h5>
+                <h5 class="modal-title"><i class="lucide-icon me-2" data-lucide="megaphone" aria-hidden="true"></i>सबै सदस्यलाई Notification पठाउनुहोस्</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-warning small">
-                    <i class="fas fa-triangle-exclamation me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i>
                     यो सूचना तपाईंले छनोट गर्नुभएको audience का सबै सदस्यको Member Portal नोटिफिकेसन panel मा देखिनेछ। पठाइसकेपछि फिर्ता गर्न मिल्दैन।
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-7">
-                        <label for="mem_bc_notif_title" class="form-label fw-semibold"><i class="fas fa-heading me-1 text-success"></i>शीर्षक <span class="text-danger">*</span></label>
+                        <label for="mem_bc_notif_title" class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" data-lucide="heading" aria-hidden="true"></i>शीर्षक <span class="text-danger">*</span></label>
                         <input type="text" name="notif_title" id="mem_bc_notif_title" class="form-control" required maxlength="200" placeholder="Notification शीर्षक (e.g. आजको कार्यक्रमको सूचना)">
                     </div>
                     <div class="col-md-5">
-                        <label for="mem_bc_notif_type" class="form-label fw-semibold"><i class="fas fa-tag me-1 text-success"></i>प्रकार</label>
+                        <label for="mem_bc_notif_type" class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" data-lucide="tag" aria-hidden="true"></i>प्रकार</label>
                         <select name="notif_type" id="mem_bc_notif_type" class="form-select">
-                            <option value="info">📘 सूचना (Info)</option>
-                            <option value="success">✅ सफलता (Success)</option>
-                            <option value="warning">⚠️ सतर्कता (Warning)</option>
-                            <option value="error">❌ अस्वीकृति (Error)</option>
+                            <option value="info">सूचना (Info)</option>
+                            <option value="success">सफलता (Success)</option>
+                            <option value="warning">सतर्कता (Warning)</option>
+                            <option value="error">अस्वीकृति (Error)</option>
                         </select>
                     </div>
                     <div class="col-12">
-                        <label for="mem_bc_notif_message" class="form-label fw-semibold"><i class="fas fa-comment me-1 text-success"></i>विस्तृत सन्देश</label>
+                        <label for="mem_bc_notif_message" class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" data-lucide="message-circle" aria-hidden="true"></i>विस्तृत सन्देश</label>
                         <textarea name="notif_message" id="mem_bc_notif_message" class="form-control" rows="4" maxlength="2000" placeholder="विस्तृत सन्देश यहाँ लेख्नुहोस्…"></textarea>
                     </div>
                     <div class="col-12">
                         <label for="mem_notif_audience" class="form-label fw-semibold"><i class="lucide-icon me-1 text-success" aria-hidden="true" data-lucide="users"></i>कसलाई पठाउने (Audience)</label>
                         <select name="notif_audience" id="mem_notif_audience" class="form-select">
-                            <option value="active" selected>✅ सक्रिय + अनुमोदित सदस्य मात्र (recommended)</option>
-                            <option value="all_active">🌐 सबै सक्रिय (अनुमोदन-स्थिति नहेरी)</option>
-                            <option value="kyc_linked">🔗 KYC-Linked सक्रिय सदस्य मात्र</option>
-                            <option value="pending">⏳ Pending Approval मात्र</option>
+                            <option value="active" selected>सक्रिय + अनुमोदित सदस्य मात्र (recommended)</option>
+                            <option value="all_active">सबै सक्रिय (अनुमोदन-स्थिति नहेरी)</option>
+                            <option value="kyc_linked">KYC-Linked सक्रिय सदस्य मात्र</option>
+                            <option value="pending">Pending Approval मात्र</option>
                         </select>
                         <div class="form-text">"सक्रिय + अनुमोदित" चयन गरेको खण्डमा रद्द गरिएका वा निष्क्रिय सदस्यलाई पठाइने छैन।</div>
                     </div>
@@ -1343,7 +1339,7 @@ if ($memSsotDivergent !== [] && function_exists('memberSsotDivergenceAlertHtml')
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">रद्द</button>
                 <button type="submit" class="btn btn-success" onclick="return confirm('के तपाईं पक्का सबै चयनित सदस्यलाई यो notification पठाउन चाहनुहुन्छ?')">
-                    <i class="fas fa-paper-plane me-1"></i>सबैलाई पठाउनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>सबैलाई पठाउनुहोस्
                 </button>
             </div>
         </form>

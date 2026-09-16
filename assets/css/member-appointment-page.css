@@ -1,0 +1,6 @@
+/** Member appointment — extracted from member/appointment.php */
+.appt-status{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+.appt-status--pending{background:color-mix(in srgb,var(--secondary-color) 14%,white);color:var(--secondary-dark);}
+.appt-status--confirmed{background:color-mix(in srgb,var(--primary-color) 14%,white);color:var(--primary-dark);}
+.appt-status--completed{background:color-mix(in srgb,var(--primary-color) 10%,white);color:var(--primary-dark);}
+.appt-status--cancelled{background:#f3f4f6;color:#6b7280;}

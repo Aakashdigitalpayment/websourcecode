@@ -3,6 +3,7 @@
  * Admin Panel - Member Welfare Claims Management
  * सदस्य कल्याण दाबी व्यवस्थापन
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -202,11 +203,11 @@ if (!$claim) {
 <div class="card admin-table-card mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-            <i class="fas fa-eye"></i> दाबी विवरण — <?php echo $claim['tracking_id']; ?>
+            <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i> दाबी विवरण — <?php echo e($claim['tracking_id']); ?>
         </h5>
         <div class="d-flex align-items-center gap-2">
             <a href="welfare-claims.php" class="btn btn-light btn-sm">
-                <i class="fas fa-arrow-left"></i> फिर्ता
+                <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> फिर्ता
             </a>
             <?php echo adminExcelSingleLink('welfare-claims.php', (int)$claim['id']); ?>
             <?php echo adminPrintFormLink('welfare', (int)$claim['id']); ?>
@@ -218,23 +219,23 @@ if (!$claim) {
             <div class="col-lg-8">
                 <!-- Status Badge -->
                 <div class="mb-4">
-                    <span class="badge bg-<?php echo $statusLabels[$claim['status']]['class'] ?? 'secondary'; ?> fs-6">
-                        <?php echo $statusLabels[$claim['status']]['np'] ?? $claim['status']; ?>
+                    <span class="badge bg-<?php echo e($statusLabels[$claim['status']]['class'] ?? 'secondary'); ?> fs-6">
+                        <?php echo e($statusLabels[$claim['status']]['np'] ?? $claim['status']); ?>
                     </span>
-                    <span class="badge ms-2" style="background-color: <?php echo $claimTypes[$claim['claim_type']]['color'] ?? '#888'; ?>">
-                        <i class="fas <?php echo $claimTypes[$claim['claim_type']]['icon'] ?? 'fa-file'; ?>"></i>
-                        <?php echo $claim['claim_type_np'] ?? $claimTypes[$claim['claim_type']]['np'] ?? $claim['claim_type']; ?>
+                    <span class="badge ms-2" style="background-color: <?php echo e($claimTypes[$claim['claim_type']]['color'] ?? '#888'); ?>">
+                        <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html('fas ' . ($claimTypes[$claim['claim_type']]['icon'] ?? 'fa-file'), 'fas fa-file', '') : ''; ?>
+                        <?php echo e($claim['claim_type_np'] ?? $claimTypes[$claim['claim_type']]['np'] ?? $claim['claim_type']); ?>
                     </span>
                 </div>
 
                 <!-- Member Information -->
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-user"></i> सदस्य जानकारी</h6>
+                    <h6><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> सदस्य जानकारी</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>नाम:</strong> <?php echo e($claim['member_name']); ?></p>
                             <p><strong>सदस्य नं.:</strong> <?php echo e($claim['member_id']) ?: 'N/A'; ?></p>
-                            <p><strong>फोन:</strong> <a href="tel:<?php echo $claim['phone']; ?>"><?php echo e($claim['phone']); ?></a></p>
+                            <p><strong>फोन:</strong> <a href="tel:<?php echo e($claim['phone']); ?>"><?php echo e($claim['phone']); ?></a></p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>इमेल:</strong> <?php echo e($claim['email']) ?: 'N/A'; ?></p>
@@ -253,7 +254,7 @@ if (!$claim) {
                 ?>
                 <?php if ($claimProfile === 'death' && ($claim['deceased_name'] || $claim['death_date'])): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-heart-broken"></i> मृत्यु दाबी विवरण</h6>
+                    <h6><i class="lucide-icon" data-lucide="heart-crack" aria-hidden="true"></i> मृत्यु दाबी विवरण</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>मृतकको नाम:</strong> <?php echo e($claim['deceased_name']); ?></p>
@@ -262,7 +263,7 @@ if (!$claim) {
                         <div class="col-md-6">
                             <p><strong>मृत्यु मिति:</strong> <?php echo $claim['death_date'] ? formatDate($claim['death_date']) : 'N/A'; ?></p>
                             <?php if ($claim['death_certificate']): ?>
-                            <p><strong>प्रमाणपत्र:</strong> <a href="<?php echo e(safe_media_src($claim['death_certificate'])); ?>" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer"><i class="fas fa-file"></i> हेर्नुहोस्</a></p>
+                            <p><strong>प्रमाणपत्र:</strong> <a href="<?php echo e(safe_media_src($claim['death_certificate'])); ?>" target="_blank" class="btn btn-sm btn-outline-primary" rel="noopener noreferrer"><i class="lucide-icon" data-lucide="file" aria-hidden="true"></i> हेर्नुहोस्</a></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -281,7 +282,7 @@ if (!$claim) {
 
                 <?php if ($claimProfile === 'maternity' && ($claim['delivery_date'] || $claim['hospital_name'])): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-baby"></i> सुत्केरी विवरण</h6>
+                    <h6><i class="lucide-icon" data-lucide="baby" aria-hidden="true"></i> सुत्केरी विवरण</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>प्रसूति मिति:</strong> <?php echo $claim['delivery_date'] ? formatDate($claim['delivery_date']) : 'N/A'; ?></p>
@@ -295,7 +296,7 @@ if (!$claim) {
 
                 <?php if (in_array($claimProfile, ['medical','accident'], true) && ($claim['disease_illness'] || $claim['treatment_date'] || $claim['hospital_clinic'])): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-<?php echo ($claim['claim_type'] === 'accident' || ($claimTypes[$claim['claim_type']]['profile'] ?? '') === 'accident') ? 'triangle-exclamation' : 'hospital'; ?>"></i>
+                    <h6><i class="lucide-icon" data-lucide="<?php echo ($claim['claim_type'] === 'accident' || ($claimTypes[$claim['claim_type']]['profile'] ?? '') === 'accident') ? 'triangle-alert' : 'hospital'; ?>" aria-hidden="true"></i>
                         <?php echo ($claim['claim_type'] === 'accident' || ($claimTypes[$claim['claim_type']]['profile'] ?? '') === 'accident') ? 'दुर्घटना / उपचार विवरण' : 'उपचार विवरण'; ?>
                     </h6>
                     <div class="row">
@@ -312,7 +313,7 @@ if (!$claim) {
 
                 <?php if ($claimProfile === 'insurance' && ($claim['policy_number'] || $claim['insurer_name'])): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-shield-halved"></i> बीमा विवरण</h6>
+                    <h6><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> बीमा विवरण</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>पोलिसी नम्बर:</strong> <?php echo e($claim['policy_number']) ?: 'N/A'; ?></p>
@@ -326,7 +327,7 @@ if (!$claim) {
 
                 <!-- Amount & Description -->
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-rupee-sign"></i> रकम विवरण</h6>
+                    <h6><i class="lucide-icon" data-lucide="indian-rupee" aria-hidden="true"></i> रकम विवरण</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong>दाबी रकम:</strong> <span class="fs-5">रू. <?php echo number_format($claim['claim_amount'], 2); ?></span></p>
@@ -346,14 +347,24 @@ if (!$claim) {
                 <!-- Supporting Documents -->
                 <?php if ($claim['supporting_documents']): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-paperclip"></i> संलग्न कागजातहरू</h6>
+                    <h6><i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i> संलग्न कागजातहरू</h6>
                     <div class="documents-list">
                         <?php foreach (explode(',', $claim['supporting_documents']) as $doc): ?>
-                        <?php if (trim($doc)): ?>
-                        <a href="<?php echo SITE_URL . trim($doc); ?>" target="_blank" class="btn btn-sm btn-outline-secondary me-2 mb-2" rel="noopener noreferrer">
-                            <i class="fas fa-file"></i> <?php echo basename(trim($doc)); ?>
+                        <?php
+                        $__wlfDoc = trim((string) $doc);
+                        if ($__wlfDoc === '') {
+                            continue;
+                        }
+                        $__wlfUrl = function_exists('coop_public_download_url')
+                            ? coop_public_download_url($__wlfDoc)
+                            : '';
+                        if ($__wlfUrl === '') {
+                            continue;
+                        }
+                        ?>
+                        <a href="<?php echo e($__wlfUrl); ?>" target="_blank" class="btn btn-sm btn-outline-secondary me-2 mb-2" rel="noopener noreferrer">
+                            <i class="lucide-icon" data-lucide="file" aria-hidden="true"></i> <?php echo e(basename($__wlfDoc)); ?>
                         </a>
-                        <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -362,7 +373,7 @@ if (!$claim) {
                 <!-- Admin Notes -->
                 <?php if ($claim['admin_remarks']): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-sticky-note"></i> Admin टिप्पणी</h6>
+                    <h6><i class="lucide-icon" data-lucide="sticky-note" aria-hidden="true"></i> Admin टिप्पणी</h6>
                     <p class="bg-warning-subtle p-3 rounded"><?php echo nl2br(e($claim['admin_remarks'])); ?></p>
                     <?php if ($claim['reviewed_by']): ?>
                     <small class="text-muted">समीक्षा गर्ने: <?php echo e($claim['reviewed_by']); ?> | <?php echo $claim['reviewed_at'] ? formatDate($claim['reviewed_at'], 'Y-m-d H:i') : ''; ?></small>
@@ -371,7 +382,7 @@ if (!$claim) {
                 <?php endif; ?>
                 <?php if (!empty($claimHistory)): ?>
                 <div class="wlf-info-section">
-                    <h6><i class="fas fa-clock-rotate-left"></i> Status / Comment History</h6>
+                    <h6><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i> Status / Comment History</h6>
                     <?php echo arvLogList($claimHistory); ?>
                 </div>
                 <?php endif; ?>
@@ -381,19 +392,19 @@ if (!$claim) {
             <div class="col-lg-4">
                 <div class="card bg-light">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="fas fa-edit"></i> स्थिति अपडेट गर्नुहोस्</h6>
+                        <h6 class="mb-0"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i> स्थिति अपडेट गर्नुहोस्</h6>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="">
                             <?php echo csrfField(); /* CSRF protection — admin POST मा अनिवार्य */ ?>
                             <input type="hidden" name="update_status" value="1">
-                            <input type="hidden" name="claim_id" value="<?php echo $claim['id']; ?>">
+                            <input type="hidden" name="claim_id" value="<?php echo (int)$claim['id']; ?>">
 
                             <div class="mb-3">
                                 <label for="wc_status" class="form-label">स्थिति</label>
                                 <select name="status" id="wc_status" class="form-select" required>
                                     <?php foreach ($statusLabels as $key => $label): ?>
-                                    <option value="<?php echo $key; ?>" <?php echo $claim['status'] === $key ? 'selected' : ''; ?>>
+                                    <option value="<?php echo e($key); ?>" <?php echo $claim['status'] === $key ? 'selected' : ''; ?>>
                                         <?php echo $label['np']; ?>
                                     </option>
                                     <?php endforeach; ?>
@@ -414,16 +425,16 @@ if (!$claim) {
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                 </label>
                                 <div class="arv-notify-channels">
-                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">
-                                <i class="fas fa-save"></i> अपडेट गर्नुहोस्
+                                <i class="lucide-icon" data-lucide="save" aria-hidden="true"></i> अपडेट गर्नुहोस्
                             </button>
                         </form>
 
@@ -433,9 +444,9 @@ if (!$claim) {
                         <form method="POST" onsubmit="return confirm('के तपाईं निश्चित हुनुहुन्छ?');">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete_claim" value="1">
-                            <input type="hidden" name="claim_id" value="<?php echo $claim['id']; ?>">
+                            <input type="hidden" name="claim_id" value="<?php echo (int)$claim['id']; ?>">
                             <button type="submit" class="btn btn-outline-danger btn-sm w-100">
-                                <i class="fas fa-trash"></i> दाबी हटाउनुहोस्
+                                <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i> दाबी हटाउनुहोस्
                             </button>
                         </form>
                     </div>
@@ -445,7 +456,7 @@ if (!$claim) {
                 <div class="card mt-3">
                     <div class="card-body text-center">
                         <h6>ट्र्याकिङ ID</h6>
-                        <p class="fs-5 font-monospace text-primary"><?php echo $claim['tracking_id']; ?></p>
+                        <p class="fs-5 font-monospace text-primary"><?php echo e($claim['tracking_id']); ?></p>
                     </div>
                 </div>
             </div>
@@ -485,45 +496,45 @@ $wlfFilterQs = array_filter([
 <?php
 echo adminPageHeader('कल्याण दाबी व्यवस्थापन', 'fa-hand-holding-heart',
     'सदस्य कल्याण दाबीहरू हेर्नुहोस् र व्यवस्थापन गर्नुहोस्',
-    '<a href="welfare-claim-types.php" class="btn btn-outline-success btn-sm"><i class="fas fa-tags me-1"></i>दाबी प्रकार</a> ' .
+    '<a href="welfare-claim-types.php" class="btn btn-outline-success btn-sm"><i class="lucide-icon me-1" data-lucide="tags" aria-hidden="true"></i>दाबी प्रकार</a> ' .
     adminStatLink('?status=pending',   'warning', 'पेन्डिङ',     $statusCounts['pending']      ?? 0) . ' ' .
     adminStatLink('?status=approved',  'success', 'स्वीकृत',     $statusCounts['approved']     ?? 0) . ' ' .
     adminStatLink('?status=rejected',  'danger',  'अस्वीकृत',    $statusCounts['rejected']     ?? 0)
 );
 if ($flash = getFlash()):
 ?>
-<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="welfare-claims.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search&&!$dateFrom&&!$dateTo?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-hand-holding-heart"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $totalClaims; ?></div>
         <div class="sm-lbl">जम्मा</div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $filterStatus==='pending'?'active-filter':''; ?>">
-        <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
+        <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['pending'] ?? 0; ?></div>
         <div class="sm-lbl">पेन्डिङ</div>
     </a>
     <a href="?status=under_review" class="stat-mini <?php echo $filterStatus==='under_review'?'active-filter':''; ?>">
-        <div class="sm-icon ic-process"><i class="fas fa-search"></i></div>
+        <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['under_review'] ?? 0; ?></div>
         <div class="sm-lbl">समीक्षाधीन</div>
     </a>
     <a href="?status=approved" class="stat-mini <?php echo $filterStatus==='approved'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['approved'] ?? 0; ?></div>
         <div class="sm-lbl">स्वीकृत</div>
     </a>
     <a href="?status=paid" class="stat-mini <?php echo $filterStatus==='paid'?'active-filter':''; ?>">
-        <div class="sm-icon" style="background:#fef2f2;"><i class="fas fa-rupee-sign" style="color:var(--secondary-color,#c0392b);"></i></div>
+        <div class="sm-icon" style="background:#fef2f2;"><i class="lucide-icon" data-lucide="indian-rupee" aria-hidden="true" style="color:var(--secondary-color,#c0392b);"></i></div>
         <div class="sm-val"><?php echo $statusCounts['paid'] ?? 0; ?></div>
         <div class="sm-lbl">भुक्तान</div>
     </a>
     <a href="?status=rejected" class="stat-mini <?php echo $filterStatus==='rejected'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['rejected'] ?? 0; ?></div>
         <div class="sm-lbl">अस्वीकृत</div>
     </a>
@@ -537,7 +548,7 @@ if ($flash = getFlash()):
             <select name="status" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                 <option value="">सबै स्थिति</option>
                 <?php foreach ($statusLabels as $key => $label): ?>
-                <option value="<?php echo $key; ?>" <?php echo $filterStatus===$key?'selected':''; ?>><?php echo $label['np']; ?></option>
+                <option value="<?php echo e($key); ?>" <?php echo $filterStatus===$key?'selected':''; ?>><?php echo e($label['np']); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -546,7 +557,7 @@ if ($flash = getFlash()):
             <select name="type" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                 <option value="">सबै</option>
                 <?php foreach ($claimTypes as $key => $type): ?>
-                <option value="<?php echo $key; ?>" <?php echo $filterType===$key?'selected':''; ?>><?php echo $type['np']; ?></option>
+                <option value="<?php echo e($key); ?>" <?php echo $filterType===$key?'selected':''; ?>><?php echo e($type['np']); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -554,13 +565,13 @@ if ($flash = getFlash()):
         <div class="col-md-4 col-12">
             <label>खोज्नुहोस्</label>
             <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                <span class="input-group-text bg-white"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="नाम, फोन, Tracking ID, सदस्य ID...">
             </div>
         </div>
         <div class="col-md-2 col-6">
-            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search me-1"></i>खोज</button>
-            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i>हटाउनुहोस्</a><?php endif; ?>
+            <button type="submit" class="btn btn-primary btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>खोज</button>
+            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>हटाउनुहोस्</a><?php endif; ?>
         </div>
     </form>
     <?php echo adminExcelExportButtonHtml($wlfFilterQs, $wlfFilteredTotal); ?>
@@ -569,7 +580,7 @@ if ($flash = getFlash()):
 <!-- ── Claims Table ── -->
 <div class="card border-0 shadow-sm" style="border-radius:10px;overflow:hidden;">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-hand-holding-heart me-2 text-primary"></i>सदस्य कल्याण दाबी सूची</h6>
+        <h6><i class="lucide-icon me-2 text-primary" data-lucide="heart" aria-hidden="true"></i>सदस्य कल्याण दाबी सूची</h6>
         <span class="result-count-badge"><?php echo count($claims); ?> दाबी</span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -589,7 +600,7 @@ if ($flash = getFlash()):
                     <?php if (empty($claims)): ?>
                     <tr>
                         <td colspan="7" class="text-center py-5">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <i class="lucide-icon lucide-3x text-muted mb-3" data-lucide="inbox" aria-hidden="true"></i>
                             <p class="text-muted">कुनै दाबी छैन।</p>
                         </td>
                     </tr>
@@ -597,21 +608,21 @@ if ($flash = getFlash()):
                     <?php foreach ($claims as $claim): ?>
                     <tr>
                         <td>
-                            <code><?php echo $claim['tracking_id']; ?></code>
+                            <code><?php echo e($claim['tracking_id']); ?></code>
                         </td>
                         <td>
                             <strong><?php echo e($claim['member_name']); ?></strong><br>
                             <small class="text-muted">
-                                <i class="fas fa-phone"></i> <?php echo e($claim['phone']); ?>
+                                <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo e($claim['phone']); ?>
                                 <?php if ($claim['member_id']): ?>
-                                | <i class="fas fa-id-card"></i> <?php echo e($claim['member_id']); ?>
+                                | <i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i> <?php echo e($claim['member_id']); ?>
                                 <?php endif; ?>
                             </small>
                         </td>
                         <td>
-                            <span class="badge" style="background-color: <?php echo $claimTypes[$claim['claim_type']]['color'] ?? '#888'; ?>">
-                                <i class="fas <?php echo $claimTypes[$claim['claim_type']]['icon'] ?? 'fa-file'; ?>"></i>
-                                <?php echo $claim['claim_type_np'] ?? $claimTypes[$claim['claim_type']]['np'] ?? $claim['claim_type']; ?>
+                            <span class="badge" style="background-color: <?php echo e($claimTypes[$claim['claim_type']]['color'] ?? '#888'); ?>">
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html('fas ' . ($claimTypes[$claim['claim_type']]['icon'] ?? 'fa-file'), 'fas fa-file', '') : ''; ?>
+                                <?php echo e($claim['claim_type_np'] ?? $claimTypes[$claim['claim_type']]['np'] ?? $claim['claim_type']); ?>
                             </span>
                         </td>
                         <td>
@@ -621,8 +632,8 @@ if ($flash = getFlash()):
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="badge bg-<?php echo $statusLabels[$claim['status']]['class'] ?? 'secondary'; ?>">
-                                <?php echo $statusLabels[$claim['status']]['np'] ?? $claim['status']; ?>
+                            <span class="badge bg-<?php echo e($statusLabels[$claim['status']]['class'] ?? 'secondary'); ?>">
+                                <?php echo e($statusLabels[$claim['status']]['np'] ?? $claim['status']); ?>
                             </span>
                         </td>
                         <td>
@@ -630,17 +641,17 @@ if ($flash = getFlash()):
                         </td>
                         <td>
                             <div class="adm-action-icons">
-                            <a href="welfare-claims.php?action=view&id=<?php echo $claim['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="हेर्नुहोस्" aria-label="View">
-                                <i class="fas fa-eye"></i>
+                            <a href="welfare-claims.php?action=view&id=<?php echo (int)$claim['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="हेर्नुहोस्" aria-label="View">
+                                <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                             </a>
-                            <a href="?export=csv&amp;id=<?php echo (int)$claim['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                            <a href="?export=csv&amp;id=<?php echo (int)$claim['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                             <?php echo adminPrintFormIcon('welfare', (int)$claim['id']); ?>
                             <form method="POST" class="adm-icon-form" onsubmit="return confirm('हटाउने?');">
                                 <?php echo csrfField(); ?>
                                 <input type="hidden" name="delete_claim" value="1">
-                                <input type="hidden" name="claim_id" value="<?php echo $claim['id']; ?>">
+                                <input type="hidden" name="claim_id" value="<?php echo (int)$claim['id']; ?>">
                                 <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="हटाउनुहोस्" aria-label="Delete">
-                                    <i class="fas fa-trash-can"></i>
+                                    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                 </button>
                             </form>
                             </div>

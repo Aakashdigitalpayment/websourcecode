@@ -1,3 +1,18 @@
+/* FROZEN PANEL BASE — do not rewrite for polish/layout.
+ * Visual changes: *-page.css, *-shell-polish.css, final-ui-polish.css
+ * then: python3 scripts/build-css-late-bundles.py
+ * Split/slim of this file is a separate deferred track.
+ */
+/*
+ * SECTION INDEX (inventory only — do not hand-edit body for polish):
+ *  - mem-utils.css
+ *  - member.css
+ *  - member-portal-v2.css
+ *  - auth-portals-unified.css
+ *  - theme-overrides-v4.css
+ * Total section markers: 5
+ */
+
 /* ========== mem-utils.css ========== */
 /**
  * mem-utils.css — Member Portal Shared Utility Classes

@@ -15,6 +15,10 @@ $pageTitle = isEnglish() ? 'Institutional Profile' : 'संस्थागत �
 $pageDescription = isEnglish()
     ? 'Key institutional indicators and financial profile of our cooperative.'
     : 'हाम्रो सहकारीको संस्थागत सूचक तथा वित्तीय प्रोफाइल।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/institutional-profile.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -58,7 +62,11 @@ try {
     }
     if ($tableExists) {
         try {
-            $db->exec("ALTER TABLE institutional_profile ADD COLUMN report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12'");
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'institutional_profile', 'report_month', "TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12'");
+            } else {
+                $db->exec("ALTER TABLE institutional_profile ADD COLUMN report_month TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'BS month 1-12'");
+            }
         } catch (Exception $e) { /* exists */ }
         try {
             $profiles = $db->query(
@@ -131,245 +139,6 @@ if (!$currentProfile || !$previousProfile) {
 }
 ?>
 
-<style>
-.ip-filter-wrap {
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, var(--bg-card, #fff));
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, var(--border-color, #e5e7eb));
-    border-radius: 14px;
-    padding: 14px;
-    margin: 0 0 14px;
-}
-.ip-filter-bar {
-    display: grid;
-    grid-template-columns: minmax(140px, 180px) minmax(140px, 180px) minmax(160px, 1fr) auto auto;
-    gap: 10px;
-    align-items: center;
-}
-.ip-filter-input,
-.ip-filter-select {
-    height: 42px;
-    border-radius: 10px;
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #d1d5db);
-    background: var(--bg-card, #fff);
-    color: var(--text-primary, #1f2937);
-    font-size: 0.92rem;
-    padding: 0 12px;
-}
-.ip-filter-input:focus,
-.ip-filter-select:focus {
-    outline: none;
-    border-color: var(--primary-color, #1a5f2a);
-    box-shadow: var(--shadow-focus, 0 0 0 3px rgba(26, 95, 42, 0.14));
-}
-.ip-filter-reset {
-    height: 42px;
-    border: none;
-    border-radius: 10px;
-    background: var(--primary-color, #1a5f2a);
-    color: var(--text-on-primary, #fff);
-    font-weight: 600;
-    padding: 0 14px;
-}
-.ip-filter-count {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--primary-ink, #166534);
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #bbf7d0);
-    border-radius: 999px;
-    padding: 7px 11px;
-    white-space: nowrap;
-}
-.ip-filter-empty {
-    display: none;
-    margin-top: 12px;
-    border: 1px dashed #c9d8cf;
-    border-radius: 12px;
-    background: #fbfdfc;
-    color: #4b5563;
-    text-align: center;
-    padding: 18px 14px;
-    font-size: 0.92rem;
-}
-.ip-month-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-}
-.ip-month-chip {
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #d1d5db);
-    background: var(--bg-card, #fff);
-    color: var(--text-secondary, #4b5563);
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: .78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background .15s, color .15s, border-color .15s;
-}
-.ip-month-chip:hover,
-.ip-month-chip.is-active {
-    background: var(--primary-color, #1a5f2a);
-    color: var(--text-on-primary, #fff);
-    border-color: var(--primary-color, #1a5f2a);
-}
-.ip-featured {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 18px;
-}
-.ip-featured-card {
-    border-radius: 16px;
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, #e5e7eb);
-    background:
-      radial-gradient(ellipse 80% 60% at 100% 0%, color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, transparent), transparent 55%),
-      var(--bg-card, #fff);
-    padding: 16px 16px 14px;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
-}
-.ip-featured-card.is-current {
-    border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 40%, #86efac);
-    box-shadow: 0 12px 32px rgba(var(--primary-rgb, 26,95,42), .14);
-}
-.ip-featured-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: .72rem;
-    font-weight: 800;
-    letter-spacing: .02em;
-    text-transform: uppercase;
-    color: var(--primary-ink, var(--primary-color, #1a5f2a));
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
-    border-radius: 999px;
-    padding: 4px 10px;
-    margin-bottom: 8px;
-}
-.ip-featured-title {
-    margin: 0;
-    font-size: 1.15rem;
-    font-weight: 900;
-    color: var(--text-primary, #17251b);
-}
-.ip-featured-sub {
-    margin: 4px 0 12px;
-    font-size: .82rem;
-    color: var(--text-muted, #64748b);
-}
-.ip-featured-stats {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
-}
-.ip-featured-stat {
-    background: color-mix(in srgb, var(--bg-soft, #f5faf6) 80%, #fff);
-    border-radius: 10px;
-    padding: 10px;
-}
-.ip-featured-stat span {
-    display: block;
-    font-size: .68rem;
-    color: var(--text-muted, #64748b);
-    font-weight: 600;
-}
-.ip-featured-stat strong {
-    display: block;
-    margin-top: 2px;
-    font-size: .95rem;
-    color: var(--primary-ink, var(--primary-color, #1a5f2a));
-    font-weight: 800;
-}
-.ip-featured-empty {
-    border-style: dashed;
-    opacity: .92;
-}
-.ip-month-tile.is-hidden { display: none !important; }
-.ip-month-tile.is-highlight {
-    outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 45%, transparent);
-    outline-offset: 1px;
-}
-.ip-month-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 4px;
-    font-size: .68rem;
-    font-weight: 800;
-    color: var(--primary-ink, #166534);
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #fff);
-    border-radius: 999px;
-    padding: 2px 8px;
-}
-@media (max-width: 991px) {
-    .ip-filter-bar { grid-template-columns: 1fr 1fr; }
-    .ip-featured { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-    .ip-filter-bar { grid-template-columns: 1fr; }
-    .ip-filter-count { text-align: center; }
-}
-/* ── Trend charts ── */
-.ip-charts-section {
-    margin-bottom: 1.35rem;
-    padding: 1.15rem 1.2rem 1.25rem;
-    border-radius: 16px;
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
-    background:
-      radial-gradient(ellipse 70% 50% at 0% 0%, color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, transparent), transparent 55%),
-      var(--bg-card, #fff);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-.ip-charts-head { margin-bottom: 1rem; text-align: center; }
-.ip-charts-head h3 {
-    margin: 0.35rem 0 0.4rem;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--primary-color, #1a5f2a);
-}
-.ip-charts-head p {
-    margin: 0;
-    font-size: 0.88rem;
-    color: var(--text-muted, #6b7280);
-    max-width: 40rem;
-    margin-left: auto;
-    margin-right: auto;
-}
-.ip-charts-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 14px;
-}
-.ip-chart-card {
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, #e5e7eb);
-    border-radius: 14px;
-    background: var(--bg-card, #fff);
-    padding: 14px 14px 10px;
-}
-.ip-chart-title {
-    margin: 0 0 10px;
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: #334155;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.ip-chart-title i { color: var(--primary-color, #1a5f2a); }
-.ip-chart-canvas-wrap {
-    position: relative;
-    height: min(42vh, 320px);
-    min-height: 220px;
-}
-.ip-chart-canvas-wrap--sm {
-    height: min(36vh, 280px);
-    min-height: 200px;
-}
-@media (max-width: 991px) {
-    .ip-charts-grid { grid-template-columns: 1fr; }
-}
-</style>
 
 <!-- Page Banner -->
 <section class="page-banner">
@@ -377,7 +146,7 @@ if (!$currentProfile || !$previousProfile) {
         <h1><?php echo $isEn ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home'] ?? 'गृहपृष्ठ'; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home'] ?? 'गृहपृष्ठ'; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $isEn ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></li>
             </ol>
         </nav>
@@ -391,7 +160,7 @@ if (!$currentProfile || !$previousProfile) {
 <?php if (empty($profiles)): ?>
 <div class="text-center py-5">
     <div class="ip-empty-icon-wrap">
-        <i class="fas fa-building-columns fa-2x" style="color:var(--primary-color);"></i>
+        <i class="lucide-icon lucide-2x" data-lucide="landmark" aria-hidden="true" style="color:var(--primary-color);"></i>
     </div>
     <h4 style="color:var(--primary-color);"><?php echo $isEn ? 'Institutional profile not available yet' : 'संस्थागत प्रोफाइल उपलब्ध छैन'; ?></h4>
     <p class="text-muted"><?php echo $isEn ? 'Will be available soon.' : 'छिट्टै उपलब्ध हुनेछ।'; ?></p>
@@ -400,7 +169,7 @@ if (!$currentProfile || !$previousProfile) {
 <?php else: ?>
 
 <div class="ip-section-intro text-center mb-4">
-    <span class="ip-section-kicker"><i class="fas fa-chart-line"></i> <?php echo $isEn ? 'Financial stats' : 'आर्थिक तथ्याङ्क'; ?></span>
+    <span class="ip-section-kicker"><i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> <?php echo $isEn ? 'Financial stats' : 'आर्थिक तथ्याङ्क'; ?></span>
     <h2><?php echo $isEn ? 'Institutional financial profile' : 'संस्थाको आर्थिक प्रोफाइल'; ?></h2>
     <p><?php echo $isEn
         ? 'Shows the latest two months by default — use filters or “All” to browse more.'
@@ -411,7 +180,7 @@ if (!$currentProfile || !$previousProfile) {
 $renderFeatured = static function (?array $p, string $kicker, string $title, string $sub, bool $isCurrent, bool $isEn): void {
     if (!$p) {
         echo '<div class="ip-featured-card ip-featured-empty">';
-        echo '<span class="ip-featured-kicker"><i class="fas fa-clock"></i> ' . htmlspecialchars($kicker) . '</span>';
+        echo '<span class="ip-featured-kicker"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> ' . htmlspecialchars($kicker) . '</span>';
         echo '<h3 class="ip-featured-title">' . htmlspecialchars($title) . '</h3>';
         echo '<p class="ip-featured-sub">' . ($isEn ? 'Data not published for this month yet.' : 'यो महिनाको डाटा अझै प्रकाशित भएको छैन।') . '</p>';
         echo '</div>';
@@ -419,7 +188,7 @@ $renderFeatured = static function (?array $p, string $kicker, string $title, str
     }
     $cls = $isCurrent ? 'ip-featured-card is-current' : 'ip-featured-card';
     echo '<article class="' . $cls . '">';
-    echo '<span class="ip-featured-kicker"><i class="fas fa-' . ($isCurrent ? 'bolt' : 'history') . '"></i> ' . htmlspecialchars($kicker) . '</span>';
+    echo '<span class="ip-featured-kicker"><i class="lucide-icon" aria-hidden="true" data-lucide="' . ($isCurrent ? 'zap' : 'history') . '"></i> ' . htmlspecialchars($kicker) . '</span>';
     echo '<h3 class="ip-featured-title">' . htmlspecialchars($title) . '</h3>';
     echo '<p class="ip-featured-sub">' . htmlspecialchars($sub) . '</p>';
     echo '<div class="ip-featured-stats">';
@@ -483,7 +252,7 @@ if ($ipChartSeries['count'] >= 2):
 ?>
 <div class="ip-charts-section" data-aos="fade-up" data-testid="institutional-profile-charts">
     <div class="ip-charts-head">
-        <span class="ip-section-kicker"><i class="fas fa-chart-column"></i> <?php echo $isEn ? 'Trend charts' : 'प्रवृत्ति चार्ट'; ?></span>
+        <span class="ip-section-kicker"><i class="lucide-icon" data-lucide="chart-column" aria-hidden="true"></i> <?php echo $isEn ? 'Trend charts' : 'प्रवृत्ति चार्ट'; ?></span>
         <h3><?php echo $isEn ? 'Financial growth over recent months' : 'हालका महिनाहरूमा आर्थिक प्रवृत्ति'; ?></h3>
         <p><?php echo $isEn
             ? 'Based on published monthly institutional profile data (newest months on the right).'
@@ -491,13 +260,13 @@ if ($ipChartSeries['count'] >= 2):
     </div>
     <div class="ip-charts-grid">
         <div class="ip-chart-card">
-            <h4 class="ip-chart-title"><i class="fas fa-chart-line"></i> <?php echo $isEn ? 'Deposits, loans & assets' : 'बचत, ऋण र सम्पत्ति'; ?></h4>
+            <h4 class="ip-chart-title"><i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> <?php echo $isEn ? 'Deposits, loans & assets' : 'बचत, ऋण र सम्पत्ति'; ?></h4>
             <div class="ip-chart-canvas-wrap">
                 <canvas id="ipChartFinancial" role="img" aria-label="<?php echo $isEn ? 'Financial trend chart' : 'आर्थिक प्रवृत्ति चार्ट'; ?>"></canvas>
             </div>
         </div>
         <div class="ip-chart-card">
-            <h4 class="ip-chart-title"><i class="fas fa-users"></i> <?php echo $isEn ? 'Total members' : 'कुल सदस्य संख्या'; ?></h4>
+            <h4 class="ip-chart-title"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo $isEn ? 'Total members' : 'कुल सदस्य संख्या'; ?></h4>
             <div class="ip-chart-canvas-wrap ip-chart-canvas-wrap--sm">
                 <canvas id="ipChartMembers" role="img" aria-label="<?php echo $isEn ? 'Member count trend chart' : 'सदस्य संख्या प्रवृत्ति चार्ट'; ?>"></canvas>
             </div>
@@ -509,7 +278,7 @@ if ($ipChartSeries['count'] >= 2):
 <div class="ip-profile-card mb-3 ip-month-card">
     <div class="ip-card-header">
         <div class="ip-card-title-wrap">
-            <div class="ip-fy-badge"><i class="fas fa-table me-2"></i> <?php echo $isEn ? 'Month-wise financial details' : 'महिनागत आर्थिक विवरण'; ?></div>
+            <div class="ip-fy-badge"><i class="lucide-icon me-2" data-lucide="table" aria-hidden="true"></i> <?php echo $isEn ? 'Month-wise financial details' : 'महिनागत आर्थिक विवरण'; ?></div>
             <div class="ip-date-info"><span><?php echo $isEn ? 'Default: latest 2 months — filter for more' : 'पूर्वनिर्धारित: हालका २ महिना — अरू फिल्टरबाट'; ?></span></div>
         </div>
     </div>
@@ -536,7 +305,7 @@ if ($ipChartSeries['count'] >= 2):
                    aria-label="Financial search">
 
             <button id="ipFilterReset" type="button" class="ip-filter-reset">
-                <i class="fas fa-rotate-left me-1"></i><?php echo $isEn ? 'Reset' : 'रिसेट'; ?>
+                <i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i><?php echo $isEn ? 'Reset' : 'रिसेट'; ?>
             </button>
 
             <span id="ipFilterCount" class="ip-filter-count"></span>
@@ -563,7 +332,7 @@ if ($ipChartSeries['count'] >= 2):
         </div>
 
         <div id="ipFilterEmpty" class="ip-filter-empty">
-            <i class="fas fa-filter-circle-xmark me-1"></i><?php echo $isEn ? 'No matching record found.' : 'मिल्दो रेकर्ड भेटिएन।'; ?>
+            <i class="lucide-icon me-1" data-lucide="filter-x" aria-hidden="true"></i><?php echo $isEn ? 'No matching record found.' : 'मिल्दो रेकर्ड भेटिएन।'; ?>
         </div>
     </div>
 
@@ -596,7 +365,7 @@ if ($ipChartSeries['count'] >= 2):
             <div class="ip-month-tile-head">
                 <div>
                     <strong data-testid="institutional-profile-fiscal-year-<?php echo $rowNo; ?>">आ.व. <?php echo htmlspecialchars($p['fiscal_year']); ?></strong>
-                    <span class="ip-month-badge"><i class="fas fa-calendar-week"></i> <?php echo htmlspecialchars($_monthName); ?></span>
+                    <span class="ip-month-badge"><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i> <?php echo htmlspecialchars($_monthName); ?></span>
                     <?php if (!empty($p['report_date_bs'])): ?>
                     <span data-testid="institutional-profile-published-date-<?php echo $rowNo; ?>"><?php echo htmlspecialchars($p['report_date_bs']); ?><?php if (!empty($p['report_date_ad'])): ?> / <?php echo date('d M Y', strtotime($p['report_date_ad'])); ?><?php endif; ?></span>
                     <?php endif; ?>
@@ -606,7 +375,7 @@ if ($ipChartSeries['count'] >= 2):
                         onclick="ipOpenDoc('<?php echo $_ipDocUrl; ?>','<?php echo $_ipDocExt; ?>')"
                         data-testid="institutional-profile-document-button-<?php echo $rowNo; ?>"
                         title="कागजात हेर्नुहोस्">
-                    <i class="fas <?php echo $_ipDocExt === 'pdf' ? 'fa-file-pdf' : 'fa-file-image'; ?>"></i>
+                    <i class="lucide-icon" data-lucide="<?php echo $_ipDocExt === 'pdf' ? 'file-text' : 'image'; ?>" aria-hidden="true"></i>
                 </button>
                 <?php endif; ?>
             </div>
@@ -614,47 +383,47 @@ if ($ipChartSeries['count'] >= 2):
             <div class="ip-month-ledger">
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(1); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-users"></i> कुल सदस्य</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> कुल सदस्य</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-total-members-value-<?php echo $rowNo; ?>"><?php echo number_format((int)$p['total_members']); ?></strong><?php if (!empty($p['total_balance_member'])): ?><em><?php echo number_format((int)$p['total_balance_member']); ?> शेष</em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(2); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-coins"></i> शेयर पूँजी</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="coins" aria-hidden="true"></i> शेयर पूँजी</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-share-capital-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['share_capital']); ?></strong><?php if (!empty($p['share_capital_percent'])): ?><em><?php echo htmlspecialchars((string)$p['share_capital_percent']); ?>% वृद्धि</em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(3); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-shield-halved"></i> जगेडा कोष</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> जगेडा कोष</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-reserved-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)($p['reserved_fund'] ?? 0)); ?></strong><?php if (!empty($p['reserved_fund_percent'])): ?><em><?php echo htmlspecialchars((string)$p['reserved_fund_percent']); ?>% वृद्धि</em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(4); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-layer-group"></i> अन्य कोष</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="layers" aria-hidden="true"></i> अन्य कोष</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-other-fund-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($otherFund); ?></strong></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(5); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-piggy-bank"></i> कुल बचत</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i> कुल बचत</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-deposit-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['deposit']); ?></strong><?php if (!empty($p['deposit_percent'])): ?><em><?php echo htmlspecialchars((string)$p['deposit_percent']); ?>% वृद्धि</em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(6); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-hand-holding-dollar"></i> ऋण लगानी</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i> ऋण लगानी</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-loan-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['loan']); ?></strong><?php if ($totalLoanMembers > 0): ?><em><?php echo number_format($totalLoanMembers); ?> ऋणी सदस्य</em><?php endif; ?></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(7); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-money-bill-transfer"></i> बैंक तथा नगद</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i> बैंक तथा नगद</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-bank-cash-balance-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($bankCashBalance); ?></strong></span>
                 </div>
                 <div class="ip-month-ledger-row">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(8); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-building-columns"></i> स्थिर सम्पत्ति</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> स्थिर सम्पत्ति</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-fixed-assets-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt($fixedAssets); ?></strong></span>
                 </div>
                 <div class="ip-month-ledger-row ip-month-total">
                     <span class="ip-month-sn"><?php echo ipNepaliNumber(9); ?></span>
-                    <span class="ip-month-title"><i class="fas fa-landmark"></i> कुल सम्पत्ति</span>
+                    <span class="ip-month-title"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> कुल सम्पत्ति</span>
                     <span class="ip-month-value"><strong data-testid="institutional-profile-total-assets-value-<?php echo $rowNo; ?>"><?php echo ipShortAmt((float)$p['total_assets']); ?></strong></span>
                 </div>
             </div>
@@ -691,19 +460,19 @@ if ($ipChartSeries['count'] >= 2):
            style="width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#f0fdf4;color:#166534;text-decoration:none;border:1px solid #bbf7d0;"
            title="<?php echo $isEn ? 'Download' : 'डाउनलोड'; ?>"
            data-testid="institutional-profile-document-download-link">
-          <i class="fas fa-download" style="font-size:.85rem;"></i>
+          <i class="lucide-icon" data-lucide="download" aria-hidden="true" style="font-size:.85rem;"></i>
         </a>
         <button type="button" onclick="ipCloseDoc()"
                 style="width:36px;height:36px;border-radius:8px;border:none;background:#f3f4f6;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#6b7280;"
                 title="<?php echo $isEn ? 'Close' : 'बन्द'; ?>"
                 data-testid="institutional-profile-document-close-button">
-          <i class="fas fa-xmark" style="font-size:1rem;"></i>
+          <i class="lucide-icon" data-lucide="x" aria-hidden="true" style="font-size:1rem;"></i>
         </button>
       </div>
     </div>
     <div id="ipDocBody" style="flex:1;overflow:auto;min-height:420px;display:flex;align-items:center;justify-content:center;background:#f9fafb;">
       <div id="ipDocLoader" style="text-align:center;padding:40px;color:#9ca3af;">
-        <i class="fas fa-spinner fa-spin fa-2x" style="margin-bottom:12px;display:block;"></i>
+        <i class="lucide-icon lucide-spin lucide-2x" data-lucide="loader-2" aria-hidden="true" style="margin-bottom:12px;display:block;"></i>
         <div style="font-size:.85rem;"><?php echo $isEn ? 'Loading…' : 'लोड हुँदैछ…'; ?></div>
       </div>
     </div>
@@ -835,11 +604,11 @@ if ($ipChartSeries['count'] >= 2):
 
         dlBtn.href = url;
         if (isImg) {
-            icon.innerHTML  = '<i class="fas fa-image"></i>';
+            icon.innerHTML  = '<i class="lucide-icon" data-lucide="image" aria-hidden="true"></i>';
             title.textContent = '<?php echo $isEn ? 'Image Document' : 'छवि कागजात'; ?>';
             sub.textContent = ext.toUpperCase();
         } else {
-            icon.innerHTML  = '<i class="fas fa-file-pdf"></i>';
+            icon.innerHTML  = '<i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>';
             title.textContent = '<?php echo $isEn ? 'PDF Document' : 'PDF कागजात'; ?>';
             sub.textContent = 'PDF';
         }
@@ -856,7 +625,7 @@ if ($ipChartSeries['count'] >= 2):
             img.alt = '<?php echo $isEn ? 'Document Preview' : 'कागजात पूर्वावलोकन'; ?>';
             img.style.cssText = 'max-width:100%;max-height:75vh;border-radius:8px;display:block;padding:16px;';
             img.onload  = function () { loader.style.display = 'none'; body.style.justifyContent = 'center'; };
-            img.onerror = function () { loader.innerHTML = '<i class="fas fa-triangle-exclamation fa-2x" style="color:#dc2626;margin-bottom:12px;display:block;"></i><div><?php echo $isEn ? 'Could not load image.' : 'छवि लोड भएन।'; ?></div>'; };
+            img.onerror = function () { loader.innerHTML = '<i class="lucide-icon lucide-2x" data-lucide="triangle-alert" aria-hidden="true" style="color:#dc2626;margin-bottom:12px;display:block;"></i><div><?php echo $isEn ? 'Could not load image.' : 'छवि लोड भएन।'; ?></div>'; };
             body.appendChild(img);
         } else {
             var iframe = document.createElement('iframe');

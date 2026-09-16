@@ -52,10 +52,22 @@ if (!function_exists('ensureDigitalServiceRequestsTables')) {
             INDEX idx_status (status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'digital_service_requests', 'service_amount', 'DECIMAL(12,2) NULL AFTER recharge_amount');
+                safeAddColumn($db, 'digital_service_requests', 'admin_attachment', "VARCHAR(500) DEFAULT '' COMMENT 'Admin reply file'");
+            } else {
+                foreach ([
+                    'ALTER TABLE digital_service_requests ADD COLUMN service_amount DECIMAL(12,2) NULL AFTER recharge_amount',
+                    "ALTER TABLE digital_service_requests ADD COLUMN admin_attachment VARCHAR(500) DEFAULT '' COMMENT 'Admin reply file'",
+                ] as $sql) {
+                    try {
+                        $db->exec($sql);
+                    } catch (Exception $e) {
+                    }
+                }
+            }
             foreach ([
                 'ALTER TABLE digital_service_requests MODIFY COLUMN service_type VARCHAR(60) NOT NULL',
-                'ALTER TABLE digital_service_requests ADD COLUMN service_amount DECIMAL(12,2) NULL AFTER recharge_amount',
-                "ALTER TABLE digital_service_requests ADD COLUMN admin_attachment VARCHAR(500) DEFAULT '' COMMENT 'Admin reply file'",
                 'ALTER TABLE digital_service_requests ADD INDEX idx_service_type (service_type)',
                 'ALTER TABLE digital_service_requests ADD INDEX idx_created (created_at)',
             ] as $sql) {

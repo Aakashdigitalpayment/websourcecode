@@ -1,7 +1,8 @@
 /* ══════════════════════════════════════════════════════════
-   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.4
+   Pull-to-Refresh — Aakash Cooperative Public Portal  v1.5
    Touch-only. Fires window.location.reload() after threshold.
    Does NOT activate inside member portal embed frames.
+   v1.5: Lucide arrow icon (FA removed).
    v1.4: wait for body (defer-safe) before init.
    v1.3: safer form-focus check (don't block PTR after button focus).
    v1.2: arm only at document top — fixes mid-page false reload
@@ -92,7 +93,7 @@
     indicator.innerHTML =
         '<div class="coop-ptr-ring">' +
             '<svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="18"/></svg>' +
-            '<i class="fas fa-arrow-down coop-ptr-icon"></i>' +
+            '<i class="lucide-icon coop-ptr-icon" aria-hidden="true" data-lucide="arrow-down"></i>' +
         '</div>' +
         '<span class="coop-ptr-lbl" data-pull="\u0916\u093f\u091a\u094d\u0928\u0941\u0939\u094b\u0938\u094d \u0930\u093f\u092b\u094d\u0930\u0947\u0938 \u0917\u0930\u094d\u0928" data-release="\u091b\u094b\u0921\u094d\u0928\u0941\u0939\u094b\u0938\u094d \u0930\u093f\u092b\u094d\u0930\u0947\u0938 \u0917\u0930\u094d\u0928" data-loading="\u0932\u094b\u0921 \u0939\u0941\u0901\u0926\u0948\u091b...">\u0916\u093f\u091a\u094d\u0928\u0941\u0939\u094b\u0938\u094d \u0930\u093f\u092b\u094d\u0930\u0947\u0938 \u0917\u0930\u094d\u0928</span>';
 
@@ -135,10 +136,12 @@
         '@keyframes coop-ptr-spin{to{transform:rotate(270deg)}}',
 
         '.coop-ptr-icon{',
-            'font-size:.9rem;color:var(--primary-color,#1a5f2a);',
+            'width:14px;height:14px;color:var(--primary-color,#1a5f2a);',
             'position:relative;z-index:1;',
             'transition:transform .2s ease;',
+            'display:inline-flex;align-items:center;justify-content:center;',
         '}',
+        '.coop-ptr-icon svg{width:100%;height:100%;}',
         '#coop-ptr.ptr-ready .coop-ptr-icon{transform:rotate(180deg);}',
         '#coop-ptr.ptr-loading .coop-ptr-icon{display:none;}',
 
@@ -155,6 +158,9 @@
 
     function appendIndicator() {
         document.body.insertBefore(indicator, document.body.firstChild);
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ nodes: indicator.querySelectorAll('[data-lucide]') });
+        }
     }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', appendIndicator);

@@ -176,10 +176,10 @@ $L = getLangStrings();
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><i class="fas fa-mobile-alt me-2"></i><?php echo $pageTitle; ?></h1>
+        <h1><i class="lucide-icon me-2" data-lucide="smartphone" aria-hidden="true"></i><?php echo $pageTitle; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -192,7 +192,7 @@ $L = getLangStrings();
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-7 form-success-card">
-                <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="form-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                 <h3 class="mt-3 fw-bold ds-title-ok"><?php echo isEnglish() ? 'Request Submitted Successfully!' : 'अनुरोध सफलतापूर्वक पेश भयो!'; ?></h3>
                 <p class="ds-muted mb-4"><?php echo isEnglish() ? 'Save your Tracking ID to check your request status.' : 'तपाईंको Tracking ID तल छ। Status हेर्न यो ID सुरक्षित राख्नुहोस्।'; ?></p>
                 <div class="form-tracking-box">
@@ -205,10 +205,10 @@ $L = getLangStrings();
                 </div>
                 <div class="mt-3">
                     <a href="<?php echo e($trackerUrl); ?>" class="btn ds-btn-success px-4 me-2">
-                        <i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track My Request' : 'अनुरोध ट्र्याक'; ?>
+                        <i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track My Request' : 'अनुरोध ट्र्याक'; ?>
                     </a>
                     <a href="digital-services.php<?php echo $isEmbed ? '?embed=1' : ''; ?>" class="btn btn-outline-secondary px-4">
-                        <i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Request' : 'नयाँ अनुरोध'; ?>
+                        <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Request' : 'नयाँ अनुरोध'; ?>
                     </a>
                 </div>
             </div>
@@ -230,12 +230,12 @@ $L = getLangStrings();
                         : 'कुनै पनि डिजिटल बैंकिङ सेवा अनलाइनै अनुरोध गर्नुहोस् — कार्यालय आउन परदैन। तलबाट सेवा छानेर फारम भर्नुहोस् र जुनसुकै बेला track गर्नुहोस्।'; ?>
                 </p>
                 <a href="#ds-form-section" class="btn ds-btn-primary btn-lg px-5">
-                    <i class="fas fa-paper-plane me-2"></i>
+                    <i class="lucide-icon me-2" data-lucide="send" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Request a Service' : 'सेवा अनुरोध गर्नुहोस्'; ?>
                 </a>
                 <?php if ($success): ?>
                 <a href="<?php echo e($trackerUrl); ?>" class="btn btn-outline-success btn-lg px-4 ms-2">
-                    <i class="fas fa-search me-2"></i>
+                    <i class="lucide-icon me-2" data-lucide="search" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Track My Request' : 'अनुरोध ट्र्याक गर्नुहोस्'; ?>
                 </a>
                 <?php endif; ?>
@@ -246,28 +246,28 @@ $L = getLangStrings();
         <div class="row g-4 mb-5">
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <div class="mb-2 ds-step-icon ds-step-icon-primary"><i class="fas fa-th-large"></i></div>
+                    <div class="mb-2 ds-step-icon ds-step-icon-primary"><i class="lucide-icon" data-lucide="layout-grid" aria-hidden="true"></i></div>
                     <h6 class="fw-600"><?php echo isEnglish() ? '1. Choose Service' : '१. सेवा छान्नुहोस्'; ?></h6>
                     <p class="ds-muted small mb-0"><?php echo isEnglish() ? 'Pick the service you need.' : 'चाहिएको डिजिटल सेवा छान्नुहोस्।'; ?></p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <div class="mb-2 ds-step-icon ds-step-icon-secondary"><i class="fas fa-edit"></i></div>
+                    <div class="mb-2 ds-step-icon ds-step-icon-secondary"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></div>
                     <h6 class="fw-600"><?php echo isEnglish() ? '2. Fill Form' : '२. फारम भर्नुहोस्'; ?></h6>
                     <p class="ds-muted small mb-0"><?php echo isEnglish() ? 'Submit your request details.' : 'आफ्नो विवरण भर्नुहोस्।'; ?></p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <div class="mb-2 ds-step-icon ds-step-icon-accent"><i class="fas fa-id-card"></i></div>
+                    <div class="mb-2 ds-step-icon ds-step-icon-accent"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></div>
                     <h6 class="fw-600"><?php echo isEnglish() ? '3. Get Tracking ID' : '३. Tracking ID पाउनुहोस्'; ?></h6>
                     <p class="ds-muted small mb-0"><?php echo isEnglish() ? 'A unique code is issued instantly.' : 'तुरुन्तै unique code पाउनुहुन्छ।'; ?></p>
                 </div>
             </div>
             <div class="col-md-3 col-6">
                 <div class="card border-0 shadow-sm text-center p-3 h-100">
-                    <div class="mb-2 ds-step-icon ds-step-icon-light"><i class="fas fa-check-circle"></i></div>
+                    <div class="mb-2 ds-step-icon ds-step-icon-light"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                     <h6 class="fw-600"><?php echo isEnglish() ? '4. Service Delivered' : '४. सेवा पाउनुहोस्'; ?></h6>
                     <p class="ds-muted small mb-0"><?php echo isEnglish() ? 'We contact you to fulfill the request.' : 'हामी सम्पर्क गरेर सेवा दिन्छौं।'; ?></p>
                 </div>
@@ -286,14 +286,14 @@ $L = getLangStrings();
                     class="ds-service-card w-100 text-start"
                     data-service="<?php echo $key; ?>"
                     style="--card-color:<?php echo $type['color']; ?>;">
-                    <span class="ds-icon"><i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i></span>
+                    <span class="ds-icon"><?php echo coop_nav_icon_html(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), 'fas fa-circle', ''); ?></span>
                     <span class="ds-label">
                         <strong><?php echo isEnglish() ? $type['en'] : $type['np']; ?></strong>
                         <?php if (!isEnglish()): ?>
                         <small><?php echo $type['en']; ?></small>
                         <?php endif; ?>
                     </span>
-                    <span class="ds-arrow"><i class="fas fa-chevron-right"></i></span>
+                    <span class="ds-arrow"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></span>
                 </button>
             </div>
             <?php endforeach; ?>
@@ -313,7 +313,7 @@ $L = getLangStrings();
                 <!-- Error alert (shown above the card) -->
                 <?php if ($error): ?>
                 <div class="alert alert-danger alert-dismissible fade show mb-4" id="ds-error-alert" role="alert">
-                    <i class="fas fa-exclamation-circle me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i>
                     <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -323,7 +323,7 @@ $L = getLangStrings();
                     <!-- Card header -->
                     <div class="card-header py-3 px-4 text-white ds-form-card-head">
                         <h5 class="mb-0">
-                            <i class="fas fa-paper-plane me-2"></i>
+                            <i class="lucide-icon me-2" data-lucide="send" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Digital Service Request Form' : 'डिजिटल सेवा अनुरोध फारम'; ?>
                         </h5>
                         <p class="mb-0 mt-1 opacity-75 ds-form-card-sub">
@@ -356,7 +356,7 @@ $L = getLangStrings();
                     <!-- Section: व्यक्तिगत जानकारी — guest only -->
                     <?php if (!$loggedMember): ?>
                     <div class="form-card-title mb-3">
-                        <i class="fas fa-user"></i>
+                        <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?>
                     </div>
                     <div class="row g-3 mb-4">
@@ -379,7 +379,7 @@ $L = getLangStrings();
                         <div class="col-md-6 js-hide-if-ds-coop-yes">
                             <label for="ds_phone" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="req">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-mobile-alt"></i></span>
+                                <span class="input-group-text"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i></span>
                                 <input type="tel" name="phone" id="ds_phone" class="form-control js-ds-personal" required
                                        placeholder="9827157000" pattern="[0-9]{10}" maxlength="10"
                                        value="<?php echo e($_POST['phone'] ?? ''); ?>" autocomplete="tel">
@@ -388,7 +388,7 @@ $L = getLangStrings();
                         <div class="col-md-6 js-hide-if-ds-coop-yes">
                             <label for="ds_email" class="form-label"><?php echo isEnglish() ? 'Email Address' : 'इमेल ठेगाना'; ?> <span class="req">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <span class="input-group-text"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></span>
                                 <input type="email" name="email" id="ds_email" class="form-control js-ds-personal" required
                                        placeholder="akashpame@gmail.com"
                                        value="<?php echo e($_POST['email'] ?? ''); ?>" autocomplete="email">
@@ -429,7 +429,7 @@ $L = getLangStrings();
 
                     <!-- Section: सेवा विवरण -->
                     <div class="form-card-title mb-3">
-                        <i class="fas fa-mobile-alt"></i>
+                        <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Service Details' : 'सेवा विवरण'; ?>
                     </div>
                     <div class="row g-3 mb-3">
@@ -439,10 +439,10 @@ $L = getLangStrings();
                             <select name="service_type" id="serviceType" class="form-select" required>
                                 <option value=""><?php echo isEnglish() ? 'Select a service...' : 'सेवा छान्नुहोस्...'; ?></option>
                                 <?php foreach ($serviceTypes as $key => $type): ?>
-                                <option value="<?php echo $key; ?>"
+                                <option value="<?php echo e($key); ?>"
                                     data-doc="<?php echo !empty($type['requires_document']) ? '1' : '0'; ?>"
                                     <?php echo (($_POST['service_type'] ?? '') === $key) ? 'selected' : ''; ?>>
-                                    <?php echo isEnglish() ? $type['en'] : ($type['np'] . ' / ' . $type['en']); ?>
+                                    <?php echo e(isEnglish() ? $type['en'] : ($type['np'] . ' / ' . $type['en'])); ?>
                                 </option>
                                 <?php endforeach; ?>
                             </select>
@@ -463,7 +463,7 @@ $L = getLangStrings();
                     <div class="conditional-fields statement-fields">
                         <div class="ds-conditional-box">
                             <div class="ds-conditional-label">
-                                <i class="fas fa-file-invoice me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="file-text" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Statement Period' : 'Statement अवधि'; ?>
                             </div>
                             <div class="row g-3">
@@ -483,7 +483,7 @@ $L = getLangStrings();
                     <div class="conditional-fields bill-fields">
                         <div class="ds-conditional-box">
                             <div class="ds-conditional-label">
-                                <i class="fas fa-receipt me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="receipt" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Bill Details' : 'बिल विवरण'; ?>
                             </div>
                             <div class="row g-3">
@@ -506,7 +506,7 @@ $L = getLangStrings();
                     <div class="conditional-fields recharge-fields">
                         <div class="ds-conditional-box">
                             <div class="ds-conditional-label">
-                                <i class="fas fa-mobile-screen me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="smartphone" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Recharge Details' : 'रिचार्ज विवरण'; ?>
                             </div>
                             <div class="row g-3">
@@ -530,7 +530,7 @@ $L = getLangStrings();
                     <div class="conditional-fields share-fields">
                         <div class="ds-conditional-box">
                             <div class="ds-conditional-label">
-                                <i class="fas fa-money-bill-transfer me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="banknote" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Share Service Details' : 'शेयर सेवा विवरण'; ?>
                             </div>
                             <div class="row g-3">
@@ -577,7 +577,7 @@ $L = getLangStrings();
                     </div>
                     <div class="d-grid mt-4">
                         <button type="submit" id="dsSubmitBtn" class="btn ds-btn-primary btn-lg">
-                            <i class="fas fa-paper-plane me-2"></i>
+                            <i class="lucide-icon me-2" data-lucide="send" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Submit Digital Service Request' : 'डिजिटल सेवा अनुरोध पेश गर्नुहोस्'; ?>
                         </button>
                     </div>
@@ -667,7 +667,7 @@ $L = getLangStrings();
     if (form && submitBtn) {
         form.addEventListener('submit', function() {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> <?php echo isEnglish() ? 'Submitting...' : 'पेश गर्दै...'; ?>';
+            submitBtn.innerHTML = '<i class="lucide-icon lucide-spin me-1" data-lucide="loader-2" aria-hidden="true"></i> <?php echo isEnglish() ? 'Submitting...' : 'पेश गर्दै...'; ?>';
         });
     }
 

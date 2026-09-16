@@ -6,6 +6,7 @@
  *
  * Canonical implementation (replaces the old legacy `pages.php` + `pages-v2.php` split).
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'पृष्ठ व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -16,7 +17,9 @@ checkCSRF();
 
 /* menu_icon for public nav (FA class; same picker as team/services) */
 try {
-    if (function_exists('dbColumnExists') && !dbColumnExists('pages', 'menu_icon')) {
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($db, 'pages', 'menu_icon', "VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
+    } elseif (function_exists('dbColumnExists') && !dbColumnExists('pages', 'menu_icon')) {
         $db->exec("ALTER TABLE pages ADD COLUMN menu_icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-file-lines' AFTER menu_order");
     }
 } catch (Throwable $e) {
@@ -106,7 +109,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_dynamic_page']))
     $menuPosition = clean_text($_POST['menu_position'] ?? 'about');
     $menuOrder = (int) ($_POST['menu_order'] ?? 0);
     $menuIcon = clean_text($_POST['menu_icon'] ?? 'fas fa-file-lines', 80);
-    if ($menuIcon === '' || !preg_match('/^(fa[srlb]?|fas|far|fal|fab)\s+fa-[\w-]+$/i', $menuIcon)) {
+    if (function_exists('coop_canonical_icon_for_storage')) {
+        $menuIcon = coop_canonical_icon_for_storage($menuIcon, 'fas fa-file-lines');
+    } elseif ($menuIcon === '' || !preg_match('/^(fa[srlb]?|fas|far|fal|fab)\s+fa-[\w-]+$/i', $menuIcon)) {
         $menuIcon = 'fas fa-file-lines';
     }
     $isActive = isset($_POST['is_active']) ? 1 : 0;
@@ -274,16 +279,16 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                 <div class="tab-pane fade <?php echo $tab === 'dynamic' ? 'show active' : ''; ?>" id="pgv2-dynamic" role="tabpanel">
                     <ul class="nav nav-tabs admin-nav-tabs mb-0" role="tablist" style="margin-top:10px;">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?php echo ($tab === 'dynamic' && $action !== 'edit' && $panel !== 'form') ? 'active' : ''; ?>"
+                            <button type="button" class="nav-link <?php echo ($tab === 'dynamic' && $action !== 'edit' && $panel !== 'form') ? 'active' : ''; ?>"
                                     data-bs-toggle="tab" data-bs-target="#pgv2-dyn-list" type="button" role="tab">
-                                <i class="fas fa-list me-2"></i>सूची
+                                <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सूची
                                 <span class="badge bg-success ms-1"><?php echo count($dynamicPages); ?></span>
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?php echo ($tab === 'dynamic' && ($action === 'edit' || $panel === 'form')) ? 'active' : ''; ?>"
+                            <button type="button" class="nav-link <?php echo ($tab === 'dynamic' && ($action === 'edit' || $panel === 'form')) ? 'active' : ''; ?>"
                                     data-bs-toggle="tab" data-bs-target="#pgv2-dyn-form" type="button" role="tab">
-                                <i class="fas fa-plus-circle me-2"></i><?php echo $dynEditRow ? 'सम्पादन' : 'नयाँ थप्नुहोस्'; ?>
+                                <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $dynEditRow ? 'सम्पादन' : 'नयाँ थप्नुहोस्'; ?>
                             </button>
                         </li>
                     </ul>
@@ -294,7 +299,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                 <div class="card-body p-0">
                                     <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3">
                                         <div class="input-group input-group-sm svc-search-group">
-                                            <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                            <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                                             <input type="text" class="form-control border-start-0 admin-table-search" placeholder="पृष्ठ खोज्नुहोस्..." autocomplete="off">
                                         </div>
                                         <small class="text-muted search-count"></small>
@@ -305,10 +310,10 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         <input type="hidden" name="action" value="bulk_status">
                                         <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-end gap-2">
                                             <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success admin-bulk-btn">
-                                <i class="fas fa-check-circle" aria-hidden="true"></i> Bulk Active
+                                <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> Bulk Active
                             </button>
                             <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary admin-bulk-btn">
-                                <i class="fas fa-ban" aria-hidden="true"></i> Bulk Inactive
+                                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> Bulk Inactive
                             </button>
                                         </div>
                                         <?php echo adminListSubtabPills('pgv2-sub', count($dynamicLive), count($dynamicArch)); ?>
@@ -337,9 +342,9 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                 <td class="text-center"><input type="checkbox" class="pgv2-select" name="selected_ids[]" value="<?php echo (int)$pg['id']; ?>"></td>
                                                                 <td><?php echo $i + 1; ?></td>
                                                                 <td>
-                                                                    <a href="<?php echo SITE_URL; ?>page.php?slug=<?php echo htmlspecialchars((string)$pg['slug']); ?>" target="_blank" class="text-decoration-none" rel="noopener noreferrer">
+                                                                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=<?php echo htmlspecialchars((string)$pg['slug'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="text-decoration-none" rel="noopener noreferrer">
                                                                         <code><?php echo htmlspecialchars((string)$pg['slug']); ?></code>
-                                                                        <i class="fas fa-external-link-alt fa-xs ms-1"></i>
+                                                                        <i class="lucide-icon ms-1" data-lucide="external-link" aria-hidden="true"></i>
                                                                     </a>
                                                                 </td>
                                                                 <td><?php echo htmlspecialchars((string)($pg['title_np'] ?? $pg['title'] ?? '')); ?></td>
@@ -360,13 +365,13 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                 <td class="text-center"><?php echo !empty($pg['is_active']) ? '<span class="badge bg-success">सक्रिय</span>' : '<span class="badge bg-secondary">निष्क्रिय</span>'; ?></td>
                                                                 <td class="text-center">
                                                                     <div class="d-inline-flex align-items-center gap-1 flex-nowrap">
-                                                                    <a class="btn btn-sm btn-primary" href="pages.php?tab=dynamic&action=edit&id=<?php echo (int)$pg['id']; ?>&panel=form" title="सम्पादन"><i class="fas fa-edit"></i></a>
+                                                                    <a class="btn btn-sm btn-primary" href="pages.php?tab=dynamic&action=edit&id=<?php echo (int)$pg['id']; ?>&panel=form" title="सम्पादन"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                                                                     <?php $isProtected = in_array((string)($pg['slug'] ?? ''), ['privacy-policy','terms-of-service','cookie-policy'], true); ?>
                                                                     <form method="POST" class="svc-inline-form m-0" onsubmit="return confirm('यो पृष्ठ मेटाउने हो?')">
                                                                         <?php echo csrfField(); ?>
                                                                         <input type="hidden" name="action" value="delete">
                                                                         <input type="hidden" name="id" value="<?php echo (int)$pg['id']; ?>">
-                                                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>" aria-label="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" <?php echo $isProtected ? 'disabled' : ''; ?> title="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>" aria-label="<?php echo $isProtected ? 'policy page हटाउन मिल्दैन' : 'मेटाउनुहोस्'; ?>"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                                                     </form>
                                                                     </div>
                                                                 </td>
@@ -405,7 +410,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                                 <td><?php echo !empty($pg['show_in_menu']) ? '<span class="badge bg-info">' . htmlspecialchars((string)($pg['menu_position'] ?? '')) . '</span>' : '<span class="text-muted">—</span>'; ?></td>
                                                                 <td class="text-center"><?php echo !empty($pg['is_active']) ? '<span class="badge bg-success">सक्रिय</span>' : '<span class="badge bg-secondary">निष्क्रिय</span>'; ?></td>
                                                                 <td class="text-center">
-                                                                    <a class="btn btn-sm btn-primary" href="pages.php?tab=dynamic&action=edit&id=<?php echo (int)$pg['id']; ?>&panel=form" title="सम्पादन"><i class="fas fa-edit"></i></a>
+                                                                    <a class="btn btn-sm btn-primary" href="pages.php?tab=dynamic&action=edit&id=<?php echo (int)$pg['id']; ?>&panel=form" title="सम्पादन"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                                                                 </td>
                                                             </tr>
                                                             <?php endforeach; ?>
@@ -423,10 +428,10 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                             <div class="card svc-flat-top-card">
                                 <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                                     <h5 class="mb-0 fw-bold">
-                                        <i class="fas fa-plus-circle me-2"></i><?php echo $dynEditRow ? 'पृष्ठ सम्पादन' : 'नयाँ पृष्ठ थप्नुहोस्'; ?>
+                                        <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $dynEditRow ? 'पृष्ठ सम्पादन' : 'नयाँ पृष्ठ थप्नुहोस्'; ?>
                                     </h5>
                                     <a class="btn btn-light btn-sm" href="pages.php?tab=dynamic">
-                                        <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                                        <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                                     </a>
                                 </div>
                                 <div class="card-body p-4">
@@ -439,7 +444,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             <div class="col-md-8">
                                                 <label for="pgv2_slug" class="form-label fw-semibold">Slug (URL) <span class="text-danger">*</span></label>
                                                 <input type="text" name="slug" id="pgv2_slug" class="form-control" required value="<?php echo htmlspecialchars((string)($dynEditRow['slug'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
-                                                <div class="form-text">URL: <code><?php echo SITE_URL; ?>page.php?slug=[slug]</code> — अंग्रेजी slug राम्रो (जस्तै <code>objectives</code>); नेपाली slug पनि चल्छ।</div>
+                                                <div class="form-text">URL: <code><?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=[slug]</code> — अंग्रेजी slug राम्रो (जस्तै <code>objectives</code>); नेपाली slug पनि चल्छ।</div>
                                             </div>
                                             <div class="col-md-4">
                                                 <label for="pgv2_isActive" class="form-label fw-semibold">स्थिति</label>
@@ -492,13 +497,13 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                                     <div class="fa-ip-row input-group">
                                                         <span class="fa-ip-preview input-group-text" data-fa-preview>
-                                                            <i class="<?php echo htmlspecialchars((string)($dynEditRow['menu_icon'] ?? 'fas fa-file-lines'), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                                            <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($dynEditRow['menu_icon'] ?? 'fas fa-file-lines'), 'fas fa-circle') : ''; ?>
                                                         </span>
                                                         <input type="text" name="menu_icon" id="pgv2_menu_icon" class="form-control" data-fa-input
                                                                value="<?php echo htmlspecialchars((string)($dynEditRow['menu_icon'] ?? 'fas fa-file-lines'), ENT_QUOTES, 'UTF-8'); ?>"
                                                                placeholder="fas fa-file-lines">
                                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="आइकन छान्नुहोस्">
-                                                            <i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>
+                                                            <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span>छान्नुहोस्</span>
                                                         </button>
                                                     </div>
                                                     <small class="fa-ip-hint">सार्वजनिक मेनु ड्रपडाउनमा यही आइकन देखिन्छ (Font Awesome / Lucide-compatible classes)।</small>
@@ -524,7 +529,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         </div>
 
                                         <hr class="my-4">
-                                        <button type="submit" class="btn btn-success px-5 fw-semibold"><i class="fas fa-save me-2"></i>सेभ गर्नुहोस्</button>
+                                        <button type="submit" class="btn btn-success px-5 fw-semibold"><i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>सेभ गर्नुहोस्</button>
                                     </form>
                                 </div>
                             </div>
@@ -536,15 +541,15 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                 <div class="tab-pane fade <?php echo $tab === 'static' ? 'show active' : ''; ?>" id="pgv2-static" role="tabpanel">
                     <ul class="nav nav-tabs admin-nav-tabs mb-0" role="tablist" style="margin-top:10px;">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?php echo ($tab === 'static' && $action !== 'edit_static' && $panel !== 'form') ? 'active' : ''; ?>"
+                            <button type="button" class="nav-link <?php echo ($tab === 'static' && $action !== 'edit_static' && $panel !== 'form') ? 'active' : ''; ?>"
                                     data-bs-toggle="tab" data-bs-target="#pgv2-st-list" type="button" role="tab">
-                                <i class="fas fa-list me-2"></i>सूची
+                                <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सूची
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link <?php echo ($tab === 'static' && ($action === 'edit_static' || $panel === 'form')) ? 'active' : ''; ?>"
+                            <button type="button" class="nav-link <?php echo ($tab === 'static' && ($action === 'edit_static' || $panel === 'form')) ? 'active' : ''; ?>"
                                     data-bs-toggle="tab" data-bs-target="#pgv2-st-form" type="button" role="tab">
-                                <i class="fas fa-pen-to-square me-2"></i><?php echo $editStaticKey !== '' ? 'सम्पादन' : 'फर्म'; ?>
+                                <i class="lucide-icon me-2" data-lucide="pen-square" aria-hidden="true"></i><?php echo $editStaticKey !== '' ? 'सम्पादन' : 'फर्म'; ?>
                             </button>
                         </li>
                     </ul>
@@ -570,7 +575,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                     <td><?php echo htmlspecialchars($info['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td><?php echo htmlspecialchars($info['title_en'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="text-center">
-                                                        <a class="btn btn-sm btn-primary" href="pages.php?tab=static&action=edit_static&page=<?php echo urlencode($key); ?>&panel=form" title="सम्पादन"><i class="fas fa-edit"></i></a>
+                                                        <a class="btn btn-sm btn-primary" href="pages.php?tab=static&action=edit_static&page=<?php echo urlencode($key); ?>&panel=form" title="सम्पादन"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                                                     </td>
                                                 </tr>
                                                 <?php endforeach; ?>
@@ -584,8 +589,8 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                         <div class="tab-pane fade <?php echo ($tab === 'static' && ($action === 'edit_static' || $panel === 'form')) ? 'show active' : ''; ?>" id="pgv2-st-form" role="tabpanel">
                             <div class="card svc-flat-top-card">
                                 <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
-                                    <h5 class="mb-0 fw-bold"><i class="fas fa-pen-to-square me-2"></i>स्थिर सेक्सन सम्पादन</h5>
-                                    <a class="btn btn-light btn-sm" href="pages.php?tab=static"><i class="fas fa-arrow-left me-1"></i>सूची</a>
+                                    <h5 class="mb-0 fw-bold"><i class="lucide-icon me-2" data-lucide="pen-square" aria-hidden="true"></i>स्थिर सेक्सन सम्पादन</h5>
+                                    <a class="btn btn-light btn-sm" href="pages.php?tab=static"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूची</a>
                                 </div>
                                 <div class="card-body p-4">
                                     <?php if ($editStaticKey === ''): ?>
@@ -609,7 +614,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                             </div>
                                             <div class="col-md-4">
                                                 <button type="submit" class="btn btn-primary w-100">
-                                                    <i class="fas fa-pen-to-square me-2"></i>सम्पादन खोल्नुहोस्
+                                                    <i class="lucide-icon me-2" data-lucide="pen-square" aria-hidden="true"></i>सम्पादन खोल्नुहोस्
                                                 </button>
                                             </div>
                                         </form>
@@ -645,7 +650,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                         </div>
 
                                         <hr class="my-4">
-                                        <button type="submit" class="btn btn-success px-5 fw-semibold"><i class="fas fa-save me-2"></i>सेभ गर्नुहोस्</button>
+                                        <button type="submit" class="btn btn-success px-5 fw-semibold"><i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>सेभ गर्नुहोस्</button>
                                     </form>
                                     <?php endif; ?>
                                 </div>

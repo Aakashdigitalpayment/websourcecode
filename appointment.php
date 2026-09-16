@@ -166,6 +166,10 @@ try {
 
 $__sharedMath = coop_math_challenge_issue('appointment');
 
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/appointment-page.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 ?>
@@ -176,7 +180,7 @@ $L = getLangStrings();
         <h1><?php echo $pageTitle; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -189,7 +193,7 @@ $L = getLangStrings();
         <div class="row justify-content-center">
             <div class="col-lg-7 col-md-9">
                 <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
-                <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="form-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                 <h3 class="mt-3 fw-bold text-success"><?php
                     if ($successVisitKind === 'cooperative') {
                         echo isEnglish() ? 'Cooperative Visit Request Submitted!' : 'सहकारी भ्रमण अनुरोध पेश भयो!';
@@ -215,9 +219,9 @@ $L = getLangStrings();
                 </div>
                 <?php endif; ?>
                 <div class="d-flex justify-content-center flex-wrap gap-2">
-                <a href="appointment.php<?php echo $isEmbed ? '?embed=1' : ''; ?>" class="btn btn-success px-4"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Request' : 'नयाँ अनुरोध'; ?></a>
-                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-outline-primary px-4"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Status' : 'स्थिति ट्र्याक'; ?></a>
-                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary px-4"><i class="fas fa-home me-1"></i><?php echo isEnglish() ? 'Home' : 'गृहपृष्ठ'; ?></a>
+                <a href="appointment.php<?php echo $isEmbed ? '?embed=1' : ''; ?>" class="btn btn-success px-4"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Request' : 'नयाँ अनुरोध'; ?></a>
+                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-outline-primary px-4"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track Status' : 'स्थिति ट्र्याक'; ?></a>
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="house" aria-hidden="true"></i><?php echo isEnglish() ? 'Home' : 'गृहपृष्ठ'; ?></a>
                 </div>
                 </div>
             </div>
@@ -234,15 +238,15 @@ $L = getLangStrings();
             <div class="col-lg-4 mb-4 mb-lg-0 order-lg-2">
                 <div class="card border-0 shadow-sm h-100 appt-steps-card">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i><?php echo isEnglish() ? 'How It Works' : 'कसरी काम गर्छ'; ?></h5>
+                        <h5 class="fw-bold mb-4"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i><?php echo isEnglish() ? 'How It Works' : 'कसरी काम गर्छ'; ?></h5>
                         <?php
                         $steps = isEnglish()
-                            ? [['fa-edit','Fill the form','Complete all required fields below.'],['fa-clock','Await Confirmation','Our team will call/email to confirm.'],['fa-building','Visit Office','Come to the service office on scheduled date.'],['fa-handshake','Get Served','Receive personalised service.']]
-                            : [['fa-edit','फारम भर्नुहोस्','तलका सबै आवश्यक जानकारी भर्नुहोस्।'],['fa-clock','पुष्टिको प्रतीक्षा','हाम्रो टोलीले फोन/इमेलबाट पुष्टि गर्नेछ।'],['fa-building','कार्यालय आउनुहोस्','तोकिएको मितिमा सेवा कार्यालयमा आउनुहोस्।'],['fa-handshake','सेवा पाउनुहोस्','व्यक्तिगत सेवा प्राप्त गर्नुहोस्।']];
+                            ? [['square-pen','Fill the form','Complete all required fields below.'],['clock','Await Confirmation','Our team will call/email to confirm.'],['building-2','Visit Office','Come to the service office on scheduled date.'],['handshake','Get Served','Receive personalised service.']]
+                            : [['square-pen','फारम भर्नुहोस्','तलका सबै आवश्यक जानकारी भर्नुहोस्।'],['clock','पुष्टिको प्रतीक्षा','हाम्रो टोलीले फोन/इमेलबाट पुष्टि गर्नेछ।'],['building-2','कार्यालय आउनुहोस्','तोकिएको मितिमा सेवा कार्यालयमा आउनुहोस्।'],['handshake','सेवा पाउनुहोस्','व्यक्तिगत सेवा प्राप्त गर्नुहोस्।']];
                         foreach ($steps as $i => $s): ?>
                         <div class="d-flex gap-3 mb-3">
                             <div class="appt-step-icon-wrap">
-                                <i class="fas <?php echo $s[0]; ?>" style="font-size:15px;"></i>
+                                <i class="lucide-icon" data-lucide="<?php echo $s[0]; ?>" aria-hidden="true" style="width:15px;height:15px;"></i>
                             </div>
                             <div>
                                 <div class="fw-semibold" style="font-size:13.5px;"><?php echo ($i+1) . '. ' . $s[1]; ?></div>
@@ -253,7 +257,7 @@ $L = getLangStrings();
 
                         <hr class="appt-step-divider">
                         <div class="appt-step-help">
-                            <i class="fas fa-search me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'After booking, use your Tracking ID on the ' : 'बुक गरेपछि '; ?>
                             <a href="<?php echo e($trackerUrl); ?>" class="appt-step-link">
                                 <?php echo isEnglish() ? 'Application Tracker' : 'Application Tracker'; ?>
@@ -269,7 +273,7 @@ $L = getLangStrings();
                 <div class="card border-0 shadow-sm appt-form-card">
                     <div class="card-header appt-form-card-head border-0 rounded-top-3 py-3 px-4 bg-primary">
                         <h5 class="mb-0 text-white fw-bold">
-                            <i class="fas fa-calendar-check me-2" aria-hidden="true"></i>
+                            <i class="lucide-icon me-2" data-lucide="calendar-check" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                         </h5>
                     </div>
@@ -277,7 +281,7 @@ $L = getLangStrings();
 
                         <?php if ($error): ?>
                         <div class="alert alert-danger alert-dismissible fade show mb-4">
-                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i>
                             <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -295,14 +299,14 @@ $L = getLangStrings();
                                 <button type="button" class="nav-link <?php echo $activeApptTab === 'member' ? 'active' : ''; ?>"
                                         id="appt-tab-member-btn" data-bs-toggle="pill" data-bs-target="#appt-tab-member" role="tab"
                                         aria-controls="appt-tab-member" aria-selected="<?php echo $activeApptTab === 'member' ? 'true' : 'false'; ?>">
-                                    <i class="fas fa-user me-1"></i><?php echo isEnglish() ? 'Member Appointment' : 'सदस्य भेटघाट'; ?>
+                                    <i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i><?php echo isEnglish() ? 'Member Appointment' : 'सदस्य भेटघाट'; ?>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button type="button" class="nav-link <?php echo $activeApptTab === 'cooperative' ? 'active' : ''; ?>"
                                         id="appt-tab-coop-btn" data-bs-toggle="pill" data-bs-target="#appt-tab-coop" role="tab"
                                         aria-controls="appt-tab-coop" aria-selected="<?php echo $activeApptTab === 'cooperative' ? 'true' : 'false'; ?>">
-                                    <i class="fas fa-handshake me-1"></i><?php echo isEnglish() ? 'Cooperative Visit' : 'सहकारी भ्रमण'; ?>
+                                    <i class="lucide-icon me-1" data-lucide="handshake" aria-hidden="true"></i><?php echo isEnglish() ? 'Cooperative Visit' : 'सहकारी भ्रमण'; ?>
                                 </button>
                             </li>
                         </ul>
@@ -329,7 +333,7 @@ $L = getLangStrings();
 
                             <?php if (!$loggedMember): ?>
                             <div class="form-card-title mb-3">
-                                <i class="fas fa-user"></i>
+                                <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?>
                             </div>
                             <div class="row g-3 mb-4">
@@ -390,7 +394,7 @@ $L = getLangStrings();
                             <?php endif; ?>
 
                             <div class="form-card-title mb-3">
-                                <i class="fas fa-clipboard-list"></i>
+                                <i class="lucide-icon" data-lucide="clipboard-list" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Appointment Details' : 'भेटघाट विवरण'; ?>
                             </div>
                             <div class="row g-3 mb-4">
@@ -410,7 +414,7 @@ $L = getLangStrings();
                                         foreach ($purposes as $val => $label):
                                             $sel = ($postPurpose === $val) ? 'selected' : '';
                                         ?>
-                                        <option value="<?php echo $val; ?>" <?php echo $sel; ?>><?php echo $label; ?></option>
+                                        <option value="<?php echo e($val); ?>" <?php echo $sel; ?>><?php echo e($label); ?></option>
                                         <?php endforeach; ?>
                                     </select>
                                 </div>
@@ -432,7 +436,7 @@ $L = getLangStrings();
                             </div>
 
                             <div class="form-card-title mb-3">
-                                <i class="fas fa-clock"></i>
+                                <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Preferred Date & Time' : 'रुचाइएको मिति र समय'; ?>
                             </div>
                             <div class="row g-3 mb-4">
@@ -473,12 +477,12 @@ $L = getLangStrings();
                                 <?php echo coop_public_form_anti_bot_html('appointment', 'appt1', isEnglish(), 'col-12', $__sharedMath); ?>
                             </div>
                             <div class="appt-form-actions">
-                                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
-                                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
+                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary appt-btn-back">
+                                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
                                 </a>
                                 <button type="submit" class="btn btn-primary appt-btn-submit">
                                     <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                                    <i class="fas fa-calendar-check me-2" aria-hidden="true"></i><?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
+                                    <i class="lucide-icon me-2" data-lucide="calendar-check" aria-hidden="true"></i><?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                                 </button>
                             </div>
                         </form>
@@ -496,7 +500,7 @@ $L = getLangStrings();
                             </p>
 
                             <div class="form-card-title mb-3">
-                                <i class="fas fa-building"></i>
+                                <i class="lucide-icon" data-lucide="building" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Cooperative Details' : 'सहकारी विवरण'; ?>
                             </div>
                             <div class="row g-3 mb-4">
@@ -555,7 +559,7 @@ $L = getLangStrings();
                             </div>
 
                             <div class="form-card-title mb-3">
-                                <i class="fas fa-clock"></i>
+                                <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Preferred Visit Date & Time' : 'रुचाइएको भ्रमण मिति र समय'; ?>
                             </div>
                             <div class="row g-3 mb-4">
@@ -596,11 +600,11 @@ $L = getLangStrings();
                                 <?php echo coop_public_form_anti_bot_html('appointment', 'appt2', isEnglish(), 'col-12', $__sharedMath); ?>
                             </div>
                             <div class="appt-form-actions">
-                                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary appt-btn-back">
-                                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
+                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary appt-btn-back">
+                                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo isEnglish() ? 'Cancel' : 'फर्कनुहोस्'; ?>
                                 </a>
                                 <button type="submit" class="btn btn-primary appt-btn-submit">
-                                    <i class="fas fa-handshake me-2" aria-hidden="true"></i><?php echo isEnglish() ? 'Request Cooperative Visit' : 'सहकारी भ्रमण अनुरोध'; ?>
+                                    <i class="lucide-icon me-2" data-lucide="handshake" aria-hidden="true"></i><?php echo isEnglish() ? 'Request Cooperative Visit' : 'सहकारी भ्रमण अनुरोध'; ?>
                                 </button>
                             </div>
                         </form>
@@ -615,81 +619,7 @@ $L = getLangStrings();
         </div><!-- /row -->
     </div><!-- /container -->
 </section>
-<style>
-.appt-kind-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-}
-.appt-kind-tabs .nav-item { flex: 0 0 auto; }
-.appt-kind-tabs .nav-link {
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
-    color: var(--primary-color, #1a5f2a);
-    font-weight: 600;
-    border-radius: 999px;
-    padding: .45rem 1rem;
-    background: #fff;
-    white-space: nowrap;
-}
-.appt-kind-tabs .nav-link.active {
-    background: var(--primary-color, #1a5f2a);
-    border-color: var(--primary-color, #1a5f2a);
-    color: #fff;
-}
 
-/* Beat global-theme .card-header:not([class*="bg-"]) light wash */
-.card.appt-form-card > .card-header.appt-form-card-head,
-.card.appt-form-card > .card-header.bg-primary {
-    background: linear-gradient(135deg, #145021, #1a5f2a) !important;
-    background-color: #1a5f2a !important;
-    border-bottom: 0 !important;
-    color: #fff !important;
-}
-.card.appt-form-card > .card-header.appt-form-card-head h5,
-.card.appt-form-card > .card-header.appt-form-card-head i,
-.card.appt-form-card > .card-header.bg-primary h5,
-.card.appt-form-card > .card-header.bg-primary i {
-    color: #fff !important;
-}
-
-.appt-form-actions {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    gap: 12px;
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-}
-.appt-form-actions .appt-btn-back,
-.appt-form-actions .appt-btn-submit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    white-space: nowrap;
-    font-weight: 700;
-    line-height: 1.2;
-}
-.appt-form-actions .appt-btn-back {
-    flex: 0 0 auto;
-    padding: .65rem 1.1rem;
-}
-.appt-form-actions .appt-btn-submit {
-    flex: 1 1 auto;
-    font-size: 1rem;
-    padding: .7rem 1.25rem;
-}
-@media (max-width: 575.98px) {
-    .appt-form-actions {
-        flex-direction: column-reverse;
-    }
-    .appt-form-actions .appt-btn-back,
-    .appt-form-actions .appt-btn-submit {
-        width: 100%;
-    }
-}
-</style>
 <script>
 (function () {
   var form = document.getElementById('cooperativeVisitForm');

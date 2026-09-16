@@ -22,17 +22,20 @@ $trackerUrl = $isEmbed
     ? (rtrim(SITE_URL, '/') . '/member/tracker.php')
     : 'application-tracker.php';
 
-// Handle tracking lookup
+// Handle tracking lookup — tracking_id string only (no sequential DB id / IDOR)
 if (isset($_GET['track']) && !empty($_GET['track'])) {
     $searchId = clean_text($_GET['track'] ?? '', 80);
-    try {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM grievances WHERE tracking_id = ? OR id = ?");
-        $trackingNum = (int) preg_replace('/[^0-9]/', '', $searchId);
-        $stmt->execute([$searchId, $trackingNum]);
-        $trackingResult = $stmt->fetch();
-    } catch (Exception $e) {
-        // Silent fail
+    if (function_exists('coop_is_public_tracking_id')
+        ? coop_is_public_tracking_id($searchId)
+        : (bool) preg_match('/^[A-Za-z]{2,8}-[A-Za-z0-9][A-Za-z0-9\-_.]{4,90}$/', $searchId)) {
+        try {
+            $db = getDB();
+            $stmt = $db->prepare("SELECT * FROM grievances WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?)) LIMIT 1");
+            $stmt->execute([$searchId]);
+            $trackingResult = $stmt->fetch();
+        } catch (Exception $e) {
+            // Silent fail
+        }
     }
 }
 
@@ -151,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1><?php echo $pageTitle; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -165,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-8 public-form-shell">
                 <?php if ($success): ?>
                 <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
-                    <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="form-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                     <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Grievance Submitted Successfully!' : 'गुनासो सफलतापूर्वक दर्ता भयो!'; ?></h3>
                     <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will review and respond to your grievance soon.' : 'हामी तपाईंको गुनासो छिट्टै समीक्षा गरी जवाफ दिनेछौं।'; ?></p>
                     <?php if ($trackingId): ?>
@@ -180,15 +183,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
                     <div class="mt-3">
                         <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2">
-                            <i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Application Tracker' : 'आवेदन ट्र्याकर'; ?>
+                            <i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Application Tracker' : 'आवेदन ट्र्याकर'; ?>
                         </a>
                         <?php if ($trackingId): ?>
                         <a href="grievance.php?track=<?php echo urlencode($trackingId); ?>" class="btn btn-outline-success px-4 me-2">
-                            <i class="fas fa-clipboard-list me-1"></i><?php echo isEnglish() ? 'This grievance' : 'यो गुनासो'; ?>
+                            <i class="lucide-icon me-1" data-lucide="clipboard-list" aria-hidden="true"></i><?php echo isEnglish() ? 'This grievance' : 'यो गुनासो'; ?>
                         </a>
                         <?php endif; ?>
-                        <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-home me-1"></i><?php echo $L['home']; ?>
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary px-4">
+                            <i class="lucide-icon me-1" data-lucide="house" aria-hidden="true"></i><?php echo $L['home']; ?>
                         </a>
                     </div>
                 </div>
@@ -201,37 +204,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Tracking Form -->
                 <div class="tracking-form mb-4">
-                    <h5><i class="fas fa-search"></i> <?php echo isEnglish() ? 'Track Your Grievance' : 'आफ्नो गुनासो ट्र्याक गर्नुहोस्'; ?></h5>
+                    <h5><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i> <?php echo isEnglish() ? 'Track Your Grievance' : 'आफ्नो गुनासो ट्र्याक गर्नुहोस्'; ?></h5>
                     <form method="GET" class="d-flex gap-2">
-                        <input type="text" name="track" class="form-control" placeholder="<?php echo isEnglish() ? 'Enter Tracking ID (e.g. GRV-000001)' : 'ट्र्याकिङ आईडी राख्नुहोस् (जस्तै: GRV-000001)'; ?>" value="<?php echo htmlspecialchars($_GET['track'] ?? ''); ?>">
-                        <button type="submit" class="btn btn-primary" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
+                        <input type="text" name="track" class="form-control" placeholder="<?php echo isEnglish() ? 'Enter Tracking ID (e.g. GRV-20260315-A1B2C3D4)' : 'ट्र्याकिङ आईडी राख्नुहोस् (जस्तै: GRV-20260315-A1B2C3D4)'; ?>" value="<?php echo htmlspecialchars($_GET['track'] ?? ''); ?>">
+                        <button type="submit" class="btn btn-primary" aria-label="Search" title="Search"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></button>
                     </form>
 
                     <?php if ($trackingResult): ?>
                     <div class="tracking-result mt-3">
-                        <h5><i class="fas fa-clipboard-list"></i> <?php echo isEnglish() ? 'Grievance Status' : 'गुनासो स्थिति'; ?></h5>
+                        <h5><i class="lucide-icon" data-lucide="clipboard-list" aria-hidden="true"></i> <?php echo isEnglish() ? 'Grievance Status' : 'गुनासो स्थिति'; ?></h5>
                         <div class="row">
                             <div class="col-md-6 mb-2">
                                 <strong><?php echo isEnglish() ? 'Tracking ID:' : 'ट्र्याकिङ आईडी:'; ?></strong>
-                                <?php echo $trackingResult['tracking_id'] ?? 'GRV-' . str_pad($trackingResult['id'], 6, '0', STR_PAD_LEFT); ?>
+                                <?php echo e((string)($trackingResult['tracking_id'] ?? '')); ?>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <strong><?php echo isEnglish() ? 'Status:' : 'स्थिति:'; ?></strong>
-                                <span class="status-badge <?php echo $trackingResult['status']; ?>">
-                                    <?php
-                                    $statusLabels = [
-                                        'pending' => isEnglish() ? 'Pending' : 'पेन्डिङ',
-                                        'in_progress' => isEnglish() ? 'In Progress' : 'प्रक्रियामा',
-                                        'resolved' => isEnglish() ? 'Resolved' : 'समाधान भयो',
-                                        'closed' => isEnglish() ? 'Closed' : 'बन्द'
-                                    ];
-                                    echo $statusLabels[$trackingResult['status']] ?? $trackingResult['status'];
-                                    ?>
+                                <?php
+                                $__grvStatus = (string)($trackingResult['status'] ?? '');
+                                $__grvStatusOk = ['pending', 'in_progress', 'resolved', 'closed'];
+                                $__grvStatusSafe = in_array($__grvStatus, $__grvStatusOk, true) ? $__grvStatus : 'pending';
+                                $statusLabels = [
+                                    'pending' => isEnglish() ? 'Pending' : 'पेन्डिङ',
+                                    'in_progress' => isEnglish() ? 'In Progress' : 'प्रक्रियामा',
+                                    'resolved' => isEnglish() ? 'Resolved' : 'समाधान भयो',
+                                    'closed' => isEnglish() ? 'Closed' : 'बन्द'
+                                ];
+                                ?>
+                                <span class="status-badge <?php echo e($__grvStatusSafe); ?>">
+                                    <?php echo e($statusLabels[$__grvStatusSafe] ?? $__grvStatusSafe); ?>
                                 </span>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <strong><?php echo isEnglish() ? 'Category:' : 'वर्ग:'; ?></strong>
-                                <?php echo ucfirst($trackingResult['category']); ?>
+                                <?php echo e(ucfirst((string)($trackingResult['category'] ?? ''))); ?>
                             </div>
                             <div class="col-md-6 mb-2">
                                 <strong><?php echo isEnglish() ? 'Filed On:' : 'दर्ता मिति:'; ?></strong>
@@ -251,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <?php elseif (isset($_GET['track']) && !empty($_GET['track'])): ?>
                     <div class="alert alert-warning mt-3">
-                        <i class="fas fa-exclamation-triangle"></i>
+                        <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'No grievance found with this tracking ID.' : 'यो ट्र्याकिङ आईडी भएको गुनासो फेला परेन।'; ?>
                     </div>
                     <?php endif; ?>
@@ -261,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="grievance-form-box">
                     <div class="form-header text-center mb-4">
-                        <div class="form-icon"><i class="fas fa-exclamation-circle"></i></div>
+                        <div class="form-icon"><i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i></div>
                         <h3><?php echo isEnglish() ? 'Submit Your Grievance' : 'आफ्नो गुनासो पेश गर्नुहोस्'; ?></h3>
                         <p><?php echo isEnglish() ? 'Your grievance will be addressed directly by our management' : 'तपाईंको गुनासो हाम्रो व्यवस्थापनले प्रत्यक्ष रूपमा सम्बोधन गर्नेछ'; ?></p>
                     </div>
@@ -301,7 +307,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Personal Info — guest only -->
                         <?php if (!$loggedMember): ?>
                         <div class="form-section" id="personalInfoSection">
-                            <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-grv-name-wrap">
                                     <label for="nameField" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger required-star">*</span></label>
@@ -331,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Grievance Details -->
                         <div class="form-section">
-                            <h5><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Grievance Details' : 'गुनासो विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i> <?php echo isEnglish() ? 'Grievance Details' : 'गुनासो विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="grv_category" class="form-label"><?php echo isEnglish() ? 'Category' : 'वर्ग'; ?></label>
@@ -363,7 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-actions">
                             <?php echo coop_public_form_anti_bot_html('grievance', 'grv', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-danger btn-lg">
-                                <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit Grievance' : 'गुनासो पेश गर्नुहोस्'; ?>
+                                <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo isEnglish() ? 'Submit Grievance' : 'गुनासो पेश गर्नुहोस्'; ?>
                             </button>
                         </div>
                     </form>

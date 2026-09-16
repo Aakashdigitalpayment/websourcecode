@@ -5,9 +5,8 @@
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
 $pageTitle = 'उपयोगी लिंकहरू व्यवस्थापन';
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
@@ -30,6 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $urlRaw    = clean_text($_POST['url']      ?? '', 500);
             $url       = function_exists('safe_http_url') ? safe_http_url($urlRaw) : $urlRaw;
             $icon      = clean_text($_POST['icon']     ?? 'fas fa-link');
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-link');
+            }
             $desc      = clean_text($_POST['description'] ?? '');
             $is_popup  = isset($_POST['is_popup'])  ? 1 : 0;
             $order     = (int)($_POST['display_order'] ?? 0);
@@ -86,9 +88,9 @@ $linksArch = $lnkPart['archived'];
     'उपयोगी लिंकहरू',
     'fa-link',
     'महत्त्वपूर्ण बाह्य लिंकहरू — NRB, सरकारी निकाय, अन्य।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($links) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($linksLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($linksArch) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($links) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय: ' . count($linksLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>अभिलेख: ' . count($linksArch) . '</span>'
 ); ?>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
@@ -96,13 +98,13 @@ $linksArch = $lnkPart['archived'];
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#link-list" id="link-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>लिंक सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>लिंक सूची
             <span class="badge bg-success ms-1"><?php echo count($links); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#link-form" id="link-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="linkFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="linkFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -116,7 +118,7 @@ $linksArch = $lnkPart['archived'];
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3 svc-search-wrap">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="नाम, विवरण अनुसार खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -141,18 +143,18 @@ $linksArch = $lnkPart['archived'];
                         <tbody>
                             <?php if (empty($links)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-link fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="link" aria-hidden="true"></i>
                                 कुनै लिंक छैन।
                             </td></tr>
                             <?php elseif (empty($linksLive)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                 सक्रिय लिंक छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
                             <?php foreach ($linksLive as $l): ?>
                             <tr>
-                                <td class="ps-3"><i class="<?php echo htmlspecialchars($l['icon']); ?> fa-lg svc-icon-mark"></i></td>
+                                <td class="ps-3"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($l['icon'], 'fas fa-circle', 'fa-lg svc-icon-mark') : ''; ?></td>
                                 <td>
                                     <div class="fw-semibold"><?php echo htmlspecialchars($l['title_np'] ?: $l['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($l['title']); ?></small>
@@ -163,23 +165,23 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-link"
-                                            data-id="<?php echo $l['id']; ?>"
+                                            data-id="<?php echo (int)$l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-url="<?php echo htmlspecialchars($l['url'], ENT_QUOTES); ?>"
                                             data-icon="<?php echo htmlspecialchars($l['icon'], ENT_QUOTES); ?>"
                                             data-desc="<?php echo htmlspecialchars($l['description'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $l['display_order']; ?>"
+                                            data-order="<?php echo (int)$l['display_order']; ?>"
                                             data-popup="<?php echo $l['is_popup']; ?>"
-                                            data-active="<?php echo $l['is_active']; ?>"
+                                            data-active="<?php echo (int)$l['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो लिंक मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$l['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -205,13 +207,13 @@ $linksArch = $lnkPart['archived'];
                         <tbody>
                             <?php if (empty($linksArch)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                 अभिलेखमा कुनै लिंक छैन।
                             </td></tr>
                             <?php endif; ?>
                             <?php foreach ($linksArch as $l): ?>
                             <tr>
-                                <td class="ps-3"><i class="<?php echo htmlspecialchars($l['icon']); ?> fa-lg svc-icon-mark"></i></td>
+                                <td class="ps-3"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($l['icon'], 'fas fa-circle', 'fa-lg svc-icon-mark') : ''; ?></td>
                                 <td>
                                     <div class="fw-semibold"><?php echo htmlspecialchars($l['title_np'] ?: $l['title']); ?></div>
                                     <small class="text-muted"><?php echo htmlspecialchars($l['title']); ?></small>
@@ -222,23 +224,23 @@ $linksArch = $lnkPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $l['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $l['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-link"
-                                            data-id="<?php echo $l['id']; ?>"
+                                            data-id="<?php echo (int)$l['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($l['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($l['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-url="<?php echo htmlspecialchars($l['url'], ENT_QUOTES); ?>"
                                             data-icon="<?php echo htmlspecialchars($l['icon'], ENT_QUOTES); ?>"
                                             data-desc="<?php echo htmlspecialchars($l['description'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $l['display_order']; ?>"
+                                            data-order="<?php echo (int)$l['display_order']; ?>"
                                             data-popup="<?php echo $l['is_popup']; ?>"
-                                            data-active="<?php echo $l['is_active']; ?>"
+                                            data-active="<?php echo (int)$l['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो लिंक मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $l['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$l['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -257,15 +259,15 @@ $linksArch = $lnkPart['archived'];
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="linkFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ लिंक थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ लिंक थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelLink">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </button>
             </div>
             <div class="card-body p-4">
                 <form method="POST" id="linkForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="lnkf_action" value="add">
                     <input type="hidden" name="id" id="lnkf_id" value="">
 
@@ -285,7 +287,7 @@ $linksArch = $lnkPart['archived'];
                         <div class="col-md-6">
                             <label for="lnkf_icon" class="form-label fw-semibold text-success">आइकन (Font Awesome)</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-success text-white" id="lnkIconPrev"><i class="fas fa-link"></i></span>
+                                <span class="input-group-text bg-success text-white" id="lnkIconPrev"><i class="lucide-icon" data-lucide="link" aria-hidden="true"></i></span>
                                 <input type="text" name="icon" id="lnkf_icon" class="form-control admin-fancy-input"
                                        value="fas fa-link" placeholder="fas fa-link"
                                        oninput="document.getElementById('lnkIconPrev').innerHTML='<i class=\''+this.value+'\'></i>'">
@@ -316,10 +318,10 @@ $linksArch = $lnkPart['archived'];
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="lnkf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="lnkf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -349,9 +351,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('lnkf_order').value    = '0';
         document.getElementById('lnkf_popup').checked  = false;
         document.getElementById('lnkf_active').checked = true;
-        document.getElementById('lnkIconPrev').innerHTML = '<i class="fas fa-link"></i>';
-        document.getElementById('lnkf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('linkFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ लिंक थप्नुहोस्';
+        document.getElementById('lnkIconPrev').innerHTML = '<i class="lucide-icon" data-lucide="link" aria-hidden="true"></i>';
+        document.getElementById('lnkf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('linkFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ लिंक थप्नुहोस्';
         document.getElementById('linkFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -376,9 +378,16 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('lnkf_order').value    = d.order;
             document.getElementById('lnkf_popup').checked  = d.popup === '1';
             document.getElementById('lnkf_active').checked = d.active === '1';
-            document.getElementById('lnkIconPrev').innerHTML = '<i class="' + d.icon + '"></i>';
-            document.getElementById('lnkf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('linkFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>लिंक सम्पादन';
+            if (window.FaIconPicker && typeof window.FaIconPicker.setPreview === 'function') {
+                window.FaIconPicker.setPreview(document.getElementById('lnkIconPrev'), d.icon || 'fas fa-link');
+            } else {
+                document.getElementById('lnkIconPrev').innerHTML = '<i class="lucide-icon" data-lucide="link" aria-hidden="true"></i>';
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons({ nodes: document.getElementById('lnkIconPrev').querySelectorAll('[data-lucide]') });
+                }
+            }
+            document.getElementById('lnkf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('linkFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>लिंक सम्पादन';
             document.getElementById('linkFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

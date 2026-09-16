@@ -82,9 +82,10 @@ header('Referrer-Policy: no-referrer');
 <meta name="robots" content="noindex,nofollow">
 <title><?php echo htmlspecialchars(t('डिजिटल परिचयपत्र पूर्वावलोकन', 'Digital ID Card Preview')); ?> — <?php echo htmlspecialchars($siteName); ?></title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-<?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('minimal', ['skip_fonts' => true]); } ?>
+<?php
+if (function_exists('coopThemeGoogleFonts')) { coopThemeGoogleFonts(); }
+if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('minimal', ['skip_fonts' => true]); }
+?>
 <script>
 /* Disable right-click + key shortcuts to discourage trivial copying.
    यो absolute security होइन — सिर्फ casual abuse रोक्ने। */
@@ -99,11 +100,11 @@ document.addEventListener('keydown', e => {
 
 <?php if (!$valid || !$mem): ?>
     <div class="error-card">
-        <div class="error-icon"><i class="fas fa-shield-exclamation"></i></div>
+        <div class="error-icon"><i class="lucide-icon" data-lucide="shield-alert" aria-hidden="true"></i></div>
         <h3><?php echo t('लिङ्क पहुँच असफल', 'Link Access Failed'); ?></h3>
         <p><?php echo htmlspecialchars($errMsg ?: t('यो लिङ्क मान्य छैन।', 'This link is invalid.')); ?></p>
-        <a href="<?php echo $siteUrl; ?>application-tracker.php" class="btn-back">
-            <i class="fas fa-arrow-left"></i> <?php echo t('Tracker मा फर्किनुहोस्', 'Back to Tracker'); ?>
+        <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php" class="btn-back">
+            <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo t('Tracker मा फर्किनुहोस्', 'Back to Tracker'); ?>
         </a>
     </div>
 <?php else: ?>
@@ -128,13 +129,13 @@ document.addEventListener('keydown', e => {
     ?>
     <div class="preview-wrap">
         <div class="preview-header">
-            <i class="fas fa-shield-halved"></i>
+            <i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i>
             Verified Preview · <?php echo date('d M Y, H:i'); ?>
         </div>
         <div class="id-card">
             <div class="id-top">
                 <?php if ($logoPath): ?>
-                    <img src="<?php echo $siteUrl . htmlspecialchars($logoPath); ?>" alt="" onerror="this.style.display='none'">
+                    <img src="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') . htmlspecialchars($logoPath); ?>" alt="" onerror="this.style.display='none'">
                 <?php endif; ?>
                 <div>
                     <div class="org"><?php echo htmlspecialchars($siteName); ?></div>
@@ -144,9 +145,9 @@ document.addEventListener('keydown', e => {
             <div class="id-body">
                 <div class="id-photo">
                     <?php if ($photo): ?>
-                        <img src="<?php echo $siteUrl . htmlspecialchars($photo); ?>" alt="" onerror="this.parentNode.innerHTML='<i class=\'fas fa-user\'></i>'">
+                        <img src="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8') . htmlspecialchars($photo); ?>" alt="" onerror="var p=this.parentNode;p.innerHTML='<i class=\'lucide-icon\' aria-hidden=\'true\' data-lucide=\'user\'></i>';if(window.lucide&amp;&amp;typeof window.lucide.createIcons==='function'){window.lucide.createIcons({nodes:p.querySelectorAll('[data-lucide]')});}">
                     <?php else: ?>
-                        <i class="fas fa-user"></i>
+                        <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i>
                     <?php endif; ?>
                 </div>
                 <div class="id-fields">
@@ -163,12 +164,12 @@ document.addEventListener('keydown', e => {
             </div>
         </div>
         <div class="preview-meta">
-            <strong>🔐 Verified Public Preview</strong><br>
+            <strong>Verified Public Preview</strong><br>
             <?php echo t('यो preview', 'This preview was generated at'); ?> <?php echo date('H:i'); ?> <?php echo t('मा generate भयो र', 'and will'); ?> <strong><?php echo t('१५ मिनेटमा expire', 'expire in 15 minutes'); ?></strong> <?php echo t('हुन्छ।', '.'); ?><br>
-            <?php echo t('पूर्ण उपयोग र Download को लागि', 'For full access and download, login to'); ?> <a href="<?php echo $siteUrl; ?>member/login.php" style="color:var(--primary-color);font-weight:600;">Member Portal</a>.
+            <?php echo t('पूर्ण उपयोग र Download को लागि', 'For full access and download, login to'); ?> <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/login.php" style="color:var(--primary-color);font-weight:600;">Member Portal</a>.
             <br>
-            <a href="<?php echo $siteUrl; ?>application-tracker.php" class="btn-back">
-                <i class="fas fa-arrow-left"></i> <?php echo t('Tracker मा फर्किनुहोस्', 'Back to Tracker'); ?>
+            <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php" class="btn-back">
+                <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo t('Tracker मा फर्किनुहोस्', 'Back to Tracker'); ?>
             </a>
         </div>
     </div>

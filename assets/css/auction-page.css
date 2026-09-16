@@ -1,0 +1,12 @@
+/** Auction page styles — extracted from auction.php */
+/* ─── Auction Search ─── */
+.auc2-filterbar .container{flex-wrap:wrap;gap:.5rem;}
+.auc2-search-wrap{position:relative;display:flex;align-items:center;width:100%;max-width:420px;margin-bottom:.25rem;}
+.auc2-search-icon{position:absolute;left:.75rem;color:#888;pointer-events:none;font-size:.9rem;}
+.auc2-search-input{width:100%;padding:.45rem 2.2rem .45rem 2.2rem;border:1.5px solid #d0d5dd;border-radius:2rem;font-size:.92rem;outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;}
+.auc2-search-input:focus{border-color:var(--primary-color,#2c6e49);box-shadow:0 0 0 3px rgba(44,110,73,.13);}
+.auc2-search-input::-webkit-search-cancel-button{display:none;}
+.auc2-search-clear{position:absolute;right:.55rem;background:none;border:none;color:#aaa;cursor:pointer;font-size:.85rem;padding:.2rem .3rem;line-height:1;}
+.auc2-search-clear:hover{color:#555;}
+.auc2-highlight{background:#fff3b0;border-radius:2px;padding:0 1px;}
+@media(max-width:600px){.auc2-search-wrap{max-width:100%;}}

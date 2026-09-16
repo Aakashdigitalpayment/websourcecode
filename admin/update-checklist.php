@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Update Checklist';
 $currentPage = 'update-checklist';
 require_once 'includes/admin-header.php';
@@ -9,7 +10,7 @@ require_once 'includes/admin-header.php';
         <div class="col">
             <div class="d-flex align-items-center gap-3">
                 <div class="bg-info bg-opacity-10 p-3 rounded-3">
-                    <i class="fas fa-list-check fa-2x text-info"></i>
+                    <i class="lucide-icon lucide-2x text-info" data-lucide="list-checks" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h2 class="mb-0 fw-bold">Update Checklist</h2>
@@ -20,7 +21,7 @@ require_once 'includes/admin-header.php';
     </div>
 
     <div class="alert alert-warning d-flex align-items-start gap-2">
-        <i class="fas fa-triangle-exclamation mt-1"></i>
+        <i class="lucide-icon mt-1" data-lucide="triangle-alert" aria-hidden="true"></i>
         <div>
             <strong>Important:</strong> नयाँ files upload गर्नु अघि database backup download गर्नुहोस्।
             Backup बिना update गर्दा data recover गर्न गाह्रो हुन सक्छ।
@@ -31,7 +32,7 @@ require_once 'includes/admin-header.php';
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Before Update</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="clipboard-check" aria-hidden="true"></i>Before Update</h5>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">
@@ -57,7 +58,7 @@ require_once 'includes/admin-header.php';
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>During Update</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="upload" aria-hidden="true"></i>During Update</h5>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">
@@ -83,7 +84,7 @@ require_once 'includes/admin-header.php';
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-magnifying-glass me-2"></i>After Update</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="search" aria-hidden="true"></i>After Update</h5>
                 </div>
                 <div class="card-body">
                     <div class="form-check mb-3">
@@ -118,7 +119,7 @@ require_once 'includes/admin-header.php';
                     <div id="checklistProgress" class="progress-bar bg-success" style="width: 0%"></div>
                 </div>
                 <button type="button" class="btn btn-outline-secondary" onclick="resetChecklist()">
-                    <i class="fas fa-rotate-left me-1"></i> Reset
+                    <i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i> Reset
                 </button>
             </div>
         </div>

@@ -64,20 +64,66 @@ if (file_exists(__DIR__ . '/notification-templates.php')) require_once __DIR__ .
 
 // Site Settings - Dynamic URL based on request host
 /* cPanel / Cloudflare / reverse proxy: HTTPS अगाडि नै आए पनि $_SERVER['HTTPS'] खाली हुन सक्छ */
-$_protocol = 'http';
-if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0') {
-    $_protocol = 'https';
-} elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
-    $_protocol = 'https';
-} elseif (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL']) === 'on') {
-    $_protocol = 'https';
-} elseif (isset($_SERVER['SERVER_PORT']) && (string)$_SERVER['SERVER_PORT'] === '443') {
-    $_protocol = 'https';
+if (!function_exists('coop_request_is_https')) {
+    /**
+     * Detect HTTPS. X-Forwarded-* is trusted by default (shared hosting).
+     * Optional: define TRUSTED_PROXIES as comma-separated REMOTE_ADDR list to
+     * only honor forwarded headers from those proxies.
+     */
+    function coop_request_is_https(): bool
+    {
+        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off' && (string) $_SERVER['HTTPS'] !== '0') {
+            return true;
+        }
+        if (isset($_SERVER['SERVER_PORT']) && (string) $_SERVER['SERVER_PORT'] === '443') {
+            return true;
+        }
+        $fwd = (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_SSL']) === 'on');
+        if (!$fwd) {
+            return false;
+        }
+        if (!defined('TRUSTED_PROXIES') || trim((string) TRUSTED_PROXIES) === '') {
+            return true; /* backward-compatible default */
+        }
+        $remote = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        foreach (explode(',', (string) TRUSTED_PROXIES) as $proxy) {
+            if ($remote !== '' && hash_equals(trim($proxy), $remote)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
-$_host = $_SERVER['HTTP_HOST'] ?? 'localhost:5000';
+$_protocol = coop_request_is_https() ? 'https' : 'http';
+$_host_raw = (string)($_SERVER['HTTP_HOST'] ?? 'localhost');
+/* Host-header hardening: reject CR/LF/path junk; optional SITE_ALLOWED_HOSTS pin. */
+$_host = preg_replace('/[\x00-\x1f\x7f\/\\\\]/', '', $_host_raw) ?? '';
+if ($_host === '' || !preg_match('/^(\[[0-9a-fA-F:]+\]|[A-Za-z0-9.-]+)(:\d{1,5})?$/', $_host)) {
+    $_host = 'localhost';
+}
+$_host_only = strtolower((string) preg_replace('/:\d+$/', '', $_host));
+$_host_only = trim($_host_only, '[]');
+$_allowed_hosts = [];
+if (defined('SITE_ALLOWED_HOSTS')) {
+    foreach (explode(',', (string) SITE_ALLOWED_HOSTS) as $_ah) {
+        $_ah = strtolower(trim($_ah));
+        if ($_ah !== '') {
+            $_allowed_hosts[] = $_ah;
+        }
+    }
+}
+$_host_is_local = in_array($_host_only, ['localhost', '127.0.0.1', '::1'], true)
+    || str_ends_with($_host_only, '.localhost')
+    || str_ends_with($_host_only, '.local');
+if ($_allowed_hosts !== [] && !$_host_is_local && !in_array($_host_only, $_allowed_hosts, true)) {
+    $_host = $_allowed_hosts[0];
+}
+unset($_host_raw, $_host_only, $_allowed_hosts, $_host_is_local, $_ah);
 $_site_url = $_protocol . '://' . $_host . '/';
 if (!defined('SITE_URL')) define('SITE_URL', $_site_url);
 if (!defined('ADMIN_URL')) define('ADMIN_URL', SITE_URL . 'admin/');
+unset($_host, $_site_url, $_protocol);
 
 // Root path for the website (for file existence checks)
 if (!defined('ROOT_PATH')) define('ROOT_PATH', __DIR__ . '/../');
@@ -208,21 +254,26 @@ class Database {
                 [$h, $sock] = explode(':', $host, 2);
                 $dsn = "mysql:unix_socket=" . $sock . ";dbname=" . DB_NAME . ";charset=utf8mb4";
             }
-            $this->conn = new PDO(
-                $dsn,
-                DB_USER,
-                DB_PASS,
-                [
+            $pdoOpts = [
                     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                     PDO::ATTR_EMULATE_PREPARES   => false,
                     PDO::ATTR_TIMEOUT            => 5,
                     /* PERSISTENT बन्द — shared cPanel hosting मा "Too many connections" error रोक्छ */
                     PDO::ATTR_PERSISTENT         => false,
-                    /* नेपाली अक्षर ??? देखिने समस्याको पक्का समाधान:
-                       MySQL session को character set + collation दुवै utf8mb4 मा set गर्ने */
-                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci, character_set_connection=utf8mb4, character_set_results=utf8mb4, character_set_client=utf8mb4",
-                ]
+            ];
+            /* PHP 8.5+: PDO::MYSQL_ATTR_INIT_COMMAND deprecated → Pdo\Mysql::ATTR_INIT_COMMAND */
+            $initCmd = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci, character_set_connection=utf8mb4, character_set_results=utf8mb4, character_set_client=utf8mb4";
+            if (class_exists(\Pdo\Mysql::class, false)) {
+                $pdoOpts[\Pdo\Mysql::ATTR_INIT_COMMAND] = $initCmd;
+            } elseif (defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
+                $pdoOpts[PDO::MYSQL_ATTR_INIT_COMMAND] = $initCmd;
+            }
+            $this->conn = new PDO(
+                $dsn,
+                DB_USER,
+                DB_PASS,
+                $pdoOpts
             );
             /* double-safety: connection खुलिसकेपछि पनि SET NAMES चलाउने */
             try { $this->conn->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"); } catch (\Throwable $e) {}
@@ -369,6 +420,7 @@ function e($string) {
 
 /**
  * Sanitize Font Awesome / Lucide class string for HTML class attributes.
+ * DB/CMS may still store FA (`fas fa-star`); Lucide bare names (`star`) also OK.
  */
 function coop_sanitize_icon_class(?string $icon, string $fallback = 'fas fa-circle'): string
 {
@@ -380,6 +432,154 @@ function coop_sanitize_icon_class(?string $icon, string $fallback = 'fas fa-circ
         return $fallback;
     }
     return $icon;
+}
+
+/**
+ * Canonicalize an icon value for DB/CMS storage (dual-read write path).
+ * Safe improve — NOT a FA→Lucide mass row rewrite:
+ *   - Brand packs (`fab`) unchanged
+ *   - FA classes kept as FA (`fa-star` → `fas fa-star`); picker SSOT stays FA
+ *   - Bare Lucide names (`users`) accepted as-is for future dual-write
+ * Render still converts FA→Lucide via coop_nav_icon_html / fa_to_lucide.
+ */
+function coop_canonical_icon_for_storage(?string $icon, string $fallbackFa = 'fas fa-circle'): string
+{
+    $raw = trim((string) $icon);
+    if ($raw === '') {
+        return coop_sanitize_icon_class($fallbackFa, $fallbackFa);
+    }
+    if (preg_match('/\bfab\b|\bfa-brands\b/i', $raw)) {
+        return coop_sanitize_icon_class($raw, $fallbackFa);
+    }
+    /* Already a bare Lucide token — keep (dual-read) */
+    if (!preg_match('/\bfa[srlb]?\b|\bfa-/i', $raw) && preg_match('/^[a-z0-9-]+$/', $raw)) {
+        return strtolower($raw);
+    }
+    $safe = coop_sanitize_icon_class($raw, $fallbackFa);
+    if ($safe === '') {
+        return coop_sanitize_icon_class($fallbackFa, $fallbackFa);
+    }
+    /* Normalize short FA forms to "fas fa-*" without converting to Lucide */
+    if (preg_match('/^fa-[a-z0-9-]+$/i', $safe)) {
+        return 'fas ' . strtolower($safe);
+    }
+    if (preg_match('/^(fa[srlb]?)\s+fa-/i', $safe)) {
+        return strtolower(preg_replace('/\s+/', ' ', $safe) ?? $safe);
+    }
+    return $safe;
+}
+
+/**
+ * Safe DB icon improve — FA spelling canonicalize only (NOT FA→Lucide rewrite).
+ * Updates known icon columns when stored value differs after
+ * coop_canonical_icon_for_storage(). Brand (fab) rows untouched by helper.
+ * Dual-read render still maps FA→Lucide at display time.
+ *
+ * @param bool $dryRun When true, count would-change rows without UPDATE
+ * @return array{scanned:int,changed:int,tables:array<string,array{scanned:int,changed:int}>,dry_run:bool,error:?string}
+ */
+function coop_canonicalize_icon_db_rows(PDO $db, bool $dryRun = true): array
+{
+    $out = [
+        'scanned' => 0,
+        'changed' => 0,
+        'tables' => [],
+        'dry_run' => $dryRun,
+        'error' => null,
+    ];
+    $targets = [
+        ['pages', 'menu_icon', 'fas fa-file-lines'],
+        ['services', 'icon', 'fas fa-star'],
+        ['service_categories', 'icon', 'fas fa-th-large'],
+        ['committee_types', 'icon', 'fas fa-users-gear'],
+        ['team_menu_categories', 'icon', 'fas fa-folder'],
+        ['app_features', 'icon', 'fas fa-star'],
+        ['useful_links', 'icon', 'fas fa-link'],
+        ['important_links', 'icon', 'fas fa-link'],
+        ['why_choose_features', 'icon', 'fas fa-star'],
+        ['satisfaction_links', 'icon', 'fas fa-link'],
+        ['welfare_claim_types', 'icon', 'fas fa-gift'],
+        ['digital_service_types', 'icon', 'fas fa-laptop'],
+        ['help_topics', 'icon', 'fas fa-question-circle'],
+    ];
+    try {
+        foreach ($targets as [$table, $col, $fallback]) {
+            $tableOk = function_exists('dbTableExists') ? dbTableExists($table) : true;
+            $colOk = function_exists('dbColumnExists') ? dbColumnExists($table, $col) : true;
+            if (!$tableOk || !$colOk) {
+                continue;
+            }
+            if (!preg_match('/^[A-Za-z0-9_]+$/', $table) || !preg_match('/^[A-Za-z0-9_]+$/', $col)) {
+                continue;
+            }
+            $stat = ['scanned' => 0, 'changed' => 0];
+            $stmt = $db->query("SELECT `id`, `{$col}` AS icon_val FROM `{$table}`");
+            if (!$stmt) {
+                continue;
+            }
+            $upd = $dryRun ? null : $db->prepare("UPDATE `{$table}` SET `{$col}` = ? WHERE `id` = ?");
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $stat['scanned']++;
+                $out['scanned']++;
+                $id = (int) ($row['id'] ?? 0);
+                if ($id <= 0) {
+                    continue;
+                }
+                $cur = trim((string) ($row['icon_val'] ?? ''));
+                $canon = coop_canonical_icon_for_storage($cur, $fallback);
+                if ($canon === '' || strcasecmp($canon, $cur) === 0) {
+                    continue;
+                }
+                $stat['changed']++;
+                $out['changed']++;
+                if (!$dryRun && $upd) {
+                    $upd->execute([$canon, $id]);
+                }
+            }
+            $out['tables'][$table . '.' . $col] = $stat;
+        }
+    } catch (Throwable $e) {
+        $out['error'] = $e->getMessage();
+        error_log('[coop_canonicalize_icon_db_rows] ' . $e->getMessage());
+    }
+    return $out;
+}
+
+/**
+ * Render a nav/UI icon as Lucide when possible.
+ * Dual-read SSOT:
+ *   - DB defaults stay FA strings (`fas fa-users`) — no mass row rewrite
+ *   - Bare Lucide names (`users`) accepted too
+ *   - Brand packs (`fab` / `fa-brands`) stay Font Awesome (Lucide has no brand set)
+ * FA CSS remains loaded for picker grid + brands only.
+ * Safe write path: coop_canonical_icon_for_storage() (FA spelling normalize only).
+ */
+function coop_nav_icon_html(?string $icon, string $fallbackFa = 'fas fa-circle', string $extraClass = ''): string
+{
+    $raw = trim((string) $icon);
+    /* Brand packs stay FA (fab) — Google/Facebook/WhatsApp/YouTube etc. */
+    if ($raw !== '' && preg_match('/\bfab\b|\bfa-brands\b/i', $raw)) {
+        $safe = coop_sanitize_icon_class($raw, $fallbackFa);
+        $cls = trim($safe . ' ' . $extraClass);
+        return '<i class="' . htmlspecialchars($cls, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>';
+    }
+    $safe = coop_sanitize_icon_class($raw !== '' ? $raw : $fallbackFa, $fallbackFa);
+    /* Bare Lucide name (no FA tokens) — dual-read for future writes */
+    if ($safe !== '' && !preg_match('/\bfa[srlb]?\b|\bfa-/i', $safe) && preg_match('/^[a-z0-9-]+$/', $safe)) {
+        $lucide = strtolower($safe);
+    } else {
+        $lucide = $safe;
+        if (function_exists('fa_to_lucide')) {
+            $lucide = fa_to_lucide($safe);
+        }
+        $lucide = strtolower(trim((string) preg_replace('/^(fa[srlb]?\s+)?fa-/i', '', $lucide) ?? $lucide));
+    }
+    if ($lucide === '' || !preg_match('/^[a-z0-9-]+$/', $lucide)) {
+        $lucide = 'circle';
+    }
+    $cls = trim('lucide-icon ' . $extraClass);
+    return '<i class="' . htmlspecialchars($cls, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true" data-lucide="'
+        . htmlspecialchars($lucide, ENT_QUOTES, 'UTF-8') . '"></i>';
 }
 
 /**
@@ -634,6 +834,12 @@ function coop_new_tracking_id(string $prefix): string
 {
     $prefix = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $prefix) ?: 'TRK');
     return $prefix . '-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(8)));
+}
+
+/** True when value looks like a public tracking_id (not a bare numeric DB id / phone). */
+function coop_is_public_tracking_id(string $id): bool
+{
+    return (bool) preg_match('/^[A-Za-z]{2,8}-[A-Za-z0-9][A-Za-z0-9\-_.]{4,90}$/', $id);
 }
 
 /**
@@ -1871,13 +2077,27 @@ function uploadFile($file, $folder = 'general', $maxSize = null) {
     return ['success' => false, 'message' => 'Failed to move uploaded file.'];
 }
 
-// Delete file
+// Delete file — only under assets/uploads (path traversal safe)
 function deleteFile($filePath) {
-    $fullPath = __DIR__ . '/../' . $filePath;
-    if (file_exists($fullPath)) {
-        return unlink($fullPath);
+    $filePath = str_replace(["\0", '\\'], ['', '/'], (string) $filePath);
+    $filePath = ltrim($filePath, '/');
+    if ($filePath === '' || str_contains($filePath, '..')) {
+        return false;
     }
-    return false;
+    if (!str_starts_with($filePath, 'assets/uploads/')) {
+        return false;
+    }
+    $root = realpath(__DIR__ . '/..');
+    $uploads = $root !== false ? realpath($root . '/assets/uploads') : false;
+    if ($root === false || $uploads === false) {
+        return false;
+    }
+    $fullPath = $root . '/' . $filePath;
+    $real = is_file($fullPath) ? realpath($fullPath) : false;
+    if ($real === false || !str_starts_with($real, $uploads . DIRECTORY_SEPARATOR)) {
+        return false;
+    }
+    return @unlink($real);
 }
 
 /**
@@ -2126,16 +2346,16 @@ if (!function_exists('displayFlash')) {
         $flash = getFlash();
         if (!$flash) return;
         $map = [
-            'success' => ['alert-success', 'fa-check-circle'],
-            'error'   => ['alert-danger',  'fa-exclamation-circle'],
-            'danger'  => ['alert-danger',  'fa-exclamation-circle'],
-            'warning' => ['alert-warning', 'fa-exclamation-triangle'],
-            'info'    => ['alert-info',    'fa-info-circle'],
+            'success' => ['alert-success', 'circle-check'],
+            'error'   => ['alert-danger',  'circle-alert'],
+            'danger'  => ['alert-danger',  'circle-alert'],
+            'warning' => ['alert-warning', 'triangle-alert'],
+            'info'    => ['alert-info',    'info'],
         ];
         $type = strtolower($flash['type'] ?? 'info');
         [$cls, $icon] = $map[$type] ?? $map['info'];
         echo '<div class="alert ' . $cls . ' alert-dismissible fade show shadow-sm border-0" role="alert">'
-           . '<i class="fas ' . $icon . ' me-2"></i>'
+           . '<i class="lucide-icon me-2" data-lucide="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>'
            . htmlspecialchars($flash['message'] ?? '')
            . '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
            . '</div>';
@@ -2481,14 +2701,7 @@ if (session_status() === PHP_SESSION_NONE) {
     @ini_set('session.use_trans_sid', '0');
     @ini_set('session.cookie_httponly', '1');
 
-    $_isSecure = false;
-    if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0') {
-        $_isSecure = true;
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
-        $_isSecure = true;
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL']) === 'on') {
-        $_isSecure = true;
-    }
+    $_isSecure = function_exists('coop_request_is_https') ? coop_request_is_https() : false;
 
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
@@ -2593,8 +2806,7 @@ if (!headers_sent()) {
        Both old (allowlist) and new (structured) syntax sent for max compatibility */
     /* KYC map locate + QR/camera — same-origin only (third-party embeds still denied) */
     header('Permissions-Policy: geolocation=(self), microphone=(self), camera=(self), payment=(), usb=()');
-    $_httpsOn = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0')
-        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
+    $_httpsOn = function_exists('coop_request_is_https') ? coop_request_is_https() : false;
     if ($_httpsOn) {
         /* 1 year HSTS — site already HTTPS; report-only CSP stays separate */
         header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
@@ -2653,34 +2865,11 @@ if (!headers_sent()) {
 
 /**
  * =====================================================
- * MYSQLI CONNECTION (for legacy admin pages)
- * Some admin pages use mysqli - this provides compatibility
+ * DB ACCESS — PDO only (getDB()).
+ * Legacy mysqli $conn removed: it opened a second unused
+ * connection on every request (shared-hosting pressure).
  * =====================================================
  */
-// Use Unix socket if DB_HOST contains a colon and slash
-$_mysqli_host = DB_HOST;
-$_mysqli_socket = null;
-if (strpos(DB_HOST, ':') !== false && strpos(DB_HOST, '/') !== false) {
-    [$_mysqli_host, $_mysqli_socket] = explode(':', DB_HOST, 2);
-    $_mysqli_host = 'localhost';
-}
-// DB credentials नभए mysqli पनि skip (PHP 8 crash हुँदैन)
-$conn = null;
-if (DB_NAME !== '' && DB_USER !== '') {
-    try {
-        mysqli_report(MYSQLI_REPORT_OFF);
-        $conn = new mysqli($_mysqli_host, DB_USER, DB_PASS, DB_NAME, null, $_mysqli_socket);
-        if ($conn->connect_errno) {
-            error_log("MySQLi Connection Failed: " . $conn->connect_error);
-            $conn = null;
-        } else {
-            $conn->set_charset("utf8mb4");
-        }
-    } catch (Throwable $_mysqli_ex) {
-        error_log("MySQLi Connection Exception: " . $_mysqli_ex->getMessage());
-        $conn = null;
-    }
-}
 
 /**
  * =====================================================
@@ -2698,6 +2887,9 @@ if (!defined('UI_LANG_COOKIE')) {
 if (!function_exists('coopUiLangIsSecureRequest')) {
     function coopUiLangIsSecureRequest(): bool
     {
+        if (function_exists('coop_request_is_https')) {
+            return coop_request_is_https();
+        }
         if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0') {
             return true;
         }
@@ -3036,14 +3228,118 @@ function lang($key) {
  * safeAddColumn — MySQL 5.7+ compatible ALTER TABLE helper
  * ADD COLUMN IF NOT EXISTS MySQL 8.0+ मा मात्र काम गर्छ;
  * यो function SHOW COLUMNS check गरेर safely column थप्छ।
+ *
+ * Formal migrations framework (versioned install.sql runner / full catalog)
+ * is intentionally deferred — keep using safeAddColumn / safeAddIndex /
+ * safeWidenEnumColumn + ensure-* helpers incrementally; do not rewrite old rows.
  */
 function safeAddColumn(PDO $db, string $table, string $col, string $definition): void {
+    /* Identifiers only — definition comes from trusted PHP literals. */
+    if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $col)) {
+        return;
+    }
+    $definition = trim($definition);
+    if ($definition === '' || str_contains($definition, ';') || str_contains($definition, "\0")) {
+        return;
+    }
+    if (preg_match('/\b(union|sleep|benchmark|load_file|into\s+outfile|into\s+dumpfile)\b/i', $definition)) {
+        return;
+    }
     try {
-        $chk = $db->query("SHOW COLUMNS FROM `{$table}` LIKE '{$col}'");
+        $chk = $db->query('SHOW COLUMNS FROM `' . $table . '` LIKE ' . $db->quote($col));
         if ($chk && $chk->rowCount() === 0) {
-            $db->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$definition}");
+            $db->exec('ALTER TABLE `' . $table . '` ADD COLUMN `' . $col . '` ' . $definition);
         }
     } catch (Exception $e) {}
+}
+
+/**
+ * safeAddIndex — add named index only when missing (MySQL 5.7 compatible).
+ * $columns: list of column names (identifiers only).
+ */
+function safeAddIndex(PDO $db, string $table, string $indexName, array $columns): void {
+    if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $indexName)) {
+        return;
+    }
+    if ($columns === []) {
+        return;
+    }
+    $safeCols = [];
+    foreach ($columns as $c) {
+        $c = trim((string) $c);
+        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $c)) {
+            return;
+        }
+        $safeCols[] = '`' . $c . '`';
+    }
+    try {
+        $chk = $db->query(
+            'SHOW INDEX FROM `' . $table . '` WHERE Key_name = ' . $db->quote($indexName)
+        );
+        if ($chk && $chk->rowCount() > 0) {
+            return;
+        }
+        $db->exec(
+            'ALTER TABLE `' . $table . '` ADD INDEX `' . $indexName . '` (' . implode(', ', $safeCols) . ')'
+        );
+    } catch (Exception $e) { /* table missing / already exists */ }
+}
+
+/**
+ * safeWidenEnumColumn — additive ENUM widen only (never DROP values / recreate table).
+ * Existing DB values are preserved; $values are merged in.
+ */
+function safeWidenEnumColumn(PDO $db, string $table, string $col, array $values, ?string $default = null): void {
+    if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table) || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $col)) {
+        return;
+    }
+    $wanted = [];
+    foreach ($values as $v) {
+        $v = strtolower(trim((string) $v));
+        if ($v === '' || !preg_match('/^[a-z0-9_]+$/', $v)) {
+            continue;
+        }
+        $wanted[$v] = true;
+    }
+    if ($wanted === []) {
+        return;
+    }
+    try {
+        $chk = $db->query('SHOW COLUMNS FROM `' . $table . '` LIKE ' . $db->quote($col));
+        $row = $chk ? $chk->fetch(PDO::FETCH_ASSOC) : false;
+        if (!$row || empty($row['Type'])) {
+            return;
+        }
+        $type = (string) $row['Type'];
+        if (!preg_match('/^enum\((.*)\)$/i', $type, $m)) {
+            return;
+        }
+        $existing = [];
+        if (preg_match_all("/'((?:\\\\'|[^'])*)'/", $m[1], $em)) {
+            foreach ($em[1] as $ev) {
+                $ev = stripcslashes($ev);
+                $existing[] = $ev;
+                unset($wanted[strtolower($ev)]);
+            }
+        }
+        if ($wanted === []) {
+            return; /* already has all requested values */
+        }
+        foreach (array_keys($wanted) as $extra) {
+            $existing[] = $extra;
+        }
+        $enumSql = implode(',', array_map(static function (string $v): string {
+            return "'" . str_replace(["\\", "'"], ["\\\\", "\\'"], $v) . "'";
+        }, $existing));
+        $defSql = '';
+        if ($default !== null && $default !== '') {
+            $d = strtolower(trim($default));
+            if (preg_match('/^[a-z0-9_]+$/', $d)) {
+                $defSql = " DEFAULT '" . str_replace(["\\", "'"], ["\\\\", "\\'"], $d) . "'";
+            }
+        }
+        $db->exec('ALTER TABLE `' . $table . '` MODIFY COLUMN `' . $col . '` ENUM(' . $enumSql . ')' . $defSql);
+    } catch (Exception $e) { /* skip */ }
 }
 
 function adminUploadFile(string $fieldName = 'admin_attachment'): ?string {
@@ -3115,9 +3411,9 @@ function adminAttachmentHtml(?string $path): string {
     if (!$path) return '';
     $name = basename($path);
     $url  = SITE_URL . '/' . ltrim($path, '/');
-    $icon = str_ends_with(strtolower($path), '.pdf') ? 'fa-file-pdf text-danger' : 'fa-file text-primary';
+    $icon = str_ends_with(strtolower($path), '.pdf') ? 'file-text' : 'file';
     return '<a href="' . htmlspecialchars($url) . '" target="_blank" class="btn btn-sm btn-outline-secondary mt-1" rel="noopener noreferrer">
-        <i class="fas ' . $icon . ' me-1"></i>' . htmlspecialchars($name) . '
+        <i class="lucide-icon me-1" data-lucide="' . htmlspecialchars($icon, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true"></i>' . htmlspecialchars($name) . '
     </a>';
 }
 
@@ -3134,7 +3430,17 @@ $_cfg_is_admin = (
     strpos($_cfg_self, 'debug.php') !== false ||
     strpos($_cfg_self, 'setup.php') !== false
 );
-$_cfg_ui_test = isset($_GET['ui_test']) && (string)$_GET['ui_test'] === '1';
+$_cfg_ui_test = false;
+if (isset($_GET['ui_test']) && (string) $_GET['ui_test'] === '1') {
+    /* Only skip DB-setup wall on local/dev — not on misconfigured production. */
+    $_cfg_ui_env = defined('ENVIRONMENT') ? strtolower((string) ENVIRONMENT) : 'production';
+    $_cfg_ui_host = strtolower((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    $_cfg_ui_local = str_starts_with($_cfg_ui_host, '127.0.0.1')
+        || str_starts_with($_cfg_ui_host, 'localhost')
+        || str_starts_with($_cfg_ui_host, '[::1]');
+    $_cfg_ui_test = $_cfg_ui_local
+        || in_array($_cfg_ui_env, ['development', 'local', 'dev', 'test'], true);
+}
 if (!$_cfg_is_admin && DB_NAME === '' && !$_cfg_ui_test) {
     http_response_code(200);
     $_cfg_proto = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
@@ -3144,13 +3450,8 @@ if (!$_cfg_is_admin && DB_NAME === '' && !$_cfg_ui_test) {
        . '<meta charset="UTF-8">'
        . '<meta name="viewport" content="width=device-width,initial-scale=1">'
        . '<title>Setup - Aakash Cooperative</title>'
-       . '<style>'
-       . 'body{margin:0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--primary-color)}'
-       . '.box{background:#fff;border-radius:12px;padding:40px;max-width:400px;width:90%;text-align:center}'
-       . 'h1{color:var(--primary-color);margin-bottom:10px;font-size:22px}'
-       . 'p{color:#555;margin-bottom:24px;line-height:1.6}'
-       . 'a{background:var(--primary-color);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:16px}'
-       . '</style></head><body>'
+       . '<link rel="stylesheet" href="/assets/css/setup-gate-page.css">'
+       . '</head><body>'
        . '<div class="box">'
        . '<h1>Aakash Cooperative</h1>'
        . '<p>Website setup in progress.<br>Go to Admin Panel to configure the database.</p>'
@@ -3158,7 +3459,7 @@ if (!$_cfg_is_admin && DB_NAME === '' && !$_cfg_ui_test) {
        . '</div></body></html>';
     exit;
 }
-unset($_cfg_self, $_cfg_is_admin, $_cfg_ui_test, $_cfg_proto, $_cfg_host, $_cfg_admin);
+unset($_cfg_self, $_cfg_is_admin, $_cfg_ui_test, $_cfg_proto, $_cfg_host, $_cfg_admin, $_cfg_ui_env, $_cfg_ui_host, $_cfg_ui_local);
 
 /**
  * =====================================================

@@ -3,6 +3,7 @@
  * Member ID SSOT — duplicate inventory + optional UNIQUE index
  * Live-safe: report first; add UNIQUE only when clean.
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'Member ID Duplicate Inventory';
 $currentPage = 'member-ssot-duplicates';
 require_once 'includes/admin-header.php';
@@ -43,7 +44,7 @@ try {
 <div class="container-fluid py-3">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
         <h4 class="mb-0 fw-bold text-success">
-            <i class="fas fa-clone me-2"></i>Member ID — दोहोरो सूची (SSOT)
+            <i class="lucide-icon me-2" data-lucide="copy" aria-hidden="true"></i>Member ID — दोहोरो सूची (SSOT)
         </h4>
         <div class="d-flex gap-2">
             <a href="members.php" class="btn btn-sm btn-outline-secondary">Members</a>
@@ -98,7 +99,7 @@ try {
                 <input type="hidden" name="action" value="add_unique">
                 <button type="submit" class="btn btn-warning btn-sm"
                     <?php echo ($dups || $emptyCount > 0) ? 'disabled title="पहिले duplicates/empty मिलाउनुहोस्"' : ''; ?>>
-                    <i class="fas fa-database me-1"></i>UNIQUE INDEX थप्नुहोस्
+                    <i class="lucide-icon me-1" data-lucide="database" aria-hidden="true"></i>UNIQUE INDEX थप्नुहोस्
                 </button>
             </form>
         </div>

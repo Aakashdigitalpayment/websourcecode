@@ -154,10 +154,10 @@ foreach ($openPrograms as $op) {
 
 <section class="page-banner">
     <div class="container">
-        <h1><i class="fas fa-award"></i> <?php echo htmlspecialchars($pageTitle); ?></h1>
+        <h1><i class="lucide-icon" data-lucide="award" aria-hidden="true"></i> <?php echo htmlspecialchars($pageTitle); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo htmlspecialchars($pageTitle); ?></li>
             </ol>
         </nav>
@@ -170,17 +170,17 @@ foreach ($openPrograms as $op) {
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="success-card form-success-card text-center">
-                    <div class="success-icon form-success-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="success-icon form-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
                     <h3><?php echo isEnglish() ? 'Application submitted successfully!' : 'आवेदन सफलतापूर्वक दर्ता भयो!'; ?></h3>
                     <div class="form-tracking-box">
                         <div class="text-muted small mb-2"><?php echo isEnglish() ? 'Your Tracking ID' : 'तपाईंको Tracking ID'; ?></div>
                         <div class="form-tracking-id" id="hnrTrkId"><?php echo htmlspecialchars($trackingId); ?></div>
                         <div class="form-tracking-help mt-2">
-                            <a href="<?php echo SITE_URL; ?>application-tracker.php"><?php echo isEnglish() ? 'Track application' : 'आवेदन ट्र्याक गर्नुहोस्'; ?></a>
+                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php"><?php echo isEnglish() ? 'Track application' : 'आवेदन ट्र्याक गर्नुहोस्'; ?></a>
                         </div>
                     </div>
                     <div class="action-buttons mt-3">
-                        <a href="<?php echo SITE_URL; ?>honor-apply.php" class="btn btn-primary"><?php echo isEnglish() ? 'New application' : 'नयाँ आवेदन'; ?></a>
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>honor-apply.php" class="btn btn-primary"><?php echo isEnglish() ? 'New application' : 'नयाँ आवेदन'; ?></a>
                     </div>
                 </div>
             </div>
@@ -190,7 +190,7 @@ foreach ($openPrograms as $op) {
             <div class="col-lg-8">
                 <?php if ($hasUpcoming): ?>
                 <div class="alert alert-warning text-center py-4 mb-4">
-                    <i class="fas fa-hourglass-half fa-2x mb-3 d-block"></i>
+                    <i class="lucide-icon lucide-2x mb-3 d-block" data-lucide="hourglass" aria-hidden="true"></i>
                     <h4 class="mb-2"><?php echo isEnglish() ? 'Applications open soon' : 'आवेदन चाँडै खुल्नेछ'; ?></h4>
                     <p class="mb-3 text-muted"><?php echo isEnglish()
                         ? 'The program is published. You can apply only after the open date/time.'
@@ -214,7 +214,7 @@ foreach ($openPrograms as $op) {
                 </div>
                 <?php else: ?>
                 <div class="alert alert-info text-center py-5">
-                    <i class="fas fa-calendar-times fa-3x mb-3 d-block opacity-50"></i>
+                    <i class="lucide-icon lucide-3x mb-3 d-block opacity-50" data-lucide="calendar-x" aria-hidden="true"></i>
                     <h4><?php echo isEnglish() ? 'Applications are closed' : 'आवेदन हाल बन्द छ'; ?></h4>
                     <p class="mb-0 text-muted"><?php echo isEnglish()
                         ? 'Honor applications open only during AGM / annual celebration windows set by the cooperative.'
@@ -385,7 +385,7 @@ foreach ($openPrograms as $op) {
 
                             <?php echo coop_public_form_anti_bot_html('honor', 'hnr', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? 'Submit application' : 'आवेदन पठाउनुहोस्'; ?>
                             </button>
                         </form>

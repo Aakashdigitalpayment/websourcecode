@@ -130,32 +130,32 @@ require __DIR__ . '/includes/chrome.php';
 
   <div class="mp-page-head">
     <h1 class="mem-page-title">
-      <i class="fas fa-comment-exclamation"></i><?php echo $_t('गुनासो दर्ता', 'File Grievance'); ?>
+      <i class="lucide-icon" data-lucide="message-circle-warning" aria-hidden="true"></i><?php echo $_t('गुनासो दर्ता', 'File Grievance'); ?>
     </h1>
     <a href="tracker.php" class="mp-tracker-link">
-      <i class="fas fa-magnifying-glass-chart"></i> Tracker
+      <i class="lucide-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Tracker
     </a>
   </div>
 
   <?php if ($errorMsg): ?>
   <div class="mem-alert mem-alert-error">
-    <i class="fas fa-circle-xmark"></i><div><?= htmlspecialchars($errorMsg) ?></div>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i><div><?= htmlspecialchars($errorMsg) ?></div>
   </div>
   <?php endif; ?>
 
   <div class="wf-tabs">
     <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-new')" id="grvTabNew">
-      <i class="fas fa-plus-circle"></i><?php echo $_t('नयाँ गुनासो', 'New Grievance'); ?>
+      <i class="lucide-icon" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $_t('नयाँ गुनासो', 'New Grievance'); ?>
     </button>
     <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="grvShowTab(this,'grv-pane-history')" id="grvTabHistory">
-      <i class="fas fa-clock-rotate-left"></i><?php echo $_t('मेरा गुनासोहरू', 'My Grievances'); ?> (<?= count($recentGrievances) ?>)
+      <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा गुनासोहरू', 'My Grievances'); ?> (<?= count($recentGrievances) ?>)
     </button>
   </div>
 
   <!-- ── New Grievance ── -->
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="grv-pane-new">
     <div class="mem-autofill-banner">
-      <i class="fas fa-wand-magic-sparkles"></i>
+      <i class="lucide-icon" data-lucide="sparkles" aria-hidden="true"></i>
       <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
@@ -164,7 +164,7 @@ require __DIR__ . '/includes/chrome.php';
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -204,13 +204,13 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label" for="mgr_attachment"><i class="fas fa-paperclip ico-primary"></i><?php echo $_t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?></label>
+        <label class="mem-form-label" for="mgr_attachment"><i class="lucide-icon ico-primary" data-lucide="paperclip" aria-hidden="true"></i><?php echo $_t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?></label>
         <input type="file" name="attachment" class="mem-form-control" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" id="mgr_attachment">
         <div class="mp-file-hint"><?php echo $_t('JPG, PNG, PDF, DOC — अधिकतम 5MB', 'JPG, PNG, PDF, DOC — max 5MB'); ?></div>
       </div>
 
       <button type="submit" class="mem-submit-btn">
-        <i class="fas fa-paper-plane"></i> <?php echo $_t('गुनासो पेश गर्नुहोस्', 'Submit Grievance'); ?>
+        <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $_t('गुनासो पेश गर्नुहोस्', 'Submit Grievance'); ?>
       </button>
     </form>
   </div>
@@ -219,13 +219,13 @@ require __DIR__ . '/includes/chrome.php';
   <div class="wf-pane <?= $activeTab==='history'?'active':'' ?>" id="grv-pane-history">
     <?php if ($successMsg): ?>
     <div class="mem-alert mem-alert-success">
-      <i class="fas fa-circle-check"></i><div><?= htmlspecialchars($successMsg) ?></div>
+      <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i><div><?= htmlspecialchars($successMsg) ?></div>
     </div>
     <?php endif; ?>
 
     <?php if (empty($recentGrievances)): ?>
     <div class="mp-empty">
-      <i class="fas fa-comment-slash mp-empty-icon"></i>
+      <i class="lucide-icon mp-empty-icon" data-lucide="message-square-off" aria-hidden="true"></i>
       <div class="mp-empty-title"><?php echo $_t('कुनै गुनासो छैन', 'No grievances yet'); ?></div>
       <div class="mp-empty-hint"><?php echo $_t('"नयाँ गुनासो" tab बाट गुनासो दर्ता गर्नुहोस्।', 'Use "New Grievance" tab to file.'); ?></div>
     </div>
@@ -240,7 +240,7 @@ require __DIR__ . '/includes/chrome.php';
         <div class="mp-list-title-ellipsis"><?= htmlspecialchars($gr['subject']) ?></div>
         <div class="mp-list-meta">
           <?= $catLabel ?>
-          <?php if ($gr['is_anonymous']): ?> &nbsp;·&nbsp; <i class="fas fa-user-secret fa-xs"></i> <?php echo $_t('गुमनाम', 'Anonymous'); ?><?php endif; ?>
+          <?php if ($gr['is_anonymous']): ?> &nbsp;·&nbsp; <i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo $_t('गुमनाम', 'Anonymous'); ?><?php endif; ?>
           &nbsp;·&nbsp; <?= date('Y-m-d', strtotime($gr['created_at'])) ?>
         </div>
       </div>
@@ -251,7 +251,7 @@ require __DIR__ . '/includes/chrome.php';
     </div>
     <?php endforeach; ?>
     <a href="tracker.php" class="mp-tracker-link-sm">
-      <i class="fas fa-magnifying-glass-chart ico-mr"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
+      <i class="lucide-icon ico-mr" data-lucide="chart-no-axes-combined" aria-hidden="true"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
     </a>
     <?php endif; ?>
   </div>

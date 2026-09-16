@@ -265,162 +265,10 @@ $siteName  = getSetting('site_name', 'सहकारी');
 $pageTitle = $_t('कार्यक्रम उपस्थिति', 'Program Attendance') . ' — ' . $siteName;
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 
-$extraHead = <<<HTML
-<style>
-.prog-card { background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-bottom:12px;transition:box-shadow .2s; }
-.prog-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.08); }
-.prog-date-badge { background:var(--primary-color,#1a8754);color:#fff;border-radius:8px;padding:6px 10px;text-align:center;min-width:50px;flex-shrink:0; }
-.prog-date-badge .day { font-size:1.4rem;font-weight:800;line-height:1; }
-.prog-date-badge .mon { font-size:.65rem;text-transform:uppercase;letter-spacing:.05em; }
-.att-badge { display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0; }
-.empty-msg { text-align:center;padding:28px;color:#9ca3af;font-size:.88rem; }
-.empty-msg i { display:block;font-size:2.2rem;margin-bottom:8px; }
-.tabs-row { display:flex;gap:2px;border-bottom:2px solid #f3f4f6;margin-bottom:18px; }
-.tab-btn { padding:9px 16px;font-size:.85rem;font-weight:600;background:none;border:none;cursor:pointer;color:#6b7280;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:inherit;transition:all .2s; }
-.tab-btn.active { color:var(--primary-color,#1a8754);border-bottom-color:var(--primary-color,#1a8754); }
-.tab-pane { display:none; }
-.tab-pane.active { display:block; }
-
-/* Attend Hero Styles */
-.attend-hero {
-  background:linear-gradient(135deg,#ecfdf5,#d1fae5);
-  border:1.5px solid #6ee7b7;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
-  box-shadow:0 4px 14px rgba(16,185,129,.12);
-}
-
-/* Program Flow Styles */
-.program-flow-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.program-flow-card {
-  background: var(--surface-color, #fff);
-  border: 2px solid color-mix(in srgb, var(--primary-color) 12%, white);
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.3s cubic-bezier(.4,0,.2,1);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(var(--primary-rgb), .1);
-}
-
-.program-flow-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(var(--primary-rgb), .15);
-  border-color: var(--primary-color);
-}
-
-.program-flow-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.program-flow-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 15%, white), color-mix(in srgb, var(--primary-color) 25%, white));
-  color: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.program-flow-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0;
-}
-
-.program-flow-description {
-  color: var(--text-muted, #6b7280);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
-}
-
-.program-flow-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.program-flow-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.program-flow-btn.primary {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  color: var(--text-on-primary);
-  box-shadow: 0 4px 12px rgba(var(--primary-rgb), .3);
-}
-
-.program-flow-btn.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(var(--primary-rgb), .4);
-}
-
-.program-flow-btn.secondary {
-  background: var(--surface-color);
-  color: var(--text-color);
-  border-color: color-mix(in srgb, var(--primary-color) 20%, white);
-}
-
-.program-flow-btn.secondary:hover {
-  background: color-mix(in srgb, var(--primary-color) 10%, white);
-  border-color: var(--primary-color);
-}
-
-@media (max-width: 768px) {
-  .program-flow-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .program-flow-card {
-    padding: 1.25rem;
-  }
-  
-  .program-flow-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-  
-  .program-flow-title {
-    font-size: 1rem;
-  }
-  
-  .program-flow-description {
-    font-size: 0.85rem;
-  }
-  
-  .program-flow-btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-  }
-}
-</style>
-HTML;
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-attend-page.css')
+        : '');
 ?>
 <?php require __DIR__ . '/includes/chrome.php'; ?>
 
@@ -429,9 +277,9 @@ HTML;
 
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
     <h1 style="font-size:1.25rem;font-weight:700;color:var(--primary-color,#1a8754);margin:0;">
-      <i class="fas fa-calendar-check" style="margin-right:8px;"></i><?php echo $_t('कार्यक्रम उपस्थिति', 'Program Attendance'); ?>
+      <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true" style="margin-right:8px;"></i><?php echo $_t('कार्यक्रम उपस्थिति', 'Program Attendance'); ?>
     </h1>
-    <div class="att-badge"><i class="fas fa-check-double"></i> <?= count($myAttendance) ?> <?php echo $_t('कार्यक्रम उपस्थित', 'programs attended'); ?></div>
+    <div class="att-badge"><i class="lucide-icon" data-lucide="check-check" aria-hidden="true"></i> <?= count($myAttendance) ?> <?php echo $_t('कार्यक्रम उपस्थित', 'programs attended'); ?></div>
   </div>
   <p style="font-size:.78rem;color:#64748b;line-height:1.5;margin:0 0 16px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
     <?php if ($hasInstantProgram): ?>
@@ -446,28 +294,28 @@ HTML;
         || (str_contains(strip_tags($checkInMsg), 'स्वीकृति') || str_contains(strip_tags($checkInMsg), 'अनुरोध'));
   ?>
   <div style="background:<?= $msgIsPending ? '#fffbeb' : '#f0fdf4' ?>;border:1px solid <?= $msgIsPending ? '#fcd34d' : '#bbf7d0' ?>;border-radius:10px;padding:12px 14px;color:<?= $msgIsPending ? '#92400e' : '#166534' ?>;font-size:.88rem;margin-bottom:14px;display:flex;gap:8px;">
-    <i class="fas <?= $msgIsPending ? 'fa-hourglass-half' : 'fa-circle-check' ?>" style="flex-shrink:0;margin-top:2px;"></i><?= $checkInMsg ?>
+    <i class="lucide-icon" data-lucide="<?= $msgIsPending ? 'hourglass' : 'circle-check' ?>" aria-hidden="true" style="flex-shrink:0;margin-top:2px;"></i><?= $checkInMsg ?>
   </div>
   <?php endif; ?>
   <?php if ($checkInErr): ?>
   <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 14px;color:#dc2626;font-size:.88rem;margin-bottom:14px;display:flex;gap:8px;">
-    <i class="fas fa-circle-xmark" style="flex-shrink:0;margin-top:2px;"></i><?= htmlspecialchars($checkInErr) ?>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true" style="flex-shrink:0;margin-top:2px;"></i><?= htmlspecialchars($checkInErr) ?>
   </div>
   <?php endif; ?>
 
   <?php if ($qrProgramRow): ?>
   <div class="attend-hero">
     <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-      <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-color,#1a8754);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;"><i class="fas fa-qrcode"></i></div>
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-color,#1a8754);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;"><i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i></div>
       <div style="flex:1;min-width:200px;">
         <div style="font-size:.72rem;font-weight:800;color:#047857;text-transform:uppercase;letter-spacing:.04em;"><?php echo $_t('स्थल उपस्थिति — कार्यक्रम QR', 'Venue Attendance — Program QR'); ?></div>
         <div style="font-size:1rem;font-weight:800;color:#064e3b;margin-top:4px;"><?= htmlspecialchars($qrProgramRow['title']) ?></div>
         <?php if (!empty($qrProgramRow['event_date']) || !empty($qrProgramRow['event_time']) || !empty($qrProgramRow['location'])): ?>
         <div style="font-size:.78rem;color:#047857;margin-top:6px;">
-          <?php if (!empty($qrProgramRow['event_date'])): ?><i class="fas fa-calendar me-1"></i><?= htmlspecialchars($qrProgramRow['event_date']) ?><?php endif; ?>
-          <?php if (!empty($qrProgramRow['event_time'])): ?> · <i class="fas fa-clock me-1"></i><?= htmlspecialchars($qrProgramRow['event_time']) ?><?php endif; ?>
-          <?php if (!empty($qrOccurrenceRow['location_name'])): ?><br><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($qrOccurrenceRow['location_name']) ?>
-          <?php elseif (!empty($qrProgramRow['location'])): ?><br><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($qrProgramRow['location']) ?><?php endif; ?>
+          <?php if (!empty($qrProgramRow['event_date'])): ?><i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?= htmlspecialchars($qrProgramRow['event_date']) ?><?php endif; ?>
+          <?php if (!empty($qrProgramRow['event_time'])): ?> · <i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i><?= htmlspecialchars($qrProgramRow['event_time']) ?><?php endif; ?>
+          <?php if (!empty($qrOccurrenceRow['location_name'])): ?><br><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?= htmlspecialchars($qrOccurrenceRow['location_name']) ?>
+          <?php elseif (!empty($qrProgramRow['location'])): ?><br><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?= htmlspecialchars($qrProgramRow['location']) ?><?php endif; ?>
         </div>
         <?php endif; ?>
         <p style="font-size:.75rem;color:#065f46;margin:10px 0 0;line-height:1.45;">
@@ -481,17 +329,17 @@ HTML;
       <div style="flex-shrink:0;width:100%;max-width:220px;">
         <?php if ($qrAlreadyAttended && $qrExistingRecord): ?>
         <div style="width:100%;padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;text-align:center;">
-          <div class="att-badge" style="width:100%;justify-content:center;margin-bottom:8px;"><i class="fas fa-circle-check"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
+          <div class="att-badge" style="width:100%;justify-content:center;margin-bottom:8px;"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
           <div style="font-size:.78rem;color:#166534;line-height:1.5;">
-            <?php if ($loc = programAttendanceDisplayLocation($qrExistingRecord)): ?><div><i class="fas fa-location-dot me-1"></i><?= htmlspecialchars($loc) ?></div><?php endif; ?>
-            <?php if (!empty($qrExistingRecord['attended_at'])): ?><div><i class="fas fa-clock me-1"></i><?= htmlspecialchars(date('Y-m-d H:i', strtotime((string)$qrExistingRecord['attended_at']))) ?></div><?php endif; ?>
-            <?php if (!empty($qrExistingRecord['attendance_method'])): ?><div><i class="fas fa-tag me-1"></i><?= htmlspecialchars(programAttendanceMethodLabel($qrExistingRecord['attendance_method'], isEnglish())) ?></div><?php endif; ?>
+            <?php if ($loc = programAttendanceDisplayLocation($qrExistingRecord)): ?><div><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?= htmlspecialchars($loc) ?></div><?php endif; ?>
+            <?php if (!empty($qrExistingRecord['attended_at'])): ?><div><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i><?= htmlspecialchars(date('Y-m-d H:i', strtotime((string)$qrExistingRecord['attended_at']))) ?></div><?php endif; ?>
+            <?php if (!empty($qrExistingRecord['attendance_method'])): ?><div><i class="lucide-icon me-1" data-lucide="tag" aria-hidden="true"></i><?= htmlspecialchars(programAttendanceMethodLabel($qrExistingRecord['attendance_method'], isEnglish())) ?></div><?php endif; ?>
           </div>
         </div>
         <?php elseif ($qrAlreadyAttended): ?>
-        <div class="att-badge" style="width:100%;justify-content:center;"><i class="fas fa-circle-check"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
+        <div class="att-badge" style="width:100%;justify-content:center;"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> <?php echo $_t('उपस्थित भइसकेको', 'Already Attended'); ?></div>
         <?php elseif ($qrPendingRequest): ?>
-        <div class="att-badge" style="width:100%;justify-content:center;background:#fffbeb;color:#92400e;border-color:#fcd34d;"><i class="fas fa-hourglass-half"></i> <?php echo $_t('Admin स्वीकृतिका लागि pending', 'Pending admin approval'); ?></div>
+        <div class="att-badge" style="width:100%;justify-content:center;background:#fffbeb;color:#92400e;border-color:#fcd34d;"><i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i> <?php echo $_t('Admin स्वीकृतिका लागि pending', 'Pending admin approval'); ?></div>
         <?php else: ?>
         <form method="POST" style="margin:0;">
           <?= $csrfField ?>
@@ -500,7 +348,7 @@ HTML;
           <?php if ($qrOccurrenceRow): ?><input type="hidden" name="occurrence_id" value="<?= (int)$qrOccurrenceRow['id'] ?>"><?php endif; ?>
           <input type="hidden" name="qr_token" value="<?= htmlspecialchars($qrToken) ?>">
           <button type="submit" style="width:100%;padding:12px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:.9rem;font-weight:800;cursor:pointer;">
-            <i class="fas fa-user-check me-2"></i><?php echo !empty($qrProgramRow['instant_attendance']) ? $_t('उपस्थिति Confirm', 'Confirm Attendance') : $_t('यही कार्यक्रममा Check-in', 'Check-in to this Program'); ?>
+            <i class="lucide-icon me-2" data-lucide="user-check" aria-hidden="true"></i><?php echo !empty($qrProgramRow['instant_attendance']) ? $_t('उपस्थिति Confirm', 'Confirm Attendance') : $_t('यही कार्यक्रममा Check-in', 'Check-in to this Program'); ?>
           </button>
         </form>
         <?php endif; ?>
@@ -509,7 +357,7 @@ HTML;
   </div>
   <?php elseif ($qrToken !== ''): ?>
   <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:12px 14px;color:#92400e;font-size:.85rem;margin-bottom:14px;">
-    <i class="fas fa-triangle-exclamation me-2"></i><?php echo $_t('यो QR मान्य छैन वा कार्यक्रम निष्क्रिय छ।', 'This QR is invalid or the program is inactive.'); ?>
+    <i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i><?php echo $_t('यो QR मान्य छैन वा कार्यक्रम निष्क्रिय छ।', 'This QR is invalid or the program is inactive.'); ?>
   </div>
   <?php endif; ?>
 
@@ -518,7 +366,7 @@ HTML;
   <div class="program-flow-card">
     <div class="program-flow-header">
       <div class="program-flow-icon">
-        <i class="fas fa-qrcode"></i>
+        <i class="lucide-icon" data-lucide="qr-code" aria-hidden="true"></i>
       </div>
       <h3 class="program-flow-title"><?php echo $_t('QR स्क्यान गर्नुहोस्', 'QR Scan'); ?></h3>
     </div>
@@ -527,7 +375,7 @@ HTML;
     </p>
     <div class="program-flow-actions">
       <a href="scan.php" class="program-flow-btn primary">
-        <i class="fas fa-camera me-2"></i><?php echo $_t('स्क्यान गर्नुहोस्', 'Scan Now'); ?>
+        <i class="lucide-icon me-2" data-lucide="camera" aria-hidden="true"></i><?php echo $_t('स्क्यान गर्नुहोस्', 'Scan Now'); ?>
       </a>
     </div>
   </div>
@@ -535,7 +383,7 @@ HTML;
   <div class="program-flow-card">
     <div class="program-flow-header">
       <div class="program-flow-icon" style="background: linear-gradient(135deg, color-mix(in srgb, var(--secondary-color) 15%, white), color-mix(in srgb, var(--secondary-color) 25%, white)); color: var(--secondary-color);">
-        <i class="fas fa-hand-pointer"></i>
+        <i class="lucide-icon" data-lucide="hand" aria-hidden="true"></i>
       </div>
       <h3 class="program-flow-title"><?php echo $_t('म्यानुअल Check-in', 'Manual Check-in'); ?></h3>
     </div>
@@ -544,7 +392,7 @@ HTML;
     </p>
     <div class="program-flow-actions">
       <button type="button" class="program-flow-btn secondary" onclick="scrollToPrograms()">
-        <i class="fas fa-list me-2"></i><?php echo $_t('कार्यक्रमहरू हेर्नुहोस्', 'View Programs'); ?>
+        <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $_t('कार्यक्रमहरू हेर्नुहोस्', 'View Programs'); ?>
       </button>
     </div>
   </div>
@@ -552,7 +400,7 @@ HTML;
   <div class="program-flow-card">
     <div class="program-flow-header">
       <div class="program-flow-icon" style="background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color) 15%, white), color-mix(in srgb, var(--accent-color) 25%, white)); color: var(--accent-color);">
-        <i class="fas fa-calendar-check"></i>
+        <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i>
       </div>
       <h3 class="program-flow-title"><?php echo $_t('उपस्थिति इतिहास', 'Attendance History'); ?></h3>
     </div>
@@ -561,7 +409,7 @@ HTML;
     </p>
     <div class="program-flow-actions">
       <a href="#tab-history" class="program-flow-btn secondary" onclick="(function(){var b=document.querySelectorAll('.tab-btn');if(b[1])showAtTab('history',b[1]);})();">
-        <i class="fas fa-history me-2"></i><?php echo $_t('इतिहास हेर्नुहोस्', 'View History'); ?>
+        <i class="lucide-icon me-2" data-lucide="history" aria-hidden="true"></i><?php echo $_t('इतिहास हेर्नुहोस्', 'View History'); ?>
       </a>
     </div>
   </div>
@@ -605,17 +453,17 @@ HTML;
 
   <!-- Tabs -->
   <div class="tabs-row">
-    <button type="button" class="tab-btn active" onclick="showAtTab('upcoming',this)"><i class="fas fa-calendar-star" style="margin-right:5px;"></i>आगामी कार्यक्रम</button>
-    <button type="button" class="tab-btn" onclick="showAtTab('history',this)"><i class="fas fa-history" style="margin-right:5px;"></i>उपस्थिति इतिहास</button>
+    <button type="button" class="tab-btn active" onclick="showAtTab('upcoming',this)"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:5px;"></i>आगामी कार्यक्रम</button>
+    <button type="button" class="tab-btn" onclick="showAtTab('history',this)"><i class="lucide-icon" data-lucide="history" aria-hidden="true" style="margin-right:5px;"></i>उपस्थिति इतिहास</button>
     <?php if (!empty($myPreregs)): ?>
-    <button type="button" class="tab-btn" onclick="showAtTab('prereg',this)"><i class="fas fa-clipboard-list" style="margin-right:5px;"></i>Pre-reg</button>
+    <button type="button" class="tab-btn" onclick="showAtTab('prereg',this)"><i class="lucide-icon" data-lucide="clipboard-list" aria-hidden="true" style="margin-right:5px;"></i>Pre-reg</button>
     <?php endif; ?>
   </div>
 
   <!-- Tab: Upcoming -->
   <div class="tab-pane active" id="tab-upcoming">
     <?php if (empty($upcoming)): ?>
-    <div class="empty-msg"><i class="fas fa-calendar-xmark"></i>अहिले कुनै आगामी कार्यक्रम छैन।</div>
+    <div class="empty-msg"><i class="lucide-icon" data-lucide="calendar-x" aria-hidden="true"></i>अहिले कुनै आगामी कार्यक्रम छैन।</div>
     <?php else: ?>
     <?php
     $attended_ids = array_map('intval', array_column($myAttendance, 'program_id'));
@@ -647,45 +495,45 @@ HTML;
             <?php if ($isToday): ?><span style="background:#dc2626;color:#fff;font-size:.65rem;padding:2px 7px;border-radius:10px;margin-left:6px;">आज</span><?php endif; ?>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:.78rem;color:#6b7280;margin-bottom:8px;">
-            <?php if ($prog['event_time']): ?><span><i class="fas fa-clock" style="margin-right:3px;"></i><?= htmlspecialchars($prog['event_time']) ?></span><?php endif; ?>
-            <?php if ($prog['location']): ?><span><i class="fas fa-location-dot" style="margin-right:3px;"></i><?= htmlspecialchars($prog['location']) ?></span><?php endif; ?>
+            <?php if ($prog['event_time']): ?><span><i class="lucide-icon" data-lucide="clock" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($prog['event_time']) ?></span><?php endif; ?>
+            <?php if ($prog['location']): ?><span><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($prog['location']) ?></span><?php endif; ?>
           </div>
           <?php if ($prog['description']): ?>
           <div style="font-size:.8rem;color:#6b7280;margin-bottom:8px;"><?= htmlspecialchars(mb_substr($prog['description'],0,120)) ?></div>
           <?php endif; ?>
 
           <?php if ($isAttended): ?>
-          <div class="att-badge"><i class="fas fa-circle-check"></i> उपस्थित भइसकेको</div>
+          <div class="att-badge"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> उपस्थित भइसकेको</div>
           <?php elseif ($isPending): ?>
-          <div class="att-badge" style="background:#fffbeb;color:#92400e;border-color:#fcd34d;"><i class="fas fa-hourglass-half"></i> Pending approval</div>
+          <div class="att-badge" style="background:#fffbeb;color:#92400e;border-color:#fcd34d;"><i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i> Pending approval</div>
           <?php elseif ($isPast): ?>
-          <div style="font-size:.78rem;color:#9ca3af;"><i class="fas fa-calendar-xmark" style="margin-right:4px;"></i>कार्यक्रम सकियो</div>
+          <div style="font-size:.78rem;color:#9ca3af;"><i class="lucide-icon" data-lucide="calendar-x" aria-hidden="true" style="margin-right:4px;"></i>कार्यक्रम सकियो</div>
           <?php else: ?>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <?php if ($isToday): ?>
             <?php if ($isMultiLoc): ?>
             <a href="scan.php" style="padding:7px 16px;background:var(--primary-color,#1a8754);color:#fff;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;">
-              <i class="fas fa-qrcode" style="margin-right:4px;"></i><?php echo $_t('स्थानको QR स्क्यान','Scan location QR'); ?>
+              <i class="lucide-icon" data-lucide="qr-code" aria-hidden="true" style="margin-right:4px;"></i><?php echo $_t('स्थानको QR स्क्यान','Scan location QR'); ?>
             </a>
             <span style="font-size:.75rem;color:#64748b;align-self:center;"><?php echo $_t('Multi-location: आफ्नो स्थानको QR प्रयोग गर्नुहोस्','Multi-location: use QR at your venue'); ?></span>
             <?php else: ?>
             <form method="POST" style="display:inline;">
               <?= $csrfField ?><input type="hidden" name="action" value="checkin"><input type="hidden" name="program_id" value="<?= $progId ?>">
               <button type="submit" style="padding:7px 16px;background:var(--primary-color,#1a8754);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;" title="<?php echo !empty($prog['instant_attendance']) ? $_t('तत्काल दर्ता','Instant record') : $_t('Admin approve पछि गणना','Counts after approve'); ?>">
-                <i class="fas fa-user-check" style="margin-right:4px;"></i><?php echo !empty($prog['instant_attendance']) ? $_t('Check-in (Instant)','Check-in (Instant)') : $_t('Check-in (approve पछि)','Check-in (after approve)'); ?>
+                <i class="lucide-icon" data-lucide="user-check" aria-hidden="true" style="margin-right:4px;"></i><?php echo !empty($prog['instant_attendance']) ? $_t('Check-in (Instant)','Check-in (Instant)') : $_t('Check-in (approve पछि)','Check-in (after approve)'); ?>
               </button>
             </form>
-            <a href="scan.php" style="padding:7px 12px;background:#fff;color:var(--primary-color,#1a8754);border:1px solid #bbf7d0;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;"><i class="fas fa-qrcode" style="margin-right:4px;"></i>QR</a>
+            <a href="scan.php" style="padding:7px 12px;background:#fff;color:var(--primary-color,#1a8754);border:1px solid #bbf7d0;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;"><i class="lucide-icon" data-lucide="qr-code" aria-hidden="true" style="margin-right:4px;"></i>QR</a>
             <?php endif; ?>
             <?php elseif ($prog['pre_registration_open'] && !$isPrereg): ?>
             <form method="POST" style="display:inline;">
               <?= $csrfField ?><input type="hidden" name="action" value="prereg"><input type="hidden" name="program_id" value="<?= $progId ?>">
               <button type="submit" style="padding:7px 16px;background:var(--secondary-color,#c0392b);color:var(--text-on-secondary,#fff);border:none;border-radius:8px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;">
-                <i class="fas fa-clipboard-check" style="margin-right:4px;"></i>Pre-register
+                <i class="lucide-icon" data-lucide="clipboard-check" aria-hidden="true" style="margin-right:4px;"></i>Pre-register
               </button>
             </form>
             <?php elseif ($isPrereg): ?>
-            <span style="font-size:.78rem;color:var(--secondary-color,#c0392b);font-weight:600;"><i class="fas fa-bookmark" style="margin-right:4px;"></i>Pre-registered</span>
+            <span style="font-size:.78rem;color:var(--secondary-color,#c0392b);font-weight:600;"><i class="lucide-icon" data-lucide="bookmark" aria-hidden="true" style="margin-right:4px;"></i>Pre-registered</span>
             <?php endif; ?>
           </div>
           <?php endif; ?>
@@ -699,10 +547,10 @@ HTML;
   <!-- Tab: History -->
   <div class="tab-pane" id="tab-history">
     <?php if (!empty($myPendingReqs)): ?>
-    <div style="font-size:.78rem;font-weight:800;color:#92400e;margin:0 0 8px;"><i class="fas fa-hourglass-half me-1"></i><?php echo $_t('Admin स्वीकृतिका लागि pending', 'Pending admin approval'); ?></div>
+    <div style="font-size:.78rem;font-weight:800;color:#92400e;margin:0 0 8px;"><i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i><?php echo $_t('Admin स्वीकृतिका लागि pending', 'Pending admin approval'); ?></div>
     <?php foreach ($myPendingReqs as $pr): ?>
     <div class="prog-card" style="display:flex;gap:12px;align-items:center;border-color:#fcd34d;background:#fffbeb;">
-      <div style="width:40px;height:40px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0;"><i class="fas fa-hourglass-half"></i></div>
+      <div style="width:40px;height:40px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0;"><i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i></div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($pr['program_title'] ?? '') ?></div>
         <div style="font-size:.75rem;color:#92400e;margin-top:2px;"><?php echo $_t('अनुरोध', 'Requested'); ?>: <?= htmlspecialchars($pr['requested_at'] ?? '') ?></div>
@@ -711,10 +559,10 @@ HTML;
     <?php endforeach; ?>
     <?php endif; ?>
     <?php if (!empty($myRejectedReqs)): ?>
-    <div style="font-size:.78rem;font-weight:800;color:#b91c1c;margin:12px 0 8px;"><i class="fas fa-times-circle me-1"></i><?php echo $_t('अस्वीकृत', 'Rejected'); ?></div>
+    <div style="font-size:.78rem;font-weight:800;color:#b91c1c;margin:12px 0 8px;"><i class="lucide-icon me-1" data-lucide="circle-x" aria-hidden="true"></i><?php echo $_t('अस्वीकृत', 'Rejected'); ?></div>
     <?php foreach ($myRejectedReqs as $pr): ?>
     <div class="prog-card" style="display:flex;gap:12px;align-items:center;border-color:#fecaca;background:#fef2f2;">
-      <div style="width:40px;height:40px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0;"><i class="fas fa-times"></i></div>
+      <div style="width:40px;height:40px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0;"><i class="lucide-icon" data-lucide="x" aria-hidden="true"></i></div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($pr['program_title'] ?? '') ?></div>
         <div style="font-size:.75rem;color:#991b1b;margin-top:2px;"><?= htmlspecialchars($pr['admin_note'] ?: ($pr['processed_at'] ?? '')) ?></div>
@@ -723,26 +571,26 @@ HTML;
     <?php endforeach; ?>
     <?php endif; ?>
     <?php if (empty($myAttendance) && empty($myPendingReqs) && empty($myRejectedReqs)): ?>
-    <div class="empty-msg"><i class="fas fa-calendar-days"></i>अझसम्म कुनै कार्यक्रममा उपस्थित हुनुभएको छैन।</div>
+    <div class="empty-msg"><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i>अझसम्म कुनै कार्यक्रममा उपस्थित हुनुभएको छैन।</div>
     <?php elseif (!empty($myAttendance)): ?>
-    <div style="font-size:.78rem;font-weight:800;color:#166534;margin:12px 0 8px;"><i class="fas fa-check-double me-1"></i><?php echo $_t('स्वीकृत उपस्थिति', 'Approved attendance'); ?></div>
+    <div style="font-size:.78rem;font-weight:800;color:#166534;margin:12px 0 8px;"><i class="lucide-icon me-1" data-lucide="check-check" aria-hidden="true"></i><?php echo $_t('स्वीकृत उपस्थिति', 'Approved attendance'); ?></div>
     <?php foreach ($myAttendance as $att): ?>
     <div class="prog-card" style="display:flex;gap:12px;align-items:center;">
       <div style="width:40px;height:40px;border-radius:50%;background:var(--primary-color,#1a8754);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;flex-shrink:0;">
-        <i class="fas fa-check"></i>
+        <i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>
       </div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($att['program_title']) ?></div>
         <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">
-          <i class="fas fa-calendar" style="margin-right:4px;"></i><?= date('Y-m-d H:i', strtotime($att['attended_at'])) ?>
+          <i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= date('Y-m-d H:i', strtotime($att['attended_at'])) ?>
           <?php
             $loc = trim((string)($att['location_label'] ?? ''));
             if ($loc === '') { $loc = trim((string)($att['occurrence_location'] ?? $att['location'] ?? '')); }
-            if ($loc !== ''): ?><span style="margin-left:8px;"><i class="fas fa-location-dot" style="margin-right:3px;"></i><?= htmlspecialchars($loc) ?></span><?php endif; ?>
-          <?php if (!empty($att['attendance_method'])): ?><span style="margin-left:8px;"><i class="fas fa-tag" style="margin-right:3px;"></i><?= htmlspecialchars(programAttendanceMethodLabel($att['attendance_method'], isEnglish())) ?></span><?php endif; ?>
+            if ($loc !== ''): ?><span style="margin-left:8px;"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($loc) ?></span><?php endif; ?>
+          <?php if (!empty($att['attendance_method'])): ?><span style="margin-left:8px;"><i class="lucide-icon" data-lucide="tag" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars(programAttendanceMethodLabel($att['attendance_method'], isEnglish())) ?></span><?php endif; ?>
         </div>
       </div>
-      <div class="att-badge"><i class="fas fa-circle-check"></i> उपस्थित</div>
+      <div class="att-badge"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> उपस्थित</div>
     </div>
     <?php endforeach; ?>
     <?php endif; ?>
@@ -754,13 +602,13 @@ HTML;
     <?php foreach ($myPreregs as $pr): ?>
     <div class="prog-card" style="display:flex;gap:12px;align-items:center;">
       <div style="width:40px;height:40px;border-radius:50%;background:var(--secondary-color,#c0392b);display:flex;align-items:center;justify-content:center;color:var(--text-on-secondary,#fff);font-size:.9rem;flex-shrink:0;">
-        <i class="fas fa-bookmark"></i>
+        <i class="lucide-icon" data-lucide="bookmark" aria-hidden="true"></i>
       </div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:.9rem;font-weight:700;color:#1f2937;"><?= htmlspecialchars($pr['program_title']) ?></div>
         <div style="font-size:.75rem;color:#6b7280;margin-top:2px;">
-          <?php if ($pr['event_date']): ?><i class="fas fa-calendar" style="margin-right:4px;"></i><?= $pr['event_date'] ?><?php endif; ?>
-          <?php if ($pr['location']): ?><span style="margin-left:8px;"><i class="fas fa-location-dot" style="margin-right:3px;"></i><?= htmlspecialchars($pr['location']) ?></span><?php endif; ?>
+          <?php if ($pr['event_date']): ?><i class="lucide-icon" data-lucide="calendar" aria-hidden="true" style="margin-right:4px;"></i><?= $pr['event_date'] ?><?php endif; ?>
+          <?php if ($pr['location']): ?><span style="margin-left:8px;"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="margin-right:3px;"></i><?= htmlspecialchars($pr['location']) ?></span><?php endif; ?>
         </div>
       </div>
       <span style="font-size:.75rem;font-weight:700;color:var(--secondary-color,#c0392b);background:#fef2f2;padding:4px 10px;border-radius:20px;">Pre-reg</span>

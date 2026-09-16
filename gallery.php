@@ -146,7 +146,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
         <h1><?php echo isEnglish() ? 'Gallery' : 'फोटो/भिडियो ग्यालरी'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Gallery' : 'ग्यालरी'; ?></li>
             </ol>
         </nav>
@@ -191,7 +191,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
         <?php if (!$showAlbumCovers && $activeAlbumRow): ?>
         <div class="gallery-album-heading">
             <h2 class="h5 mb-0">
-                <i class="fas fa-folder-open me-2 text-success" aria-hidden="true"></i>
+                <i class="lucide-icon me-2 text-success" data-lucide="folder-open" aria-hidden="true"></i>
                 <?php echo htmlspecialchars($activeAlbumLabel); ?>
                 <small class="text-muted fw-normal ms-1">(<?php echo (int)($activeTab === 'video' ? $albumVideoTotal : $albumPhotoTotal); ?>)</small>
             </h2>
@@ -215,7 +215,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                                 <?php if ($cover !== ''): ?>
                                 <img src="<?php echo htmlspecialchars($cover); ?>" loading="lazy" alt="<?php echo htmlspecialchars(galleryAlbumLabel($alb, isEnglish())); ?>" class="img-fluid">
                                 <?php else: ?>
-                                <div class="gallery-album-cover-empty"><i class="fas fa-images" aria-hidden="true"></i></div>
+                                <div class="gallery-album-cover-empty"><i class="lucide-icon" data-lucide="images" aria-hidden="true"></i></div>
                                 <?php endif; ?>
                                 <span class="gallery-album-count"><?php echo (int)$alb['count']; ?></span>
                             </div>
@@ -251,7 +251,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                                     data-photo-title="<?php echo htmlspecialchars($caption); ?>"
                                     aria-label="<?php echo htmlspecialchars((isEnglish() ? 'Open photo: ' : 'फोटो खोल्नुहोस्: ') . $caption); ?>">
                                 <img src="<?php echo htmlspecialchars((string)$image['image']); ?>" loading="lazy" alt="<?php echo htmlspecialchars($caption); ?>" class="img-fluid">
-                                <div class="gallery-overlay"><i class="fas fa-search-plus"></i></div>
+                                <div class="gallery-overlay"><i class="lucide-icon" data-lucide="zoom-in" aria-hidden="true"></i></div>
                             </button>
                             <?php if ($caption !== ''): ?>
                             <div class="gallery-caption"><?php echo htmlspecialchars($caption); ?></div>
@@ -277,7 +277,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
             <nav class="pagination-nav mt-4" aria-label="Gallery photo pages">
                 <ul class="pagination justify-content-center">
                     <?php if ($page > 1): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'photo', (string)$activeAlbumId)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'photo', (string)$activeAlbumId)); ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a></li>
                     <?php endif; ?>
                     <?php for ($i = 1; $i <= $photoPages; $i++): ?>
                     <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
@@ -285,7 +285,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                     </li>
                     <?php endfor; ?>
                     <?php if ($page < $photoPages): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'photo', (string)$activeAlbumId)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'photo', (string)$activeAlbumId)); ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a></li>
                     <?php endif; ?>
                 </ul>
             </nav>
@@ -309,7 +309,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                                 <?php else: ?>
                                 <div class="gallery-album-cover-empty"><i class="fab fa-youtube" aria-hidden="true"></i></div>
                                 <?php endif; ?>
-                                <span class="gallery-album-media-icon"><i class="fas fa-play" aria-hidden="true"></i></span>
+                                <span class="gallery-album-media-icon"><i class="lucide-icon" data-lucide="play" aria-hidden="true"></i></span>
                                 <span class="gallery-album-count"><?php echo (int)$alb['count']; ?></span>
                             </div>
                             <div class="gallery-album-title"><?php echo htmlspecialchars(galleryAlbumLabel($alb, isEnglish())); ?></div>
@@ -373,7 +373,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
             <nav class="pagination-nav mt-4" aria-label="Gallery video pages">
                 <ul class="pagination justify-content-center">
                     <?php if ($page > 1): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'video', (string)$activeAlbumId)); ?>"><i class="fas fa-chevron-left"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page - 1, 'video', (string)$activeAlbumId)); ?>"><i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i></a></li>
                     <?php endif; ?>
                     <?php for ($i = 1; $i <= $videoPages; $i++): ?>
                     <li class="page-item <?php echo $i === $page ? 'active' : ''; ?>">
@@ -381,7 +381,7 @@ $activeAlbumLabel = $activeAlbumRow ? galleryAlbumLabel($activeAlbumRow, isEngli
                     </li>
                     <?php endfor; ?>
                     <?php if ($page < $videoPages): ?>
-                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'video', (string)$activeAlbumId)); ?>"><i class="fas fa-chevron-right"></i></a></li>
+                    <li class="page-item"><a class="page-link" href="<?php echo htmlspecialchars($galleryPageQs($page + 1, 'video', (string)$activeAlbumId)); ?>"><i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i></a></li>
                     <?php endif; ?>
                 </ul>
             </nav>

@@ -5,9 +5,20 @@ $footerText = function_exists('coop_footer_copyright_text')
     : ('© ' . date('Y') . ' ' . getSetting('site_name', 'सहकारी') . '। सर्वाधिकार सुरक्षित।');
 $aboutShort = getSetting('about_short', 'आकाश बचत तथा ऋण सहकारी संस्था लि. एक अग्रणी वित्तीय संस्था हो।');
 $developerName = getSetting('developer_name', 'Tanka Adhikari');
-$developerUrl = getSetting('developer_url', 'https://www.tankaadhikari.com.np/');
+$developerUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('developer_url', 'https://www.tankaadhikari.com.np/'))
+    : (function_exists('safe_http_url')
+        ? safe_http_url(getSetting('developer_url', 'https://www.tankaadhikari.com.np/'))
+        : getSetting('developer_url', 'https://www.tankaadhikari.com.np/'));
+if ($developerUrl === '') {
+    $developerUrl = 'https://www.tankaadhikari.com.np/';
+}
 $supportedName = trim((string)getSetting('supported_name', ''));
-$supportedUrl = trim((string)getSetting('supported_url', ''));
+$supportedUrl = function_exists('coop_safe_cta_url')
+    ? coop_safe_cta_url(getSetting('supported_url', ''))
+    : (function_exists('safe_http_url')
+        ? safe_http_url(getSetting('supported_url', ''))
+        : trim((string)getSetting('supported_url', '')));
 $whatsappNumber = getSetting('whatsapp_number', '');
 $workingHours = getSetting('working_hours', 'आइतबार - शुक्रबार: बिहान १०:०० - साँझ ५:००');
 require_once __DIR__ . '/ai-chat-helpers.php';
@@ -120,7 +131,7 @@ try {
             <div class="container">
                 <div class="row">
                     <!-- About Section -->
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="col-lg-4 col-md-6">
                         <div class="footer-widget">
                             <!-- Footer Logo: logo तल name राखिएको छ (issue #4) -->
                                 <?php
@@ -138,59 +149,51 @@ try {
                             </div>
                             <div class="footer-about-text coop-prose"><?php echo coop_render_cms_prose($aboutShort); ?></div>
                             <div class="footer-social">
-                                <a href="<?php echo $facebookUrl ?? '#'; ?>" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                <a href="<?php echo $youtubeUrl ?? '#'; ?>" title="YouTube"><i class="fab fa-youtube"></i></a>
-                                <a href="mailto:<?php echo $email ?? ''; ?>" title="Email"><i class="fas fa-envelope"></i></a>
+                                <a href="<?php echo htmlspecialchars($facebookUrl ?? '#', ENT_QUOTES, 'UTF-8'); ?>" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="<?php echo htmlspecialchars($youtubeUrl ?? '#', ENT_QUOTES, 'UTF-8'); ?>" title="YouTube"><i class="fab fa-youtube"></i></a>
+                                <a href="mailto:<?php echo e($email ?? ''); ?>" title="Email"><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i></a>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Links - 2 columns -->
-                    <div class="col-lg-5 col-md-6 mb-4">
+                    <!-- Quick Links — even 2-col grid -->
+                    <div class="col-lg-5 col-md-6">
                         <div class="footer-widget">
                             <h4><?php echo isEnglish() ? 'Quick Links' : 'द्रुत लिंकहरू'; ?></h4>
-                            <div class="row">
-                                <div class="col-6">
-                                    <ul class="footer-links">
-                                        <li><a href="<?php echo SITE_URL; ?>about.php"><?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>service-centers.php"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
-                                    </ul>
-                                </div>
-                                <div class="col-6">
-                                    <ul class="footer-links">
-                                        <li><a href="<?php echo SITE_URL; ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>reports.php"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>faqs.php"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>member-survey.php"><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>member-marketplace.php"><?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?></a></li>
-                                        <li><a href="<?php echo SITE_URL; ?>member-skills.php"><?php echo isEnglish() ? 'Skill Workers' : 'सीप कामदार'; ?></a></li>
-                                    </ul>
-                                </div>
-                            </div>
+                            <ul class="footer-links footer-links-cols">
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>reports.php"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php"><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>faqs.php"><?php echo isEnglish() ? 'FAQs' : 'प्रश्नोत्तर'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>news.php"><?php echo isEnglish() ? 'News' : 'समाचार'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-survey.php"><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-marketplace.php"><?php echo isEnglish() ? 'Member Marketplace' : 'सदस्य बजार'; ?></a></li>
+                                <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-skills.php"><?php echo isEnglish() ? 'Skill Workers' : 'सीप कामदार'; ?></a></li>
+                            </ul>
                         </div>
                     </div>
 
                     <!-- Contact Info -->
-                    <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="col-lg-3 col-md-6">
                         <div class="footer-widget">
                             <h4><?php echo isEnglish() ? 'Contact Info' : 'सम्पर्क जानकारी'; ?></h4>
                             <ul class="footer-contact">
                                 <li>
-                                    <i class="fas fa-map-marker-alt"></i>
+                                    <i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i>
                                     <span><?php echo $address ?? 'काठमाडौं, नेपाल'; ?></span>
                                 </li>
                                 <li>
-                                    <i class="fas fa-phone-alt"></i>
+                                    <i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i>
                                     <span><?php echo $phone ?? '061590067'; ?></span>
                                 </li>
                                 <li>
-                                    <i class="fas fa-mobile-alt"></i>
+                                    <i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i>
                                     <span><?php echo $mobile ?? '9827157000'; ?></span>
                                 </li>
                                 <li>
-                                    <i class="fas fa-envelope"></i>
+                                    <i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i>
                                     <span><?php echo $email ?? 'info@sahakari.org.np'; ?></span>
                                 </li>
                             </ul>
@@ -211,17 +214,17 @@ try {
 
                 <!-- v10.3 (Issue #10): Footer policy links — admin बाट pages.php मा edit गर्न मिल्छ -->
                 <div class="footer-policy-links">
-                        <a href="<?php echo SITE_URL; ?>page.php?slug=privacy-policy">
+                        <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=privacy-policy">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i>
                         <?php echo isEnglish() ? 'Privacy Policy' : 'गोपनीयता नीति'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
-                    <a href="<?php echo SITE_URL; ?>page.php?slug=terms-of-service">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=terms-of-service">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i>
                         <?php echo isEnglish() ? 'Terms of Service' : 'सेवाका सर्तहरू'; ?>
                     </a>
                     <span class="footer-policy-dot">•</span>
-                    <a href="<?php echo SITE_URL; ?>page.php?slug=cookie-policy">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>page.php?slug=cookie-policy">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="cookie"></i>
                         <?php echo isEnglish() ? 'Cookie Policy' : 'कुकी नीति'; ?>
                     </a>
@@ -244,7 +247,7 @@ try {
                                 <span><?php echo number_format($totalVisitors); ?></span>
                             </div>
                             <div class="visitor-item today" title="<?php echo isEnglish() ? "Today's Visitors" : 'आजका भ्रमणकर्ता'; ?>">
-                                <i class="fas fa-user-clock"></i>
+                                <i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i>
                                 <span><?php echo number_format($todayVisitors); ?></span>
                             </div>
                         </div>
@@ -272,7 +275,7 @@ try {
 
     <!-- WhatsApp Floating Button -->
     <?php if (!empty($whatsappNumber)): ?>
-    <a href="https://wa.me/<?php echo $whatsappNumber; ?>" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="WhatsApp मा सम्पर्क गर्नुहोस्">
+    <a href="https://wa.me/<?php echo htmlspecialchars(preg_replace('/[^0-9+]/', '', (string)$whatsappNumber), ENT_QUOTES, 'UTF-8'); ?>" class="whatsapp-float" target="_blank" rel="noopener noreferrer" title="WhatsApp मा सम्पर्क गर्नुहोस्">
         <i class="fab fa-whatsapp"></i>
     </a>
     <?php endif; ?>
@@ -281,7 +284,7 @@ try {
     <?php if (!empty($usefulLinks)): ?>
     <div class="useful-links-float" id="usefulLinksFloat">
         <button type="button" class="useful-links-toggle" id="usefulLinksToggle" title="<?php echo isEnglish() ? 'Useful Links' : 'उपयोगी लिंकहरू'; ?>">
-            <i class="fas fa-external-link-alt"></i>
+            <i class="lucide-icon" aria-hidden="true" data-lucide="external-link"></i>
         </button>
 
         <div class="useful-links-popup-box" id="usefulLinksBox">
@@ -300,7 +303,7 @@ try {
                    target="_blank" rel="noopener noreferrer">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="link"></i>
                     <span><?php echo htmlspecialchars((string)$__ulTitle, ENT_QUOTES, 'UTF-8'); ?></span>
-                    <i class="fas fa-external-link-alt link-arrow"></i>
+                    <i class="lucide-icon link-arrow" aria-hidden="true" data-lucide="external-link"></i>
                 </a>
                 <?php endforeach; ?>
             </div>
@@ -312,18 +315,18 @@ try {
     <?php /* $chatbotFaqs loaded once above with other footer queries */ ?>
     <div class="chatbot-widget" id="chatbotWidget">
         <div class="chatbot-toggle" id="chatbotToggle" title="<?php echo isEnglish() ? 'Help & FAQ' : 'सहायता र प्रश्नोत्तर'; ?>">
-            <i class="fas fa-comments"></i>
+            <i class="lucide-icon" aria-hidden="true" data-lucide="messages-square"></i>
             <span class="chatbot-badge">?</span>
         </div>
 
         <div class="chatbot-box" id="chatbotBox">
             <div class="chatbot-header">
                 <div class="chatbot-title">
-                    <i class="fas fa-robot"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i>
                     <span><?php echo isEnglish() ? 'Help Assistant' : 'सहायता केन्द्र'; ?></span>
                 </div>
                 <button type="button" class="chatbot-close" id="chatbotClose" aria-label="Close" title="Close">
-                    <i class="fas fa-times"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>
                 </button>
             </div>
 
@@ -333,21 +336,21 @@ try {
                 </div>
 
                 <div class="chatbot-quick-actions">
-                    <a href="<?php echo SITE_URL; ?>appointment.php" class="quick-action-btn">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>appointment.php" class="quick-action-btn">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i>
                         <?php echo isEnglish() ? 'Book Appointment' : 'भेटघाट बुक गर्नुहोस्'; ?>
                     </a>
-                    <a href="<?php echo SITE_URL; ?>online-account.php" class="quick-action-btn">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php" class="quick-action-btn">
                         <i class="lucide-icon" aria-hidden="true" data-lucide="user-plus"></i>
                         <?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?>
                     </a>
-                    <a href="<?php echo SITE_URL; ?>grievance.php" class="quick-action-btn">
-                        <i class="fas fa-exclamation-circle"></i>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>grievance.php" class="quick-action-btn">
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="alert-circle"></i>
                         <?php echo isEnglish() ? 'File Grievance' : 'गुनासो दर्ता'; ?>
                     </a>
                     <!-- ट्र्याकर एप्लिकेसन button — अरू buttons जस्तै style -->
-                    <a href="<?php echo SITE_URL; ?>application-tracker.php" class="quick-action-btn" target="_blank" rel="noopener noreferrer">
-                        <i class="fas fa-magnifying-glass-chart"></i>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php" class="quick-action-btn" target="_blank" rel="noopener noreferrer">
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="chart-no-axes-combined"></i>
                         <?php echo isEnglish() ? 'Track Application' : 'ट्र्याकर एप्लिकेसन'; ?>
                     </a>
                 </div>
@@ -369,8 +372,8 @@ try {
 
                 <div class="chatbot-contact">
                     <p><?php echo isEnglish() ? 'Need more help?' : 'थप सहायता चाहिन्छ?'; ?></p>
-                    <a href="<?php echo SITE_URL; ?>contact.php" class="btn btn-primary btn-sm">
-                        <i class="fas fa-phone"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="btn btn-primary btn-sm">
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i> <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>
                     </a>
                 </div>
             </div>
@@ -501,14 +504,14 @@ try {
         <div class="search-modal-overlay"></div>
         <div class="search-modal-content">
             <button type="button" class="search-modal-close" id="searchModalClose" title="बन्द गर्नुहोस्" aria-label="<?php echo isEnglish() ? 'Close search' : 'खोज बन्द गर्नुहोस्'; ?>">
-                <i class="fas fa-times"></i>
+                <i class="lucide-icon" aria-hidden="true" data-lucide="x"></i>
             </button>
             <div class="search-modal-body">
 
                 <!-- Animated icon ring: search / mic state -->
                 <div class="smb-icon-ring" id="smbIconRing">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
-                    <i class="fas fa-microphone" id="smbIconMic" style="display:none;"></i>
+                    <i class="lucide-icon" id="smbIconMic" aria-hidden="true" data-lucide="mic" style="display:none;"></i>
                 </div>
 
                 <!-- Title changes while listening -->
@@ -521,7 +524,7 @@ try {
                         : 'टाइप गर्नुहोस् वा माइकबाट बोल्नुहोस्'; ?>
                 </p>
 
-                <form action="<?php echo SITE_URL; ?>search.php" method="GET" class="search-form" id="searchForm">
+                <form action="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>search.php" method="GET" class="search-form" id="searchForm">
                     <div class="search-input-wrapper" id="searchInputWrapper">
                         <!-- Search text field -->
                         <input type="text" name="q" class="search-input" id="searchInput"
@@ -532,7 +535,7 @@ try {
                         <div id="voiceBtnSlot"></div>
 
                         <button type="submit" class="search-submit" id="searchSubmitBtn" title="<?php echo isEnglish() ? 'Search' : 'खोज्नुहोस्'; ?>">
-                            <i class="fas fa-arrow-right"></i>
+                            <i class="lucide-icon" aria-hidden="true" data-lucide="arrow-right"></i>
                         </button>
                     </div>
 
@@ -545,32 +548,32 @@ try {
                             <?php echo isEnglish() ? 'Listening… speak now' : 'सुन्दैछ… बोल्नुहोस्'; ?>
                         </span>
                         <button type="button" class="vsb-stop" id="voiceStopBtn" title="रोक्नुहोस्">
-                            <i class="fas fa-stop-circle"></i>
+                            <i class="lucide-icon" aria-hidden="true" data-lucide="circle-stop"></i>
                             <?php echo isEnglish() ? 'Stop' : 'रोक्नुहोस्'; ?>
                         </button>
                     </div>
 
                     <!-- Voice error message -->
                     <div class="voice-error-bar" id="voiceErrorBar" style="display:none;">
-                        <i class="fas fa-exclamation-circle me-1"></i>
+                        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="alert-circle"></i>
                         <span id="voiceErrorText"></span>
                     </div>
                 </form>
 
                 <!-- Standalone large mic button — always visible -->
                 <button type="button" class="smb-voice-big" id="smbVoiceBig" title="<?php echo isEnglish() ? 'Voice Search' : 'आवाजबाट खोज्नुहोस्'; ?>">
-                    <i class="fas fa-microphone"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="mic"></i>
                     <span><?php echo isEnglish() ? 'Voice Search' : 'आवाजबाट खोज्नुहोस्'; ?></span>
                 </button>
 
                 <!-- Popular quick links -->
                 <div class="search-quick-links">
                     <span><?php echo isEnglish() ? 'Popular:' : 'लोकप्रिय:'; ?></span>
-                    <a href="<?php echo SITE_URL; ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a>
-                    <a href="<?php echo SITE_URL; ?>interest-rates.php"><?php echo isEnglish() ? 'Interest Rates' : 'ब्याजदर'; ?></a>
-                    <a href="<?php echo SITE_URL; ?>online-account.php"><?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?></a>
-                    <a href="<?php echo SITE_URL; ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a>
-                    <a href="<?php echo SITE_URL; ?>loan-apply.php"><?php echo isEnglish() ? 'Loan' : 'ऋण आवेदन'; ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>interest-rates.php"><?php echo isEnglish() ? 'Interest Rates' : 'ब्याजदर'; ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php"><?php echo isEnglish() ? 'Open Account' : 'खाता खोल्नुहोस्'; ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>career.php"><?php echo isEnglish() ? 'Careers' : 'बिज्ञापन'; ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>loan-apply.php"><?php echo isEnglish() ? 'Loan' : 'ऋण आवेदन'; ?></a>
                 </div>
             </div>
         </div>
@@ -653,8 +656,14 @@ try {
 
         function updateDarkModeIcon(isDark) {
             var topbarIcon = topbarDarkModeToggle ? topbarDarkModeToggle.querySelector('i') : null;
-            if (topbarIcon) {
-                topbarIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            if (!topbarIcon) return;
+            var name = isDark ? 'sun' : 'moon';
+            topbarIcon.className = 'lucide-icon';
+            topbarIcon.setAttribute('data-lucide', name);
+            topbarIcon.setAttribute('aria-hidden', 'true');
+            topbarIcon.innerHTML = '';
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons({ nodes: [topbarIcon] });
             }
         }
 
@@ -715,12 +724,12 @@ try {
     }
     ?>
     <!-- Bootstrap JS -->
-    <script src="<?php echo SITE_URL; ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo $__jsVer('assets/vendor/bootstrap.bundle.min.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/bootstrap.bundle.min.js?v=<?php echo $__jsVer('assets/vendor/bootstrap.bundle.min.js'); ?>" defer></script>
 
     <?php if ($__needsDatepicker): ?>
     <!-- jQuery (required for Nepali Datepicker) -->
-    <script src="<?php echo SITE_URL; ?>assets/vendor/jquery.min.js?v=<?php echo $__jsVer('assets/vendor/jquery.min.js'); ?>" defer></script>
-    <script src="<?php echo SITE_URL; ?>assets/js/nepali.datepicker.min.js?v=<?php echo $__jsVer('assets/js/nepali.datepicker.min.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/jquery.min.js?v=<?php echo $__jsVer('assets/vendor/jquery.min.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/nepali.datepicker.min.js?v=<?php echo $__jsVer('assets/js/nepali.datepicker.min.js'); ?>" defer></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         if (typeof $ === 'undefined' || typeof $.fn.nepaliDatePicker === 'undefined') return;
@@ -743,7 +752,7 @@ try {
     <?php endif; ?>
 
     <!-- AOS Animation JS -->
-    <script src="<?php echo SITE_URL; ?>assets/vendor/aos.min.js?v=<?php echo $__jsVer('assets/vendor/aos.min.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/vendor/aos.min.js?v=<?php echo $__jsVer('assets/vendor/aos.min.js'); ?>" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (typeof AOS === 'undefined') {
@@ -756,20 +765,33 @@ try {
                 return;
             }
             AOS.init({
-                duration: 420,
+                duration: 520,
                 easing: 'ease-out-cubic',
                 once: true,
                 mirror: false,
-                offset: 40,
+                offset: 48,
                 delay: 0,
                 disable: function () {
                     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                 }
             });
-            /* If AOS misses nodes, never leave content invisible */
+            /* Fail-safe only if AOS left nodes stuck in-viewport without .aos-animate */
             setTimeout(function () {
-                document.body.classList.add('aos-safe');
-            }, 2800);
+                try {
+                    var stuck = document.querySelectorAll('[data-aos]:not(.aos-animate)');
+                    if (!stuck.length) return;
+                    var vh = window.innerHeight || 800;
+                    for (var i = 0; i < stuck.length; i++) {
+                        var r = stuck[i].getBoundingClientRect();
+                        if (r.top < vh && r.bottom > 0) {
+                            document.body.classList.add('aos-safe');
+                            break;
+                        }
+                    }
+                } catch (e) {
+                    document.body.classList.add('aos-safe');
+                }
+            }, 3600);
         });
     </script>
 
@@ -911,11 +933,11 @@ try {
     </script>
 
     <!-- Custom JS -->
-    <script src="<?php echo SITE_URL; ?>assets/js/main.js?v=<?php echo $__jsVer('assets/js/main.js'); ?>" defer></script>
-    <script src="<?php echo SITE_URL; ?>assets/js/modal-focus-trap.js?v=<?php echo $__jsVer('assets/js/modal-focus-trap.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/main.js?v=<?php echo $__jsVer('assets/js/main.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/modal-focus-trap.js?v=<?php echo $__jsVer('assets/js/modal-focus-trap.js'); ?>" defer></script>
 
     <!-- Init uniformity helpers (datepicker init + conservative a11y fixes) -->
-    <script src="<?php echo SITE_URL; ?>assets/js/init-uniformity.js?v=<?php echo $__jsVer('assets/js/init-uniformity.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/init-uniformity.js?v=<?php echo $__jsVer('assets/js/init-uniformity.js'); ?>" defer></script>
 
     <?php
     /* Content pages rarely have phone/email forms — skip form-validation.js */
@@ -924,11 +946,11 @@ try {
     ?>
     <?php if ($__needsFormValidation): ?>
     <!-- Universal Phone/Email Validation — form pages -->
-    <script src="<?php echo SITE_URL; ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/form-validation.js?v=<?php echo $__jsVer('assets/js/form-validation.js'); ?>" defer></script>
     <?php endif; ?>
 
     <!-- Enhanced Search with Voice Support (issue #7) -->
-    <script src="<?php echo SITE_URL; ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/search-improved.js?v=<?php echo $__jsVer('assets/js/search-improved.js'); ?>" defer></script>
 
     <!-- Voice/Camera/Tilt Scroll Accessibility — idle-load (homepage feel) -->
     <script>
@@ -966,24 +988,24 @@ try {
 
 <!-- v9.6 Mobile bottom-nav (public) -->
 <nav class="mob-bottomnav" aria-label="<?php echo isEnglish() ? 'Quick navigation' : 'छिटो नेभिगेसन'; ?>">
-    <a href="<?php echo SITE_URL; ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"<?php echo ($currentPage??'')==='index'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"<?php echo ($currentPage??'')==='services'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"<?php echo ($currentPage??'')==='notices'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"<?php echo ($currentPage??'')==='contact'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
-    <a href="<?php echo SITE_URL; ?>member/" class="mob-bn-item" aria-label="<?php echo isEnglish()?'Member portal':'सदस्य पोर्टल'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="mob-bn-item <?php echo ($currentPage??'')==='index'?'active':''; ?>"<?php echo ($currentPage??'')==='index'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="house"></i><span><?php echo isEnglish()?'Home':'गृह'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php" class="mob-bn-item <?php echo ($currentPage??'')==='services'?'active':''; ?>"<?php echo ($currentPage??'')==='services'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i><span><?php echo isEnglish()?'Services':'सेवा'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php" class="mob-bn-item <?php echo ($currentPage??'')==='notices'?'active':''; ?>"<?php echo ($currentPage??'')==='notices'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i><span><?php echo isEnglish()?'Notices':'सूचना'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="mob-bn-item <?php echo ($currentPage??'')==='contact'?'active':''; ?>"<?php echo ($currentPage??'')==='contact'?' aria-current="page"':''; ?>><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i><span><?php echo isEnglish()?'Contact':'सम्पर्क'; ?></span></a>
+    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/" class="mob-bn-item" aria-label="<?php echo isEnglish()?'Member portal':'सदस्य पोर्टल'; ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i><span><?php echo isEnglish()?'Member':'सदस्य'; ?></span></a>
 </nav>
 <script>document.body.classList.add('has-bottomnav');</script>
 <?php
 $__v9MobileFixVer = (defined('ROOT_PATH') ? @filemtime(ROOT_PATH . 'assets/js/v9-mobile-fix.js') : false);
 if (!$__v9MobileFixVer) { $__v9MobileFixVer = time(); }
 ?>
-    <script src="<?php echo SITE_URL; ?>assets/js/v9-mobile-fix.js?v=<?php echo (int)$__v9MobileFixVer; ?>" defer></script>
+    <script src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/v9-mobile-fix.js?v=<?php echo (int)$__v9MobileFixVer; ?>" defer></script>
 <script>
 function copyTrk(id,btn){
     var el=document.getElementById(id);
     if(!el)return;
     navigator.clipboard.writeText(el.innerText.trim()).then(function(){
-        btn.innerHTML='<i class="fas fa-check"></i>';
+        btn.innerHTML='<i class="lucide-icon" aria-hidden="true" data-lucide="check"></i>'; if(window.lucide&&lucide.createIcons){lucide.createIcons({nodes:[btn.querySelector('i')]});}
         btn.classList.add('btn-success');btn.classList.remove('btn-outline-success');
         setTimeout(function(){btn.innerHTML='<i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i>';btn.classList.remove('btn-success');btn.classList.add('btn-outline-success');},1800);
     }).catch(function(){
@@ -1074,15 +1096,16 @@ if ($__uiTestMode):
         var toggle = byId('mobileMenuToggle2');
         var nav = byId('mainNavV2');
         if (!toggle || !nav) return { ok:false, msg:'mobile toggle/nav not found' };
-        var icon = toggle.querySelector('i');
+        var icon = toggle.querySelector('i, .lucide-icon, [data-lucide]');
         var expanded = toggle.getAttribute('aria-expanded') === 'true';
         var open = nav.classList.contains('nav-open') || nav.classList.contains('open') || nav.classList.contains('active');
-        var iconX = !!(icon && icon.classList.contains('fa-xmark'));
-        var iconBars = !!(icon && icon.classList.contains('fa-bars'));
+        var lucideName = icon ? (icon.getAttribute('data-lucide') || '') : '';
+        var iconX = lucideName === 'x' || !!(icon && icon.classList.contains('fa-xmark'));
+        var iconBars = lucideName === 'menu' || !!(icon && icon.classList.contains('fa-bars'));
         var ok = (expanded === open) && ((open && iconX) || (!open && iconBars));
         return {
             ok: ok,
-            msg: 'expanded=' + expanded + ', open=' + open + ', iconX=' + iconX + ', iconBars=' + iconBars
+            msg: 'expanded=' + expanded + ', open=' + open + ', iconX=' + iconX + ', iconBars=' + iconBars + ', lucide=' + lucideName
         };
     }
     function checkSizes(){
@@ -1101,7 +1124,7 @@ if ($__uiTestMode):
         return res.join(', ');
     }
     function inspectVisibleCloseElements(){
-        var items = Array.prototype.slice.call(document.querySelectorAll('#closeMenuV2, #closeMenu, .close-menu, #mainNavV2 i.fa-times, i.fa-xmark'));
+        var items = Array.prototype.slice.call(document.querySelectorAll('#closeMenuV2, #closeMenu, .close-menu, #mainNavV2 i.fa-times, i.fa-xmark, #mainNavV2 .lucide-icon[data-lucide="x"], .lucide-icon[data-lucide="x"]'));
         var lines = [];
         items.forEach(function(el){
             var st = window.getComputedStyle(el);
@@ -1125,8 +1148,16 @@ if ($__uiTestMode):
         if (toggle) {
             toggle.classList.remove('is-open');
             toggle.setAttribute('aria-expanded','false');
-            var i = toggle.querySelector('i');
-            if (i) { i.classList.remove('fa-xmark'); i.classList.add('fa-bars'); }
+            var i = toggle.querySelector('i, .lucide-icon, [data-lucide]');
+            if (i) {
+                i.className = 'lucide-icon';
+                i.setAttribute('data-lucide', 'menu');
+                i.setAttribute('aria-hidden', 'true');
+                i.innerHTML = '';
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons({ nodes: [i] });
+                }
+            }
         }
         var nav = byId('mainNavV2');
         if (nav) {
@@ -1190,43 +1221,43 @@ if ($__uiTestMode):
 
     <!-- Loan Apply -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>services.php">
-      <span class="qh-ic qh-loan"><i class="fas fa-hand-holding-dollar"></i></span>
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>services.php">
+      <span class="qh-ic qh-loan"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i></span>
       <span>ऋण आवेदन</span>
     </a>
 
     <!-- Open Account -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>online-account.php">
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>online-account.php">
       <span class="qh-ic qh-account"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span>
       <span>खाता खोल्नुहोस्</span>
     </a>
 
     <!-- Contact -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>contact.php">
-      <span class="qh-ic qh-contact"><i class="fas fa-phone"></i></span>
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php">
+      <span class="qh-ic qh-contact"><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i></span>
       <span>सम्पर्क गर्नुहोस्</span>
     </a>
 
     <!-- Track Application -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>application-tracker.php">
-      <span class="qh-ic qh-track"><i class="fas fa-magnifying-glass-chart"></i></span>
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php">
+      <span class="qh-ic qh-track"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-no-axes-combined"></i></span>
       <span>आवेदन ट्र्याक</span>
     </a>
 
     <!-- Service Centers -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>service-centers.php">
-      <span class="qh-ic qh-branch"><i class="fas fa-location-dot"></i></span>
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>service-centers.php">
+      <span class="qh-ic qh-branch"><i class="lucide-icon" aria-hidden="true" data-lucide="map-pin"></i></span>
       <span><?php echo isEnglish() ? 'Service Centers' : 'सेवा कार्यालयहरू'; ?></span>
     </a>
 
     <!-- Member Login -->
     <a class="qh-item" role="menuitem"
-       href="<?php echo SITE_URL; ?>member/login.php">
-      <span class="qh-ic qh-login"><i class="fas fa-right-to-bracket"></i></span>
+       href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/login.php">
+      <span class="qh-ic qh-login"><i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i></span>
       <span><?php echo isEnglish() ? 'Member login' : 'सदस्य लगइन'; ?></span>
     </a>
 
@@ -1236,7 +1267,7 @@ if ($__uiTestMode):
     ?>
     <a class="qh-item" role="menuitem" target="_blank" rel="noopener noreferrer"
        href="<?php echo e($__webLoginUrl); ?>">
-      <span class="qh-ic qh-weblogin"><i class="fas fa-envelope-open-text"></i></span>
+      <span class="qh-ic qh-weblogin"><i class="lucide-icon" aria-hidden="true" data-lucide="mail-open"></i></span>
       <span><?php echo isEnglish() ? 'Web login' : 'वेब लगिन'; ?></span>
     </a>
     <?php endif; ?>
@@ -1247,14 +1278,14 @@ if ($__uiTestMode):
 
     <?php if (!empty($whatsappNumber)): ?>
     <a class="qh-item" role="menuitem" target="_blank" rel="noopener noreferrer"
-       href="https://wa.me/<?php echo htmlspecialchars($whatsappNumber, ENT_QUOTES); ?>">
+       href="https://wa.me/<?php echo htmlspecialchars(preg_replace('/[^0-9+]/', '', (string)$whatsappNumber), ENT_QUOTES, 'UTF-8'); ?>">
       <span class="qh-ic wa"><i class="fab fa-whatsapp"></i></span>
       <span>WhatsApp सम्पर्क</span>
     </a>
     <?php endif; ?>
     <button type="button" class="qh-item" role="menuitem"
       onclick="document.getElementById('publicChatPanel').classList.add('open');document.getElementById('qhLauncher').classList.remove('open');">
-      <span class="qh-ic chat"><i class="fas fa-comments"></i></span>
+      <span class="qh-ic chat"><i class="lucide-icon" aria-hidden="true" data-lucide="messages-square"></i></span>
       <span>लाइभ च्याट / सन्देश</span>
     </button>
     <button type="button" class="qh-item" role="menuitem"
@@ -1265,14 +1296,14 @@ if ($__uiTestMode):
     <?php if (!empty($aiChatEnabled)): ?>
     <button type="button" class="qh-item" role="menuitem"
       onclick="if(window.coopOpenAiChat){window.coopOpenAiChat();}else{document.getElementById('aiChatPanel').classList.add('open');document.getElementById('qhLauncher').classList.remove('open');var i=document.getElementById('aiChatInput');if(i)i.focus();}">
-      <span class="qh-ic ai"><i class="fas fa-robot"></i></span>
+      <span class="qh-ic ai"><i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i></span>
       <span><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></span>
     </button>
     <?php endif; ?>
     <?php if (!empty($usefulLinks)): ?>
     <button type="button" class="qh-item" role="menuitem"
       onclick="event.stopPropagation();if(window.coopOpenUsefulLinks)window.coopOpenUsefulLinks();var l=document.getElementById('qhLauncher');if(l)l.classList.remove('open');">
-      <span class="qh-ic links"><i class="fas fa-external-link-alt"></i></span>
+      <span class="qh-ic links"><i class="lucide-icon" aria-hidden="true" data-lucide="external-link"></i></span>
       <span>उपयोगी लिंकहरू</span>
     </button>
     <?php endif; ?>
@@ -1280,8 +1311,8 @@ if ($__uiTestMode):
 
   <button type="button" class="qh-fab" id="qhFab" aria-label="Quick Actions"
     onclick="document.getElementById('qhLauncher').classList.toggle('open');">
-    <i class="fas fa-bolt qh-i-open"></i>
-    <i class="fas fa-times qh-i-close"></i>
+    <i class="lucide-icon qh-i-open" aria-hidden="true" data-lucide="zap"></i>
+    <i class="lucide-icon qh-i-close" aria-hidden="true" data-lucide="x"></i>
   </button>
 </div>
 <script>
@@ -1319,7 +1350,7 @@ if ($__uiTestMode):
     <div class="pcp-antibot" id="pcpAntibot">
       <?php echo coop_public_form_anti_bot_html('live_chat', 'pcp', $__pcpEn, '', $__pcpMath); ?>
     </div>
-    <button type="submit"><i class="fas fa-paper-plane me-1"></i> पठाउनुहोस्</button>
+    <button type="submit"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="send"></i> पठाउनुहोस्</button>
     <div class="pcp-msg" id="pcpMsg" style="display:none;"></div>
   </form>
 </div>
@@ -1341,7 +1372,7 @@ if ($__uiTestMode):
     var fd=new FormData(f);
     var meta=document.querySelector('meta[name="csrf-token"]');
     if(meta && meta.content && !fd.get('csrf_token')) fd.append('csrf_token', meta.content);
-    fetch('<?php echo SITE_URL; ?>api-public-chat.php', {method:'POST', body:fd, credentials:'same-origin'})
+    fetch('<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>api-public-chat.php', {method:'POST', body:fd, credentials:'same-origin'})
       .then(function(r){ return r.json().catch(function(){ return {ok:false,msg:'त्रुटि'}; }); })
       .then(function(d){
         msg.style.display='block';
@@ -1354,7 +1385,7 @@ if ($__uiTestMode):
         }
       })
       .catch(function(){ msg.style.display='block'; msg.className='pcp-msg err'; msg.textContent='नेटवर्क त्रुटि'; })
-      .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane me-1"></i> पठाउनुहोस्'; });
+      .finally(function(){ btn.disabled=false; btn.innerHTML='<i class="lucide-icon me-1" aria-hidden="true" data-lucide="send"></i> पठाउनुहोस्'; });
   });
 })();
 </script>
@@ -1362,7 +1393,7 @@ if ($__uiTestMode):
 <?php if (!empty($aiChatEnabled)): ?>
 <div id="aiChatPanel" role="dialog" aria-label="AI Chat" aria-modal="true">
   <div class="acp-h">
-    <i class="fas fa-robot" aria-hidden="true"></i>
+    <i class="lucide-icon" aria-hidden="true" data-lucide="bot"></i>
     <div>
       <div class="acp-title"><?php echo isEnglish() ? 'AI Chat' : 'AI च्याट'; ?></div>
       <div class="acp-sub"><?php echo isEnglish() ? 'Answers from this website’s data' : 'यस वेबसाइटको डाटाबाट जवाफ'; ?></div>
@@ -1383,8 +1414,8 @@ if ($__uiTestMode):
       <?php endforeach; ?>
     </div>
     <div class="acp-escalate">
-      <button type="button" id="aiChatOpenLive"><i class="fas fa-headset" aria-hidden="true"></i><span><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></span></button>
-      <button type="button" id="aiChatOpenFaq"><i class="fas fa-circle-question" aria-hidden="true"></i><span><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></span></button>
+      <button type="button" id="aiChatOpenLive"><i class="lucide-icon" aria-hidden="true" data-lucide="headphones"></i><span><?php echo isEnglish() ? 'Talk to staff' : 'कर्मचारीसँग कुरा गर्नुहोस्'; ?></span></button>
+      <button type="button" id="aiChatOpenFaq"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i><span><?php echo isEnglish() ? 'Open FAQ' : 'FAQ खोल्नुहोस्'; ?></span></button>
     </div>
   </div>
   <form class="acp-form" id="aiChatForm" novalidate autocomplete="off">
@@ -1394,7 +1425,7 @@ if ($__uiTestMode):
     <input type="text" id="aiChatInput" name="message" maxlength="800" required autocomplete="off"
            placeholder="<?php echo isEnglish() ? 'Ask about services, rates, branches…' : 'सेवा, ब्याजदर, शाखाबारे सोध्नुहोस्…'; ?>">
     <button type="submit" id="aiChatSend" aria-label="<?php echo isEnglish() ? 'Send' : 'पठाउनुहोस्'; ?>">
-      <i class="fas fa-paper-plane"></i>
+      <i class="lucide-icon" aria-hidden="true" data-lucide="send"></i>
     </button>
   </form>
 </div>
@@ -1488,7 +1519,7 @@ if ($__uiTestMode):
     var thinking = addBubble(thinkingLbl, 'bot');
     thinking.classList.add('acp-thinking');
 
-    fetch('<?php echo SITE_URL; ?>api-ai-chat.php', {
+    fetch('<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>api-ai-chat.php', {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
       credentials: 'same-origin',

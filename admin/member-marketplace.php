@@ -2,6 +2,7 @@
 /**
  * Admin — सदस्य बजार / सीप सूची स्वीकृति
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'सदस्य बजार / सीप';
 $currentPage = 'member-marketplace';
 require_once 'includes/admin-header.php';
@@ -193,8 +194,8 @@ echo adminPageHeader(
     'सदस्य बजार / सीप',
     'fa-store',
     'सदस्यले पेश गरेका उत्पादन र सीप सूची — स्वीकृत भएपछि मात्र सार्वजनिक थप मेनुमा देखिन्छ।',
-    '<span class="badge admin-stat-badge bg-warning-subtle text-warning border border-warning border-opacity-25 me-2"><i class="fas fa-clock me-1"></i>पेन्डिङ: ' . (int) $counts['pending'] . '</span>'
-    . '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . (int) $counts['all'] . '</span>'
+    '<span class="badge admin-stat-badge bg-warning-subtle text-warning border border-warning border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i>पेन्डिङ: ' . (int) $counts['pending'] . '</span>'
+    . '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . (int) $counts['all'] . '</span>'
 );
 $_flash = getFlash();
 if ($_flash) {
@@ -208,7 +209,7 @@ if ($error) {
 <?php if ($detail): ?>
 <div class="card admin-table-card mb-3">
     <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <span class="fw-semibold"><i class="fas fa-store me-2"></i><?php echo htmlspecialchars((string) $detail['title']); ?></span>
+        <span class="fw-semibold"><i class="lucide-icon me-2" data-lucide="store" aria-hidden="true"></i><?php echo htmlspecialchars((string) $detail['title']); ?></span>
         <a href="member-marketplace.php?tab=<?php echo htmlspecialchars($tab); ?>" class="btn btn-sm btn-outline-secondary">सूचीमा फर्कनुहोस्</a>
     </div>
     <div class="card-body">
@@ -251,7 +252,7 @@ if ($error) {
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                         <input type="hidden" name="action" value="approve">
                         <input type="hidden" name="id" value="<?php echo (int) $detail['id']; ?>">
-                        <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check me-1"></i>स्वीकृत / सार्वजनिक</button>
+                        <button type="submit" class="btn btn-success btn-sm"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>स्वीकृत / सार्वजनिक</button>
                     </form>
                     <?php else: ?>
                     <span class="badge bg-secondary align-self-center">उपलब्ध समय सकिसकेको — पहिले मिति बढाउनुहोस्</span>

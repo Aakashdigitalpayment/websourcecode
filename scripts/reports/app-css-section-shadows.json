@@ -1,0 +1,120 @@
+{
+  "policy": "Shadow extract only \u2014 app-* bodies remain FROZEN",
+  "wrote": true,
+  "all_first_pr": true,
+  "all_second_pr": true,
+  "sections": [
+    {
+      "from_sheet": "app-core.css",
+      "section": "design-tokens.css",
+      "bytes": 13255,
+      "sha256": "b0f62c8d4bab74ae",
+      "shadow": "assets/css/app-sections/app-core--design-tokens.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "theme-variables.css",
+      "bytes": 8684,
+      "sha256": "d9a27c04dbce3b5f",
+      "shadow": "assets/css/app-sections/app-core--theme-variables.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "animations.css",
+      "bytes": 10651,
+      "sha256": "57c71bd647bdae17",
+      "shadow": "assets/css/app-sections/app-core--animations.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "mobile-menu-improvements.css",
+      "bytes": 7910,
+      "sha256": "bce46d2db096c5f0",
+      "shadow": "assets/css/app-sections/app-core--mobile-menu-improvements.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "mobile-comprehensive-fixes.css",
+      "bytes": 9664,
+      "sha256": "2d3ce3b675a504aa",
+      "shadow": "assets/css/app-sections/app-core--mobile-comprehensive-fixes.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "coop-core.css",
+      "bytes": 49306,
+      "sha256": "8cf2e5599283f7b2",
+      "shadow": "assets/css/app-sections/app-core--coop-core.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "coop-clean.css",
+      "bytes": 15029,
+      "sha256": "fc120d1156ca2508",
+      "shadow": "assets/css/app-sections/app-core--coop-clean.css"
+    },
+    {
+      "from_sheet": "app-core.css",
+      "section": "unified-portal.css",
+      "bytes": 82655,
+      "sha256": "ace0acb302235e5e",
+      "shadow": "assets/css/app-sections/app-core--unified-portal.css"
+    },
+    {
+      "from_sheet": "app-public.css",
+      "section": "header-v2.css",
+      "bytes": 35943,
+      "sha256": "665e2a0cf07ddafe",
+      "shadow": "assets/css/app-sections/app-public--header-v2.css"
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "design-tokens.css",
+      "bytes": 12314,
+      "sha256": "6b518c56667fd68c",
+      "shadow": "assets/css/app-sections/app-admin--design-tokens.css"
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin-tokens.css",
+      "bytes": 3780,
+      "sha256": "e78be1559dfd80ac",
+      "shadow": "assets/css/app-sections/app-admin--admin-tokens.css"
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin-mobile.css",
+      "bytes": 8818,
+      "sha256": "2b4ae0ea3b75825b",
+      "shadow": "assets/css/app-sections/app-admin--admin-mobile.css"
+    },
+    {
+      "from_sheet": "app-member.css",
+      "section": "mem-utils.css",
+      "bytes": 4341,
+      "sha256": "8de850d43c47f57f",
+      "shadow": "assets/css/app-sections/app-member--mem-utils.css"
+    },
+    {
+      "from_sheet": "app-member.css",
+      "section": "member.css",
+      "bytes": 66938,
+      "sha256": "76492af10dff3837",
+      "shadow": "assets/css/app-sections/app-member--member.css"
+    },
+    {
+      "from_sheet": "app-member.css",
+      "section": "member-portal-v2.css",
+      "bytes": 31906,
+      "sha256": "848ea9ddbf6c4f7f",
+      "shadow": "assets/css/app-sections/app-member--member-portal-v2.css"
+    },
+    {
+      "from_sheet": "app-member.css",
+      "section": "auth-portals-unified.css",
+      "bytes": 17425,
+      "sha256": "5f275fb3e9a712a5",
+      "shadow": "assets/css/app-sections/app-member--auth-portals-unified.css"
+    }
+  ]
+}

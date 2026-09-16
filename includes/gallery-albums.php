@@ -72,22 +72,32 @@ if (!function_exists('ensureGalleryAlbumsSchema')) {
             error_log('[gallery-albums] create table: ' . $e->getMessage());
         }
 
-        foreach ([
-            'ALTER TABLE gallery ADD COLUMN album_id INT NULL',
-            'ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL',
-            'ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT \'photo\'',
-        ] as $sql) {
-            try {
-                $db->exec($sql);
-            } catch (Throwable $e) {
-                /* column may exist */
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'gallery', 'album_id', 'INT NULL');
+            safeAddColumn($db, 'gallery', 'album', 'VARCHAR(200) NULL');
+            safeAddColumn($db, 'gallery', 'media_type', "VARCHAR(20) DEFAULT 'photo'");
+        } else {
+            foreach ([
+                'ALTER TABLE gallery ADD COLUMN album_id INT NULL',
+                'ALTER TABLE gallery ADD COLUMN album VARCHAR(200) NULL',
+                'ALTER TABLE gallery ADD COLUMN media_type VARCHAR(20) DEFAULT \'photo\'',
+            ] as $sql) {
+                try {
+                    $db->exec($sql);
+                } catch (Throwable $e) {
+                    /* column may exist */
+                }
             }
         }
 
-        try {
-            $db->exec('ALTER TABLE gallery ADD INDEX idx_gallery_album_id (album_id)');
-        } catch (Throwable $e) {
-            /* index may exist */
+        if (function_exists('safeAddIndex')) {
+            safeAddIndex($db, 'gallery', 'idx_gallery_album_id', ['album_id']);
+        } else {
+            try {
+                $db->exec('ALTER TABLE gallery ADD INDEX idx_gallery_album_id (album_id)');
+            } catch (Throwable $e) {
+                /* index may exist */
+            }
         }
 
         galleryMigrateLegacyAlbums($db);

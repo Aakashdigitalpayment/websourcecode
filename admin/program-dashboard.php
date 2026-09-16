@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'कार्यक्रम ड्यासबोर्ड';
 $currentPage = 'program-dashboard';
 require_once 'includes/admin-header.php';
@@ -43,11 +44,11 @@ if ($selectedProgramId > 0) {
   <?php echo adminPageHeader(
       adminLangT('कार्यक्रम ड्यासबोर्ड', 'Program Dashboard'),
       'fa-chart-pie',
-      adminLangT('Parent Program → Session/Location → Verification → Registration → Attendance → Reporting', 'Parent Program → Session/Location → Verification → Registration → Attendance → Reporting'),
+      adminLangT('Parent → स्थान/सत्र → दर्ता डेस्क → उपस्थिति → रिपोर्ट', 'Parent → Session/Location → Registration Desk → Attendance → Reports'),
       '<div class="d-flex gap-2 flex-wrap">'
-      . '<a href="programs.php" class="btn btn-primary btn-sm"><i class="fas fa-plus me-1"></i>' . adminLangT('कार्यक्रम', 'Programs') . '</a>'
-      . '<a href="program-registration-desk.php" class="btn btn-success btn-sm"><i class="fas fa-desktop me-1"></i>' . adminLangT('दर्ता डेस्क', 'Registration Desk') . '</a>'
-      . '<a href="program-attendance.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-clipboard-check me-1"></i>' . adminLangT('रिपोर्ट', 'Reports') . '</a>'
+      . '<a href="programs.php" class="btn btn-primary btn-sm"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>' . adminLangT('कार्यक्रम', 'Programs') . '</a>'
+      . '<a href="program-registration-desk.php" class="btn btn-success btn-sm"><i class="lucide-icon me-1" data-lucide="monitor" aria-hidden="true"></i>' . adminLangT('दर्ता डेस्क', 'Registration Desk') . '</a>'
+      . '<a href="program-attendance.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="clipboard-check" aria-hidden="true"></i>' . adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg') . '</a>'
       . '</div>'
   ); ?>
 
@@ -57,7 +58,7 @@ if ($selectedProgramId > 0) {
       <a href="program-attendance.php#pa-tab-req" class="text-decoration-none">
         <div class="card admin-stat-card border-0 shadow-sm h-100">
           <div class="card-body">
-            <div class="text-muted small"><?php echo adminLangT('Pending अनुरोध', 'Pending Requests'); ?> <i class="fas fa-arrow-right small"></i></div>
+            <div class="text-muted small"><?php echo adminLangT('Pending अनुरोध', 'Pending Requests'); ?> <i class="lucide-icon small" data-lucide="arrow-right" aria-hidden="true"></i></div>
             <div class="fs-3 fw-bold text-warning"><?php echo $pendingReq; ?></div>
           </div>
         </div>
@@ -133,16 +134,16 @@ if ($selectedProgramId > 0) {
 
     <div class="col-lg-5">
       <div class="card admin-table-card mb-3 border-success">
-        <div class="card-header bg-success bg-opacity-10"><h6 class="mb-0"><i class="fas fa-lightbulb me-2 text-success"></i><?php echo adminLangT('कार्यक्रम दिनको Flow', 'Event Day Workflow'); ?></h6></div>
+        <div class="card-header bg-success bg-opacity-10"><h6 class="mb-0"><i class="lucide-icon me-2 text-success" data-lucide="lightbulb" aria-hidden="true"></i><?php echo adminLangT('कार्यक्रम दिनको Flow', 'Event Day Workflow'); ?></h6></div>
         <div class="card-body small">
           <ol class="mb-0 ps-3">
-            <li class="mb-2"><?php echo adminLangT('<strong>Registration Desk</strong> — कार्डको Member ID टाइप गरेर तत्काल दर्ता', '<strong>Registration Desk</strong> — instant entry using Member ID on card'); ?></li>
-            <li class="mb-2"><?php echo adminLangT('<strong>Member Portal QR</strong> — सदस्यले scan गर्छ → Admin approve', '<strong>Member Portal QR</strong> — member scans → admin approves'); ?></li>
-            <li><?php echo adminLangT('<strong>Reports</strong> — consolidated / location / absent हेर्नुहोस्', '<strong>Reports</strong> — view consolidated / location / absent'); ?></li>
+            <li class="mb-2"><?php echo adminLangT('<strong>दर्ता डेस्क</strong> — कार्डको Member ID टाइप → तत्काल दर्ता', '<strong>Registration Desk</strong> — type Member ID on card → instant entry'); ?></li>
+            <li class="mb-2"><?php echo adminLangT('<strong>Member Portal QR</strong> — Instant मा तुरुन्तै; अन्यमा scan → Admin approve', '<strong>Member Portal QR</strong> — Instant = immediate; otherwise scan → admin approve'); ?></li>
+            <li><?php echo adminLangT('<strong>रिपोर्ट / Pre-reg</strong> — approve, सूची, समेकित रिपोर्ट', '<strong>Reports / Pre-reg</strong> — approve, lists, consolidated reports'); ?></li>
           </ol>
           <?php if ($pendingReq > 0): ?>
           <div class="alert alert-warning py-2 px-3 mt-3 mb-0">
-            <i class="fas fa-hourglass-half me-1"></i>
+            <i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i>
             <?php echo adminLangT($pendingReq . ' वटा pending अनुरोध छ — ', $pendingReq . ' pending request(s) — '); ?>
             <a href="program-attendance.php#pa-tab-req"><?php echo adminLangT('अहिले approve गर्नुहोस्', 'Approve now'); ?></a>
           </div>
@@ -153,12 +154,12 @@ if ($selectedProgramId > 0) {
       <div class="card admin-table-card mb-3">
         <div class="card-header"><h6 class="mb-0"><?php echo adminLangT('Quick Links', 'Quick Links'); ?></h6></div>
         <div class="list-group list-group-flush">
-          <a class="list-group-item list-group-item-action" href="programs.php"><i class="fas fa-calendar-plus me-2 text-primary"></i><?php echo adminLangT('कार्यक्रम बनाउने / सूची', 'Create / List Programs'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-occurrences.php"><i class="fas fa-map-marker-alt me-2 text-info"></i><?php echo adminLangT('स्थान / सत्र', 'Locations / Sessions'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-registration-desk.php"><i class="fas fa-desktop me-2 text-success"></i><?php echo adminLangT('दर्ता डेस्क (Staff)', 'Registration Desk (Staff)'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-attendance.php"><i class="fas fa-clipboard-check me-2 text-warning"></i><?php echo adminLangT('उपस्थिति अनुरोध / रिपोर्ट', 'Attendance Requests / Report'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-reports-consolidated.php"><i class="fas fa-chart-bar me-2 text-danger"></i><?php echo adminLangT('Consolidated Report', 'Consolidated Report'); ?></a>
-          <a class="list-group-item list-group-item-action" href="program-settings.php"><i class="fas fa-cog me-2"></i><?php echo adminLangT('कार्यक्रम सेटिङ', 'Program Settings'); ?></a>
+          <a class="list-group-item list-group-item-action" href="programs.php"><i class="lucide-icon me-2 text-primary" data-lucide="calendar-plus" aria-hidden="true"></i><?php echo adminLangT('कार्यक्रम बनाउने / सूची', 'Create / List Programs'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-occurrences.php"><i class="lucide-icon me-2 text-info" data-lucide="map-pin" aria-hidden="true"></i><?php echo adminLangT('स्थान / सत्र', 'Locations / Sessions'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-registration-desk.php"><i class="lucide-icon me-2 text-success" data-lucide="monitor" aria-hidden="true"></i><?php echo adminLangT('दर्ता डेस्क (Staff)', 'Registration Desk (Staff)'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-attendance.php"><i class="lucide-icon me-2 text-warning" data-lucide="clipboard-check" aria-hidden="true"></i><?php echo adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-reports-consolidated.php"><i class="lucide-icon me-2 text-danger" data-lucide="bar-chart-3" aria-hidden="true"></i><?php echo adminLangT('समेकित रिपोर्ट', 'Consolidated Report'); ?></a>
+          <a class="list-group-item list-group-item-action" href="program-settings.php"><i class="lucide-icon me-2" data-lucide="settings" aria-hidden="true"></i><?php echo adminLangT('कार्यक्रम सेटिङ', 'Program Settings'); ?></a>
         </div>
       </div>
 
@@ -170,7 +171,7 @@ if ($selectedProgramId > 0) {
           <?php else: foreach ($activeList as $p): ?>
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="program-detail.php?id=<?php echo (int)$p['id']; ?>">
               <span><?php echo htmlspecialchars($p['title']); ?><?php if ((int)($p['is_multi_location'] ?? 0) === 1): ?> <span class="badge bg-info ms-1">Multi</span><?php endif; ?></span>
-              <i class="fas fa-chevron-right small text-muted"></i>
+              <i class="lucide-icon small text-muted" data-lucide="chevron-right" aria-hidden="true"></i>
             </a>
           <?php endforeach; endif; ?>
         </div>

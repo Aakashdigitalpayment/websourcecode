@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Local regenerator for panel late CSS bundles (order-preserving concat)."""
+"""Local regenerator for panel late CSS bundles (order-preserving concat).
+
+Never include app-public / app-admin / app-member / app-core — those stay frozen bases.
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -12,6 +15,7 @@ BUNDLES: dict[str, list[str]] = {
         "premium-ui.css",
         "mobile-premium-polish.css",
         "public-shell-polish.css",
+        "lucide-icon-utils.css",
         "ui-readability-safe-patch.css",
         "final-ui-polish.css",
     ],
@@ -19,6 +23,7 @@ BUNDLES: dict[str, list[str]] = {
         "premium-ui.css",
         "mobile-premium-polish.css",
         "admin-shell-polish.css",
+        "lucide-icon-utils.css",
         "ui-readability-safe-patch.css",
         "admin-ux-deep-patch.css",
         "final-ui-polish.css",
@@ -27,11 +32,13 @@ BUNDLES: dict[str, list[str]] = {
         "premium-ui.css",
         "mobile-premium-polish.css",
         "member-shell-polish.css",
+        "lucide-icon-utils.css",
         "ui-readability-safe-patch.css",
         "final-ui-polish.css",
     ],
     "minimal-late-bundle.css": [
         "public-shell-polish.css",
+        "lucide-icon-utils.css",
         "minimal-pages-patch.css",
         "ui-readability-safe-patch.css",
         "final-ui-polish.css",

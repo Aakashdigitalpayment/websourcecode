@@ -49,7 +49,7 @@ $kycFollowUpUrl = ($isEmbed || $isMemberLoggedIn)
 $kycFollowUpLabel = ($isEmbed || $isMemberLoggedIn)
     ? (isEnglish() ? 'Back to Profile' : 'प्रोफाइलमा फर्कनुहोस्')
     : (isEnglish() ? 'Online KYM' : 'Online केवाइएम');
-$kycFollowUpIcon = ($isEmbed || $isMemberLoggedIn) ? 'fa-user' : 'fa-id-card';
+$kycFollowUpIcon = ($isEmbed || $isMemberLoggedIn) ? 'user' : 'id-card';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -1123,7 +1123,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
         <h1><?php echo isEnglish() ? 'Online KYM Form' : 'अनलाइन केवाइएम फारम'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Online KYM' : 'अनलाइन केवाइएम'; ?></li>
             </ol>
         </nav>
@@ -1131,9 +1131,11 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 </section>
 
 <!-- v10.4: KYC capture assets (camera/crop/signature/fingerprint) -->
-<link rel="stylesheet" href="<?php echo SITE_URL; ?>assets/css/kyc-capture.css?v=10.6">
+<?php if (function_exists('coopThemeLink')) { coopThemeLink('assets/css/kyc-capture.css'); } else { ?>
+<link rel="stylesheet" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/css/kyc-capture.css?v=10.6">
+<?php } ?>
 <?php printNepalAddressJs(); ?>
-<script defer src="<?php echo SITE_URL; ?>assets/js/kyc-capture.js?v=10.10"></script>
+<script defer src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>assets/js/kyc-capture.js?v=10.11"></script>
 
 <!-- KYM Form Section -->
 <section class="kyc-form-section section-padding">
@@ -1142,7 +1144,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
         <div class="row justify-content-center mb-4">
           <div class="col-lg-7">
             <div class="form-success-card text-center py-5 px-4 rounded-4 shadow-sm" style="border:2px solid #c8e6c9;">
-              <div class="form-success-icon"><i class="fas fa-<?php echo $membershipSuccess ? 'user-plus' : 'id-card-alt'; ?>"></i></div>
+              <div class="form-success-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo $membershipSuccess ? 'user-plus' : 'id-card'; ?>"></i></div>
               <h3 class="mt-3 fw-bold text-success"><?php
                 if ($membershipSuccess) {
                     echo isEnglish() ? 'Membership Request Submitted!' : 'सदस्यता अनुरोध पेश भयो!';
@@ -1175,11 +1177,11 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
               </div>
               <?php endif; ?>
               <div class="mt-3">
-                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
+                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4 me-2"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
                 <?php if ($membershipSuccess): ?>
-                <a href="online-kyc.php?path=member" class="btn btn-outline-secondary px-4"><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Online KYM (after Member ID)' : 'Online केवाइएम (Member ID पछि)'; ?></a>
+                <a href="online-kyc.php?path=member" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo isEnglish() ? 'Online KYM (after Member ID)' : 'Online केवाइएम (Member ID पछि)'; ?></a>
                 <?php else: ?>
-                <a href="<?php echo e($kycFollowUpUrl); ?>" class="btn btn-outline-secondary px-4"><i class="fas <?php echo e($kycFollowUpIcon); ?> me-1"></i><?php echo e($kycFollowUpLabel); ?></a>
+                <a href="<?php echo e($kycFollowUpUrl); ?>" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="<?php echo e($kycFollowUpIcon); ?>" aria-hidden="true"></i><?php echo e($kycFollowUpLabel); ?></a>
                 <?php endif; ?>
               </div>
             </div>
@@ -1189,7 +1191,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
         <?php if ($error): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-1"></i><?php echo e($error); ?>
+            <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i><?php echo e($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e){var r=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;e.scrollIntoView({behavior:r?'auto':'smooth',block:'center'});}});</script>
@@ -1200,13 +1202,13 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
             <div class="col-lg-10 public-form-shell public-form-shell--wide">
                 <div class="d-flex flex-wrap gap-2 mb-3">
                     <a href="?path=member" class="btn <?php echo $publicPath === 'member' ? 'btn-success' : 'btn-outline-success'; ?>">
-                        <i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'I am a member (Online KYM)' : 'म सदस्य हुँ (Online केवाइएम)'; ?>
+                        <i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo isEnglish() ? 'I am a member (Online KYM)' : 'म सदस्य हुँ (Online केवाइएम)'; ?>
                     </a>
                     <a href="?path=new" class="btn <?php echo $publicPath === 'new' ? 'btn-primary' : 'btn-outline-primary'; ?>">
-                        <i class="fas fa-user-plus me-1"></i><?php echo isEnglish() ? 'Become a new member' : 'नयाँ सदस्य बन्नुस्'; ?>
+                        <i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i><?php echo isEnglish() ? 'Become a new member' : 'नयाँ सदस्य बन्नुस्'; ?>
                     </a>
-                    <a href="<?php echo SITE_URL; ?>member/login.php" class="btn btn-outline-secondary ms-auto">
-                        <i class="fas fa-right-to-bracket me-1"></i><?php echo isEnglish() ? 'Portal Login' : 'पोर्टल लगइन'; ?>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/login.php" class="btn btn-outline-secondary ms-auto">
+                        <i class="lucide-icon me-1" data-lucide="log-in" aria-hidden="true"></i><?php echo isEnglish() ? 'Portal Login' : 'पोर्टल लगइन'; ?>
                     </a>
                 </div>
 
@@ -1221,7 +1223,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="membership_join_submit" value="1">
                         <div class="form-section">
-                            <h5><i class="fas fa-user-plus me-1"></i><?php echo isEnglish() ? 'Become a Member' : 'सदस्य बन्नुस्'; ?></h5>
+                            <h5><i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i><?php echo isEnglish() ? 'Become a Member' : 'सदस्य बन्नुस्'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="kyc_f0_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
@@ -1254,7 +1256,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         </div>
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-1"></i><?php echo isEnglish() ? 'Submit membership request' : 'सदस्यता अनुरोध पठाउनुहोस्'; ?>
+                                <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i><?php echo isEnglish() ? 'Submit membership request' : 'सदस्यता अनुरोध पठाउनुहोस्'; ?>
                             </button>
                         </div>
                     </form>
@@ -1272,7 +1274,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="public_kym_verify" value="1">
                         <div class="form-section">
-                            <h5><i class="fas fa-shield-halved me-1 text-success"></i><?php echo isEnglish() ? 'Verify Member ID + Mobile' : 'Member ID + मोबाइल प्रमाणित'; ?></h5>
+                            <h5><i class="lucide-icon me-1 text-success" data-lucide="shield" aria-hidden="true"></i><?php echo isEnglish() ? 'Verify Member ID + Mobile' : 'Member ID + मोबाइल प्रमाणित'; ?></h5>
                             <p class="small text-muted"><?php echo isEnglish()
                                 ? 'Use the mobile number stored in the cooperative members list (from CBS/import).'
                                 : 'सहकारी सदस्य सूचीमा भएको मोबाइल (CBS/import) नै प्रयोग गर्नुहोस्।'; ?></p>
@@ -1292,9 +1294,9 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 <?php echo coop_public_form_anti_bot_html('kyc', 'kycVerify', isEnglish(), 'col-12', $__kycMath); ?>
                             </div>
                             <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check me-1"></i><?php echo isEnglish() ? 'Verify & continue' : 'प्रमाणित गरी अगाडि'; ?>
+                                <i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo isEnglish() ? 'Verify & continue' : 'प्रमाणित गरी अगाडि'; ?>
                             </button>
-                            <a href="<?php echo SITE_URL; ?>member/login.php?tab=register" class="btn btn-outline-secondary ms-2">
+                            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/login.php?tab=register" class="btn btn-outline-secondary ms-2">
                                 <?php echo isEnglish() ? 'Request portal login' : 'पोर्टल लगइन अनुरोध'; ?>
                             </a>
                         </div>
@@ -1302,14 +1304,14 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                 </div>
                 <?php else: ?>
                 <div class="alert alert-success small d-flex flex-wrap align-items-center gap-2">
-                    <i class="fas fa-circle-check"></i>
+                    <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i>
                     <span><?php echo isEnglish()
                         ? 'Verified. Empty fields below can be filled. Locked fields stay as-is.'
                         : 'प्रमाणित भयो। तल खाली field भर्नुहोस्। लक भएका field जस्ताको त्यस्तै रहन्छन्।'; ?>
                         (<code><?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></code>
                     </span>
                     <button type="button" id="toggleQuickKycBtn" class="btn btn-sm btn-outline-primary ms-auto">
-                        <i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick fill' : 'Quick भर्ने'; ?>
+                        <i class="lucide-icon me-1" data-lucide="zap" aria-hidden="true"></i><?php echo isEnglish() ? 'Quick fill' : 'Quick भर्ने'; ?>
                     </button>
                 </div>
                 <div id="publicQuickKycPanel" class="kyc-form-box mb-3" style="display:<?php echo isset($_POST['public_quick_submit']) ? 'block' : 'none'; ?>;">
@@ -1317,7 +1319,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         <?php echo csrfField(); ?>
                         <input type="hidden" name="public_quick_submit" value="1">
                         <div class="form-section">
-                            <h5><i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYM (empty fields only)' : 'Quick केवाइएम (खाली मात्र)'; ?></h5>
+                            <h5><i class="lucide-icon me-1" data-lucide="zap" aria-hidden="true"></i><?php echo isEnglish() ? 'Quick KYM (empty fields only)' : 'Quick केवाइएम (खाली मात्र)'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3"><label for="kyc_f2_member_id" class="form-label"><?php echo isEnglish() ? 'Member ID' : 'सदस्यता नं.'; ?></label>
                                     <input type="text" name="member_id" id="kyc_f2_member_id" class="form-control" readonly value="<?php echo htmlspecialchars((string)($prefillInput['member_id'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></div>
@@ -1348,7 +1350,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
             <div class="col-lg-10 public-form-shell public-form-shell--wide">
                 <div class="kyc-form-box" data-aos="fade-up">
                     <div class="form-header text-center mb-4">
-                        <div class="form-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="form-icon"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i></div>
                         <h3><?php echo isEnglish() ? 'Know Your Member (KYM) Form' : 'सदस्य पहिचान (केवाइएम) फारम'; ?></h3>
                         <p><?php echo $isMemberLoggedIn
                             ? (isEnglish() ? 'Portal update is sent for admin re-approval if previously approved.' : 'पोर्टलबाट update गर्दा पहिले approved भए admin ले फेरि approve गर्नुपर्छ।')
@@ -1366,7 +1368,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Personal Information -->
                         <div class="form-section" id="kymExtendedSection">
-                            <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="kyc_full_name" class="form-label"><?php echo isEnglish() ? 'Full Name (Nepali)' : 'पूरा नाम (नेपालीमा)'; ?> <span class="text-danger">*</span></label>
@@ -1398,7 +1400,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <label for="kyc_dob_bs" class="form-label"><?php echo isEnglish() ? 'Date of Birth (BS)' : 'जन्म मिति (वि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
                                         <input type="text" name="dob_bs" id="kyc_dob_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
-                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                                     </div>
                                 </div>
                                 <!-- AD date field hidden — BS date मात्र user ले हाल्छन्, AD auto-fill गर्न JS ले गर्छ -->
@@ -1427,7 +1429,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Contact Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-phone"></i> <?php echo isEnglish() ? 'Contact Information' : 'सम्पर्क जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo isEnglish() ? 'Contact Information' : 'सम्पर्क जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="kyc_mobile" class="form-label"><?php echo isEnglish() ? 'Mobile Number' : 'मोबाइल नम्बर'; ?> <span class="text-danger">*</span></label>
@@ -1447,30 +1449,30 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
                                 <!-- v10.4: Structured Permanent Address (Province → District → Municipality → Ward → Tole) -->
                                 <div class="col-12 mb-3">
-                                    <label for="kyc_permanent_district" class="form-label fw-semibold"><i class="fas fa-map-marker-alt text-success me-1"></i><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?> <span class="text-danger">*</span></label>
+                                    <label for="kyc_permanent_province" class="form-label fw-semibold"><i class="lucide-icon text-success me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo isEnglish() ? 'Permanent Address' : 'स्थायी ठेगाना'; ?> <span class="text-danger">*</span></label>
                                     <div class="kyc-addr-grid" data-kyc-address="permanent">
-                                        <div class="kyc-addr-cell"><label>प्रदेश</label>
-               <select name="permanent_province" id="kyc_permanent_province" class="form-select form-select-sm" required data-testid="kyc-permanent-province-select">c-permanent-province-select">
+                                        <div class="kyc-addr-cell"><label for="kyc_permanent_province">प्रदेश</label>
+                                            <select name="permanent_province" id="kyc_permanent_province" class="form-select form-select-sm" required data-testid="kyc-permanent-province-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>जिल्ला</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_permanent_district">जिल्ला</label>
                                             <select name="permanent_district" id="kyc_permanent_district" class="form-select form-select-sm" required data-testid="kyc-permanent-district-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>नगर/गाउँपालिका</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_permanent_municipality">नगर/गाउँपालिका</label>
                                             <select name="permanent_municipality" id="kyc_permanent_municipality" class="form-select form-select-sm" required data-testid="kyc-permanent-municipality-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>वडा नं.</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_permanent_ward">वडा नं.</label>
                                             <select name="permanent_ward" id="kyc_permanent_ward" class="form-select form-select-sm" required data-testid="kyc-permanent-ward-select">
                                                 <option value="">— वडा —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell" style="grid-column:1/-1;">
-                                            <label>टोल / गाउँ (Tole)</label>
+                                            <label for="kyc_permanent_tole">टोल / गाउँ (Tole)</label>
                                             <input type="text" name="permanent_tole" id="kyc_permanent_tole" class="form-control form-control-sm" placeholder="जस्तै: नयाँ बानेश्वर" data-testid="kyc-permanent-tole-input">
                                         </div>
                                     </div>
@@ -1486,31 +1488,31 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                                 <!-- v10.4: Structured Temporary Address -->
                                 <div class="col-12 mb-3" id="kycTemporaryAddressWrap">
-                                    <label for="kyc_temporary_province" class="form-label fw-semibold"><i class="fas fa-location-dot text-primary me-1"></i><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
+                                    <label for="kyc_temporary_province" class="form-label fw-semibold"><i class="lucide-icon text-primary me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo isEnglish() ? 'Temporary Address' : 'अस्थायी ठेगाना'; ?></label>
                                     <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Fill this only if temporary address is different.' : 'अस्थायी ठेगाना फरक भएमा मात्र भर्नुहोस्।'; ?></div>
                                     <div class="kyc-addr-grid" data-kyc-address="temporary">
-                                        <div class="kyc-addr-cell"><label>प्रदेश</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_temporary_province">प्रदेश</label>
                                             <select name="temporary_province" id="kyc_temporary_province" class="form-select form-select-sm" data-testid="kyc-temporary-province-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>जिल्ला</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_temporary_district">जिल्ला</label>
                                             <select name="temporary_district" id="kyc_temporary_district" class="form-select form-select-sm" data-testid="kyc-temporary-district-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>नगर/गाउँपालिका</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_temporary_municipality">नगर/गाउँपालिका</label>
                                             <select name="temporary_municipality" id="kyc_temporary_municipality" class="form-select form-select-sm" data-testid="kyc-temporary-municipality-select">
                                                 <option value="">— छान्नुहोस् —</option>
                                             </select>
                                         </div>
-                                        <div class="kyc-addr-cell"><label>वडा नं.</label>
+                                        <div class="kyc-addr-cell"><label for="kyc_temporary_ward">वडा नं.</label>
                                             <select name="temporary_ward" id="kyc_temporary_ward" class="form-select form-select-sm" data-testid="kyc-temporary-ward-select">
                                                 <option value="">— वडा —</option>
                                             </select>
                                         </div>
                                         <div class="kyc-addr-cell" style="grid-column:1/-1;">
-                                            <label>टोल / गाउँ (Tole)</label>
+                                            <label for="kyc_temporary_tole">टोल / गाउँ (Tole)</label>
                                             <input type="text" name="temporary_tole" id="kyc_temporary_tole" class="form-control form-control-sm">
                                         </div>
                                     </div>
@@ -1520,7 +1522,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Identity Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-id-card"></i> <?php echo isEnglish() ? 'Identity Information' : 'परिचय पत्र जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i> <?php echo isEnglish() ? 'Identity Information' : 'परिचय पत्र जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="kyc_citizenship_no" class="form-label"><?php echo isEnglish() ? 'Citizenship Number' : 'नागरिकता नम्बर'; ?> <span class="text-danger">*</span></label>
@@ -1530,7 +1532,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <label for="kyc_citizenship_issued_date" class="form-label"><?php echo isEnglish() ? 'Issued Date (BS)' : 'जारी मिति (वि.सं.)'; ?></label>
                                     <div class="input-group nepali-datepicker-wrapper">
                                         <input type="text" name="citizenship_issued_date" id="kyc_citizenship_issued_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD">
-                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="input-group-text cursor-pointer" onclick="$(this).siblings('.nepali-datepicker').focus();"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -1561,7 +1563,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Family Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-users"></i> <?php echo isEnglish() ? 'Family Information' : 'पारिवारिक जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo isEnglish() ? 'Family Information' : 'पारिवारिक जानकारी'; ?></h5>
                             <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Choose relation, add family member, and keep list in table.' : 'सम्बन्ध छानेर सदस्य थप्नुहोस्, सूची तालिकामा राख्नुहोस्।'; ?></div>
                             <div class="row g-2 align-items-end" id="familyRowBuilder">
                                 <div class="col-md-3">
@@ -1588,7 +1590,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </div>
                                 <div class="col-md-2">
                                     <button type="button" class="btn btn-sm btn-coop w-100" id="addFamilyMemberBtn">
-                                        <i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'Add' : 'थप्नुहोस्'; ?>
+                                        <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'Add' : 'थप्नुहोस्'; ?>
                                     </button>
                                 </div>
                             </div>
@@ -1618,7 +1620,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Occupation Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-briefcase"></i> <?php echo isEnglish() ? 'Occupation Information' : 'पेशागत जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i> <?php echo isEnglish() ? 'Occupation Information' : 'पेशागत जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
                                     <label for="kyc_occupation" class="form-label"><?php echo isEnglish() ? 'Occupation' : 'पेशा'; ?></label>
@@ -1678,7 +1680,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- AML / CFT Extended Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-shield-halved"></i> <?php echo isEnglish() ? 'AML/CFT Additional Details' : 'AML/CFT थप विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> <?php echo isEnglish() ? 'AML/CFT Additional Details' : 'AML/CFT थप विवरण'; ?></h5>
                             <div class="small text-muted mb-2"><?php echo isEnglish() ? 'Fill additional KYM details if available (as per cooperative format).' : 'सहकारीको KYM ढाँचाअनुसार उपलब्ध थप विवरण भर्नुहोस्।'; ?></div>
                             <div class="row">
                                 <div class="col-12"><div class="kym-part-box"><div class="kym-subsec-title">क. विस्तारित व्यक्तिगत विवरण</div></div></div>
@@ -1808,7 +1810,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 <div class="col-12 mb-2">
                                     <div class="d-flex gap-2 flex-wrap align-items-center">
                                         <button type="button" class="btn btn-sm btn-outline-success" id="btnUseCurrentLocation">
-                                            <i class="fas fa-location-crosshairs me-1"></i>हालको Location प्रयोग गर्नुहोस्
+                                            <i class="lucide-icon me-1" data-lucide="crosshair" aria-hidden="true"></i>हालको Location प्रयोग गर्नुहोस्
                                         </button>
                                         <span class="small text-muted" id="kycMapHint">नक्सामा marker राख्न click गर्नुहोस्।</span>
                                     </div>
@@ -1825,7 +1827,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <div class="row g-2 align-items-end">
                                         <div class="col-md-6"><input type="text" id="incomeSourceName" class="form-control form-control-sm" placeholder="उदा: तलब (मासिक)"></div>
                                         <div class="col-md-4"><input type="number" min="0" step="0.01" id="incomeSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम" aria-label="मासिक आय रकम"></div>
-                                        <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addIncomeSourceBtn"><i class="fas fa-plus me-1"></i>थप</button></div>
+                                        <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addIncomeSourceBtn"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>थप</button></div>
                                     </div>
                                     <div class="table-responsive mt-2">
                                         <table class="table table-sm table-bordered mb-0">
@@ -1841,7 +1843,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <div class="row g-2 align-items-end">
                                         <div class="col-md-6"><input type="text" id="expenseSourceName" class="form-control form-control-sm" placeholder="उदा: घर खर्च (मासिक)"></div>
                                         <div class="col-md-4"><input type="number" min="0" step="0.01" id="expenseSourceAmount" class="form-control form-control-sm" placeholder="मासिक रकम" aria-label="मासिक खर्च रकम"></div>
-                                        <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addExpenseSourceBtn"><i class="fas fa-plus me-1"></i>थप</button></div>
+                                        <div class="col-md-2"><button type="button" class="btn btn-sm btn-coop w-100" id="addExpenseSourceBtn"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>थप</button></div>
                                     </div>
                                     <div class="table-responsive mt-2">
                                         <table class="table table-sm table-bordered mb-0">
@@ -1869,7 +1871,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Account Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-university"></i> <?php echo isEnglish() ? 'Account Information' : 'खाता जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i> <?php echo isEnglish() ? 'Account Information' : 'खाता जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="kyc_account_type" class="form-label"><?php echo isEnglish() ? 'Account Type' : 'खाताको प्रकार'; ?></label>
@@ -1886,7 +1888,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                     <select name="branch" id="kyc_branch" class="form-select">
                                         <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                                         <?php foreach ($branches as $branch): ?>
-                                        <option value="<?php echo $branch['name']; ?>"><?php echo $branch['name']; ?></option>
+                                        <option value="<?php echo e($branch['name']); ?>"><?php echo e($branch['name']); ?></option>
                                         <?php endforeach; ?>
                                         <option value="main"><?php echo isEnglish() ? 'Main Office' : 'प्रधान कार्यालय'; ?></option>
                                     </select>
@@ -1896,28 +1898,28 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- v10.4: Document Capture (Camera + Crop + Signature + Fingerprint) -->
                         <div class="form-section">
-                            <h5><i class="fas fa-camera"></i> <?php echo isEnglish() ? 'Documents & Biometrics' : 'कागजात र बायोमेट्रिक'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="camera" aria-hidden="true"></i> <?php echo isEnglish() ? 'Documents & Biometrics' : 'कागजात र बायोमेट्रिक'; ?></h5>
                             <?php if (!empty($existingDocs['any'])): ?>
                             <div class="alert alert-success py-2" style="font-size:.85rem;">
-                                <i class="fas fa-check-circle me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>
                                 <?php echo isEnglish()
                                     ? 'Existing documents are already on file for this Member ID. Re-capture only if you need to replace them.'
                                     : 'यो Member ID का लागि कागजात पहिले नै छन्। फेर्नु परेमात्र नयाँ खिच्नुहोस् — फेरि सबै हाल्नु पर्दैन।'; ?>
                             </div>
                             <?php endif; ?>
                             <div class="alert alert-info py-2" style="font-size:.82rem;">
-                                <i class="fas fa-info-circle me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                                 मोबाइलमा क्यामेरा खुल्छ — फोटो खिचेर <strong>Zoom / Crop / Rotate</strong> गरेर मात्र अपलोड हुन्छ।
                                 हस्ताक्षर तल औंला वा कलमले गर्न सकिन्छ। औंठा छाप स्पष्ट देखिने गरी खिच्नुहोस्।
                             </div>
                             <div class="kyc-doc-compact">
                                 <div class="kyc-doc-head">
-                                    <span><i class="fas fa-layer-group me-1"></i><?php echo isEnglish() ? 'Compact Document Mode' : 'कम्प्याक्ट डकुमेन्ट मोड'; ?></span>
+                                    <span><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i><?php echo isEnglish() ? 'Compact Document Mode' : 'कम्प्याक्ट डकुमेन्ट मोड'; ?></span>
                                     <small><?php echo isEnglish() ? 'Open one item at a time' : 'एकपटकमा एकवटा मात्र खोल्नुहोस्'; ?></small>
                                 </div>
 
                                 <details class="kyc-doc-item" open>
-                                    <summary><i class="fas fa-image me-1"></i><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?><?php echo empty($existingDocs['photo']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="image" aria-hidden="true"></i><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?><?php echo empty($existingDocs['photo']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="passport"<?php echo empty($existingDocs['photo']) ? ' data-required' : ''; ?>>
                                             <span class="kyc-cap-label"><?php echo isEnglish() ? 'Passport Photo' : 'पासपोर्ट साइज फोटो'; ?><?php echo empty($existingDocs['photo']) ? ' <span class="req">*</span>' : ''; ?></span>
@@ -1949,7 +1951,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?><?php echo empty($existingDocs['citizenship_front']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?><?php echo empty($existingDocs['citizenship_front']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="citizen_front"<?php echo empty($existingDocs['citizenship_front']) ? ' data-required' : ''; ?>>
                                             <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Front' : 'नागरिकता अगाडि'; ?><?php echo empty($existingDocs['citizenship_front']) ? ' <span class="req">*</span>' : ''; ?></span>
@@ -1962,7 +1964,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-id-card-clip me-1"></i><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?><?php echo empty($existingDocs['citizenship_back']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?><?php echo empty($existingDocs['citizenship_back']) ? ' <span class="req">*</span>' : ' <span class="badge bg-success">छ</span>'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="citizen_back"<?php echo empty($existingDocs['citizenship_back']) ? ' data-required' : ''; ?>>
                                             <span class="kyc-cap-label"><?php echo isEnglish() ? 'Citizenship — Back' : 'नागरिकता पछाडि'; ?><?php echo empty($existingDocs['citizenship_back']) ? ' <span class="req">*</span>' : ''; ?></span>
@@ -1975,7 +1977,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-address-card me-1"></i><?php echo isEnglish() ? 'National ID Card' : 'National ID कार्ड'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="contact-2" aria-hidden="true"></i><?php echo isEnglish() ? 'National ID Card' : 'National ID कार्ड'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="national_id">
                                             <span class="kyc-cap-label"><?php echo isEnglish() ? 'National ID Card (JPG only — camera or gallery)' : 'National ID कार्ड (JPG मात्र — क्यामेरा वा Gallery)'; ?></span>
@@ -1985,7 +1987,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-signature me-1"></i><?php echo isEnglish() ? 'Signature' : 'हस्ताक्षर'; ?> <span class="req">*</span></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="signature" aria-hidden="true"></i><?php echo isEnglish() ? 'Signature' : 'हस्ताक्षर'; ?> <span class="req">*</span></summary>
                                     <div class="kyc-doc-body">
                                         <span class="kyc-cap-label"><?php echo isEnglish() ? 'Signature (draw below)' : 'हस्ताक्षर (तल गर्नुहोस्)'; ?> <span class="req">*</span></span>
                                         <div class="kyc-sig-wrap" data-kyc-signature<?php echo empty($existingDocs['signature']) ? ' data-required' : ''; ?>>
@@ -1998,20 +2000,20 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-fingerprint me-1"></i><?php echo isEnglish() ? 'Left Thumb Print' : 'बायाँ औंठा छाप'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="fingerprint" aria-hidden="true"></i><?php echo isEnglish() ? 'Left Thumb Print' : 'बायाँ औंठा छाप'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="thumb">
-                                            <span class="kyc-cap-label"><i class="fas fa-fingerprint text-success me-1"></i><?php echo isEnglish() ? 'Left Thumb Print' : 'बायाँ औंठा छाप'; ?></span>
+                                            <span class="kyc-cap-label"><i class="lucide-icon text-success me-1" data-lucide="fingerprint" aria-hidden="true"></i><?php echo isEnglish() ? 'Left Thumb Print' : 'बायाँ औंठा छाप'; ?></span>
                                             <input type="hidden" name="left_thumb">
                                         </div>
                                     </div>
                                 </details>
 
                                 <details class="kyc-doc-item">
-                                    <summary><i class="fas fa-fingerprint me-1"></i><?php echo isEnglish() ? 'Right Thumb Print' : 'दायाँ औंठा छाप'; ?></summary>
+                                    <summary><i class="lucide-icon me-1" data-lucide="fingerprint" aria-hidden="true"></i><?php echo isEnglish() ? 'Right Thumb Print' : 'दायाँ औंठा छाप'; ?></summary>
                                     <div class="kyc-doc-body">
                                         <div class="kyc-cap-field" data-kyc-cap="thumb">
-                                            <span class="kyc-cap-label"><i class="fas fa-fingerprint text-success me-1"></i><?php echo isEnglish() ? 'Right Thumb Print' : 'दायाँ औंठा छाप'; ?></span>
+                                            <span class="kyc-cap-label"><i class="lucide-icon text-success me-1" data-lucide="fingerprint" aria-hidden="true"></i><?php echo isEnglish() ? 'Right Thumb Print' : 'दायाँ औंठा छाप'; ?></span>
                                             <input type="hidden" name="right_thumb">
                                         </div>
                                     </div>
@@ -2021,10 +2023,10 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Digital ID Card Request -->
                         <div class="form-section" style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:18px 20px;margin-bottom:16px;">
-                            <h5 class="visually-hidden"><i class="fas fa-id-card me-1"></i><?php echo isEnglish() ? 'Digital ID Card' : 'डिजिटल ID कार्ड'; ?></h5>
+                            <h5 class="visually-hidden"><i class="lucide-icon me-1" data-lucide="id-card" aria-hidden="true"></i><?php echo isEnglish() ? 'Digital ID Card' : 'डिजिटल ID कार्ड'; ?></h5>
                             <div class="d-flex align-items-flex-start gap-3">
                                 <div style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                    <i class="fas fa-id-card" style="color:#fff;font-size:1.1rem;"></i>
+                                    <i class="lucide-icon" data-lucide="id-card" aria-hidden="true" style="color:#fff;font-size:1.1rem;"></i>
                                 </div>
                                 <div style="flex:1;">
                                     <div style="font-weight:700;color:var(--primary-color);font-size:.95rem;margin-bottom:4px;">
@@ -2051,7 +2053,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <!-- Declaration -->
                         <div class="form-section">
-                            <h5 class="visually-hidden"><i class="fas fa-file-signature me-1"></i><?php echo isEnglish() ? 'Declaration' : 'घोषणापत्र'; ?></h5>
+                            <h5 class="visually-hidden"><i class="lucide-icon me-1" data-lucide="file-signature" aria-hidden="true"></i><?php echo isEnglish() ? 'Declaration' : 'घोषणापत्र'; ?></h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="declaration" name="declaration" value="1">
                                 <label class="form-check-label" for="declaration">
@@ -2062,10 +2064,10 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
 
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2 mb-3" id="kymWizardControls">
                             <button type="button" class="btn btn-outline-secondary" id="kymPrevBtn" aria-label="<?php echo isEnglish() ? 'Previous section' : 'अघिल्लो खण्ड'; ?>">
-                                <i class="fas fa-arrow-left me-1" aria-hidden="true"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
+                                <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
                             </button>
                             <button type="button" class="btn btn-coop" id="kymNextBtn" aria-label="<?php echo isEnglish() ? 'Save and go to next section' : 'सेभ गरेर अर्को खण्डमा जानुहोस्'; ?>">
-                                <?php echo isEnglish() ? 'Save & Next' : 'सेभ गरेर अगाडि'; ?> <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+                                <?php echo isEnglish() ? 'Save & Next' : 'सेभ गरेर अगाडि'; ?> <i class="lucide-icon ms-1" data-lucide="arrow-right" aria-hidden="true"></i>
                             </button>
                         </div>
 
@@ -2075,7 +2077,7 @@ $lockPublicMobile = $publicGateOk && !empty($prefillInput['mobile']);
                         <div class="text-center" id="kymSubmitWrap">
                             <button type="submit" class="btn btn-primary btn-lg" id="kymSubmitBtn">
                     <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
-                                <i class="fas fa-paper-plane"></i> <?php echo isEnglish() ? 'Submit KYM Application' : 'केवाइएम आवेदन पेश गर्नुहोस्'; ?>
+                                <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo isEnglish() ? 'Submit KYM Application' : 'केवाइएम आवेदन पेश गर्नुहोस्'; ?>
                             </button>
                         </div>
                     </form>
@@ -2098,8 +2100,8 @@ document.addEventListener('DOMContentLoaded', function () {
         p.style.display = showQuick ? 'block' : 'none';
         full.style.display = showQuick ? 'none' : '';
         t.innerHTML = showQuick
-            ? '<i class="fas fa-layer-group me-1"></i><?php echo isEnglish() ? 'Show Full KYM Form' : 'पूर्ण केवाइएम फारम देखाउनुहोस्'; ?>'
-            : '<i class="fas fa-bolt me-1"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'Quick KYC (पहिलेको सदस्य)'; ?>';
+            ? '<i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i><?php echo isEnglish() ? 'Show Full KYM Form' : 'पूर्ण केवाइएम फारम देखाउनुहोस्'; ?>'
+            : '<i class="lucide-icon me-1" data-lucide="zap" aria-hidden="true"></i><?php echo isEnglish() ? 'Quick KYC (Existing Member)' : 'Quick KYC (पहिलेको सदस्य)'; ?>';
     }
 
     syncPanels(p.style.display !== 'none');
@@ -2286,7 +2288,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '<td>' + (relationMap[row.relation] || row.relation || '-') + '</td>' +
                 '<td>' + (row.name || '-') + '</td>' +
                 '<td>' + (row.phone || '-') + '</td>' +
-                '<td><button type="button" class="btn btn-sm btn-outline-danger" data-remove-family="' + idx + '" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button></td>';
+                '<td><button type="button" class="btn btn-sm btn-outline-danger" data-remove-family="' + idx + '" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button></td>';
             tbody.appendChild(tr);
         });
         buildHiddenInputs();
@@ -2366,7 +2368,7 @@ document.addEventListener('DOMContentLoaded', function () {
             tr.innerHTML =
                 '<td>' + (row.name || '-') + '</td>' +
                 '<td>' + amt.toFixed(2) + '</td>' +
-                '<td><button type="button" class="btn btn-sm btn-outline-danger" data-remove-source="' + opts.type + ':' + idx + '" aria-label="Delete" title="Delete"><i class="fas fa-trash"></i></button></td>';
+                '<td><button type="button" class="btn btn-sm btn-outline-danger" data-remove-source="' + opts.type + ':' + idx + '" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button></td>';
             tbodyEl.appendChild(tr);
 
             var n = document.createElement('input');
@@ -2835,7 +2837,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var numSpan = document.createElement('span');
             numSpan.className = 'kym-step-num';
             if (isDone) {
-                numSpan.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i>';
+                numSpan.innerHTML = '<i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>';
             } else {
                 numSpan.textContent = String(idx + 1);
             }

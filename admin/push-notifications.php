@@ -3,6 +3,7 @@
  * Admin — Push Notifications
  * Send real-time push alerts to all members or a specific member.
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'Push Notifications — सदस्यहरूलाई सूचना';
 $currentPage = 'push-notifications';
 require_once 'includes/admin-header.php';
@@ -134,7 +135,7 @@ $typeColors = [
 
 <div class="content-header">
     <h1 class="page-title">
-        <i class="fas fa-bell-ring" style="color:var(--primary-color);margin-right:8px;"></i>
+        <i class="lucide-icon" data-lucide="bell-ring" aria-hidden="true" style="color:var(--primary-color);margin-right:8px;"></i>
         Push Notifications
     </h1>
     <div style="font-size:.82rem;color:#6b7280;">
@@ -145,8 +146,8 @@ $typeColors = [
 <?php if ($result && !isset($result['cleared'])): ?>
 <div class="alert alert-<?php echo $result['sent'] > 0 ? 'success' : 'warning'; ?>"
      style="border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:12px;align-items:flex-start;">
-    <i class="fas fa-<?php echo $result['sent'] > 0 ? 'circle-check' : 'triangle-exclamation'; ?>"
-       style="font-size:1.2rem;margin-top:2px;flex-shrink:0;"></i>
+    <i class="lucide-icon" data-lucide="<?php echo $result['sent'] > 0 ? 'circle-check' : 'triangle-alert'; ?>"
+       style="font-size:1.2rem;margin-top:2px;flex-shrink:0;" aria-hidden="true"></i>
     <div>
         <div style="font-weight:700;margin-bottom:4px;">
             Push पठाइयो: "<em><?php echo htmlspecialchars($result['title']); ?></em>"
@@ -155,7 +156,7 @@ $typeColors = [
         <div style="font-size:.85rem;">
             ✓ सफल: <strong><?php echo $result['sent']; ?></strong> &nbsp;
             ✗ असफल: <strong><?php echo $result['failed']; ?></strong> &nbsp;
-            🗑 हटाइएको (expired): <strong><?php echo $result['removed']; ?></strong>
+            हटाइएको (expired): <strong><?php echo $result['removed']; ?></strong>
         </div>
     </div>
 </div>
@@ -163,14 +164,14 @@ $typeColors = [
 
 <?php if (isset($result['cleared'])): ?>
 <div class="alert alert-info" style="border-radius:12px;padding:14px 18px;margin-bottom:20px;">
-    <i class="fas fa-trash"></i>
+    <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
     <?php echo (int)$result['cleared']; ?> पुराना (90 दिन भन्दा बढी) subscriptions हटाइए।
 </div>
 <?php endif; ?>
 
 <?php if ($formErr): ?>
 <div class="alert alert-danger" style="border-radius:12px;padding:14px 18px;margin-bottom:20px;">
-    <i class="fas fa-circle-xmark"></i> <?php echo htmlspecialchars($formErr); ?>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i> <?php echo htmlspecialchars($formErr); ?>
 </div>
 <?php endif; ?>
 
@@ -178,7 +179,7 @@ $typeColors = [
     <div class="card" style="border-radius:16px;">
         <div class="card-body" style="display:flex;gap:14px;align-items:center;padding:18px 20px;">
             <div style="width:48px;height:48px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;">
-                <i class="fas fa-mobile-screen-button" style="color:var(--primary-color);font-size:1.3rem;"></i>
+                <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true" style="color:var(--primary-color);font-size:1.3rem;"></i>
             </div>
             <div>
                 <div style="font-size:1.6rem;font-weight:800;color:var(--primary-color);"><?php echo $subCount; ?></div>
@@ -189,7 +190,7 @@ $typeColors = [
     <div class="card" style="border-radius:16px;">
         <div class="card-body" style="display:flex;gap:14px;align-items:center;padding:18px 20px;">
             <div style="width:48px;height:48px;border-radius:12px;background:#ede9fe;display:flex;align-items:center;justify-content:center;">
-                <i class="fas fa-users" style="color:#7c3aed;font-size:1.3rem;"></i>
+                <i class="lucide-icon" data-lucide="users" aria-hidden="true" style="color:#7c3aed;font-size:1.3rem;"></i>
             </div>
             <div>
                 <div style="font-size:1.6rem;font-weight:800;color:#7c3aed;"><?php echo $memberCount; ?></div>
@@ -200,7 +201,7 @@ $typeColors = [
     <div class="card" style="border-radius:16px;">
         <div class="card-body" style="display:flex;gap:14px;align-items:center;padding:18px 20px;">
             <div style="width:48px;height:48px;border-radius:12px;background:#fef3c7;display:flex;align-items:center;justify-content:center;">
-                <i class="fas fa-paper-plane" style="color:#d97706;font-size:1.3rem;"></i>
+                <i class="lucide-icon" data-lucide="send" aria-hidden="true" style="color:#d97706;font-size:1.3rem;"></i>
             </div>
             <div>
                 <div style="font-size:1.6rem;font-weight:800;color:#d97706;"><?php echo count($recentLogs); ?></div>
@@ -215,7 +216,7 @@ $typeColors = [
 <!-- ── Send Form ─────────────────────────────────────── -->
 <div class="card" style="border-radius:16px;">
     <div class="card-header" style="background:linear-gradient(135deg,var(--primary-color),#2e7d3a);color:#fff;border-radius:16px 16px 0 0;padding:14px 20px;">
-        <i class="fas fa-paper-plane"></i>
+        <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i>
         <strong style="margin-left:8px;">नयाँ Push Notification पठाउनुहोस्</strong>
     </div>
     <div class="card-body" style="padding:20px;">
@@ -242,10 +243,10 @@ $typeColors = [
             <div class="mb-3">
                 <label for="push_type" class="form-label fw-600">प्रकार (Type)</label>
                 <select name="type" id="push_type" class="form-select">
-                    <option value="info"    <?php echo ($_POST['type'] ?? '') === 'info'    ? 'selected' : ''; ?>>ℹ️ जानकारी (Info)</option>
-                    <option value="success" <?php echo ($_POST['type'] ?? '') === 'success' ? 'selected' : ''; ?>>✅ सफल (Success)</option>
-                    <option value="warning" <?php echo ($_POST['type'] ?? '') === 'warning' ? 'selected' : ''; ?>>⚠️ सचेतना (Warning)</option>
-                    <option value="error"   <?php echo ($_POST['type'] ?? '') === 'error'   ? 'selected' : ''; ?>>🔴 गल्ती (Error)</option>
+                    <option value="info"    <?php echo ($_POST['type'] ?? '') === 'info'    ? 'selected' : ''; ?>>जानकारी (Info)</option>
+                    <option value="success" <?php echo ($_POST['type'] ?? '') === 'success' ? 'selected' : ''; ?>>सफल (Success)</option>
+                    <option value="warning" <?php echo ($_POST['type'] ?? '') === 'warning' ? 'selected' : ''; ?>>सचेतना (Warning)</option>
+                    <option value="error"   <?php echo ($_POST['type'] ?? '') === 'error'   ? 'selected' : ''; ?>>गल्ती (Error)</option>
                 </select>
             </div>
 
@@ -254,7 +255,7 @@ $typeColors = [
                 <select name="target_member_id" class="form-select" id="targetSelect">
                     <option value="">सबै Push-enabled सदस्यहरू (<?php echo $memberCount; ?> जना)</option>
                     <?php foreach ($members as $m): ?>
-                    <option value="<?php echo $m['id']; ?>">
+                    <option value="<?php echo (int)$m['id']; ?>">
                         <?php echo htmlspecialchars($m['name'] . ' — ' . ($m['phone'] ?: $m['email'] ?: '#'.$m['id'])); ?>
                     </option>
                     <?php endforeach; ?>
@@ -263,7 +264,7 @@ $typeColors = [
 
             <?php if ($subCount === 0): ?>
             <div style="background:#fef3c7;border-radius:10px;padding:12px 14px;font-size:.83rem;color:#92400e;margin-bottom:16px;">
-                <i class="fas fa-triangle-exclamation"></i>
+                <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i>
                 अहिले कुनै Push Subscription छैन। सदस्यहरूले Member Portal मा bell icon थिचेर notification enable गर्नुपर्छ।
             </div>
             <?php endif; ?>
@@ -271,7 +272,7 @@ $typeColors = [
             <button type="submit" class="btn btn-success w-100"
                     style="border-radius:10px;padding:11px;font-weight:700;font-size:.95rem;"
                     <?php echo $subCount === 0 ? 'disabled' : ''; ?>>
-                <i class="fas fa-paper-plane me-1"></i>
+                <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>
                 Push Notification पठाउनुहोस्
                 <?php if ($memberCount > 0): ?>
                 <span style="font-size:.78rem;opacity:.8;">(<?php echo $memberCount; ?> devices)</span>
@@ -286,7 +287,7 @@ $typeColors = [
             <button type="submit" class="btn btn-outline-secondary w-100"
                     style="border-radius:10px;font-size:.82rem;"
                     onclick="return confirm('90 दिन पुराना subscriptions हटाउने?')">
-                <i class="fas fa-trash me-1"></i> Expired Subscriptions सफा गर्नुहोस्
+                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i> Expired Subscriptions सफा गर्नुहोस्
             </button>
         </form>
     </div>
@@ -295,12 +296,12 @@ $typeColors = [
 <!-- ── Send Log ───────────────────────────────────────── -->
 <div class="card" style="border-radius:16px;">
     <div class="card-header" style="padding:14px 20px;border-bottom:1px solid #f0f0f0;">
-        <strong><i class="fas fa-list-check me-2"></i>हालैका Sends</strong>
+        <strong><i class="lucide-icon me-2" data-lucide="list-checks" aria-hidden="true"></i>हालैका Sends</strong>
     </div>
     <div style="max-height:520px;overflow-y:auto;">
         <?php if (empty($recentLogs)): ?>
         <div style="text-align:center;padding:40px;color:#9ca3af;font-size:.85rem;">
-            <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4;"></i>
+            <i class="lucide-icon" data-lucide="inbox" aria-hidden="true" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4;"></i>
             अझै कुनै push पठाइएको छैन।
         </div>
         <?php else: ?>

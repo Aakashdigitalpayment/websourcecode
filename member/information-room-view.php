@@ -33,7 +33,9 @@ $memId = (int) ($mem['id'] ?? 0);
 /* Access logged by information-room-file.php when document bytes are served */
 
 $pageTitle = $_t('Information Room', 'Information Room') . ' — ' . SITE_NAME;
-$extraHead = '<link rel="stylesheet" href="../assets/css/information-room.css?v=' . (@filemtime(__DIR__ . '/../assets/css/information-room.css') ?: time()) . '">';
+$extraHead = function_exists('coopThemeLinkHtml')
+    ? coopThemeLinkHtml('assets/css/information-room.css')
+    : '<link rel="stylesheet" href="../assets/css/information-room.css">';
 
 $irItem = $item;
 $irPanel = 'member';

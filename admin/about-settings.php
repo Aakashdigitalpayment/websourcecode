@@ -10,9 +10,7 @@
  * Issue #14: History section मा photo upload feature
  */
 
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
-requireAdminLogin();
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
   /* ── Early CSRF Protection ── */
   if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
@@ -127,7 +125,7 @@ require_once 'includes/admin-ui.php';
     echo adminPageHeader('About Page Settings','fa-building-columns','History section photo र content manage गर्नुहोस्।');
     if ($flash = getFlash()):
     ?>
-    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
@@ -140,18 +138,18 @@ require_once 'includes/admin-ui.php';
 
     <ul class="nav admin-nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'photo' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-photo-tab" type="button" role="tab">
-                <i class="fas fa-image me-1"></i> फोटो व्यवस्थापन
+            <button type="button" class="nav-link <?php echo $panel === 'photo' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-photo-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="image" aria-hidden="true"></i> फोटो व्यवस्थापन
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'content' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-content-tab" type="button" role="tab">
-                <i class="fas fa-file-pen me-1"></i> कन्टेन्ट व्यवस्थापन
+            <button type="button" class="nav-link <?php echo $panel === 'content' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-content-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="file-pen" aria-hidden="true"></i> कन्टेन्ट व्यवस्थापन
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'stats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-stats-tab" type="button" role="tab">
-                <i class="fas fa-chart-simple me-1"></i> तथ्याङ्क (Stats)
+            <button type="button" class="nav-link <?php echo $panel === 'stats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#about-stats-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="chart-column" aria-hidden="true"></i> तथ्याङ्क (Stats)
             </button>
         </li>
     </ul>
@@ -160,7 +158,7 @@ require_once 'includes/admin-ui.php';
         <div class="tab-pane fade <?php echo $panel === 'photo' ? 'show active' : ''; ?>" id="about-photo-tab" role="tabpanel">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-image me-2"></i>History Section Photo</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="image" aria-hidden="true"></i>History Section Photo</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small">
@@ -180,16 +178,16 @@ require_once 'includes/admin-ui.php';
                             <form method="POST" action="" class="d-inline"
                                   onsubmit="return confirm('History photo हटाउनुहोस्?');">
                                 <input type="hidden" name="action" value="remove_history_photo">
-                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    <i class="fas fa-trash me-1"></i>Photo हटाउनुहोस्
+                                    <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>Photo हटाउनुहोस्
                                 </button>
                             </form>
                         </div>
                     </div>
                     <?php else: ?>
                     <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>
                         अहिले History section मा default icon देखिन्छ।
                         तल photo upload गर्नुहोस्।
                     </div>
@@ -198,7 +196,7 @@ require_once 'includes/admin-ui.php';
                     <!-- Upload Form -->
                     <form method="POST" action="" enctype="multipart/form-data">
                         <input type="hidden" name="action" value="upload_history_photo">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                         <div class="mb-3">
                             <label for="abt_history_photo" class="form-label">
@@ -210,7 +208,7 @@ require_once 'includes/admin-ui.php';
                         </div>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-upload me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="upload" aria-hidden="true"></i>
                             <?php echo $historyPhoto ? 'Photo बदल्नुहोस्' : 'Upload गर्नुहोस्'; ?>
                         </button>
                     </form>
@@ -221,12 +219,12 @@ require_once 'includes/admin-ui.php';
         <div class="tab-pane fade <?php echo $panel === 'content' ? 'show active' : ''; ?>" id="about-content-tab" role="tabpanel">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-file-pen me-2"></i>History Content</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="file-pen" aria-hidden="true"></i>History Content</h5>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="update_history_text">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                         <div class="mb-3">
                             <label for="abt_established_year" class="form-label">स्थापना वर्ष / Established Year</label>
@@ -249,7 +247,7 @@ require_once 'includes/admin-ui.php';
                         </div>
 
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-1"></i>Content सुरक्षित गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>Content सुरक्षित गर्नुहोस्
                         </button>
                     </form>
                 </div>
@@ -259,7 +257,7 @@ require_once 'includes/admin-ui.php';
         <div class="tab-pane fade <?php echo $panel === 'stats' ? 'show active' : ''; ?>" id="about-stats-tab" role="tabpanel">
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-simple me-2"></i>About Page Statistics</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="chart-column" aria-hidden="true"></i>About Page Statistics</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-3">
@@ -268,7 +266,7 @@ require_once 'includes/admin-ui.php';
                     </p>
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="update_about_stats">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="abt_total_members" class="form-label">सदस्य संख्या (Members)</label>
@@ -300,7 +298,7 @@ require_once 'includes/admin-ui.php';
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-3">
-                            <i class="fas fa-save me-1"></i>Statistics सुरक्षित गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>Statistics सुरक्षित गर्नुहोस्
                         </button>
                     </form>
                 </div>

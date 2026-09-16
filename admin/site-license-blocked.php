@@ -2,13 +2,8 @@
 /**
  * म्याद सकिएपछि साधारण admin — सन्देश, Pay Now + भुक्तानी सूचना फारम (Superadmin बाहेक)
  */
-require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/site-license-renewal.php';
-
-if (!isAdminLoggedIn()) {
-    header('Location: ' . ADMIN_URL . 'index.php');
-    exit;
-}
 if (!empty($_SESSION['is_superadmin'])) {
     header('Location: ' . ADMIN_URL . 'site-license.php');
     exit;
@@ -105,61 +100,42 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>म्याद सकियो — Admin</title>
-    <link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <?php
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/vendor/bootstrap.min.css');
+        coopThemeLink('assets/css/app-admin.css');
+        coopThemeLink('assets/css/global.css');
+    } else {
+        echo '<link rel="stylesheet" href="../assets/vendor/bootstrap.min.css">' . "\n";
+        echo '<link rel="stylesheet" href="../assets/css/app-admin.css">' . "\n";
+        echo '<link rel="stylesheet" href="../assets/css/global.css">' . "\n";
+    }
+    if (function_exists('coopThemeRequireGlobal')) {
+        coopThemeRequireGlobal();
+    }
+    ?>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/css/app-admin.css">
-    <style>
-        /* Match admin panel font stack */
-        body, .slb-shell, .slb-card-main, .slb-card-head, .slb-card-body,
-        .slb-card-head h1, .slb-dates-box, .slb-pill, .slb-steps,
-        .slb-vendor-note, .slb-btn-logout, .slb-amt-locked,
-        .form-label, .form-control, .form-select, .btn, .alert {
-            font-family: 'Mukta', 'Noto Sans', system-ui, -apple-system, sans-serif !important;
-        }
-        /* Dates box — consistent card styling */
-        .slb-dates-box {
-            background: #f8faf8;
-            border: 1px solid #d1e7d4;
-            border-radius: 10px;
-            padding: 14px 18px;
-            margin: 16px auto;
-            max-width: 380px;
-            text-align: left;
-            font-size: 0.93rem;
-            line-height: 1.6;
-        }
-        .slb-dates-box .lbl {
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-            color: #6b7280;
-            margin-bottom: 6px;
-        }
-        .slb-dates-box code {
-            background: #e8f5ea;
-            color: #1a5f2a;
-            border-radius: 4px;
-            padding: 1px 6px;
-            font-size: 0.88rem;
-            font-family: 'Mukta', monospace;
-        }
-    </style>
+    <?php if (function_exists('coopThemeGoogleFonts')) { coopThemeGoogleFonts(); }
+    if (function_exists('coopThemeLucide')) { coopThemeLucide(); } ?>
+    <?php
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/css/admin-site-license-blocked-page.css');
+    } elseif (function_exists('coopThemeLinkHtml')) {
+        echo coopThemeLinkHtml('assets/css/admin-site-license-blocked-page.css');
+    }
+    ?>
 </head>
 <body>
 <div class="slb-shell">
     <div class="slb-card-main">
         <div class="slb-card-head">
-            <div class="slb-ico-wrap"><i class="fas fa-calendar-xmark" aria-hidden="true"></i></div>
+            <div class="slb-ico-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-x"></i></div>
             <h1>साइट सेवा म्याद सकियो</h1>
             <p class="sub"><strong><?php echo $siteH; ?></strong> — साधारण Admin को प्यानल अस्थायी बन्द छ। तल नवीकरण वा भुक्तानी सूचना गर्नुहोस्।</p>
         </div>
         <div class="slb-card-body text-center">
             <div class="slb-pill-row">
-                <span class="slb-pill"><i class="fas fa-circle-exclamation me-1"></i>म्याद सकियो · Expired</span>
+                <span class="slb-pill"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="circle-alert"></i>म्याद सकियो · Expired</span>
             </div>
 
             <div class="slb-vendor-note">
@@ -183,12 +159,12 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
 
             <?php if ($blockedRenewalSent): ?>
             <div class="alert alert-success text-start small py-3 mb-3">
-                <strong><i class="fas fa-check-circle me-1"></i>भुक्तानी सूचना पठाइयो।</strong>
+                <strong><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>भुक्तानी सूचना पठाइयो।</strong>
                 भुक्तानी सूचना प्राप्त भएको छ। पुष्टि/सक्रिय हुन केही समय प्रतीक्षा गर्नुहोस् वा विक्रेता सम्पर्क गर्नुहोस्।
             </div>
             <?php elseif ($blockedPendingRow !== null): ?>
             <div class="alert alert-warning text-start small py-3 mb-3">
-                <div class="fw-bold mb-2"><i class="fas fa-hourglass-half me-1"></i>भुक्तानी सूचना पेन्डिङ</div>
+                <div class="fw-bold mb-2"><i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i>भुक्तानी सूचना पेन्डिङ</div>
                 <ul class="mb-0 ps-3">
                     <li>गेटवेइ: <strong><?php echo htmlspecialchars((string) $blockedPendingRow['gateway'], ENT_QUOTES, 'UTF-8'); ?></strong></li>
                     <li>Txn / Ref: <strong><?php echo htmlspecialchars((string) $blockedPendingRow['txn_reference'], ENT_QUOTES, 'UTF-8'); ?></strong></li>
@@ -200,7 +176,7 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
             </div>
             <?php elseif ($showPayForm): ?>
             <div class="slb-pay-box">
-                <div class="fw-bold mb-2 text-success"><i class="fas fa-mobile-screen-button me-1"></i>Pay Now — आफ्नो wallet बाट पठाउनुहोस्</div>
+                <div class="fw-bold mb-2 text-success"><i class="lucide-icon me-1" data-lucide="smartphone" aria-hidden="true"></i>Pay Now — आफ्नो wallet बाट पठाउनुहोस्</div>
                 <p class="small text-secondary mb-2">तलका नम्बर <strong>विक्रेता खाता</strong> हुन्। आफ्नो Khalti वा eSewa बाट Send/Transfer गर्नुहोस्।</p>
                 <?php if ($blockedPayAmount !== ''): ?>
                 <p class="mb-1 small"><strong>रकम (नवीकरण सेटिङ — बदल्न मिल्दैन):</strong></p>
@@ -240,12 +216,12 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
                     <label for="slb_renewal_note" class="form-label small fw-semibold">टिप्पणी</label>
                     <textarea name="renewal_note" id="slb_renewal_note" class="form-control form-control-sm" rows="2" maxlength="2000" placeholder="ऐच्छिक"></textarea>
                 </div>
-                <button type="submit" class="btn btn-success w-100"><i class="fas fa-paper-plane me-1"></i>Pay SSL certificates तथा domain active Charge now</button>
+                <button type="submit" class="btn btn-success w-100"><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>Pay SSL certificates तथा domain active Charge now</button>
             </form>
             <?php endif; ?>
 
             <div class="slb-steps">
-                <div class="fw-semibold text-success mb-2 small"><i class="fas fa-list-check me-1"></i>संक्षेप</div>
+                <div class="fw-semibold text-success mb-2 small"><i class="lucide-icon me-1" data-lucide="list-checks" aria-hidden="true"></i>संक्षेप</div>
                 <ol class="mb-0">
                     <li>यो पृष्ठ कार्यालय/साधारण Admin का लागि हो — माथि Pay Now + सूचना उपलब्ध छ।</li>
                     <li>भुक्तानी सूचना पठाएपछि व्यवस्थापनतर्फबाट पुष्टि/सक्रिय प्रक्रिया हुन्छ।</li>
@@ -253,10 +229,11 @@ $showPayForm = ($blockedPendingRow === null && !$blockedRenewalSent);
             </div>
 
             <a href="logout.php" class="btn btn-outline-secondary slb-btn-logout">
-                <i class="fas fa-right-from-bracket me-2"></i>लगआउट
+                <i class="lucide-icon me-2" data-lucide="log-out" aria-hidden="true"></i>लगआउट
             </a>
         </div>
     </div>
 </div>
+<?php if (function_exists('coopThemeLucideInit')) { coopThemeLucideInit(); } ?>
 </body>
 </html>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'निर्वाचन मतदान उपस्थिति';
 $currentPage = 'election-voting-attendance';
 require_once 'includes/admin-header.php';
@@ -186,7 +187,7 @@ try {
 }
 ?>
 <div class="container-fluid py-3">
-<?php echo adminPageHeader('निर्वाचन मतदान उपस्थिति', 'fa-person-booth', htmlspecialchars((string)$cycle['title_np']) . ' — digital/manual duplicate-safe attendance', '<a class="btn btn-outline-secondary btn-sm" href="election-information.php"><i class="fas fa-arrow-left me-1"></i>निर्वाचन</a> <a class="btn btn-outline-success btn-sm" href="election-results.php?cycle=' . $cycleId . '"><i class="fas fa-chart-bar me-1"></i>नतिजा</a>'); ?>
+<?php echo adminPageHeader('निर्वाचन मतदान उपस्थिति', 'fa-person-booth', htmlspecialchars((string)$cycle['title_np']) . ' — digital/manual duplicate-safe attendance', '<a class="btn btn-outline-secondary btn-sm" href="election-information.php"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>निर्वाचन</a> <a class="btn btn-outline-success btn-sm" href="election-results.php?cycle=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="bar-chart-3" aria-hidden="true"></i>नतिजा</a>'); ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <div class="card admin-table-card mb-3"><div class="card-body">
@@ -204,7 +205,7 @@ try {
 <div class="row g-3">
     <div class="col-lg-5">
         <div class="card admin-table-card h-100">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-id-card me-2"></i>Manual Voting Attendance</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="id-card" aria-hidden="true"></i>Manual Voting Attendance</h6></div>
             <div class="card-body">
                 <form method="post" class="row g-2" onsubmit="return confirm('Confirm गर्ने? Attendance only ले Portal मत रोक्दैन; ballot (उम्मेदवार छानेपछि) ले रोक्छ।');">
                     <?php echo csrfField(); ?>
@@ -242,7 +243,7 @@ try {
                     <?php endforeach; ?>
                     <?php endif; ?>
                     <?php endif; ?>
-                    <div class="col-12"><button type="submit" class="btn btn-primary w-100"><i class="fas fa-check me-1"></i>Confirm Manual Attendance</button></div>
+                    <div class="col-12"><button type="submit" class="btn btn-primary w-100"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>Confirm Manual Attendance</button></div>
                 </form>
             </div>
         </div>

@@ -103,7 +103,7 @@ require_once 'includes/header.php';
         <h1><?php echo isEnglish() ? 'Member Survey & Feedback' : 'सदस्य सुझाव तथा प्रतिक्रिया'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Survey & Feedback' : 'सुझाव तथा प्रतिक्रिया'; ?></li>
             </ol>
         </nav>
@@ -115,7 +115,7 @@ require_once 'includes/header.php';
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-7 form-success-card">
-                <div class="form-success-icon"><i class="fas fa-star-of-life"></i></div>
+                <div class="form-success-icon"><i class="lucide-icon" data-lucide="star" aria-hidden="true"></i></div>
                 <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Survey Submitted Successfully!' : 'सर्वेक्षण सफलतापूर्वक पेश भयो!'; ?></h3>
                 <p class="text-muted mb-4"><?php echo isEnglish() ? 'Thank you for your valuable feedback!' : 'तपाईंको बहुमूल्य प्रतिक्रियाको लागि धन्यवाद!'; ?></p>
                 <?php if ($trackingId): ?>
@@ -128,9 +128,9 @@ require_once 'includes/header.php';
                     <div class="form-tracking-help"><a href="application-tracker.php" class="text-success text-decoration-none fw-semibold">यहाँ बाट</a> Application Tracker मा स्थिति हेर्नुहोस्।</div>
                 </div>
                 <?php endif; ?>
-                <a href="application-tracker.php" class="btn btn-success px-4 me-2"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Status' : 'स्थिति ट्र्याक'; ?></a>
-                <a href="member-survey.php" class="btn btn-outline-primary px-4 me-2"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Survey' : 'नयाँ सर्वेक्षण'; ?></a>
-                <a href="<?php echo SITE_URL; ?>" class="btn btn-outline-secondary px-4"><i class="fas fa-home me-1"></i><?php echo isEnglish() ? 'Home' : 'गृहपृष्ठ'; ?></a>
+                <a href="application-tracker.php" class="btn btn-success px-4 me-2"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track Status' : 'स्थिति ट्र्याक'; ?></a>
+                <a href="member-survey.php" class="btn btn-outline-primary px-4 me-2"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Survey' : 'नयाँ सर्वेक्षण'; ?></a>
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="house" aria-hidden="true"></i><?php echo isEnglish() ? 'Home' : 'गृहपृष्ठ'; ?></a>
             </div>
         </div>
     </div>
@@ -155,7 +155,7 @@ require_once 'includes/header.php';
                 <?php if ($error): ?>
                 <!-- ❌ Error — page उपर नै देखिन्छ -->
                 <div class="alert alert-danger d-inline-flex align-items-center gap-2 px-4 py-3 rounded-3 mb-3" role="alert">
-                    <i class="fas fa-exclamation-circle fs-5"></i>
+                    <i class="lucide-icon fs-5" data-lucide="circle-alert" aria-hidden="true"></i>
                     <span><?php echo htmlspecialchars($error); ?></span>
                 </div><br>
                 <?php endif; ?>
@@ -163,7 +163,7 @@ require_once 'includes/header.php';
                 <?php if (!$success): ?>
                 <!-- CTA button — inline form section मा जान्छ -->
                 <a href="#surveyModal" class="btn btn-primary btn-lg px-5 <?php echo $error ? 'mt-2' : ''; ?>">
-                    <i class="fas fa-comments me-2"></i>
+                    <i class="lucide-icon me-2" data-lucide="messages-square" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Submit Feedback' : 'प्रतिक्रिया पठाउनुहोस्'; ?>
                 </a>
                 <?php endif; ?>
@@ -174,7 +174,7 @@ require_once 'includes/header.php';
         <div class="row g-4 mb-5">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-4 h-100">
-                    <div class="mb-3" style="font-size:2.5rem;color:var(--primary-color);"><i class="fas fa-lightbulb"></i></div>
+                    <div class="mb-3" style="font-size:2.5rem;color:var(--primary-color);"><i class="lucide-icon" data-lucide="lightbulb" aria-hidden="true"></i></div>
                     <h5><?php echo isEnglish() ? 'Suggestions' : 'सुझाव'; ?></h5>
                     <p class="text-muted small">
                         <?php echo isEnglish() ? 'Help us improve with your innovative ideas.' : 'तपाईंको नवीन विचारले हामीलाई सुधार गर्न मद्दत गर्छ।'; ?>
@@ -183,7 +183,7 @@ require_once 'includes/header.php';
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-4 h-100">
-                    <div class="mb-3" style="font-size:2.5rem;color:var(--secondary-color,#ffc107);"><i class="fas fa-star"></i></div>
+                    <div class="mb-3" style="font-size:2.5rem;color:var(--secondary-color,#ffc107);"><i class="lucide-icon" data-lucide="star" aria-hidden="true"></i></div>
                     <h5><?php echo isEnglish() ? 'Rate Services' : 'सेवा मूल्यांकन'; ?></h5>
                     <p class="text-muted small">
                         <?php echo isEnglish() ? 'Rate our services and help us serve you better.' : 'हाम्रा सेवाहरू मूल्यांकन गर्नुहोस् र हामीलाई राम्रो सेवा दिन मद्दत गर्नुहोस्।'; ?>
@@ -192,7 +192,7 @@ require_once 'includes/header.php';
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-4 h-100">
-                    <div class="mb-3" style="font-size:2.5rem;color:var(--danger,#dc3545);"><i class="fas fa-exclamation-circle"></i></div>
+                    <div class="mb-3" style="font-size:2.5rem;color:var(--danger,#dc3545);"><i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i></div>
                     <h5><?php echo isEnglish() ? 'Suggestion Box' : 'सुझाव बक्स'; ?></h5>
                     <p class="text-muted small">
                         <?php echo isEnglish() ? 'Let us know about any service issues you faced.' : 'तपाईंले सामना गरेको सेवा समस्याहरूको बारेमा हामीलाई जानकारी दिनुहोस्।'; ?>
@@ -205,21 +205,21 @@ require_once 'includes/header.php';
         <div class="row g-3">
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-3">
-                    <i class="fas fa-phone-alt fa-2x mb-2" style="color:var(--primary-color);"></i>
+                    <i class="lucide-icon lucide-2x mb-2" data-lucide="phone-outgoing" aria-hidden="true" style="color:var(--primary-color);"></i>
                     <h6><?php echo isEnglish() ? 'Call Us' : 'फोन गर्नुहोस्'; ?></h6>
                     <p class="text-muted mb-0 small"><?php echo getSetting('phone', '061590067'); ?></p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-3">
-                    <i class="fas fa-envelope fa-2x mb-2" style="color:var(--primary-color);"></i>
+                    <i class="lucide-icon lucide-2x mb-2" data-lucide="mail" aria-hidden="true" style="color:var(--primary-color);"></i>
                     <h6><?php echo isEnglish() ? 'Email Us' : 'इमेल गर्नुहोस्'; ?></h6>
                     <p class="text-muted mb-0 small"><?php echo getSetting('email', 'info@sahakari.org.np'); ?></p>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card border-0 shadow-sm text-center p-3">
-                    <i class="fas fa-map-marker-alt fa-2x mb-2" style="color:var(--primary-color);"></i>
+                    <i class="lucide-icon lucide-2x mb-2" data-lucide="map-pin" aria-hidden="true" style="color:var(--primary-color);"></i>
                     <h6><?php echo isEnglish() ? 'Visit Us' : 'भेट्नुहोस्'; ?></h6>
                     <p class="text-muted mb-0 small"><?php echo getSetting('address', 'Kathmandu, Nepal'); ?></p>
                 </div>
@@ -239,7 +239,7 @@ require_once 'includes/header.php';
             <!-- Modal Header -->
             <div class="modal-header bg-primary text-white" style="background:linear-gradient(135deg,var(--primary-dark),var(--primary-color)) !important;border-bottom:0;">
                 <h5 class="modal-title text-white" id="surveyModalLabel">
-                    <i class="fas fa-comments me-2 text-white" aria-hidden="true"></i>
+                    <i class="lucide-icon me-2 text-white" data-lucide="messages-square" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Share Your Feedback' : 'आफ्नो प्रतिक्रिया साझा गर्नुहोस्'; ?>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="<?php echo isEnglish() ? 'Close' : 'बन्द'; ?>"></button>
@@ -251,7 +251,7 @@ require_once 'includes/header.php';
                 <!-- Error alert -->
                 <?php if ($error): ?>
                 <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
-                    <i class="fas fa-exclamation-circle me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i>
                     <?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -262,7 +262,7 @@ require_once 'includes/header.php';
                     <?php echo csrfField(); ?>
                     <?php if ($loggedMember): ?>
                     <div class="alert alert-success py-2 small mb-3">
-                        <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — identity from profile / KYC.' : 'लगइन — पहिचान प्रोफाइल / KYM बाट।'; ?>
+                        <i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i><?php echo isEnglish() ? 'Logged in — identity from profile / KYC.' : 'लगइन — पहिचान प्रोफाइल / KYM बाट।'; ?>
                     </div>
                     <?php else: ?>
                     <div class="border rounded-3 p-3 mb-3 bg-light">
@@ -372,10 +372,10 @@ require_once 'includes/header.php';
                     <div class="modal-footer px-0 pb-0 mt-4">
                         <?php echo coop_public_form_anti_bot_html('survey', 'svy', isEnglish(), 'col-12'); ?>
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i> <?php echo isEnglish() ? 'Cancel' : 'रद्द'; ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i> <?php echo isEnglish() ? 'Cancel' : 'रद्द'; ?>
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="fas fa-paper-plane me-1"></i>
+                            <span class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Submit Feedback' : 'प्रतिक्रिया पठाउनुहोस्'; ?>
                         </button>
                     </div>

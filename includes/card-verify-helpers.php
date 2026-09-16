@@ -327,17 +327,23 @@ if (!function_exists('verifyCardCredentials')) {
          * Verify lock features का लागि schema safety (old DB compatible)
          */
         function ensureCardSecurityColumns(PDO $pdo): void {
-            $cols = [
-                "ALTER TABLE member_id_cards ADD COLUMN failed_verify_count INT DEFAULT 0",
-                "ALTER TABLE member_id_cards ADD COLUMN locked_at TIMESTAMP NULL DEFAULT NULL",
-                "ALTER TABLE member_id_cards ADD COLUMN unlock_requested TINYINT(1) DEFAULT 0",
-                "ALTER TABLE member_id_cards ADD COLUMN unlock_requested_at TIMESTAMP NULL DEFAULT NULL",
-                // Derived CVV = 3 name chars + 4 digits (was CHAR(4) random)
-                "ALTER TABLE member_id_cards MODIFY COLUMN cvv VARCHAR(20) NULL",
-            ];
-            foreach ($cols as $sql) {
-                try { $pdo->exec($sql); } catch (Throwable $e) { /* exists / already widened */ }
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($pdo, 'member_id_cards', 'failed_verify_count', 'INT DEFAULT 0');
+                safeAddColumn($pdo, 'member_id_cards', 'locked_at', 'TIMESTAMP NULL DEFAULT NULL');
+                safeAddColumn($pdo, 'member_id_cards', 'unlock_requested', 'TINYINT(1) DEFAULT 0');
+                safeAddColumn($pdo, 'member_id_cards', 'unlock_requested_at', 'TIMESTAMP NULL DEFAULT NULL');
+            } else {
+                foreach ([
+                    "ALTER TABLE member_id_cards ADD COLUMN failed_verify_count INT DEFAULT 0",
+                    "ALTER TABLE member_id_cards ADD COLUMN locked_at TIMESTAMP NULL DEFAULT NULL",
+                    "ALTER TABLE member_id_cards ADD COLUMN unlock_requested TINYINT(1) DEFAULT 0",
+                    "ALTER TABLE member_id_cards ADD COLUMN unlock_requested_at TIMESTAMP NULL DEFAULT NULL",
+                ] as $sql) {
+                    try { $pdo->exec($sql); } catch (Throwable $e) { /* exists */ }
+                }
             }
+            // Derived CVV = 3 name chars + 4 digits (was CHAR(4) random)
+            try { $pdo->exec("ALTER TABLE member_id_cards MODIFY COLUMN cvv VARCHAR(20) NULL"); } catch (Throwable $e) { /* already widened */ }
         }
     }
 

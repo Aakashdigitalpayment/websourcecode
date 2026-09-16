@@ -1,0 +1,6 @@
+/** DB setup gate — extracted from includes/config.php */
+body{margin:0;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--primary-color,#1a5f2a)}
+.box{background:#fff;border-radius:12px;padding:40px;max-width:400px;width:90%;text-align:center}
+h1{color:var(--primary-color,#1a5f2a);margin-bottom:10px;font-size:22px}
+p{color:#555;margin-bottom:24px;line-height:1.6}
+a{background:var(--primary-color,#1a5f2a);color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-size:16px}

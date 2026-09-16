@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -139,7 +140,7 @@ $flash = getFlash();
 <div class="admin-page-content">
     <div class="d-flex align-items-center justify-content-between mb-3 gap-2 flex-wrap">
         <div>
-            <h4 class="mb-0 fw-bold"><i class="fas fa-shield-halved me-2 text-primary"></i><?php echo $__t('अडिट लग', 'Audit Log'); ?></h4>
+            <h4 class="mb-0 fw-bold"><i class="lucide-icon me-2 text-primary" data-lucide="shield" aria-hidden="true"></i><?php echo $__t('अडिट लग', 'Audit Log'); ?></h4>
             <small class="text-muted"><?php echo $__t('प्रशासकले गरेका सबै परिवर्तनको अभिलेख', 'Complete record of all admin actions'); ?></small>
         </div>
         <div class="text-muted small">
@@ -191,11 +192,11 @@ $flash = getFlash();
                 </div>
                 <div class="col-12 col-md-2 d-flex gap-1">
                     <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
-                        <i class="fas fa-filter me-1"></i><?php echo $__t('फिल्टर', 'Filter'); ?>
+                        <i class="lucide-icon me-1" data-lucide="filter" aria-hidden="true"></i><?php echo $__t('फिल्टर', 'Filter'); ?>
                     </button>
                     <?php if ($filterAdmin || $filterAction || $filterFrom || $filterTo): ?>
                         <a href="audit-log.php" class="btn btn-outline-secondary btn-sm" aria-label="Close" title="Close">
-                            <i class="fas fa-times"></i>
+                            <i class="lucide-icon" data-lucide="x" aria-hidden="true"></i>
                         </a>
                     <?php endif; ?>
                 </div>
@@ -221,7 +222,7 @@ $flash = getFlash();
                     <?php if (empty($rows)): ?>
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
-                                <i class="fas fa-inbox fa-2x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-2x mb-2 d-block opacity-25" data-lucide="inbox" aria-hidden="true"></i>
                                 <?php echo $__t('कुनै अभिलेख भेटिएन।', 'No log entries found.'); ?>
                             </td>
                         </tr>
@@ -233,7 +234,7 @@ $flash = getFlash();
                                     <span class="text-muted"><?php echo date('H:i:s', strtotime($row['created_at'])); ?></span>
                                 </td>
                                 <td class="small">
-                                    <i class="fas fa-user-tie text-muted me-1"></i>
+                                    <i class="lucide-icon text-muted me-1" data-lucide="briefcase" aria-hidden="true"></i>
                                     <?php echo htmlspecialchars($row['admin_name'], ENT_QUOTES, 'UTF-8'); ?>
                                 </td>
                                 <td>
@@ -280,7 +281,7 @@ $flash = getFlash();
                         ?>
                         <li class="page-item <?php echo $page <= 1 ? 'disabled' : ''; ?>">
                             <a class="page-link" href="?p=<?php echo $page-1; ?><?php echo $qs; ?>">
-                                <i class="fas fa-chevron-left"></i>
+                                <i class="lucide-icon" data-lucide="chevron-left" aria-hidden="true"></i>
                             </a>
                         </li>
                         <?php for ($i = max(1,$page-2); $i <= min($totalPages,$page+2); $i++): ?>
@@ -290,7 +291,7 @@ $flash = getFlash();
                         <?php endfor; ?>
                         <li class="page-item <?php echo $page >= $totalPages ? 'disabled' : ''; ?>">
                             <a class="page-link" href="?p=<?php echo $page+1; ?><?php echo $qs; ?>">
-                                <i class="fas fa-chevron-right"></i>
+                                <i class="lucide-icon" data-lucide="chevron-right" aria-hidden="true"></i>
                             </a>
                         </li>
                     </ul>

@@ -182,10 +182,10 @@ if (!function_exists('team_render_org_chart')) {
                                 <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
                                 <div class="team-contact-circular">
                                     <?php if (!empty($member['phone'])): ?>
-                                    <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                                    <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="phone"></i></a>
                                     <?php endif; ?>
                                     <?php if (!empty($member['email'])): ?>
-                                    <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
+                                    <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i></a>
                                     <?php endif; ?>
                                 </div>
                                 <?php endif; ?>

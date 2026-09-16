@@ -1,0 +1,74 @@
+/** Appointment page styles — extracted from appointment.php */
+.appt-kind-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+.appt-kind-tabs .nav-item { flex: 0 0 auto; }
+.appt-kind-tabs .nav-link {
+    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #d1d5db);
+    color: var(--primary-color, #1a5f2a);
+    font-weight: 600;
+    border-radius: 999px;
+    padding: .45rem 1rem;
+    background: #fff;
+    white-space: nowrap;
+}
+.appt-kind-tabs .nav-link.active {
+    background: var(--primary-color, #1a5f2a);
+    border-color: var(--primary-color, #1a5f2a);
+    color: #fff;
+}
+
+/* Beat global-theme .card-header:not([class*="bg-"]) light wash */
+.card.appt-form-card > .card-header.appt-form-card-head,
+.card.appt-form-card > .card-header.bg-primary {
+    background: linear-gradient(135deg, #145021, #1a5f2a) !important;
+    background-color: #1a5f2a !important;
+    border-bottom: 0 !important;
+    color: #fff !important;
+}
+.card.appt-form-card > .card-header.appt-form-card-head h5,
+.card.appt-form-card > .card-header.appt-form-card-head i,
+.card.appt-form-card > .card-header.bg-primary h5,
+.card.appt-form-card > .card-header.bg-primary i {
+    color: #fff !important;
+}
+
+.appt-form-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+.appt-form-actions .appt-btn-back,
+.appt-form-actions .appt-btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    white-space: nowrap;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.appt-form-actions .appt-btn-back {
+    flex: 0 0 auto;
+    padding: .65rem 1.1rem;
+}
+.appt-form-actions .appt-btn-submit {
+    flex: 1 1 auto;
+    font-size: 1rem;
+    padding: .7rem 1.25rem;
+}
+@media (max-width: 575.98px) {
+    .appt-form-actions {
+        flex-direction: column-reverse;
+    }
+    .appt-form-actions .appt-btn-back,
+    .appt-form-actions .appt-btn-submit {
+        width: 100%;
+    }
+}

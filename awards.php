@@ -35,7 +35,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
         <h1><?php echo isEnglish() ? 'Awards & Recognition' : 'सम्मान तथा पुरस्कार'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Awards' : 'सम्मान'; ?></li>
             </ol>
         </nav>
@@ -58,12 +58,12 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                         <h2><?php echo e(isEnglish() ? ($singleAward['title'] ?? $singleAward['title_np']) : ($singleAward['title_np'] ?? $singleAward['title'])); ?></h2>
                         <div class="award-meta">
                             <span class="award-by">
-                                <i class="fas fa-medal"></i>
+                                <i class="lucide-icon" data-lucide="medal" aria-hidden="true"></i>
                                 <?php echo isEnglish() ? ($singleAward['awarded_by'] ?? $singleAward['awarded_by_np']) : ($singleAward['awarded_by_np'] ?? $singleAward['awarded_by']); ?>
                             </span>
                             <?php if ($singleAward['award_date']): ?>
                             <span class="award-date">
-                                <i class="fas fa-calendar-alt"></i> <?php echo date('Y-m-d', strtotime($singleAward['award_date'])); ?>
+                                <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo date('Y-m-d', strtotime($singleAward['award_date'])); ?>
                             </span>
                             <?php endif; ?>
                         </div>
@@ -76,7 +76,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                 </div>
                 <div class="text-center mt-4">
                     <a href="awards.php" class="btn btn-outline-primary">
-                        <i class="fas fa-arrow-left"></i> <?php echo isEnglish() ? 'Back to All Awards' : 'सबै सम्मान हेर्नुहोस्'; ?>
+                        <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> <?php echo isEnglish() ? 'Back to All Awards' : 'सबै सम्मान हेर्नुहोस्'; ?>
                     </a>
                 </div>
             </div>
@@ -99,22 +99,22 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
                     </div>
                     <?php else: ?>
                     <div class="award-icon">
-                        <i class="fas fa-trophy"></i>
+                        <i class="lucide-icon" data-lucide="trophy" aria-hidden="true"></i>
                     </div>
                     <?php endif; ?>
                     <div class="award-content">
                         <h4><?php echo e(isEnglish() ? ($award['title'] ?? $award['title_np']) : ($award['title_np'] ?? $award['title'])); ?></h4>
                         <p class="award-by">
-                            <i class="fas fa-medal"></i>
+                            <i class="lucide-icon" data-lucide="medal" aria-hidden="true"></i>
                             <?php echo e(isEnglish() ? ($award['awarded_by'] ?? $award['awarded_by_np']) : ($award['awarded_by_np'] ?? $award['awarded_by'])); ?>
                         </p>
                         <?php if ($award['award_date']): ?>
                         <span class="award-date">
-                            <i class="fas fa-calendar-alt"></i> <?php echo date('Y', strtotime($award['award_date'])); ?>
+                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo date('Y', strtotime($award['award_date'])); ?>
                         </span>
                         <?php endif; ?>
                         <a href="awards.php?id=<?php echo $award['id']; ?>" class="award-link">
-                            <?php echo isEnglish() ? 'View Details' : 'विवरण हेर्नुहोस्'; ?> <i class="fas fa-arrow-right"></i>
+                            <?php echo isEnglish() ? 'View Details' : 'विवरण हेर्नुहोस्'; ?> <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                         </a>
                     </div>
                 </div>
@@ -123,7 +123,7 @@ if (isset($_GET['id']) && isset($db) && $db instanceof PDO) {
         </div>
         <?php else: ?>
         <div class="empty-state text-center py-5">
-            <i class="fas fa-trophy fa-4x text-muted mb-3"></i>
+            <i class="lucide-icon lucide-4x text-muted mb-3" data-lucide="trophy" aria-hidden="true"></i>
             <h4><?php echo isEnglish() ? 'No Awards Available' : 'कुनै सम्मान उपलब्ध छैन'; ?></h4>
             <p class="text-muted"><?php echo isEnglish() ? 'Awards will be added soon.' : 'सम्मान चाँडै थपिनेछ।'; ?></p>
         </div>

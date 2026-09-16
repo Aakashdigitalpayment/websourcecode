@@ -37,7 +37,11 @@ if (!function_exists('ensureRequestStatusHistoryTable')) {
             }
             foreach ($newCols as $col => $ddl) {
                 if (!isset($existing[$col])) {
-                    $db->exec("ALTER TABLE request_status_history ADD COLUMN `{$col}` {$ddl}");
+                    if (function_exists('safeAddColumn')) {
+                        safeAddColumn($db, 'request_status_history', $col, $ddl);
+                    } else {
+                        $db->exec("ALTER TABLE request_status_history ADD COLUMN `{$col}` {$ddl}");
+                    }
                 }
             }
         } catch (\Throwable $e) {

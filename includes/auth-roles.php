@@ -21,6 +21,100 @@ if (!function_exists('admin_db_role_is_superadmin')) {
     }
 }
 
+if (!function_exists('admin_canonical_db_role')) {
+    /**
+     * Preferred DB spelling for new writes.
+     * Keep reading both spellings via admin_db_role_is_superadmin / role_level.
+     * Does not rewrite existing rows.
+     */
+    function admin_canonical_db_role(?string $role): string {
+        $r = strtolower(trim((string) $role));
+        if ($r === 'superadmin' || $r === 'super_admin') {
+            return 'super_admin';
+        }
+        if ($r === 'staff') {
+            return 'staff';
+        }
+        if ($r === 'editor') {
+            return 'editor';
+        }
+        if ($r === 'admin') {
+            return 'admin';
+        }
+        return 'admin';
+    }
+}
+
+if (!function_exists('coop_widen_admin_role_enum')) {
+    /**
+     * Additive ENUM widen only — never DROP values / recreate table.
+     * Aligns live admin_users.role with database/install.sql.
+     */
+    function coop_widen_admin_role_enum(PDO $db): void {
+        $need = ['superadmin', 'super_admin', 'admin', 'staff', 'editor'];
+        if (function_exists('safeWidenEnumColumn')) {
+            safeWidenEnumColumn($db, 'admin_users', 'role', $need, 'admin');
+            return;
+        }
+        try {
+            $chk = $db->query("SHOW COLUMNS FROM `admin_users` LIKE 'role'");
+            $col = $chk ? $chk->fetch(PDO::FETCH_ASSOC) : false;
+            if (!$col) {
+                return;
+            }
+            $type = strtolower((string) ($col['Type'] ?? ''));
+            foreach ($need as $v) {
+                if (!str_contains($type, "'" . $v . "'")) {
+                    $db->exec(
+                        "ALTER TABLE `admin_users` MODIFY COLUMN `role` "
+                        . "ENUM('superadmin','super_admin','admin','staff','editor') DEFAULT 'admin'"
+                    );
+                    return;
+                }
+            }
+        } catch (Throwable $e) {
+            error_log('[coop_widen_admin_role_enum] ' . $e->getMessage());
+        }
+    }
+}
+
+if (!function_exists('coop_normalize_admin_role_aliases')) {
+    /**
+     * Alias-only row normalize after ENUM widen (NOT a privilege mass UPDATE).
+     * Updates spelling only: superadmin → super_admin. Never changes privilege level
+     * (admin/staff/editor rows untouched). Dual-read still accepts both via
+     * admin_db_role_is_superadmin(). Privilege-level mass UPDATE remains deferred.
+     *
+     * @return array{updated:int, skipped:bool, error:?string}
+     */
+    function coop_normalize_admin_role_aliases(PDO $db): array {
+        $out = ['updated' => 0, 'skipped' => false, 'error' => null];
+        try {
+            if (function_exists('coop_widen_admin_role_enum')) {
+                coop_widen_admin_role_enum($db);
+            }
+            $chk = $db->query("SHOW COLUMNS FROM `admin_users` LIKE 'role'");
+            $col = $chk ? $chk->fetch(PDO::FETCH_ASSOC) : false;
+            if (!$col) {
+                $out['skipped'] = true;
+                return $out;
+            }
+            $type = strtolower((string) ($col['Type'] ?? ''));
+            if (!str_contains($type, "'super_admin'") || !str_contains($type, "'superadmin'")) {
+                /* Both spellings must exist in ENUM before UPDATE */
+                $out['skipped'] = true;
+                return $out;
+            }
+            $n = $db->exec("UPDATE `admin_users` SET `role` = 'super_admin' WHERE `role` = 'superadmin'");
+            $out['updated'] = is_int($n) ? max(0, $n) : 0;
+        } catch (Throwable $e) {
+            $out['error'] = $e->getMessage();
+            error_log('[coop_normalize_admin_role_aliases] ' . $e->getMessage());
+        }
+        return $out;
+    }
+}
+
 if (!function_exists('current_admin_role')) {
     function current_admin_role(): string {
         if (!empty($_SESSION['admin_role'])) {
@@ -88,11 +182,19 @@ if (!function_exists('require_role')) {
  */
 if (!function_exists('set_admin_session')) {
     function set_admin_session(array $adminRow): void {
+        $role = strtolower(trim((string) ($adminRow['role'] ?? 'admin')));
+        if ($role === '') {
+            $role = 'admin';
+        }
+        /* Alias-only session spelling (superadmin → super_admin); privilege unchanged */
+        if (function_exists('admin_canonical_db_role')) {
+            $role = admin_canonical_db_role($role);
+        }
         $_SESSION['admin_id']        = (int)$adminRow['id'];
         $_SESSION['admin_username']  = $adminRow['username'] ?? '';
-        $_SESSION['admin_name']      = $adminRow['name'] ?? $adminRow['username'] ?? 'Admin';
-        $_SESSION['admin_role']      = $adminRow['role'] ?? 'admin';
-        $_SESSION['is_superadmin']   = admin_db_role_is_superadmin($adminRow['role'] ?? '');
+        $_SESSION['admin_name']      = $adminRow['name'] ?? $adminRow['full_name'] ?? $adminRow['username'] ?? 'Admin';
+        $_SESSION['admin_role']      = $role;
+        $_SESSION['is_superadmin']   = admin_db_role_is_superadmin($role);
         $_SESSION['admin_logged_in'] = true;
     }
 }

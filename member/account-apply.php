@@ -150,32 +150,32 @@ require __DIR__ . '/includes/chrome.php';
 
   <div class="mp-page-head">
     <h1 class="mem-page-title">
-      <i class="fas fa-landmark"></i><?php echo $_t('खाता खोल्ने आवेदन', 'Account Opening'); ?>
+      <i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i><?php echo $_t('खाता खोल्ने आवेदन', 'Account Opening'); ?>
     </h1>
     <a href="tracker.php" class="mp-tracker-link">
-      <i class="fas fa-magnifying-glass-chart"></i> Tracker
+      <i class="lucide-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Tracker
     </a>
   </div>
 
   <?php if ($errorMsg): ?>
   <div class="mem-alert mem-alert-error">
-    <i class="fas fa-circle-xmark"></i><div><?= htmlspecialchars($errorMsg) ?></div>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i><div><?= htmlspecialchars($errorMsg) ?></div>
   </div>
   <?php endif; ?>
 
   <div class="wf-tabs">
     <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-new')" id="accTabNew">
-      <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
     </button>
     <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="accShowTab(this,'acc-pane-history')" id="accTabHistory">
-      <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentAccounts) ?>)
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentAccounts) ?>)
     </button>
   </div>
 
   <!-- ── New Application ── -->
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="acc-pane-new">
     <div class="mem-autofill-banner">
-      <i class="fas fa-wand-magic-sparkles"></i>
+      <i class="lucide-icon" data-lucide="sparkles" aria-hidden="true"></i>
       <div><?php echo $_t('तपाईंको जानकारी — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your details are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
@@ -184,7 +184,7 @@ require __DIR__ . '/includes/chrome.php';
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -218,7 +218,7 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label" for="maa_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <label class="mem-form-label" for="maa_branch"><i class="lucide-icon ico-primary" data-lucide="building" aria-hidden="true"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
         <select name="branch" class="mem-form-control" id="maa_branch">
           <option value=""><?php echo $_t('सेवा कार्यालय छान्नुहोस्', 'Select branch'); ?></option>
           <?php foreach ($branches as $br): ?>
@@ -230,7 +230,7 @@ require __DIR__ . '/includes/chrome.php';
 
       <!-- Guarantor (धन जमानी) -->
       <div class="mp-section-divider">
-        <i class="fas fa-user-shield ico-primary"></i><?php echo $_t('धन जमानी विवरण (Optional)', 'Guarantor Details (Optional)'); ?>
+        <i class="lucide-icon ico-primary" data-lucide="shield-user" aria-hidden="true"></i><?php echo $_t('धन जमानी विवरण (Optional)', 'Guarantor Details (Optional)'); ?>
       </div>
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
@@ -257,7 +257,7 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <button type="submit" class="mem-submit-btn">
-        <i class="fas fa-paper-plane"></i> <?php echo $_t('आवेदन पेश गर्नुहोस्', 'Submit Application'); ?>
+        <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $_t('आवेदन पेश गर्नुहोस्', 'Submit Application'); ?>
       </button>
     </form>
   </div>
@@ -266,13 +266,13 @@ require __DIR__ . '/includes/chrome.php';
   <div class="wf-pane <?= $activeTab==='history'?'active':'' ?>" id="acc-pane-history">
     <?php if ($successMsg): ?>
     <div class="mem-alert mem-alert-success">
-      <i class="fas fa-circle-check"></i><div><?= htmlspecialchars($successMsg) ?></div>
+      <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i><div><?= htmlspecialchars($successMsg) ?></div>
     </div>
     <?php endif; ?>
 
     <?php if (empty($recentAccounts)): ?>
     <div class="mp-empty">
-      <i class="fas fa-piggy-bank mp-empty-icon"></i>
+      <i class="lucide-icon mp-empty-icon" data-lucide="piggy-bank" aria-hidden="true"></i>
       <div class="mp-empty-title"><?php echo $_t('कुनै आवेदन छैन', 'No applications yet'); ?></div>
       <div class="mp-empty-hint"><?php echo $_t('"नयाँ आवेदन" tab बाट खाता खोल्नुहोस्।', 'Use "New Application" tab to apply.'); ?></div>
     </div>
@@ -294,7 +294,7 @@ require __DIR__ . '/includes/chrome.php';
     </div>
     <?php endforeach; ?>
     <a href="tracker.php" class="mp-tracker-link-sm">
-      <i class="fas fa-magnifying-glass-chart ico-mr"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
+      <i class="lucide-icon ico-mr" data-lucide="chart-no-axes-combined" aria-hidden="true"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
     </a>
     <?php endif; ?>
   </div>

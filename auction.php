@@ -129,6 +129,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_bid'])) {
     }
 }
 
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/auction-page.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 ?>
@@ -138,7 +142,7 @@ $L = getLangStrings();
     <div class="container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -182,42 +186,42 @@ $L = getLangStrings();
     <div class="container">
         <!-- Search box -->
         <div class="auc2-search-wrap">
-            <span class="auc2-search-icon"><i class="fas fa-search"></i></span>
+            <span class="auc2-search-icon"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></span>
             <input type="search" id="aucSearchInput" class="auc2-search-input"
                    placeholder="<?php echo isEnglish() ? 'Search by title, location, property type...' : 'शीर्षक, स्थान, सम्पत्ति प्रकारले खोज्नुहोस्...'; ?>"
                    oninput="aucApplyFilters()" autocomplete="off">
             <button type="button" class="auc2-search-clear" id="aucSearchClear" onclick="aucClearSearch()" title="<?php echo isEnglish()?'Clear':'खाली गर्नुहोस्'; ?>" style="display:none;">
-                <i class="fas fa-times"></i>
+                <i class="lucide-icon" data-lucide="x" aria-hidden="true"></i>
             </button>
         </div>
         <!-- Status chips -->
-        <span class="auc2-fbar-label"><i class="fas fa-filter"></i> <?php echo isEnglish() ? 'Filter:' : 'छान्नुहोस्:'; ?></span>
+        <span class="auc2-fbar-label"><i class="lucide-icon" data-lucide="filter" aria-hidden="true"></i> <?php echo isEnglish() ? 'Filter:' : 'छान्नुहोस्:'; ?></span>
         <div class="auc2-fchips">
             <button type="button" class="auc2-fchip active" data-auc-filter="all" onclick="aucFilter(this,'all')">
-                <i class="fas fa-th-large"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
+                <i class="lucide-icon" data-lucide="layout-grid" aria-hidden="true"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['all']; ?></span>
             </button>
             <?php if ($statusCounts['ongoing'] > 0): ?>
             <button type="button" class="auc2-fchip" data-auc-filter="ongoing" onclick="aucFilter(this,'ongoing')">
-                <i class="fas fa-circle" style="font-size:.55em;color:#198754;"></i> <?php echo isEnglish() ? 'Ongoing' : 'जारी'; ?>
+                <i class="lucide-icon" data-lucide="circle" aria-hidden="true" style="font-size:.55em;color:#198754;"></i> <?php echo isEnglish() ? 'Ongoing' : 'जारी'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['ongoing']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['upcoming'] > 0): ?>
             <button type="button" class="auc2-fchip" data-auc-filter="upcoming" onclick="aucFilter(this,'upcoming')">
-                <i class="fas fa-clock"></i> <?php echo isEnglish() ? 'Upcoming' : 'आगामी'; ?>
+                <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo isEnglish() ? 'Upcoming' : 'आगामी'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['upcoming']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['completed'] > 0): ?>
             <button type="button" class="auc2-fchip" data-auc-filter="completed" onclick="aucFilter(this,'completed')">
-                <i class="fas fa-check-circle"></i> <?php echo isEnglish() ? 'Completed' : 'सम्पन्न'; ?>
+                <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> <?php echo isEnglish() ? 'Completed' : 'सम्पन्न'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['completed']; ?></span>
             </button>
             <?php endif; ?>
             <?php if ($statusCounts['cancelled'] > 0): ?>
             <button type="button" class="auc2-fchip" data-auc-filter="cancelled" onclick="aucFilter(this,'cancelled')">
-                <i class="fas fa-ban"></i> <?php echo isEnglish() ? 'Cancelled' : 'रद्द'; ?>
+                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> <?php echo isEnglish() ? 'Cancelled' : 'रद्द'; ?>
                 <span class="auc2-fcount"><?php echo $statusCounts['cancelled']; ?></span>
             </button>
             <?php endif; ?>
@@ -231,16 +235,16 @@ $L = getLangStrings();
 
     <?php if ($bidSuccess): ?>
     <div class="alert alert-success alert-dismissible fade show" id="aucBidSuccessAlert" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
+        <i class="lucide-icon me-2" data-lucide="circle-check" aria-hidden="true"></i>
         <?php echo isEnglish() ? 'Your bid has been submitted successfully!' : 'तपाईंको बोलपत्र सफलतापूर्वक पेश भयो!'; ?>
         <?php if ($bidTrackingId !== ''): ?>
         <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
             <strong><?php echo isEnglish() ? 'Tracking ID:' : 'Tracking ID:'; ?></strong>
             <code id="aucBidTrk" class="fs-6"><?php echo htmlspecialchars($bidTrackingId); ?></code>
             <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('aucBidTrk').textContent).then(function(){this.textContent='✓';}.bind(this))" title="Copy">
-                <i class="fas fa-copy"></i>
+                <i class="lucide-icon" data-lucide="copy" aria-hidden="true"></i>
             </button>
-            <a class="btn btn-sm btn-success" href="<?php echo SITE_URL; ?>application-tracker.php?id=<?php echo urlencode($bidTrackingId); ?>">
+            <a class="btn btn-sm btn-success" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php?id=<?php echo urlencode($bidTrackingId); ?>">
                 <?php echo isEnglish() ? 'Track status' : 'स्थिति हेर्नुहोस्'; ?>
             </a>
         </div>
@@ -252,18 +256,18 @@ $L = getLangStrings();
 
     <?php if ($bidError): ?>
     <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($bidError); ?>
+        <i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i><?php echo htmlspecialchars($bidError, ENT_QUOTES, 'UTF-8'); ?>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <?php endif; ?>
 
     <?php if (empty($auctions)): ?>
     <div class="text-center py-5">
-        <i class="fas fa-gavel fa-4x text-muted mb-3 d-block"></i>
+        <i class="lucide-icon lucide-4x text-muted mb-3 d-block" data-lucide="gavel" aria-hidden="true"></i>
         <h4 class="text-muted"><?php echo isEnglish() ? 'No Auction Notices Available' : 'कुनै लिलामी सूचना उपलब्ध छैन'; ?></h4>
         <p class="text-muted mb-3"><?php echo isEnglish() ? 'Please check back later, or contact the office.' : 'कृपया पछि हेर्नुहोस्, वा कार्यालयमा सम्पर्क गर्नुहोस्।'; ?></p>
-        <a class="btn btn-outline-success btn-sm" href="<?php echo SITE_URL; ?>contact.php"><i class="fas fa-envelope me-1"></i><?php echo isEnglish() ? 'Contact' : 'सम्पर्क'; ?></a>
-        <a class="btn btn-outline-secondary btn-sm" href="<?php echo SITE_URL; ?>application-tracker.php"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track bid' : 'बोलपत्र ट्र्याक'; ?></a>
+        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i><?php echo isEnglish() ? 'Contact' : 'सम्पर्क'; ?></a>
+        <a class="btn btn-outline-secondary btn-sm" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track bid' : 'बोलपत्र ट्र्याक'; ?></a>
     </div>
     <?php else: ?>
 
@@ -350,7 +354,7 @@ $L = getLangStrings();
                 <?php endif; ?>
                 <?php else: ?>
                 <div class="auc2-no-img">
-                    <i class="fas fa-image fa-3x mb-2"></i>
+                    <i class="lucide-icon lucide-3x mb-2" data-lucide="image" aria-hidden="true"></i>
                     <span style="font-size:.85rem;"><?php echo isEnglish()?'No Photos':'तस्बिर उपलब्ध छैन'; ?></span>
                 </div>
                 <?php endif; ?>
@@ -361,11 +365,11 @@ $L = getLangStrings();
 
                 <div class="auc2-status-row">
                     <span class="auc2-badge-status s-<?php echo htmlspecialchars($status); ?>">
-                        <?php if ($status==='ongoing'): ?><i class="fas fa-circle fa-xs me-1"></i><?php endif; ?>
+                        <?php if ($status==='ongoing'): ?><i class="lucide-icon me-1" data-lucide="circle" aria-hidden="true"></i><?php endif; ?>
                         <?php echo $statusLabels[$status] ?? $status; ?>
                     </span>
                     <span class="auc2-serial text-muted">
-                        <i class="fas fa-hashtag fa-xs"></i>
+                        <i class="lucide-icon" data-lucide="hash" aria-hidden="true"></i>
                         <?php
                         $trk = trim((string)($auction['tracking_number'] ?? ''));
                         echo htmlspecialchars($trk !== '' ? $trk : ((isEnglish() ? 'No. ' : 'नं. ') . str_pad((string)($aIdx + 1), 3, '0', STR_PAD_LEFT)));
@@ -379,49 +383,49 @@ $L = getLangStrings();
                 <div class="auc2-info-grid">
                     <?php if (!empty($auction['minimum_price'])): ?>
                     <div class="auc2-info-item price-item" style="grid-column:1/-1">
-                        <div class="auc2-info-label"><i class="fas fa-tag"></i> <?php echo isEnglish()?'Minimum Price':'न्यूनतम मूल्य'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="tag" aria-hidden="true"></i> <?php echo isEnglish()?'Minimum Price':'न्यूनतम मूल्य'; ?></div>
                         <div class="auc2-price-value">रु. <?php echo number_format((float)$auction['minimum_price']); ?></div>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($auction['auction_date'])): ?>
                     <div class="auc2-info-item highlight">
-                        <div class="auc2-info-label"><i class="fas fa-calendar-alt"></i> <?php echo isEnglish()?'Auction Date':'लिलामी मिति'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo isEnglish()?'Auction Date':'लिलामी मिति'; ?></div>
                         <div class="auc2-info-value"><?php echo htmlspecialchars(auctionFormatDateDisplay((string)$auction['auction_date'])); ?></div>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($auction['auction_time'])): ?>
                     <div class="auc2-info-item">
-                        <div class="auc2-info-label"><i class="fas fa-clock"></i> <?php echo isEnglish()?'Time':'समय'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo isEnglish()?'Time':'समय'; ?></div>
                         <div class="auc2-info-value"><?php echo htmlspecialchars($auction['auction_time']); ?></div>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($auction['property_type'])): ?>
                     <div class="auc2-info-item">
-                        <div class="auc2-info-label"><i class="fas fa-home"></i> <?php echo isEnglish()?'Type':'प्रकार'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="house" aria-hidden="true"></i> <?php echo isEnglish()?'Type':'प्रकार'; ?></div>
                         <div class="auc2-info-value"><?php echo htmlspecialchars($auction['property_type']); ?></div>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($aAreaDisplay)): ?>
                     <div class="auc2-info-item">
-                        <div class="auc2-info-label"><i class="fas fa-ruler-combined"></i> <?php echo isEnglish()?'Area':'क्षेत्रफल'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="ruler" aria-hidden="true"></i> <?php echo isEnglish()?'Area':'क्षेत्रफल'; ?></div>
                         <div class="auc2-info-value"><?php echo $aAreaDisplay; ?></div>
                     </div>
                     <?php endif; ?>
 
                     <?php if (!empty($auction['location'])): ?>
                     <div class="auc2-info-item" style="grid-column:1/-1">
-                        <div class="auc2-info-label"><i class="fas fa-map-marker-alt"></i> <?php echo isEnglish()?'Location':'स्थान'; ?></div>
+                        <div class="auc2-info-label"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo isEnglish()?'Location':'स्थान'; ?></div>
                         <div class="auc2-info-value">
                             <?php echo htmlspecialchars($auction['location']); ?>
                             <?php if ($mapLinkSafe !== ''): ?>
                             <a href="<?php echo e($mapLinkSafe); ?>"
                                target="_blank" rel="noopener noreferrer"
                                class="badge bg-danger text-decoration-none ms-2" style="font-size:.68rem;vertical-align:middle;">
-                                <i class="fas fa-map me-1"></i><?php echo isEnglish()?'Map':'नक्सा'; ?>
+                                <i class="lucide-icon me-1" data-lucide="map" aria-hidden="true"></i><?php echo isEnglish()?'Map':'नक्सा'; ?>
                             </a>
                             <?php endif; ?>
                         </div>
@@ -432,7 +436,7 @@ $L = getLangStrings();
                 <?php if ($showCountdown): ?>
                 <!-- Countdown -->
                 <div class="mb-2" style="font-size:.78rem;color:#6c757d;margin-bottom:.3rem;">
-                    <i class="fas fa-hourglass-half me-1 text-warning"></i>
+                    <i class="lucide-icon me-1 text-warning" data-lucide="hourglass" aria-hidden="true"></i>
                     <?php echo isEnglish()?'Time remaining:':'बाँकी समय:'; ?>
                 </div>
                 <div class="auc2-countdown"
@@ -449,12 +453,12 @@ $L = getLangStrings();
                 <div class="auc2-cta">
                     <?php if ($hasBid): ?>
                     <button type="button" class="auc2-bid-btn" data-bs-toggle="modal" data-bs-target="#bidModal<?php echo $aId; ?>">
-                        <i class="fas fa-gavel"></i>
+                        <i class="lucide-icon" data-lucide="gavel" aria-hidden="true"></i>
                         <span><?php echo isEnglish() ? 'Place Bid' : 'बोलपत्र पेश गर्नुहोस्'; ?></span>
                     </button>
                     <?php else: ?>
                     <div class="alert alert-secondary mb-0 py-2 text-center" style="border-radius:10px;font-size:.9rem;">
-                        <i class="fas fa-lock me-2"></i>
+                        <i class="lucide-icon me-2" data-lucide="lock" aria-hidden="true"></i>
                         <?php
                         if ($status === 'completed') {
                             echo isEnglish() ? 'This auction has been completed.' : 'यो लिलामी सम्पन्न भइसकेको छ।';
@@ -477,13 +481,13 @@ $L = getLangStrings();
                 <button type="button" class="auc2-tab-btn active"
                         data-auc2-tab="overview-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'overview-<?php echo $aId; ?>')">
-                    <i class="fas fa-info-circle"></i> <?php echo isEnglish()?'Overview':'सारांश'; ?>
+                    <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i> <?php echo isEnglish()?'Overview':'सारांश'; ?>
                 </button>
                 <?php if ($hasPhotos): ?>
                 <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="photos-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'photos-<?php echo $aId; ?>')">
-                    <i class="fas fa-images"></i> <?php echo isEnglish()?'Photos':'तस्बिरहरू'; ?>
+                    <i class="lucide-icon" data-lucide="images" aria-hidden="true"></i> <?php echo isEnglish()?'Photos':'तस्बिरहरू'; ?>
                     <span class="badge bg-secondary" style="font-size:.65rem;"><?php echo count($auctionImages); ?></span>
                 </button>
                 <?php endif; ?>
@@ -491,14 +495,14 @@ $L = getLangStrings();
                 <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="docs-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'docs-<?php echo $aId; ?>')">
-                    <i class="fas fa-file-alt"></i> <?php echo isEnglish()?'Document':'कागजपत्र'; ?>
+                    <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i> <?php echo isEnglish()?'Document':'कागजपत्र'; ?>
                 </button>
                 <?php endif; ?>
                 <?php if ($hasMap): ?>
                 <button type="button" class="auc2-tab-btn"
                         data-auc2-tab="map-<?php echo $aId; ?>"
                         onclick="auc2Tab(this,'map-<?php echo $aId; ?>')">
-                    <i class="fas fa-map-marked-alt"></i> <?php echo isEnglish()?'Map':'नक्सा'; ?>
+                    <i class="lucide-icon" data-lucide="map" aria-hidden="true"></i> <?php echo isEnglish()?'Map':'नक्सा'; ?>
                 </button>
                 <?php endif; ?>
             </div>
@@ -515,14 +519,14 @@ $L = getLangStrings();
                 <?php if (!empty($auction['contact_person']) || !empty($auction['contact_phone'])): ?>
                 <div class="auc2-contact-row">
                     <span style="font-size:.8rem;font-weight:700;color:#6c757d;text-transform:uppercase;letter-spacing:.4px;margin-right:.5rem;">
-                        <i class="fas fa-headset me-1"></i><?php echo isEnglish()?'Contact':'सम्पर्क'; ?>:
+                        <i class="lucide-icon me-1" data-lucide="headphones" aria-hidden="true"></i><?php echo isEnglish()?'Contact':'सम्पर्क'; ?>:
                     </span>
                     <?php if (!empty($auction['contact_person'])): ?>
-                    <span class="auc2-contact-item"><i class="fas fa-user"></i><?php echo htmlspecialchars($auction['contact_person']); ?></span>
+                    <span class="auc2-contact-item"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i><?php echo htmlspecialchars($auction['contact_person']); ?></span>
                     <?php endif; ?>
                     <?php if (!empty($auction['contact_phone'])): ?>
                     <span class="auc2-contact-item">
-                        <i class="fas fa-phone"></i>
+                        <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i>
                         <a href="tel:<?php echo htmlspecialchars($auction['contact_phone']); ?>">
                             <?php echo htmlspecialchars($auction['contact_phone']); ?>
                         </a>
@@ -533,7 +537,7 @@ $L = getLangStrings();
 
                 <?php if (empty($desc) && empty($auction['contact_person'])): ?>
                 <div class="auc2-empty-tab">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
                     <?php echo isEnglish()?'No additional details available.':'थप विवरण उपलब्ध छैन।'; ?>
                 </div>
                 <?php endif; ?>
@@ -544,14 +548,14 @@ $L = getLangStrings();
             <div class="auc2-tab-pane" id="photos-<?php echo $aId; ?>">
                 <div class="auc2-photo-grid">
                     <?php foreach ($auctionImages as $pImg): ?>
-                    <img src="<?php echo SITE_URL.$pImg; ?>"
+                    <img src="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/' . ltrim((string)$pImg, '/'), ENT_QUOTES, 'UTF-8'); ?>"
                          loading="lazy"
-                         alt="<?php echo htmlspecialchars($aTitle); ?>"
+                         alt="<?php echo htmlspecialchars($aTitle, ENT_QUOTES, 'UTF-8'); ?>"
                          onclick="auc2Lightbox(this.src)">
                     <?php endforeach; ?>
                 </div>
                 <p class="text-muted mt-3 mb-0" style="font-size:.8rem;">
-                    <i class="fas fa-hand-pointer me-1"></i><?php echo isEnglish()?'Click any photo to enlarge':'ठूलो हेर्न तस्बिरमा क्लिक गर्नुहोस्'; ?>
+                    <i class="lucide-icon me-1" aria-hidden="true" data-lucide="hand"></i><?php echo isEnglish()?'Click any photo to enlarge':'ठूलो हेर्न तस्बिरमा क्लिक गर्नुहोस्'; ?>
                 </p>
             </div>
             <?php endif; ?>
@@ -561,15 +565,15 @@ $L = getLangStrings();
             <div class="auc2-tab-pane" id="docs-<?php echo $aId; ?>">
                 <div class="auc2-doc-list">
                     <div class="auc2-doc-item">
-                        <div class="auc2-doc-icon"><i class="fas fa-file-pdf"></i></div>
+                        <div class="auc2-doc-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i></div>
                         <div class="auc2-doc-info">
                             <div class="auc2-doc-name"><?php echo isEnglish()?'Official Auction Notice':'आधिकारिक लिलामी सूचना'; ?></div>
                             <div class="auc2-doc-desc"><?php echo isEnglish()?'Click to download or view the official document.':'सरकारी कागजात डाउनलोड गर्न वा हेर्न क्लिक गर्नुहोस्।'; ?></div>
                         </div>
-                        <a href="<?php echo SITE_URL.htmlspecialchars($auction['document']); ?>"
+                        <a href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/' . ltrim((string)$auction['document'], '/'), ENT_QUOTES, 'UTF-8'); ?>"
                            target="_blank" rel="noopener noreferrer"
                            class="btn btn-danger btn-sm" style="white-space:nowrap;">
-                            <i class="fas fa-download me-1"></i><?php echo isEnglish()?'Download':'डाउनलोड'; ?>
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i><?php echo isEnglish()?'Download':'डाउनलोड'; ?>
                         </a>
                     </div>
                 </div>
@@ -589,14 +593,14 @@ $L = getLangStrings();
                     <a href="<?php echo e($mapLinkSafe); ?>"
                        target="_blank" rel="noopener noreferrer"
                        class="btn btn-outline-danger btn-sm">
-                        <i class="fas fa-external-link-alt me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>
                         <?php echo isEnglish()?'Open in Google Maps':'Google Maps मा खोल्नुहोस्'; ?>
                     </a>
                 </div>
                 <?php endif; ?>
                 <?php if (empty($auction['google_map_embed']) && $mapLinkSafe === ''): ?>
                 <div class="auc2-empty-tab">
-                    <i class="fas fa-map-marked-alt"></i>
+                    <i class="lucide-icon" data-lucide="map" aria-hidden="true"></i>
                     <?php echo isEnglish()?'No map available.':'नक्सा उपलब्ध छैन।'; ?>
                 </div>
                 <?php endif; ?>
@@ -614,7 +618,7 @@ $L = getLangStrings();
             <div class="modal-content">
                 <div class="modal-header auc2-bid-modal-head">
                     <h5 class="modal-title auc2-bid-modal-title">
-                        <i class="fas fa-gavel me-2"></i>
+                        <i class="lucide-icon me-2" data-lucide="gavel" aria-hidden="true"></i>
                         <?php echo isEnglish() ? 'Place Bid' : 'बोलपत्र पेश'; ?>
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -622,17 +626,17 @@ $L = getLangStrings();
                 <form method="POST" novalidate class="bid-modal-form auc2-bid-form needs-validation">
                     <?php echo csrfField(); ?>
                     <input type="hidden" name="bid_form_token" value="<?php echo bin2hex(random_bytes(12)); ?>">
-                    <input type="hidden" name="auction_id" value="<?php echo $aId; ?>">
+                    <input type="hidden" name="auction_id" value="<?php echo (int)$aId; ?>">
                     <input type="hidden" name="submit_bid" value="1">
                     <div class="modal-body">
                         <div class="auc2-bid-note py-2 px-3 mb-3 small">
                             <div class="fw-semibold mb-1"><?php echo htmlspecialchars($aTitle); ?></div>
-                            <i class="fas fa-gavel me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="gavel" aria-hidden="true"></i>
                             <?php echo isEnglish() ? 'Minimum bid:' : 'न्यूनतम बोल:'; ?>
                             <strong class="auc2-bid-min-amt"> रु. <?php echo number_format((float)($auction['minimum_price'] ?? 0)); ?></strong>
                             <?php if (!empty($auction['auction_date'])): ?>
                             <div class="mt-1 text-muted">
-                                <i class="fas fa-calendar-alt me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i>
                                 <?php echo htmlspecialchars(auctionFormatDateDisplay($auction['auction_date'])); ?>
                                 <?php if (!empty($auction['auction_time'])): ?>
                                 · <?php echo htmlspecialchars((string)$auction['auction_time']); ?>
@@ -649,19 +653,19 @@ $L = getLangStrings();
                         <div class="mb-3">
                             <label for="auc_bidder_phone" class="form-label auc2-bid-label"><?php echo isEnglish()?'Mobile Number':'मोबाइल नम्बर'; ?> <span class="auc2-req">*</span></label>
                             <div class="input-group">
-                                <span class="input-group-text auc2-bid-addon"><i class="fas fa-phone"></i></span>
+                                <span class="input-group-text auc2-bid-addon"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></span>
                                 <input type="tel" name="bidder_phone" id="auc_bidder_phone" class="form-control auc2-bid-input"
                                        placeholder="98XXXXXXXX" pattern="[9][0-9]{9}"
                                        maxlength="10" minlength="10" inputmode="numeric" required
                                        title="<?php echo isEnglish()?'10-digit Nepal mobile':'९ बाट शुरु हुने १० अंकको नम्बर'; ?>"
                                        autocomplete="tel">
                             </div>
-                            <div class="auc2-bid-help"><i class="fas fa-info-circle"></i> <?php echo isEnglish()?'10-digit Nepal mobile starting with 9':'९ बाट शुरु हुने १० अंकको नम्बर'; ?></div>
+                            <div class="auc2-bid-help"><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i> <?php echo isEnglish()?'10-digit Nepal mobile starting with 9':'९ बाट शुरु हुने १० अंकको नम्बर'; ?></div>
                         </div>
                         <div class="mb-3">
                             <label for="auc_bidder_email" class="form-label auc2-bid-label"><?php echo isEnglish()?'Email':'इमेल'; ?></label>
                             <div class="input-group">
-                                <span class="input-group-text auc2-bid-addon"><i class="fas fa-envelope"></i></span>
+                                <span class="input-group-text auc2-bid-addon"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></span>
                                 <input type="email" name="bidder_email" id="auc_bidder_email" class="form-control auc2-bid-input" placeholder="name@email.com" maxlength="150" autocomplete="email">
                             </div>
                         </div>
@@ -679,7 +683,7 @@ $L = getLangStrings();
                                        step="1" inputmode="numeric"
                                        placeholder="<?php echo number_format($auction['minimum_price']); ?>" required>
                             </div>
-                            <div class="auc2-bid-help-warn"><i class="fas fa-exclamation-circle"></i> <?php echo isEnglish()?'Minimum bid: Rs.':'न्यूनतम रकम: रु.'; ?> <?php echo number_format($auction['minimum_price']); ?></div>
+                            <div class="auc2-bid-help-warn"><i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo isEnglish()?'Minimum bid: Rs.':'न्यूनतम रकम: रु.'; ?> <?php echo number_format($auction['minimum_price']); ?></div>
                         </div>
                         <div class="mb-3">
                             <label for="auc_bid_message" class="form-label auc2-bid-label"><?php echo isEnglish()?'Message / Query':'सन्देश / जिज्ञासा'; ?></label>
@@ -690,10 +694,10 @@ $L = getLangStrings();
                     <div class="modal-footer auc2-bid-footer">
                         <?php echo coop_public_form_anti_bot_html('auction_bid', 'auc', isEnglish(), 'col-12'); ?>
                         <button type="button" class="btn auc2-bid-cancel" data-bs-dismiss="modal">
-                            <i class="fas fa-times me-1"></i><?php echo isEnglish()?'Cancel':'रद्द'; ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo isEnglish()?'Cancel':'रद्द'; ?>
                         </button>
                         <button type="submit" class="btn auc2-bid-submit bid-submit-btn">
-                            <i class="fas fa-gavel me-1"></i><?php echo isEnglish()?'Submit Bid':'बोलपत्र पेश गर्नुहोस्'; ?>
+                            <i class="lucide-icon me-1" data-lucide="gavel" aria-hidden="true"></i><?php echo isEnglish()?'Submit Bid':'बोलपत्र पेश गर्नुहोस्'; ?>
                         </button>
                     </div>
                 </form>
@@ -706,10 +710,10 @@ $L = getLangStrings();
 
     <!-- No-filter results state -->
     <div class="auc2-no-filter" id="aucNoResults">
-        <i class="fas fa-search fa-2x text-muted mb-3 d-block"></i>
+        <i class="lucide-icon lucide-2x text-muted mb-3 d-block" data-lucide="search" aria-hidden="true"></i>
         <h5 id="aucNoResultsMsg"><?php echo isEnglish() ? 'No auctions match your search.' : 'तपाईंको खोजमा कुनै लिलामी भेटिएन।'; ?></h5>
         <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="aucResetAll()">
-            <i class="fas fa-redo me-1"></i><?php echo isEnglish() ? 'Clear Filters' : 'फिल्टर हटाउनुहोस्'; ?>
+            <i class="lucide-icon me-1" data-lucide="rotate-cw" aria-hidden="true"></i><?php echo isEnglish() ? 'Clear Filters' : 'फिल्टर हटाउनुहोस्'; ?>
         </button>
     </div>
 
@@ -718,19 +722,7 @@ $L = getLangStrings();
 </div><!-- /.container -->
 </section>
 
-<style>
-/* ─── Auction Search ─── */
-.auc2-filterbar .container{flex-wrap:wrap;gap:.5rem;}
-.auc2-search-wrap{position:relative;display:flex;align-items:center;width:100%;max-width:420px;margin-bottom:.25rem;}
-.auc2-search-icon{position:absolute;left:.75rem;color:#888;pointer-events:none;font-size:.9rem;}
-.auc2-search-input{width:100%;padding:.45rem 2.2rem .45rem 2.2rem;border:1.5px solid #d0d5dd;border-radius:2rem;font-size:.92rem;outline:none;transition:border-color .2s,box-shadow .2s;background:#fff;}
-.auc2-search-input:focus{border-color:var(--primary-color,#2c6e49);box-shadow:0 0 0 3px rgba(44,110,73,.13);}
-.auc2-search-input::-webkit-search-cancel-button{display:none;}
-.auc2-search-clear{position:absolute;right:.55rem;background:none;border:none;color:#aaa;cursor:pointer;font-size:.85rem;padding:.2rem .3rem;line-height:1;}
-.auc2-search-clear:hover{color:#555;}
-.auc2-highlight{background:#fff3b0;border-radius:2px;padding:0 1px;}
-@media(max-width:600px){.auc2-search-wrap{max-width:100%;}}
-</style>
+
 <script>
 /* ─── Auction Search + Status Filter ─── */
 var _aucActiveFilter = 'all';
@@ -825,7 +817,7 @@ document.addEventListener('keydown', function(e) {
 <!-- Lightbox Overlay -->
 <div id="auc2-lightbox" onclick="if(event.target===this)this.classList.remove('open')">
     <button type="button" id="auc2-lightbox-close" onclick="document.getElementById('auc2-lightbox').classList.remove('open')" aria-label="Close" title="Close">
-        <i class="fas fa-times"></i>
+        <i class="lucide-icon" data-lucide="x" aria-hidden="true"></i>
     </button>
     <img id="auc2-lightbox-img" src="" alt="Photo" onclick="event.stopPropagation()">
 </div>
@@ -935,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             if (!ok) { e.preventDefault(); return false; }
             var btn=form.querySelector('.bid-submit-btn');
-            if(btn){ btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i><?php echo isEnglish()?"Submitting...":"पेश गर्दै..."; ?>'; }
+            if(btn){ btn.disabled=true; btn.innerHTML='<i class="lucide-icon lucide-spin me-1" data-lucide="loader-2" aria-hidden="true"></i><?php echo isEnglish()?"Submitting...":"पेश गर्दै..."; ?>'; }
         });
     });
 
@@ -946,7 +938,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 form.reset();
                 form.querySelectorAll('.is-valid,.is-invalid').forEach(function(el){ el.classList.remove('is-valid','is-invalid'); });
                 var btn=form.querySelector('.bid-submit-btn');
-                if(btn){ btn.disabled=false; btn.innerHTML='<i class="fas fa-gavel me-1"></i><?php echo isEnglish()?"Submit Bid":"बोलपत्र पेश गर्नुहोस्"; ?>'; }
+                if(btn){ btn.disabled=false; btn.innerHTML='<i class="lucide-icon me-1" data-lucide="gavel" aria-hidden="true"></i><?php echo isEnglish()?"Submit Bid":"बोलपत्र पेश गर्नुहोस्"; ?>'; }
             }
         });
     });

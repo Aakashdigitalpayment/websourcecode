@@ -22,3 +22,7 @@ if (!defined('DB_PASS')) define('DB_PASS', 'your_secure_password');
 if (!defined('SITE_URL')) {
     define('SITE_URL', 'https://your-domain.example/');
 }
+// Optional: pin accepted Host headers (comma-separated). Localhost always allowed.
+// if (!defined('SITE_ALLOWED_HOSTS')) define('SITE_ALLOWED_HOSTS', 'your-domain.example,www.your-domain.example');
+// Optional: only trust X-Forwarded-Proto from these REMOTE_ADDR proxies (comma-separated).
+// if (!defined('TRUSTED_PROXIES')) define('TRUSTED_PROXIES', '127.0.0.1,10.0.0.1');

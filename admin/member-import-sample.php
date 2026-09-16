@@ -3,12 +3,7 @@
  * Member Bulk Import Sample (CSV)
  * Excel-compatible UTF-8 BOM template for existing members.
  */
-require_once __DIR__ . '/../includes/config.php';
-
-if (!isAdminLoggedIn()) {
-    header('Location: ' . ADMIN_URL . 'index.php');
-    exit;
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 $filename = 'member-import-sample.csv';
 header('Content-Type: text/csv; charset=UTF-8');

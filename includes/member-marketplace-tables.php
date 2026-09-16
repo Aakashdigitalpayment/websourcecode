@@ -68,7 +68,9 @@ if (!function_exists('ensureMemberMarketplaceTables')) {
 
             /* Existing installs — is_read column migrate */
             try {
-                if (function_exists('dbColumnExists')) {
+                if (function_exists('safeAddColumn')) {
+                    safeAddColumn($db, 'member_marketplace_inquiries', 'is_read', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER message');
+                } elseif (function_exists('dbColumnExists')) {
                     if (!dbColumnExists('member_marketplace_inquiries', 'is_read')) {
                         $db->exec("ALTER TABLE member_marketplace_inquiries ADD COLUMN is_read TINYINT(1) NOT NULL DEFAULT 0 AFTER message");
                     }

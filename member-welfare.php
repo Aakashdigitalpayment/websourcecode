@@ -35,17 +35,20 @@ $claimTypes = function_exists('welfareClaimTypesMap')
     ? welfareClaimTypesMap($dbEarly)
     : (function_exists('welfareClaimTypesDefaults') ? welfareClaimTypesDefaults() : []);
 
-// Handle tracking lookup
+// Handle tracking lookup — tracking_id only (phone-alone lookup removed: IDOR)
 if (isset($_GET['track']) && !empty($_GET['track'])) {
     $searchId = clean_text($_GET['track'] ?? '', 80);
-    try {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE tracking_id = ? OR phone = ?");
-        $phoneKey = preg_replace('/[^0-9]/', '', $searchId);
-        $stmt->execute([$searchId, $phoneKey !== '' ? $phoneKey : $searchId]);
-        $trackingResult = $stmt->fetch();
-    } catch (Exception $e) {
-        // Table might not exist yet
+    if (function_exists('coop_is_public_tracking_id')
+        ? coop_is_public_tracking_id($searchId)
+        : (bool) preg_match('/^[A-Za-z]{2,8}-[A-Za-z0-9][A-Za-z0-9\-_.]{4,90}$/', $searchId)) {
+        try {
+            $db = getDB();
+            $stmt = $db->prepare("SELECT * FROM member_welfare_claims WHERE UPPER(TRIM(COALESCE(tracking_id,''))) = UPPER(TRIM(?)) LIMIT 1");
+            $stmt->execute([$searchId]);
+            $trackingResult = $stmt->fetch();
+        } catch (Exception $e) {
+            // Table might not exist yet
+        }
     }
 }
 
@@ -229,10 +232,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- Page Banner -->
 <section class="page-banner">
     <div class="container">
-        <h1><i class="fas fa-hand-holding-heart"></i> <?php echo $pageTitle; ?></h1>
+        <h1><i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i> <?php echo $pageTitle; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo $pageTitle; ?></li>
             </ol>
         </nav>
@@ -248,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-8">
                 <div class="success-card form-success-card text-center">
                     <div class="success-icon form-success-icon">
-                        <i class="fas fa-check-circle"></i>
+                        <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i>
                     </div>
                     <h3><?php echo isEnglish() ? 'Claim Submitted Successfully!' : 'दाबी सफलतापूर्वक दर्ता भयो!'; ?></h3>
                     <div class="form-tracking-box">
@@ -261,10 +264,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="action-buttons">
                         <a href="member-welfare.php" class="btn btn-primary">
-                            <i class="fas fa-plus"></i> <?php echo isEnglish() ? 'New Claim' : 'नयाँ दाबी'; ?>
+                            <i class="lucide-icon" data-lucide="plus" aria-hidden="true"></i> <?php echo isEnglish() ? 'New Claim' : 'नयाँ दाबी'; ?>
                         </a>
                         <a href="application-tracker.php" class="btn btn-outline-primary">
-                            <i class="fas fa-search"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?>
+                            <i class="lucide-icon" data-lucide="search" aria-hidden="true"></i> <?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?>
                         </a>
                     </div>
                 </div>
@@ -276,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Error Message -->
         <?php if ($error): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle"></i> <?php echo e($error); ?>
+            <i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo e($error); ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
         <?php endif; ?>
@@ -285,12 +288,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Left Column - Claim Types Info -->
             <div class="col-lg-4 mb-4">
                 <div class="claim-types-sidebar">
-                    <h5><i class="fas fa-list"></i> <?php echo isEnglish() ? 'Available Benefits' : 'उपलब्ध सुविधाहरू'; ?></h5>
+                    <h5><i class="lucide-icon" data-lucide="list" aria-hidden="true"></i> <?php echo isEnglish() ? 'Available Benefits' : 'उपलब्ध सुविधाहरू'; ?></h5>
                     <div class="claim-types-list">
                         <?php foreach ($claimTypes as $key => $type): ?>
                         <div class="claim-type-item" data-type="<?php echo $key; ?>" onclick="selectClaimType('<?php echo $key; ?>')">
                             <div class="type-icon" style="background-color: <?php echo $type['color']; ?>">
-                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                <?php echo coop_nav_icon_html(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), 'fas fa-circle', ''); ?>
                             </div>
                             <div class="type-info">
                                 <h6><?php echo isEnglish() ? $type['en'] : $type['np']; ?></h6>
@@ -302,11 +305,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <!-- Track Claim -->
                     <div class="track-claim-box mt-4">
-                        <h5><i class="fas fa-search"></i> <?php echo isEnglish() ? 'Track Your Claim' : 'दाबी ट्र्याक गर्नुहोस्'; ?></h5>
+                        <h5><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i> <?php echo isEnglish() ? 'Track Your Claim' : 'दाबी ट्र्याक गर्नुहोस्'; ?></h5>
                         <form method="GET" action="">
                             <div class="input-group">
-                                <input type="text" name="track" class="form-control" placeholder="<?php echo isEnglish() ? 'Tracking ID / Phone' : 'ट्र्याकिङ ID / फोन'; ?>" value="<?php echo e($_GET['track'] ?? ''); ?>">
-                                <button type="submit" class="btn btn-primary" aria-label="Search" title="Search"><i class="fas fa-search"></i></button>
+                                <input type="text" name="track" class="form-control" placeholder="<?php echo isEnglish() ? 'Tracking ID (e.g. WLF-20260315-A1B2C3D4)' : 'ट्र्याकिङ ID (जस्तै: WLF-20260315-A1B2C3D4)'; ?>" value="<?php echo e($_GET['track'] ?? ''); ?>">
+                                <button type="submit" class="btn btn-primary" aria-label="Search" title="Search"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></button>
                             </div>
                         </form>
 
@@ -332,16 +335,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     'completed' => isEnglish() ? 'Completed' : 'सम्पन्न',
                                 ];
                                 $statusBg = $statusBgMap[$status] ?? 'secondary';
-                                $statusLabel = $statusLabelMap[$status] ?? $status;
+                                $statusLabel = $statusLabelMap[$status] ?? 'pending';
                                 ?>
-                                <span class="badge bg-<?php echo $statusBg; ?>">
-                                    <?php echo $statusLabel; ?>
+                                <span class="badge bg-<?php echo e($statusBg); ?>">
+                                    <?php echo e($statusLabel); ?>
                                 </span>
                             </div>
                             <table class="table table-sm mt-2">
                                 <tr>
                                     <th><?php echo isEnglish() ? 'Tracking ID' : 'ट्र्याकिङ ID'; ?></th>
-                                    <td><?php echo $trackingResult['tracking_id']; ?></td>
+                                    <td><?php echo e((string)($trackingResult['tracking_id'] ?? '')); ?></td>
                                 </tr>
                                 <tr>
                                     <th><?php echo isEnglish() ? 'Claim Type' : 'दाबी प्रकार'; ?></th>
@@ -371,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <?php elseif (isset($_GET['track']) && !empty($_GET['track'])): ?>
                         <div class="alert alert-warning mt-3 mb-0">
-                            <small><i class="fas fa-exclamation-triangle"></i> <?php echo isEnglish() ? 'No claim found.' : 'दाबी फेला परेन।'; ?></small>
+                            <small><i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i> <?php echo isEnglish() ? 'No claim found.' : 'दाबी फेला परेन।'; ?></small>
                         </div>
                         <?php endif; ?>
                     </div>
@@ -382,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-lg-8 public-form-shell">
                 <div class="claim-form-card">
                     <div class="form-header text-center mb-4">
-                        <div class="form-icon"><i class="fas fa-hand-holding-heart"></i></div>
+                        <div class="form-icon"><i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i></div>
                         <h3><?php echo isEnglish() ? 'Submit Welfare Claim' : 'कल्याण दाबी पेश गर्नुहोस्'; ?></h3>
                         <p><?php echo isEnglish() ? 'Fill the form below to submit your welfare claim' : 'तल दिइएको फारम भर्नुहोस्'; ?></p>
                     </div>
@@ -391,7 +394,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php echo csrfField(); ?>
                         <?php if ($loggedMember): ?>
                         <div class="alert alert-success py-2 small mb-3">
-                            <i class="fas fa-user-check me-1"></i><?php echo isEnglish() ? 'Logged in — member details from profile / KYC.' : 'लगइन — सदस्य विवरण प्रोफाइल / KYM बाट।'; ?>
+                            <i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i><?php echo isEnglish() ? 'Logged in — member details from profile / KYC.' : 'लगइन — सदस्य विवरण प्रोफाइल / KYM बाट।'; ?>
                         </div>
                         <?php else: ?>
                         <div class="border rounded-3 p-3 mb-3 bg-light">
@@ -405,16 +408,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Claim Type Selection -->
                         <div class="form-section">
-                            <h5><i class="fas fa-tags"></i> <?php echo isEnglish() ? 'Claim Type' : 'दाबी प्रकार'; ?> <span class="text-danger">*</span></h5>
+                            <h5><i class="lucide-icon" data-lucide="tags" aria-hidden="true"></i> <?php echo isEnglish() ? 'Claim Type' : 'दाबी प्रकार'; ?> <span class="text-danger">*</span></h5>
                             <div class="claim-type-selector">
                                 <?php foreach ($claimTypes as $key => $type): ?>
                                 <label class="type-option">
-                                    <input type="radio" name="claim_type" value="<?php echo $key; ?>"
+                                    <input type="radio" name="claim_type" value="<?php echo e($key); ?>"
                                            data-doc="<?php echo !empty($type['requires_document']) ? '1' : '0'; ?>"
                                            <?php echo ($_POST['claim_type'] ?? '') === $key ? 'checked' : ''; ?>
                                            required onchange="showTypeFields('<?php echo $key; ?>')">
                                     <span class="type-box" style="--type-color: <?php echo $type['color']; ?>">
-                                        <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                        <?php echo coop_nav_icon_html(coop_sanitize_icon_class('fas ' . ($type['icon'] ?? ''), 'fas fa-circle'), 'fas fa-circle', ''); ?>
                                         <span><?php echo isEnglish() ? $type['en'] : $type['np']; ?></span>
                                     </span>
                                 </label>
@@ -424,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Member Information -->
                         <div class="form-section">
-                            <h5><i class="fas fa-user"></i> <?php echo isEnglish() ? 'Member Information' : 'सदस्य जानकारी'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo isEnglish() ? 'Member Information' : 'सदस्य जानकारी'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3 js-wlf-name-wrap">
                                     <label for="wlf_member_name" class="form-label"><?php echo isEnglish() ? 'Full Name' : 'पूरा नाम'; ?> <span class="text-danger">*</span></label>
@@ -496,7 +499,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Maternity Fields -->
                         <div class="form-section type-fields" id="maternity-fields" style="display:none;">
-                            <h5><i class="fas fa-baby"></i> <?php echo isEnglish() ? 'Maternity Details' : 'सुत्केरी विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="baby" aria-hidden="true"></i> <?php echo isEnglish() ? 'Maternity Details' : 'सुत्केरी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_delivery_date" class="form-label"><?php echo isEnglish() ? 'Delivery Date' : 'प्रसूति मिति'; ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?></label>
@@ -511,7 +514,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Death Claim Fields -->
                         <div class="form-section type-fields" id="death-fields" style="display:none;">
-                            <h5><i class="fas fa-heart-broken"></i> <?php echo isEnglish() ? 'Death Claim Details' : 'मृत्यु दाबी विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="heart-crack" aria-hidden="true"></i> <?php echo isEnglish() ? 'Death Claim Details' : 'मृत्यु दाबी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_deceased_name" class="form-label"><?php echo isEnglish() ? 'Deceased Name' : 'मृतकको नाम'; ?></label>
@@ -541,7 +544,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Medical Fields -->
                         <div class="form-section type-fields" id="medical-fields" style="display:none;">
-                            <h5><i class="fas fa-notes-medical"></i> <?php echo isEnglish() ? 'Medical Claim Details' : 'उपचार दाबी विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="clipboard-plus" aria-hidden="true"></i> <?php echo isEnglish() ? 'Medical Claim Details' : 'उपचार दाबी विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_disease_illness" class="form-label"><?php echo isEnglish() ? 'Disease / Illness' : 'रोग / समस्या'; ?></label>
@@ -560,7 +563,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Insurance Fields -->
                         <div class="form-section type-fields" id="insurance-fields" style="display:none;">
-                            <h5><i class="fas fa-shield-halved"></i> <?php echo isEnglish() ? 'Insurance Details' : 'बीमा विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="shield" aria-hidden="true"></i> <?php echo isEnglish() ? 'Insurance Details' : 'बीमा विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_policy_number" class="form-label"><?php echo isEnglish() ? 'Policy Number' : 'पोलिसी नम्बर'; ?></label>
@@ -575,7 +578,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <!-- Common Claim Details -->
                         <div class="form-section" id="beneficiary-fields" style="display:none;">
-                            <h5><i class="fas fa-user-friends"></i> <?php echo isEnglish() ? 'Beneficiary Details' : 'लाभग्राही विवरण'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo isEnglish() ? 'Beneficiary Details' : 'लाभग्राही विवरण'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_beneficiary_name" class="form-label"><?php echo isEnglish() ? 'Beneficiary Name' : 'लाभग्राही नाम'; ?></label>
@@ -589,7 +592,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
 
                         <div class="form-section">
-                            <h5><i class="fas fa-file-invoice-dollar"></i> <?php echo isEnglish() ? 'Claim Summary' : 'दाबी सारांश'; ?></h5>
+                            <h5><i class="lucide-icon" data-lucide="badge-dollar-sign" aria-hidden="true"></i> <?php echo isEnglish() ? 'Claim Summary' : 'दाबी सारांश'; ?></h5>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="wlf_claim_amount" class="form-label"><?php echo isEnglish() ? 'Claim Amount (Rs.)' : 'दाबी रकम (रु.)'; ?></label>
@@ -613,7 +616,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-actions">
                             <?php echo coop_public_form_anti_bot_html('welfare', 'wlf', isEnglish(), 'col-12'); ?>
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i><?php echo isEnglish() ? 'Submit Claim' : 'दाबी पेश गर्नुहोस्'; ?>
+                                <i class="lucide-icon me-2" data-lucide="send" aria-hidden="true"></i><?php echo isEnglish() ? 'Submit Claim' : 'दाबी पेश गर्नुहोस्'; ?>
                             </button>
                             <div class="form-submit-hint"><?php echo isEnglish() ? 'You will receive a tracking ID after submission.' : 'पेश गरेपछि Tracking ID प्राप्त हुन्छ।'; ?></div>
                         </div>

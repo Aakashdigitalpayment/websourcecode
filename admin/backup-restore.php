@@ -1,10 +1,7 @@
 <?php
 $pageTitle = 'Database Backup / Restore';
 $currentPage = 'backup-restore';
-require_once '../includes/config.php';
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 /* Superadmin only — dump/restore runs arbitrary SQL; menu already hides this from others */
 if (empty($_SESSION['is_superadmin'])) {
     setFlash('error', 'यो page केवल Superadmin ले access गर्न सक्छ।');
@@ -216,14 +213,14 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-download me-2"></i>Backup Download</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="download" aria-hidden="true"></i>Backup Download</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted">यो बटनले हालको database को full SQL backup download गर्छ। Update गर्नु अघि सधैं backup राख्नुहोस्।</p>
                     <form method="POST">
                         <?php echo csrfField(); ?>
                         <button type="submit" name="download_backup" value="1" class="btn btn-success">
-                            <i class="fas fa-file-export me-1"></i> Download Database Backup
+                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i> Download Database Backup
                         </button>
                     </form>
                 </div>
@@ -233,7 +230,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
         <div class="col-lg-6">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-upload me-2"></i>Restore / Import SQL</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="upload" aria-hidden="true"></i>Restore / Import SQL</h5>
                 </div>
                 <div class="card-body">
                     <div class="alert alert-warning">
@@ -246,7 +243,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                             <input type="file" name="sql_file" id="br_sql_file" class="form-control" accept=".sql" required>
                         </div>
                         <button type="submit" name="restore_backup" value="1" class="btn btn-danger">
-                            <i class="fas fa-database me-1"></i> Restore / Import SQL
+                            <i class="lucide-icon me-1" data-lucide="database" aria-hidden="true"></i> Restore / Import SQL
                         </button>
                     </form>
                 </div>
@@ -256,7 +253,7 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
 
     <div class="card border-0 shadow-sm mt-4">
         <div class="card-body">
-            <h5 class="fw-bold mb-3"><i class="fas fa-circle-info text-info me-2"></i>कसरी प्रयोग गर्ने?</h5>
+            <h5 class="fw-bold mb-3"><i class="lucide-icon text-info me-2" data-lucide="info" aria-hidden="true"></i>कसरी प्रयोग गर्ने?</h5>
             <ol class="mb-0 text-muted">
                 <li>Website update गर्नु अघि <strong>Download Database Backup</strong> क्लिक गर्नुहोस्।</li>
                 <li>Downloaded `.sql` file सुरक्षित राख्नुहोस्।</li>

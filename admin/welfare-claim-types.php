@@ -2,6 +2,7 @@
 /**
  * Admin — Welfare claim types catalog
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -44,6 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nameNp = clean_text($_POST['name_np'] ?? '', 160);
             $nameEn = clean_text($_POST['name_en'] ?? '', 160);
             $icon = clean_text($_POST['icon'] ?? 'fa-gift', 80) ?: 'fa-gift';
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-gift');
+            }
             $color = clean_text($_POST['color'] ?? '#ff9800', 40) ?: '#ff9800';
             $profile = clean_text($_POST['form_profile'] ?? 'other', 40);
             if (!in_array($profile, $profiles, true)) {
@@ -164,7 +168,7 @@ $form = $editRow ?: [
     'id' => 0,
     'name_np' => '',
     'name_en' => '',
-    'icon' => 'fa-gift',
+    'icon' => 'fas fa-gift',
     'color' => '#ff9800',
     'form_profile' => 'other',
     'display_order' => 0,
@@ -176,7 +180,7 @@ echo adminPageHeader(
     $__t('कल्याण दाबी प्रकारहरू', 'Welfare Claim Types'),
     'fa-hand-holding-heart',
     $__t('सार्वजनिक फारममा देखिने दाबी प्रकार थप्नुहोस् / सम्पादन गर्नुहोस्', 'Add or edit claim types shown on the public form'),
-    '<a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>' . $__t('दाबीहरू', 'Claims') . '</a>'
+    '<a href="welfare-claims.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>' . $__t('दाबीहरू', 'Claims') . '</a>'
 );
 $_flash = getFlash();
 if ($_flash) {
@@ -206,9 +210,9 @@ if ($_flash) {
                                value="<?php echo htmlspecialchars((string)$form['name_en']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label for="wct_icon" class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
+                        <label for="wct_icon" class="form-label"><?php echo $__t('आइकन (FA class वा Lucide नाम)', 'Icon (FA class or Lucide name)'); ?></label>
                         <input type="text" name="icon" id="wct_icon" class="form-control" maxlength="80"
-                               placeholder="fa-gift"
+                               placeholder="fas fa-gift"
                                value="<?php echo htmlspecialchars((string)$form['icon']); ?>">
                     </div>
                     <div class="col-md-6">
@@ -245,7 +249,7 @@ if ($_flash) {
                         <div class="form-text"><?php echo $__t('सक्रिय गर्दा सदस्यले सहयोगी कागजात अनिवार्य अपलोड गर्नुपर्छ।', 'When enabled, members must upload supporting documents.'); ?></div>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
+                        <button type="submit" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
                         <?php if (!empty($form['id'])): ?>
                         <a href="welfare-claim-types.php" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
                         <?php endif; ?>
@@ -277,14 +281,11 @@ if ($_flash) {
                         <?php if (empty($manageRows)): ?>
                             <tr><td colspan="6" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै प्रकार छैन।', 'No types yet.'); ?></td></tr>
                         <?php else: foreach ($manageRows as $mc):
-                            $iconShow = (string)($mc['icon'] ?? 'fa-gift');
-                            if (stripos($iconShow, 'fas ') === 0) {
-                                $iconShow = trim(substr($iconShow, 4));
-                            }
-                        ?>
+                            $iconShow = (string)($mc['icon'] ?? 'fas fa-gift');
+                            ?>
                             <tr>
                                 <td>
-                                    <span class="me-1" style="color:<?php echo htmlspecialchars((string)($mc['color'] ?? '')); ?>"><i class="fas <?php echo htmlspecialchars($iconShow); ?>"></i></span>
+                                    <span class="me-1" style="color:<?php echo htmlspecialchars((string)($mc['color'] ?? '')); ?>"><?php echo coop_nav_icon_html($iconShow, 'fas fa-gift', ''); ?></span>
                                     <strong><?php echo htmlspecialchars((string)$mc['name_np']); ?></strong>
                                     <?php if (!empty($mc['is_builtin'])): ?><span class="badge bg-info ms-1">builtin</span><?php endif; ?>
                                     <?php if (!empty($mc['name_en'])): ?>
@@ -309,18 +310,18 @@ if ($_flash) {
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center text-nowrap">
-                                    <a href="welfare-claim-types.php?edit=<?php echo (int)$mc['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="Edit" aria-label="Edit"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                    <a href="welfare-claim-types.php?edit=<?php echo (int)$mc['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="Edit" aria-label="Edit"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn" title="Toggle" aria-label="Toggle"><i class="fas fa-power-off" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn" title="Toggle" aria-label="Toggle"><i class="lucide-icon" data-lucide="power-off" aria-hidden="true"></i></button>
                                     </form>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने? प्रयोगमा भए निष्क्रिय हुन्छ।', 'Delete? If in use it will be deactivated.'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

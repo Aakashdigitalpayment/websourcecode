@@ -13,7 +13,7 @@
 }
 .kyc-cap-field.has-image{
   border-style:solid;
-  border-color:#1a5f2a;
+  border-color:var(--primary-color, #1a5f2a);
   background:#f0fdf4;
 }
 .kyc-cap-label{
@@ -40,8 +40,8 @@
 }
 .kyc-cap-empty:hover{background:#f3f4f6;}
 /* माथिको ठूलो आइकन मात्र — सबै .kyc-cap-empty i ले बटनभित्रको आइकनलाई पनि हरियो पार्थ्यो (पृष्ठभूमिसँग मिलेर लुक्थ्यो) */
-.kyc-cap-empty > i:first-child{font-size:2rem;color:#1a5f2a;margin-bottom:6px;}
-.kyc-cap-empty .kyc-cap-empty-title{font-weight:700;color:#1a5f2a;font-size:.95rem;}
+.kyc-cap-empty > i:first-child{font-size:2rem;color:var(--primary-color, #1a5f2a);margin-bottom:6px;}
+.kyc-cap-empty .kyc-cap-empty-title{font-weight:700;color:var(--primary-color, #1a5f2a);font-size:.95rem;}
 .kyc-cap-empty .kyc-cap-empty-sub{font-size:.78rem;color:#6b7280;margin-top:2px;}
 
 .kyc-cap-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
@@ -53,7 +53,7 @@
 }
 .kyc-cap-btn:hover{background:#f1f5f9;border-color:#94a3b8;}
 .kyc-cap-btn > i{font-size:.72rem;line-height:1;flex-shrink:0;}
-.kyc-cap-btn.primary{background:#1a5f2a;color:#fff;border-color:#1a5f2a;}
+.kyc-cap-btn.primary{background:var(--primary-color, #1a5f2a);color:#fff;border-color:var(--primary-color, #1a5f2a);}
 .kyc-cap-btn.primary > i{color:#fff;}
 .kyc-cap-btn.primary:hover{background:#15522a;}
 .kyc-cap-btn[data-gallery] > i{color:#15803d;}
@@ -65,11 +65,11 @@
 }
 .kyc-cap-preview img{
   max-width:100%;max-height:200px;border-radius:8px;
-  border:2px solid #1a5f2a;background:#fff;
+  border:2px solid var(--primary-color, #1a5f2a);background:#fff;
   object-fit:contain;
 }
 .kyc-cap-preview .kyc-cap-status{
-  font-size:.78rem;color:#1a5f2a;font-weight:600;
+  font-size:.78rem;color:var(--primary-color, #1a5f2a);font-weight:600;
   display:flex;align-items:center;gap:4px;
 }
 
@@ -141,7 +141,7 @@
 
 /* ── Signature pad ── */
 .kyc-sig-wrap{
-  background:#fff;border:2px solid #1a5f2a;border-radius:8px;
+  background:#fff;border:2px solid var(--primary-color, #1a5f2a);border-radius:8px;
   position:relative;overflow:hidden;
 }
 /* Signature tab switcher */
@@ -155,7 +155,7 @@
   display:flex;align-items:center;justify-content:center;gap:5px;
 }
 .kyc-sig-tab:first-child{border-right:1px solid #e2e8f0;}
-.kyc-sig-tab.active{background:#fff;color:#1a5f2a;}
+.kyc-sig-tab.active{background:#fff;color:var(--primary-color, #1a5f2a);}
 .kyc-sig-panel{width:100%;}
 .kyc-sig-canvas{
   width:100%;height:200px;display:block;
@@ -177,7 +177,7 @@
   padding:6px 10px;border-radius:6px;border:1px solid #cbd5e1;
   background:#fff;font-size:.75rem;cursor:pointer;
 }
-.kyc-sig-tool.active{background:#1a5f2a;color:#fff;border-color:#1a5f2a;}
+.kyc-sig-tool.active{background:var(--primary-color, #1a5f2a);color:#fff;border-color:var(--primary-color, #1a5f2a);}
 .kyc-sig-stat{font-size:.72rem;color:#64748b;padding:6px 10px;}
 /* Upload panel */
 .kyc-sig-upload-label{
@@ -186,7 +186,7 @@
   padding:28px 20px;cursor:pointer;font-size:.88rem;color:#4a5a4f;
   text-align:center;margin:10px;
 }
-.kyc-sig-upload-label:hover{background:#f0fdf4;border-color:#1a5f2a;}
+.kyc-sig-upload-label:hover{background:#f0fdf4;border-color:var(--primary-color, #1a5f2a);}
 .kyc-sig-upload-preview{padding:0 10px 8px;}
 
 /* ── Fingerprint quality indicator ── */

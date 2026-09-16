@@ -331,14 +331,14 @@
 
         /* Recent searches (empty query) */
         if (!query && recent.length > 0) {
-            dd.appendChild(mkSectionHeader('<i class="fas fa-history me-1"></i> '
+            dd.appendChild(mkSectionHeader('<i class="lucide-icon me-1" aria-hidden="true" data-lucide="history"></i> '
                 + (isNep ? 'हालसालैका खोजहरू' : 'Recent searches')));
             recent.slice(0, 4).forEach(function (q) {
                 var item = document.createElement('div');
                 item.className = 'ssd-item ssd-recent';
-                item.innerHTML = '<i class="fas fa-clock text-muted me-2"></i>'
+                item.innerHTML = '<i class="lucide-icon text-muted me-2" aria-hidden="true" data-lucide="clock"></i>'
                     + escHtml(q)
-                    + '<button class="ssd-remove" data-q="' + escHtml(q) + '" title="हटाउनुहोस्"><i class="fas fa-times"></i></button>';
+                    + '<button class="ssd-remove" data-q="' + escHtml(q) + '" title="हटाउनुहोस्"><i class="lucide-icon" aria-hidden="true" data-lucide="x"></i></button>';
                 item.addEventListener('click', function (e) {
                     if (e.target.closest('.ssd-remove')) {
                         removeRecentSearch(q);
@@ -360,7 +360,7 @@
             /* ── Strong matches ── */
             if (strong.length > 0) {
                 dd.appendChild(mkSectionHeader(
-                    '<i class="fas fa-search me-1"></i> '
+                    '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="search"></i> '
                     + (isNep ? 'सुझावहरू' : 'Suggestions')));
                 strong.slice(0, 5).forEach(function (s) {
                     dd.appendChild(mkPageItem(s.page, query));
@@ -371,7 +371,7 @@
             /* ── Fuzzy-only: "मिल्दोजुल्दो हुन सक्छ" ── */
             if (strong.length === 0 && fuzzy.length > 0) {
                 dd.appendChild(mkSectionHeader(
-                    '<i class="fas fa-wand-magic-sparkles me-1 text-warning"></i> '
+                    '<i class="lucide-icon me-1 text-warning" aria-hidden="true" data-lucide="sparkles"></i> '
                     + (isNep ? 'मिल्दोजुल्दो हुन सक्छ:' : 'Did you mean?')));
                 fuzzy.slice(0, 4).forEach(function (s) {
                     var item = mkPageItem(s.page, '');
@@ -384,7 +384,7 @@
             /* ── Fuzzy as secondary when strong also exist ── */
             if (strong.length > 0 && fuzzy.length > 0) {
                 dd.appendChild(mkSectionHeader(
-                    '<i class="fas fa-lightbulb me-1 text-secondary"></i> '
+                    '<i class="lucide-icon me-1 text-secondary" aria-hidden="true" data-lucide="lightbulb"></i> '
                     + (isNep ? 'सम्बन्धित पेजहरू:' : 'Related pages:')));
                 fuzzy.slice(0, 3).forEach(function (s) {
                     var item = mkPageItem(s.page, '');
@@ -396,12 +396,15 @@
         }
 
         dd.style.display = has ? 'block' : 'none';
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ nodes: dd.querySelectorAll('[data-lucide]') });
+        }
     }
 
     function mkPageItem(page, q) {
         var item = document.createElement('div');
         item.className = 'ssd-item';
-        item.innerHTML = '<i class="fas fa-file-lines text-muted me-2"></i>'
+        item.innerHTML = '<i class="lucide-icon text-muted me-2" aria-hidden="true" data-lucide="file-text"></i>'
             + highlight(escHtml(page.title), q);
         item.addEventListener('click', function () {
             saveRecentSearch(page.title);
@@ -451,9 +454,12 @@
             micBtn.id   = 'searchInlineMic';
             micBtn.className = 'search-inline-mic';
             micBtn.title = document.documentElement.lang === 'en' ? 'Voice search' : 'आवाजबाट खोज्नुहोस्';
-            micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            micBtn.innerHTML = '<i class="lucide-icon" aria-hidden="true" data-lucide="mic"></i>';
             micBtn.addEventListener('click', startVoice);
             if (slot) slot.appendChild(micBtn);
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons({ nodes: micBtn.querySelectorAll('[data-lucide]') });
+            }
         } else {
             /* Voice not supported — hide voice UI elements & update subtitle */
             if (elVoiceBig) elVoiceBig.style.display = 'none';
@@ -698,7 +704,12 @@
 .ssd-remove:hover { color: #e53935; }
 .ssd-item mark { background: #fff3cd; color: inherit; border-radius: 2px; padding: 0 1px; }
 .ssd-fuzzy { opacity: .88; font-style: italic; }
-.ssd-fuzzy i.fa-file-lines { color: #f59e0b !important; }
+.ssd-fuzzy i.fa-file-lines,
+.ssd-fuzzy .lucide-icon[data-lucide="file-text"],
+.ssd-fuzzy .lucide-icon[data-lucide="file-text"] svg {
+  color: #f59e0b !important;
+  stroke: #f59e0b !important;
+}
 .ssd-fuzzy:hover, .ssd-fuzzy.focused { background: #fffbeb; color: #92400e; }
 .ssd-related { opacity: .75; }
 .ssd-related:hover, .ssd-related.focused { background: #f0f4ff; color: #3730a3; }

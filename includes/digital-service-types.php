@@ -73,10 +73,14 @@ if (!function_exists('ensureDigitalServiceTypes')) {
                 INDEX idx_dst_order (display_order)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            try {
-                $db->exec('ALTER TABLE digital_service_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
-            } catch (Throwable $e) {
-                /* already present */
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'digital_service_types', 'requires_document', 'TINYINT(1) NOT NULL DEFAULT 0');
+            } else {
+                try {
+                    $db->exec('ALTER TABLE digital_service_types ADD COLUMN requires_document TINYINT(1) NOT NULL DEFAULT 0');
+                } catch (Throwable $e) {
+                    /* already present */
+                }
             }
 
             $count = 0;

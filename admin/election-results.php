@@ -2,6 +2,7 @@
 /**
  * निर्वाचन — नतिजा (live count) + विजेताहरूलाई समिति सदस्यमा रूपान्तरण
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'निर्वाचन नतिजा';
 $currentPage = 'election-results';
 require_once 'includes/admin-header.php';
@@ -166,8 +167,8 @@ echo adminPageHeader(
     . ', Manual ballot: ' . (int)$sourceCounts['manual_staff']
     . ', Attendance only: ' . (int)$sourceCounts['manual_attendance'] . ')'
     . (empty($cycle['results_finalized']) ? '' : ' • अन्तिम भयो'),
-    '<a class="btn btn-outline-secondary btn-sm" href="election-candidates.php?cycle=' . $cycleId . '"><i class="fas fa-arrow-left me-1"></i>उम्मेदवार</a> '
-    . '<a class="btn btn-outline-primary btn-sm" href="election-voting-attendance.php?cycle=' . $cycleId . '"><i class="fas fa-person-booth me-1"></i>Voting Attendance</a>'
+    '<a class="btn btn-outline-secondary btn-sm" href="election-candidates.php?cycle=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>उम्मेदवार</a> '
+    . '<a class="btn btn-outline-primary btn-sm" href="election-voting-attendance.php?cycle=' . $cycleId . '"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>Voting Attendance</a>'
 );
 ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
@@ -203,10 +204,10 @@ if (count($allCycles) > 1):
                     <?php $rank = 0; $maxVotes = max(1, (int)($g['candidates'][0]['votes'] ?? 1));
                           foreach ($g['candidates'] as $i => $c): $rank++; $isWin = $i < (int)$g['seats']; ?>
                         <tr class="<?php echo $isWin ? 'table-success' : ''; ?>">
-                            <td><?php if ($isWin): ?><i class="fas fa-trophy text-warning"></i><?php endif; ?></td>
+                            <td><?php if ($isWin): ?><i class="lucide-icon text-warning" data-lucide="trophy" aria-hidden="true"></i><?php endif; ?></td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <?php if (!empty($c['photo'])): ?><img src="<?php echo SITE_URL . htmlspecialchars(ltrim($c['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($c['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"><?php endif; ?>
+                                    <?php if (!empty($c['photo'])): ?><img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim($c['photo'], '/')); ?>" alt="<?php echo htmlspecialchars($c['name'] ?? 'Candidate', ENT_QUOTES, 'UTF-8'); ?>" style="width:32px;height:32px;object-fit:cover;border-radius:50%;"><?php endif; ?>
                                     <div><?php echo htmlspecialchars($c['name']); ?> <?php if (!empty($c['symbol_no'])): ?><small class="text-muted">#<?php echo htmlspecialchars($c['symbol_no']); ?></small><?php endif; ?></div>
                                 </div>
                                 <div class="progress mt-1" style="height:4px;"><div class="progress-bar" style="width:<?php echo round((int)$c['votes']/$maxVotes*100); ?>%"></div></div>
@@ -228,18 +229,18 @@ if (count($allCycles) > 1):
 
 <?php if (!empty($grouped) && empty($cycle['results_finalized'])): ?>
 <div class="card admin-table-card mt-4">
-    <div class="card-header"><h6 class="mb-0"><i class="fas fa-lock me-2"></i>नतिजा अन्तिम / Publish</h6></div>
+    <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="lock" aria-hidden="true"></i>नतिजा अन्तिम / Publish</h6></div>
     <div class="card-body">
         <p class="small text-muted mb-2">समिति रूपान्तरण बिना नै नतिजा lock गर्न सकिन्छ — मतदान बन्द हुन्छ, सदस्यले अन्तिम नतिजा देख्छन्।</p>
         <form method="post" onsubmit="return confirm('नतिजा अन्तिम गर्ने र मतदान बन्द गर्ने?');" class="d-inline">
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="finalize_results">
-            <button type="submit" class="btn btn-outline-dark btn-sm"><i class="fas fa-check me-1"></i>नतिजा अन्तिम गर्नुहोस्</button>
+            <button type="submit" class="btn btn-outline-dark btn-sm"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>नतिजा अन्तिम गर्नुहोस्</button>
         </form>
     </div>
 </div>
 <div class="card admin-table-card mt-3">
-    <div class="card-header"><h6 class="mb-0"><i class="fas fa-arrow-right-arrow-left me-2"></i>विजेताहरूलाई समिति सदस्यमा रूपान्तरण</h6></div>
+    <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="arrow-right-left" aria-hidden="true"></i>विजेताहरूलाई समिति सदस्यमा रूपान्तरण</h6></div>
     <div class="card-body">
         <p class="small text-muted">प्रत्येक पदको शीर्ष उम्मेदवारहरू (सिट संख्या बराबर) सम्बन्धित समितिमा नयाँ कार्यकालमा थपिनेछन्। यो action ले नतिजा पनि अन्तिम गर्छ र मतदान बन्द गर्छ।</p>
         <form method="post" class="row g-2" onsubmit="return confirm('विजेताहरू समितिमा थप्ने र मतदान बन्द गर्ने?');">
@@ -252,7 +253,7 @@ if (count($allCycles) > 1):
             <div class="col-md-3"><label for="er_end_date" class="form-label small">अन्त्य मिति (वि.सं.)</label>
                 <input type="text" class="form-control nepali-datepicker" name="end_date" id="er_end_date" value="<?php echo htmlspecialchars($tenureEndBs); ?>" placeholder="YYYY-MM-DD" autocomplete="off"></div>
             <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-success w-100"><i class="fas fa-check me-1"></i>रूपान्तरण</button>
+                <button type="submit" class="btn btn-success w-100"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>रूपान्तरण</button>
             </div>
         </form>
     </div>

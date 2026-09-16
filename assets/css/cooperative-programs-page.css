@@ -1,0 +1,23 @@
+/** Cooperative programs page styles — extracted from cooperative-programs.php */
+.cp-howto-card {
+  background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px 16px 14px;
+  height: 100%; box-shadow: 0 4px 14px rgba(0,0,0,.04); position: relative;
+}
+.cp-howto-num {
+  display: inline-flex; width: 28px; height: 28px; border-radius: 999px; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--primary-color, #1a8754) 14%, white); color: var(--primary-dark, #0a4a25);
+  font-weight: 800; font-size: .85rem; margin-bottom: 8px;
+}
+.cp-howto-card h3 { font-size: .95rem; font-weight: 800; margin: 0 0 6px; color: #111827; }
+.cp-howto-card p { font-size: .8rem; color: #6b7280; margin: 0; line-height: 1.5; }
+.cp-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.cp-tab {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+  background: #fff; border: 1px solid #e5e7eb; color: #374151; text-decoration: none; font-weight: 700; font-size: .85rem;
+}
+.cp-tab.active { background: var(--primary-color, #1a8754); border-color: transparent; color: #fff; }
+.cp-tab .badge { background: rgba(0,0,0,.08); color: inherit; }
+.cp-tab.active .badge { background: rgba(255,255,255,.25); }
+.cp-card-past { opacity: .92; }
+.cp-card-footer { display: flex; flex-wrap: wrap; gap: 8px; }
+.cp-att-btn-alt { background: #fff !important; color: var(--primary-dark, #0a4a25) !important; border: 1px solid color-mix(in srgb, var(--primary-color, #1a8754) 35%, #ddd); }

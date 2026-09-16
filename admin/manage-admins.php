@@ -5,6 +5,7 @@
  * Superadmin मात्र यो पृष्ठ (URL थाहा भएका admin ले bypass नगर्न)।
  * Credential `superadmin-config.local.php`; फाइल-सुपरएडमिन सूचीमा लुकेको।
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle  = 'Admin व्यवस्थापन';
 $currentPage = 'manage-admins';
 require_once 'includes/admin-header.php';
@@ -37,6 +38,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fullName    = trim($_POST['full_name']       ?? '');
         $email       = trim($_POST['email']           ?? '');
         $role        = $_POST['role']                 ?? 'admin';
+        if (function_exists('admin_canonical_db_role')) {
+            $role = admin_canonical_db_role($role);
+        }
         $newPass     = $_POST['new_password']         ?? '';
         $confirmPass = $_POST['confirm_password']     ?? '';
         $isActive    = isset($_POST['is_active']) ? 1 : 0;
@@ -49,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setFlash('error', 'पासवर्ड र पुष्टि पासवर्ड मेल खाएन।');
         } elseif (strlen($newPass) < 8) {
             setFlash('error', 'पासवर्ड कम्तिमा ८ अक्षर हुनुपर्छ।');
-        } elseif (!in_array($role, ['admin', 'editor'])) {
+        } elseif (!in_array($role, ['admin', 'editor'], true)) {
             setFlash('error', 'गलत role।');
         } elseif (file_managed_superadmin_username() !== null && $username === file_managed_superadmin_username()) {
             setFlash('error', 'यो username फाइल-सुपरएडमिनको हो — `includes/superadmin-config.local.php` मा मात्र।');
@@ -165,6 +169,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         redirect('manage-admins.php');
     }
+
+    /* ── ५. Alias-only role normalize (superadmin → super_admin; privilege unchanged) ── */
+    if ($action === 'normalize_role_aliases') {
+        if (!$isSuperAdmin) {
+            setFlash('error', 'यो कार्य केवल Superadmin ले गर्न सक्छ।');
+        } elseif (!function_exists('coop_normalize_admin_role_aliases')) {
+            setFlash('error', 'Role normalize helper उपलब्ध छैन।');
+        } else {
+            try {
+                $norm = coop_normalize_admin_role_aliases($db);
+                if (!empty($norm['error'])) {
+                    setFlash('error', 'Role normalize असफल: ' . $norm['error']);
+                } elseif (!empty($norm['skipped'])) {
+                    setFlash('info', 'Role ENUM मा दुवै alias छैनन् वा normalize आवश्यक छैन।');
+                } else {
+                    $n = (int) ($norm['updated'] ?? 0);
+                    setFlash(
+                        'success',
+                        $n > 0
+                            ? "{$n} admin role row(s) normalized (superadmin → super_admin). Privilege unchanged."
+                            : 'सबै role spelling पहिले नै canonical छन्।'
+                    );
+                }
+            } catch (Throwable $e) {
+                error_log('[manage-admins] role normalize: ' . $e->getMessage());
+                setFlash('error', 'Role normalize असफल भयो।');
+            }
+        }
+        redirect('manage-admins.php');
+    }
 }
 
 /* ── Admin list (फाइल-सुपरएडमिन सूचीबाट लुकाउने) ── */
@@ -173,6 +207,15 @@ try {
     $admins = filter_out_file_managed_superadmin_rows($admins);
 } catch (Exception $e) {
     $admins = [];
+}
+
+$legacySuperadminRows = 0;
+try {
+    $legacySuperadminRows = (int) $db->query(
+        "SELECT COUNT(*) FROM admin_users WHERE role = 'superadmin'"
+    )->fetchColumn();
+} catch (Throwable $e) {
+    $legacySuperadminRows = 0;
 }
 
 /* Tab — URL मा ?tab=add भए add tab active */
@@ -184,8 +227,8 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
      PAGE HEADER
 ════════════════════════════════════════════════ -->
 <?php echo adminPageHeader('Admin व्यवस्थापन','fa-user-shield','Admin accounts — थप्नुहोस्, पासवर्ड रिसेट, सक्रिय/निष्क्रिय।',
-      '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-users me-1"></i>जम्मा: ' . count($admins) . ' Admins</span>'
-    . '<button type="button" class="btn btn-primary btn-sm" id="btnAddAdmin"><i class="fas fa-plus me-1"></i>नयाँ Admin</button>'
+      '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>जम्मा: ' . count($admins) . ' Admins</span>'
+    . '<button type="button" class="btn btn-primary btn-sm" id="btnAddAdmin"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ Admin</button>'
   ); ?>
 
 <!-- Flash Messages -->
@@ -195,14 +238,41 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 <?php if ($isSuperAdmin && file_managed_superadmin_username() !== null): ?>
 <div class="d-flex align-items-center gap-2 mb-2">
     <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-1" data-bs-toggle="collapse" data-bs-target="#superadminFileHelp" aria-expanded="false" aria-controls="superadminFileHelp" title="फाइल-सुपरएडमिन के हो?">
-        <i class="fas fa-circle-question me-1"></i>फाइल-सुपरएडमिन के हो?
+        <i class="lucide-icon me-1" data-lucide="circle-help" aria-hidden="true"></i>फाइल-सुपरएडमिन के हो?
     </button>
 </div>
 <div class="collapse mb-3" id="superadminFileHelp">
     <div class="alert alert-info border-info border-start border-4 small mb-0" role="note">
-        <strong><i class="fas fa-user-shield me-1"></i>फाइल-सुपरएडमिन:</strong>
+        <strong><i class="lucide-icon me-1" data-lucide="shield-user" aria-hidden="true"></i>फाइल-सुपरएडमिन:</strong>
         User/password <code class="user-select-all">includes/superadmin-config.local.php</code> मा हुन्छ।
         <strong>यो सूचीमा देखिँदैन</strong> (DB मा भए पनि) — तल admin/editor मात्र। पासवर्ड बदल्न cPanel मा फाइल edit + login।
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if ($isSuperAdmin): ?>
+<div class="alert alert-light border small mb-3" role="note">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <strong><i class="lucide-icon me-1" data-lucide="shuffle" aria-hidden="true"></i>Role spelling:</strong>
+            Dual-read accepts <code>superadmin</code> र <code>super_admin</code>.
+            Canonical write = <code>super_admin</code>.
+            Privilege mass UPDATE हुँदैन — alias spelling मात्र।
+            <?php if ($legacySuperadminRows > 0): ?>
+                <span class="badge bg-warning text-dark ms-1"><?php echo (int) $legacySuperadminRows; ?> legacy spelling</span>
+            <?php else: ?>
+                <span class="badge bg-success-subtle text-success ms-1">canonical</span>
+            <?php endif; ?>
+        </div>
+        <?php if ($legacySuperadminRows > 0): ?>
+        <form method="post" class="m-0" onsubmit="return confirm('Normalize legacy superadmin → super_admin spelling only? Privilege level will not change.');">
+            <?php echo csrfField(); ?>
+            <input type="hidden" name="action" value="normalize_role_aliases">
+            <button type="submit" class="btn btn-sm btn-outline-primary">
+                <i class="lucide-icon me-1" data-lucide="wand-sparkles" aria-hidden="true"></i>Normalize aliases
+            </button>
+        </form>
+        <?php endif; ?>
     </div>
 </div>
 <?php endif; ?>
@@ -214,14 +284,14 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab==='list'?'active':''; ?>"
                 data-bs-toggle="tab" data-bs-target="#tab-list" id="tabListBtn">
-            <i class="fas fa-list me-2"></i>Admin सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>Admin सूची
             <span class="badge bg-success ms-1"><?php echo count($admins); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab==='add'?'active':''; ?>"
                 data-bs-toggle="tab" data-bs-target="#tab-add" id="tabAddBtn">
-            <i class="fas fa-user-plus me-2"></i>नयाँ Admin बनाउनुहोस्
+            <i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>नयाँ Admin बनाउनुहोस्
         </button>
     </li>
 </ul>
@@ -237,12 +307,12 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                         <thead>
                             <tr class="ma-table-head-row">
                                 <th class="ps-3">#</th>
-                                <th><i class="fas fa-user me-1"></i>पूरा नाम</th>
-                                <th><i class="fas fa-at me-1"></i>युजरनेम</th>
-                                <th><i class="fas fa-envelope me-1"></i>इमेल</th>
-                                <th><i class="fas fa-user-shield me-1"></i>Role</th>
-                                <th><i class="fas fa-circle me-1"></i>अवस्था</th>
-                                <th><i class="fas fa-clock me-1"></i>अन्तिम Login</th>
+                                <th><i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i>पूरा नाम</th>
+                                <th><i class="lucide-icon me-1" data-lucide="at" aria-hidden="true"></i>युजरनेम</th>
+                                <th><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i>इमेल</th>
+                                <th><i class="lucide-icon me-1" data-lucide="shield-user" aria-hidden="true"></i>Role</th>
+                                <th><i class="lucide-icon me-1" data-lucide="circle" aria-hidden="true"></i>अवस्था</th>
+                                <th><i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i>अन्तिम Login</th>
                                 <th class="text-center pe-3">कार्यहरू</th>
                             </tr>
                         </thead>
@@ -251,7 +321,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             <tr>
                                 <td colspan="8" class="text-center py-5">
                                     <div class="ma-empty-icon mb-2">
-                                        <i class="fas fa-users-slash"></i>
+                                        <i class="lucide-icon" data-lucide="users" aria-hidden="true"></i>
                                     </div>
                                     <div class="text-muted fw-semibold">कुनै admin user DB मा छैन।</div>
                                     <div class="text-muted small mt-1">
@@ -265,7 +335,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             ?>
                             <tr class="<?php echo !$adm['is_active'] ? 'table-secondary' : ''; ?>">
 
-                                <td class="ps-3 text-muted small" data-label="#">#<?php echo $adm['id']; ?></td>
+                                <td class="ps-3 text-muted small" data-label="#">#<?php echo (int)$adm['id']; ?></td>
 
                                 <!-- नाम -->
                                 <td data-label="पूरा नाम">
@@ -282,7 +352,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                 <?php endif; ?>
                                             </div>
                                             <small class="text-muted ma-id-text">
-                                                ID: <?php echo $adm['id']; ?>
+                                                ID: <?php echo (int)$adm['id']; ?>
                                             </small>
                                         </div>
                                     </div>
@@ -298,7 +368,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 <!-- email -->
                                 <td class="small text-muted" data-label="इमेल">
                                     <?php if (!empty($adm['email'])): ?>
-                                        <i class="fas fa-envelope me-1 opacity-50"></i>
+                                        <i class="lucide-icon me-1 opacity-50" data-lucide="mail" aria-hidden="true"></i>
                                         <?php echo htmlspecialchars($adm['email'], ENT_QUOTES, 'UTF-8'); ?>
                                     <?php else: ?>
                                         <span class="fst-italic opacity-50">—</span>
@@ -309,15 +379,15 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 <td data-label="Role">
                                     <?php if (function_exists('admin_db_role_is_superadmin') && admin_db_role_is_superadmin((string) ($adm['role'] ?? ''))): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-role-super">
-                                        <i class="fas fa-crown me-1"></i>Super Admin
+                                        <i class="lucide-icon me-1" data-lucide="crown" aria-hidden="true"></i>Super Admin
                                     </span>
                                     <?php elseif ($adm['role'] === 'admin'): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-role-admin">
-                                        <i class="fas fa-user-shield me-1"></i>Admin
+                                        <i class="lucide-icon me-1" data-lucide="shield-user" aria-hidden="true"></i>Admin
                                     </span>
                                     <?php else: ?>
                                     <span class="badge rounded-pill bg-secondary">
-                                        <i class="fas fa-pen me-1"></i>Editor
+                                        <i class="lucide-icon me-1" data-lucide="pen" aria-hidden="true"></i>Editor
                                     </span>
                                     <?php endif; ?>
                                 </td>
@@ -326,11 +396,11 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 <td data-label="अवस्था">
                                     <?php if ($adm['is_active']): ?>
                                     <span class="badge rounded-pill ma-role-badge ma-status-active">
-                                        <i class="fas fa-circle me-1 ma-status-dot"></i>सक्रिय
+                                        <i class="lucide-icon me-1 ma-status-dot" data-lucide="circle" aria-hidden="true"></i>सक्रिय
                                     </span>
                                     <?php else: ?>
                                     <span class="badge rounded-pill bg-secondary">
-                                        <i class="fas fa-circle me-1 ma-status-dot"></i>निष्क्रिय
+                                        <i class="lucide-icon me-1 ma-status-dot" data-lucide="circle" aria-hidden="true"></i>निष्क्रिय
                                     </span>
                                     <?php endif; ?>
                                 </td>
@@ -338,7 +408,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                 <!-- last login -->
                                 <td class="small text-muted" data-label="अन्तिम Login">
                                     <?php if (!empty($adm['last_login'])): ?>
-                                        <i class="fas fa-clock me-1 opacity-50"></i>
+                                        <i class="lucide-icon me-1 opacity-50" data-lucide="clock" aria-hidden="true"></i>
                                         <?php echo date('Y-m-d H:i', strtotime($adm['last_login'])); ?>
                                     <?php else: ?>
                                         <span class="fst-italic opacity-50">कहिल्यै होइन</span>
@@ -353,9 +423,9 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                         <button type="button"
                                                 class="btn btn-sm btn-warning ma-reset-btn"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#resetModal<?php echo $adm['id']; ?>"
+                                                data-bs-target="#resetModal<?php echo (int)$adm['id']; ?>"
                                                 title="Password Reset">
-                                            <i class="fas fa-key me-1"></i>Reset
+                                            <i class="lucide-icon me-1" data-lucide="key" aria-hidden="true"></i>Reset
                                         </button>
 
                                         <!-- Toggle Active/Inactive -->
@@ -365,13 +435,13 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                   ? htmlspecialchars($adm['full_name'],ENT_QUOTES).' को account निष्क्रिय गर्ने?'
                                                   : htmlspecialchars($adm['full_name'],ENT_QUOTES).' को account सक्रिय गर्ने?'; ?>')">
                                             <input type="hidden" name="action"     value="toggle_active">
-                                            <input type="hidden" name="target_id"  value="<?php echo $adm['id']; ?>">
+                                            <input type="hidden" name="target_id"  value="<?php echo (int)$adm['id']; ?>">
                                             <input type="hidden" name="new_status" value="<?php echo $adm['is_active'] ? 0 : 1; ?>">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                             <button type="submit"
                                                     class="btn btn-sm <?php echo $adm['is_active'] ? 'btn-outline-secondary' : 'btn-outline-success'; ?>"
                                                     title="<?php echo $adm['is_active'] ? 'Deactivate' : 'Activate'; ?>">
-                                                <i class="fas fa-<?php echo $adm['is_active'] ? 'ban' : 'check'; ?>"></i>
+                                                <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo $adm['is_active'] ? 'ban' : 'check'; ?>"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
@@ -381,10 +451,10 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                         <form method="POST" class="d-inline"
                                               onsubmit="return confirm('«<?php echo htmlspecialchars($adm['full_name'], ENT_QUOTES, 'UTF-8'); ?>» को account पूरै मेटाउने?\n\nयो कार्य फिर्ता हुँदैन!')">
                                             <input type="hidden" name="action"     value="delete_admin">
-                                            <input type="hidden" name="target_id"  value="<?php echo $adm['id']; ?>">
-                                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                            <input type="hidden" name="target_id"  value="<?php echo (int)$adm['id']; ?>">
+                                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                             <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete">
-                                                <i class="fas fa-trash" aria-hidden="true"></i>
+                                                <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                             </button>
                                         </form>
                                         <?php endif; ?>
@@ -394,13 +464,13 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </tr>
 
                             <!-- ── Password Reset Modal ── -->
-                            <div class="modal fade" id="resetModal<?php echo $adm['id']; ?>"
+                            <div class="modal fade" id="resetModal<?php echo (int)$adm['id']; ?>"
                                  tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-sm">
                                     <div class="modal-content border-0 shadow">
                                         <div class="modal-header py-3 ma-modal-header">
                                             <h6 class="modal-title mb-0">
-                                                <i class="fas fa-key me-2"></i>Password Reset
+                                                <i class="lucide-icon me-2" data-lucide="key" aria-hidden="true"></i>Password Reset
                                             </h6>
                                             <button type="button" class="btn-close btn-close-white"
                                                     data-bs-dismiss="modal"></button>
@@ -424,20 +494,20 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                                             <form method="POST" action="">
                                                 <input type="hidden" name="action"     value="reset_password">
-                                                <input type="hidden" name="target_id"  value="<?php echo $adm['id']; ?>">
-                                                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                                <input type="hidden" name="target_id"  value="<?php echo (int)$adm['id']; ?>">
+                                                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                                                 <div class="mb-3">
-                                                    <label for="rp_new_<?php echo $adm['id']; ?>" class="form-label fw-semibold small">
+                                                    <label for="rp_new_<?php echo (int)$adm['id']; ?>" class="form-label fw-semibold small">
                                                         नयाँ पासवर्ड <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="input-group">
                                                         <span class="input-group-text">
-                                                            <i class="fas fa-lock"></i>
+                                                            <i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i>
                                                         </span>
                                                         <input type="password"
                                                                name="new_password"
-                                                               id="rp_new_<?php echo $adm['id']; ?>"
+                                                               id="rp_new_<?php echo (int)$adm['id']; ?>"
                                                                class="form-control"
                                                                minlength="8"
                                                                placeholder="कम्तिमा ८ अक्षर"
@@ -445,25 +515,25 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                                autocomplete="new-password">
                                                         <button type="button"
                                                                 class="btn btn-outline-secondary"
-                                                                onclick="togglePwd('rp_new_<?php echo $adm['id']; ?>','rp_eye1_<?php echo $adm['id']; ?>')"
+                                                                onclick="togglePwd('rp_new_<?php echo (int)$adm['id']; ?>','rp_eye1_<?php echo (int)$adm['id']; ?>')"
                                                                 aria-label="Show password" title="Show password">
-                                                            <i class="fas fa-eye"
-                                                               id="rp_eye1_<?php echo $adm['id']; ?>" aria-hidden="true"></i>
+                                                            <i class="lucide-icon" data-lucide="eye" aria-hidden="true"
+                                                               id="rp_eye1_<?php echo (int)$adm['id']; ?>"></i>
                                                         </button>
                                                     </div>
                                                 </div>
 
                                                 <div class="mb-3">
-                                                    <label for="rp_confirm_<?php echo $adm['id']; ?>" class="form-label fw-semibold small">
+                                                    <label for="rp_confirm_<?php echo (int)$adm['id']; ?>" class="form-label fw-semibold small">
                                                         पासवर्ड पुष्टि <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="input-group">
                                                         <span class="input-group-text">
-                                                            <i class="fas fa-lock"></i>
+                                                            <i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i>
                                                         </span>
                                                         <input type="password"
                                                                name="confirm_password"
-                                                               id="rp_confirm_<?php echo $adm['id']; ?>"
+                                                               id="rp_confirm_<?php echo (int)$adm['id']; ?>"
                                                                class="form-control"
                                                                minlength="8"
                                                                placeholder="माथिकै पासवर्ड फेरि"
@@ -471,25 +541,25 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                                                autocomplete="new-password">
                                                         <button type="button"
                                                                 class="btn btn-outline-secondary"
-                                                                onclick="togglePwd('rp_confirm_<?php echo $adm['id']; ?>','rp_eye2_<?php echo $adm['id']; ?>')"
+                                                                onclick="togglePwd('rp_confirm_<?php echo (int)$adm['id']; ?>','rp_eye2_<?php echo (int)$adm['id']; ?>')"
                                                                 aria-label="Show password" title="Show password">
-                                                            <i class="fas fa-eye"
-                                                               id="rp_eye2_<?php echo $adm['id']; ?>" aria-hidden="true"></i>
+                                                            <i class="lucide-icon" data-lucide="eye" aria-hidden="true"
+                                                               id="rp_eye2_<?php echo (int)$adm['id']; ?>"></i>
                                                         </button>
                                                     </div>
-                                                    <div id="rp_match_<?php echo $adm['id']; ?>"
+                                                    <div id="rp_match_<?php echo (int)$adm['id']; ?>"
                                                          class="form-text"></div>
                                                 </div>
 
                                                 <div class="p-2 rounded-2 small mb-3 ma-password-hint-box">
-                                                    <i class="fas fa-info-circle text-warning me-1"></i>
+                                                    <i class="lucide-icon text-warning me-1" data-lucide="info" aria-hidden="true"></i>
                                                     ८+ अक्षर — ठूलो+सानो अक्षर + अंक + विशेष चिन्ह सिफारिस छ।
                                                 </div>
 
                                                 <button type="submit"
                                                         class="btn btn-warning w-100 fw-semibold"
                                                         onclick="return confirm('«<?php echo htmlspecialchars($adm['full_name'],ENT_QUOTES); ?>» को पासवर्ड reset गर्ने?')">
-                                                    <i class="fas fa-key me-2"></i>Password Reset गर्नुहोस्
+                                                    <i class="lucide-icon me-2" data-lucide="key" aria-hidden="true"></i>Password Reset गर्नुहोस्
                                                 </button>
                                             </form>
                                         </div>
@@ -508,7 +578,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
             <?php if ($isSuperAdmin): ?>
             <div class="card-footer py-2 small text-muted bg-light d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" data-bs-toggle="collapse" data-bs-target="#manageAdminsFooterHelp" aria-expanded="false" aria-controls="manageAdminsFooterHelp">
-                    <i class="fas fa-circle-info me-1"></i>नोट
+                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>नोट
                 </button>
                 <div class="collapse w-100" id="manageAdminsFooterHelp">
                     <div class="pt-2 small">
@@ -522,7 +592,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
         <!-- Security note -->
         <div class="mt-3 p-3 rounded-3 small ma-security-note">
-            <i class="fas fa-shield-halved me-2"></i>
+            <i class="lucide-icon me-2" data-lucide="shield" aria-hidden="true"></i>
             <strong>सुरक्षा नोट:</strong>
             Admin password reset गरेपछि नयाँ पासवर्ड सम्बन्धित admin लाई तुरुन्त व्यक्तिगत रूपमा जानकारी दिनुहोस्।
         </div>
@@ -534,13 +604,13 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
         <div class="card border-0 shadow-sm">
             <div class="card-header py-3 ma-modal-header">
                 <h6 class="mb-0">
-                    <i class="fas fa-user-plus me-2"></i>नयाँ Admin User बनाउनुहोस्
+                    <i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>नयाँ Admin User बनाउनुहोस्
                 </h6>
             </div>
             <div class="card-body p-4">
                 <form method="POST" action="" id="createAdminForm" class="needs-validation" novalidate>
                     <input type="hidden" name="action"     value="create_admin">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
                     <div class="row g-3">
 
@@ -551,7 +621,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-at text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="at" aria-hidden="true"></i>
                                 </span>
                                 <input type="text" name="username" id="ma_username" class="form-control"
                                        placeholder="uniqueusername" required
@@ -559,7 +629,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                        title="३–३० अक्षर: a-z, 0-9, _ मात्र">
                             </div>
                             <div class="form-text">
-                                <i class="fas fa-info-circle me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                                 ३–३० अक्षर, space नराख्नुहोस् (a-z, 0-9, _)
                             </div>
                         </div>
@@ -571,7 +641,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-user text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="user" aria-hidden="true"></i>
                                 </span>
                                 <input type="text" name="full_name" id="ma_full_name" class="form-control"
                                        placeholder="Admin को पूरा नाम" required>
@@ -585,7 +655,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-envelope text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="mail" aria-hidden="true"></i>
                                 </span>
                                 <input type="email" name="email" id="ma_email" class="form-control"
                                        placeholder="admin@example.com">
@@ -599,7 +669,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-user-shield text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="shield-user" aria-hidden="true"></i>
                                 </span>
                                 <select name="role" id="ma_role" class="form-select">
                                     <option value="admin">Admin — सबै काम गर्न सक्छ</option>
@@ -615,7 +685,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="lock" aria-hidden="true"></i>
                                 </span>
                                 <input type="password" name="new_password" id="cp_new"
                                        class="form-control" minlength="8"
@@ -623,7 +693,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                        autocomplete="new-password">
                                 <button type="button" class="btn btn-outline-secondary"
                                         onclick="togglePwd('cp_new','cp_eye1')" aria-label="View" title="View">
-                                    <i class="fas fa-eye" id="cp_eye1"></i>
+                                    <i class="lucide-icon" data-lucide="eye" aria-hidden="true" id="cp_eye1"></i>
                                 </button>
                             </div>
                         </div>
@@ -635,7 +705,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                    <i class="fas fa-lock text-muted"></i>
+                                    <i class="lucide-icon text-muted" data-lucide="lock" aria-hidden="true"></i>
                                 </span>
                                 <input type="password" name="confirm_password" id="cp_confirm"
                                        class="form-control" minlength="8"
@@ -643,7 +713,7 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
                                        autocomplete="new-password">
                                 <button type="button" class="btn btn-outline-secondary"
                                         onclick="togglePwd('cp_confirm','cp_eye2')" aria-label="View" title="View">
-                                    <i class="fas fa-eye" id="cp_eye2"></i>
+                                    <i class="lucide-icon" data-lucide="eye" aria-hidden="true" id="cp_eye2"></i>
                                 </button>
                             </div>
                             <div id="cp_match" class="form-text mt-1"></div>
@@ -665,17 +735,17 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
 
                     <!-- Password policy hint -->
                     <div class="mt-3 p-3 rounded-3 small ma-security-note">
-                        <i class="fas fa-shield-halved me-2"></i>
+                        <i class="lucide-icon me-2" data-lucide="shield" aria-hidden="true"></i>
                         <strong>सुरक्षित पासवर्ड:</strong>
                         ठूलो अक्षर (A-Z) + सानो अक्षर (a-z) + अंक (0-9) + विशेष चिन्ह (!@#$) मिसाउनुहोस्।
                     </div>
 
                     <div class="mt-4 d-flex gap-2">
                         <button type="submit" class="btn btn-primary px-4 fw-semibold" id="createSubmitBtn">
-                            <i class="fas fa-user-plus me-2"></i>Admin बनाउनुहोस्
+                            <i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>Admin बनाउनुहोस्
                         </button>
                         <button type="reset" class="btn btn-outline-secondary">
-                            <i class="fas fa-rotate-left me-1"></i>Clear
+                            <i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i>Clear
                         </button>
                     </div>
                 </form>
@@ -698,9 +768,9 @@ $activeTab = in_array($tabRaw, ['list', 'add'], true) ? $tabRaw : 'list';
     function check() {
         if (!c.value) { m.textContent = ''; return; }
         if (n.value === c.value) {
-            m.innerHTML = '<span class="ma-pass-ok"><i class="fas fa-check-circle me-1"></i>पासवर्ड मिल्यो</span>';
+            m.innerHTML = '<span class="ma-pass-ok"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>पासवर्ड मिल्यो</span>';
         } else {
-            m.innerHTML = '<span class="ma-pass-bad"><i class="fas fa-times-circle me-1"></i>पासवर्ड मिलेन</span>';
+            m.innerHTML = '<span class="ma-pass-bad"><i class="lucide-icon me-1" data-lucide="circle-x" aria-hidden="true"></i>पासवर्ड मिलेन</span>';
         }
     }
     n.addEventListener('input', check);
@@ -717,9 +787,9 @@ document.querySelectorAll('[id^="resetModal"]').forEach(function (modal) {
     function check() {
         if (!c.value) { m.textContent = ''; return; }
         if (n.value === c.value) {
-            m.innerHTML = '<span class="ma-pass-ok"><i class="fas fa-check-circle me-1"></i>पासवर्ड मिल्यो</span>';
+            m.innerHTML = '<span class="ma-pass-ok"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>पासवर्ड मिल्यो</span>';
         } else {
-            m.innerHTML = '<span class="ma-pass-bad"><i class="fas fa-times-circle me-1"></i>पासवर्ड मिलेन</span>';
+            m.innerHTML = '<span class="ma-pass-bad"><i class="lucide-icon me-1" data-lucide="circle-x" aria-hidden="true"></i>पासवर्ड मिलेन</span>';
         }
     }
     n.addEventListener('input', check);

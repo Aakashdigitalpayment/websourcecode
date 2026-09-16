@@ -1,0 +1,72 @@
+/** Public mobile nav critical — extracted from includes/header.php */
+    @media (max-width: 991.98px) {
+        body.header-v2 #mainNavV2.main-nav {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            width: min(82vw, 320px) !important;
+            max-width: 320px !important;
+            height: 100dvh !important;
+            transform: translate3d(-105%,0,0) !important;
+            transition: transform .24s cubic-bezier(.22,.61,.36,1) !important;
+            background: #0b3f24 !important;
+            color: #fff !important;
+            z-index: 2147483001 !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            padding: 0 10px 18px !important;
+            box-shadow: 18px 0 36px rgba(2,6,23,.34) !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            display: block !important;
+        }
+        body.header-v2 #mainNavV2.nav-open,
+        body.header-v2 #mainNavV2.open,
+        body.header-v2 #mainNavV2.active { transform: translate3d(0,0,0) !important; }
+
+        /* Hard guard: closed drawer must never leak clickable/visible close button */
+        body.header-v2 #mainNavV2.main-nav:not(.nav-open):not(.open):not(.active) {
+            pointer-events: none !important;
+        }
+        body.header-v2 #mainNavV2.main-nav:not(.nav-open):not(.open):not(.active) .close-menu {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        body.header-v2 #mainNavV2.nav-open .close-menu,
+        body.header-v2 #mainNavV2.open .close-menu,
+        body.header-v2 #mainNavV2.active .close-menu {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        body.header-v2 #pflMobileBackdrop {
+            position: fixed !important;
+            inset: 0 !important;
+            background: rgba(2,6,23,.62) !important;
+            z-index: 2147483000 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            display: block !important;
+        }
+        body.header-v2 #pflMobileBackdrop.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+        body.header-v2.mobile-nav-open { overflow: hidden !important; }
+
+        /* ── CRITICAL FIX: sticky .pfl-header-wrapper (z-index:1000) creates its own
+           stacking context, trapping #mainNavV2 (drawer) inside it. The backdrop sits
+           outside the wrapper at z-index 2147483000 → backdrop ends up on top of the
+           drawer and dims it. When mobile nav opens, lift the wrapper above backdrop
+           so the drawer becomes visible at full contrast. ── */
+        body.header-v2.mobile-nav-open .pfl-header-wrapper {
+            z-index: 2147483002 !important;
+            isolation: isolate;
+        }
+    }
+    
