@@ -1,0 +1,140 @@
+/* Public reports.php — compact icon-only View / Download / Share */
+
+.report-card .report-actions.report-actions-icons {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+  width: 100%;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.report-card .report-actions.report-actions-icons .btn {
+  display: none !important; /* legacy full-width text buttons */
+}
+
+.report-action-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  padding: 0 !important;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 28%, #d1d5db);
+  background: var(--bg-card, #fff);
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  text-decoration: none !important;
+  box-shadow: 0 1px 3px rgba(15, 31, 23, 0.06);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  line-height: 1;
+}
+
+.report-action-btn .lucide-icon,
+.report-action-btn svg {
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+  stroke: currentColor !important;
+  color: inherit !important;
+  flex-shrink: 0;
+}
+
+.report-action-btn:hover,
+.report-action-btn:focus-visible {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.report-action-view {
+  background: var(--primary-color, #1a5f2a) !important;
+  border-color: var(--primary-color, #1a5f2a) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.report-action-view:hover,
+.report-action-view:focus-visible {
+  background: var(--primary-dark, #144a21) !important;
+  border-color: var(--primary-dark, #144a21) !important;
+  color: var(--text-on-primary, #fff) !important;
+}
+
+.report-action-missing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  opacity: 0.45;
+}
+
+.report-action-missing .lucide-icon,
+.report-action-missing svg {
+  width: 1.05rem !important;
+  height: 1.05rem !important;
+}
+
+/* Fallback share menu (desktop without Web Share API) */
+.report-share-menu {
+  position: absolute;
+  z-index: 40;
+  min-width: 11.5rem;
+  padding: 0.35rem;
+  margin-top: 0.35rem;
+  background: var(--bg-card, #fff);
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 31, 23, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.report-share-menu[hidden] {
+  display: none !important;
+}
+
+.report-share-menu button,
+.report-share-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-primary, #1a2e1f);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.report-share-menu button:hover,
+.report-share-menu a:hover {
+  background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #fff);
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+}
+
+.report-actions-icons {
+  position: relative;
+}
+
+@media (max-width: 575.98px) {
+  .report-action-btn,
+  .report-action-missing {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+}

@@ -382,6 +382,11 @@ assertContains('assets/css/leadership-message-page.css', '.leadership-message-st
 assertContains('includes/leadership-message-helpers.php', 'chairman_designation_en', 'chairman designation mirrors CEO');
 assertContains('ceo-message.php', 'id="ceo-message-body"', 'ceo article id uniform');
 assertContains('chairman-message.php', 'id="chairman-message-body"', 'chairman article id uniform');
+assertContains('reports.php', "coopThemeLinkHtml('assets/css/reports-page.css')", 'reports page CSS linked');
+assertContains('reports.php', 'report-actions-icons', 'reports icon-only action row');
+assertContains('reports.php', 'report-action-share', 'reports share action present');
+assertContains('reports.php', 'data-share-text', 'share includes report details payload');
+assertContains('assets/css/reports-page.css', '.report-action-btn', 'reports icon button styles');
 assertContains('includes/header.php', 'success-stories.php', 'about dropdown links success stories page');
 assertContains('includes/header.php', 'chairman-message.php', 'about dropdown links chairman page');
 assertContains('includes/header.php', 'ceo-message.php', 'about dropdown links ceo page');
