@@ -485,6 +485,13 @@ if (!function_exists('coop_nav_cms_page_li')) {
 }
 
 $currentPage = getCurrentPage();
+$__aboutNavActive = in_array($currentPage, [
+    'about',
+    'institutional-profile',
+    'success-stories',
+    'chairman-message',
+    'ceo-message',
+], true);
 $L = getLangStrings();
 
 $siteBrandName = ($currentLang === 'en' && trim($siteNameEn) !== '') ? $siteNameEn : $siteName;
@@ -1178,7 +1185,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                     <li class="<?php echo $currentPage == 'index' ? 'active' : ''; ?>">
                         <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>index.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="landmark"></i><span class="mnav-main-label"><?php echo $L['home']; ?></span></a>
                     </li>
-                    <li class="has-dropdown <?php echo $currentPage == 'about' ? 'active' : ''; ?>">
+                    <li class="has-dropdown <?php echo !empty($__aboutNavActive) ? 'active' : ''; ?>">
                         <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon mnav-main-icon" aria-hidden="true" data-lucide="info"></i><span class="mnav-main-label"><?php echo $L['about']; ?></span><i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                         <ul class="dropdown">
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>
@@ -1560,7 +1567,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li class="<?php echo $currentPage == 'index' ? 'active' : ''; ?>">
                                 <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>index.php"><?php echo $L['home']; ?></a>
                             </li>
-                            <li class="has-dropdown <?php echo $currentPage == 'about' ? 'active' : ''; ?>">
+                            <li class="has-dropdown <?php echo !empty($__aboutNavActive) ? 'active' : ''; ?>">
                                 <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><?php echo $L['about']; ?> <i class="lucide-icon" aria-hidden="true" data-lucide="chevron-down"></i></a>
                                 <ul class="dropdown">
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php"><i class="lucide-icon" aria-hidden="true" data-lucide="info"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></a></li>

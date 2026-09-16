@@ -18,6 +18,10 @@ if ($__aboutMeta === '') {
             : substr(strip_tags($aboutShort), 0, 158);
     }
 }
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/about-success-stories.css')
+        : '');
 require_once 'includes/header.php';
 ?>
 
@@ -55,7 +59,7 @@ $hasCeoMsg = trim((string)($lead['ceo_message'] ?? '')) !== '';
   else if (h === '#ceo-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/ceo-message.php'); ?>);
 })();
 </script>
-
+<?php
 // Get about page image from settings (admin controlled) — missing file = no broken image tag
 $aboutImageSetting = trim((string) getSetting('about_page_image', ''));
 $aboutImageDefault = 'assets/images/about-image.jpg';

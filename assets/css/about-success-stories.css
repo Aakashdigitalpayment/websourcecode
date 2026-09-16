@@ -1,4 +1,14 @@
-/* Member success stories — about.php#success-stories */
+/* About explore cards + member success stories page */
+#about-related .value-card {
+  color: inherit;
+}
+#about-related .value-card:hover {
+  color: inherit;
+}
+#about-related .value-card h5 {
+  margin-bottom: 0;
+}
+
 .mss-section {
   background: linear-gradient(180deg, rgba(26, 95, 42, 0.04) 0%, transparent 42%);
 }

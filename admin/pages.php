@@ -569,13 +569,20 @@ if ($flash) echo adminAlert($flash['type'], $flash['message']);
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?php $i = 1; foreach ($staticPagesResolved as $key => $info): ?>
+                                                <?php $i = 1; foreach ($staticPagesResolved as $key => $info):
+                                                    $__staticPublic = ($key === 'chairman_message')
+                                                        ? '../chairman-message.php'
+                                                        : (($key === 'ceo_message') ? '../ceo-message.php' : '');
+                                                ?>
                                                 <tr>
                                                     <td><?php echo $i++; ?></td>
                                                     <td><?php echo htmlspecialchars($info['title'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td><?php echo htmlspecialchars($info['title_en'], ENT_QUOTES, 'UTF-8'); ?></td>
                                                     <td class="text-center">
                                                         <a class="btn btn-sm btn-primary" href="pages.php?tab=static&action=edit_static&page=<?php echo urlencode($key); ?>&panel=form" title="सम्पादन"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
+                                                        <?php if ($__staticPublic !== ''): ?>
+                                                        <a class="btn btn-sm btn-outline-secondary" href="<?php echo htmlspecialchars($__staticPublic, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener" title="Public page"><i class="lucide-icon" data-lucide="external-link" aria-hidden="true"></i></a>
+                                                        <?php endif; ?>
                                                     </td>
                                                 </tr>
                                                 <?php endforeach; ?>

@@ -296,7 +296,7 @@ if (!function_exists('ai_chat_collect_candidates')) {
                 'chairman ceo अध्यक्ष प्रमुख कार्यकारी leadership team ' . $leadBody,
                 $tokens
             ) + ($leadershipQ ? 12 : 4);
-            $push('leadership', $english ? 'Leadership' : 'नेतृत्व', $leadBody, $leadScore, $pageUrl('about.php#chairman'));
+            $push('leadership', $english ? 'Leadership' : 'नेतृत्व', $leadBody, $leadScore, $pageUrl('chairman-message.php'));
         }
 
         /* Vision / mission */

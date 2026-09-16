@@ -297,6 +297,7 @@ assertContains('committees.php', "coopThemeLinkHtml('assets/css/committees-page.
 assertContains('auction.php', "coopThemeLinkHtml('assets/css/auction-page.css')", 'auction loads extracted CSS');
 assertContains('appointment.php', "coopThemeLinkHtml('assets/css/appointment-page.css')", 'appointment loads extracted CSS');
 assertContains('team.php', "coopThemeLinkHtml('assets/css/team-page.css')", 'team loads extracted CSS');
+assertContains('about.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'about loads related/success CSS');
 assertContains('about.php', "location.replace", 'about redirects old success/chairman hashes');
 assertContains('success-stories.php', 'fetchActiveMemberSuccessStories', 'success stories dedicated page');
 assertContains('success-stories.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'success stories page CSS');
