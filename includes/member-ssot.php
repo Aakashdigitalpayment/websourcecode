@@ -1282,8 +1282,11 @@ if (!function_exists('memberSsotDivergenceAlertHtml')) {
                 . 'Members = <code>' . htmlspecialchars($d['member'], ENT_QUOTES, 'UTF-8') . '</code>, '
                 . 'KYM = <code>' . htmlspecialchars($d['kyc'], ENT_QUOTES, 'UTF-8') . '</code></li>';
         }
+        $warnIcon = function_exists('coop_nav_icon_html')
+            ? coop_nav_icon_html('fas fa-triangle-exclamation', 'fas fa-exclamation-triangle', 'me-1')
+            : '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="triangle-alert"></i>';
         return '<div class="alert alert-warning border-0 shadow-sm py-2 px-3 mb-3" role="alert">'
-            . '<div class="fw-semibold small mb-1"><i class="fas fa-triangle-exclamation me-1"></i>SSOT mismatch — Members vs KYM</div>'
+            . '<div class="fw-semibold small mb-1">' . $warnIcon . 'SSOT mismatch — Members vs KYM</div>'
             . '<ul class="small mb-2 ps-3">' . $rows . '</ul>'
             . '<div class="small text-muted mb-0">Admin Members सम्पादन → KYM sync · Portal/Online KYM save → Members sync</div>'
             . '</div>';
@@ -1298,23 +1301,29 @@ if (!function_exists('memberSsotEditGuideHtml')) {
     {
         if ($context === 'kyc') {
             $rows = [
-                ['fas fa-user-pen text-primary', 'KYM विवरण सम्पादन (माथि)', 'नाम, mobile, email, ठेगाना, नागरिकता, परिवार, पेशा'],
-                ['fas fa-check-circle text-success', 'स्थिति / Approve (तल)', 'approve/reject, Member ID, risk, कागजात attach'],
-                ['fas fa-user-tag text-secondary', 'Member पृष्ठ', 'import correction / portal-only — Members edit'],
+                ['fas fa-user-pen', 'text-primary', 'KYM विवरण सम्पादन (माथि)', 'नाम, mobile, email, ठेगाना, नागरिकता, परिवार, पेशा'],
+                ['fas fa-check-circle', 'text-success', 'स्थिति / Approve (तल)', 'approve/reject, Member ID, risk, कागजात attach'],
+                ['fas fa-user-tag', 'text-secondary', 'Member पृष्ठ', 'import correction / portal-only — Members edit'],
             ];
         } else {
             $rows = [
-                ['fas fa-address-book text-primary', 'Member सम्पादन (यहीँ)', 'नाम, mobile, email, ठेगाना, लिङ्ग, DOB → KYM sync'],
-                ['fas fa-id-card text-success', 'KYM पृष्ठ', 'नागरिकता, परिवार, AML, कागजात — Members मा auto sync'],
+                ['fas fa-address-book', 'text-primary', 'Member सम्पादन (यहीँ)', 'नाम, mobile, email, ठेगाना, लिङ्ग, DOB → KYM sync'],
+                ['fas fa-id-card', 'text-success', 'KYM पृष्ठ', 'नागरिकता, परिवार, AML, कागजात — Members मा auto sync'],
             ];
         }
         $lis = '';
-        foreach ($rows as [$icon, $title, $desc]) {
-            $lis .= '<li class="mb-1"><i class="' . $icon . ' me-1"></i><strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</strong>'
+        foreach ($rows as [$icon, $color, $title, $desc]) {
+            $iconHtml = function_exists('coop_nav_icon_html')
+                ? coop_nav_icon_html($icon, 'fas fa-circle', 'me-1 ' . $color)
+                : '<i class="lucide-icon me-1 ' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . '" aria-hidden="true" data-lucide="circle"></i>';
+            $lis .= '<li class="mb-1">' . $iconHtml . '<strong>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</strong>'
                 . ' — ' . htmlspecialchars($desc, ENT_QUOTES, 'UTF-8') . '</li>';
         }
+        $mapIcon = function_exists('coop_nav_icon_html')
+            ? coop_nav_icon_html('fas fa-map-signs', 'fas fa-map-signs', 'me-1')
+            : '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="map-pinned"></i>';
         return '<div class="alert alert-light border small py-2 px-3 mb-3 member-ssot-edit-guide" role="note">'
-            . '<div class="fw-semibold mb-1"><i class="fas fa-map-signs me-1"></i>कहाँ के सम्पादन? (duplicate छैन)</div>'
+            . '<div class="fw-semibold mb-1">' . $mapIcon . 'कहाँ के सम्पादन? (duplicate छैन)</div>'
             . '<ul class="mb-0 ps-3">' . $lis . '</ul></div>';
     }
 }
@@ -1342,8 +1351,11 @@ if (!function_exists('memberSsotAdminHelpHtml')) {
         } elseif ($context === 'membership') {
             $body = 'नयाँ व्यक्ति → Member ID दिनुहोस् → members stub (+ पछि KYM)। अनि Online KYM / portal।';
         }
+        $linkIcon = function_exists('coop_nav_icon_html')
+            ? coop_nav_icon_html('fas fa-link', 'fas fa-link', 'me-1')
+            : '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="link"></i>';
         return '<div class="alert alert-info border-0 shadow-sm py-2 px-3 mb-3 member-ssot-help" role="note">'
-            . '<div class="fw-semibold small mb-1"><i class="fas fa-link me-1"></i>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>'
+            . '<div class="fw-semibold small mb-1">' . $linkIcon . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</div>'
             . '<div class="small mb-0 text-secondary">' . $body . '</div>'
             . '</div>';
     }

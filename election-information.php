@@ -108,8 +108,8 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
         <h1><?php echo htmlspecialchars($L['election_information'] ?? 'निर्वाचन जानकारी'); ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>notices.php"><?php echo $L['notices']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php"><?php echo $L['notices']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo htmlspecialchars($L['election_information'] ?? ''); ?></li>
             </ol>
         </nav>
@@ -122,19 +122,19 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
             <div class="alert alert-warning"><?php echo isEnglish() ? 'Could not load data. Please try again later.' : 'डाटा लोड गर्न सकिएन।'; ?></div>
         <?php elseif (!$cycle): ?>
             <div class="empty-state text-center py-5">
-                <i class="fas fa-check-to-slot fa-4x text-muted mb-3"></i>
+                <i class="lucide-icon lucide-4x text-muted mb-3" data-lucide="vote" aria-hidden="true"></i>
                 <h4><?php echo htmlspecialchars($L['election_no_data'] ?? ''); ?></h4>
                 <p class="text-muted mb-4"><?php echo htmlspecialchars($L['election_intro'] ?? ''); ?></p>
-                <a href="<?php echo SITE_URL; ?>notices.php" class="btn btn-outline-primary"><i class="fas fa-bullhorn me-1"></i><?php echo htmlspecialchars($L['election_view_notices'] ?? ''); ?></a>
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php" class="btn btn-outline-primary"><i class="lucide-icon me-1" data-lucide="megaphone" aria-hidden="true"></i><?php echo htmlspecialchars($L['election_view_notices'] ?? ''); ?></a>
             </div>
         <?php else: ?>
             <div class="section-header text-center mb-4" data-aos="fade-up">
                 <div class="section-badge-wrap">
-                    <span class="section-badge"><i class="fas fa-check-to-slot"></i> <?php echo htmlspecialchars($L['election_information'] ?? ''); ?></span>
+                    <span class="section-badge"><i class="lucide-icon" data-lucide="vote" aria-hidden="true"></i> <?php echo htmlspecialchars($L['election_information'] ?? ''); ?></span>
                 </div>
                 <h2><?php echo htmlspecialchars($ctitle); ?></h2>
                 <?php if (!empty($cycle['period_label'])): ?>
-                    <p class="text-muted mb-0"><i class="fas fa-calendar-alt me-1"></i><?php echo htmlspecialchars((string)$cycle['period_label']); ?></p>
+                    <p class="text-muted mb-0"><i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?php echo htmlspecialchars((string)$cycle['period_label']); ?></p>
                 <?php endif; ?>
                 <?php
                 $df = $cycle['date_from'] ?? '';
@@ -159,16 +159,16 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
 
             <div class="row g-4 mb-4">
                 <div class="col-md-6 text-center text-md-start">
-                    <a href="<?php echo SITE_URL; ?>committees.php" class="btn btn-success"><i class="fas fa-users-gear me-1"></i><?php echo htmlspecialchars($L['election_view_committees'] ?? ''); ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>committees.php" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="users-round" aria-hidden="true"></i><?php echo htmlspecialchars($L['election_view_committees'] ?? ''); ?></a>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="<?php echo SITE_URL; ?>notices.php" class="btn btn-outline-primary"><i class="fas fa-bullhorn me-1"></i><?php echo htmlspecialchars($L['election_view_notices'] ?? ''); ?></a>
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>notices.php" class="btn btn-outline-primary"><i class="lucide-icon me-1" data-lucide="megaphone" aria-hidden="true"></i><?php echo htmlspecialchars($L['election_view_notices'] ?? ''); ?></a>
                 </div>
             </div>
 
             <?php if (!empty($pubPositions)): ?>
                 <h3 class="h5 mb-3 text-center" style="color:var(--primary-color);font-weight:700;">
-                    <i class="fas fa-user-tie me-2"></i>उम्मेदवारहरू
+                    <i class="lucide-icon me-2" data-lucide="briefcase" aria-hidden="true"></i>उम्मेदवारहरू
                 </h3>
                 <?php
                 $voteStatePub = electionVoteWindowState($cycle);
@@ -176,16 +176,16 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                 if ($vOpenPub):
                 ?>
                 <div class="alert alert-success text-center">
-                    <i class="fas fa-check-circle me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Voting is open now.' : 'मतदान अहिले खुला छ।'; ?>
                     <div class="small mt-1 text-muted"><?php echo isEnglish() ? 'Candidates are public; casting ballots requires Member Portal login.' : 'उम्मेदवार सार्वजनिक छन्; मत दिन सदस्य पोर्टल लगिन चाहिन्छ।'; ?></div>
-                    <a href="<?php echo SITE_URL; ?>member/election-vote.php?cycle=<?php echo (int)$cycle['id']; ?>" class="btn btn-sm btn-success mt-2">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/election-vote.php?cycle=<?php echo (int)$cycle['id']; ?>" class="btn btn-sm btn-success mt-2">
                         <?php echo isEnglish() ? 'Login & vote in Member Portal' : 'लगिन गरेर सदस्य पोर्टलमा मत दिनुहोस्'; ?>
                     </a>
                 </div>
                 <?php elseif ($voteStatePub === 'upcoming'): ?>
                 <div class="alert alert-warning text-center">
-                    <i class="fas fa-hourglass-half me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="hourglass" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Voting opens soon' : 'मतदान चाँडै खुल्नेछ'; ?>
                     <div class="small mt-1">
                         <?php echo isEnglish() ? 'Opens' : 'खुल्ने'; ?>:
@@ -196,7 +196,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                 </div>
                 <?php elseif ($voteStatePub === 'ended'): ?>
                 <div class="alert alert-secondary text-center small">
-                    <i class="fas fa-flag-checkered me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="flag" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Voting has ended for this cycle.' : 'यो चक्रको मतदान सकिएको छ।'; ?>
                     <?php if (!empty($cycle['results_finalized'])): ?>
                     <div class="mt-1"><?php echo isEnglish() ? 'Results are available in the Member Portal.' : 'नतिजा सदस्य पोर्टलमा उपलब्ध छ।'; ?></div>
@@ -204,7 +204,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                 </div>
                 <?php elseif (!empty($cycle['vote_start_at'])): ?>
                 <div class="alert alert-info text-center small">
-                    <i class="fas fa-clock me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="clock" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Scheduled voting window' : 'तोकिएको मतदान समय'; ?>:
                     <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_start_at'])); ?>
                     → <?php echo htmlspecialchars(electionFormatDtBs((string)$cycle['vote_end_at'])); ?>
@@ -219,8 +219,8 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                 <ul class="nav nav-pills justify-content-center mb-4 election-samiti-tabs" role="tablist">
                     <?php foreach ($samitiGroups as $sk => $grp): ?>
                         <li class="nav-item">
-                            <button class="nav-link <?php echo $sk===$firstKey ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#sgrp-<?php echo (int)$sk; ?>" type="button">
-                                <i class="fas fa-users-gear me-1"></i><?php echo htmlspecialchars(isEnglish() ? ($grp['name_en'] ?: $grp['name_np']) : $grp['name_np']); ?>
+                            <button type="button" class="nav-link <?php echo $sk===$firstKey ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#sgrp-<?php echo (int)$sk; ?>" type="button">
+                                <i class="lucide-icon me-1" data-lucide="users-round" aria-hidden="true"></i><?php echo htmlspecialchars(isEnglish() ? ($grp['name_en'] ?: $grp['name_np']) : $grp['name_np']); ?>
                             </button>
                         </li>
                     <?php endforeach; ?>
@@ -231,12 +231,12 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                 <?php foreach ($samitiGroups as $sk => $grp): ?>
                     <div class="tab-pane fade <?php echo $sk===$firstKey ? 'show active' : ''; ?>" id="sgrp-<?php echo (int)$sk; ?>">
                         <?php if (count($samitiGroups) === 1): ?>
-                            <h4 class="h6 text-center mb-3"><i class="fas fa-users-gear me-1"></i><?php echo htmlspecialchars(isEnglish() ? ($grp['name_en'] ?: $grp['name_np']) : $grp['name_np']); ?></h4>
+                            <h4 class="h6 text-center mb-3"><i class="lucide-icon me-1" data-lucide="users-round" aria-hidden="true"></i><?php echo htmlspecialchars(isEnglish() ? ($grp['name_en'] ?: $grp['name_np']) : $grp['name_np']); ?></h4>
                         <?php endif; ?>
                         <?php foreach ($grp['positions'] as $pp): $list = $pubCandidates[(int)$pp['id']] ?? []; ?>
                             <div class="mb-4 election-pos-block">
                                 <h4 class="h6 mb-3 election-pos-title">
-                                    <i class="fas fa-briefcase me-1"></i><?php echo htmlspecialchars($pp['title_np']); ?>
+                                    <i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i><?php echo htmlspecialchars($pp['title_np']); ?>
                                     <small class="text-muted">(सिट: <?php echo (int)$pp['seats']; ?>)</small>
                                 </h4>
                                 <div class="row justify-content-center">
@@ -245,9 +245,9 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                         <div class="team-card-circular">
                                             <div class="team-photo-circular">
                                                 <?php if (!empty($cd['photo'])): ?>
-                                                    <img src="<?php echo SITE_URL . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" loading="lazy" alt="<?php echo htmlspecialchars($cd['name']); ?>">
+                                                    <img src="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') . htmlspecialchars(ltrim((string)$cd['photo'], '/')); ?>" loading="lazy" alt="<?php echo htmlspecialchars($cd['name']); ?>">
                                                 <?php else: ?>
-                                                    <div class="team-placeholder-circular"><i class="fas fa-user"></i></div>
+                                                    <div class="team-placeholder-circular"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></div>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="team-info-circular">
@@ -256,11 +256,11 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                                 </h5>
                                                 <?php if (!empty($cd['name_en'])): ?><p class="team-name-en"><?php echo htmlspecialchars($cd['name_en']); ?></p><?php endif; ?>
                                                 <span class="team-position-badge"><?php echo htmlspecialchars($pp['title_np']); ?></span>
-                                                <?php if (!empty($cd['address'])): ?><div class="small text-muted mt-1"><i class="fas fa-map-marker-alt me-1"></i><?php echo htmlspecialchars($cd['address']); ?></div><?php endif; ?>
+                                                <?php if (!empty($cd['address'])): ?><div class="small text-muted mt-1"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo htmlspecialchars($cd['address']); ?></div><?php endif; ?>
                                                 <?php if (!empty($cd['phone']) || !empty($cd['email'])): ?>
                                                 <div class="team-contact-circular">
-                                                    <?php if (!empty($cd['phone'])): ?><a href="tel:<?php echo htmlspecialchars($cd['phone']); ?>" title="<?php echo htmlspecialchars($cd['phone']); ?>"><i class="fas fa-phone"></i></a><?php endif; ?>
-                                                    <?php if (!empty($cd['email'])): ?><a href="mailto:<?php echo htmlspecialchars($cd['email']); ?>" title="<?php echo htmlspecialchars($cd['email']); ?>"><i class="fas fa-envelope"></i></a><?php endif; ?>
+                                                    <?php if (!empty($cd['phone'])): ?><a href="tel:<?php echo htmlspecialchars($cd['phone']); ?>" title="<?php echo htmlspecialchars($cd['phone']); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a><?php endif; ?>
+                                                    <?php if (!empty($cd['email'])): ?><a href="mailto:<?php echo htmlspecialchars($cd['email']); ?>" title="<?php echo htmlspecialchars($cd['email']); ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></a><?php endif; ?>
                                                 </div>
                                                 <?php endif; ?>
                                             </div>
@@ -280,7 +280,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
 
             <?php if (!empty($milestones)): ?>
                 <h3 class="h5 mb-3 text-center" style="color:var(--primary-color);font-weight:700;">
-                    <i class="fas fa-list-ol me-2"></i><?php echo htmlspecialchars($L['election_timeline'] ?? ''); ?>
+                    <i class="lucide-icon me-2" data-lucide="list-ordered" aria-hidden="true"></i><?php echo htmlspecialchars($L['election_timeline'] ?? ''); ?>
                 </h3>
                 <div class="row">
                     <div class="col-lg-10 mx-auto">
@@ -298,7 +298,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                 <div class="election-tl-item mb-4 pb-4 border-bottom">
                                     <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
                                         <?php if ($ed): ?>
-                                            <span class="badge bg-primary rounded-pill"><i class="fas fa-calendar-day me-1"></i><?php echo $electionFmtYmd($ed); ?></span>
+                                            <span class="badge bg-primary rounded-pill"><i class="lucide-icon me-1" data-lucide="sunrise" aria-hidden="true"></i><?php echo $electionFmtYmd($ed); ?></span>
                                         <?php endif; ?>
                                         <h4 class="h6 mb-0 flex-grow-1" style="font-weight:700;"><?php echo htmlspecialchars($mt); ?></h4>
                                     </div>
@@ -313,7 +313,7 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                             : (SITE_URL . ltrim($__att, '/'));
                                         ?>
                                         <a href="<?php echo htmlspecialchars($__attUrl, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener noreferrer">
-                                            <i class="fas fa-file-arrow-down me-1"></i><?php echo htmlspecialchars($L['download'] ?? 'डाउनलोड'); ?>
+                                            <i class="lucide-icon me-1" data-lucide="download" aria-hidden="true"></i><?php echo htmlspecialchars($L['download'] ?? 'डाउनलोड'); ?>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -329,12 +329,12 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
             ?>
                 <div class="mt-5 pt-4 border-top">
                     <h3 class="h6 mb-3" style="color:var(--primary-color);font-weight:700;">
-                        <i class="fas fa-archive me-2"></i><?php echo htmlspecialchars($L['election_archive'] ?? ''); ?>
+                        <i class="lucide-icon me-2" data-lucide="archive" aria-hidden="true"></i><?php echo htmlspecialchars($L['election_archive'] ?? ''); ?>
                     </h3>
                     <ul class="list-unstyled row g-2">
                         <?php foreach ($others as $oc): ?>
                             <li class="col-md-6">
-                                <a href="<?php echo SITE_URL; ?>election-information.php?cycle=<?php echo (int)$oc['id']; ?>" class="d-block p-3 border rounded text-decoration-none text-dark h-100 election-arch-link">
+                                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>election-information.php?cycle=<?php echo (int)$oc['id']; ?>" class="d-block p-3 border rounded text-decoration-none text-dark h-100 election-arch-link">
                                     <div class="election-arch-head">
                                         <strong class="election-arch-title">
                                             <?php echo htmlspecialchars(isEnglish()
@@ -343,12 +343,12 @@ $cintro = $cycle ? (isEnglish() ? (trim((string)($cycle['intro_en'] ?? '')) ?: t
                                         </strong>
                                         <?php if (!empty($oc['period_label'])): ?>
                                             <span class="election-arch-tenure">
-                                                <i class="fas fa-calendar-alt me-1"></i><?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?><?php echo htmlspecialchars((string)$oc['period_label']); ?>
+                                                <i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?php echo isEnglish() ? 'Tenure: ' : 'कार्यकाल: '; ?><?php echo htmlspecialchars((string)$oc['period_label']); ?>
                                             </span>
                                         <?php endif; ?>
                                     </div>
                                     <span class="d-block small text-muted mt-1">
-                                        <i class="fas fa-user-tie me-1"></i><?php echo isEnglish() ? 'View candidate details' : 'उम्मेदवार विवरण हेर्नुहोस्'; ?>
+                                        <i class="lucide-icon me-1" data-lucide="briefcase" aria-hidden="true"></i><?php echo isEnglish() ? 'View candidate details' : 'उम्मेदवार विवरण हेर्नुहोस्'; ?>
                                     </span>
                                 </a>
                             </li>

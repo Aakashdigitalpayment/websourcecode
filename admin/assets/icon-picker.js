@@ -1,8 +1,10 @@
 /**
  * Visual Font Awesome icon picker for admin forms.
+ * Storage SSOT: input still saves FA class strings (`fas fa-star`) — no DB rewrite.
+ * Preview/grid: Lucide for fas/far; brand packs (`fab`) stay Font Awesome.
  * Usage: add class `js-fa-icon-picker` on a wrapper that contains:
  *   - [data-fa-input] text input (name=icon / cat_icon)
- *   - optional [data-fa-preview] element for live <i>
+ *   - optional [data-fa-preview] element for live preview
  *   - optional [data-fa-open] button
  */
 (function (window, document) {
@@ -77,6 +79,15 @@
         'fas fa-qrcode', 'fas fa-shield-alt', 'fas fa-lock', 'fas fa-key',
         'fas fa-cloud', 'fas fa-database', 'fas fa-cogs', 'fas fa-th-large'
       ]
+    },
+    {
+      id: 'brands',
+      label: 'Brands (FA)',
+      icons: [
+        'fab fa-facebook-f', 'fab fa-facebook', 'fab fa-youtube', 'fab fa-whatsapp',
+        'fab fa-google', 'fab fa-google-play', 'fab fa-apple', 'fab fa-twitter',
+        'fab fa-instagram', 'fab fa-linkedin-in', 'fab fa-tiktok', 'fab fa-viber'
+      ]
     }
   ];
 
@@ -96,11 +107,12 @@
       '<div class="fa-ip-backdrop" data-fa-close></div>' +
       '<div class="fa-ip-dialog">' +
         '<div class="fa-ip-head">' +
-          '<h5><i class="fas fa-icons me-2"></i>Select Icon</h5>' +
+          '<h5><i class="lucide-icon me-2" aria-hidden="true" data-lucide="layout-grid"></i>Select Icon</h5>' +
           '<button type="button" class="fa-ip-close" data-fa-close aria-label="Close">&times;</button>' +
         '</div>' +
+        '<div class="fa-ip-storage-note">DB stores FA class (e.g. <code>fas fa-star</code>). Brands stay <code>fab</code>.</div>' +
         '<div class="fa-ip-head" style="padding-top:0;border-bottom:0;">' +
-          '<input type="search" class="fa-ip-search" placeholder="Search: piggy, heart, hands..." data-fa-search>' +
+          '<input type="search" class="fa-ip-search" placeholder="Search: piggy, heart, facebook..." data-fa-search>' +
         '</div>' +
         '<div class="fa-ip-cats" data-fa-cats></div>' +
         '<div class="fa-ip-body" data-fa-body></div>' +
@@ -137,7 +149,7 @@
   function iconMatches(iconClass) {
     if (!searchTerm) return true;
     return iconClass.toLowerCase().indexOf(searchTerm) !== -1 ||
-      iconClass.replace(/^fas\s+fa-/, '').indexOf(searchTerm) !== -1;
+      iconClass.replace(/^(fa[srlb]?\s+)?fa-/i, '').indexOf(searchTerm) !== -1;
   }
 
   function renderCats() {
@@ -147,6 +159,61 @@
       html += '<button type="button" class="fa-ip-cat' + (activeCat === g.id ? ' is-active' : '') + '" data-fa-cat="' + g.id + '">' + g.label + '</button>';
     });
     wrap.innerHTML = html;
+  }
+
+  function faClassToLucideName(iconClass) {
+    var s = String(iconClass || '').trim();
+    if (!s) return 'layout-grid';
+    if (/\bfab\b|\bfa-brands\b/i.test(s)) return null; /* brand → keep FA */
+    if (typeof window.coopFaToLucide === 'function') {
+      var mapped = window.coopFaToLucide(s);
+      if (mapped && /^[a-z0-9-]+$/i.test(mapped)) return mapped.toLowerCase();
+    }
+    var bare = s.replace(/^(fa[srlb]?\s+)?fa-/i, '').trim().toLowerCase();
+    var FIX = {
+      'check-circle': 'circle-check', 'x-circle': 'circle-x', 'times-circle': 'circle-x',
+      'exclamation-circle': 'circle-alert', 'exclamation-triangle': 'triangle-alert',
+      'home': 'house', 'cog': 'settings', 'cogs': 'settings', 'search': 'search',
+      'mobile-alt': 'smartphone', 'file-alt': 'file-text', 'map-marker-alt': 'map-pin',
+      'calendar-alt': 'calendar', 'shield-alt': 'shield', 'external-link-alt': 'external-link',
+      'hand-holding-usd': 'banknote', 'university': 'landmark', 'th-large': 'layout-grid',
+      'piggy-bank': 'piggy-bank', 'handshake': 'handshake', 'users': 'users',
+      'user-tie': 'user-round-tie', 'graduation-cap': 'graduation-cap', 'heartbeat': 'heart-pulse',
+      'balance-scale': 'scale', 'bullhorn': 'megaphone', 'praying-hands': 'hands-praying',
+      'hand-holding-heart': 'hand-heart', 'notes-medical': 'notebook-pen',
+      'briefcase-medical': 'briefcase-medical', 'seedling': 'sprout', 'tractor': 'tractor',
+      'place-of-worship': 'church', 'chalkboard-teacher': 'presentation',
+      'user-friends': 'users', 'people-carry': 'users', 'hands-helping': 'handshake',
+      'money-bill-wave': 'banknote', 'file-invoice-dollar': 'file-text',
+      'cash-register': 'calculator', 'sack-dollar': 'wallet', 'percentage': 'percent',
+      'chart-pie': 'chart-pie', 'clipboard-list': 'clipboard-list', 'file-contract': 'file-text',
+      'house-user': 'house', 'calendar-check': 'calendar-check', 'sitemap': 'network'
+    };
+    bare = FIX[bare] || bare;
+    return /^[a-z0-9-]+$/.test(bare) ? bare : 'circle';
+  }
+
+  function setPreview(previewEl, iconClass) {
+    if (!previewEl) return;
+    var raw = String(iconClass || 'fas fa-th-large').replace(/"/g, '');
+    var lucide = faClassToLucideName(raw);
+    if (lucide === null) {
+      previewEl.innerHTML = '<i class="' + raw + '" aria-hidden="true"></i>';
+      return;
+    }
+    previewEl.innerHTML = '<i class="lucide-icon" data-lucide="' + lucide + '" aria-hidden="true"></i>';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      var node = previewEl.querySelector('[data-lucide]');
+      if (node) window.lucide.createIcons({ nodes: [node] });
+    }
+  }
+
+  function renderIconMarkup(iconClass) {
+    var lucide = faClassToLucideName(iconClass);
+    if (lucide === null) {
+      return '<i class="' + iconClass + '" aria-hidden="true"></i>';
+    }
+    return '<i class="lucide-icon" data-lucide="' + lucide + '" aria-hidden="true"></i>';
   }
 
   function renderGrid() {
@@ -161,19 +228,17 @@
       html += '<div class="fa-ip-group-title">' + g.label + '</div><div class="fa-ip-grid">';
       items.forEach(function (icon) {
         shown++;
-        var short = icon.replace(/^fas\s+fa-/, '');
+        var short = icon.replace(/^(fa[srlb]?\s+)?fa-/i, '');
         html += '<button type="button" class="fa-ip-item' + (icon === current ? ' is-selected' : '') + '" data-fa-icon="' + icon + '" title="' + icon + '">' +
-          '<i class="' + icon + '"></i><span>' + short + '</span></button>';
+          renderIconMarkup(icon) + '<span>' + short + '</span></button>';
       });
       html += '</div>';
     });
     if (!shown) html = '<div class="fa-ip-empty">No icons match your search.</div>';
     body.innerHTML = html;
-  }
-
-  function setPreview(previewEl, iconClass) {
-    if (!previewEl) return;
-    previewEl.innerHTML = '<i class="' + String(iconClass || 'fas fa-th-large').replace(/"/g, '') + '"></i>';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons({ nodes: body.querySelectorAll('[data-lucide]') });
+    }
   }
 
   function selectIcon(iconClass) {
@@ -196,6 +261,10 @@
     renderCats();
     renderGrid();
     modal.classList.add('is-open');
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      var headNodes = modal.querySelectorAll('.fa-ip-head [data-lucide]');
+      if (headNodes.length) window.lucide.createIcons({ nodes: headNodes });
+    }
     setTimeout(function () { if (search) search.focus(); }, 30);
   }
 
@@ -231,7 +300,7 @@
       openBtn.className = 'btn btn-success fa-ip-open';
       openBtn.setAttribute('data-fa-open', '');
       openBtn.setAttribute('title', 'Select icon');
-      openBtn.innerHTML = '<i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>';
+      openBtn.innerHTML = '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="layout-grid"></i><span>छान्नुहोस्</span>';
       if (input.parentElement && input.parentElement.classList.contains('input-group')) {
         input.parentElement.appendChild(openBtn);
       } else {
@@ -243,7 +312,13 @@
         row.appendChild(openBtn);
       }
     } else if (!openBtn.querySelector('span') && openBtn.textContent.trim() === '') {
-      openBtn.innerHTML = '<i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>';
+      openBtn.innerHTML = '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="layout-grid"></i><span>छान्नुहोस्</span>';
+    }
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      var openIcon = openBtn.querySelector('[data-lucide]');
+      if (openIcon) window.lucide.createIcons({ nodes: [openIcon] });
+      var headIcon = modal && modal.querySelector('.fa-ip-head [data-lucide]');
+      if (headIcon) window.lucide.createIcons({ nodes: [headIcon] });
     }
 
     openBtn.addEventListener('click', function (e) {
@@ -294,7 +369,9 @@
     enhance: enhance,
     open: openModal,
     close: closeModal,
-    groups: ICON_GROUPS
+    groups: ICON_GROUPS,
+    setPreview: setPreview,
+    faClassToLucideName: faClassToLucideName
   };
 
   function boot() {

@@ -2,6 +2,7 @@
 /**
  * Information Room — Access log (who viewed / downloaded)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string) ($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -25,9 +26,9 @@ echo adminPageHeader(
     $__t('Information Room — पहुँच लग', 'Information Room — Access log'),
     'fa-clipboard-list',
     $__t('कसले कहिले कागजात हेर्यो / डाउनलोड गर्‍यो — audit trail।', 'Who viewed or downloaded documents — audit trail.'),
-    '<a href="information-room.php" class="btn btn-sm btn-outline-secondary me-2"><i class="fas fa-cog me-1"></i>'
+    '<a href="information-room.php" class="btn btn-sm btn-outline-secondary me-2"><i class="lucide-icon me-1" data-lucide="settings" aria-hidden="true"></i>'
     . $__t('व्यवस्थापन', 'Manage') . '</a>'
-    . '<a href="information-room-browse.php" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye me-1"></i>'
+    . '<a href="information-room-browse.php" class="btn btn-sm btn-outline-primary"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>'
     . $__t('Reader', 'Reader') . '</a>'
 );
 

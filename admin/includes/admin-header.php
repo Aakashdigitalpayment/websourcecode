@@ -37,8 +37,22 @@ if (!function_exists('fa_to_lucide')) {
         return preg_replace('/^fa[srb]?\s+fa-|^fa-/', '', $fa) ?: 'circle';
     }
 }
+/* Shared modules (SSOT) — CSRF remains below; do not use admin/_bootstrap mass-migrate */
+$__bootSharedFile = __DIR__ . '/../../includes/boot-shared.php';
+if (is_file($__bootSharedFile)) {
+    require_once $__bootSharedFile;
+    if (function_exists('coop_require_boot_shared')) {
+        coop_require_boot_shared();
+    }
+}
+unset($__bootSharedFile);
+if (!defined('PORTAL')) {
+    define('PORTAL', 'admin');
+}
+
 /* Notification system — email/SMS पठाउन — सबै admin pages मा available */
 require_once __DIR__ . '/../../includes/notifications.php';
+
 /* Admin tables auto-create — DB मा tables नभएमा automatically बनाउँछ */
 require_once __DIR__ . '/../includes/ensure-admin-tables.php';
 /* Public install wizard lock — auto-heal when local DB config exists */
@@ -297,7 +311,7 @@ $pageGroups = [
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
-    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
+    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','member-success-stories','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','update-checklist','site-health','audit-log','error-log','help-guide','help-center'],
     /* Superadmin-only tools — one place in sidebar (not hideable via Menu Control) */
     'superadmin'=> ['manage-admins','menu-control','footer-settings','security-settings','backup-restore','site-license','site-setup','db-setup','run-migration'],
@@ -353,13 +367,16 @@ set_exception_handler(function (\Throwable $ex) {
     <title><?php echo isset($pageTitle) ? $pageTitle . ' - ' : ''; ?><?php echo $adminT('एडमिन प्यानल', 'Admin Panel'); ?></title>
 
     <!-- Bootstrap CSS (required for admin pages) -->
-    <link rel="stylesheet" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/vendor/bootstrap.min.css">
-
-    <!-- DataTables CSS (required for admin table pages) -->
-    <link rel="stylesheet" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/vendor/datatables/dataTables.bootstrap5.min.css">
-
-    <!-- Nepali Datepicker CSS (self-hosted) -->
-    <link rel="stylesheet" href="<?php echo defined('SITE_URL') ? SITE_URL : '../'; ?>assets/css/nepali.datepicker.min.css">
+    <?php if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/vendor/bootstrap.min.css');
+        coopThemeLink('assets/vendor/datatables/dataTables.bootstrap5.min.css');
+        coopThemeLink('assets/css/nepali.datepicker.min.css');
+    } else {
+        $__adminAsset = defined('SITE_URL') ? SITE_URL : '../';
+        echo '<link rel="stylesheet" href="' . htmlspecialchars($__adminAsset, ENT_QUOTES, 'UTF-8') . 'assets/vendor/bootstrap.min.css">' . "\n";
+        echo '<link rel="stylesheet" href="' . htmlspecialchars($__adminAsset, ENT_QUOTES, 'UTF-8') . 'assets/vendor/datatables/dataTables.bootstrap5.min.css">' . "\n";
+        echo '<link rel="stylesheet" href="' . htmlspecialchars($__adminAsset, ENT_QUOTES, 'UTF-8') . 'assets/css/nepali.datepicker.min.css">' . "\n";
+    } ?>
 
     <!-- Font Awesome: loaded via coopThemeHeadAssets (self-hosted assets/vendor/fontawesome) -->
 
@@ -367,7 +384,9 @@ set_exception_handler(function (\Throwable $ex) {
     <?php if (function_exists('coopThemeLink')) { coopThemeLink('admin/assets/icon-picker.css'); } ?>
 
     <!-- PWA manifest + Apple tags -->
+    <?php if (function_exists('coopThemeColorMeta')) { coopThemeColorMeta(); } else { ?>
     <meta name="theme-color" content="<?php echo htmlspecialchars(function_exists('getSetting') ? (string)getSetting('primary_color', '#1a5f2a') : '#1a5f2a', ENT_QUOTES, 'UTF-8'); ?>">
+    <?php } ?>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="<?php echo htmlspecialchars($pwaShortName, ENT_QUOTES, 'UTF-8'); ?>">
@@ -392,7 +411,7 @@ set_exception_handler(function (\Throwable $ex) {
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="<?php echo SITE_URL; ?>" class="logo sidebar-brand <?php echo $hasSiteLogo ? 'has-logo' : 'no-logo'; ?>">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="logo sidebar-brand <?php echo $hasSiteLogo ? 'has-logo' : 'no-logo'; ?>">
                     <?php if ($hasSiteLogo): ?>
                     <img src="<?php echo e(safe_versioned_media_src($siteLogo)); ?>" alt="<?php echo e($siteName); ?>" class="sidebar-brand-logo">
                     <?php else: ?>
@@ -449,7 +468,7 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage === 'security-settings' ? 'active' : ''; ?>">
                                 <a href="security-settings.php">
-                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i></span>
+                                    <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i></span>
                                     <span><?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></span>
                                 </a>
                             </li>
@@ -823,25 +842,25 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='program-attendance' ? 'active' : ''; ?>">
                                 <a href="program-attendance.php" class="sidebar-link-flex">
                                     <span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i></span>
-                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति अनुरोध / रिपोर्ट', 'Attendance Requests / Report'); ?></span>
+                                    <span class="sidebar-link-label"><?php echo $adminT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'); ?></span>
                                     <?php if (!empty($adminAlertCounts['attend'])): ?><span class="badge"><?php echo (int)$adminAlertCounts['attend']; ?></span><?php endif; ?>
                                 </a>
                             </li>
                             <li class="nav-submenu-label px-3 py-1 small text-muted text-uppercase"><?php echo $adminT('रिपोर्ट', 'Reports'); ?></li>
                             <li class="<?php echo $currentPage=='program-reports-consolidated' ? 'active' : ''; ?>">
-                                <a href="program-reports-consolidated.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="bar-chart-3"></i></span><span><?php echo $adminT('Consolidated', 'Consolidated'); ?></span></a>
+                                <a href="program-reports-consolidated.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="bar-chart-3"></i></span><span><?php echo $adminT('समेकित रिपोर्ट', 'Consolidated'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='program-reports-location' ? 'active' : ''; ?>">
-                                <a href="program-reports-location.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="map"></i></span><span><?php echo $adminT('Location-wise', 'Location-wise'); ?></span></a>
+                                <a href="program-reports-location.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="map"></i></span><span><?php echo $adminT('स्थानअनुसार', 'Location-wise'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='program-reports-member' ? 'active' : ''; ?>">
-                                <a href="program-reports-member.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="users"></i></span><span><?php echo $adminT('Member-wise', 'Member-wise'); ?></span></a>
+                                <a href="program-reports-member.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="users"></i></span><span><?php echo $adminT('सदस्यअनुसार', 'Member-wise'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='program-reports-absent' ? 'active' : ''; ?>">
-                                <a href="program-reports-absent.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="user-x"></i></span><span><?php echo $adminT('Absent', 'Absent'); ?></span></a>
+                                <a href="program-reports-absent.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="user-x"></i></span><span><?php echo $adminT('अनुपस्थित', 'Absent'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='program-reports-duplicates' ? 'active' : ''; ?>">
-                                <a href="program-reports-duplicates.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="shield-alert"></i></span><span><?php echo $adminT('Duplicate Attempts', 'Duplicate Attempts'); ?></span></a>
+                                <a href="program-reports-duplicates.php"><span class="nav-icon-wrap"><i class="lucide-icon" data-lucide="shield-alert"></i></span><span><?php echo $adminT('दोहोरो प्रयास', 'Duplicate Attempts'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='sahakari-calendar-events' ? 'active' : ''; ?>">
                                 <a href="sahakari-calendar-events.php">
@@ -884,7 +903,7 @@ set_exception_handler(function (\Throwable $ex) {
                                 <a href="election-voting-attendance.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="person-standing"></i></span><span><?php echo $adminT('मतदान उपस्थिति', 'Voting Attendance'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='election-results' ? 'active' : ''; ?>">
-                                <a href="election-results.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-bar"></i></span><span><?php echo $adminT('निर्वाचन नतिजा', 'Election Results'); ?></span></a>
+                                <a href="election-results.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="bar-chart-3"></i></span><span><?php echo $adminT('निर्वाचन नतिजा', 'Election Results'); ?></span></a>
                             </li>
                         </ul>
                     </li>
@@ -996,6 +1015,9 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo $currentPage=='member-of-year' ? 'active' : ''; ?>">
                                 <a href="member-of-year.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-gold" aria-hidden="true" data-lucide="trophy"></i></span><span><?php echo $adminT('वर्षको सर्वश्रेष्ठ सदस्य', 'Member of the Year'); ?></span></a>
                             </li>
+                            <li class="<?php echo $currentPage=='member-success-stories' ? 'active' : ''; ?>">
+                                <a href="member-success-stories.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i></span><span><?php echo $adminT('सदस्य सफलताका कथा', 'Member Success Stories'); ?></span></a>
+                            </li>
                             <li class="<?php echo $currentPage=='about-settings' ? 'active' : ''; ?>">
                                 <a href="about-settings.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('बारेमा पृष्ठ', 'About Page'); ?></span></a>
                             </li>
@@ -1044,7 +1066,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <li class="<?php echo ($currentPage=='help-guide' || $currentPage=='help-center') ? 'active' : ''; ?>">
                                 <a href="help-center.php">
                                     <span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-green" aria-hidden="true" data-lucide="book-open"></i></span>
-                                    <span><?php echo $adminT('📖 सहायता / Help', '📖 Help / Guide'); ?></span>
+                                    <span><?php echo $adminT('सहायता / Help', 'Help / Guide'); ?></span>
                                 </a>
                             </li>
 
@@ -1171,7 +1193,7 @@ set_exception_handler(function (\Throwable $ex) {
                         ['label'=>$adminT('सदस्य बजार / सीप', 'Member marketplace'), 'count'=>$adminAlertCounts['marketplace'] ?? 0, 'href'=>'member-marketplace.php?tab=pending', 'icon'=>'fa-basket-shopping', 'tone'=>'green'],
                         ['label'=>$adminT('पोर्टल दर्ता unlock', 'Portal registration unlock'),  'count'=>$adminAlertCounts['mem_pending'],       'href'=>'member-online-portal.php?status=pending','icon'=>'fa-user-plus',        'tone'=>'orange'],
                         ['label'=>$adminT('Password Reset', 'Password Reset'),    'count'=>$adminAlertCounts['mem_resets'],        'href'=>'member-online-portal.php?tab=resets', 'icon'=>'fa-key',                 'tone'=>'red'],
-                        ['label'=>$adminT('उपस्थिति अनुरोध', 'Attendance Requests'), 'count'=>$adminAlertCounts['attend'] ?? 0,   'href'=>'program-attendance.php',              'icon'=>'fa-clipboard-check',     'tone'=>'cyan'],
+                        ['label'=>$adminT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'), 'count'=>$adminAlertCounts['attend'] ?? 0,   'href'=>'program-attendance.php',              'icon'=>'fa-clipboard-check',     'tone'=>'cyan'],
                     ];
                     /* pending मात्र filter गर्ने — count > 0 भएका मात्र dropdown मा देखाउने */
                     $activeNotifs = array_values(array_filter($notifItems, function ($i) {
@@ -1206,7 +1228,7 @@ set_exception_handler(function (\Throwable $ex) {
                             <div class="notif-dropdown-body">
                                 <?php if (empty($activeNotifs)): ?>
                                 <div class="notif-empty">
-                                    <i class="lucide-icon text-success fa-2x mb-2" aria-hidden="true" data-lucide="circle-check"></i>
+                                    <i class="lucide-icon text-success lucide-2x mb-2" aria-hidden="true" data-lucide="circle-check"></i>
                                     <p class="mb-0"><?php echo $adminT('सबै हेरिएको छ!', 'All caught up!'); ?></p>
                                 </div>
                                 <?php else: ?>
@@ -1262,7 +1284,7 @@ set_exception_handler(function (\Throwable $ex) {
                                     <a href="manage-admins.php"><i class="lucide-icon" aria-hidden="true" data-lucide="users-round"></i> <?php echo $adminT('Admin व्यवस्थापन', 'Admin Management'); ?></a>
                                     <a href="menu-control.php"><i class="lucide-icon" aria-hidden="true" data-lucide="layout-list"></i> <?php echo $adminT('Menu Control', 'Menu Control'); ?></a>
                                     <a href="footer-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="copyright"></i> <?php echo $adminT('फुटर सेटिङ', 'Footer Settings'); ?></a>
-                                    <a href="security-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> <?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></a>
+                                    <a href="security-settings.php"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> <?php echo $adminT('सुरक्षा / 2FA', 'Security / 2FA'); ?></a>
                                     <a href="site-license.php"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i> <?php echo $adminT('साइट म्याद', 'Site License'); ?></a>
                                 <?php endif; ?>
                                 <a href="logout.php"><i class="lucide-icon" aria-hidden="true" data-lucide="log-out"></i> <?php echo $adminT('लगआउट', 'Logout'); ?></a>
@@ -1284,7 +1306,7 @@ set_exception_handler(function (\Throwable $ex) {
                   $fIcon  = $fIcons[$fType] ?? 'fa-circle-info';
               ?>
               <div class="alert alert-<?php echo $fType; ?> alert-dismissible fade show mx-3 mt-3" role="alert">
-                  <i class="lucide-icon fa-fw flex-shrink-0" aria-hidden="true" data-lucide="<?php echo htmlspecialchars(fa_to_lucide($fIcon), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                  <i class="lucide-icon flex-shrink-0" aria-hidden="true" data-lucide="<?php echo htmlspecialchars(fa_to_lucide($fIcon), ENT_QUOTES, 'UTF-8'); ?>"></i>
                   <span><?php echo htmlspecialchars($flash['message']); ?></span>
                   <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
               </div>
@@ -1296,7 +1318,7 @@ set_exception_handler(function (\Throwable $ex) {
                       <div class="modal-content border-0 shadow">
                           <div class="modal-header text-white" style="background:linear-gradient(135deg,#b91c1c,#ef4444);">
                               <h5 class="modal-title" id="adminPendingNoticeTitle">
-                                  <i class="fas fa-bell me-2"></i><?php echo $adminT('पेन्डिङ अनुरोधहरू', 'Pending Requests'); ?>
+                                  <i class="lucide-icon me-2" aria-hidden="true" data-lucide="bell"></i><?php echo $adminT('पेन्डिङ अनुरोधहरू', 'Pending Requests'); ?>
                                   <span class="badge bg-light text-danger ms-2"><?php echo (int)$totalAlerts; ?></span>
                               </h5>
                               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -1309,7 +1331,7 @@ set_exception_handler(function (\Throwable $ex) {
                                      class="list-group-item list-group-item-action d-flex align-items-center gap-3 px-0">
                                       <span class="rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0"
                                             style="width:36px;height:36px;background:rgba(239,68,68,.12);color:#b91c1c;">
-                                          <i class="fas <?php echo htmlspecialchars($ni['icon'], ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                          <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo htmlspecialchars(fa_to_lucide($ni['icon'] ?? 'fa-circle'), ENT_QUOTES, 'UTF-8'); ?>"></i>
                                       </span>
                                       <span class="flex-grow-1 fw-semibold"><?php echo $ni['label']; ?></span>
                                       <span class="badge rounded-pill" style="background:#ef4444;"><?php echo (int)$ni['count']; ?></span>
@@ -1320,7 +1342,7 @@ set_exception_handler(function (\Throwable $ex) {
                           <div class="modal-footer">
                               <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal"><?php echo $adminT('पछि हेर्छु', 'Later'); ?></button>
                               <a href="<?php echo ADMIN_URL; ?>dashboard.php" class="btn btn-danger btn-sm">
-                                  <i class="fas fa-gauge-high me-1"></i><?php echo $adminT('ड्यासबोर्ड', 'Dashboard'); ?>
+                                  <i class="lucide-icon me-1" aria-hidden="true" data-lucide="gauge"></i><?php echo $adminT('ड्यासबोर्ड', 'Dashboard'); ?>
                               </a>
                           </div>
                       </div>
@@ -1474,10 +1496,13 @@ set_exception_handler(function (\Throwable $ex) {
 
 
     <!-- QS overlay: inline override ensures no backdrop-filter when hidden -->
-    <style>
-    #admin-qs-overlay { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
-    #admin-qs-overlay.qs-visible { backdrop-filter: blur(2px) !important; -webkit-backdrop-filter: blur(2px) !important; }
-    </style>
+    <?php
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/css/admin-header-critical.css');
+    } elseif (function_exists('coopThemeLinkHtml')) {
+        echo coopThemeLinkHtml('assets/css/admin-header-critical.css');
+    }
+    ?>
     <!-- ── Quick-Search Overlay (Ctrl+K) ─────────────────────────── -->
     <div id="admin-qs-overlay" class="admin-qs-overlay" role="dialog" aria-modal="true"
          aria-label="Quick Search" onclick="if(event.target===this)adminQsClose()"

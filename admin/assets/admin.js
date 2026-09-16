@@ -301,5 +301,12 @@ function togglePwd(inputId, eyeId) {
     var eye = document.getElementById(eyeId);
     if (!inp || !eye) return;
     inp.type = (inp.type === 'password') ? 'text' : 'password';
-    eye.className = (inp.type === 'text') ? 'fas fa-eye-slash' : 'fas fa-eye';
+    var show = (inp.type === 'text');
+    eye.className = 'lucide-icon';
+    eye.setAttribute('data-lucide', show ? 'eye-off' : 'eye');
+    eye.setAttribute('aria-hidden', 'true');
+    eye.innerHTML = '';
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons({ nodes: [eye] });
+    }
 }

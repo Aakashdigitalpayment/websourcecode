@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'कार्यक्रम व्यवस्थापन';
 $currentPage = 'programs';
 require_once 'includes/admin-header.php';
@@ -231,12 +232,12 @@ foreach ($rows as $_r) {
 ?>
 
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-registration = अगाडि नाम दर्ता। Multi-location AGM = Parent Program + Occurrences। QR/Desk/Verify सबै duplicate-safe core बाट जान्छ।',
+  <?php echo adminPageHeader('कार्यक्रम व्यवस्थापन', 'fa-calendar-check', 'Pre-reg = नाम दर्ता मात्र। स्थल उपस्थिति = Member Portal QR / दर्ता डेस्क। verify.php = ID कार्ड जाँच (venue check-in होइन)।',
       '<div class="d-flex gap-2 flex-wrap">'
-      . '<a href="program-dashboard.php" class="btn btn-outline-info btn-sm"><i class="fas fa-chart-pie me-1"></i>Dashboard</a>'
-      . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer"><i class="fas fa-external-link-alt me-1"></i>Public page</a>'
-      . '<a href="program-registration-desk.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-desktop me-1"></i>Registration Desk</a>'
-      . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>उपस्थिति रिपोर्ट</a>'
+      . '<a href="program-dashboard.php" class="btn btn-outline-info btn-sm"><i class="lucide-icon me-1" data-lucide="pie-chart" aria-hidden="true"></i>Dashboard</a>'
+      . '<a href="../cooperative-programs.php" class="btn btn-outline-secondary btn-sm" target="_blank" rel="noopener noreferrer"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>Public page</a>'
+      . '<a href="program-registration-desk.php" class="btn btn-outline-primary btn-sm"><i class="lucide-icon me-1" data-lucide="monitor" aria-hidden="true"></i>' . adminLangT('दर्ता डेस्क', 'Registration Desk') . '</a>'
+      . '<a href="program-attendance.php" class="btn btn-outline-success btn-sm"><i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>' . adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg') . '</a>'
       . '</div>'); ?>
   <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
@@ -258,14 +259,14 @@ foreach ($rows as $_r) {
         </div>
         <div class="col-md-4 d-flex flex-column justify-content-end gap-1 pb-1">
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_multi_location" value="1" <?php echo !empty($edit['is_multi_location']) ? 'checked' : ''; ?>>Multi-location (AGM/SGM)</label>
-          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="instant_attendance" value="1" <?php echo !empty($edit['instant_attendance']) ? 'checked' : ''; ?>>Instant QR attendance (approve बिना)</label>
+          <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="instant_attendance" value="1" <?php echo !empty($edit['instant_attendance']) ? 'checked' : ''; ?>>Instant QR attendance (approve बिना — scan पछि तुरुन्तै उपस्थित)</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="shared_qr_mode" value="1" <?php echo !isset($edit['shared_qr_mode']) || (int)($edit['shared_qr_mode'] ?? 1) === 1 ? 'checked' : ''; ?>>Shared parent QR (multi-location)</label>
         </div>
         <div class="col-md-3">
           <label for="prog_event_date" class="form-label">मिति (वि.सं.)</label>
           <div class="input-group">
             <input type="text" name="event_date" id="prog_event_date" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" value="<?php echo htmlspecialchars($edit['event_date'] ?? ''); ?>">
-            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+            <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
           </div>
         </div>
         <div class="col-md-3">
@@ -287,16 +288,17 @@ foreach ($rows as $_r) {
         </div>
         <div class="col-md-6"><label for="prog_location" class="form-label">स्थान</label><input name="location" id="prog_location" class="form-control" value="<?php echo htmlspecialchars($edit['location'] ?? ''); ?>"></div>
         <div class="col-md-6"><label for="prog_description" class="form-label">विवरण</label><input name="description" id="prog_description" class="form-control" value="<?php echo htmlspecialchars($edit['description'] ?? ''); ?>"></div>
-        <div class="col-md-3"><label class="form-label">उपस्थिति Window सुरु (BS)</label><input name="attendance_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
-        <div class="col-md-3"><label class="form-label">उपस्थिति Window अन्त्य (BS)</label><input name="attendance_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
-        <div class="col-md-2"><label class="form-label">समय</label><input type="time" name="attendance_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
+        <div class="col-md-3"><label for="prog_att_open_bs" class="form-label">उपस्थिति Window सुरु (BS)</label><input name="attendance_open_bs" id="prog_att_open_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToBsDate($edit['attendance_open_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label for="prog_att_open_time" class="form-label">समय</label><input type="time" name="attendance_open_time" id="prog_att_open_time" class="form-control" value="<?php echo !empty($edit['attendance_open_at']) ? programMysqlDtToTime($edit['attendance_open_at']) : '00:00'; ?>"></div>
+        <div class="col-md-3"><label for="prog_att_close_bs" class="form-label">उपस्थिति Window अन्त्य (BS)</label><input name="attendance_close_bs" id="prog_att_close_bs" class="form-control nepali-datepicker" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToBsDate($edit['attendance_close_at']) : ''; ?>"></div>
+        <div class="col-md-2"><label for="prog_att_close_time" class="form-label">समय</label><input type="time" name="attendance_close_time" id="prog_att_close_time" class="form-control" value="<?php echo !empty($edit['attendance_close_at']) ? programMysqlDtToTime($edit['attendance_close_at']) : '23:59'; ?>"></div>
+        <div class="col-12"><div class="form-text mb-1">मुख्य window = <strong>उपस्थिति Window</strong>। खाली भए मात्र तलको QR सुरु/समाप्त fallback हुन्छ — दुवै फरक राख्दा attendance_* ले जित्छ।</div></div>
         <div class="col-12 d-flex flex-wrap gap-3">
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="is_active" value="1" <?php echo !isset($edit['is_active']) || (int)$edit['is_active']===1 ? 'checked' : ''; ?>>Active</label>
           <label class="form-check-label"><input class="form-check-input me-1" type="checkbox" name="pre_registration_open" value="1" <?php echo !empty($edit['pre_registration_open']) ? 'checked' : ''; ?>>Pre-registration Open</label>
           <?php if (!empty($edit['is_multi_location'])): ?>
-            <a href="program-occurrences.php?parent_id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-info"><i class="fas fa-map-marker-alt me-1"></i>Occurrences व्यवस्थापन</a>
-            <a href="program-detail.php?id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="fas fa-eye me-1"></i>Detail</a>
+            <a href="program-occurrences.php?parent_id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-info"><i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i>Occurrences व्यवस्थापन</a>
+            <a href="program-detail.php?id=<?php echo (int)$edit['id']; ?>" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>Detail</a>
           <?php endif; ?>
         </div>
         <?php
@@ -310,7 +312,7 @@ foreach ($rows as $_r) {
           <div class="input-group">
             <input type="text" name="qr_starts_at_bs" id="prog_qr_start_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
                    value="<?php echo htmlspecialchars($qrStartBs); ?>">
-            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+            <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
           </div>
         </div>
         <div class="col-md-3">
@@ -323,7 +325,7 @@ foreach ($rows as $_r) {
           <div class="input-group">
             <input type="text" name="qr_expires_at_bs" id="prog_qr_exp_bs" class="form-control nepali-datepicker" placeholder="YYYY-MM-DD" autocomplete="off"
                    value="<?php echo htmlspecialchars($qrEndBs); ?>">
-            <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+            <span class="input-group-text"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
           </div>
         </div>
         <div class="col-md-3">
@@ -332,7 +334,7 @@ foreach ($rows as $_r) {
           <div class="form-text">खाली मिति = कार्यक्रम मिति + १ दिन</div>
         </div>
         <div class="col-12 d-flex gap-2">
-          <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button>
+          <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ</button>
           <?php if ($edit): ?><a href="programs.php" class="btn btn-outline-secondary">रद्द</a><?php endif; ?>
         </div>
       </form>
@@ -397,16 +399,16 @@ foreach ($rows as $_r) {
                   <?php echo csrfField(); ?>
                   <input type="hidden" name="action" value="gen_qr">
                   <input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>">
-                  <button type="submit" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:.72rem;"><i class="fas fa-qrcode me-1"></i>QR बनाउनुहोस्</button>
+                  <button type="submit" class="btn btn-outline-primary btn-sm py-0 px-2" style="font-size:.72rem;"><i class="lucide-icon me-1" data-lucide="qr-code" aria-hidden="true"></i>QR बनाउनुहोस्</button>
                 </form>
               <?php endif; ?>
             </td>
             <td>
-              <a class="adm-icon-btn adm-icon-btn--edit" href="program-detail.php?id=<?php echo (int)$r['id']; ?>" title="Detail" aria-label="Detail"><i class="fas fa-eye" aria-hidden="true"></i></a>
-              <a class="adm-icon-btn adm-icon-btn--edit" href="programs.php?edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
-              <?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><a class="btn btn-sm btn-outline-info py-0 px-1" href="program-occurrences.php?parent_id=<?php echo (int)$r['id']; ?>" title="Occurrences"><i class="fas fa-map-marker-alt"></i></a><?php endif; ?>
-              <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-warning" title="सक्रिय/निष्क्रिय"><i class="fas fa-power-off"></i></button></form>
-              <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button></form>
+              <a class="adm-icon-btn adm-icon-btn--edit" href="program-detail.php?id=<?php echo (int)$r['id']; ?>" title="Detail" aria-label="Detail"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
+              <a class="adm-icon-btn adm-icon-btn--edit" href="programs.php?edit=<?php echo (int)$r['id']; ?>" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
+              <?php if ((int)($r['is_multi_location'] ?? 0) === 1): ?><a class="btn btn-sm btn-outline-info py-0 px-1" href="program-occurrences.php?parent_id=<?php echo (int)$r['id']; ?>" title="Occurrences"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i></a><?php endif; ?>
+              <form method="POST" class="d-inline"><?php echo csrfField(); ?><input type="hidden" name="action" value="toggle"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="btn btn-sm btn-outline-warning" title="सक्रिय/निष्क्रिय"><i class="lucide-icon" data-lucide="power-off" aria-hidden="true"></i></button></form>
+              <form method="POST" class="d-inline" onsubmit="return confirm('हटाउने?');"><?php echo csrfField(); ?><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?php echo (int)$r['id']; ?>"><button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button></form>
             </td>
           </tr>
           <?php
@@ -416,7 +418,7 @@ foreach ($rows as $_r) {
 
   <div class="card admin-table-card mb-3">
     <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <h6 class="mb-0"><i class="fas fa-circle-play text-success me-1"></i>सक्रिय कार्यक्रम</h6>
+      <h6 class="mb-0"><i class="lucide-icon text-success me-1" data-lucide="circle-play" aria-hidden="true"></i>सक्रिय कार्यक्रम</h6>
       <span class="small text-muted"><?php echo count($rowsActive); ?> वटा — निष्क्रिय <?php echo count($rowsInactive); ?> वटा तल छुट्टै</span>
     </div>
     <div class="table-responsive">
@@ -438,7 +440,7 @@ foreach ($rows as $_r) {
   <?php if (!empty($rowsInactive)): ?>
   <div class="card admin-table-card border-secondary">
     <div class="card-header bg-light d-flex flex-wrap justify-content-between align-items-center gap-2">
-      <h6 class="mb-0 text-secondary"><i class="fas fa-archive me-1"></i>समाप्त / निष्क्रिय कार्यक्रम</h6>
+      <h6 class="mb-0 text-secondary"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>समाप्त / निष्क्रिय कार्यक्रम</h6>
       <span class="small text-muted">पुराना कार्यक्रम यहीँ राख्नुहोस् — सूची छोटो रहन्छ</span>
     </div>
     <div class="table-responsive">
@@ -458,19 +460,19 @@ foreach ($rows as $_r) {
   <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width:min(96vw, 620px);">
     <div class="modal-content">
       <div class="modal-header py-2">
-        <h6 class="modal-title" id="programQrModalLabel"><i class="fas fa-qrcode me-2"></i><span id="programQrModalTitleText">कार्यक्रम QR</span></h6>
+        <h6 class="modal-title" id="programQrModalLabel"><i class="lucide-icon me-2" data-lucide="qr-code" aria-hidden="true"></i><span id="programQrModalTitleText">कार्यक्रम QR</span></h6>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center px-2 px-md-3">
         <p class="small text-muted text-start mb-2">
-          <strong>QR = कार्यक्रम स्थल उपस्थिति</strong> (pre-registration भन्दा फरक)। सदस्य कार्यक्रममा उपस्थित भएपछि Member Portal बाट QR scan गर्छन् (लगिन आवश्यक)।
-          <br>• Scan पछि <strong>Admin स्वीकृतिका लागि अनुरोध (pending)</strong> जान्छ
-          <br>• <strong>Admin → उपस्थिति रिपोर्ट</strong> बाट Approve गरेपछि मात्र गणना / इतिहासमा थपिन्छ
-          <br>• Staff लाई तत्काल राख्नु परे <strong>Registration Desk</strong> (कार्डको Member ID) प्रयोग गर्नुहोस्
+          <strong>QR = स्थल उपस्थिति</strong> (pre-reg होइन; verify.php = ID कार्ड मात्र)। सदस्य Member Portal → Scan/Attend बाट check-in (लगिन आवश्यक)।
+          <br>• <strong>Instant QR</strong> कार्यक्रम: scan पछि तुरुन्तै उपस्थित
+          <br>• अन्य: pending अनुरोध → <strong>Admin → उपस्थिति / Pre-reg</strong> बाट Approve पछि मात्र गणना
+          <br>• Staff तत्काल: <strong>दर्ता डेस्क</strong> (कार्डको Member ID)
           <br><br>
-          <strong>Pre-registration</strong> = “आउँछु” भनी अगाडि नाम दर्ता — उपस्थिति गणना बढाउँदैन।
+          <strong>Pre-registration</strong> = अगाडि नाम दर्ता मात्र — उपस्थिति गणना बढाउँदैन।
           <br>
-          <span class="text-secondary">QR समय AD (server) हो; कार्यक्रम मिति BS हुन सक्छ। समाप्त समय खाली छोड्दा Generate QR ले (BS→AD) मिति + १ दिन सेट गर्छ।</span>
+          <span class="text-secondary">QR समय AD (server); कार्यक्रम मिति BS हुन सक्छ। समाप्त समय खाली छोड्दा Generate QR ले (BS→AD) मिति + १ दिन सेट गर्छ।</span>
         </p>
         <div class="p-2 p-md-3 bg-light rounded-3 d-inline-block mb-3 shadow-sm">
           <img id="programQrModalImg" src="" alt="QR" width="480" height="480" class="img-fluid mx-auto d-block" style="max-width:min(92vw, 480px);width:100%;height:auto;border:1px solid #dee2e6;border-radius:12px;background:#fff;">
@@ -483,7 +485,8 @@ foreach ($rows as $_r) {
           </div>
         </div>
         <details class="text-start small">
-          <summary class="text-muted" style="cursor:pointer;">पुरानो / पब्लिक लिंक (लगिन बिना म्यानुअल कार्ड)</summary>
+          <summary class="text-muted" style="cursor:pointer;">पुरानो लिंक alias (attend.php → member/attend redirect)</summary>
+          <div class="form-text mb-1">पुराना छापिएका QR का लागि मात्र। नयाँ QR सधैं Member Portal URL प्रयोग गर्नुहोस्।</div>
           <div class="input-group mt-1">
             <input type="text" class="form-control font-monospace small" id="programQrModalLegacyInput" readonly>
             <button class="btn btn-outline-secondary" type="button" id="programQrModalLegacyCopyBtn" aria-label="Copy" title="Copy"><i class="lucide-icon" aria-hidden="true" data-lucide="copy"></i></button>

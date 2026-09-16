@@ -1,0 +1,396 @@
+{
+  "policy": "FROZEN PANEL BASE \u2014 inventory only; no body rewrite in this track",
+  "next_pr": "Extract first/second/third_pr by named SECTION markers; leave app-* as thin import shim",
+  "deferred_bangs": {
+    "fab_brands": "keep Font Awesome Brands (Lucide has no brand set)",
+    "icon_picker_storage": "continue storing FA class strings; Lucide preview only",
+    "app_star_rewrite": "frozen \u2014 use extract-app-css-section.py shadows; no app-* body rewrite yet",
+    "role_privilege_mass_update": "deferred \u2014 alias-only superadmin\u2192super_admin normalize only (not level changes)",
+    "fa_to_lucide_db_row_rewrite": "deferred \u2014 FA spelling via coop_canonicalize_icon_db_rows; Lucide name rewrite still deferred"
+  },
+  "safe_alternatives": {
+    "app_star": "extract-app-css-section.py shadows + *-page.css / shell-polish; never edit app-* bodies for polish",
+    "roles": "coop_normalize_admin_role_aliases + admin_canonical_db_role on writes/login",
+    "icons": "coop_nav_icon_html render + coop_canonical_icon_for_storage writes + coop_canonicalize_icon_db_rows (FA spelling)"
+  },
+  "shadow_extract": "scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr \u2192 assets/css/app-sections/; --verify for sha match",
+  "icon_db_tool": "scripts/inventory-icon-db-canonicalize.php",
+  "total_app_bytes": 1857595,
+  "sheets": {
+    "app-core.css": {
+      "bytes": 232436,
+      "sections_approx": 149,
+      "frozen": true,
+      "named_sections": [
+        {
+          "name": "design-tokens.css",
+          "start": 555,
+          "bytes": 13255
+        },
+        {
+          "name": "theme-variables.css",
+          "start": 13810,
+          "bytes": 8684
+        },
+        {
+          "name": "animations.css",
+          "start": 22494,
+          "bytes": 10651
+        },
+        {
+          "name": "mobile-menu-improvements.css",
+          "start": 33145,
+          "bytes": 7910
+        },
+        {
+          "name": "mobile-comprehensive-fixes.css",
+          "start": 41055,
+          "bytes": 9664
+        },
+        {
+          "name": "coop-core.css",
+          "start": 50719,
+          "bytes": 49306
+        },
+        {
+          "name": "coop-clean.css",
+          "start": 100025,
+          "bytes": 15029
+        },
+        {
+          "name": "unified-portal.css",
+          "start": 115054,
+          "bytes": 82655
+        }
+      ],
+      "named_section_count": 8
+    },
+    "app-public.css": {
+      "bytes": 795267,
+      "sections_approx": 284,
+      "frozen": true,
+      "named_sections": [
+        {
+          "name": "style.css",
+          "start": 933,
+          "bytes": 331906
+        },
+        {
+          "name": "header-v2.css",
+          "start": 332839,
+          "bytes": 35943
+        },
+        {
+          "name": "public-modern.css",
+          "start": 368782,
+          "bytes": 234489
+        },
+        {
+          "name": "theme-overrides-v4.css",
+          "start": 603271,
+          "bytes": 166764
+        }
+      ],
+      "named_section_count": 4
+    },
+    "app-admin.css": {
+      "bytes": 603931,
+      "sections_approx": 322,
+      "frozen": true,
+      "named_sections": [
+        {
+          "name": "design-tokens.css",
+          "start": 803,
+          "bytes": 12314
+        },
+        {
+          "name": "admin-tokens.css",
+          "start": 13117,
+          "bytes": 3780
+        },
+        {
+          "name": "admin.css",
+          "start": 16897,
+          "bytes": 211304
+        },
+        {
+          "name": "admin-modern.css",
+          "start": 228201,
+          "bytes": 193224
+        },
+        {
+          "name": "admin-mobile.css",
+          "start": 421425,
+          "bytes": 8818
+        },
+        {
+          "name": "theme-overrides-v4.css",
+          "start": 430243,
+          "bytes": 130693
+        }
+      ],
+      "named_section_count": 6
+    },
+    "app-member.css": {
+      "bytes": 225961,
+      "sections_approx": 104,
+      "frozen": true,
+      "named_sections": [
+        {
+          "name": "mem-utils.css",
+          "start": 470,
+          "bytes": 4341
+        },
+        {
+          "name": "member.css",
+          "start": 4811,
+          "bytes": 66938
+        },
+        {
+          "name": "member-portal-v2.css",
+          "start": 71749,
+          "bytes": 31906
+        },
+        {
+          "name": "auth-portals-unified.css",
+          "start": 103655,
+          "bytes": 17425
+        },
+        {
+          "name": "theme-overrides-v4.css",
+          "start": 121080,
+          "bytes": 95673
+        }
+      ],
+      "named_section_count": 5
+    }
+  },
+  "page_css": [
+    {
+      "name": "admin-db-setup-page.css",
+      "bytes": 314
+    },
+    {
+      "name": "admin-print-form-page.css",
+      "bytes": 9815
+    },
+    {
+      "name": "admin-reports-page.css",
+      "bytes": 3417
+    },
+    {
+      "name": "admin-settings-page.css",
+      "bytes": 1192
+    },
+    {
+      "name": "admin-site-license-blocked-page.css",
+      "bytes": 1736
+    },
+    {
+      "name": "appointment-page.css",
+      "bytes": 2061
+    },
+    {
+      "name": "auction-page.css",
+      "bytes": 1069
+    },
+    {
+      "name": "committees-page.css",
+      "bytes": 1278
+    },
+    {
+      "name": "cooperative-programs-page.css",
+      "bytes": 1540
+    },
+    {
+      "name": "core-portal-fatal-page.css",
+      "bytes": 1261
+    },
+    {
+      "name": "error-500-page.css",
+      "bytes": 619
+    },
+    {
+      "name": "install-page.css",
+      "bytes": 11196
+    },
+    {
+      "name": "member-apply-frame-page.css",
+      "bytes": 767
+    },
+    {
+      "name": "member-appointment-page.css",
+      "bytes": 572
+    },
+    {
+      "name": "member-attend-page.css",
+      "bytes": 4396
+    },
+    {
+      "name": "member-certificate-page.css",
+      "bytes": 5680
+    },
+    {
+      "name": "member-dashboard-page.css",
+      "bytes": 3546
+    },
+    {
+      "name": "member-election-vote-page.css",
+      "bytes": 984
+    },
+    {
+      "name": "member-id-card-page.css",
+      "bytes": 15045
+    },
+    {
+      "name": "member-kyc-print-page.css",
+      "bytes": 2131
+    },
+    {
+      "name": "member-login-page.css",
+      "bytes": 5374
+    },
+    {
+      "name": "member-marketplace-page.css",
+      "bytes": 2519
+    },
+    {
+      "name": "member-offline-page.css",
+      "bytes": 4788
+    },
+    {
+      "name": "member-password-reset-page.css",
+      "bytes": 1426
+    },
+    {
+      "name": "member-profile-page.css",
+      "bytes": 679
+    },
+    {
+      "name": "member-scan-page.css",
+      "bytes": 3096
+    },
+    {
+      "name": "member-service-request-page.css",
+      "bytes": 1533
+    },
+    {
+      "name": "member-welfare-page.css",
+      "bytes": 8093
+    },
+    {
+      "name": "offline-page.css",
+      "bytes": 2467
+    },
+    {
+      "name": "services-page.css",
+      "bytes": 297
+    },
+    {
+      "name": "setup-gate-page.css",
+      "bytes": 556
+    },
+    {
+      "name": "site-license-expired-page.css",
+      "bytes": 2674
+    },
+    {
+      "name": "team-page.css",
+      "bytes": 1550
+    },
+    {
+      "name": "verify-page.css",
+      "bytes": 14944
+    }
+  ],
+  "page_css_total_bytes": 118615,
+  "split_candidates": [
+    {
+      "from_sheet": "app-public.css",
+      "section": "style.css",
+      "bytes": 331906,
+      "start": 933
+    },
+    {
+      "from_sheet": "app-public.css",
+      "section": "public-modern.css",
+      "bytes": 234489,
+      "start": 368782
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin.css",
+      "bytes": 211304,
+      "start": 16897
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin-modern.css",
+      "bytes": 193224,
+      "start": 228201
+    },
+    {
+      "from_sheet": "app-public.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 166764,
+      "start": 603271
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 130693,
+      "start": 430243
+    }
+  ],
+  "first_pr_candidates": [],
+  "third_pr_candidates": [],
+  "third_pr_max_bytes": 110000,
+  "shadowed_sections_count": 17,
+  "deferred_mega_sections": [
+    {
+      "from_sheet": "app-public.css",
+      "section": "style.css",
+      "bytes": 331906,
+      "start": 933
+    },
+    {
+      "from_sheet": "app-public.css",
+      "section": "public-modern.css",
+      "bytes": 234489,
+      "start": 368782
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin.css",
+      "bytes": 211304,
+      "start": 16897
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "admin-modern.css",
+      "bytes": 193224,
+      "start": 228201
+    },
+    {
+      "from_sheet": "app-public.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 166764,
+      "start": 603271
+    },
+    {
+      "from_sheet": "app-admin.css",
+      "section": "theme-overrides-v4.css",
+      "bytes": 130693,
+      "start": 430243
+    }
+  ],
+  "late_bundle": {
+    "never_include_app_star": true,
+    "concat_app_sheets": {
+      "app-core.css": false,
+      "app-public.css": false,
+      "app-admin.css": false,
+      "app-member.css": false
+    }
+  }
+}

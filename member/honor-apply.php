@@ -112,7 +112,7 @@ $pageTitle = $_t('सम्मान आवेदन', 'Honor Application');
 require __DIR__ . '/includes/chrome.php';
 ?>
 <div class="container py-3">
-    <h4 class="mb-3"><i class="fas fa-award me-2"></i><?php echo htmlspecialchars($pageTitle); ?></h4>
+    <h4 class="mb-3"><i class="lucide-icon me-2" data-lucide="award" aria-hidden="true"></i><?php echo htmlspecialchars($pageTitle); ?></h4>
 
     <?php if ($successMsg): ?>
     <div class="alert alert-success">

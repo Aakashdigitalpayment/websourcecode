@@ -73,66 +73,13 @@ $_pfAddr    = trim((string)(is_array($_krow) && !empty($_krow['permanent_address
 <input type="hidden" name="_prefill_email"   value="<?= htmlspecialchars($_pfEmail, ENT_QUOTES, 'UTF-8') ?>">
 <input type="hidden" name="_prefill_mem_no"  value="<?= htmlspecialchars($_pfMemNo, ENT_QUOTES, 'UTF-8') ?>">
 
-<style>
-/* ── Coop Prefill Block — works on all public + member portal pages ── */
-.coop-prefill-banner {
-    display: flex; align-items: flex-start; gap: 10px;
-    background: linear-gradient(135deg,
-        color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #f8faf9),
-        color-mix(in srgb, var(--primary-color, #1a5f2a) 4%, #fff));
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, white);
-    border-left: 4px solid var(--primary-color, #1a5f2a);
-    border-radius: 10px; padding: 11px 14px;
-    font-size: .84rem; line-height: 1.5;
-    color: var(--primary-color, #1a5f2a);
-    margin-bottom: 14px;
+<?php
+if (!defined('COOP_PREFILL_BLOCK_CSS')) {
+    define('COOP_PREFILL_BLOCK_CSS', true);
+    if (function_exists('coopThemeLink')) {
+        coopThemeLink('assets/css/member-prefill-block.css');
+    } elseif (function_exists('coopThemeLinkHtml')) {
+        echo coopThemeLinkHtml('assets/css/member-prefill-block.css');
+    }
 }
-.coop-prefill-banner i { font-size: 1rem; margin-top: 1px; flex-shrink: 0; }
-.coop-prefill-block {
-    background: #fff;
-    border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, #e5e7eb);
-    border-radius: 12px; margin-bottom: 20px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.05);
-}
-.coop-prefill-head {
-    display: flex; align-items: center; gap: 8px;
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 8%, #f5faf5);
-    border-bottom: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 14%, #e5e7eb);
-    padding: 9px 14px;
-    font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-    color: var(--primary-color, #1a5f2a);
-}
-.coop-prefill-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 0;
-}
-.coop-prefill-item {
-    display: flex; flex-direction: column; gap: 2px;
-    padding: 10px 14px;
-    border-right: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb);
-    border-bottom: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 10%, #e5e7eb);
-}
-.coop-prefill-item:last-child { border-right: none; }
-.coop-prefill-item--full { grid-column: 1 / -1; }
-.coop-prefill-label {
-    font-size: .68rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: .04em; color: var(--text-muted, #6b7280);
-}
-.coop-prefill-value {
-    font-size: .88rem; font-weight: 600;
-    color: var(--text-primary, #1a2e1f);
-    word-break: break-word;
-}
-.coop-prefill-mono {
-    font-family: 'Courier New', monospace;
-    background: color-mix(in srgb, var(--primary-color, #1a5f2a) 6%, #f5faf5);
-    color: var(--primary-color, #1a5f2a);
-    padding: 1px 6px; border-radius: 5px;
-    font-size: .82rem; display: inline-block;
-}
-@media (max-width: 480px) {
-    .coop-prefill-grid { grid-template-columns: repeat(2, 1fr); }
-}
-</style>
+?>

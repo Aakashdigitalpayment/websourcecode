@@ -1,0 +1,10 @@
+/** Member profile mobile — extracted from member/profile.php */
+@media (max-width:640px) { .mem-grid-2 { grid-template-columns:1fr !important; } }
+@media (max-width:640px) {
+    .mem-kym-card-header { flex-direction:column; align-items:stretch !important; }
+    .mem-kym-cta { justify-content:center; width:100%; }
+    .kyc-detail-table tr { display:block; border-bottom:1px solid #eef2f7; padding:6px 0; }
+    .kyc-detail-table td { display:block; width:100% !important; padding:2px 0 !important; }
+    .kyc-detail-table td:first-child { color:#475569; font-weight:700; font-size:0.76rem; }
+    .kyc-detail-table td:last-child { font-size:0.82rem; word-break:break-word; }
+}

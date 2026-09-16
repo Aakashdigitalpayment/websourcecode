@@ -35,7 +35,7 @@ try {
         <h1><?php echo isEnglish() ? 'Interest Rates' : 'ब्याज दरहरू'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active">ब्याज दर</li>
             </ol>
         </nav>
@@ -47,7 +47,7 @@ try {
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-percentage"></i> <?php echo isEnglish() ? 'Interest Rates' : 'ब्याज दर'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="percent" aria-hidden="true"></i> <?php echo isEnglish() ? 'Interest Rates' : 'ब्याज दर'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Our Current Interest Rates' : 'हाम्रो हालको ब्याज दरहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -58,13 +58,13 @@ try {
             <div class="col-12 mb-4">
                 <div class="rates-box-enhanced">
                     <div class="rates-header">
-                        <h3><i class="fas fa-chart-line"></i> <?php echo isEnglish() ? 'Interest Rate Details' : 'ब्याज दर विवरण'; ?></h3>
+                        <h3><i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> <?php echo isEnglish() ? 'Interest Rate Details' : 'ब्याज दर विवरण'; ?></h3>
                     </div>
                     <div class="rates-body">
                         <div class="row gy-4">
                             <div class="col-md-6">
                                 <div class="rate-card-enhanced">
-                                    <h5><i class="fas fa-piggy-bank"></i> <?php echo isEnglish() ? 'Savings Interest Rates' : 'बचत ब्याज दरहरू'; ?></h5>
+                                    <h5><i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i> <?php echo isEnglish() ? 'Savings Interest Rates' : 'बचत ब्याज दरहरू'; ?></h5>
                                     <?php if (!empty($savingRates)): ?>
                                         <?php foreach ($savingRates as $rate): ?>
                                         <div class="rate-item">
@@ -81,7 +81,7 @@ try {
                             </div>
                             <div class="col-md-6">
                                 <div class="rate-card-enhanced">
-                                    <h5><i class="fas fa-hand-holding-usd"></i> <?php echo isEnglish() ? 'Loan Interest Rates' : 'ऋण ब्याज दरहरू'; ?></h5>
+                                    <h5><i class="lucide-icon" data-lucide="hand-coins" aria-hidden="true"></i> <?php echo isEnglish() ? 'Loan Interest Rates' : 'ऋण ब्याज दरहरू'; ?></h5>
                                     <?php if (!empty($loanRates)): ?>
                                         <?php foreach ($loanRates as $rate): ?>
                                         <div class="rate-item">
@@ -106,7 +106,7 @@ try {
         <div class="row mt-4">
             <div class="col-12">
                 <div class="rates-note">
-                    <h5><i class="fas fa-info-circle"></i> महत्त्वपूर्ण जानकारी</h5>
+                    <h5><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i> महत्त्वपूर्ण जानकारी</h5>
                     <ul>
                         <li>माथिका ब्याज दरहरू वार्षिक आधारमा छन्।</li>
                         <li>ब्याज दरहरू समय समयमा परिवर्तन हुन सक्छन्।</li>

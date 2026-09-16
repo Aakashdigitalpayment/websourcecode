@@ -37,6 +37,12 @@ set_exception_handler(function (Throwable $e) {
     );
     error_log($msg);
 
+    /* CLI / scripts: text to STDERR, no HTML 500 dump */
+    if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+        fwrite(STDERR, $msg . "\n");
+        exit(1);
+    }
+
     /* Visitors लाई PHP error नदेखाउने */
     if (!headers_sent()) {
         http_response_code(500);
@@ -52,7 +58,6 @@ set_error_handler(function (int $errno, string $errstr, string $errfile = '', in
         E_ERROR             => 'Fatal Error',
         E_WARNING           => 'Warning',
         E_NOTICE            => 'Notice',
-        E_STRICT            => 'Strict',
         E_USER_ERROR        => 'User Error',
         E_USER_WARNING      => 'User Warning',
         E_USER_NOTICE       => 'User Notice',
@@ -60,6 +65,10 @@ set_error_handler(function (int $errno, string $errstr, string $errfile = '', in
         E_DEPRECATED        => 'Deprecated',
         E_USER_DEPRECATED   => 'User Deprecated',
     ];
+    /* E_STRICT removed in PHP 8.4+ — only map when still defined */
+    if (defined('E_STRICT')) {
+        $type_map[constant('E_STRICT')] = 'Strict';
+    }
     $type = $type_map[$errno] ?? "Error($errno)";
     error_log(sprintf('[%s] %s: %s in %s:%d', date('Y-m-d H:i:s'), $type, $errstr, $errfile, $errline));
 
@@ -84,6 +93,10 @@ register_shutdown_function(function () {
 
 /* ── Helper: show error page ── */
 function _show_error_page(): void {
+    if (PHP_SAPI === 'cli' || PHP_SAPI === 'phpdbg') {
+        fwrite(STDERR, "Fatal error (see logs/php_errors.log)\n");
+        exit(1);
+    }
     /* Already in output? Clear it */
     if (ob_get_level() > 0) {
         ob_clean();

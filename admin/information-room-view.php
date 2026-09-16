@@ -2,6 +2,7 @@
 /**
  * Information Room — Admin document viewer
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string) ($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;

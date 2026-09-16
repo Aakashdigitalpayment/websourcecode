@@ -180,30 +180,34 @@ function ensureMemberTables() {
 
     /* Add new columns to existing tables (silently ignore if exists) */
     $newCols = [
-        "ALTER TABLE members ADD COLUMN sadasyata_number VARCHAR(50) NOT NULL DEFAULT ''",
-        "ALTER TABLE members ADD COLUMN approval_status VARCHAR(20) DEFAULT 'pending'",
-        "ALTER TABLE members ADD COLUMN approved_at TIMESTAMP NULL DEFAULT NULL",
-        "ALTER TABLE members ADD COLUMN approved_by INT NULL DEFAULT NULL",
-        "ALTER TABLE members ADD COLUMN rejection_reason TEXT",
-        "ALTER TABLE members ADD COLUMN id_card_generated TINYINT DEFAULT 0",
-        "ALTER TABLE members ADD COLUMN id_card_generated_at TIMESTAMP NULL DEFAULT NULL",
+        'sadasyata_number' => "VARCHAR(50) NOT NULL DEFAULT ''",
+        'approval_status' => "VARCHAR(20) DEFAULT 'pending'",
+        'approved_at' => 'TIMESTAMP NULL DEFAULT NULL',
+        'approved_by' => 'INT NULL DEFAULT NULL',
+        'rejection_reason' => 'TEXT',
+        'id_card_generated' => 'TINYINT DEFAULT 0',
+        'id_card_generated_at' => 'TIMESTAMP NULL DEFAULT NULL',
         /* Issue #3: card 5-year validity */
-        "ALTER TABLE members ADD COLUMN card_expires_at TIMESTAMP NULL DEFAULT NULL",
-        "ALTER TABLE members ADD COLUMN kyc_application_id INT NULL DEFAULT NULL",
-        "ALTER TABLE members ADD COLUMN is_active TINYINT NOT NULL DEFAULT 1",
-        "ALTER TABLE members ADD COLUMN google_id VARCHAR(255) NULL",
-        "ALTER TABLE members ADD COLUMN facebook_id VARCHAR(255) NULL",
-        "ALTER TABLE members ADD COLUMN avatar_url VARCHAR(500) NULL",
-        "ALTER TABLE members ADD COLUMN password_hash VARCHAR(255) NULL",
-        "ALTER TABLE members ADD COLUMN phone VARCHAR(20) NULL",
-        "ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL",
-        "ALTER TABLE members ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
-        "ALTER TABLE members ADD COLUMN twofa_secret VARCHAR(64) NULL",
-        "ALTER TABLE members ADD COLUMN twofa_backup_codes TEXT NULL",
-        "ALTER TABLE members ADD COLUMN twofa_enabled_at DATETIME NULL",
+        'card_expires_at' => 'TIMESTAMP NULL DEFAULT NULL',
+        'kyc_application_id' => 'INT NULL DEFAULT NULL',
+        'is_active' => 'TINYINT NOT NULL DEFAULT 1',
+        'google_id' => 'VARCHAR(255) NULL',
+        'facebook_id' => 'VARCHAR(255) NULL',
+        'avatar_url' => 'VARCHAR(500) NULL',
+        'password_hash' => 'VARCHAR(255) NULL',
+        'phone' => 'VARCHAR(20) NULL',
+        'member_card_no' => 'VARCHAR(50) NULL',
+        'twofa_enabled' => 'TINYINT DEFAULT 0',
+        'twofa_secret' => 'VARCHAR(64) NULL',
+        'twofa_backup_codes' => 'TEXT NULL',
+        'twofa_enabled_at' => 'DATETIME NULL',
     ];
-    foreach ($newCols as $sql) {
-        try { $db->exec($sql); } catch (\Throwable $e) { /* column already exists */ }
+    foreach ($newCols as $col => $def) {
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'members', $col, $def);
+        } else {
+            try { $db->exec("ALTER TABLE members ADD COLUMN `{$col}` {$def}"); } catch (\Throwable $e) { /* exists */ }
+        }
     }
 
     /* Legacy multi-row backfills MUST NOT run on web requests.
@@ -681,11 +685,11 @@ function memberRegister($name, $email, $phone, $password, $sadasyataNumber = '',
     /* Notification create गर्दा fail भए पनि registration sफल मानिन्छ */
     try {
         if ($approvalStatus === 'approved') {
-            createMemberNotification($id, '🎉 आकाश सहकारीमा स्वागत छ!',
+            createMemberNotification($id, 'आकाश सहकारीमा स्वागत छ!',
                 'तपाईंको Member Portal account सफलतापूर्वक बनेको छ।',
                 'success', SITE_URL . 'member/');
         } else {
-            createMemberNotification($id, '⏳ दर्ता सफल — Admin अनुमोदन प्रतीक्षामा',
+            createMemberNotification($id, 'दर्ता सफल — Admin अनुमोदन प्रतीक्षामा',
                 'तपाईंको दर्ता सफलतापूर्वक प्राप्त भयो। Admin ले अनुमोदन गरेपछि लगिन गर्न सक्नुहुन्छ।',
                 'info', SITE_URL . 'member/login.php');
         }
@@ -901,7 +905,7 @@ function adminApproveMember($memberId, $adminId = null) {
        ->execute([$adminId, $memberId]);
 
     /* In-app notification */
-    createMemberNotification($memberId, '✅ तपाईंको खाता स्वीकृत भयो!',
+    createMemberNotification($memberId, 'तपाईंको खाता स्वीकृत भयो!',
         'सहकारीको Member Portal मा तपाईंको खाता Admin द्वारा स्वीकृत भएको छ। अब लगिन गर्न सक्नुहुन्छ।',
         'success', SITE_URL . 'member/login.php');
 
@@ -923,7 +927,7 @@ function adminApproveMember($memberId, $adminId = null) {
             }
             /* Email */
             if ($m['email'] && function_exists('sendOTPviaEmail')) {
-                $subj = "✅ खाता स्वीकृत — {$siteName}";
+                $subj = "खाता स्वीकृत — {$siteName}";
                 $html = "<div style='font-family:sans-serif;max-width:480px;margin:auto'>
                     <div style='background:var(--primary-color);padding:20px;color:#fff;text-align:center;border-radius:8px 8px 0 0'>
                         <h2 style='margin:0'>{$siteName}</h2></div>
@@ -951,7 +955,7 @@ function adminRejectMember($memberId, $reason = '', $adminId = null) {
                   rejection_reason=? WHERE id=?")
        ->execute([$adminId, $reason, $memberId]);
 
-    createMemberNotification($memberId, '❌ दर्ता अस्वीकृत भयो',
+    createMemberNotification($memberId, 'दर्ता अस्वीकृत भयो',
         'माफ गर्नुहोस्, तपाईंको Member Portal दर्ता स्वीकृत हुन सकेन।' . ($reason ? ' कारण: ' . $reason : '') . ' थप जानकारीका लागि कार्यालयमा सम्पर्क गर्नुहोस्।',
         'error', SITE_URL . 'member/login.php');
 
@@ -989,21 +993,27 @@ function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = fa
     try { ensureMemberTables(); } catch (\Throwable $e) { /* schema verify best-effort */ }
 
     /* Self-heal: पुरानो DB मा हराएका column हरू भए silently थप्ने */
-    $healSql = [
-        "ALTER TABLE members ADD COLUMN IF NOT EXISTS id_card_generated TINYINT(1) DEFAULT 0",
-        "ALTER TABLE members ADD COLUMN IF NOT EXISTS id_card_generated_at TIMESTAMP NULL DEFAULT NULL",
-        "ALTER TABLE members ADD COLUMN IF NOT EXISTS member_card_no VARCHAR(50) NULL DEFAULT NULL",
-    ];
-    foreach ($healSql as $sql) {
-        try {
-            $db->exec($sql);
-        } catch (\Throwable $e) {
-            if (stripos($sql, 'id_card_generated_at') !== false) {
-                try { $db->exec("ALTER TABLE members ADD COLUMN id_card_generated_at TIMESTAMP NULL DEFAULT NULL"); } catch (\Throwable $e2) {}
-            } elseif (stripos($sql, 'id_card_generated') !== false) {
-                try { $db->exec("ALTER TABLE members ADD COLUMN id_card_generated TINYINT(1) DEFAULT 0"); } catch (\Throwable $e2) {}
-            } elseif (stripos($sql, 'member_card_no') !== false) {
-                try { $db->exec("ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL DEFAULT NULL"); } catch (\Throwable $e2) {}
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($db, 'members', 'id_card_generated', 'TINYINT(1) DEFAULT 0');
+        safeAddColumn($db, 'members', 'id_card_generated_at', 'TIMESTAMP NULL DEFAULT NULL');
+        safeAddColumn($db, 'members', 'member_card_no', 'VARCHAR(50) NULL DEFAULT NULL');
+    } else {
+        $healSql = [
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS id_card_generated TINYINT(1) DEFAULT 0",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS id_card_generated_at TIMESTAMP NULL DEFAULT NULL",
+            "ALTER TABLE members ADD COLUMN IF NOT EXISTS member_card_no VARCHAR(50) NULL DEFAULT NULL",
+        ];
+        foreach ($healSql as $sql) {
+            try {
+                $db->exec($sql);
+            } catch (\Throwable $e) {
+                if (stripos($sql, 'id_card_generated_at') !== false) {
+                    try { $db->exec("ALTER TABLE members ADD COLUMN id_card_generated_at TIMESTAMP NULL DEFAULT NULL"); } catch (\Throwable $e2) {}
+                } elseif (stripos($sql, 'id_card_generated') !== false) {
+                    try { $db->exec("ALTER TABLE members ADD COLUMN id_card_generated TINYINT(1) DEFAULT 0"); } catch (\Throwable $e2) {}
+                } elseif (stripos($sql, 'member_card_no') !== false) {
+                    try { $db->exec("ALTER TABLE members ADD COLUMN member_card_no VARCHAR(50) NULL DEFAULT NULL"); } catch (\Throwable $e2) {}
+                }
             }
         }
     }
@@ -1090,7 +1100,7 @@ function adminGenerateMemberIdCard($memberId, $adminId = null, bool $silent = fa
         if (!$updated || (int)($updated['id_card_generated'] ?? 0) !== 1) return false;
 
         if (!$wasGenerated && !$silent) {
-            createMemberNotification($memberId, '🪪 डिजिटल परिचयपत्र तयार भयो!',
+            createMemberNotification($memberId, 'डिजिटल परिचयपत्र तयार भयो!',
                 'तपाईंको डिजिटल Member ID Card Admin द्वारा तयार गरिएको छ। Member Portal मा हेर्नुहोस्।',
                 'success', SITE_URL . 'member/id-card.php');
             if (function_exists('logActivity')) {
@@ -1121,7 +1131,7 @@ function notifyAdminOfPasswordResetRequest($member) {
         /* Best-effort email to admin */
         $adminEmail = function_exists('getSetting') ? getSetting('admin_notify_email', '') : '';
         if ($adminEmail && function_exists('sendEmail')) {
-            $subj = '🔐 Password Reset Request — ' . $name;
+            $subj = 'Password Reset Request — ' . $name;
             $body = "<p>एक सदस्यले पासवर्ड Reset अनुरोध गर्नुभएको छ।</p>"
                   . "<ul><li><strong>Name:</strong> " . htmlspecialchars($name) . "</li>"
                   . "<li><strong>Email:</strong> " . htmlspecialchars($email) . "</li>"
@@ -1161,7 +1171,7 @@ function adminApprovePasswordReset($requestId, $adminId, $newPassword) {
     $db->prepare("UPDATE member_password_reset_requests SET status='approved', admin_id=?, resolved_at=NOW(), temp_password=? WHERE id=?")
        ->execute([$adminId, $newPassword, $requestId]);
 
-    createMemberNotification($req['member_id'], '🔑 पासवर्ड Reset स्वीकृत भयो',
+    createMemberNotification($req['member_id'], 'पासवर्ड Reset स्वीकृत भयो',
         'तपाईंको पासवर्ड Reset अनुरोध Admin ले स्वीकृत गर्नुभयो। कार्यालयबाट नयाँ पासवर्ड प्राप्त गर्नुहोस् र लगिन गर्नुहोस्।',
         'success', SITE_URL . 'member/login.php');
     return true;
@@ -1390,30 +1400,30 @@ function createMemberStatusNotification($type, $email, $phone, $name, $status, $
         'honor_application' => 'सम्मान आवेदन',
     ];
     $statusInfo = [
-        'pending'      => ['विचाराधीन',   'info',    '⏳'],
-        'under_review' => ['समीक्षामा',   'info',    '🔍'],
-        'in_progress'  => ['कार्यान्वयनमा','info',   '⚙️'],
-        'processing'   => ['प्रक्रियामा',  'info',    '⚙️'],
-        'confirmed'    => ['पुष्टि भयो',  'success', '✅'],
-        'approved'     => ['स्वीकृत',     'success', '✅'],
-        'completed'    => ['सम्पन्न',     'success', '🎉'],
-        'resolved'     => ['समाधान भयो', 'success', '✅'],
-        'closed'       => ['बन्द गरियो',  'success', '✅'],
-        'disbursed'    => ['वितरण भयो',  'success', '💰'],
-        'paid'         => ['भुक्तानी भयो','success', '💰'],
-        'shortlisted'  => ['छनोट भयो',   'success', '⭐'],
-        'interviewed'  => ['अन्तर्वार्ता','info',    '🗣️'],
-        'selected'     => ['चयन भयो',    'success', '🏆'],
-        'rejected'     => ['अस्वीकृत',   'error',   '❌'],
-        'cancelled'    => ['रद्द',        'warning', '🚫'],
+        'pending'      => ['विचाराधीन',   'info'],
+        'under_review' => ['समीक्षामा',   'info'],
+        'in_progress'  => ['कार्यान्वयनमा','info'],
+        'processing'   => ['प्रक्रियामा',  'info'],
+        'confirmed'    => ['पुष्टि भयो',  'success'],
+        'approved'     => ['स्वीकृत',     'success'],
+        'completed'    => ['सम्पन्न',     'success'],
+        'resolved'     => ['समाधान भयो', 'success'],
+        'closed'       => ['बन्द गरियो',  'success'],
+        'disbursed'    => ['वितरण भयो',  'success'],
+        'paid'         => ['भुक्तानी भयो','success'],
+        'shortlisted'  => ['छनोट भयो',   'success'],
+        'interviewed'  => ['अन्तर्वार्ता','info'],
+        'selected'     => ['चयन भयो',    'success'],
+        'rejected'     => ['अस्वीकृत',   'error'],
+        'cancelled'    => ['रद्द',        'warning'],
     ];
 
     $svc   = $serviceLabels[$type]  ?? ucfirst($type);
-    $si    = $statusInfo[$status]   ?? [$status, 'info', '📋'];
-    $emoji = $si[2]; $sText = $si[0]; $nType = $si[1];
+    $si    = $statusInfo[$status]   ?? [$status, 'info'];
+    $sText = $si[0]; $nType = $si[1];
 
     $firstName = trim(explode(' ', trim($name))[0]) ?: 'सदस्य';
-    $title     = "{$emoji} {$svc} — {$sText}";
+    $title     = "{$svc} — {$sText}";
     $msg       = "{$firstName} जी, तपाईंको {$svc} आवेदनको अवस्था «{$sText}» भएको छ।";
     if ($trackingId) $msg .= "\nTracking ID: {$trackingId}";
     if ($remarks)    $msg .= "\nAdmin टिप्पणी: {$remarks}";

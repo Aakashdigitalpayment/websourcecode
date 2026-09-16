@@ -5,8 +5,7 @@
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
 $pageTitle = 'प्रश्नोत्तर व्यवस्थापन';
-require_once '../includes/config.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
@@ -87,8 +86,8 @@ $faqsArch = $faqPart['archived'];
     'प्रश्नोत्तर (FAQs)',
     'fa-circle-question',
     'सदस्यहरूको सामान्य प्रश्न र उत्तरहरू।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($faqs) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="check-circle"></i>सक्रिय: ' . count($faqsLive) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($faqs) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="circle-check"></i>सक्रिय: ' . count($faqsLive) . '</span>'
     . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="archive"></i>अभिलेख: ' . count($faqsArch) . '</span>'
 );
 ?>
@@ -99,13 +98,13 @@ $faqsArch = $faqPart['archived'];
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#faq-list" id="faq-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>प्रश्नोत्तर सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>प्रश्नोत्तर सूची
             <span class="badge bg-success ms-1"><?php echo count($faqs); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#faq-form" id="faq-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="faqFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="faqFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -126,14 +125,14 @@ $faqsArch = $faqPart['archived'];
             </div>
             <div class="card-body p-0">
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="bulk_status">
                         <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-end gap-2">
                             <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success admin-bulk-btn">
-                                <i class="fas fa-check-circle" aria-hidden="true"></i> Bulk Active
+                                <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> Bulk Active
                             </button>
                             <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary admin-bulk-btn">
-                                <i class="fas fa-ban" aria-hidden="true"></i> Bulk Inactive
+                                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> Bulk Inactive
                             </button>
                         </div>
                     <?php echo adminListSubtabPills('faq-sub', count($faqsLive), count($faqsArch)); ?>
@@ -154,12 +153,12 @@ $faqsArch = $faqPart['archived'];
                         <tbody>
                             <?php if (empty($faqs)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-question-circle fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="circle-help" aria-hidden="true"></i>
                                 कुनै प्रश्नोत्तर छैन।
                             </td></tr>
                             <?php elseif (empty($faqsLive)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="lucide-icon fa-3x mb-2 d-block opacity-25 text-success" aria-hidden="true" data-lucide="check-circle"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" aria-hidden="true" data-lucide="circle-check"></i>
                                 सक्रिय प्रश्नोत्तर छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
@@ -175,22 +174,22 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-faq"
-                                            data-id="<?php echo $f['id']; ?>"
+                                            data-id="<?php echo (int)$f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
                                             data-question-en="<?php echo htmlspecialchars($f['question'], ENT_QUOTES); ?>"
                                             data-answer-en="<?php echo htmlspecialchars($f['answer'], ENT_QUOTES); ?>"
                                             data-category="<?php echo htmlspecialchars($f['category'], ENT_QUOTES); ?>"
-                                            data-order="<?php echo $f['display_order']; ?>"
-                                            data-active="<?php echo $f['is_active']; ?>"
+                                            data-order="<?php echo (int)$f['display_order']; ?>"
+                                            data-active="<?php echo (int)$f['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -215,7 +214,7 @@ $faqsArch = $faqPart['archived'];
                         <tbody>
                             <?php if (empty($faqsArch)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="lucide-icon fa-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="folder-open"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" aria-hidden="true" data-lucide="folder-open"></i>
                                 अभिलेखमा कुनै प्रश्नोत्तर छैन।
                             </td></tr>
                             <?php endif; ?>
@@ -231,22 +230,22 @@ $faqsArch = $faqPart['archived'];
                                 <td class="text-center"><span class="badge bg-<?php echo $f['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $f['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-faq"
-                                            data-id="<?php echo $f['id']; ?>"
+                                            data-id="<?php echo (int)$f['id']; ?>"
                                             data-question="<?php echo htmlspecialchars($f['question_np'] ?: $f['question'], ENT_QUOTES); ?>"
                                             data-answer="<?php echo htmlspecialchars($f['answer_np'] ?: $f['answer'], ENT_QUOTES); ?>"
                                             data-question-en="<?php echo htmlspecialchars($f['question'], ENT_QUOTES); ?>"
                                             data-answer-en="<?php echo htmlspecialchars($f['answer'], ENT_QUOTES); ?>"
                                             data-category="<?php echo htmlspecialchars($f['category'], ENT_QUOTES); ?>"
-                                            data-order="<?php echo $f['display_order']; ?>"
-                                            data-active="<?php echo $f['is_active']; ?>"
+                                            data-order="<?php echo (int)$f['display_order']; ?>"
+                                            data-active="<?php echo (int)$f['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -266,7 +265,7 @@ $faqsArch = $faqPart['archived'];
         <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
                 <h5 class="mb-0 fw-bold" id="faqFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ प्रश्नोत्तर थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ प्रश्नोत्तर थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelFaq">
                     <i class="lucide-icon me-1" aria-hidden="true" data-lucide="arrow-left"></i>सूचीमा फर्कनुहोस्
@@ -274,7 +273,7 @@ $faqsArch = $faqPart['archived'];
             </div>
             <div class="card-body p-4">
                 <form method="POST" id="faqForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="faqf_action" value="add">
                     <input type="hidden" name="id" id="faqf_id" value="">
 
@@ -320,10 +319,10 @@ $faqsArch = $faqPart['archived'];
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="faqf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="faqf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -352,8 +351,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('faqf_order').value       = '0';
         document.getElementById('faqf_active').checked    = true;
         document.getElementById('faqf_category').selectedIndex = 0;
-        document.getElementById('faqf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('faqFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ प्रश्नोत्तर थप्नुहोस्';
+        document.getElementById('faqf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('faqFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ प्रश्नोत्तर थप्नुहोस्';
         document.getElementById('faqFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -380,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (sel.options[i].value === d.category) { sel.selectedIndex = i; break; }
             }
             document.getElementById('faqf_submit').innerHTML = '<i class="lucide-icon me-2" aria-hidden="true" data-lucide="save"></i>अपडेट गर्नुहोस्';
-            document.getElementById('faqFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>प्रश्नोत्तर सम्पादन';
+            document.getElementById('faqFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>प्रश्नोत्तर सम्पादन';
             document.getElementById('faqFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

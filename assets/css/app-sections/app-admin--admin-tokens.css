@@ -1,0 +1,136 @@
+/* SHADOW EXTRACT from app-admin.css — do not edit app-* for polish.
+ * Source bytes=3780 sha256=e78be1559dfd80ac
+ * Future PR: thin @import shim; keep app-* frozen until verified.
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
+ */
+/* ========== admin-tokens.css ========== */
+/**
+ * 🎨 Admin Panel — Dynamic Color Override
+ * ─────────────────────────────────────────────────────────────
+ * `admin/assets/admin.css` पछि load हुन्छ। ती सबै hardcoded
+ * #1a5f2a (154 places) लाई CSS variables बाट override गर्छ।
+ *
+ * Admin → Settings → Primary Color बदले admin sidebar/buttons
+ * पनि auto-update हुन्छ।
+ */
+
+/* Sidebar — तपाईंको actual class names */
+.sidebar, .sidebar-header,
+.sidebar-nav .nav-group-header.open,
+.sidebar-nav li.active > a {
+    background: var(--primary-color) !important;
+}
+.sidebar-nav li > a:hover { background: var(--primary-dark) !important; }
+.sidebar-user-strip { background: var(--primary-dark) !important; }
+
+/* Active group highlight */
+.nav-group-header.open .nav-group-icon,
+.nav-group-header.open .nav-group-label { color: #fff !important; }
+
+/* Buttons (admin) */
+.btn-admin-primary, .admin-btn-primary,
+.btn-primary, .admin-card-header,
+.admin-stat-card.primary, .quick-action-btn.primary {
+    background: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: #fff !important;
+}
+.btn-admin-primary:hover, .btn-primary:hover {
+    background: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+/* Text accents */
+.admin-text-primary, .text-primary,
+.admin-stat-value, .admin-section-title,
+.admin-pill.active { color: var(--primary-color) !important; }
+
+/* Form focus */
+.admin-form-control:focus,
+.admin-fancy-input:focus,
+.form-control:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(26,95,42,.12) !important;
+}
+
+/* Badges & pills */
+.group-badge, .nav-badge, .admin-badge-primary {
+    background: var(--secondary-color) !important;
+    color: var(--text-on-secondary, #fff) !important;
+}
+
+/* Font unify */
+.admin-body, .sidebar, .sidebar-nav, .admin-content,
+.admin-card, .admin-form-control, .admin-fancy-input,
+.admin-btn, .admin-table, .admin-topbar {
+    font-family: var(--font-primary, 'Mukta', 'Noto Sans Devanagari', sans-serif) !important;
+}
+
+.admin-shell,
+.admin-shell body {
+    color: var(--text-primary, #0f1f17) !important;
+}
+
+.admin-shell .topbar,
+.admin-shell .admin-topbar {
+    color: var(--text-primary, #0f1f17) !important;
+}
+
+.admin-shell .sidebar,
+.admin-shell .sidebar * {
+    color: var(--text-on-primary, #fff);
+}
+
+.admin-shell .sidebar .nav-badge,
+.admin-shell .group-badge {
+    color: var(--text-on-secondary, #fff) !important;
+}
+
+.admin-shell .card,
+.admin-shell .admin-card,
+.admin-shell .ds-card,
+.admin-shell .stat-card {
+    background: #fff !important;
+    border-color: var(--border-color, #e5e7eb) !important;
+    color: var(--text-primary, #0f1f17) !important;
+}
+
+.admin-shell .card h1,
+.admin-shell .card h2,
+.admin-shell .card h3,
+.admin-shell .card h4,
+.admin-shell .card h5,
+.admin-shell .card h6,
+.admin-shell .admin-card h1,
+.admin-shell .admin-card h2,
+.admin-shell .admin-card h3,
+.admin-shell .admin-card h4,
+.admin-shell .admin-card h5,
+.admin-shell .admin-card h6 {
+    color: var(--text-primary, #0f1f17) !important;
+}
+
+.admin-shell .admin-card-header,
+.admin-shell .card-header.bg-primary,
+.admin-shell .card-header.bg-secondary {
+    color: var(--text-on-primary, #fff) !important;
+}
+
+.admin-shell .text-muted,
+.admin-shell small,
+.admin-shell .admin-help-text {
+    color: var(--text-muted, #6b7280) !important;
+}
+
+.admin-shell .btn-outline-primary {
+    color: var(--primary-color, #1a5f2a) !important;
+    border-color: var(--primary-color, #1a5f2a) !important;
+}
+
+.admin-shell .btn-outline-primary:hover,
+.admin-shell .btn-outline-primary:focus,
+.admin-shell .btn-outline-primary:active {
+    background: var(--primary-color, #1a5f2a) !important;
+    color: var(--text-on-primary, #fff) !important;
+}
+

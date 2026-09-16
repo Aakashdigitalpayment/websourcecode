@@ -1,0 +1,362 @@
+/* SHADOW EXTRACT from app-core.css — do not edit app-* for polish.
+ * Source bytes=7910 sha256=bce46d2db096c5f0
+ * Future PR: thin @import shim; keep app-* frozen until verified.
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
+ */
+/* ========== mobile-menu-improvements.css ========== */
+/*
+  ══════════════════════════════════════════════════════════════
+  MOBILE MENU & UI IMPROVEMENTS (v2026-05-20)
+  - Fix hamburger menu functionality on desktop
+  - Improve mobile bottom nav appearance
+  - Add footer icons to mobile views
+  - Better responsive transitions
+  ══════════════════════════════════════════════════════════════
+*/
+
+/* ─────────────────────────────────────────────────────────────
+   ADMIN: Mobile Bottom Navigation Enhancement
+   ───────────────────────────────────────────────────────────── */
+
+.mob-bottomnav {
+  display: flex !important;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.10);
+  z-index: 45;
+  justify-content: space-around;
+  align-items: stretch;
+  padding: 0;
+  margin: 0;
+}
+
+.mob-bn-item {
+  flex: 1;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px !important;
+  text-decoration: none;
+  color: var(--text-muted, #6b7280) !important;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border-radius: 0;
+  text-align: center;
+}
+
+.mob-bn-item i {
+  font-size: 18px;
+  display: block;
+  line-height: 1;
+}
+
+.mob-bn-item span {
+  font-size: 10px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mob-bn-item:hover,
+.mob-bn-item.active {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.08);
+}
+
+.mob-bn-item.active {
+  border-top: 3px solid var(--primary-ink, var(--primary-color, #1a5f2a));
+  padding-top: 5px !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ADMIN: Hamburger Menu Fix (Desktop Should NOT Show)
+   ───────────────────────────────────────────────────────────── */
+
+.hp-burger {
+  display: grid !important;
+  place-items: center;
+}
+
+/* Hide burger on desktop, show on tablet/mobile */
+@media (min-width: 900px) {
+  .hp-burger {
+    display: none !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .hp-burger {
+    display: grid !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   BODY ADJUSTMENTS: Add padding for mobile bottom nav
+   ───────────────────────────────────────────────────────────── */
+
+body.has-bottomnav {
+  padding-bottom: 65px;
+}
+
+.page-content,
+.admin-content,
+main {
+  padding-bottom: 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PUBLIC WEBSITE: Mobile Footer with Important Icons
+   ───────────────────────────────────────────────────────────── */
+
+.public-mobile-footer {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.10);
+  z-index: 45;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .public-mobile-footer {
+    display: flex !important;
+  }
+}
+
+.public-mobile-footer a,
+.public-mobile-footer button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px;
+  text-decoration: none;
+  color: var(--text-muted, #6b7280);
+  font-size: 10px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.public-mobile-footer a i,
+.public-mobile-footer button i {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.public-mobile-footer a:hover,
+.public-mobile-footer button:hover {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.08);
+}
+
+.public-mobile-footer a.active {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  border-top: 3px solid var(--primary-ink, var(--primary-color, #1a5f2a));
+  padding-top: 5px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MEMBER PORTAL: Mobile Footer
+   ───────────────────────────────────────────────────────────── */
+
+.member-mobile-footer {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.10);
+  z-index: 45;
+  justify-content: space-around;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .member-mobile-footer {
+    display: flex !important;
+  }
+
+  body.has-member-footer {
+    padding-bottom: 65px;
+  }
+}
+
+.member-mobile-footer a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px;
+  text-decoration: none;
+  color: var(--text-muted, #6b7280);
+  font-size: 10px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.member-mobile-footer a i {
+  font-size: 18px;
+}
+
+.member-mobile-footer a:hover,
+.member-mobile-footer a.active {
+  color: var(--primary-ink, var(--primary-color, #1a5f2a));
+  background: rgba(var(--primary-rgb, 26, 95, 42), 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE MENU ANIMATIONS
+   ───────────────────────────────────────────────────────────── */
+
+.mob-bn-item,
+.public-mobile-footer a,
+.member-mobile-footer a {
+  position: relative;
+  overflow: hidden;
+}
+
+.mob-bn-item::after,
+.public-mobile-footer a::after,
+.member-mobile-footer a::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(26, 95, 42, 0.05);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.mob-bn-item:hover::after,
+.public-mobile-footer a:hover::after,
+.member-mobile-footer a:hover::after {
+  left: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE BREAKPOINTS
+   ───────────────────────────────────────────────────────────── */
+
+/* Small phones */
+@media (max-width: 380px) {
+  .mob-bn-item span,
+  .public-mobile-footer a span,
+  .member-mobile-footer a span {
+    font-size: 9px;
+  }
+
+  .mob-bn-item i,
+  .public-mobile-footer a i,
+  .member-mobile-footer a i {
+    font-size: 16px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 769px) and (max-width: 899px) {
+  .mob-bottomnav,
+  .public-mobile-footer,
+  .member-mobile-footer {
+    display: none !important;
+  }
+
+  body.has-bottomnav,
+  body.has-member-footer {
+    padding-bottom: 0;
+  }
+}
+
+/* Desktop */
+@media (min-width: 900px) {
+  .mob-bottomnav,
+  .public-mobile-footer,
+  .member-mobile-footer {
+    display: none !important;
+  }
+
+  body.has-bottomnav,
+  body.has-member-footer {
+    padding-bottom: 0;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE FAB (Floating Action Button) - Better positioning
+   ───────────────────────────────────────────────────────────── */
+
+.admin-fab-msg,
+.public-fab-help {
+  bottom: 75px !important;
+  transition: bottom 0.3s ease;
+}
+
+@media (min-width: 900px) {
+  .admin-fab-msg,
+  .public-fab-help {
+    bottom: 24px !important;
+  }
+}
+
+/* Adjust for when both mobile footer and FAB are visible */
+body.has-bottomnav .admin-fab-msg {
+  bottom: 75px !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SMOOTH TRANSITIONS
+   ───────────────────────────────────────────────────────────── */
+
+.mob-bottomnav,
+.public-mobile-footer,
+.member-mobile-footer,
+.hp-burger {
+  will-change: transform, opacity;
+}
+
+/* Print styles - hide mobile nav */
+@media print {
+  .mob-bottomnav,
+  .public-mobile-footer,
+  .member-mobile-footer,
+  .admin-fab-msg,
+  .public-fab-help {
+    display: none !important;
+  }
+
+  body.has-bottomnav,
+  body.has-member-footer {
+    padding-bottom: 0;
+  }
+}
+

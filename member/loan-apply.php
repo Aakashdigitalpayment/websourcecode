@@ -137,32 +137,32 @@ require __DIR__ . '/includes/chrome.php';
 
   <div class="mp-page-head">
     <h1 class="mem-page-title">
-      <i class="fas fa-hand-holding-dollar"></i><?php echo $_t('ऋण आवेदन', 'Loan Application'); ?>
+      <i class="lucide-icon" data-lucide="hand-coins" aria-hidden="true"></i><?php echo $_t('ऋण आवेदन', 'Loan Application'); ?>
     </h1>
     <a href="tracker.php" class="mp-tracker-link">
-      <i class="fas fa-magnifying-glass-chart"></i> Tracker
+      <i class="lucide-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Tracker
     </a>
   </div>
 
   <?php if ($errorMsg): ?>
   <div class="mem-alert mem-alert-error">
-    <i class="fas fa-circle-xmark"></i><div><?= htmlspecialchars($errorMsg) ?></div>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i><div><?= htmlspecialchars($errorMsg) ?></div>
   </div>
   <?php endif; ?>
 
   <div class="wf-tabs">
     <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-new')" id="loanTabNew">
-      <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $_t('नयाँ आवेदन', 'New Application'); ?>
     </button>
     <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="loanShowTab(this,'loan-pane-history')" id="loanTabHistory">
-      <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentLoans) ?>)
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा आवेदनहरू', 'My Applications'); ?> (<?= count($recentLoans) ?>)
     </button>
   </div>
 
   <!-- ── New Application ── -->
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="loan-pane-new">
     <div class="mem-autofill-banner">
-      <i class="fas fa-wand-magic-sparkles"></i>
+      <i class="lucide-icon" data-lucide="sparkles" aria-hidden="true"></i>
       <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Name, phone and email are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
@@ -171,7 +171,7 @@ require __DIR__ . '/includes/chrome.php';
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -274,13 +274,13 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mp-list-meta loan-emi-hint">
-        <i class="fas fa-calculator ico-primary"></i>
+        <i class="lucide-icon ico-primary" data-lucide="calculator" aria-hidden="true"></i>
         <?php echo $_t('मासिक किस्ता अनुमान:', 'Estimate monthly installment:'); ?>
-        <a href="<?= SITE_URL ?>member/apply-frame.php?p=emi" class="loan-emi-link">EMI Calculator →</a>
+        <a href="<?= htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8') ?>member/apply-frame.php?p=emi" class="loan-emi-link">EMI Calculator →</a>
       </div>
 
       <button type="submit" class="mem-submit-btn">
-        <i class="fas fa-paper-plane"></i> <?php echo $_t('आवेदन पेश गर्नुहोस्', 'Submit Application'); ?>
+        <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $_t('आवेदन पेश गर्नुहोस्', 'Submit Application'); ?>
       </button>
     </form>
   </div>
@@ -289,13 +289,13 @@ require __DIR__ . '/includes/chrome.php';
   <div class="wf-pane <?= $activeTab==='history'?'active':'' ?>" id="loan-pane-history">
     <?php if ($successMsg): ?>
     <div class="mem-alert mem-alert-success">
-      <i class="fas fa-circle-check"></i><div><?= htmlspecialchars($successMsg) ?></div>
+      <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i><div><?= htmlspecialchars($successMsg) ?></div>
     </div>
     <?php endif; ?>
 
     <?php if (empty($recentLoans)): ?>
     <div class="mp-empty">
-      <i class="fas fa-file-circle-xmark mp-empty-icon"></i>
+      <i class="lucide-icon mp-empty-icon" data-lucide="file-x" aria-hidden="true"></i>
       <div class="mp-empty-title"><?php echo $_t('कुनै आवेदन छैन', 'No applications yet'); ?></div>
       <div class="mp-empty-hint"><?php echo $_t('"नयाँ आवेदन" tab बाट ऋणको लागि आवेदन दिनुहोस्।', 'Use "New Application" tab to apply.'); ?></div>
     </div>
@@ -316,7 +316,7 @@ require __DIR__ . '/includes/chrome.php';
     </div>
     <?php endforeach; ?>
     <a href="tracker.php" class="mp-tracker-link-sm">
-      <i class="fas fa-magnifying-glass-chart ico-mr"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
+      <i class="lucide-icon ico-mr" data-lucide="chart-no-axes-combined" aria-hidden="true"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
     </a>
     <?php endif; ?>
   </div>

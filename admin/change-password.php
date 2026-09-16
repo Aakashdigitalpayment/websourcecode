@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'पासवर्ड परिवर्तन';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/superadmin-config.php';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -72,18 +73,18 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
     <div class="col-lg-6">
         <div class="card">
             <div class="card-header">
-                <h5><i class="fas fa-key"></i> पासवर्ड परिवर्तन गर्नुहोस्</h5>
+                <h5><i class="lucide-icon" data-lucide="key" aria-hidden="true"></i> पासवर्ड परिवर्तन गर्नुहोस्</h5>
             </div>
             <div class="card-body">
                 <?php if ($fileManagedSuperadmin && !$success): ?>
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <button type="button" class="btn btn-sm btn-outline-secondary px-2 py-1" data-bs-toggle="collapse" data-bs-target="#superadminPwHelp" aria-expanded="false" aria-controls="superadminPwHelp">
-                        <i class="fas fa-circle-question me-1"></i>Superadmin पासवर्ड कसरी बदल्ने?
+                        <i class="lucide-icon me-1" data-lucide="circle-help" aria-hidden="true"></i>Superadmin पासवर्ड कसरी बदल्ने?
                     </button>
                 </div>
                 <div class="collapse mb-3" id="superadminPwHelp">
                     <div class="alert alert-info border-info small mb-0">
-                        <i class="fas fa-file-code me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="file-code" aria-hidden="true"></i>
                         <strong>Superadmin</strong> को पासवर्ड <code>includes/superadmin-config.local.php</code> मा
                         <code>SUPER_ADMIN_INITIAL_PASSWORD</code> edit गरेर बदल्नुहोस् — login गर्दा DB सँग sync हुन्छ।
                         यो फारम admin panel बाट पासवर्ड बदल्न <em>चाहनुभए</em> मात्र प्रयोग गर्नुहोस् (फाइलमा पासवर्ड खाली पारेपछि)।
@@ -92,7 +93,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                 <?php endif; ?>
                 <?php if ($mustChangeBanner && !$success && !$fileManagedSuperadmin): ?>
                 <div class="alert alert-warning">
-                    <i class="fas fa-shield-halved me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="shield" aria-hidden="true"></i>
                     Superadmin/Admin ले तपाईंको खाताको पासवर्ड सेट गरेको छ — अब आफ्नो <strong>हालको</strong> (अस्थायी) पासवर्ड र <strong>नयाँ</strong> पासवर्ड राखेर सेभ गर्नुहोस्। Public password-reset URL छैन।
                 </div>
                 <?php endif; ?>
@@ -101,12 +102,12 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                 $flashOk  = getFlash('success');
                 if ($flashErr): ?>
                 <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-circle me-1"></i> <?php echo e($flashErr); ?>
+                    <i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i> <?php echo e($flashErr); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <?php endif; if ($flashOk): ?>
                 <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-1"></i> <?php echo e($flashOk); ?>
+                    <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i> <?php echo e($flashOk); ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 <?php endif; ?>
@@ -116,7 +117,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                     <div class="mb-3">
                         <label for="admin_current_password" class="form-label">हालको पासवर्ड <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                            <span class="input-group-text"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i></span>
                             <input type="password" name="current_password" id="admin_current_password" class="form-control" required autocomplete="current-password">
                         </div>
                     </div>
@@ -124,7 +125,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                     <div class="mb-3">
                         <label for="admin_new_password" class="form-label">नयाँ पासवर्ड <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <span class="input-group-text"><i class="lucide-icon" data-lucide="key" aria-hidden="true"></i></span>
                             <input type="password" name="new_password" id="admin_new_password" class="form-control" minlength="8" required autocomplete="new-password">
                         </div>
                         <small class="text-muted">कम्तिमा ६ अक्षर</small>
@@ -133,17 +134,17 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
                     <div class="mb-3">
                         <label for="admin_confirm_password" class="form-label">नयाँ पासवर्ड पुष्टि गर्नुहोस् <span class="text-danger">*</span></label>
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            <span class="input-group-text"><i class="lucide-icon" data-lucide="key" aria-hidden="true"></i></span>
                             <input type="password" name="confirm_password" id="admin_confirm_password" class="form-control" minlength="8" required autocomplete="new-password">
                         </div>
                     </div>
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> पासवर्ड परिवर्तन गर्नुहोस्
+                            <i class="lucide-icon" data-lucide="save" aria-hidden="true"></i> पासवर्ड परिवर्तन गर्नुहोस्
                         </button>
                         <a href="dashboard.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> फिर्ता
+                            <i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> फिर्ता
                         </a>
                     </div>
                 </form>
@@ -152,7 +153,7 @@ echo adminPageHeader('पासवर्ड परिवर्तन', 'fa-key',
 
         <div class="card mt-4">
             <div class="card-header">
-                <h5><i class="fas fa-info-circle"></i> पासवर्ड नीति</h5>
+                <h5><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i> पासवर्ड नीति</h5>
             </div>
             <div class="card-body">
                 <ul class="mb-0">

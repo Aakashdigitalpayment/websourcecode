@@ -1,14 +1,14 @@
 <?php
 /**
  * ─────────────────────────────────────────────────────────────────────────────
- * BOOTSTRAP — Single Entry Point for ALL pages
+ * BOOTSTRAP — Public / root-page entry (aligned with core/init public case)
  * ─────────────────────────────────────────────────────────────────────────────
- * यो file सबै requests को शुरुमा load हुन्छ।
- * Database, Auth, Config, Session, Helpers सबै यहाँ setup हुन्छ।
+ * Public pages: require_once __DIR__ . '/_bootstrap.php';
+ * Member/Admin: use member/_bootstrap.php or admin/_bootstrap.php → core/init.php
  *
- * USAGE (every page at the very top):
- *   require_once __DIR__ . '/_bootstrap.php';           ← root-level pages
- *   require_once dirname(__DIR__) . '/_bootstrap.php';  ← sub-directory pages
+ * Safe unify (incremental): this file keeps public session/headers/helpers, then
+ * loads the same shared modules as core/init's `public` portal case. Full thin
+ * shim to core/init only is deferred (admin CSRF auto-check must not run here).
  *
  * DO NOT require 'includes/config.php' directly in individual pages —
  * _bootstrap.php loads it for you.
@@ -18,6 +18,11 @@
 // ─── 0. GUARD — prevent double-bootstrap ─────────────────────────────────────
 if (defined('_BOOTSTRAP_LOADED')) return;
 define('_BOOTSTRAP_LOADED', true);
+
+/* Portal tag — matches core/init.php default when unset */
+if (!defined('PORTAL')) {
+    define('PORTAL', 'public');
+}
 
 // ─── 1. ENVIRONMENT — define FIRST, everything below depends on it ────────────
 if (!defined('ENVIRONMENT')) {
@@ -111,9 +116,32 @@ unset($__mAuth);
 
 // ─── 6. SITE URL / ROOT ──────────────────────────────────────────────────────
 if (!defined('SITE_URL')) {
-    $__proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-    define('SITE_URL', $__proto . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
-    unset($__proto);
+    $__proto = (function_exists('coop_request_is_https') && coop_request_is_https())
+        ? 'https://'
+        : ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://');
+    $__host = preg_replace('/[\x00-\x1f\x7f\/\\\\]/', '', (string)($_SERVER['HTTP_HOST'] ?? 'localhost')) ?? '';
+    if ($__host === '' || !preg_match('/^(\[[0-9a-fA-F:]+\]|[A-Za-z0-9.-]+)(:\d{1,5})?$/', $__host)) {
+        $__host = 'localhost';
+    }
+    $__hostOnly = strtolower((string) preg_replace('/:\d+$/', '', $__host));
+    $__hostOnly = trim($__hostOnly, '[]');
+    $__allowed = [];
+    if (defined('SITE_ALLOWED_HOSTS')) {
+        foreach (explode(',', (string) SITE_ALLOWED_HOSTS) as $__ah) {
+            $__ah = strtolower(trim($__ah));
+            if ($__ah !== '') {
+                $__allowed[] = $__ah;
+            }
+        }
+    }
+    $__local = in_array($__hostOnly, ['localhost', '127.0.0.1', '::1'], true)
+        || str_ends_with($__hostOnly, '.localhost')
+        || str_ends_with($__hostOnly, '.local');
+    if ($__allowed !== [] && !$__local && !in_array($__hostOnly, $__allowed, true)) {
+        $__host = $__allowed[0];
+    }
+    define('SITE_URL', $__proto . $__host . '/');
+    unset($__proto, $__host, $__hostOnly, $__allowed, $__local, $__ah);
 }
 
 if (!defined('SITE_ROOT')) {
@@ -125,9 +153,11 @@ if (!defined('SITE_ROOT')) {
 // ─── 7. SESSION ──────────────────────────────────────────────────────────────
 // Start exactly once. Guard prevents "headers already sent" from double-start.
 if (session_status() === PHP_SESSION_NONE) {
-    $__secure = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0')
-        || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
-        || (!empty($_SERVER['HTTP_X_FORWARDED_SSL'])  && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL'])  === 'on');
+    $__secure = function_exists('coop_request_is_https')
+        ? coop_request_is_https()
+        : ((!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off' && (string)$_SERVER['HTTPS'] !== '0')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string)$_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_SSL'])  && strtolower((string)$_SERVER['HTTP_X_FORWARDED_SSL'])  === 'on'));
 
     @ini_set('session.use_trans_sid', '0');
     @ini_set('session.cookie_secure',   $__secure ? '1' : '0');
@@ -219,7 +249,24 @@ if (!function_exists('set_site_setting')) {
     }
 }
 
-// ─── 10. ERROR / EXCEPTION HANDLERS ─────────────────────────────────────────
+// ─── 10. SHARED MODULES (SSOT: includes/boot-shared.php) ──────────────────────
+// Skip when core/init already ran. Do not run admin CSRF here.
+if (!defined('CORE_INIT_LOADED')) {
+    $__bootSharedFile = INCLUDES_DIR . '/boot-shared.php';
+    if (is_file($__bootSharedFile)) {
+        require_once $__bootSharedFile;
+        if (function_exists('coop_require_boot_shared')) {
+            coop_require_boot_shared();
+        }
+    }
+    unset($__bootSharedFile);
+
+    if (function_exists('site_license_public_guard')) {
+        site_license_public_guard();
+    }
+}
+
+// ─── 11. ERROR / EXCEPTION HANDLERS ─────────────────────────────────────────
 set_error_handler(static function (int $errno, string $errstr, string $errfile, int $errline): bool {
     log_error("PHP Error [{$errno}]: {$errstr} in {$errfile}:{$errline}", 'PHP');
     return true; // suppress PHP's default handler

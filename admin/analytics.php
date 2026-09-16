@@ -3,6 +3,7 @@
  * Admin Analytics Dashboard
  * Charts: member growth, applications, KYC funnel, attendance, welfare
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'Analytics Dashboard';
 $currentPage = 'analytics';
 require_once 'includes/admin-header.php';
@@ -136,7 +137,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-6 col-md-4 col-xl-2">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-body text-center py-3">
-          <div class="mb-2 text-<?= $c['color'] ?>"><i class="fas <?= $c['icon'] ?> fa-lg"></i></div>
+          <div class="mb-2 text-<?= $c['color'] ?>"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html('fas ' . $c['icon'], 'fas fa-circle', 'lucide-lg') : '<i class="lucide-icon lucide-lg" aria-hidden="true" data-lucide="circle"></i>'; ?></div>
           <div class="fw-bold fs-4 text-<?= $c['color'] ?>"><?= number_format($c['val']) ?></div>
           <div class="small text-muted"><?= $c['label'] ?></div>
         </div>
@@ -150,7 +151,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-lg-8">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-success me-2" aria-hidden="true" data-lucide="chart-line"></i>सदस्य वृद्धि (पछिल्ला १२ महिना)</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-success me-2" aria-hidden="true" data-lucide="trending-up"></i>सदस्य वृद्धि (पछिल्ला १२ महिना)</h6>
           <span class="badge bg-success-subtle text-success">Cumulative + Monthly</span>
         </div>
         <div class="card-body">
@@ -161,7 +162,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-lg-4">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="fas fa-chart-pie text-primary me-2"></i>आवेदन प्रकार</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-primary me-2" data-lucide="pie-chart" aria-hidden="true"></i>आवेदन प्रकार</h6>
         </div>
         <div class="card-body d-flex align-items-center justify-content-center">
           <canvas id="chartAppTypes" height="180"></canvas>
@@ -175,7 +176,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-md-7">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-info me-2" aria-hidden="true" data-lucide="chart-bar"></i>मासिक आवेदनहरू (पछिल्ला ६ महिना)</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-info me-2" aria-hidden="true" data-lucide="bar-chart-3"></i>मासिक आवेदनहरू (पछिल्ला ६ महिना)</h6>
         </div>
         <div class="card-body">
           <canvas id="chartMonthly" height="120"></canvas>
@@ -185,7 +186,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-md-5">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="fas fa-filter text-warning me-2"></i>KYC अवस्था</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-warning me-2" data-lucide="filter" aria-hidden="true"></i>KYC अवस्था</h6>
         </div>
         <div class="card-body">
           <canvas id="chartKyc" height="160"></canvas>
@@ -217,7 +218,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
         </div>
         <div class="card-body">
           <?php if (empty($progAttend)): ?>
-          <div class="text-center text-muted py-4"><i class="fas fa-calendar-xmark fa-2x mb-2 d-block"></i>कुनै attendance data छैन</div>
+          <div class="text-center text-muted py-4"><i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="calendar-x" aria-hidden="true"></i>कुनै attendance data छैन</div>
           <?php else: ?>
           <canvas id="chartAttend" height="130"></canvas>
           <?php endif; ?>
@@ -227,11 +228,11 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-md-5">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="fas fa-heart text-danger me-2"></i>कल्याण दाबी प्रकार</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-danger me-2" data-lucide="heart" aria-hidden="true"></i>कल्याण दाबी प्रकार</h6>
         </div>
         <div class="card-body">
           <?php if (empty($welfarTypes)): ?>
-          <div class="text-center text-muted py-4"><i class="fas fa-heart-crack fa-2x mb-2 d-block"></i>कुनै welfare data छैन</div>
+          <div class="text-center text-muted py-4"><i class="lucide-icon lucide-2x mb-2 d-block" data-lucide="heart-crack" aria-hidden="true"></i>कुनै welfare data छैन</div>
           <?php else: ?>
           <canvas id="chartWelfare" height="200"></canvas>
           <?php endif; ?>
@@ -255,7 +256,7 @@ $j = fn($v) => json_encode($v, JSON_UNESCAPED_UNICODE);
     <div class="col-md-8">
       <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-          <h6 class="mb-0 fw-bold"><i class="fas fa-table text-secondary me-2"></i>Quick Summary</h6>
+          <h6 class="mb-0 fw-bold"><i class="lucide-icon text-secondary me-2" data-lucide="table" aria-hidden="true"></i>Quick Summary</h6>
         </div>
         <div class="card-body p-0">
           <table class="table table-sm table-hover mb-0 anl-table-compact">

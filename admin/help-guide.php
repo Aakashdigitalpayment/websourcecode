@@ -7,9 +7,7 @@
  * हरेक feature को step-by-step Nepali निर्देशन।
  * ════════════════════════════════════════════════════════════════════
  */
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
-requireAdminLogin();
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -19,7 +17,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 <div id="hg-read-progress"></div>
 
 <button type="button" class="btn btn-outline-success btn-sm hg-mobile-toggle" onclick="document.querySelector('.hg-sidebar').classList.toggle('mobile-hidden');">
-  <i class="fas fa-list me-1"></i> विषयसूची देखाउनुहोस् / लुकाउनुहोस्
+  <i class="lucide-icon me-1" aria-hidden="true" data-lucide="list"></i> विषयसूची देखाउनुहोस् / लुकाउनुहोस्
 </button>
 
 <div class="hg-wrap">
@@ -27,69 +25,69 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
   <!-- ══════════ SIDEBAR ══════════ -->
   <aside class="hg-sidebar">
     <div class="hg-search-wrap">
-      <i class="fas fa-search"></i>
+      <i class="lucide-icon" aria-hidden="true" data-lucide="search"></i>
       <input type="search" id="hgSearch" placeholder="खोज्नुहोस्..." autocomplete="off" aria-label="Search guide">
     </div>
 
     <div class="grp">सुरुवात</div>
-    <a href="#sec-intro"><i class="fas fa-rocket"></i>परिचय</a>
-    <a href="#sec-login"><i class="fas fa-key"></i>Login / Logout</a>
-    <a href="#sec-dashboard"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    <a href="#sec-intro"><i class="lucide-icon" aria-hidden="true" data-lucide="rocket"></i>परिचय</a>
+    <a href="#sec-login"><i class="lucide-icon" aria-hidden="true" data-lucide="key"></i>Login / Logout</a>
+    <a href="#sec-dashboard"><i class="lucide-icon" aria-hidden="true" data-lucide="gauge"></i>Dashboard</a>
 
     <div class="grp">आवेदन व्यवस्थापन</div>
-    <a href="#sec-kyc"><i class="fas fa-id-card"></i>केवाइएम आवेदन</a>
-    <a href="#sec-loan"><i class="fas fa-hand-holding-usd"></i>ऋण आवेदन</a>
-    <a href="#sec-account"><i class="fas fa-piggy-bank"></i>खाता आवेदन</a>
-    <a href="#sec-digital"><i class="fas fa-mobile-screen"></i>डिजिटल सेवा अनुरोध</a>
-    <a href="#sec-honor"><i class="fas fa-award"></i>सम्मान आवेदन</a>
-    <a href="#sec-welfare"><i class="fas fa-heart"></i>कल्याण दाबी</a>
-    <a href="#sec-grievance"><i class="fas fa-comment-dots"></i>गुनासो व्यवस्थापन</a>
-    <a href="#sec-appointment"><i class="fas fa-calendar-check"></i>अपोइन्टमेन्ट</a>
+    <a href="#sec-kyc"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i>केवाइएम आवेदन</a>
+    <a href="#sec-loan"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i>ऋण आवेदन</a>
+    <a href="#sec-account"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i>खाता आवेदन</a>
+    <a href="#sec-digital"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i>डिजिटल सेवा अनुरोध</a>
+    <a href="#sec-honor"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i>सम्मान आवेदन</a>
+    <a href="#sec-welfare"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i>कल्याण दाबी</a>
+    <a href="#sec-grievance"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i>गुनासो व्यवस्थापन</a>
+    <a href="#sec-appointment"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i>अपोइन्टमेन्ट</a>
 
     <div class="grp">सदस्य व्यवस्थापन</div>
-    <a href="#sec-members"><i class="fas fa-users"></i>सदस्यहरू (Members)</a>
-    <a href="#sec-member-portal"><i class="fas fa-user-shield"></i>Member Portal Settings</a>
+    <a href="#sec-members"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>सदस्यहरू (Members)</a>
+    <a href="#sec-member-portal"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i>Member Portal Settings</a>
 
     <div class="grp">Website Content</div>
-    <a href="#sec-notices"><i class="fas fa-bullhorn"></i>सूचनाहरू / Notices</a>
-    <a href="#sec-news"><i class="fas fa-newspaper"></i>समाचार / News</a>
-    <a href="#sec-gallery"><i class="fas fa-images"></i>ग्यालरी</a>
-    <a href="#sec-sliders"><i class="fas fa-sliders"></i>Slider (Banner)</a>
-    <a href="#sec-services"><i class="fas fa-hand-holding-heart"></i>सेवाहरू</a>
-    <a href="#sec-interest"><i class="fas fa-percent"></i>ब्याज दर</a>
-    <a href="#sec-pages"><i class="fas fa-file-lines"></i>Pages / पृष्ठहरू</a>
-    <a href="#sec-downloads"><i class="fas fa-file-arrow-down"></i>डाउनलोड सामग्री</a>
-    <a href="#sec-faqs"><i class="fas fa-circle-question"></i>FAQs / प्रश्नोत्तर</a>
-    <a href="#sec-team"><i class="fas fa-people-group"></i>टोली / समिति</a>
-    <a href="#sec-careers"><i class="fas fa-briefcase"></i>रोजगारी</a>
+    <a href="#sec-notices"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i>सूचनाहरू / Notices</a>
+    <a href="#sec-news"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i>समाचार / News</a>
+    <a href="#sec-gallery"><i class="lucide-icon" aria-hidden="true" data-lucide="images"></i>ग्यालरी</a>
+    <a href="#sec-sliders"><i class="lucide-icon" aria-hidden="true" data-lucide="sliders-horizontal"></i>Slider (Banner)</a>
+    <a href="#sec-services"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-heart"></i>सेवाहरू</a>
+    <a href="#sec-interest"><i class="lucide-icon" aria-hidden="true" data-lucide="percent"></i>ब्याज दर</a>
+    <a href="#sec-pages"><i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i>Pages / पृष्ठहरू</a>
+    <a href="#sec-downloads"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i>डाउनलोड सामग्री</a>
+    <a href="#sec-faqs"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i>FAQs / प्रश्नोत्तर</a>
+    <a href="#sec-team"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i>टोली / समिति</a>
+    <a href="#sec-careers"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i>रोजगारी</a>
 
     <div class="grp">कार्यक्रम र संचार</div>
-    <a href="#sec-programs"><i class="fas fa-calendar-days"></i>कार्यक्रमहरू</a>
-    <a href="#sec-attendance"><i class="fas fa-clipboard-check"></i>उपस्थिति</a>
-    <a href="#sec-election"><i class="fas fa-check-to-slot"></i>निर्वाचन</a>
-    <a href="#sec-messages"><i class="fas fa-envelope"></i>सन्देशहरू</a>
-    <a href="#sec-feedback"><i class="fas fa-star"></i>प्रतिक्रिया</a>
+    <a href="#sec-programs"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i>कार्यक्रमहरू</a>
+    <a href="#sec-attendance"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i>उपस्थिति</a>
+    <a href="#sec-election"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i>निर्वाचन</a>
+    <a href="#sec-messages"><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i>सन्देशहरू</a>
+    <a href="#sec-feedback"><i class="lucide-icon" aria-hidden="true" data-lucide="star"></i>प्रतिक्रिया</a>
 
     <div class="grp">लिलामी</div>
-    <a href="#sec-auction"><i class="fas fa-gavel"></i>लिलामी / Auctions</a>
-    <a href="#sec-vendor"><i class="fas fa-store"></i>Vendor Enlistment</a>
+    <a href="#sec-auction"><i class="lucide-icon" aria-hidden="true" data-lucide="gavel"></i>लिलामी / Auctions</a>
+    <a href="#sec-vendor"><i class="lucide-icon" aria-hidden="true" data-lucide="store"></i>Vendor Enlistment</a>
 
     <div class="grp">Analytics</div>
-    <a href="#sec-analytics"><i class="fas fa-chart-line"></i>Analytics Dashboard</a>
-    <a href="#sec-reports"><i class="fas fa-chart-column"></i>Reports</a>
+    <a href="#sec-analytics"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i>Analytics Dashboard</a>
+    <a href="#sec-reports"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-column"></i>Reports</a>
 
     <div class="grp">सेटिङ्स र प्रशासन</div>
-    <a href="#sec-notifications"><i class="fas fa-bell"></i>Notifications</a>
-    <a href="#sec-settings"><i class="fas fa-gear"></i>General Settings</a>
-    <a href="#sec-admins"><i class="fas fa-user-shield"></i>Admin User Management</a>
-    <a href="#sec-backup"><i class="fas fa-database"></i>Backup & Restore</a>
-    <a href="#sec-sitehealth"><i class="fas fa-heart-pulse"></i>Site Health</a>
-    <a href="#sec-errorlog"><i class="fas fa-bug"></i>Error Log</a>
+    <a href="#sec-notifications"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i>Notifications</a>
+    <a href="#sec-settings"><i class="lucide-icon" aria-hidden="true" data-lucide="settings"></i>General Settings</a>
+    <a href="#sec-admins"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i>Admin User Management</a>
+    <a href="#sec-backup"><i class="lucide-icon" aria-hidden="true" data-lucide="database"></i>Backup & Restore</a>
+    <a href="#sec-sitehealth"><i class="lucide-icon" aria-hidden="true" data-lucide="heart-pulse"></i>Site Health</a>
+    <a href="#sec-errorlog"><i class="lucide-icon" aria-hidden="true" data-lucide="bug"></i>Error Log</a>
 
     <div class="grp">Reference</div>
-    <a href="#sec-troubleshoot"><i class="fas fa-tools"></i>Troubleshooting</a>
-    <a href="#sec-faq"><i class="fas fa-question-circle"></i>FAQ</a>
-    <a href="#sec-contact"><i class="fas fa-headset"></i>Support सम्पर्क</a>
+    <a href="#sec-troubleshoot"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i>Troubleshooting</a>
+    <a href="#sec-faq"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i>FAQ</a>
+    <a href="#sec-contact"><i class="lucide-icon" aria-hidden="true" data-lucide="headphones"></i>Support सम्पर्क</a>
   </aside>
 
   <!-- ══════════ MAIN CONTENT ══════════ -->
@@ -97,7 +95,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 1. INTRO ══ -->
     <section id="sec-intro" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-rocket"></i></span> परिचय — यो Quick Start Guide के हो?</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="rocket"></i></span> परिचय — यो Quick Start Guide के हो?</h3>
       <p>नमस्कार! यो guide <b>गैर-प्राविधिक (non-developer) admin staff</b> का लागि बनाइएको छ। तपाईंले code नजानी पनि admin panel का <b>सबै feature</b> आफैं manage गर्न सक्नुहुन्छ।</p>
       <div class="hg-info">
         <b>📌 कसरी use गर्ने:</b> बायाँ sidebar बाट विषय छान्नुहोस् — वा माथिको खोज box मा Nepali/English मा type गर्नुहोस्।
@@ -113,7 +111,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 2. LOGIN ══ -->
     <section id="sec-login" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-key"></i></span> Login र Logout</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="key"></i></span> Login र Logout</h3>
       <ol class="hg-steps-list">
         <li>Browser मा <code>तपाईंको-website.com/admin/</code> टाइप गर्नुहोस्।</li>
         <li>Username र Password हाल्नुहोस् → <span class="kbd">Login</span> click गर्नुहोस्।</li>
@@ -125,13 +123,13 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 3. DASHBOARD ══ -->
     <section id="sec-dashboard" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-tachometer-alt"></i></span> Dashboard — मुख्य पाना</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="gauge"></i></span> Dashboard — मुख्य पाना</h3>
       <p>Login पछि देखिने पहिलो screen Dashboard हो। यहाँ एकै नजरमा देखिन्छ:</p>
       <table class="hg-table">
         <tr><th>Element</th><th>के देखिन्छ?</th></tr>
         <tr><td>📊 <b>KPI Cards</b></td><td>Total members, KYC pending, ऋण pending, सूचनाहरू count</td></tr>
         <tr><td>🔴 <b>Alert Badges</b></td><td>माथिको bell icon मा — अपठित submissions को count</td></tr>
-        <tr><td>📋 <b>Recent Activity</b></td><td>पछिल्ला admin actions को log</td></tr>
+        <tr><td><b>Recent Activity</b></td><td>पछिल्ला admin actions को log</td></tr>
         <tr><td>🎯 <b>Quick Links</b></td><td>बढी use हुने pages का shortcut buttons</td></tr>
         <tr><td>🔑 <b>Smart Credentials</b></td><td>Office का website login passwords (encrypted)</td></tr>
       </table>
@@ -140,7 +138,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 4. KYC ══ -->
     <section id="sec-kyc" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-id-card"></i></span> केवाइएम आवेदन व्यवस्थापन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="id-card"></i></span> केवाइएम आवेदन व्यवस्थापन</h3>
       <p>सदस्यले online-kyc.php बाट पेश गरेका केवाइएम आवेदन यहाँ आउँछन्।
         Member ID सदस्य सूचीमा पहिले हुनुपर्छ; approve गर्दा portal लगइन आफैं बन्दैन — members खाता लिंक/stub मात्र।</p>
 
@@ -152,7 +150,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>पोर्टल लगइन = पासवर्ड + <a href="member-online-portal.php">पोर्टल unlock</a> — उही Member ID।</li>
       </ol>
 
-      <h5>📋 KYC List हेर्ने र Review गर्ने:</h5>
+      <h5>KYC List हेर्ने र Review गर्ने:</h5>
       <ol class="hg-steps-list">
         <li>बायाँ menu → <b>केवाइएम आवेदन</b> click गर्नुहोस् (वा <a href="kyc-applications.php">यहाँ click गर्नुहोस्</a>)।</li>
         <li>Filter गर्न सक्नुहुन्छ: <code>Pending</code>, <code>Under Review</code>, <code>Approved</code>, <code>Rejected</code>।</li>
@@ -190,7 +188,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 5. LOAN ══ -->
     <section id="sec-loan" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-hand-holding-usd"></i></span> ऋण आवेदन व्यवस्थापन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="banknote"></i></span> ऋण आवेदन व्यवस्थापन</h3>
       <p>Public website को loan-apply.php बाट आएका ऋण आवेदनहरू यहाँ देखिन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -210,7 +208,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 6. ACCOUNT ══ -->
     <section id="sec-account" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-piggy-bank"></i></span> खाता आवेदन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="piggy-bank"></i></span> खाता आवेदन</h3>
       <p>नयाँ खाता (बचत/FD/RD) खोल्न परेको आवेदनहरू यहाँ आउँछन्।</p>
 
       <ol class="hg-steps-list">
@@ -218,12 +216,12 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li>आवेदन View गर्नुहोस् → खाता प्रकार, रकम, सदस्य विवरण जाँच्नुहोस्।</li>
         <li>Status update गर्नुहोस् र member लाई message पठाउनुहोस्।</li>
       </ol>
-      <div class="hg-success">✅ Approve गरेपछि सम्बन्धित branch staff लाई physical process गर्न जानकारी दिनुहोस्।</div>
+      <div class="hg-success">Approve गरेपछि सम्बन्धित branch staff लाई physical process गर्न जानकारी दिनुहोस्।</div>
     </section>
 
     <!-- ══ 7. DIGITAL SERVICE ══ -->
     <section id="sec-digital" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-mobile-screen"></i></span> डिजिटल सेवा अनुरोध</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i></span> डिजिटल सेवा अनुरोध</h3>
       <p>Mobile banking, internet banking, debit card जस्ता digital services को request यहाँ आउँछन्।</p>
 
       <ol class="hg-steps-list">
@@ -237,7 +235,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 7b. HONOR APPLICATIONS ══ -->
     <section id="sec-honor" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-award"></i></span> सम्मान आवेदन (Honor Applications)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="award"></i></span> सम्मान आवेदन (Honor Applications)</h3>
       <p>AGM / वार्षिक उत्सवमा SEE, +2, स्नातक, चिकित्सक, ज्येष्ठ सदस्य, असल कारोबारी आदि सम्मानका लागि अनलाइन आवेदन संकलन।</p>
       <ol class="hg-steps-list">
         <li>पहिले <a href="honor-programs.php"><b>सम्मान कार्यक्रम</b></a> बनाउनुहोस् — खुल्ने/बन्द मिति + कोटि छान्नुहोस्।</li>
@@ -250,7 +248,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 8. WELFARE ══ -->
     <section id="sec-welfare" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-heart"></i></span> कल्याण दाबी (Welfare Claims)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="heart"></i></span> कल्याण दाबी (Welfare Claims)</h3>
       <p>सदस्यले कल्याण कोषबाट सहायता माग गरेका दाबीहरू यहाँ आउँछन् (बिरामी, मृत्यु, दुर्घटना सहायता, आदि)।</p>
 
       <ol class="hg-steps-list">
@@ -263,7 +261,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 9. GRIEVANCE ══ -->
     <section id="sec-grievance" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-comment-dots"></i></span> गुनासो व्यवस्थापन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="message-circle"></i></span> गुनासो व्यवस्थापन</h3>
       <p>सदस्य वा जनसाधारणले पेश गरेका complaint/grievance यहाँ देखिन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -281,7 +279,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 10. APPOINTMENT ══ -->
     <section id="sec-appointment" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-calendar-check"></i></span> अपोइन्टमेन्ट</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-check"></i></span> अपोइन्टमेन्ट</h3>
       <p>सदस्यले office भेट्नको लागि बुक गरेका appointments यहाँ आउँछन्।</p>
 
       <ol class="hg-steps-list">
@@ -294,7 +292,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 11. MEMBERS ══ -->
     <section id="sec-members" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-users"></i></span> सदस्य व्यवस्थापन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span> सदस्य व्यवस्थापन</h3>
 
       <h5>🔍 Member खोज्ने / List हेर्ने:</h5>
       <ol class="hg-steps-list">
@@ -340,7 +338,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li><span class="kbd">Reset</span> click — member लाई email जान्छ।</li>
       </ol>
 
-      <h5>📋 Pending Registration Requests:</h5>
+      <h5>Pending Registration Requests:</h5>
       <div class="hg-step">
         <a href="member-online-portal.php">Member Online Portal</a> → "Pending Registrations" tab मा नयाँ signup requests आउँछन् — Approve वा Reject गर्नुहोस्।
       </div>
@@ -350,7 +348,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 12. MEMBER PORTAL ══ -->
     <section id="sec-member-portal" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-user-shield"></i></span> Member Portal Settings</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span> Member Portal Settings</h3>
 
       <h5>Password Reset Requests:</h5>
       <ol class="hg-steps-list">
@@ -363,14 +361,23 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <div class="hg-step">
         <a href="member-of-year.php">Member of Year</a> page मा जाएर — "वर्षको उत्कृष्ट सदस्य" को नाम, फोटो, र विवरण थप्नुहोस्। यो public website मा देखिन्छ।
       </div>
+
+      <h5>सदस्य सफलताका कथा (Member Success Stories):</h5>
+      <ol class="hg-steps-list">
+        <li>बायाँ menu → संस्था → <a href="member-success-stories.php">सदस्य सफलताका कथा</a>।</li>
+        <li><span class="kbd">नयाँ कथा</span> → सदस्य नाम, शीर्षक, कथा (जीवन/आर्जन सुधार), र संस्थाले गरेको सहयोग भर्नुहोस्।</li>
+        <li>फोटो, स्थान, पेशा, सदस्य भएको वर्ष ऐच्छिक। English फिल्ड EN भाषामा देखिन्छ।</li>
+        <li><b>सक्रिय</b> राख्नुहोस् — Public <a href="../success-stories.php" target="_blank" rel="noopener noreferrer">सदस्यको सफलताको कथा</a> पृष्ठमा देखिन्छ।</li>
+        <li>Edit / लुकाउने / Delete सूचीबाट गर्न सकिन्छ। बहु सदस्यका कथाहरू क्रम (display order) ले मिलाउन सकिन्छ।</li>
+      </ol>
     </section>
 
     <!-- ══ 13. NOTICES ══ -->
     <section id="sec-notices" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-bullhorn"></i></span> सूचनाहरू (Notices)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="megaphone"></i></span> सूचनाहरू (Notices)</h3>
       <p>AGM, board meeting, छुट्टी, ब्याज बदल जस्ता official notices यहाँबाट publish हुन्छन्।</p>
 
-      <h5>✅ नयाँ सूचना थप्ने:</h5>
+      <h5>नयाँ सूचना थप्ने:</h5>
       <ol class="hg-steps-list">
         <li>बायाँ menu → <b>सूचनाहरू</b> (<a href="notices.php">वा यहाँ</a>) → <span class="kbd">Add New</span>।</li>
         <li><b>शीर्षक</b> (Nepali मा लेख्नुहोस्) र <b>विवरण</b> भर्नुहोस्।</li>
@@ -385,7 +392,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 14. NEWS ══ -->
     <section id="sec-news" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-newspaper"></i></span> समाचार / News</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="newspaper"></i></span> समाचार / News</h3>
       <p>सहकारीको गतिविधि, कार्यक्रम, पुरस्कार सम्बन्धी news publish गर्ने ठाउँ।</p>
 
       <ol class="hg-steps-list">
@@ -401,7 +408,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 15. GALLERY ══ -->
     <section id="sec-gallery" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-images"></i></span> ग्यालरी</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="images"></i></span> ग्यालरी</h3>
       <p>सहकारीका कार्यक्रम, office, staff को photos यहाँ थप्ने।</p>
 
       <ol class="hg-steps-list">
@@ -417,7 +424,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 16. SLIDERS ══ -->
     <section id="sec-sliders" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-sliders"></i></span> Homepage Slider / Banner</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="sliders-horizontal"></i></span> Homepage Slider / Banner</h3>
       <p>Homepage को सबैभन्दा माथि देखिने sliding banner images यहाँबाट manage हुन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -432,7 +439,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 17. SERVICES ══ -->
     <section id="sec-services" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-hand-holding-heart"></i></span> सेवाहरू</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="hand-heart"></i></span> सेवाहरू</h3>
       <p>Website को "हाम्रा सेवाहरू" section मा देखिने services यहाँबाट manage हुन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -445,7 +452,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 18. INTEREST RATES ══ -->
     <section id="sec-interest" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-percent"></i></span> ब्याज दर</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="percent"></i></span> ब्याज दर</h3>
       <p>बचत, ऋण, FD को current interest rates यहाँबाट update हुन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -460,7 +467,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 19. PAGES ══ -->
     <section id="sec-pages" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-file-lines"></i></span> Pages / पृष्ठहरू</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="file-text"></i></span> Pages / पृष्ठहरू</h3>
       <p>About Us, Privacy Policy, Terms जस्ता static pages यहाँबाट edit हुन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -478,7 +485,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 20. DOWNLOADS ══ -->
     <section id="sec-downloads" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-file-arrow-down"></i></span> डाउनलोड सामग्री</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="download"></i></span> डाउनलोड सामग्री</h3>
       <p>Forms, bye-laws, annual reports जस्ता documents download section मा राख्ने।</p>
 
       <ol class="hg-steps-list">
@@ -491,7 +498,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 21. FAQS ══ -->
     <section id="sec-faqs" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-circle-question"></i></span> FAQs / प्रश्नोत्तर</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i></span> FAQs / प्रश्नोत्तर</h3>
       <p>Website को FAQ section मा देखिने प्रश्न-उत्तर यहाँबाट manage हुन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -504,7 +511,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 22. TEAM / COMMITTEES ══ -->
     <section id="sec-team" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-people-group"></i></span> टोली / समिति सदस्य</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="users"></i></span> टोली / समिति सदस्य</h3>
 
       <h5>Staff / Team Members:</h5>
       <ol class="hg-steps-list">
@@ -523,7 +530,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 23. CAREERS ══ -->
     <section id="sec-careers" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-briefcase"></i></span> रोजगारी (Careers)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="briefcase"></i></span> रोजगारी (Careers)</h3>
 
       <h5>नयाँ Job Post थप्ने:</h5>
       <ol class="hg-steps-list">
@@ -542,7 +549,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 24. PROGRAMS ══ -->
     <section id="sec-programs" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-calendar-days"></i></span> कार्यक्रमहरू (Programs)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="calendar-days"></i></span> कार्यक्रमहरू (Programs)</h3>
       <p>Training, seminar, AGM जस्ता events: pre-registration, QR उपस्थिति, र रिपोर्ट। Public page: <a href="../cooperative-programs.php" target="_blank" rel="noopener noreferrer">cooperative-programs.php</a>।</p>
 
       <h5>नयाँ कार्यक्रम थप्ने:</h5>
@@ -552,25 +559,25 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <li><span class="kbd">Generate QR</span> → सदस्यले Member Portal बाट scan गर्छन्। Default expiry: कार्यक्रम मिति + १ दिन (मिति नभए +७ दिन)।</li>
         <li>Public list: <a href="../cooperative-programs.php" target="_blank" rel="noopener noreferrer">Cooperative Programs</a>।</li>
       </ol>
-      <p class="small text-muted mb-0"><b>Pre-reg</b> = अगाडि नाम दर्ता (गणना होइन)। <b>QR / Check-in</b> = स्थल उपस्थिति अनुरोध → Admin approve पछि गणना।</p>
+      <p class="small text-muted mb-0"><b>Pre-reg</b> = अगाडि नाम दर्ता (गणना होइन)। <b>QR / Check-in</b> = स्थल उपस्थिति — Instant मा तुरुन्तै; अन्यमा Admin approve पछि गणना। <b>verify.php</b> = ID कार्ड जाँच मात्र।</p>
     </section>
 
     <!-- ══ 25. ATTENDANCE ══ -->
     <section id="sec-attendance" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-clipboard-check"></i></span> उपस्थिति (Attendance)</h3>
-      <p>सदस्य QR scan / portal check-in → pending request → Admin approve → इतिहास र रिपोर्ट। Registration Desk बाट staff ले कार्डको Member ID राखेर तत्काल पनि दर्ता गर्न सक्छ।</p>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="clipboard-check"></i></span> उपस्थिति (Attendance)</h3>
+      <p>सदस्य QR scan / portal check-in। <b>Instant</b> कार्यक्रममा तत्काल गणना; अन्यमा pending → Admin approve → इतिहास। Registration Desk बाट staff ले कार्डको Member ID राखेर तत्काल दर्ता गर्न सक्छ।</p>
 
       <h5>Attendance कसरी लिने:</h5>
       <ol class="hg-steps-list">
-        <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank" rel="noopener noreferrer">Member Portal → Scan</a> वा Attend बाट check-in → Admin approve।</li>
+        <li><b>Member QR:</b> कार्यक्रम QR print / screen → सदस्य <a href="../member/scan.php" target="_blank" rel="noopener noreferrer">Member Portal → Scan</a> वा Attend बाट check-in। पुरानो <code>attend.php?token=</code> लिंक अब Member Attend मा redirect हुन्छ।</li>
         <li><b>Registration Desk (staff, तत्काल):</b> <a href="program-registration-desk.php" target="_blank" rel="noopener noreferrer">program-registration-desk.php</a> — कार्डमा भएको Member ID (सदस्यता नं.)।</li>
-        <li><b>Approve / रिपोर्ट:</b> Admin → <a href="program-attendance.php">Program Attendance</a> — pending approve, program-wise list, CSV download।</li>
+        <li><b>Approve / Pre-reg / रिपोर्ट:</b> Admin → <a href="program-attendance.php">उपस्थिति / Pre-reg</a> — pending approve, program-wise list, CSV। समेकित रिपोर्ट menu को Reports समूहबाट।</li>
       </ol>
     </section>
 
     <!-- ══ ELECTION ══ -->
     <section id="sec-election" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-check-to-slot"></i></span> निर्वाचन (Election)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="vote"></i></span> निर्वाचन (Election)</h3>
       <p>सञ्चालक/लेखा समिति निर्वाचन: चक्र बनाउने → पद/उम्मेदवार → मतदान समय → सदस्य मत → नतिजा। Public: <a href="../election-information.php" target="_blank" rel="noopener noreferrer">election-information.php</a>।</p>
 
       <h5>Setup क्रम:</h5>
@@ -587,7 +594,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 26. MESSAGES ══ -->
     <section id="sec-messages" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-envelope"></i></span> सन्देशहरू (Contact Messages)</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="mail"></i></span> सन्देशहरू (Contact Messages)</h3>
       <p>Website को Contact page बाट आएका messages यहाँ देखिन्छन्।</p>
 
       <ol class="hg-steps-list">
@@ -600,7 +607,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 27. FEEDBACK ══ -->
     <section id="sec-feedback" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-star"></i></span> प्रतिक्रिया / Feedback</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="star"></i></span> प्रतिक्रिया / Feedback</h3>
       <p>सदस्य र जनसाधारणले दिएका feedback, satisfaction ratings यहाँ छन्।</p>
 
       <ol class="hg-steps-list">
@@ -616,7 +623,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 28. AUCTION ══ -->
     <section id="sec-auction" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-gavel"></i></span> लिलामी / Auctions</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="gavel"></i></span> लिलामी / Auctions</h3>
       <p>Loan default वा cooperative assets को लिलामी यहाँबाट manage हुन्छ।</p>
 
       <h5>नयाँ Auction थप्ने:</h5>
@@ -635,7 +642,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 29. VENDOR ══ -->
     <section id="sec-vendor" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-store"></i></span> Vendor Enlistment + साझेदार सुविधा</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="store"></i></span> Vendor Enlistment + साझेदार सुविधा</h3>
       <p>दुई तह: (1) <b>Vendor enlistment</b> — आपूर्ति/सेवा आवेदन; (2) <b>Partner facilities</b> — सदस्यले पाउने छुट सूची + verify desk लग।</p>
 
       <h5>साझेदार सुविधा (Member discounts):</h5>
@@ -656,7 +663,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 30. ANALYTICS ══ -->
     <section id="sec-analytics" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-chart-line"></i></span> Analytics Dashboard</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="trending-up"></i></span> Analytics Dashboard</h3>
       <p>Website traffic, application trends, member growth — सबै एकै ठाउँमा।</p>
 
       <ol class="hg-steps-list">
@@ -669,7 +676,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 31. REPORTS ══ -->
     <section id="sec-reports" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-chart-column"></i></span> Reports / प्रतिवेदन</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="chart-column"></i></span> Reports / प्रतिवेदन</h3>
       <p>Monthly, quarterly, annual reports generate गर्ने ठाउँ।</p>
 
       <ol class="hg-steps-list">
@@ -682,7 +689,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 32. NOTIFICATIONS ══ -->
     <section id="sec-notifications" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-bell"></i></span> Notification Settings र Templates</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="bell"></i></span> Notification Settings र Templates</h3>
 
       <h5>📧 Email/SMS Gateway Setup (एक पटक मात्र):</h5>
       <ol class="hg-steps-list">
@@ -712,7 +719,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 33. SETTINGS ══ -->
     <section id="sec-settings" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-gear"></i></span> General Settings</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="settings"></i></span> General Settings</h3>
       <p>Website को मूल जानकारी यहाँबाट बदल्न सकिन्छ।</p>
 
       <table class="hg-table">
@@ -731,6 +738,9 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       <h5>🏛️ About / Institutional Profile:</h5>
       <div class="hg-step">
         <a href="about-settings.php">About Settings</a> र <a href="institutional-profile.php">Institutional Profile</a> pages मा संस्थाको इतिहास, mission, vision, registration numbers edit गर्नुहोस्।
+        दृष्टि/लक्ष्य public: <code>vision-mission.php</code> · किन छान्ने: <a href="why-choose.php">Why Choose</a> → <code>../why-choose.php</code>।
+        सदस्य सफलताका कथा: <a href="member-success-stories.php">Member Success Stories</a> → public <code>success-stories.php</code> (About ड्रपडाउन अन्तिम)।
+        अध्यक्ष/CEO सन्देश: <code>chairman-message.php</code> / <code>ceo-message.php</code> (Pages → Static / About Settings बाट)।
       </div>
 
       <h5>🌐 Info Officer (RTI):</h5>
@@ -746,7 +756,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 34. ADMIN USERS ══ -->
     <section id="sec-admins" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-user-shield"></i></span> Admin User Management</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></span> Admin User Management</h3>
       <p>Admin panel use गर्ने staff को accounts यहाँबाट manage गर्नुहोस्।</p>
 
       <h5>नयाँ Admin थप्ने:</h5>
@@ -767,7 +777,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 35. BACKUP ══ -->
     <section id="sec-backup" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-database"></i></span> Backup र Restore</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="database"></i></span> Backup र Restore</h3>
 
       <h5>📦 अहिल्यै Backup लिने:</h5>
       <ol class="hg-steps-list">
@@ -782,9 +792,9 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         <code>0 2 * * * /usr/bin/php -q /home/USERNAME/public_html/scripts/cron-backup.php</code><br>
         (<code>USERNAME</code> = तपाईंको cPanel username)
       </div>
-      <div class="hg-info">✅ Daily राति 2 बजे automatically backup लिन्छ। 7 दिन भन्दा पुरानो auto-delete हुन्छ।</div>
+      <div class="hg-info">Daily राति 2 बजे automatically backup लिन्छ। 7 दिन भन्दा पुरानो auto-delete हुन्छ।</div>
 
-      <h5>🔄 Database Migration:</h5>
+      <h5>Database Migration:</h5>
       <ol class="hg-steps-list">
         <li>नयाँ version update गरेपछि <a href="run-migration.php">Run Migration</a> page मा जानुहोस्।</li>
         <li>Migration button click गर्नुहोस् — एक पटक मात्र। दोहोर्‍याउँदा safe छ।</li>
@@ -794,7 +804,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 36. SITE HEALTH ══ -->
     <section id="sec-sitehealth" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-heart-pulse"></i></span> Site Health Check</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="heart-pulse"></i></span> Site Health Check</h3>
       <p>Website को technical health — PHP version, disk space, DB connection, upload permissions — एकैछिनमा check गर्ने।</p>
 
       <ol class="hg-steps-list">
@@ -814,7 +824,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 37. ERROR LOG ══ -->
     <section id="sec-errorlog" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-bug"></i></span> Error Log हेर्ने तरिका</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="bug"></i></span> Error Log हेर्ने तरिका</h3>
       <p>Website मा कुनै problem भएमा error log मा कारण देखिन्छ।</p>
 
       <ol class="hg-steps-list">
@@ -830,11 +840,11 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 38. TROUBLESHOOTING ══ -->
     <section id="sec-troubleshoot" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-tools"></i></span> Troubleshooting — Problem आउँदा के गर्ने?</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="wrench"></i></span> Troubleshooting — Problem आउँदा के गर्ने?</h3>
 
       <div class="hg-faq">
         <details>
-          <summary>❌ Email / SMS जादैन, member ले notification पाएन</summary>
+          <summary>Email / SMS जादैन, member ले notification पाएन</summary>
           <div class="mt-2">
             <ol>
               <li><a href="notification-settings.php">Notification Settings</a> → Email/SMS "Enabled" छ कि check।</li>
@@ -847,7 +857,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ White screen / Page खुल्दैन</summary>
+          <summary>White screen / Page खुल्दैन</summary>
           <div class="mt-2">
             <ol>
               <li>Browser <code>Ctrl + F5</code> (force refresh) try।</li>
@@ -859,7 +869,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ Member login गर्न सक्दैन</summary>
+          <summary>Member login गर्न सक्दैन</summary>
           <div class="mt-2">
             <ol>
               <li><a href="members.php">Members</a> → Member खोज्नुहोस् → Status <b>Active</b> छ कि।</li>
@@ -871,7 +881,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ File upload हुँदैन / "File too large" error</summary>
+          <summary>File upload हुँदैन / "File too large" error</summary>
           <div class="mt-2">
             <ul>
               <li>Image: JPG/PNG, <b>1MB भन्दा कम</b> राख्नुहोस् (<a href="https://tinypng.com" target="_blank" rel="noopener noreferrer">TinyPNG.com</a> use गर्नुहोस्)।</li>
@@ -882,7 +892,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ KYC submit भएन / form काम गरेन</summary>
+          <summary>KYC submit भएन / form काम गरेन</summary>
           <div class="mt-2">
             <ul>
               <li>Member लाई सबै 8 steps पूरा गर्न भन्नुहोस् (Declaration checkbox अनिवार्य)।</li>
@@ -893,14 +903,14 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ गल्तिले data delete गरेँ — फिर्ता आउँछ?</summary>
+          <summary>गल्तिले data delete गरेँ — फिर्ता आउँछ?</summary>
           <div class="mt-2">
             ✅ <b>हो, आउँछ!</b> System "Soft Delete" use गर्छ — data permanently हट्दैन, "deleted" flag मात्र लाग्छ। Developer लाई भन्नुहोस् — database बाट manually restore गर्न सकिन्छ।
           </div>
         </details>
 
         <details>
-          <summary>❌ Website slow भएको</summary>
+          <summary>Website slow भएको</summary>
           <div class="mt-2">
             <ol>
               <li>Gallery / News मा ठूला images छन् भने <a href="https://tinypng.com" target="_blank" rel="noopener noreferrer">TinyPNG</a> बाट compress गरेर re-upload गर्नुहोस्।</li>
@@ -911,7 +921,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
         </details>
 
         <details>
-          <summary>❌ Admin panel login हुँदैन, password बिर्सियो</summary>
+          <summary>Admin panel login हुँदैन, password बिर्सियो</summary>
           <div class="mt-2">
             <ol>
               <li>अर्को Super Admin ले <a href="manage-admins.php">Admin Users</a> बाट password reset गरिदिन सक्छ।</li>
@@ -924,7 +934,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 39. FAQ ══ -->
     <section id="sec-faq" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-question-circle"></i></span> FAQ — बारम्बार सोधिने प्रश्न</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-help"></i></span> FAQ — बारम्बार सोधिने प्रश्न</h3>
 
       <div class="hg-faq">
         <details>
@@ -968,7 +978,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
 
     <!-- ══ 40. CONTACT ══ -->
     <section id="sec-contact" class="hg-section">
-      <h3><span class="hg-icon"><i class="fas fa-headset"></i></span> Developer / Support सम्पर्क</h3>
+      <h3><span class="hg-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="headphones"></i></span> Developer / Support सम्पर्क</h3>
 
       <div class="hg-info">
         <b>📧 Technical support चाहिएमा developer लाई पठाउने जानकारी:</b>
@@ -994,7 +1004,7 @@ echo adminPageHeader('Quick Start Guide','fa-book-open',
       </div>
 
       <p class="mt-4 text-center text-muted small">
-        <i class="fas fa-heart text-danger"></i> Admin Quick Start Guide v6.0 &nbsp;|&nbsp; Last updated: <?php echo date('Y F j'); ?> &nbsp;|&nbsp; सहकारी Admin Panel
+        <i class="lucide-icon text-danger" aria-hidden="true" data-lucide="heart"></i> Admin Quick Start Guide v6.0 &nbsp;|&nbsp; Last updated: <?php echo date('Y F j'); ?> &nbsp;|&nbsp; सहकारी Admin Panel
       </p>
     </section>
 

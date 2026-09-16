@@ -169,7 +169,11 @@ if (!function_exists('ensureCareersTables')) {
                 $hasActive = function_exists('safeColumnExists') && safeColumnExists('careers', 'is_active');
                 $hasStatus = function_exists('safeColumnExists') && safeColumnExists('careers', 'status');
                 if (!$hasActive && $hasStatus) {
-                    $db->exec('ALTER TABLE careers ADD COLUMN is_active TINYINT(1) DEFAULT 1');
+                    if (function_exists('safeAddColumn')) {
+                        safeAddColumn($db, 'careers', 'is_active', 'TINYINT(1) DEFAULT 1');
+                    } else {
+                        $db->exec('ALTER TABLE careers ADD COLUMN is_active TINYINT(1) DEFAULT 1');
+                    }
                     $db->exec("UPDATE careers SET is_active = 1 WHERE status = 'active'");
                     $db->exec("UPDATE careers SET is_active = 0 WHERE status IN ('closed','draft')");
                 }

@@ -1,0 +1,297 @@
+/* SHADOW EXTRACT from app-admin.css — do not edit app-* for polish.
+ * Source bytes=8818 sha256=2b4ae0ea3b75825b
+ * Future PR: thin @import shim; keep app-* frozen until verified.
+ * Regenerate: python3 scripts/extract-app-css-section.py --write --all-first-pr --all-second-pr --all-third-pr
+ */
+/* ========== admin-mobile.css ========== */
+/**
+ * ════════════════════════════════════════════════════════════
+ * ADMIN MOBILE — Responsive Improvements v6.5
+ * Dev Bandana Cooperative
+ * ════════════════════════════════════════════════════════════
+ * Admin panel मा mobile-first experience सुधार्न।
+ * admin-modern.css को supplementary file।
+ * Load order: admin-modern.css → admin-mobile.css
+ * ════════════════════════════════════════════════════════════
+ */
+
+/* ─── MOBILE SIDEBAR OVERLAY BEHAVIOR ─────────────────────── */
+@media (max-width: 991.98px) {
+
+    /* Content area full-width जब sidebar बन्द छ */
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Page content padding compact */
+    .page-content {
+        padding: 12px 12px 80px !important;
+    }
+
+    /* Sidebar: overlay mode */
+    .sidebar {
+        position: fixed !important;
+        top: 0; left: -280px;
+        width: 272px !important;
+        height: 100vh !important;
+        z-index: var(--z-sidebar, 950) !important;
+        transition: left .28s cubic-bezier(.4,0,.2,1) !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .sidebar.active,
+    .sidebar.open,
+    .sidebar.sidebar-open {
+        left: 0 !important;
+        box-shadow: 4px 0 32px rgba(0,0,0,.22) !important;
+    }
+
+    /* Sidebar backdrop */
+    .sidebar-backdrop {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,.50);
+        z-index: calc(var(--z-sidebar, 950) - 1);
+        /* backdrop-filter removed — causes entire page blur on mobile */
+    }
+    .sidebar.active ~ .sidebar-backdrop,
+    .sidebar.open ~ .sidebar-backdrop,
+    .sidebar.sidebar-open ~ .sidebar-backdrop {
+        display: block;
+    }
+
+    /* v9-mobile-fix.js uses .sidebar-overlay */
+    .sidebar-overlay {
+        display: none;
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,.50);
+        z-index: 1040; /* sidebar.active = 1050 → overlay stays below */
+        /* backdrop-filter intentionally omitted — causes full-page blur on mobile */
+    }
+    .sidebar-overlay.active { display: block; }
+
+    /* Sidebar must beat overlay — guard in case other CSS sets z-index lower */
+    #sidebar.active, .sidebar.active {
+        z-index: 1050 !important;
+    }
+
+    /* Admin header height compact */
+    .admin-header { height: 52px !important; }
+
+    /* Page header — wrap on mobile */
+    .page-header, .admin-page-header {
+        padding: 12px 14px !important;
+        gap: 8px !important;
+    }
+
+    /* Card body compact */
+    .card-body { padding: 14px !important; }
+
+    /* Table: horizontal scroll */
+    .table-responsive-stack {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Stat grid: 2 columns on tablet */
+    .ds-stats-grid,
+    .row-cols-md-4 > [class*="col-"],
+    .row-cols-lg-4 > [class*="col-"] {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Form actions: stack on mobile */
+    .admin-form-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    .admin-form-actions .btn {
+        flex: 1 1 auto;
+        min-width: 120px;
+    }
+
+    /* Modal: full-screen on mobile */
+    .modal-dialog {
+        margin: 6px !important;
+        max-width: calc(100vw - 12px) !important;
+    }
+    .modal-body {
+        max-height: calc(100svh - 140px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .modal-footer {
+        flex-wrap: wrap; gap: 8px;
+    }
+    .modal-footer .btn { flex: 1 1 auto; }
+
+    /* DataTables: compact header */
+    .dataTables_wrapper .dataTables_filter input {
+        width: 140px;
+    }
+    .dataTables_wrapper .row > div {
+        flex: 1 1 50%;
+        min-width: 0;
+    }
+
+    /* Nav-tabs: scrollable */
+    .nav-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tabs .nav-link {
+        white-space: nowrap;
+    }
+}
+
+/* ─── PHONE PORTRAIT ───────────────────────────────────────── */
+@media (max-width: 575.98px) {
+
+    /* Stat grid: single column on phone */
+    .ds-stats-grid,
+    .row-cols-md-4 > [class*="col-"],
+    .row-cols-md-3 > [class*="col-"],
+    .row-cols-sm-2 > [class*="col-"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    /* Buttons: stacked in action bar */
+    .btn-group-action {
+        flex-wrap: wrap;
+    }
+    .btn-group-action .btn {
+        flex: 1 1 auto;
+        font-size: .78rem !important;
+        padding: 5px 8px !important;
+    }
+
+    /* Table th/td compact */
+    .table thead th { font-size: .72rem !important; padding: 7px 8px !important; }
+    .table tbody td { font-size: .82rem !important; padding: 8px 8px !important; }
+
+    /* Form controls: 100% on tiny screens */
+    .input-group { flex-wrap: wrap; }
+    .input-group > * { flex: 1 1 100%; border-radius: var(--adm-radius-sm) !important; margin-bottom: 4px; }
+    .input-group > *:last-child { margin-bottom: 0; }
+
+    /* Page title truncate */
+    .page-title {
+        font-size: .9rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 52vw;
+    }
+
+    /* Admin header logo */
+    .admin-topbar-brand img { max-height: 32px !important; }
+
+    /* Hide less important table columns — add .d-none-xs to td/th */
+    .d-none-xs { display: none !important; }
+
+    /* Card body padding minimal */
+    .card-body { padding: 12px !important; }
+    .card-header { padding: 10px 14px !important; }
+
+    /* Page header vertical on phone */
+    .page-header, .admin-page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        padding: 10px 12px !important;
+    }
+}
+
+/* ─── ADMIN TABLE CARD-VIEW (mobile ≤640px) ───────────────── */
+@media (max-width: 640px) {
+    .admin-table-card .table-responsive-stack table,
+    .admin-table-card .table-responsive-stack thead,
+    .admin-table-card .table-responsive-stack tbody,
+    .admin-table-card .table-responsive-stack th,
+    .admin-table-card .table-responsive-stack td,
+    .admin-table-card .table-responsive-stack tr,
+    table.admin-card-table,
+    table.admin-card-table thead,
+    table.admin-card-table tbody,
+    table.admin-card-table th,
+    table.admin-card-table td,
+    table.admin-card-table tr {
+        display: block;
+        width: 100%;
+    }
+    .admin-table-card .table-responsive-stack thead tr,
+    table.admin-card-table thead tr {
+        position: absolute;
+        top: -9999px; left: -9999px;
+    }
+    .admin-table-card .table-responsive-stack td[data-label],
+    table.admin-card-table td[data-label] {
+        padding: 7px 12px !important;
+        border: none !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+        display: flex !important;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: .84rem !important;
+    }
+    .admin-table-card .table-responsive-stack td[data-label]::before,
+    table.admin-card-table td[data-label]::before {
+        content: attr(data-label);
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #6b7280;
+        min-width: 100px;
+        flex-shrink: 0;
+    }
+    .admin-table-card .table-responsive-stack tr,
+    table.admin-card-table tr {
+        background: #fff;
+        border: 1px solid #e8edeb;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,.04);
+    }
+}
+
+/* ─── TOUCH TARGETS — minimum 44×44px ─────────────────────── */
+@media (max-width: 991.98px) {
+    .btn, .nav-link, .page-link,
+    .form-control, .form-select {
+        min-height: 44px;
+    }
+    .btn-sm { min-height: 36px; }
+    .btn-group-action .btn { min-height: 34px; }
+
+    /* Sidebar nav links */
+    .sidebar-nav li a {
+        min-height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+}
+
+/* ─── PRINT ADMIN ──────────────────────────────────────────── */
+@media print {
+    .sidebar, .admin-header, .sidebar-backdrop,
+    .btn-group-action, .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_length,
+    .pagination { display: none !important; }
+    .main-content { margin: 0 !important; }
+    .page-content { padding: 0 !important; }
+    .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+    .table thead th { background: #f0f0f0 !important; color: #000 !important; }
+}
+
+/* ========== admin-stat-cards.css — REMOVED (consolidated to canonical block at end of file) ========== */
+

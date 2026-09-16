@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Member-wise Report';
 $currentPage = 'program-reports-member';
 require_once 'includes/admin-header.php';

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'कार्यक्रम विवरण';
 $currentPage = 'program-detail';
 require_once 'includes/admin-header.php';
@@ -48,33 +49,46 @@ $recentAtt->execute([$scope]);
 $recentRows = $recentAtt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 ?>
 <div class="container-fluid py-3">
-  <?php echo adminPageHeader(htmlspecialchars($prog['title']), 'fa-eye', programTypeLabel($prog['program_type'] ?? 'General'),
+  <?php
+    $detailMemberQr = !empty($prog['qr_token'])
+      ? (rtrim(SITE_URL, '/') . '/member/attend.php?qr_token=' . rawurlencode((string)$prog['qr_token']))
+      : '';
+    echo adminPageHeader(htmlspecialchars($prog['title']), 'fa-eye', programTypeLabel($prog['program_type'] ?? 'General'),
       '<div class="d-flex gap-2 flex-wrap">'
-      . '<a href="programs.php?edit='.$id.'" class="btn btn-sm btn-outline-primary">Edit</a>'
-      . '<a href="program-registration-desk.php?program_id='.$id.'" class="btn btn-sm btn-success">Desk</a>'
-      . '<a href="program-reports-consolidated.php?program_id='.$id.'" class="btn btn-sm btn-outline-secondary">Report</a>'
-      . '<a href="program-dashboard.php?program_id='.$id.'" class="btn btn-sm btn-outline-info">Live</a>'
-      . '</div>'); ?>
+      . '<a href="programs.php?edit='.$id.'" class="btn btn-sm btn-outline-primary">' . adminLangT('सम्पादन', 'Edit') . '</a>'
+      . '<a href="program-registration-desk.php?program_id='.$id.'" class="btn btn-sm btn-success">' . adminLangT('दर्ता डेस्क', 'Desk') . '</a>'
+      . '<a href="program-attendance.php?program_id='.$id.'" class="btn btn-sm btn-outline-warning">' . adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg') . '</a>'
+      . '<a href="program-reports-consolidated.php?program_id='.$id.'" class="btn btn-sm btn-outline-secondary">' . adminLangT('रिपोर्ट', 'Report') . '</a>'
+      . '<a href="program-dashboard.php?program_id='.$id.'" class="btn btn-sm btn-outline-info">' . adminLangT('Live', 'Live') . '</a>'
+      . '</div>');
+  ?>
 
   <div class="row g-3 mb-3">
-    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Occurrences</div><strong class="fs-4"><?php echo $occCount ?: '—'; ?></strong></div></div>
-    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Unique Attended</div><strong class="fs-4 text-success"><?php echo $attended; ?></strong></div></div>
+    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted"><?php echo adminLangT('सत्र', 'Occurrences'); ?></div><strong class="fs-4"><?php echo $occCount ?: '—'; ?></strong></div></div>
+    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted"><?php echo adminLangT('उपस्थित', 'Unique Attended'); ?></div><strong class="fs-4 text-success"><?php echo $attended; ?></strong></div></div>
     <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Pre-reg</div><strong class="fs-4"><?php echo $prereg; ?></strong></div></div>
-    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Pending Req</div><strong class="fs-4 text-warning"><?php echo $pending; ?></strong></div></div>
-    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Eligible</div><strong class="fs-4"><?php echo $eligible; ?></strong></div></div>
-    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted">Rate</div><strong class="fs-4 text-primary"><?php echo $pct; ?>%</strong></div></div>
+    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted"><?php echo adminLangT('Pending', 'Pending Req'); ?></div><strong class="fs-4 text-warning"><?php echo $pending; ?></strong></div></div>
+    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted"><?php echo adminLangT('योग्य', 'Eligible'); ?></div><strong class="fs-4"><?php echo $eligible; ?></strong></div></div>
+    <div class="col-md-2"><div class="card p-3 text-center"><div class="small text-muted"><?php echo adminLangT('दर', 'Rate'); ?></div><strong class="fs-4 text-primary"><?php echo $pct; ?>%</strong></div></div>
   </div>
 
   <div class="row g-3">
     <div class="col-lg-6">
-      <div class="card admin-table-card mb-3"><div class="card-header"><h6 class="mb-0">Overview</h6></div><div class="card-body">
+      <div class="card admin-table-card mb-3"><div class="card-header"><h6 class="mb-0"><?php echo adminLangT('अवलोकन', 'Overview'); ?></h6></div><div class="card-body">
         <dl class="row mb-0 small">
           <dt class="col-4">मिति</dt><dd class="col-8"><?php echo htmlspecialchars($prog['event_date'] ?: '—'); ?> <?php echo htmlspecialchars($prog['event_time'] ?? ''); ?></dd>
           <dt class="col-4">स्थान</dt><dd class="col-8"><?php echo htmlspecialchars($prog['location'] ?: '—'); ?></dd>
           <dt class="col-4">Multi-location</dt><dd class="col-8"><?php echo (int)($prog['is_multi_location']??0)===1?'Yes':'No'; ?></dd>
-          <dt class="col-4">Instant QR</dt><dd class="col-8"><?php echo !empty($prog['instant_attendance'])?'Yes':'No (approve flow)'; ?></dd>
+          <dt class="col-4">Instant QR</dt><dd class="col-8"><?php echo !empty($prog['instant_attendance']) ? adminLangT('हो — scan पछि तुरुन्तै', 'Yes — immediate on scan') : adminLangT('होइन — Admin approve', 'No — approve flow'); ?></dd>
+          <?php if ($detailMemberQr !== ''): ?>
+          <dt class="col-4">Member QR</dt>
+          <dd class="col-8">
+            <code class="small user-select-all d-inline-block text-break" style="max-width:100%;"><?php echo htmlspecialchars($detailMemberQr, ENT_QUOTES, 'UTF-8'); ?></code>
+            <div class="form-text mb-0">Canonical venue check-in URL (print/share यही)।</div>
+          </dd>
+          <?php endif; ?>
         </dl>
-        <?php if ((int)($prog['is_multi_location']??0)===1): ?><a href="program-occurrences.php?parent_id=<?php echo $id; ?>" class="btn btn-sm btn-outline-info mt-2">Manage Occurrences</a><?php endif; ?>
+        <?php if ((int)($prog['is_multi_location']??0)===1): ?><a href="program-occurrences.php?parent_id=<?php echo $id; ?>" class="btn btn-sm btn-outline-info mt-2"><?php echo adminLangT('Occurrences व्यवस्थापन', 'Manage Occurrences'); ?></a><?php endif; ?>
       </div></div>
       <?php if (!empty($occRows)): ?>
       <div class="card admin-table-card"><div class="card-header"><h6 class="mb-0">Occurrence-wise</h6></div><table class="table table-sm mb-0"><thead><tr><th>Location</th><th>Date</th><th>Attended</th></tr></thead><tbody>

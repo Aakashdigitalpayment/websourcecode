@@ -11,9 +11,7 @@
  *   - Notification log हेर्न सकिन्छ
  */
 
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
-requireAdminLogin();
+require_once __DIR__ . '/includes/admin-page-boot.php';
 /* Email/SMS gateway secrets — admin+ only */
 if (function_exists('require_role')) {
     require_role('admin');
@@ -167,18 +165,18 @@ require_once 'includes/admin-ui.php';
     echo adminPageHeader('Notification Settings','fa-bell','Email / SMS notification configuration।');
     if ($flash = getFlash()):
     ?>
-    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+    <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     <?php endif; ?>
 
     <ul class="nav admin-nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#notif-list-tab" type="button" role="tab" aria-selected="<?php echo $panel === 'list' ? 'true' : 'false'; ?>">
-                <i class="fas fa-list me-1"></i> सूची
+            <button type="button" class="nav-link <?php echo $panel === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#notif-list-tab" type="button" role="tab" aria-selected="<?php echo $panel === 'list' ? 'true' : 'false'; ?>">
+                <i class="lucide-icon me-1" data-lucide="list" aria-hidden="true"></i> सूची
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#notif-form-tab" type="button" role="tab" aria-selected="<?php echo $panel === 'form' ? 'true' : 'false'; ?>">
-                <i class="fas fa-plus me-1"></i> नयाँ थप्नुहोस्
+            <button type="button" class="nav-link <?php echo $panel === 'form' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#notif-form-tab" type="button" role="tab" aria-selected="<?php echo $panel === 'form' ? 'true' : 'false'; ?>">
+                <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i> नयाँ थप्नुहोस्
             </button>
         </li>
     </ul>
@@ -188,22 +186,22 @@ require_once 'includes/admin-ui.php';
     <!-- Notification Log -->
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0"><i class="fas fa-list-check me-2"></i>Notification Log
+            <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="list-checks" aria-hidden="true"></i>Notification Log
                 <small class="text-muted ms-2">(Last 50)</small>
             </h5>
             <form method="POST" action="" class="d-inline"
                   onsubmit="return confirm('30 दिनभन्दा पुराना logs हटाउनुहोस्?');">
                 <input type="hidden" name="action" value="clear_log">
-                <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                 <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-trash me-1"></i>Old Logs हटाउनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>Old Logs हटाउनुहोस्
                 </button>
             </form>
         </div>
         <div class="card-body p-0">
             <?php if (empty($logs)): ?>
             <div class="text-center py-4 text-muted">
-                <i class="fas fa-inbox fa-2x mb-2 d-block opacity-25"></i>
+                <i class="lucide-icon lucide-2x mb-2 d-block opacity-25" data-lucide="inbox" aria-hidden="true"></i>
                 अझै कुनै notification log छैन।
             </div>
             <?php else: ?>
@@ -226,17 +224,17 @@ require_once 'includes/admin-ui.php';
                             <td><small><?php echo htmlspecialchars($log['event_type']); ?></small></td>
                             <td>
                                 <?php if ($log['channel'] === 'email'): ?>
-                                <span class="badge bg-primary"><i class="fas fa-envelope me-1"></i>Email</span>
+                                <span class="badge bg-primary"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i>Email</span>
                                 <?php else: ?>
-                                <span class="badge bg-success"><i class="fas fa-mobile-alt me-1"></i>SMS</span>
+                                <span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="smartphone" aria-hidden="true"></i>SMS</span>
                                 <?php endif; ?>
                             </td>
                             <td class="small"><?php echo htmlspecialchars($log['recipient']); ?></td>
                             <td>
                                 <?php if ($log['status'] === 'sent'): ?>
-                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Sent</span>
+                                <span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>Sent</span>
                                 <?php else: ?>
-                                <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Failed</span>
+                                <span class="badge bg-danger"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>Failed</span>
                                 <?php endif; ?>
                             </td>
                             <td class="small text-muted"><?php echo htmlspecialchars(mb_substr((string)($log['error_msg'] ?? ''), 0, 60, 'UTF-8'), ENT_QUOTES, 'UTF-8'); ?></td>
@@ -255,7 +253,7 @@ require_once 'includes/admin-ui.php';
     <div class="card border-0 shadow-sm mb-4" style="background:linear-gradient(135deg,#eef2ff,#e0e7ff);border-left:5px solid #4f46e5 !important;">
       <div class="card-body d-flex flex-wrap align-items-center gap-3 py-3">
         <div style="width:48px;height:48px;background:#4f46e5;color:#fff;border-radius:12px;display:grid;place-items:center;font-size:1.4rem;flex-shrink:0;">
-          <i class="fas fa-envelope-open-text"></i>
+          <i class="lucide-icon" data-lucide="mail-open" aria-hidden="true"></i>
         </div>
         <div style="flex:1 1 260px;">
           <div class="fw-bold" style="color:#3730a3;font-size:1rem;">SMS / Email मा के content पठाउने?</div>
@@ -265,21 +263,21 @@ require_once 'includes/admin-ui.php';
           </div>
         </div>
         <a href="notification-templates.php" class="btn btn-primary px-4" style="background:#4f46e5;border-color:#4f46e5;">
-          <i class="fas fa-pen me-1"></i> Templates Edit गर्नुहोस्
+          <i class="lucide-icon me-1" data-lucide="pen" aria-hidden="true"></i> Templates Edit गर्नुहोस्
         </a>
       </div>
     </div>
 
     <form method="POST" action="">
         <input type="hidden" name="action" value="save_settings">
-        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
 
         <div class="row g-4">
             <!-- EMAIL SETTINGS -->
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-envelope me-2 text-primary"></i>Email Notifications</h5>
+                        <h5 class="mb-0"><i class="lucide-icon me-2 text-primary" data-lucide="mail" aria-hidden="true"></i>Email Notifications</h5>
                         <div class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" role="switch"
                                    name="notify_email_enabled" id="emailEnabled"
@@ -312,7 +310,7 @@ require_once 'includes/admin-ui.php';
                                    value="<?php echo gs('notify_email_from'); ?>">
                             <small class="text-muted">
                                 Sender email — hosting को email सँग match गर्नुहोस्।<br>
-                                <span class="text-warning"><i class="fas fa-info-circle"></i>
+                                <span class="text-warning"><i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
                                 PHP mail() काम नगरेमा hosting provider बाट SMTP setup गर्नुहोस्।</span>
                             </small>
                         </div>
@@ -328,8 +326,8 @@ require_once 'includes/admin-ui.php';
                                            id="email_<?php echo $ev; ?>"
                                            <?php echo getSetting('notify_email_'.$ev,'0')==='1' ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="email_<?php echo $ev; ?>">
-                                        <i class="fas <?php echo $info['icon']; ?> me-1 text-muted small"></i>
-                                        <?php echo $info['label']; ?>
+                                        <?php echo coop_nav_icon_html('fas ' . coop_sanitize_icon_class($info['icon'] ?? ''), 'fas fa-bell', 'me-1 text-muted small'); ?>
+                                        <?php echo e($info['label']); ?>
                                     </label>
                                 </div>
                             </div>
@@ -343,7 +341,7 @@ require_once 'includes/admin-ui.php';
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-mobile-alt me-2 text-success"></i>SMS Notifications</h5>
+                        <h5 class="mb-0"><i class="lucide-icon me-2 text-success" data-lucide="smartphone" aria-hidden="true"></i>SMS Notifications</h5>
                         <!-- Enable toggle -->
                         <div class="form-check form-switch mb-0">
                             <input class="form-check-input" type="checkbox" role="switch"
@@ -423,8 +421,8 @@ require_once 'includes/admin-ui.php';
                                            id="sms_<?php echo $ev; ?>"
                                            <?php echo getSetting('notify_sms_'.$ev,'0')==='1' ? 'checked' : ''; ?>>
                                     <label class="form-check-label" for="sms_<?php echo $ev; ?>">
-                                        <i class="fas <?php echo $info['icon']; ?> me-1 text-muted small"></i>
-                                        <?php echo $info['label']; ?>
+                                        <?php echo coop_nav_icon_html('fas ' . coop_sanitize_icon_class($info['icon'] ?? ''), 'fas fa-bell', 'me-1 text-muted small'); ?>
+                                        <?php echo e($info['label']); ?>
                                     </label>
                                 </div>
                             </div>
@@ -441,7 +439,7 @@ require_once 'includes/admin-ui.php';
         <div class="card mb-4 border-primary">
             <div class="card-header bg-primary bg-opacity-10 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 text-primary">
-                    <i class="fas fa-server me-2"></i>SMTP Email Setup
+                    <i class="lucide-icon me-2" data-lucide="server" aria-hidden="true"></i>SMTP Email Setup
                     <small class="text-muted ms-2 fw-normal">— Gmail / Outlook / cPanel SMTP बाट email पठाउन</small>
                 </h5>
                 <div class="form-check form-switch mb-0">
@@ -456,7 +454,7 @@ require_once 'includes/admin-ui.php';
             </div>
             <div class="card-body">
                 <div class="alert alert-info small mb-3">
-                    <i class="fas fa-lightbulb me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="lightbulb" aria-hidden="true"></i>
                     <strong>SMTP Off भए:</strong> Hosting को default PHP mail() use हुन्छ — सजिलो तर spam मा जान सक्छ।<br>
                     <strong>SMTP On भए:</strong> Gmail/Outlook/आफ्नो domain SMTP use हुन्छ — reliable र spam हुँदैन।
                 </div>
@@ -506,11 +504,11 @@ require_once 'includes/admin-ui.php';
                                    autocomplete="off">
                             <button class="btn btn-outline-secondary" type="button"
                                     onclick="let f=document.getElementById('smtpPass');f.type=f.type=='password'?'text':'password';" aria-label="View" title="View">
-                                <i class="fas fa-eye"></i>
+                                <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                             </button>
                         </div>
                         <small class="text-muted text-warning">
-                            <i class="fas fa-exclamation-triangle"></i>
+                            <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true"></i>
                             Gmail: Normal password काम गर्दैन — <strong>App Password</strong> बनाउनुहोस्।
                             <a href="https://myaccount.google.com/apppasswords" target="_blank" class="text-primary" rel="noopener noreferrer">यहाँ बनाउनुहोस् →</a>
                         </small>
@@ -536,7 +534,7 @@ require_once 'includes/admin-ui.php';
                 <div class="mt-4">
                     <button class="btn btn-sm btn-outline-info" type="button"
                             data-bs-toggle="collapse" data-bs-target="#smtpGuide">
-                        <i class="fas fa-question-circle me-1"></i>Gmail SMTP setup कसरी गर्ने? (Click गर्नुहोस्)
+                        <i class="lucide-icon me-1" data-lucide="circle-help" aria-hidden="true"></i>Gmail SMTP setup कसरी गर्ने? (Click गर्नुहोस्)
                     </button>
                     <div class="collapse mt-3" id="smtpGuide">
                         <div class="card border-info">
@@ -568,7 +566,7 @@ require_once 'includes/admin-ui.php';
         <div class="card mb-4 border-success">
             <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 text-success">
-                    <i class="fas fa-user-check me-2"></i>Member Status Notification
+                    <i class="lucide-icon me-2" data-lucide="user-check" aria-hidden="true"></i>Member Status Notification
                     <small class="text-muted ms-2 fw-normal">— Admin ले status update गर्दा member लाई जानकारी</small>
                 </h5>
                 <div class="form-check form-switch mb-0">
@@ -583,7 +581,7 @@ require_once 'includes/admin-ui.php';
             </div>
             <div class="card-body">
                 <div class="alert alert-success small mb-3">
-                    <i class="fas fa-info-circle me-1"></i>
+                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                     यो feature ON गरेमा — Admin ले ऋण आवेदन, गुनासो, KYC, खाता आवेदन आदिको status update गर्दा
                     <strong>member को email र/वा phone</strong> मा automatically notification जान्छ।
                     Member ले application-tracker.php मा गएर पनि status हेर्न सक्छ।
@@ -597,7 +595,7 @@ require_once 'includes/admin-ui.php';
                                        style="width:40px;height:20px;"
                                        <?php echo getSetting('notify_member_email','1')==='1' ? 'checked' : ''; ?>>
                                 <label class="form-check-label ms-2 fw-semibold" for="memberEmailCheck">
-                                    <i class="fas fa-envelope text-primary me-1"></i>Email notification
+                                    <i class="lucide-icon text-primary me-1" data-lucide="mail" aria-hidden="true"></i>Email notification
                                 </label>
                             </div>
                             <small class="text-muted mt-1 d-block ps-4">
@@ -614,7 +612,7 @@ require_once 'includes/admin-ui.php';
                                        style="width:40px;height:20px;"
                                        <?php echo getSetting('notify_member_sms','1')==='1' ? 'checked' : ''; ?>>
                                 <label class="form-check-label ms-2 fw-semibold" for="memberSmsCheck">
-                                    <i class="fas fa-mobile-alt text-success me-1"></i>SMS notification
+                                    <i class="lucide-icon text-success me-1" data-lucide="smartphone" aria-hidden="true"></i>SMS notification
                                 </label>
                             </div>
                             <small class="text-muted mt-1 d-block ps-4">
@@ -625,7 +623,7 @@ require_once 'includes/admin-ui.php';
                     </div>
                 </div>
                 <div class="mt-3 p-3 bg-warning bg-opacity-10 rounded small">
-                    <i class="fas fa-lightbulb text-warning me-1"></i>
+                    <i class="lucide-icon text-warning me-1" data-lucide="lightbulb" aria-hidden="true"></i>
                     <strong>कसरी काम गर्छ:</strong>
                     Admin ले कुनै पनि आवेदनको status बदल्छ (pending → approved आदि) →
                     Member को email/SMS मा "<em>तपाईंको ऋण आवेदन स्वीकृत भयो</em>" भनेर notification आउँछ →
@@ -637,7 +635,7 @@ require_once 'includes/admin-ui.php';
         <!-- Save Button -->
         <div class="d-flex gap-3 mb-4">
             <button type="submit" class="btn btn-primary btn-lg px-5">
-                <i class="fas fa-save me-2"></i>Settings सुरक्षित गर्नुहोस्
+                <i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>Settings सुरक्षित गर्नुहोस्
             </button>
         </div>
     </form>
@@ -646,7 +644,7 @@ require_once 'includes/admin-ui.php';
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header"><h5 class="mb-0"><i class="fas fa-flask me-2"></i>Test Notification</h5></div>
+                <div class="card-header"><h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="flask-conical" aria-hidden="true"></i>Test Notification</h5></div>
                 <div class="card-body">
                     <p class="text-muted small">Settings save गरेपछि test गर्नुहोस्।</p>
                     <div class="d-flex gap-3 flex-wrap">
@@ -654,23 +652,23 @@ require_once 'includes/admin-ui.php';
                         <form method="POST" action="" class="d-inline">
                             <input type="hidden" name="action" value="test_notification">
                             <input type="hidden" name="test_channel" value="email">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <button type="submit" class="btn btn-outline-primary">
-                                <i class="fas fa-envelope me-2"></i>Test Email पठाउनुहोस्
+                                <i class="lucide-icon me-2" data-lucide="mail" aria-hidden="true"></i>Test Email पठाउनुहोस्
                             </button>
                         </form>
                         <!-- Test SMS -->
                         <form method="POST" action="" class="d-inline">
                             <input type="hidden" name="action" value="test_notification">
                             <input type="hidden" name="test_channel" value="sms">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <button type="submit" class="btn btn-outline-success">
-                                <i class="fas fa-mobile-alt me-2"></i>Test SMS पठाउनुहोस्
+                                <i class="lucide-icon me-2" data-lucide="smartphone" aria-hidden="true"></i>Test SMS पठाउनुहोस्
                             </button>
                         </form>
                     </div>
                     <div class="alert alert-light mt-3 mb-0 small">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         Test notification configured recipient(s) लाई पठाइन्छ।
                         Spam/Junk folder पनि जाँच गर्नुहोस्।
                     </div>
@@ -682,7 +680,7 @@ require_once 'includes/admin-ui.php';
         <div class="col-md-6">
             <div class="card border-info">
                 <div class="card-header bg-info bg-opacity-10">
-                    <h5 class="mb-0 text-info"><i class="fas fa-circle-info me-2"></i>Setup Guide</h5>
+                    <h5 class="mb-0 text-info"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>Setup Guide</h5>
                 </div>
                 <div class="card-body small">
                     <ol class="mb-0 ps-3">

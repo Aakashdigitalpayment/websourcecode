@@ -474,6 +474,31 @@ CREATE TABLE IF NOT EXISTS member_of_year (
     updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- member_success_stories — includes/member-success-stories-tables.php (admin/member-success-stories.php)
+CREATE TABLE IF NOT EXISTS member_success_stories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    member_name VARCHAR(200) NOT NULL,
+    member_name_en VARCHAR(200) NULL,
+    member_id_no VARCHAR(50) NULL,
+    photo VARCHAR(500) NULL,
+    member_since VARCHAR(40) NULL,
+    location VARCHAR(150) NULL,
+    location_en VARCHAR(150) NULL,
+    profession VARCHAR(150) NULL,
+    profession_en VARCHAR(150) NULL,
+    headline_np VARCHAR(255) NOT NULL,
+    headline_en VARCHAR(255) NULL,
+    story_np TEXT NOT NULL,
+    story_en TEXT NULL,
+    institution_help_np TEXT NULL,
+    institution_help_en TEXT NULL,
+    display_order INT NOT NULL DEFAULT 0,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_mss_active_order (is_active, display_order, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- =====================================================
 -- 16. SERVICE CENTERS TABLE
 -- =====================================================
@@ -1246,7 +1271,7 @@ CREATE TABLE IF NOT EXISTS welfare_claim_types (
     slug VARCHAR(60) NOT NULL,
     name_np VARCHAR(160) NOT NULL,
     name_en VARCHAR(160) DEFAULT '',
-    icon VARCHAR(80) NOT NULL DEFAULT 'fa-gift',
+    icon VARCHAR(80) NOT NULL DEFAULT 'fas fa-gift',
     color VARCHAR(40) NOT NULL DEFAULT '#ff9800',
     form_profile VARCHAR(40) NOT NULL DEFAULT 'other',
     display_order INT NOT NULL DEFAULT 0,

@@ -1,3 +1,21 @@
+/* FROZEN PANEL BASE — do not rewrite for polish/layout.
+ * Visual changes: *-page.css, *-shell-polish.css, final-ui-polish.css
+ * then: python3 scripts/build-css-late-bundles.py
+ * Split/slim of this file is a separate deferred track.
+ */
+/*
+ * SECTION INDEX (inventory only — do not hand-edit body for polish):
+ *  - design-tokens.css
+ *  - theme-variables.css
+ *  - animations.css
+ *  - mobile-menu-improvements.css
+ *  - mobile-comprehensive-fixes.css
+ *  - coop-core.css
+ *  - coop-clean.css
+ *  - unified-portal.css
+ * Total section markers: 8
+ */
+
 /* ========== design-tokens.css ========== */
 /**
  * 🎨 DESIGN TOKENS — आकाश सहकारी (Phase 1 Uniformity)

@@ -3,6 +3,7 @@
  * रोजगारी व्यवस्थापन — Careers Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -19,11 +20,13 @@ ensureCareersTables($db);
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
 checkCSRF();
 
-/* extra column migration — v2: safeColumnExists() बाट SQL-injection safe */
+/* extra column migration — v2: safeAddColumn / safeColumnExists */
 try {
     $extra = ['vacancies'=>"INT DEFAULT 1",'min_qualification'=>"VARCHAR(200) NULL",'experience_required'=>"VARCHAR(200) NULL",'salary_range'=>"VARCHAR(200) NULL",'allow_online_apply'=>"TINYINT(1) DEFAULT 1"];
     foreach ($extra as $col => $def) {
-        if (!safeColumnExists('careers', $col)) {
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'careers', $col, $def);
+        } elseif (!safeColumnExists('careers', $col)) {
             /* $col whitelist check पास भएको — definition hardcoded array बाट */
             $db->exec("ALTER TABLE `careers` ADD COLUMN `{$col}` {$def}");
         }
@@ -148,7 +151,7 @@ function careers_admin_render_rows(array $list): void
                                     </small>
                                 </td>
                                 <td class="text-center">
-                                    <a href="job-applications.php?career_id=<?php echo $c['id']; ?>" class="text-decoration-none">
+                                    <a href="job-applications.php?career_id=<?php echo (int)$c['id']; ?>" class="text-decoration-none">
                                         <span class="badge bg-primary"><?php echo $c['application_count'] ?? 0; ?></span>
                                         <?php if (($c['unread_count'] ?? 0) > 0): ?><span class="badge bg-danger ms-1"><?php echo $c['unread_count']; ?> <?php echo $__t('नयाँ', 'new'); ?></span><?php endif; ?>
                                     </a>
@@ -156,7 +159,7 @@ function careers_admin_render_rows(array $list): void
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-career"
-                                            data-id="<?php echo $c['id']; ?>"
+                                            data-id="<?php echo (int)$c['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($c['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($c['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-dept="<?php echo htmlspecialchars($c['department'] ?? '', ENT_QUOTES); ?>"
@@ -180,17 +183,17 @@ function careers_admin_render_rows(array $list): void
                                             data-qual="<?php echo htmlspecialchars($c['min_qualification'] ?? '', ENT_QUOTES); ?>"
                                             data-exp="<?php echo htmlspecialchars($c['experience_required'] ?? '', ENT_QUOTES); ?>"
                                             data-salary="<?php echo htmlspecialchars($c['salary_range'] ?? '', ENT_QUOTES); ?>"
-                                            data-allow-apply="<?php echo $c['allow_online_apply'] ?? 1; ?>"
-                                            data-active="<?php echo $c['is_active']; ?>"
+                                            data-allow-apply="<?php echo (int)($c['allow_online_apply'] ?? 1); ?>"
+                                            data-active="<?php echo (int)$c['is_active']; ?>"
                                             data-attachment="<?php echo htmlspecialchars($c['attachment'] ?? '', ENT_QUOTES); ?>"
                                             title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('<?php echo addslashes($__t('के तपाईं यो रोजगारी मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this career item?')); ?>')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -205,9 +208,9 @@ $flash = getFlash();
     $__t('रोजगारी व्यवस्थापन', 'Career Management'),
     'fa-briefcase',
     $__t('खाली पदहरू र रोजगारी सूचनाहरू।', 'Vacancies and career notices.'),
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($careers) . ' ' . $__t('पद', 'positions') . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($careersLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($careersArchived) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . $__t('जम्मा', 'Total') . ': ' . count($careers) . ' ' . $__t('पद', 'positions') . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($careersLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($careersArchived) . '</span>'
 ); ?>
 
 <?php if (!empty($flash)) { echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']); } ?>
@@ -215,13 +218,13 @@ $flash = getFlash();
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#career-list" id="career-list-btn" title="<?php echo $__t('सक्रिय पद / जम्मा पद', 'Active positions / total positions'); ?>">
-            <i class="fas fa-list me-2"></i><?php echo $__t('रोजगारी सूची', 'Career List'); ?>
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('रोजगारी सूची', 'Career List'); ?>
             <span class="badge bg-success ms-1"><?php echo count($careers); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#career-form" id="career-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="careerFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="careerFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
 </ul>
@@ -235,7 +238,7 @@ $flash = getFlash();
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3" style="flex-wrap:wrap">
                 <div class="input-group input-group-sm" style="max-width:300px">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 career-list-search" placeholder="<?php echo $__t('नाम, विवरण अनुसार खोज्नुहोस्...', 'Search by title or details...'); ?>" autocomplete="off" aria-label="<?php echo $__t('रोजगारी खोज', 'Search careers'); ?>">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -243,18 +246,18 @@ $flash = getFlash();
             <ul class="nav nav-pills admin-inner-tabstrip flex-wrap gap-2 px-3 py-2 mx-3 mt-2 mb-2" id="career-subtabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active py-2" id="career-sub-live-btn" data-bs-toggle="tab" data-bs-target="#careers-sub-live" type="button" role="tab" aria-controls="careers-sub-live" aria-selected="true">
-                        <i class="fas fa-bolt me-1"></i><?php echo $__t('सक्रिय पद', 'Active Positions'); ?>
+                        <i class="lucide-icon me-1" data-lucide="zap" aria-hidden="true"></i><?php echo $__t('सक्रिय पद', 'Active Positions'); ?>
                         <span class="badge bg-success ms-1"><?php echo count($careersLive); ?></span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link py-2" id="career-sub-arch-btn" data-bs-toggle="tab" data-bs-target="#careers-sub-arch" type="button" role="tab" aria-controls="careers-sub-arch" aria-selected="false">
-                        <i class="fas fa-archive me-1"></i><?php echo $__t('अभिलेख', 'Archived'); ?>
+                        <i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i><?php echo $__t('अभिलेख', 'Archived'); ?>
                         <span class="badge bg-secondary ms-1"><?php echo count($careersArchived); ?></span>
                     </button>
                 </li>
             </ul>
-            <p class="px-3 pt-2 mb-0 small text-muted"><i class="fas fa-info-circle me-1"></i><?php echo $__t('अभिलेखमा म्याद सकिएका वा निष्क्रिय पदहरू देखिन्छन्।', 'Archived tab shows expired or inactive positions.'); ?></p>
+            <p class="px-3 pt-2 mb-0 small text-muted"><i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo $__t('अभिलेखमा म्याद सकिएका वा निष्क्रिय पदहरू देखिन्छन्।', 'Archived tab shows expired or inactive positions.'); ?></p>
             <div class="tab-content card-body p-0" id="career-subtabs-content">
                 <div class="tab-pane fade show active" id="careers-sub-live" role="tabpanel" aria-labelledby="career-sub-live-btn">
                     <div class="table-responsive">
@@ -273,12 +276,12 @@ $flash = getFlash();
                             <tbody>
                                 <?php if (empty($careersLive) && empty($careers)): ?>
                                 <tr><td colspan="7" class="text-center py-5 text-muted">
-                                    <i class="fas fa-briefcase fa-3x mb-2 d-block opacity-25"></i>
+                                    <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="briefcase" aria-hidden="true"></i>
                                     कुनै रोजगारी छैन।
                                 </td></tr>
                                 <?php elseif (empty($careersLive)): ?>
                                 <tr><td colspan="7" class="text-center py-5 text-muted">
-                                    <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                    <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                     हाल सक्रिय पद छैन। अभिलेख हेर्नुहोस्।
                                 </td></tr>
                                 <?php else: careers_admin_render_rows($careersLive); endif; ?>
@@ -303,7 +306,7 @@ $flash = getFlash();
                             <tbody>
                                 <?php if (empty($careersArchived)): ?>
                                 <tr><td colspan="7" class="text-center py-5 text-muted">
-                                    <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                    <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                     अभिलेखमा कुनै पद छैन।
                                 </td></tr>
                                 <?php else: careers_admin_render_rows($careersArchived); endif; ?>
@@ -320,10 +323,10 @@ $flash = getFlash();
         <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
                 <h5 class="mb-0 fw-bold" id="careerFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ रोजगारी थप्नुहोस्', 'Add New Career'); ?>
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ रोजगारी थप्नुहोस्', 'Add New Career'); ?>
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelCareer">
-                    <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to list'); ?>
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to list'); ?>
                 </button>
             </div>
             <div class="card-body p-4">
@@ -380,7 +383,7 @@ $flash = getFlash();
                             <label for="crf_deadline" class="form-label fw-semibold text-success">Deadline (मिति बि.सं.)</label>
                             <div class="input-group">
                                 <input type="text" name="deadline" id="crf_deadline" class="form-control admin-fancy-input nepali-datepicker" placeholder="२०८२-०१-३०">
-                                <span class="input-group-text bg-success text-white"><i class="fas fa-calendar-alt"></i></span>
+                                <span class="input-group-text bg-success text-white"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -414,10 +417,10 @@ $flash = getFlash();
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="crf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
                         </button>
                         <button type="button" id="crf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रद्द', 'Cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -430,10 +433,10 @@ $flash = getFlash();
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var careerI18n = {
-        addBtn: <?php echo json_encode('<i class="fas fa-plus-circle me-2"></i>' . $__t('थप्नुहोस्', 'Add')); ?>,
-        editBtn: <?php echo json_encode('<i class="fas fa-save me-2"></i>' . $__t('अपडेट गर्नुहोस्', 'Update')); ?>,
-        addTitle: <?php echo json_encode('<i class="fas fa-plus-circle me-2"></i>' . $__t('नयाँ रोजगारी थप्नुहोस्', 'Add New Career')); ?>,
-        editTitle: <?php echo json_encode('<i class="fas fa-edit me-2"></i>' . $__t('रोजगारी सम्पादन', 'Edit Career')); ?>,
+        addBtn: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>' . $__t('थप्नुहोस्', 'Add')); ?>,
+        editBtn: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>' . $__t('अपडेट गर्नुहोस्', 'Update')); ?>,
+        addTitle: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>' . $__t('नयाँ रोजगारी थप्नुहोस्', 'Add New Career')); ?>,
+        editTitle: <?php echo json_encode('<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>' . $__t('रोजगारी सम्पादन', 'Edit Career')); ?>,
         addTab: <?php echo json_encode($__t('नयाँ थप्नुहोस्', 'Add New')); ?>,
         editTab: <?php echo json_encode($__t('सम्पादन', 'Edit')); ?>,
         attachmentKeep: <?php echo json_encode($__t(' — नयाँ फाइल नचुने भने पुरानै रहन्छ', ' - keep empty to retain current file')); ?>

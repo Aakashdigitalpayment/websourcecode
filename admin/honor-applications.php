@@ -2,6 +2,7 @@
 /**
  * Admin — सम्मान आवेदन व्यवस्थापन
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -210,9 +211,9 @@ try {
 ?>
 <div class="card admin-table-card mb-4">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h5 class="mb-0"><i class="fas fa-award me-2"></i><?php echo e($app['tracking_id']); ?></h5>
+        <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="award" aria-hidden="true"></i><?php echo e($app['tracking_id']); ?></h5>
         <div class="d-flex gap-2">
-            <a href="honor-applications.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
+            <a href="honor-applications.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
             <?php echo adminExcelSingleLink('honor-applications.php', (int)$app['id']); ?>
             <?php echo adminPrintFormLink('honor', (int)$app['id']); ?>
         </div>
@@ -244,7 +245,7 @@ try {
                 <p><strong><?php echo $__t('विवरण', 'Description'); ?>:</strong><br><?php echo nl2br(e($app['description'] ?: '—')); ?></p>
                 <?php if (!empty($app['attachment'])): ?>
                 <p><strong><?php echo $__t('संलग्नक', 'Attachment'); ?>:</strong>
-                    <a href="<?php echo SITE_URL . ltrim((string)$app['attachment'], '/'); ?>" target="_blank" rel="noopener noreferrer"><?php echo $__t('हेर्नुहोस्', 'View'); ?></a>
+                    <a href="<?php echo htmlspecialchars(rtrim(SITE_URL, '/') . '/' . ltrim((string)$app['attachment'], '/'), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer"><?php echo $__t('हेर्नुहोस्', 'View'); ?></a>
                 </p>
                 <?php endif; ?>
                 <?php if (!empty($history)): ?>
@@ -288,11 +289,11 @@ try {
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" id="notifyMember" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> <?php echo $__t('आवेदकलाई Email/SMS पठाउनुहोस्', 'Send Email/SMS to applicant'); ?></span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $__t('आवेदकलाई Email/SMS पठाउनुहोस्', 'Send Email/SMS to applicant'); ?></span>
                                 </label>
                                 <div class="arv-notify-channels small mt-1">
-                                    <span class="<?php echo $hasEmail ? 'text-success' : 'text-muted'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="ms-2 <?php echo $hasPhone ? 'text-success' : 'text-muted'; ?>"><i class="fas fa-mobile-alt"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'text-success' : 'text-muted'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="ms-2 <?php echo $hasPhone ? 'text-success' : 'text-muted'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                                 <?php if (!$hasEmail && !$hasPhone): ?>
                                 <div class="text-danger small mt-1"><?php echo $__t('Email/फोन छैन — सूचना जान सक्दैन।', 'No email/phone — cannot notify.'); ?></div>
@@ -375,7 +376,7 @@ $exportQs = array_filter([
         <p class="text-muted mb-0 small"><?php echo $__t('कार्यक्रम अनुसार आवेदन संकलन र समीक्षा।', 'Collect and review applications by program.'); ?></p>
     </div>
     <div class="d-flex gap-2">
-        <a href="honor-programs.php" class="btn btn-outline-primary btn-sm"><i class="fas fa-calendar-alt me-1"></i><?php echo $__t('कार्यक्रमहरू', 'Programs'); ?></a>
+        <a href="honor-programs.php" class="btn btn-outline-primary btn-sm"><i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?php echo $__t('कार्यक्रमहरू', 'Programs'); ?></a>
     </div>
 </div>
 
@@ -424,7 +425,7 @@ $exportQs = array_filter([
             <input type="text" name="search" id="ha_search" class="form-control form-control-sm" value="<?php echo e($search); ?>" placeholder="HNR- / नाम / फोन">
         </div>
         <div class="col-md-1">
-            <button class="btn btn-primary btn-sm w-100" type="submit"><i class="fas fa-search"></i></button>
+            <button class="btn btn-primary btn-sm w-100" type="submit"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></button>
         </div>
     </div>
     <?php echo adminExcelExportButtonHtml($exportQs, $honFilteredTotal); ?>
@@ -463,7 +464,7 @@ $exportQs = array_filter([
                     <td class="small"><?php echo e($a['created_at']); ?></td>
                     <td>
                         <div class="adm-action-icons">
-                        <a class="adm-icon-btn adm-icon-btn--view" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>" title="View" aria-label="View"><i class="fas fa-eye"></i></a>
+                        <a class="adm-icon-btn adm-icon-btn--view" href="honor-applications.php?action=view&id=<?php echo (int)$a['id']; ?>" title="View" aria-label="View"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
                         <?php echo adminExcelIcon('honor-applications.php', (int)$a['id']); ?>
                         <?php echo adminPrintFormIcon('honor', (int)$a['id']); ?>
                         </div>

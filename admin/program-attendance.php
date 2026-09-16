@@ -3,11 +3,7 @@ $currentPage = 'program-attendance';
 
 /* CSV/Excel export — admin-header अघि (HTML leak रोक्न) */
 if (isset($_GET['export'])) {
-    require_once __DIR__ . '/../includes/config.php';
-    if (!isAdminLoggedIn()) {
-        header('Location: ' . ADMIN_URL . 'index.php');
-        exit;
-    }
+    require_once __DIR__ . '/includes/admin-page-boot.php';
     require_once __DIR__ . '/../includes/program-tables.php';
     require_once __DIR__ . '/../includes/program-attendance-helpers.php';
     require_once __DIR__ . '/includes/program-reports-common.php';
@@ -178,12 +174,12 @@ if (isset($_GET['export'])) {
 if (!ob_get_level()) {
     ob_start();
 }
+require_once __DIR__ . '/includes/admin-page-boot.php';
+require_once __DIR__ . '/includes/admin-ui.php';
+$pageTitle = adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg');
 require_once 'includes/admin-header.php';
 require_once __DIR__ . '/../includes/program-tables.php';
 require_once __DIR__ . '/../includes/program-attendance-helpers.php';
-
-$pageTitle = adminLangT('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report');
-
 $db = getDB();
 ensureProgramTables($db);
 
@@ -790,8 +786,8 @@ $totalAttendance = $totalFiltered;
 $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER BY is_active DESC, COALESCE(event_date,'9999-12-31') ASC, id DESC LIMIT 500")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="container-fluid py-3">
-<?php echo adminPageHeader(adminLangT('कार्यक्रम उपस्थिति रिपोर्ट', 'Program Attendance Report'), 'fa-clipboard-check', adminLangT('कार्यक्रम छानेर pre-registration र उपस्थिति हेर्नुहोस्। लामो सूचीको लागि कार्यक्रम व्यवस्थापनमा सक्रिय/निष्क्रिय छुट्याउनुहोस्।', 'Select a program to view pre-registrations and attendance. For long lists, separate active/inactive from program management.'),
-    '<a class="btn btn-outline-primary btn-sm" href="programs.php"><i class="fas fa-calendar-plus me-1"></i>' . adminLangT('कार्यक्रम व्यवस्थापन', 'Program Management') . '</a>'); ?>
+<?php echo adminPageHeader(adminLangT('उपस्थिति / Pre-reg', 'Attendance / Pre-reg'), 'fa-clipboard-check', adminLangT('Pre-reg = नाम दर्ता मात्र। स्थल उपस्थिति = QR/Desk। कार्यक्रम छानेर approve, सूची र निर्यात।', 'Pre-reg = name reservation only. Venue attendance = QR/Desk. Select a program to approve, list, and export.'),
+    '<a class="btn btn-outline-primary btn-sm" href="programs.php"><i class="lucide-icon me-1" data-lucide="calendar-plus" aria-hidden="true"></i>' . adminLangT('कार्यक्रम व्यवस्थापन', 'Program Management') . '</a>'); ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <div class="card admin-table-card mb-3">
@@ -810,15 +806,15 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
           <input class="form-check-input me-1" type="checkbox" name="active_only" value="1" <?php echo $activeOnly ? 'checked' : ''; ?>>
           सक्रिय कार्यक्रम मात्र
         </label>
-        <label class="form-check-label small d-block">
+        <label class="form-check-label small d-block" for="showDoneToggle">
           <input class="form-check-input me-1" type="checkbox" id="showDoneToggle" name="show_done" value="1" <?php echo $showDone ? 'checked' : ''; ?>>
           Pre-reg Done पनि
         </label>
       </div>
       <div class="col-12 col-md-10 d-flex flex-wrap gap-2">
-        <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i><?php echo adminLangT('फिल्टर', 'Filter'); ?></button>
-        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><?php echo function_exists('icon') ? icon('file-spreadsheet', 16, 'margin-right:6px;') : '<i class="fas fa-file-excel me-1"></i>'; ?>Excel/CSV (<?php echo adminLangT('सबै फिल्टर', 'all filters'); ?>)</a>
-        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 'prereg'])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary"><i class="fas fa-user-plus me-1"></i>Pre-Reg CSV</a>
+        <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo adminLangT('फिल्टर', 'Filter'); ?></button>
+        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 1])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-success"><?php echo function_exists('icon') ? icon('file-spreadsheet', 16, 'margin-right:6px;') : '<i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>'; ?>Excel/CSV (<?php echo adminLangT('सबै फिल्टर', 'all filters'); ?>)</a>
+        <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 'prereg'])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-primary"><i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i>Pre-Reg CSV</a>
         <?php if ($paQuery !== []): ?><a href="program-attendance.php" class="btn btn-outline-secondary">Reset</a><?php endif; ?>
       </div>
     </form>
@@ -861,18 +857,18 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
 <ul class="nav nav-tabs admin-nav-tabs mb-3" id="paSectionTabs" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active" id="pa-tab-att" data-bs-toggle="tab" data-bs-target="#pa-pane-att" type="button" role="tab" aria-controls="pa-pane-att" aria-selected="true">
-      <i class="fas fa-list me-2"></i>उपस्थिति सूची
+      <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>उपस्थिति सूची
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="pa-tab-req" data-bs-toggle="tab" data-bs-target="#pa-pane-req" type="button" role="tab" aria-controls="pa-pane-req" aria-selected="false">
-      <i class="fas fa-hourglass-half me-2"></i>उपस्थिति अनुरोध
+      <i class="lucide-icon me-2" data-lucide="hourglass" aria-hidden="true"></i>उपस्थिति अनुरोध
       <?php if ($reqPendingCount > 0): ?><span class="badge bg-warning text-dark ms-1"><?php echo (int)$reqPendingCount; ?></span><?php endif; ?>
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="pa-tab-prereg" data-bs-toggle="tab" data-bs-target="#pa-pane-prereg" type="button" role="tab" aria-controls="pa-pane-prereg" aria-selected="false">
-      <i class="fas fa-user-plus me-2"></i>Pre-registration
+      <i class="lucide-icon me-2" data-lucide="user-plus" aria-hidden="true"></i>Pre-registration
     </button>
   </li>
 </ul>
@@ -881,7 +877,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   <div class="tab-pane fade show active" id="pa-pane-att" role="tabpanel" aria-labelledby="pa-tab-att">
 <div class="card admin-table-card">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-list me-2"></i><?php echo adminLangT('उपस्थिति सूची','Attendance List'); ?></h6>
+    <h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo adminLangT('उपस्थिति सूची','Attendance List'); ?></h6>
     <?php if ($totalFiltered > 0): ?><span class="badge bg-secondary"><?php echo (int)$totalFiltered; ?> रेकर्ड (फिल्टर)</span><?php endif; ?>
   </div>
   <div class="table-responsive">
@@ -908,7 +904,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
             <?php echo csrfField(); ?>
             <input type="hidden" name="action" value="void_attendance">
             <input type="hidden" name="attendance_id" value="<?php echo (int)$r['id']; ?>">
-            <button type="submit" class="btn btn-sm btn-outline-danger py-0" title="Void"><i class="fas fa-ban"></i></button>
+            <button type="submit" class="btn btn-sm btn-outline-danger py-0" title="Void"><i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i></button>
           </form>
         </td>
       </tr>
@@ -940,7 +936,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
   <div class="tab-pane fade" id="pa-pane-req" role="tabpanel" aria-labelledby="pa-tab-req">
 <div class="card admin-table-card mb-3 border-warning" style="border-width:2px;">
   <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h6 class="mb-0"><i class="fas fa-hourglass-half text-warning me-2"></i><?php echo adminLangT('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
+    <h6 class="mb-0"><i class="lucide-icon text-warning me-2" data-lucide="hourglass" aria-hidden="true"></i><?php echo adminLangT('उपस्थिति अनुरोध (QR / Portal)', 'Attendance Requests (QR / Portal)'); ?></h6>
     <span class="badge bg-warning text-dark">Pending <?php echo (int)$reqPendingCount; ?></span>
   </div>
   <div class="card-body py-2 small text-muted border-bottom">
@@ -950,7 +946,7 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
     <?php endif; ?>
     <div class="mt-2">
       <a href="program-attendance.php?<?php echo htmlspecialchars(http_build_query(array_merge($paQuery, ['export' => 'requests'])), ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-sm btn-outline-warning">
-        <i class="fas fa-file-csv me-1"></i>Pending Request CSV
+        <i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Pending Request CSV
       </a>
     </div>
   </div>
@@ -986,14 +982,14 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="approve_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
-              <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-check me-1"></i><?php echo adminLangT('स्वीकृत','Approve'); ?></button>
+              <button type="submit" class="btn btn-sm btn-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo adminLangT('स्वीकृत','Approve'); ?></button>
             </form>
             <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap" onsubmit="return confirm('<?php echo adminLangT('अनुरोध अस्वीकृत गर्ने?', 'Reject this request?'); ?>');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="reject_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
               <input type="text" name="reject_note" class="form-control form-control-sm" style="min-width:120px;max-width:180px;" placeholder="कारण (वैकल्पिक)">
-              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="fas fa-times me-1"></i><?php echo adminLangT('अस्वीकृत','Reject'); ?></button>
+              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo adminLangT('अस्वीकृत','Reject'); ?></button>
             </form>
             <?php if ((int)($rx['member_id'] ?? 0) <= 0): ?>
             <form method="POST" class="d-inline-flex align-items-center gap-1 flex-wrap">
@@ -1001,13 +997,13 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
               <input type="hidden" name="action" value="link_attendance_request_member">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
               <input type="text" name="target_member_sadasyata" class="form-control form-control-sm" style="min-width:140px;max-width:200px;" placeholder="Member ID" required>
-              <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fas fa-link me-1"></i>Link</button>
+              <button type="submit" class="btn btn-sm btn-outline-primary"><i class="lucide-icon me-1" data-lucide="link" aria-hidden="true"></i>Link</button>
             </form>
             <form method="POST" class="d-inline" onsubmit="return confirm('<?php echo adminLangT('यस request बाट नयाँ सदस्य बनाउने?', 'Create a new member from this request?'); ?>');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="create_member_from_attendance_request">
               <input type="hidden" name="request_id" value="<?php echo (int)$rx['id']; ?>">
-              <button type="submit" class="btn btn-sm btn-outline-success"><i class="fas fa-user-plus me-1"></i>Create Member</button>
+              <button type="submit" class="btn btn-sm btn-outline-success"><i class="lucide-icon me-1" data-lucide="user-plus" aria-hidden="true"></i>Create Member</button>
             </form>
             <?php endif; ?>
           </div>
@@ -1048,8 +1044,8 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <input type="text" name="bulk_message" id="pa_bulk_message" class="form-control form-control-sm" placeholder="उदाहरण: कार्यक्रम सुरु हुनुभन्दा ३० मिनेट अगाडि उपस्थित हुनुस्।" required>
       </div>
       <div class="col-md-3 d-grid gap-1">
-        <button type="submit" name="action" value="bulk_notify_prereg_test" class="btn btn-sm btn-outline-secondary"><i class="fas fa-vial-circle-check me-1"></i>Test Send</button>
-        <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-paper-plane me-1"></i>Selected लाई पठाउनुहोस्</button>
+        <button type="submit" name="action" value="bulk_notify_prereg_test" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="flask-conical" aria-hidden="true"></i>Test Send</button>
+        <button type="submit" class="btn btn-sm btn-primary"><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>Selected लाई पठाउनुहोस्</button>
       </div>
       <div class="col-12">
         <div class="small text-muted">तल list बाट सदस्यहरू select गरेर bulk सन्देश पठाउनुहोस्। SMS gateway / email settings admin notification settings बाट controlled हुन्छ।</div>
@@ -1083,20 +1079,20 @@ $programs = $db->query("SELECT id, title, is_active FROM upcoming_programs ORDER
         <td><?php echo htmlspecialchars($prPhone ?: '—'); ?></td>
         <td><?php echo $isDone ? '<span class="badge bg-success">Done</span>' : '<span class="badge bg-warning text-dark">Pending</span>'; ?></td>
         <td>
-          <?php if ($prPhone): ?><a class="btn btn-sm btn-outline-success" href="tel:<?php echo htmlspecialchars(preg_replace('/[^0-9+]/', '', $prPhone)); ?>"><i class="fas fa-phone"></i></a><?php endif; ?>
-          <?php if ($prEmail): ?><a class="btn btn-sm btn-outline-primary" href="mailto:<?php echo htmlspecialchars($prEmail); ?>"><i class="fas fa-envelope"></i></a><?php endif; ?>
+          <?php if ($prPhone): ?><a class="btn btn-sm btn-outline-success" href="tel:<?php echo htmlspecialchars(preg_replace('/[^0-9+]/', '', $prPhone)); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a><?php endif; ?>
+          <?php if ($prEmail): ?><a class="btn btn-sm btn-outline-primary" href="mailto:<?php echo htmlspecialchars($prEmail); ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></a><?php endif; ?>
         </td>
         <td><?php echo htmlspecialchars($r['note'] ?: ''); ?></td>
         <td><?php echo htmlspecialchars($r['created_at']); ?></td>
         <td>
           <?php if ($isDone): ?>
-            <span class="text-success small fw-bold"><i class="fas fa-check-circle me-1"></i>Marked</span>
+            <span class="text-success small fw-bold"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>Marked</span>
           <?php else: ?>
             <form method="POST" class="d-inline" onsubmit="return confirm('यो सदस्यलाई attendance मा mark गर्ने?');">
               <?php echo csrfField(); ?>
               <input type="hidden" name="action" value="mark_prereg_attended">
               <input type="hidden" name="prereg_id" value="<?php echo (int)$r['id']; ?>">
-              <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-user-check me-1"></i>Mark Attended</button>
+              <button type="submit" class="btn btn-sm btn-primary"><i class="lucide-icon me-1" data-lucide="user-check" aria-hidden="true"></i>Mark Attended</button>
             </form>
           <?php endif; ?>
         </td>

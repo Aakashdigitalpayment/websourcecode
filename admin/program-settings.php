@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'कार्यक्रम सेटिङ';
 $currentPage = 'program-settings';
 require_once 'includes/admin-header.php';
@@ -29,18 +30,18 @@ $eligibleScope = getSetting('program_default_eligible_scope', 'all_active');
   <div class="card admin-table-card"><div class="card-body">
     <form method="POST" class="row g-3">
       <?php echo csrfField(); ?>
-      <div class="col-12"><label class="form-check-label"><input type="checkbox" class="form-check-input me-1" name="default_instant_attendance" value="1" <?php echo $defaultInstant ? 'checked' : ''; ?>>Default: Instant QR attendance (approve बिना)</label></div>
+      <div class="col-12"><label class="form-check-label"><input type="checkbox" class="form-check-input me-1" name="default_instant_attendance" value="1" <?php echo $defaultInstant ? 'checked' : ''; ?>>Default: Instant QR attendance (approve बिना — नयाँ कार्यक्रममा scan पछि तुरुन्तै उपस्थित)</label></div>
       <div class="col-12"><label class="form-check-label"><input type="checkbox" class="form-check-input me-1" name="default_shared_qr" value="1" <?php echo $defaultSharedQr ? 'checked' : ''; ?>>Default: Shared parent QR for multi-location</label></div>
       <div class="col-md-6">
-        <label class="form-label">Eligible member scope (AGM extension hook)</label>
-        <select name="eligible_scope" class="form-select">
+        <label for="ps_eligible_scope" class="form-label">Eligible member scope (AGM extension hook)</label>
+        <select name="eligible_scope" id="ps_eligible_scope" class="form-select">
           <option value="all_active" <?php echo $eligibleScope==='all_active'?'selected':''; ?>>All active members</option>
           <option value="shareholders" <?php echo $eligibleScope==='shareholders'?'selected':''; ?>>Shareholders only (future)</option>
           <option value="voters" <?php echo $eligibleScope==='voters'?'selected':''; ?>>Eligible voters only (future AGM)</option>
         </select>
         <div class="form-text">Phase 5: quorum, proxy, voting eligibility यही scope बाट extend हुनेछ।</div>
       </div>
-      <div class="col-12"><button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ</button></div>
+      <div class="col-12"><button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ</button></div>
     </form>
   </div></div>
   <div class="alert alert-info mt-3"><strong>Program Types:</strong> General, AGM, SGM, Orientation, Training, Seminar, Workshop, Financial Literacy, Other — programs.php मा छान्न सकिन्छ।</div>

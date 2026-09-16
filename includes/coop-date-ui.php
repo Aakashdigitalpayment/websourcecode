@@ -160,7 +160,7 @@ if (!function_exists('coop_date_input_html')) {
             $ph = htmlspecialchars((string)($o['placeholder'] ?? 'YYYY-MM-DD'), ENT_QUOTES, 'UTF-8');
             $cls = htmlspecialchars(trim($baseClass . ' nepali-datepicker'), ENT_QUOTES, 'UTF-8');
             $html = '<div class="coop-date-wrap input-group">'
-                . '<span class="input-group-text coop-date-ico" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>'
+                . '<span class="input-group-text coop-date-ico" aria-hidden="true"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>'
                 . '<input type="text" name="' . $nameEsc . '" id="' . $idEsc . '" class="' . $cls . '"'
                 . ' value="' . $valEsc . '" placeholder="' . $ph . '" autocomplete="off" inputmode="numeric"'
                 . $reqAttr . '>'
@@ -172,7 +172,7 @@ if (!function_exists('coop_date_input_html')) {
             }
             $cls = htmlspecialchars($baseClass, ENT_QUOTES, 'UTF-8');
             $html = '<div class="coop-date-wrap input-group">'
-                . '<span class="input-group-text coop-date-ico" aria-hidden="true"><i class="fas fa-calendar-alt"></i></span>'
+                . '<span class="input-group-text coop-date-ico" aria-hidden="true"><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i></span>'
                 . '<input type="date" name="' . $nameEsc . '" id="' . $idEsc . '" class="' . $cls . '"'
                 . ' value="' . $valEsc . '" data-calendar="ad"' . $min . $reqAttr . '>'
                 . '</div>';

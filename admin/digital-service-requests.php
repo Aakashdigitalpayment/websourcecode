@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -191,9 +192,9 @@ try {
 ?>
 <div class="card admin-table-card mb-4 arv-legacy-detail">
     <div class="card-header gradient-card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-mobile-alt"></i> <?php echo $__t('अनुरोध विवरण', 'Request Details'); ?> - <?php echo e($request['tracking_id']); ?></h5>
+        <h5 class="mb-0"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> <?php echo $__t('अनुरोध विवरण', 'Request Details'); ?> - <?php echo e($request['tracking_id']); ?></h5>
         <div class="d-flex align-items-center gap-2">
-            <a href="digital-service-requests.php" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left me-1"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
+            <a href="digital-service-requests.php" class="btn btn-outline-light btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('फिर्ता', 'Back'); ?></a>
             <?php echo adminExcelSingleLink('digital-service-requests.php', (int)$request['id']); ?>
             <?php echo adminPrintFormLink('digital', (int)$request['id']); ?>
         </div>
@@ -202,7 +203,7 @@ try {
         <div class="row g-4">
             <div class="col-lg-8">
                 <div class="info-section">
-                    <h6><i class="fas fa-user"></i> <?php echo $__t('सदस्य / अनुरोधकर्ता', 'Member / Requester'); ?></h6>
+                    <h6><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo $__t('सदस्य / अनुरोधकर्ता', 'Member / Requester'); ?></h6>
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong><?php echo $__t('नाम', 'Name'); ?>:</strong> <?php echo e($request['requester_name']); ?></p>
@@ -217,7 +218,7 @@ try {
                     </div>
                 </div>
                 <div class="info-section">
-                    <h6><i class="fas fa-list-check"></i> <?php echo $__t('सेवा विवरण', 'Service Details'); ?></h6>
+                    <h6><i class="lucide-icon" data-lucide="list-checks" aria-hidden="true"></i> <?php echo $__t('सेवा विवरण', 'Service Details'); ?></h6>
                     <div class="row">
                         <div class="col-md-6"><p><strong><?php echo $__t('खाता नं.', 'Account No.'); ?>:</strong> <?php echo e($request['account_number']) ?: 'N/A'; ?></p></div>
                         <div class="col-md-6"><p><strong><?php echo $__t('सम्पर्क माध्यम', 'Preferred Contact'); ?>:</strong> <?php echo e($request['preferred_contact']); ?></p></div>
@@ -239,19 +240,19 @@ try {
                     <div class="dsr-soft-bg p-3 rounded"><?php echo nl2br(e($request['request_details'])); ?></div>
                     <?php endif; ?>
                     <?php if ($request['attachment']): ?>
-                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo htmlspecialchars(adminPublicFileUrl($request['attachment']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn" rel="noopener noreferrer"><i class="fas fa-file"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
+                    <p class="mt-3"><strong class="dsr-label-strong"><?php echo $__t('कागजात', 'Attachment'); ?>:</strong> <a href="<?php echo htmlspecialchars(adminPublicFileUrl($request['attachment']), ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-sm dsr-attachment-btn" rel="noopener noreferrer"><i class="lucide-icon" data-lucide="file" aria-hidden="true"></i> <?php echo $__t('हेर्नुहोस्', 'View'); ?></a></p>
                     <?php endif; ?>
                 </div>
                 <?php if ($request['admin_remarks']): ?>
                 <div class="info-section">
-                    <h6><i class="fas fa-note-sticky"></i> <?php echo $__t('टिप्पणी', 'Remarks'); ?></h6>
+                    <h6><i class="lucide-icon" data-lucide="sticky-note" aria-hidden="true"></i> <?php echo $__t('टिप्पणी', 'Remarks'); ?></h6>
                     <div class="dsr-remark-box"><?php echo nl2br(e($request['admin_remarks'])); ?></div>
                 </div>
                 <?php endif; ?>
             </div>
             <div class="col-lg-4">
                 <div class="card dsr-soft-bg">
-                    <div class="card-header"><h6 class="mb-0"><i class="fas fa-edit"></i> <?php echo $__t('स्थिति अपडेट', 'Update Status'); ?></h6></div>
+                    <div class="card-header"><h6 class="mb-0"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i> <?php echo $__t('स्थिति अपडेट', 'Update Status'); ?></h6></div>
                     <div class="card-body">
                         <form method="POST" enctype="multipart/form-data">
                             <?php echo csrfField(); ?>
@@ -261,7 +262,7 @@ try {
                                 <label for="dsr_status" class="form-label"><?php echo $__t('स्थिति', 'Status'); ?></label>
                                 <select name="status" id="dsr_status" class="form-select">
                                     <?php foreach ($statusLabels as $key => $label): ?>
-                                    <option value="<?php echo $key; ?>" <?php echo $request['status'] === $key ? 'selected' : ''; ?>><?php echo $__t($label['np'], $label['en']); ?></option>
+                                    <option value="<?php echo e($key); ?>" <?php echo $request['status'] === $key ? 'selected' : ''; ?>><?php echo e($__t($label['np'], $label['en'])); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -273,17 +274,17 @@ try {
                             <div class="arv-notify-row mb-3">
                                 <label class="arv-notify-toggle">
                                     <input type="checkbox" name="notify_member" value="1" <?php echo ($hasEmail || $hasPhone) ? 'checked' : ''; ?>>
-                                    <span><i class="fas fa-paper-plane"></i> Member लाई SMS/Email पठाउनुहोस्</span>
+                                    <span><i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> Member लाई SMS/Email पठाउनुहोस्</span>
                                 </label>
                                 <div class="arv-notify-channels">
-                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="fas fa-envelope"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
-                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="fas fa-mobile-screen"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasEmail ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> Email <?php echo $hasEmail ? '✓' : '—'; ?></span>
+                                    <span class="<?php echo $hasPhone ? 'is-on' : 'is-off'; ?>"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i> SMS <?php echo $hasPhone ? '✓' : '—'; ?></span>
                                 </div>
                             </div>
                             <!-- Admin ले सेवा सम्बन्धी document वा instruction attach गर्न सक्छ -->
                             <div class="mb-3">
                                 <label for="dsr_admin_attachment" class="form-label">
-                                    <i class="fas fa-paperclip me-1"></i><?php echo $__t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="paperclip" aria-hidden="true"></i><?php echo $__t('संलग्न फाइल (Optional)', 'Attachment (Optional)'); ?>
                                 </label>
                                 <?php if (!empty($request['admin_attachment'])): ?>
                                 <div class="mb-1"><?php echo adminAttachmentHtml($request['admin_attachment']); ?></div>
@@ -292,14 +293,14 @@ try {
                                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
                                 <small class="dsr-muted"><?php echo $__t('PDF, JPG, PNG, DOC — अधिकतम 5MB', 'PDF, JPG, PNG, DOC — max 5MB'); ?></small>
                             </div>
-                            <button type="submit" class="btn dsr-update-btn w-100"><i class="fas fa-save"></i> <?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?></button>
+                            <button type="submit" class="btn dsr-update-btn w-100"><i class="lucide-icon" data-lucide="save" aria-hidden="true"></i> <?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?></button>
                         </form>
                         <hr>
                         <form method="POST" onsubmit="return confirm('<?php echo $__t('के तपाईं निश्चित हुनुहुन्छ?', 'Are you sure?'); ?>');">
                             <?php echo csrfField(); ?>
                             <input type="hidden" name="delete_request" value="1">
                             <input type="hidden" name="request_id" value="<?php echo (int)$request['id']; ?>">
-                            <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="fas fa-trash"></i> <?php echo $__t('हटाउनुहोस्', 'Delete'); ?></button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i> <?php echo $__t('हटाउनुहोस्', 'Delete'); ?></button>
                         </form>
                     </div>
                 </div>
@@ -311,7 +312,7 @@ try {
                 </div>
                 <?php if (!empty($dsrHistory)): ?>
                 <div class="card mt-3">
-                    <div class="card-header"><h6 class="mb-0"><i class="fas fa-clock-rotate-left me-1"></i><?php echo $__t('Status / Comment History', 'Status / Comment History'); ?></h6></div>
+                    <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-1" data-lucide="history" aria-hidden="true"></i><?php echo $__t('Status / Comment History', 'Status / Comment History'); ?></h6></div>
                     <div class="card-body">
                         <?php echo arvLogList($dsrHistory); ?>
                     </div>
@@ -355,7 +356,7 @@ $dsrFilterQs = array_filter([
 echo adminPageHeader(
     $__t('डिजिटल सेवा अनुरोधहरू', 'Digital Service Requests'), 'fa-mobile-alt',
     $__t('अनलाइन डिजिटल सेवा अनुरोधहरूको स्थिति र व्यवस्थापन', 'Manage status of online digital service requests'),
-    '<a href="digital-service-types.php" class="btn btn-outline-success btn-sm"><i class="fas fa-tags me-1"></i>' . $__t('सेवा प्रकार', 'Service types') . '</a> '
+    '<a href="digital-service-types.php" class="btn btn-outline-success btn-sm"><i class="lucide-icon me-1" data-lucide="tags" aria-hidden="true"></i>' . $__t('सेवा प्रकार', 'Service types') . '</a> '
     . adminStatLink('?status=pending', 'danger', $__t('पेन्डिङ', 'Pending'), $statusCounts['pending'] ?? 0)
     . ' ' . adminStatLink('?status=completed', 'success', $__t('सम्पन्न', 'Completed'), $statusCounts['completed'] ?? 0)
     . ' ' . adminStatLink('digital-service-requests.php', 'secondary', $__t('जम्मा', 'Total'), $totalRequests)
@@ -365,27 +366,27 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 <!-- ── Stat Mini Row ── -->
 <div class="stat-mini-row no-print">
     <a href="digital-service-requests.php" class="stat-mini <?php echo !$filterStatus&&!$filterType&&!$search&&!$dateFrom&&!$dateTo?'active-filter':''; ?>">
-        <div class="sm-icon ic-total"><i class="fas fa-mobile-alt"></i></div>
+        <div class="sm-icon ic-total"><i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $totalRequests; ?></div>
         <div class="sm-lbl"><?php echo $__t('जम्मा', 'Total'); ?></div>
     </a>
     <a href="?status=pending" class="stat-mini <?php echo $filterStatus==='pending'?'active-filter':''; ?>">
-        <div class="sm-icon ic-pending"><i class="fas fa-clock"></i></div>
+        <div class="sm-icon ic-pending"><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['pending'] ?? 0; ?></div>
         <div class="sm-lbl"><?php echo $__t('पेन्डिङ', 'Pending'); ?></div>
     </a>
     <a href="?status=processing" class="stat-mini <?php echo $filterStatus==='processing'?'active-filter':''; ?>">
-        <div class="sm-icon ic-process"><i class="fas fa-spinner"></i></div>
+        <div class="sm-icon ic-process"><i class="lucide-icon" data-lucide="loader-2" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['processing'] ?? 0; ?></div>
         <div class="sm-lbl"><?php echo $__t('प्रक्रियाधीन', 'Processing'); ?></div>
     </a>
     <a href="?status=completed" class="stat-mini <?php echo $filterStatus==='completed'?'active-filter':''; ?>">
-        <div class="sm-icon ic-approved"><i class="fas fa-check-circle"></i></div>
+        <div class="sm-icon ic-approved"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['completed'] ?? 0; ?></div>
         <div class="sm-lbl"><?php echo $__t('सम्पन्न', 'Completed'); ?></div>
     </a>
     <a href="?status=rejected" class="stat-mini <?php echo $filterStatus==='rejected'?'active-filter':''; ?>">
-        <div class="sm-icon ic-rejected"><i class="fas fa-times-circle"></i></div>
+        <div class="sm-icon ic-rejected"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i></div>
         <div class="sm-val"><?php echo $statusCounts['rejected'] ?? 0; ?></div>
         <div class="sm-lbl"><?php echo $__t('अस्वीकृत', 'Rejected'); ?></div>
     </a>
@@ -399,7 +400,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
             <select name="status" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                 <option value=""><?php echo $__t('सबै स्थिति', 'All Status'); ?></option>
                 <?php foreach ($statusLabels as $key => $label): ?>
-                <option value="<?php echo $key; ?>" <?php echo $filterStatus===$key?'selected':''; ?>><?php echo $__t($label['np'], $label['en']); ?></option>
+                <option value="<?php echo e($key); ?>" <?php echo $filterStatus===$key?'selected':''; ?>><?php echo e($__t($label['np'], $label['en'])); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -408,7 +409,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
             <select name="type" class="form-select form-select-sm" onchange="this.closest('form').submit()">
                 <option value=""><?php echo $__t('सबै', 'All'); ?></option>
                 <?php foreach ($serviceLabels as $key => $label): ?>
-                <option value="<?php echo $key; ?>" <?php echo $filterType===$key?'selected':''; ?>><?php echo $__t($label['np'], $label['en']); ?></option>
+                <option value="<?php echo e($key); ?>" <?php echo $filterType===$key?'selected':''; ?>><?php echo e($__t($label['np'], $label['en'])); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -416,13 +417,13 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
         <div class="col-md-4 col-12">
             <label><?php echo $__t('खोज्नुहोस्', 'Search'); ?></label>
             <div class="input-group input-group-sm">
-                <span class="input-group-text bg-white"><i class="fas fa-search dsr-search-icon"></i></span>
+                <span class="input-group-text bg-white"><i class="lucide-icon dsr-search-icon" data-lucide="search" aria-hidden="true"></i></span>
                 <input type="text" name="search" class="form-control" value="<?php echo e($search); ?>" placeholder="<?php echo $__t('Tracking ID, नाम, फोन, सदस्य ID...', 'Tracking ID, name, phone, member ID...'); ?>">
             </div>
         </div>
         <div class="col-md-2 col-6">
-            <button type="submit" class="btn dsr-search-btn btn-sm w-100"><i class="fas fa-search me-1"></i><?php echo $__t('खोज', 'Search'); ?></button>
-            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="fas fa-times me-1"></i><?php echo $__t('रिसेट', 'Reset'); ?></a><?php endif; ?>
+            <button type="submit" class="btn dsr-search-btn btn-sm w-100"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo $__t('खोज', 'Search'); ?></button>
+            <?php if ($filterStatus||$filterType||$search||$dateFrom||$dateTo): ?><a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm w-100 mt-1"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रिसेट', 'Reset'); ?></a><?php endif; ?>
         </div>
     </form>
     <?php echo adminExcelExportButtonHtml($dsrFilterQs, $dsrFilteredTotal); ?>
@@ -430,7 +431,7 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
 
 <div class="card border-0 shadow-sm app-rounded-card">
     <div class="tbl-header-bar no-print">
-        <h6><i class="fas fa-mobile-alt me-2 dsr-head-icon"></i><?php echo $__t('डिजिटल सेवा अनुरोध सूची', 'Digital Service Requests List'); ?></h6>
+        <h6><i class="lucide-icon me-2 dsr-head-icon" data-lucide="smartphone" aria-hidden="true"></i><?php echo $__t('डिजिटल सेवा अनुरोध सूची', 'Digital Service Requests List'); ?></h6>
         <span class="result-count-badge"><?php echo count($requests); ?> <?php echo $__t('रेकर्ड', 'records'); ?></span>
     </div>
     <div class="table-responsive admin-table-card">
@@ -451,15 +452,15 @@ $_flash = getFlash(); if ($_flash) echo adminAlert($_flash['type'], $_flash['mes
                         <td><span class="font-monospace dsr-track-inline"><?php echo e($request['tracking_id']); ?></span></td>
                         <td>
                             <strong><?php echo e($request['requester_name']); ?></strong>
-                            <br><small><i class="fas fa-phone"></i> <?php echo e($request['phone']); ?><?php if ($request['email']): ?> | <i class="fas fa-envelope"></i> <?php echo e($request['email']); ?><?php endif; ?></small>
+                            <br><small><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo e($request['phone']); ?><?php if ($request['email']): ?> | <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i> <?php echo e($request['email']); ?><?php endif; ?></small>
                         </td>
                         <td><?php echo e($request['service_type_np'] ?: (isset($serviceLabels[$request['service_type']]) ? $__t($serviceLabels[$request['service_type']]['np'], $serviceLabels[$request['service_type']]['en']) : $request['service_type'])); ?></td>
                         <td><?php echo formatNepaliDate($request['created_at']); ?></td>
                         <td><span class="badge dsr-st-badge dsr-st-<?php echo $statusLabels[$request['status']]['class'] ?? 'secondary'; ?>"><?php echo isset($statusLabels[$request['status']]) ? $__t($statusLabels[$request['status']]['np'], $statusLabels[$request['status']]['en']) : e($request['status']); ?></span></td>
                         <td>
                             <div class="adm-action-icons">
-                                <a href="?action=view&id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विवरण', 'Details'); ?>" aria-label="View"><i class="fas fa-eye"></i></a>
-                                <a href="?export=csv&amp;id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="fas fa-file-excel text-success"></i></a>
+                                <a href="?action=view&id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn adm-icon-btn--view" title="<?php echo $__t('विवरण', 'Details'); ?>" aria-label="View"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>
+                                <a href="?export=csv&amp;id=<?php echo (int)$request['id']; ?>" class="adm-icon-btn" title="Excel" aria-label="Excel"><i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>
                                 <?php echo adminPrintFormIcon('digital', (int)$request['id']); ?>
                             </div>
                         </td>

@@ -3,9 +3,7 @@
  * Admin: Notification Templates Manager — v4
  * हरेक event को email/SMS subject + body live edit गर्न मिल्ने
  */
-define('IS_ADMIN_PAGE', true);
-require_once '../includes/config.php';
-requireAdminLogin();
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verifyCSRFToken()) {
     setFlash('error','सुरक्षा जाँच असफल');
@@ -84,7 +82,7 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
   <div class="col-lg-4">
     <div class="card border-0 shadow-sm notif-events-card">
       <div class="card-header d-flex align-items-center justify-content-between">
-        <span><i class="fas fa-list me-2"></i>Events</span>
+        <span><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>Events</span>
         <span class="badge bg-light text-dark"><?php echo count($events['admin'] ?? []) + count($events['member'] ?? []); ?> items</span>
       </div>
       <div class="list-group list-group-flush" style="max-height:600px;overflow-y:auto;">
@@ -99,7 +97,7 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
           <a href="?event=<?php echo urlencode($ek); ?>&audience=<?php echo $aud; ?>&channel=<?php echo $ch; ?>"
              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center<?php echo $active?' active':''; ?>"
              style="<?php echo $active?'':'border-left:3px solid '.($on?'#16a34a':'#d1d5db').';'; ?>">
-            <span><i class="fas fa-<?php echo $ch==='email'?'envelope':'comment-sms'; ?> me-2"></i><?php echo htmlspecialchars($elabel); ?> <small class="text-muted">(<?php echo strtoupper($ch); ?>)</small></span>
+            <span><i class="lucide-icon me-2" data-lucide="<?php echo $ch==='email'?'mail':'message-square'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($elabel); ?> <small class="text-muted">(<?php echo strtoupper($ch); ?>)</small></span>
             <span class="badge bg-<?php echo $on?'success':'secondary'; ?>"><?php echo $on?'ON':'OFF'; ?></span>
           </a>
           <?php endforeach; endforeach; ?>
@@ -112,7 +110,7 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
   <div class="col-lg-8">
     <div class="card border-0 shadow-sm notif-editor-card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-pen me-2"></i>Edit Template</h5>
+        <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="pen" aria-hidden="true"></i>Edit Template</h5>
         <span class="badge bg-light text-dark text-lowercase"><?php echo $selAud; ?> / <?php echo $selChan; ?> / <?php echo htmlspecialchars($selEvent); ?></span>
       </div>
       <div class="card-body">
@@ -120,8 +118,8 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
           <?php echo csrfField(); ?>
           <input type="hidden" name="action" value="save">
           <input type="hidden" name="event_type" value="<?php echo htmlspecialchars($selEvent); ?>">
-          <input type="hidden" name="audience" value="<?php echo $selAud; ?>">
-          <input type="hidden" name="channel" value="<?php echo $selChan; ?>">
+          <input type="hidden" name="audience" value="<?php echo e($selAud); ?>">
+          <input type="hidden" name="channel" value="<?php echo e($selChan); ?>">
 
           <div class="form-check form-switch mb-3">
             <input class="form-check-input" type="checkbox" name="enabled" id="enChk" <?php echo (int)($tpl['enabled']??1)===1?'checked':''; ?>>
@@ -142,15 +140,15 @@ if ($flash) echo adminAlert($flash['type'],$flash['message']);
           </div>
 
           <div class="d-flex gap-2 flex-wrap">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Save Template</button>
-            <a href="notification-settings.php?panel=form" class="btn btn-outline-secondary"><i class="fas fa-gear me-1"></i>Settings</a>
+            <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>Save Template</button>
+            <a href="notification-settings.php?panel=form" class="btn btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="settings" aria-hidden="true"></i>Settings</a>
           </div>
         </form>
 
         <hr class="my-4">
 
         <!-- Test send -->
-        <h6 class="fw-bold mb-2"><i class="fas fa-paper-plane me-1"></i>Test Send</h6>
+        <h6 class="fw-bold mb-2"><i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i>Test Send</h6>
         <form method="POST" class="row g-2 align-items-center">
           <?php echo csrfField(); ?>
           <input type="hidden" name="action" value="test_send">

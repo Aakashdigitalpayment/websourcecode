@@ -170,7 +170,7 @@ function timelineSteps($status) {
         $cls    = $rejected && $i === 1 ? 'rejected' : ($done ? 'done' : ($active ? 'active' : ''));
         if ($i > 0) $html .= '<div class="mem-step-line ' . ($done || ($active && $i > 0) ? 'done' : '') . '"></div>';
         $html .= '<div class="mem-step ' . $cls . '">';
-        $html .= '<div class="mem-step-dot">' . ($done ? '<i class="fas fa-check" style="font-size:.55rem;"></i>' : ($rejected && $i===1 ? '<i class="fas fa-x" style="font-size:.55rem;"></i>' : ($i+1))) . '</div>';
+        $html .= '<div class="mem-step-dot">' . ($done ? '<i class="lucide-icon" data-lucide="check" aria-hidden="true" style="font-size:.55rem;"></i>' : ($rejected && $i===1 ? '<i class="lucide-icon" data-lucide="x" aria-hidden="true" style="font-size:.55rem;"></i>' : ($i+1))) . '</div>';
         $html .= '<div class="mem-step-label">' . $s['label'] . '</div>';
         $html .= '</div>';
     }
@@ -184,8 +184,8 @@ require __DIR__ . '/includes/chrome.php';
     <?php if ($viewApp): ?>
     <div class="mem-card" style="margin-bottom:20px;">
         <div class="mem-card-header">
-            <div class="mem-card-title"><i class="fas fa-file-alt"></i><?php echo $_t('आवेदन विवरण', 'Application Details'); ?></div>
-            <a href="<?php echo $siteUrl; ?>member/tracker.php" style="font-size:0.8rem;color:var(--mem-primary);font-weight:700;text-decoration:none;">← <?php echo $_t('पछाडि', 'Back'); ?></a>
+            <div class="mem-card-title"><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i><?php echo $_t('आवेदन विवरण', 'Application Details'); ?></div>
+            <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/tracker.php" style="font-size:0.8rem;color:var(--mem-primary);font-weight:700;text-decoration:none;">← <?php echo $_t('पछाडि', 'Back'); ?></a>
         </div>
         <div class="mem-card-body">
             <!-- Tracking ID -->
@@ -206,7 +206,7 @@ require __DIR__ . '/includes/chrome.php';
             <?php if (!empty($viewHistory)): ?>
             <div style="margin-top:14px;background:var(--bg-soft);border:1px solid var(--border-soft);border-radius:10px;padding:12px;">
                 <div style="font-size:.78rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;">
-                    <i class="fas fa-clock-rotate-left me-1"></i><?php echo $_t('स्टाटस/कमेन्ट इतिहास', 'Status/Comment History'); ?>
+                    <i class="lucide-icon me-1" data-lucide="history" aria-hidden="true"></i><?php echo $_t('स्टाटस/कमेन्ट इतिहास', 'Status/Comment History'); ?>
                 </div>
                 <?php foreach ($viewHistory as $h): ?>
                 <div style="border:1px solid var(--border-soft);border-radius:8px;background:var(--bg-card);padding:8px 10px;margin-bottom:8px;">
@@ -235,7 +235,7 @@ require __DIR__ . '/includes/chrome.php';
             ?>
             <div style="margin:14px 0 6px;background:var(--bg-soft);border:1.5px solid var(--primary-light,#2e8b4a);border-radius:12px;padding:14px 16px;">
                 <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--primary-dark,#144a21);font-size:.92rem;margin-bottom:8px;">
-                    <i class="fas fa-comment-dots"></i> <?php echo $_t('Admin बाट प्रतिक्रिया', 'Response from Admin'); ?>
+                    <i class="lucide-icon" data-lucide="message-circle" aria-hidden="true"></i> <?php echo $_t('Admin बाट प्रतिक्रिया', 'Response from Admin'); ?>
                     <?php if (!empty($viewApp['resolved_at'])): ?>
                     <span style="margin-left:auto;font-size:.7rem;font-weight:600;color:var(--primary-dark,#144a21);background:#fff;padding:2px 8px;border-radius:999px;">
                         <?php echo formatNepaliDate($viewApp['resolved_at'], true); ?>
@@ -250,7 +250,7 @@ require __DIR__ . '/includes/chrome.php';
                 <?php if ($hasAttach): ?>
                 <div style="margin-top:10px;">
                     <a href="<?php echo htmlspecialchars($siteUrl . ltrim($viewApp['admin_attachment'],'/')); ?>" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--primary-dark,#144a21);border:1px solid var(--primary-light,#2e8b4a);padding:6px 12px;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none;">
-                        <i class="fas fa-paperclip"></i> <?php echo $_t('संलग्न फाइल हेर्नुहोस्', 'View Attachment'); ?>
+                        <i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i> <?php echo $_t('संलग्न फाइल हेर्नुहोस्', 'View Attachment'); ?>
                     </a>
                 </div>
                 <?php endif; ?>
@@ -297,7 +297,7 @@ require __DIR__ . '/includes/chrome.php';
     <!-- Filter bar -->
     <div class="mem-card">
         <div class="mem-card-header">
-            <div class="mem-card-title"><i class="fas fa-clock-rotate-left"></i><?php echo $_t('मेरा सबै आवेदनहरू', 'All My Applications'); ?> (<?php echo count($apps); ?>)</div>
+            <div class="mem-card-title"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा सबै आवेदनहरू', 'All My Applications'); ?> (<?php echo count($apps); ?>)</div>
         </div>
         <div class="mem-card-body" style="padding-bottom:8px;">
             <!-- Filter chips -->
@@ -325,7 +325,7 @@ require __DIR__ . '/includes/chrome.php';
             <form method="GET" style="display:flex;gap:8px;align-items:center;margin-bottom:14px;">
                 <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
                 <input type="text" name="q" value="<?php echo htmlspecialchars($q); ?>" placeholder="<?php echo $_t('Tracking ID, सेवा, विवरणबाट खोज्नुहोस्...', 'Search by tracking ID, service or details...'); ?>" style="flex:1;min-width:0;border:1px solid var(--border-color);border-radius:8px;padding:7px 10px;font-size:.8rem;">
-                <button type="submit" style="padding:7px 12px;border:none;border-radius:8px;background:var(--mem-primary);color:var(--text-on-primary, #fff);font-size:.78rem;font-weight:700;"><i class="fas fa-search me-1"></i><?php echo $_t('खोज', 'Search'); ?></button>
+                <button type="submit" style="padding:7px 12px;border:none;border-radius:8px;background:var(--mem-primary);color:var(--text-on-primary, #fff);font-size:.78rem;font-weight:700;"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo $_t('खोज', 'Search'); ?></button>
                 <?php if ($q !== ''): ?>
                 <a href="?filter=<?php echo urlencode($filter); ?>" style="padding:7px 12px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-card);color:var(--text-muted);font-size:.78rem;font-weight:700;text-decoration:none;">Reset</a>
                 <?php endif; ?>
@@ -334,7 +334,7 @@ require __DIR__ . '/includes/chrome.php';
             <!-- Application list -->
             <?php if (empty($apps)): ?>
             <div class="mem-empty">
-                <span class="mem-empty-icon">📭</span>
+                <span class="mem-empty-icon"><i class="lucide-icon" data-lucide="inbox" aria-hidden="true"></i></span>
                 <div><?php echo $_t('यस श्रेणीमा कुनै आवेदन छैन।', 'No applications in this category.'); ?></div>
                 <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
                     <?php
@@ -367,11 +367,19 @@ require __DIR__ . '/includes/chrome.php';
             <?php foreach ($apps as $app): ?>
             <div class="mem-trk-card">
                 <div class="mem-trk-header" onclick="toggleTrk(this)">
-                    <div class="mem-app-icon" style="background:<?php echo $app['service_color']; ?>; width:38px;height:38px;border-radius:9px;flex-shrink:0;">
-                        <i class="fas <?php echo $app['service_icon']; ?>"></i>
+                    <div class="mem-app-icon" style="background:<?php echo htmlspecialchars((string)($app['service_color'] ?? '#16a34a'), ENT_QUOTES, 'UTF-8'); ?>; width:38px;height:38px;border-radius:9px;flex-shrink:0;">
+                        <?php
+                        $__trkFa = trim((string) coop_sanitize_icon_class($app['service_icon'] ?? ''));
+                        if ($__trkFa !== '' && !preg_match('/^fa[srlb]?\s+/i', $__trkFa)) {
+                            $__trkFa = 'fas ' . ltrim($__trkFa, ' ');
+                        }
+                        echo function_exists('coop_nav_icon_html')
+                            ? coop_nav_icon_html($__trkFa !== '' ? $__trkFa : 'fas fa-circle', 'fas fa-circle')
+                            : '<i class="lucide-icon" aria-hidden="true" data-lucide="circle"></i>';
+                        ?>
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.72rem;font-weight:700;color:<?php echo $app['service_color']; ?>;text-transform:uppercase;margin-bottom:2px;">
+                        <div style="font-size:0.72rem;font-weight:700;color:<?php echo htmlspecialchars((string)($app['service_color'] ?? '#16a34a'), ENT_QUOTES, 'UTF-8'); ?>;text-transform:uppercase;margin-bottom:2px;">
                             <?php echo htmlspecialchars($app['service_name']); ?>
                         </div>
                         <div style="font-size:0.88rem;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -384,7 +392,7 @@ require __DIR__ . '/includes/chrome.php';
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
                         <?php echo memberStatusBadge($app['status']); ?>
-                        <i class="fas fa-chevron-down" style="font-size:0.7rem;color:var(--text-muted);transition:transform .2s;" class="trk-chevron"></i>
+                        <i class="lucide-icon trk-chevron" data-lucide="chevron-down" aria-hidden="true" style="font-size:0.7rem;color:var(--text-muted);transition:transform .2s;"></i>
                     </div>
                 </div>
                 <div class="mem-trk-body">
@@ -392,12 +400,12 @@ require __DIR__ . '/includes/chrome.php';
                     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
                         <a href="?view=<?php echo (int)$app['id']; ?>&tbl=<?php echo htmlspecialchars($app['_table']); ?>&filter=<?php echo htmlspecialchars($filter); ?>&q=<?php echo urlencode($q); ?>"
                            class="btn" style="padding:7px 14px;background:var(--mem-primary);color:var(--text-on-primary, #fff);border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;border:none;">
-                            <i class="fas fa-eye me-1"></i><?php echo $_t('विस्तृत हेर्नुहोस्', 'View Details'); ?>
+                            <i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo $_t('विस्तृत हेर्नुहोस्', 'View Details'); ?>
                         </a>
                         <?php if ($app['tracking_id']): ?>
-                        <a href="<?php echo $siteUrl; ?>application-tracker.php?tracking_id=<?php echo urlencode($app['tracking_id']); ?>"
+                        <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>application-tracker.php?tracking_id=<?php echo urlencode($app['tracking_id']); ?>"
                            target="_blank" style="padding:7px 14px;background:var(--bg-soft);color:var(--mem-primary);border-radius:8px;font-size:0.78rem;font-weight:700;text-decoration:none;border:1px solid var(--mem-primary);" rel="noopener noreferrer">
-                            <i class="fas fa-search-location me-1"></i><?php echo $_t('पब्लिक ट्र्याकर', 'Public Tracker'); ?>
+                            <i class="lucide-icon me-1" data-lucide="map-pin" aria-hidden="true"></i><?php echo $_t('पब्लिक ट्र्याकर', 'Public Tracker'); ?>
                         </a>
                         <?php endif; ?>
                     </div>
@@ -411,14 +419,16 @@ require __DIR__ . '/includes/chrome.php';
 <script>
 function toggleTrk(header) {
     var body    = header.nextElementSibling;
-    var chevron = header.querySelector('.fa-chevron-down,.fa-chevron-up');
+    var chevron = header.querySelector('.trk-chevron, [data-lucide="chevron-down"], [data-lucide="chevron-up"], .fa-chevron-down, .fa-chevron-up');
     var open    = body.classList.toggle('open');
-    if (chevron) { chevron.className = chevron.className.replace('fa-chevron-down','fa-chevron-XXX').replace('fa-chevron-up','fa-chevron-down').replace('fa-chevron-XXX', open ? 'fa-chevron-up' : 'fa-chevron-down'); }
+    if (chevron) {
+        chevron.style.transform = open ? 'rotate(180deg)' : '';
+    }
 }
 function copyTrk(id, btn) {
     var el = document.getElementById(id);
     navigator.clipboard.writeText(el.textContent.trim()).then(function(){
-        btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        btn.innerHTML = '<i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>Copied!';
         setTimeout(function(){ btn.innerHTML = '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="copy"></i>Copy'; }, 2000);
     });
 }

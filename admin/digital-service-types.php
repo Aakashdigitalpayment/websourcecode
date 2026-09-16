@@ -2,6 +2,7 @@
 /**
  * Admin — Digital service types catalog
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (!ob_get_level()) {
     ob_start();
 }
@@ -35,6 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $nameNp = clean_text($_POST['name_np'] ?? '', 160);
             $nameEn = clean_text($_POST['name_en'] ?? '', 160);
             $icon = clean_text($_POST['icon'] ?? 'fa-laptop', 80) ?: 'fa-laptop';
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-laptop');
+            }
             $color = clean_text($_POST['color'] ?? 'var(--primary-color)', 40) ?: 'var(--primary-color)';
             $order = (int)($_POST['display_order'] ?? 0);
             $isActive = isset($_POST['is_active']) ? 1 : 0;
@@ -151,7 +155,7 @@ $form = $editRow ?: [
     'id' => 0,
     'name_np' => '',
     'name_en' => '',
-    'icon' => 'fa-laptop',
+    'icon' => 'fas fa-laptop',
     'color' => 'var(--primary-color)',
     'display_order' => 0,
     'is_active' => 1,
@@ -162,7 +166,7 @@ echo adminPageHeader(
     $__t('डिजिटल सेवा प्रकारहरू', 'Digital Service Types'),
     'fa-tags',
     $__t('सार्वजनिक फारममा देखिने सेवा प्रकार थप्नुहोस् / सम्पादन गर्नुहोस्', 'Add or edit service types shown on the public form'),
-    '<a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left me-1"></i>' . $__t('अनुरोधहरू', 'Requests') . '</a>'
+    '<a href="digital-service-requests.php" class="btn btn-outline-secondary btn-sm"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>' . $__t('अनुरोधहरू', 'Requests') . '</a>'
 );
 $_flash = getFlash();
 if ($_flash) {
@@ -192,9 +196,9 @@ if ($_flash) {
                                value="<?php echo htmlspecialchars((string)$form['name_en']); ?>">
                     </div>
                     <div class="col-md-6">
-                        <label for="dst_icon" class="form-label"><?php echo $__t('आइकन (FA)', 'Icon (FA)'); ?></label>
+                        <label for="dst_icon" class="form-label"><?php echo $__t('आइकन (FA class वा Lucide नाम)', 'Icon (FA class or Lucide name)'); ?></label>
                         <input type="text" name="icon" id="dst_icon" class="form-control" maxlength="80"
-                               placeholder="fa-laptop"
+                               placeholder="fas fa-laptop"
                                value="<?php echo htmlspecialchars((string)$form['icon']); ?>">
                     </div>
                     <div class="col-md-6">
@@ -220,7 +224,7 @@ if ($_flash) {
                         <div class="form-text"><?php echo $__t('सक्रिय गर्दा सदस्यले संलग्न फाइल अनिवार्य अपलोड गर्नुपर्छ। रिचार्ज/शेयर जस्ता विशेष फिल्ड जस्ताको तस्तै रहन्छ।', 'When enabled, members must upload an attachment. Built-in panels (recharge/share/etc.) stay unchanged.'); ?></div>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-success"><i class="fas fa-save me-1"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
+                        <button type="submit" class="btn btn-success"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $__t('सुरक्षित', 'Save'); ?></button>
                         <?php if (!empty($form['id'])): ?>
                         <a href="digital-service-types.php" class="btn btn-outline-secondary"><?php echo $__t('रद्द', 'Cancel'); ?></a>
                         <?php endif; ?>
@@ -251,14 +255,11 @@ if ($_flash) {
                         <?php if (empty($manageRows)): ?>
                             <tr><td colspan="5" class="text-center text-muted py-4"><?php echo $__t('अहिले कुनै प्रकार छैन।', 'No types yet.'); ?></td></tr>
                         <?php else: foreach ($manageRows as $mc):
-                            $iconShow = (string)($mc['icon'] ?? 'fa-laptop');
-                            if (stripos($iconShow, 'fas ') === 0) {
-                                $iconShow = trim(substr($iconShow, 4));
-                            }
+                            $iconShow = (string)($mc['icon'] ?? 'fas fa-laptop');
                         ?>
                             <tr>
                                 <td>
-                                    <span class="me-1" style="color:<?php echo htmlspecialchars((string)($mc['color'] ?? '')); ?>"><i class="fas <?php echo htmlspecialchars($iconShow); ?>"></i></span>
+                                    <span class="me-1" style="color:<?php echo htmlspecialchars((string)($mc['color'] ?? '')); ?>"><?php echo coop_nav_icon_html($iconShow, 'fas fa-laptop', ''); ?></span>
                                     <strong><?php echo htmlspecialchars((string)$mc['name_np']); ?></strong>
                                     <?php if (!empty($mc['is_builtin'])): ?><span class="badge bg-info ms-1">builtin</span><?php endif; ?>
                                     <?php if (!empty($mc['name_en'])): ?>
@@ -282,18 +283,18 @@ if ($_flash) {
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center text-nowrap">
-                                    <a href="digital-service-types.php?edit=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="fas fa-edit"></i></a>
+                                    <a href="digital-service-types.php?edit=<?php echo (int)$mc['id']; ?>" class="btn btn-sm btn-warning" title="Edit"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('स्थिति परिवर्तन गर्ने?', 'Toggle status?'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="fas fa-power-off"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary" title="Toggle"><i class="lucide-icon" data-lucide="power-off" aria-hidden="true"></i></button>
                                     </form>
                                     <form method="post" class="d-inline" onsubmit="return confirm('<?php echo $__t('मेटाउने? प्रयोगमा भए निष्क्रिय हुन्छ।', 'Delete? If in use it will be deactivated.'); ?>');">
                                         <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete_type">
                                         <input type="hidden" name="type_id" value="<?php echo (int)$mc['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="Delete" aria-label="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>

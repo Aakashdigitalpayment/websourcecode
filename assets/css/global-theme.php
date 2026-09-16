@@ -252,14 +252,31 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --font-english:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono:       ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace;
 
-    --font-size-xs:    0.75rem;
-    --font-size-sm:    0.8125rem;
-    --font-size-base:  0.9375rem;
-    --font-size-md:    1rem;
-    --font-size-lg:    1.125rem;
-    --font-size-xl:    1.25rem;
-    --font-size-2xl:   1.5rem;
-    --font-size-3xl:   1.875rem;
+    /* Type scale SSOT — keep --text-* and --font-size-* / --fs-* in lockstep with global.css */
+    --text-xs:         0.75rem;
+    --text-sm:         0.8125rem;
+    --text-base:       0.875rem;
+    --text-md:         0.875rem;
+    --text-lg:         1rem;
+    --text-xl:         1.125rem;
+    --text-2xl:        1.25rem;
+    --text-3xl:        1.5rem;
+    --text-4xl:        1.75rem;
+    --text-5xl:        2rem;
+
+    --font-size-xs:    var(--text-xs);
+    --font-size-sm:    var(--text-sm);
+    --font-size-base:  var(--text-base);
+    --font-size-md:    var(--text-lg);
+    --font-size-lg:    var(--text-xl);
+    --font-size-xl:    var(--text-2xl);
+    --font-size-2xl:   var(--text-3xl);
+    --font-size-3xl:   var(--text-4xl);
+    --fs-xs:           var(--text-xs);
+    --fs-sm:           var(--text-sm);
+    --fs-base:         var(--text-base);
+    --fs-md:           var(--text-lg);
+    --fs-lg:           var(--text-xl);
 
     /* ── Spacing scale ── */
     --space-xs:  4px;
@@ -1705,7 +1722,7 @@ body.auth-portal-page .alert-info                   {
     border-radius: 10px !important;
     padding:       10px 14px !important;
     margin-bottom: 13px !important;
-    font-size:     0.82rem !important;
+    font-size:     var(--font-size-sm, var(--text-sm, 0.8125rem)) !important;
     display:       flex !important;
     align-items:   flex-start !important;
     gap:           9px !important;
@@ -1828,7 +1845,7 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle:hover {
     border-radius: 8px !important;
     border:        1px solid var(--border, #e2e8f0) !important;
     font-size:     0.9rem !important;
-    font-family:   var(--font-primary,'Mukta','Noto Sans Devanagari',sans-serif) !important;
+    font-family:   var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif) !important;
     padding-top:   8px !important;
     padding-bottom: 8px !important;
     color:         var(--text-primary,#1a2e1f) !important;
@@ -1862,7 +1879,7 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle:hover {
     border-radius: 8px !important;
     border:        1px solid var(--border-color,#e5e7eb) !important;
     font-size:     0.9rem !important;
-    font-family:   var(--font-primary,'Mukta','Noto Sans Devanagari',sans-serif) !important;
+    font-family:   var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif) !important;
 }
 
 /* ── Uniform focus ring (brand colour) ──────────────────────────── */
@@ -1879,7 +1896,7 @@ body.auth-portal-page:not(.verify-auth-page) .auth-lang-toggle:hover {
 /* ── Form labels — uniform size/weight ──────────────────────────── */
 .admin-shell .form-label,
 .admin-shell label                                  {
-    font-size:   0.82rem !important;
+    font-size:   var(--font-size-sm, var(--text-sm, 0.8125rem)) !important;
     font-weight: 600 !important;
     color:       var(--text-secondary,#4a5a4f) !important;
     margin-bottom: 6px !important;
@@ -2099,7 +2116,7 @@ ul.nav-pills.admin-inner-tabstrip .nav-link:not(.active) {
 
 /* ── 9. PAGE BANNER ON SETUP — fonts uniform ──────────────────── */
 body, .admin-shell, .member-page                   {
-    font-family: var(--font-primary, 'Mukta', 'Noto Sans Devanagari', 'Segoe UI', sans-serif) !important;
+    font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, 'Segoe UI', sans-serif) !important;
 }
 
 /* ── 10. SIDEBAR HOVER + ACTIVE → icon contrast guaranteed ────── */
@@ -2180,11 +2197,6 @@ body, .admin-shell, .member-page                   {
     align-items: center !important;
     justify-content: center !important;
     font-size: 0.8rem !important;
-}
-/* Kill old shimmer pseudo-element that creates white wash on h5 */
-.tools-widget-section .tools-category-card h5::after,
-.tools-category-card h5::after {
-    display: none !important;
 }
 
 /* ── B. HRM .btn-coop — Devanagari-safe padding + no text clip ── */

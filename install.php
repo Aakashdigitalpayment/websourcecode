@@ -290,302 +290,19 @@ $guessUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 
 <meta name="description" content="One-click installation wizard for the cooperative website.">
 <title>Install — Cooperative Website Setup</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-    --green:       #1a5f2a;
-    --green-dk:    #114020;
-    --green-lt:    #e8f5e9;
-    --green-glow:  #2e8b4a;
-    --red:         #dc2626;
-    --amber:       #d97706;
-    --blue:        #1565c0;
-    --gray-50:     #f9fafb;
-    --gray-100:    #f3f4f6;
-    --gray-200:    #e5e7eb;
-    --gray-400:    #9ca3af;
-    --gray-600:    #4b5563;
-    --gray-700:    #374151;
-    --gray-900:    #111827;
-    --radius:      12px;
-    --shadow:      0 4px 24px rgba(0,0,0,.10);
-    --shadow-lg:   0 8px 40px rgba(0,0,0,.14);
+<?php
+$__themeAssets = __DIR__ . '/includes/theme-assets.php';
+if (is_file($__themeAssets)) {
+    require_once $__themeAssets;
 }
-html { scroll-behavior: smooth; }
-body {
-    font-family: 'Mukta', 'Noto Sans Devanagari', sans-serif;
-    background: linear-gradient(135deg, #f0f9f2 0%, #e8f5e9 50%, #f0f4f8 100%);
-    min-height: 100vh;
-    color: var(--gray-900);
-    line-height: 1.6;
+if (function_exists('coopThemeGoogleFonts')) {
+    coopThemeGoogleFonts();
+} else {
+    echo '<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">' . "\n";
 }
-
-/* ─── Page shell ─── */
-.page-wrap {
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 24px 16px 60px;
-}
-
-/* ─── Branding header ─── */
-.brand-header {
-    text-align: center;
-    padding: 32px 0 24px;
-}
-.brand-logo {
-    width: 64px; height: 64px; border-radius: 18px;
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-glow) 100%);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 28px; color: #fff;
-    box-shadow: 0 8px 24px rgba(26,95,42,.35);
-    margin-bottom: 14px;
-}
-.brand-title {
-    font-size: 1.7rem; font-weight: 800; color: var(--green-dk);
-    letter-spacing: -.01em;
-}
-.brand-sub {
-    font-size: .9rem; color: var(--gray-600); margin-top: 4px;
-}
-
-/* ─── Progress bar ─── */
-.progress-track {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    margin: 0 0 28px;
-    padding: 0 8px;
-}
-.prog-step {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 6px; flex: 1; min-width: 0;
-}
-.prog-dot {
-    width: 36px; height: 36px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .8rem; font-weight: 700;
-    border: 2px solid var(--gray-200);
-    background: #fff; color: var(--gray-400);
-    transition: all .3s ease; position: relative; z-index: 1;
-}
-.prog-dot.done  { background: var(--green); border-color: var(--green); color: #fff; }
-.prog-dot.active{ background: var(--green-dk); border-color: var(--green-dk); color: #fff;
-    box-shadow: 0 0 0 4px rgba(26,95,42,.18); }
-.prog-label {
-    font-size: .68rem; color: var(--gray-400); text-align: center;
-    font-weight: 500; line-height: 1.2;
-    transition: color .3s;
-}
-.prog-step.active .prog-label { color: var(--green-dk); font-weight: 700; }
-.prog-step.done  .prog-label { color: var(--green); }
-.prog-line {
-    flex: 1; height: 2px;
-    background: var(--gray-200);
-    margin-top: -22px; /* align with dot centers */
-    position: relative; z-index: 0;
-    min-width: 12px;
-    transition: background .3s;
-}
-.prog-line.done { background: var(--green); }
-
-/* ─── Card ─── */
-.card {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-}
-.card-head {
-    padding: 24px 28px 0;
-    border-bottom: 1px solid var(--gray-100);
-    padding-bottom: 18px;
-    background: linear-gradient(135deg, var(--green-lt) 0%, #fff 100%);
-}
-.card-head-icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-glow) 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 1.1rem; margin-bottom: 10px;
-}
-.card-head h2 { font-size: 1.25rem; font-weight: 700; color: var(--green-dk); }
-.card-head p  { font-size: .88rem; color: var(--gray-600); margin-top: 3px; }
-.card-body { padding: 24px 28px; }
-
-/* ─── Form elements ─── */
-.form-row { display: grid; gap: 16px; margin-bottom: 16px; }
-.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
-@media (max-width: 520px) { .form-row.cols-2 { grid-template-columns: 1fr; } }
-.form-group { display: flex; flex-direction: column; gap: 5px; }
-.form-label {
-    font-size: .82rem; font-weight: 600; color: var(--gray-700);
-    display: flex; align-items: center; gap: 6px;
-}
-.form-label .req { color: var(--red); }
-.form-control {
-    padding: 10px 13px; border-radius: 9px;
-    border: 1.5px solid var(--gray-200);
-    font-family: inherit; font-size: .9rem; color: var(--gray-900);
-    background: var(--gray-50);
-    transition: border .2s, box-shadow .2s;
-    width: 100%;
-}
-.form-control:focus {
-    outline: none; border-color: var(--green);
-    box-shadow: 0 0 0 3px rgba(26,95,42,.12);
-    background: #fff;
-}
-.form-hint { font-size: .74rem; color: var(--gray-400); }
-.form-hint a { color: var(--green); }
-
-/* Color picker row */
-.color-row { display: flex; align-items: center; gap: 10px; }
-.color-row input[type=color] {
-    width: 48px; height: 40px; padding: 2px 4px;
-    border-radius: 8px; border: 1.5px solid var(--gray-200);
-    cursor: pointer; background: #fff;
-}
-.color-preview {
-    flex: 1; height: 40px; border-radius: 9px;
-    font-size: .82rem; display: flex; align-items: center;
-    padding: 0 12px; color: #fff; font-weight: 600;
-    transition: background .2s;
-}
-
-/* DB test button */
-.db-test-row { display: flex; gap: 10px; align-items: flex-end; }
-.db-test-row .form-group { flex: 1; }
-.btn-test {
-    padding: 10px 18px; border-radius: 9px;
-    background: var(--gray-100); border: 1.5px solid var(--gray-200);
-    font-family: inherit; font-size: .85rem; font-weight: 600;
-    color: var(--gray-700); cursor: pointer; white-space: nowrap;
-    transition: all .15s;
-    height: 42px;
-}
-.btn-test:hover { background: var(--gray-200); }
-.db-status { margin-top: 10px; padding: 9px 13px; border-radius: 8px; font-size: .84rem; display: none; }
-.db-status.ok  { background: var(--green-lt); color: var(--green-dk); border: 1px solid #c8e6c9; }
-.db-status.err { background: #fef2f2; color: var(--red); border: 1px solid #fecaca; }
-
-/* ─── Check table ─── */
-.check-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
-.check-table th {
-    text-align: left; padding: 10px 12px; font-size: .75rem;
-    text-transform: uppercase; letter-spacing: .05em; color: var(--gray-400);
-    border-bottom: 2px solid var(--gray-100);
-}
-.check-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-100); }
-.check-table tr:last-child td { border-bottom: none; }
-.badge-ok  { display: inline-flex; align-items: center; gap: 5px; color: var(--green); font-weight: 600; }
-.badge-err { display: inline-flex; align-items: center; gap: 5px; color: var(--red);   font-weight: 600; }
-.badge-warn{ display: inline-flex; align-items: center; gap: 5px; color: var(--amber); font-weight: 600; }
-.check-warning {
-    background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
-    padding: 12px 16px; margin-top: 14px; font-size: .84rem; color: #92400e;
-    display: flex; gap: 10px; align-items: flex-start;
-}
-
-/* ─── Install progress ─── */
-.install-steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.install-step  {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 14px; border-radius: 10px;
-    background: var(--gray-50); border: 1px solid var(--gray-200);
-    font-size: .88rem;
-    transition: all .3s;
-}
-.install-step.pending { opacity: .45; }
-.install-step.running { background: #eff6ff; border-color: #bfdbfe; }
-.install-step.done    { background: var(--green-lt); border-color: #c8e6c9; }
-.install-step.error   { background: #fef2f2; border-color: #fecaca; color: var(--red); }
-.install-step .step-icon {
-    width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: .8rem; flex-shrink: 0;
-    background: var(--gray-200); color: var(--gray-400);
-}
-.install-step.done  .step-icon { background: var(--green); color: #fff; }
-.install-step.error .step-icon { background: var(--red); color: #fff; }
-.install-step.running .step-icon { background: var(--blue); color: #fff; animation: pulse 1s infinite; }
-
-@keyframes pulse {
-    0%,100% { transform: scale(1); opacity: 1; }
-    50%      { transform: scale(1.15); opacity: .8; }
-}
-
-/* Success panel */
-.success-panel {
-    text-align: center; padding: 12px 0 8px;
-}
-.success-icon {
-    width: 72px; height: 72px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-glow) 100%);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 2rem; color: #fff; margin-bottom: 16px;
-    box-shadow: 0 8px 24px rgba(26,95,42,.35);
-}
-.success-panel h3 { font-size: 1.5rem; font-weight: 800; color: var(--green-dk); margin-bottom: 6px; }
-.success-panel p  { font-size: .9rem; color: var(--gray-600); max-width: 400px; margin: 0 auto 20px; }
-.success-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-.btn-site {
-    padding: 12px 28px; border-radius: 10px;
-    font-family: inherit; font-size: .9rem; font-weight: 700;
-    cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-    transition: all .2s;
-}
-.btn-site-primary {
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-glow) 100%);
-    color: #fff; box-shadow: 0 4px 14px rgba(26,95,42,.35);
-}
-.btn-site-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,95,42,.4); }
-.btn-site-outline {
-    background: #fff; color: var(--green-dk);
-    border: 2px solid var(--green);
-}
-.btn-site-outline:hover { background: var(--green-lt); }
-
-/* ─── Navigation buttons ─── */
-.nav-btns {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 18px 28px; background: var(--gray-50);
-    border-top: 1px solid var(--gray-100);
-}
-.btn-back, .btn-next {
-    padding: 11px 26px; border-radius: 10px;
-    font-family: inherit; font-size: .92rem; font-weight: 700;
-    cursor: pointer; border: none;
-    display: flex; align-items: center; gap: 8px;
-    transition: all .2s;
-}
-.btn-back {
-    background: #fff; color: var(--gray-700);
-    border: 1.5px solid var(--gray-200);
-}
-.btn-back:hover { background: var(--gray-100); }
-.btn-next {
-    background: linear-gradient(135deg, var(--green) 0%, var(--green-glow) 100%);
-    color: #fff; box-shadow: 0 4px 14px rgba(26,95,42,.3);
-}
-.btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,95,42,.4); }
-.btn-next:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
-.step-counter { font-size: .78rem; color: var(--gray-400); font-weight: 600; }
-
-/* ─── Error panel ─── */
-.error-box {
-    background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;
-    padding: 14px 16px; margin-top: 16px; font-size: .85rem; color: var(--red);
-    display: none;
-}
-
-/* ─── Responsive ─── */
-@media (max-width: 480px) {
-    .card-body, .card-head { padding: 18px 18px; }
-    .nav-btns { padding: 14px 18px; }
-    .brand-title { font-size: 1.4rem; }
-}
-</style>
+unset($__themeAssets);
+?>
+<link rel="stylesheet" href="assets/css/install-page.css">
 </head>
 <body>
 
@@ -593,7 +310,7 @@ body {
 
     <!-- Brand header -->
     <div class="brand-header">
-        <div class="brand-logo"><i class="fas fa-seedling"></i></div>
+        <div class="brand-logo"><i class="lucide-icon" data-lucide="sprout" aria-hidden="true"></i></div>
         <div class="brand-title">सहकारी Website Setup</div>
         <div class="brand-sub">Cooperative Website — One-Time Install Wizard · v1.0</div>
     </div>
@@ -601,7 +318,7 @@ body {
     <!-- Progress steps -->
     <div class="progress-track" id="progressTrack">
         <div class="prog-step active" id="ps0">
-            <div class="prog-dot active" id="pd0"><i class="fas fa-check-circle"></i></div>
+            <div class="prog-dot active" id="pd0"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
             <div class="prog-label">जाँच<br>System</div>
         </div>
         <div class="prog-line" id="pl0"></div>
@@ -632,7 +349,7 @@ body {
         <!-- ════ STEP 0: System Check ════ -->
         <div id="step0">
             <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-server"></i></div>
+                <div class="card-head-icon"><i class="lucide-icon" data-lucide="server" aria-hidden="true"></i></div>
                 <h2>System Requirements जाँच</h2>
                 <p>Install गर्नु अघि तपाईंको server ले आवश्यकताहरू पूरा गर्छ कि छैन जाँचौं।</p>
             </div>
@@ -651,9 +368,9 @@ body {
                             <td><?= htmlspecialchars($chk['label']) ?></td>
                             <td>
                                 <?php if ($chk['ok']): ?>
-                                    <span class="badge-ok"><i class="fas fa-circle-check"></i> ठीक</span>
+                                    <span class="badge-ok"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> ठीक</span>
                                 <?php else: ?>
-                                    <span class="badge-err"><i class="fas fa-circle-xmark"></i> समस्या</span>
+                                    <span class="badge-err"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i> समस्या</span>
                                 <?php endif; ?>
                             </td>
                             <td style="color:var(--gray-600);font-size:.82rem;"><?= htmlspecialchars($chk['val']) ?></td>
@@ -664,7 +381,7 @@ body {
 
                 <?php if (!$allChecksPass): ?>
                 <div class="check-warning">
-                    <i class="fas fa-triangle-exclamation" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
+                    <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true" style="font-size:1.1rem;flex-shrink:0;margin-top:2px;"></i>
                     <div>
                         <strong>कुनै आवश्यकता पूरा भएन।</strong><br>
                         <span style="font-size:.82rem;">माथि रातो देखाएका items आफ्नो hosting provider सँग ठीक गर्नुहोस् अनि पुनः try गर्नुहोस्।
@@ -673,7 +390,7 @@ body {
                 </div>
                 <?php else: ?>
                 <div style="margin-top:14px;padding:11px 14px;background:var(--green-lt);border:1px solid #c8e6c9;border-radius:10px;font-size:.85rem;color:var(--green-dk);display:flex;gap:8px;align-items:center;">
-                    <i class="fas fa-circle-check"></i>
+                    <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i>
                     <strong>सबै आवश्यकताहरू पूरा भए!</strong> अगाडि बढ्नुहोस्।
                 </div>
                 <?php endif; ?>
@@ -681,7 +398,7 @@ body {
             <div class="nav-btns">
                 <span class="step-counter">Step 1 of 5</span>
                 <button type="button" class="btn-next" onclick="goStep(1)" <?= !$allChecksPass ? 'disabled' : '' ?>>
-                    अर्को <i class="fas fa-arrow-right"></i>
+                    अर्को <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i>
                 </button>
             </div>
         </div>
@@ -689,100 +406,100 @@ body {
         <!-- ════ STEP 1: Database ════ -->
         <div id="step1" style="display:none;">
             <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-database"></i></div>
+                <div class="card-head-icon"><i class="lucide-icon" data-lucide="database" aria-hidden="true"></i></div>
                 <h2>Database जोडाउनुहोस्</h2>
                 <p>cPanel मा बनाएको database को जानकारी भर्नुहोस्। यो hosting provider ले दिएको हुन्छ।</p>
             </div>
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label for="db_host" class="form-label"><i class="fas fa-server" style="color:var(--green);"></i> DB Host <span class="req">*</span></label>
+                        <label for="db_host" class="form-label"><i class="lucide-icon" data-lucide="server" aria-hidden="true" style="color:var(--green);"></i> DB Host <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_host" value="localhost" placeholder="localhost">
                         <span class="form-hint">प्रायः <code>localhost</code> नै हुन्छ।</span>
                     </div>
                     <div class="form-group">
-                        <label for="db_name" class="form-label"><i class="fas fa-database" style="color:var(--green);"></i> Database Name <span class="req">*</span></label>
+                        <label for="db_name" class="form-label"><i class="lucide-icon" data-lucide="database" aria-hidden="true" style="color:var(--green);"></i> Database Name <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_name" placeholder="cpanel_dbname">
                         <span class="form-hint">cPanel → MySQL Databases मा बनाएको नाम।</span>
                     </div>
                 </div>
                 <div class="db-test-row" style="gap:12px;display:grid;grid-template-columns:1fr 1fr;">
                     <div class="form-group">
-                        <label for="db_user" class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> DB Username <span class="req">*</span></label>
+                        <label for="db_user" class="form-label"><i class="lucide-icon" data-lucide="user" aria-hidden="true" style="color:var(--green);"></i> DB Username <span class="req">*</span></label>
                         <input type="text" class="form-control" id="db_user" placeholder="cpanel_dbuser">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="db_pass"><i class="fas fa-lock" style="color:var(--green);"></i> DB Password</label>
+                        <label class="form-label" for="db_pass"><i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="color:var(--green);"></i> DB Password</label>
                         <input type="password" class="form-control" id="db_pass" placeholder="••••••••" autocomplete="off">
                     </div>
                 </div>
                 <button type="button" class="btn-test" style="margin-top:6px;" onclick="testDb()">
-                    <i class="fas fa-plug"></i> Connection Test गर्नुहोस्
+                    <i class="lucide-icon" data-lucide="plug" aria-hidden="true"></i> Connection Test गर्नुहोस्
                 </button>
                 <div class="db-status" id="dbStatus"></div>
                 <div class="error-box" id="step1Err"></div>
             </div>
             <div class="nav-btns">
-                <button type="button" class="btn-back" onclick="goStep(0)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(0)"><i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> पछाडि</button>
                 <span class="step-counter">Step 2 of 5</span>
-                <button type="button" class="btn-next" onclick="validateDb()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateDb()">अर्को <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></button>
             </div>
         </div>
 
         <!-- ════ STEP 2: Cooperative Info ════ -->
         <div id="step2" style="display:none;">
             <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-building-columns"></i></div>
+                <div class="card-head-icon"><i class="lucide-icon" data-lucide="landmark" aria-hidden="true"></i></div>
                 <h2>सहकारी जानकारी भर्नुहोस्</h2>
                 <p>तपाईंको सहकारीको नाम, सम्पर्क र प्राथमिक रंग सेट गर्नुहोस्। पछि Admin Panel बाट पनि बदल्न सकिन्छ।</p>
             </div>
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label for="site_name" class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> नाम (नेपालीमा) <span class="req">*</span></label>
+                        <label for="site_name" class="form-label"><i class="lucide-icon" data-lucide="type" aria-hidden="true" style="color:var(--green);"></i> नाम (नेपालीमा) <span class="req">*</span></label>
                         <input type="text" class="form-control" id="site_name" placeholder="जस्तै: सूर्योदय बचत तथा ऋण सहकारी">
                     </div>
                     <div class="form-group">
-                        <label for="site_name_en" class="form-label"><i class="fas fa-font" style="color:var(--green);"></i> Name (English)</label>
+                        <label for="site_name_en" class="form-label"><i class="lucide-icon" data-lucide="type" aria-hidden="true" style="color:var(--green);"></i> Name (English)</label>
                         <input type="text" class="form-control" id="site_name_en" placeholder="Suryadaya S&C Cooperative">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="site_slogan" class="form-label"><i class="fas fa-quote-left" style="color:var(--green);"></i> Slogan / नारा</label>
+                        <label for="site_slogan" class="form-label"><i class="lucide-icon" data-lucide="quote" aria-hidden="true" style="color:var(--green);"></i> Slogan / नारा</label>
                         <input type="text" class="form-control" id="site_slogan" placeholder="जस्तै: समुदायको विश्वासिलो साथी">
                     </div>
                 </div>
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label for="phone" class="form-label"><i class="fas fa-phone" style="color:var(--green);"></i> फोन नम्बर</label>
+                        <label for="phone" class="form-label"><i class="lucide-icon" data-lucide="phone" aria-hidden="true" style="color:var(--green);"></i> फोन नम्बर</label>
                         <input type="text" class="form-control" id="phone" placeholder="061-590067">
                     </div>
                     <div class="form-group">
-                        <label for="email" class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Email</label>
+                        <label for="email" class="form-label"><i class="lucide-icon" data-lucide="mail" aria-hidden="true" style="color:var(--green);"></i> Email</label>
                         <input type="email" class="form-control" id="email" placeholder="info@example.com">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="address" class="form-label"><i class="fas fa-location-dot" style="color:var(--green);"></i> ठेगाना</label>
+                        <label for="address" class="form-label"><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true" style="color:var(--green);"></i> ठेगाना</label>
                         <input type="text" class="form-control" id="address" placeholder="जस्तै: पोखरा, कास्की, गण्डकी प्रदेश">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="site_url" class="form-label"><i class="fas fa-globe" style="color:var(--green);"></i> Website URL</label>
+                        <label for="site_url" class="form-label"><i class="lucide-icon" data-lucide="globe" aria-hidden="true" style="color:var(--green);"></i> Website URL</label>
                         <input type="url" class="form-control" id="site_url" value="<?= htmlspecialchars($guessUrl) ?>" placeholder="https://yourdomain.com/">
                         <span class="form-hint">पूरा URL domain सहित (https:// वा http://)।</span>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="admin_username" class="form-label"><i class="fas fa-palette" style="color:var(--green);"></i> Primary Color (मुख्य रंग)</label>
+                        <label for="admin_username" class="form-label"><i class="lucide-icon" data-lucide="palette" aria-hidden="true" style="color:var(--green);"></i> Primary Color (मुख्य रंग)</label>
                         <div class="color-row">
                             <input type="color" id="primary_color" value="#1a5f2a" onchange="updateColorPreview()">
                             <div class="color-preview" id="colorPreview" style="background:#1a5f2a;">
-                                <i class="fas fa-circle-half-stroke" style="margin-right:6px;"></i>
+                                <i class="lucide-icon" data-lucide="contrast" aria-hidden="true" style="margin-right:6px;"></i>
                                 <span id="colorHex">#1a5f2a</span> — तपाईंको brand रंग
                             </div>
                         </div>
@@ -792,65 +509,65 @@ body {
                 <div class="error-box" id="step2Err"></div>
             </div>
             <div class="nav-btns">
-                <button type="button" class="btn-back" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(1)"><i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> पछाडि</button>
                 <span class="step-counter">Step 3 of 5</span>
-                <button type="button" class="btn-next" onclick="validateCoopInfo()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateCoopInfo()">अर्को <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></button>
             </div>
         </div>
 
         <!-- ════ STEP 3: Admin Account ════ -->
         <div id="step3" style="display:none;">
             <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-user-shield"></i></div>
+                <div class="card-head-icon"><i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i></div>
                 <h2>Admin Account बनाउनुहोस्</h2>
                 <p>यो username र password ले Admin Panel मा login गरिन्छ। सुरक्षित राख्नुहोस्।</p>
             </div>
             <div class="card-body">
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label for="admin_username" class="form-label"><i class="fas fa-user" style="color:var(--green);"></i> Username <span class="req">*</span></label>
+                        <label for="admin_username" class="form-label"><i class="lucide-icon" data-lucide="user" aria-hidden="true" style="color:var(--green);"></i> Username <span class="req">*</span></label>
                         <input type="text" class="form-control" id="admin_username" value="admin" placeholder="admin">
                         <span class="form-hint">अंग्रेजी अक्षर, अंक, _ मात्र।</span>
                     </div>
                     <div class="form-group">
-                        <label for="admin_fullname" class="form-label"><i class="fas fa-id-badge" style="color:var(--green);"></i> पूरा नाम</label>
+                        <label for="admin_fullname" class="form-label"><i class="lucide-icon" data-lucide="badge-check" aria-hidden="true" style="color:var(--green);"></i> पूरा नाम</label>
                         <input type="text" class="form-control" id="admin_fullname" placeholder="जस्तै: रामप्रसाद शर्मा">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="admin_email" class="form-label"><i class="fas fa-envelope" style="color:var(--green);"></i> Admin Email</label>
+                        <label for="admin_email" class="form-label"><i class="lucide-icon" data-lucide="mail" aria-hidden="true" style="color:var(--green);"></i> Admin Email</label>
                         <input type="email" class="form-control" id="admin_email" placeholder="admin@example.com">
                     </div>
                 </div>
                 <div class="form-row cols-2">
                     <div class="form-group">
-                        <label class="form-label" for="admin_password"><i class="fas fa-lock" style="color:var(--green);"></i> Password <span class="req">*</span></label>
+                        <label class="form-label" for="admin_password"><i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="color:var(--green);"></i> Password <span class="req">*</span></label>
                         <input type="password" class="form-control" id="admin_password" placeholder="कम्तिमा 8 characters" autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="admin_password2"><i class="fas fa-lock" style="color:var(--green);"></i> Password Confirm <span class="req">*</span></label>
+                        <label class="form-label" for="admin_password2"><i class="lucide-icon" data-lucide="lock" aria-hidden="true" style="color:var(--green);"></i> Password Confirm <span class="req">*</span></label>
                         <input type="password" class="form-control" id="admin_password2" placeholder="फेरि भर्नुहोस्" autocomplete="new-password">
                     </div>
                 </div>
                 <div style="background:var(--green-lt);border:1px solid #c8e6c9;border-radius:10px;padding:12px 14px;font-size:.82rem;color:var(--green-dk);margin-top:6px;">
-                    <i class="fas fa-shield-halved" style="margin-right:6px;"></i>
+                    <i class="lucide-icon" data-lucide="shield" aria-hidden="true" style="margin-right:6px;"></i>
                     <strong>सुरक्षा सुझाव:</strong> ठूला र साना अक्षर, अंक, विशेष चिह्न मिसाएर बलियो password बनाउनुहोस्। 
                     यो password अरू कसैलाई नदिनुहोस्।
                 </div>
                 <div class="error-box" id="step3Err"></div>
             </div>
             <div class="nav-btns">
-                <button type="button" class="btn-back" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(2)"><i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> पछाडि</button>
                 <span class="step-counter">Step 4 of 5</span>
-                <button type="button" class="btn-next" onclick="validateAdmin()">अर्को <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn-next" onclick="validateAdmin()">अर्को <i class="lucide-icon" data-lucide="arrow-right" aria-hidden="true"></i></button>
             </div>
         </div>
 
         <!-- ════ STEP 4: Install ════ -->
         <div id="step4" style="display:none;">
             <div class="card-head">
-                <div class="card-head-icon"><i class="fas fa-rocket"></i></div>
+                <div class="card-head-icon"><i class="lucide-icon" data-lucide="rocket" aria-hidden="true"></i></div>
                 <h2>Install सुरू गर्नुहोस्</h2>
                 <p>तलको button थिचेपछि database setup, settings save र configuration file लेखिनेछ।</p>
             </div>
@@ -870,12 +587,12 @@ body {
 
                 <!-- Install progress steps -->
                 <div class="install-steps" id="installSteps" style="display:none;">
-                    <div class="install-step pending" id="iStep0"><div class="step-icon"><i class="fas fa-database"></i></div><span>Database जोडाउँदैछ…</span></div>
-                    <div class="install-step pending" id="iStep1"><div class="step-icon"><i class="fas fa-table"></i></div><span>Tables बनाउँदैछ…</span></div>
-                    <div class="install-step pending" id="iStep2"><div class="step-icon"><i class="fas fa-user-shield"></i></div><span>Admin account सेटअप…</span></div>
-                    <div class="install-step pending" id="iStep3"><div class="step-icon"><i class="fas fa-gear"></i></div><span>Site settings save…</span></div>
-                    <div class="install-step pending" id="iStep4"><div class="step-icon"><i class="fas fa-file-code"></i></div><span>Config file लेख्दैछ…</span></div>
-                    <div class="install-step pending" id="iStep5"><div class="step-icon"><i class="fas fa-lock"></i></div><span>Install lock बनाउँदैछ…</span></div>
+                    <div class="install-step pending" id="iStep0"><div class="step-icon"><i class="lucide-icon" data-lucide="database" aria-hidden="true"></i></div><span>Database जोडाउँदैछ…</span></div>
+                    <div class="install-step pending" id="iStep1"><div class="step-icon"><i class="lucide-icon" data-lucide="table" aria-hidden="true"></i></div><span>Tables बनाउँदैछ…</span></div>
+                    <div class="install-step pending" id="iStep2"><div class="step-icon"><i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i></div><span>Admin account सेटअप…</span></div>
+                    <div class="install-step pending" id="iStep3"><div class="step-icon"><i class="lucide-icon" data-lucide="settings" aria-hidden="true"></i></div><span>Site settings save…</span></div>
+                    <div class="install-step pending" id="iStep4"><div class="step-icon"><i class="lucide-icon" data-lucide="file-code" aria-hidden="true"></i></div><span>Config file लेख्दैछ…</span></div>
+                    <div class="install-step pending" id="iStep5"><div class="step-icon"><i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i></div><span>Install lock बनाउँदैछ…</span></div>
                 </div>
 
                 <!-- Error -->
@@ -883,19 +600,19 @@ body {
 
                 <!-- Success -->
                 <div id="installSuccess" style="display:none;" class="success-panel">
-                    <div class="success-icon"><i class="fas fa-check"></i></div>
-                    <h3>🎉 Installation सम्पन्न!</h3>
+                    <div class="success-icon"><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i></div>
+                    <h3>Installation सम्पन्न!</h3>
                     <p>तपाईंको सहकारी website सफलतापूर्वक install भयो। अब Admin Panel मा login गर्नुहोस्।</p>
                     <div class="success-links">
                         <a href="#" id="linkAdmin" class="btn-site btn-site-primary" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-user-shield"></i> Admin Panel खोल्नुहोस्
+                            <i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i> Admin Panel खोल्नुहोस्
                         </a>
                         <a href="#" id="linkSite" class="btn-site btn-site-outline" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-globe"></i> Website हेर्नुहोस्
+                            <i class="lucide-icon" data-lucide="globe" aria-hidden="true"></i> Website हेर्नुहोस्
                         </a>
                     </div>
                     <div style="margin-top:20px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:.82rem;color:#92400e;text-align:left;">
-                        <i class="fas fa-triangle-exclamation" style="margin-right:6px;"></i>
+                        <i class="lucide-icon" data-lucide="triangle-alert" aria-hidden="true" style="margin-right:6px;"></i>
                         <strong>सुरक्षाको लागि:</strong> install.php file cPanel File Manager बाट delete गर्नुहोस्
                         वा rename गर्नुहोस् (जस्तै: install.php.bak)।
                     </div>
@@ -903,10 +620,10 @@ body {
             </div>
 
             <div class="nav-btns" id="installNavBtns">
-                <button type="button" class="btn-back" onclick="goStep(3)" id="btnInstallBack"><i class="fas fa-arrow-left"></i> पछाडि</button>
+                <button type="button" class="btn-back" onclick="goStep(3)" id="btnInstallBack"><i class="lucide-icon" data-lucide="arrow-left" aria-hidden="true"></i> पछाडि</button>
                 <span class="step-counter">Step 5 of 5</span>
                 <button type="button" class="btn-next" id="btnInstallRun" onclick="runInstall()">
-                    <i class="fas fa-rocket"></i> Install गर्नुहोस्
+                    <i class="lucide-icon" data-lucide="rocket" aria-hidden="true"></i> Install गर्नुहोस्
                 </button>
             </div>
         </div>
@@ -935,7 +652,7 @@ function goStep(n) {
         var step = document.getElementById('ps' + i);
         dot.className = 'prog-dot';
         step.className = 'prog-step';
-        if (i < n)       { dot.className += ' done';   step.className += ' done';   dot.innerHTML = '<i class="fas fa-check"></i>'; }
+        if (i < n)       { dot.className += ' done';   step.className += ' done';   dot.innerHTML = '<i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>'; }
         else if (i === n){ dot.className += ' active';  step.className += ' active'; if (i > 0) dot.textContent = i + 1; }
         else             { dot.textContent = i + 1; }
         // Lines
@@ -960,7 +677,7 @@ function testDb() {
     var status = document.getElementById('dbStatus');
     status.style.display = 'block';
     status.className = 'db-status';
-    status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> जाँच्दैछ…';
+    status.innerHTML = '<i class="lucide-icon lucide-spin" data-lucide="loader-2" aria-hidden="true"></i> जाँच्दैछ…';
     
     var fd = new FormData();
     fd.append('action', 'test_db');
@@ -1118,7 +835,7 @@ function showErr(id, msg) {
     var el = document.getElementById(id);
     if (!el) return;
     el.style.display = 'block';
-    el.innerHTML = '<i class="fas fa-circle-exclamation" style="margin-right:6px;"></i>' + msg;
+    el.innerHTML = '<i class="lucide-icon" data-lucide="circle-alert" aria-hidden="true" style="margin-right:6px;"></i>' + msg;
 }
 function clearErr(id) {
     var el = document.getElementById(id);

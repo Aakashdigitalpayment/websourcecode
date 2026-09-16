@@ -166,9 +166,9 @@ function render_report_actions(array $report): void {
     if ($url !== '') {
         $safe = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
         echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">'
-            . '<i class="fas fa-eye"></i> ' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '</a>';
+            . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i> ' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '</a>';
         echo '<a href="' . $safe . '" download class="btn btn-sm btn-outline-primary">'
-            . '<i class="fas fa-download"></i> ' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '</a>';
+            . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> ' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '</a>';
     } else {
         echo '<span class="text-muted small">'
             . htmlspecialchars(isEnglish() ? 'File not available' : 'फाइल उपलब्ध छैन', ENT_QUOTES, 'UTF-8')
@@ -184,7 +184,7 @@ function render_report_actions(array $report): void {
         <h1><?php echo isEnglish() ? 'Reports & Publications' : 'प्रतिवेदन तथा प्रकाशनहरू'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></li>
             </ol>
         </nav>
@@ -199,28 +199,28 @@ function render_report_actions(array $report): void {
                 <div class="col-lg-9">
                     <div class="filter-tabs">
                         <a href="reports.php" class="filter-tab <?php echo $filterType === 'all' ? 'active' : ''; ?>">
-                            <i class="fas fa-folder-open"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
+                            <i class="lucide-icon" data-lucide="folder-open" aria-hidden="true"></i> <?php echo isEnglish() ? 'All' : 'सबै'; ?>
                         </a>
                         <a href="?type=monthly" class="filter-tab <?php echo $filterType === 'monthly' ? 'active' : ''; ?>">
-                            <i class="fas fa-calendar-day"></i> <?php echo isEnglish() ? 'Monthly' : 'मासिक'; ?>
+                            <i class="lucide-icon" data-lucide="sunrise" aria-hidden="true"></i> <?php echo isEnglish() ? 'Monthly' : 'मासिक'; ?>
                         </a>
                         <a href="?type=quarterly" class="filter-tab <?php echo $filterType === 'quarterly' ? 'active' : ''; ?>">
-                            <i class="fas fa-calendar-week"></i> <?php echo isEnglish() ? 'Quarterly' : 'त्रैमासिक'; ?>
+                            <i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i> <?php echo isEnglish() ? 'Quarterly' : 'त्रैमासिक'; ?>
                         </a>
                         <a href="?type=progress" class="filter-tab <?php echo $filterType === 'progress' ? 'active' : ''; ?>">
-                            <i class="fas fa-chart-line"></i> <?php echo isEnglish() ? 'Progress' : 'प्रगति'; ?>
+                            <i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> <?php echo isEnglish() ? 'Progress' : 'प्रगति'; ?>
                         </a>
                         <a href="?type=annual" class="filter-tab <?php echo $filterType === 'annual' ? 'active' : ''; ?>">
-                            <i class="fas fa-calendar"></i> <?php echo isEnglish() ? 'Annual' : 'वार्षिक'; ?>
+                            <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo isEnglish() ? 'Annual' : 'वार्षिक'; ?>
                         </a>
                         <a href="?type=financial" class="filter-tab <?php echo $filterType === 'financial' ? 'active' : ''; ?>">
-                            <i class="fas fa-chart-bar"></i> <?php echo isEnglish() ? 'Financial' : 'वित्तीय'; ?>
+                            <i class="lucide-icon" data-lucide="bar-chart-3" aria-hidden="true"></i> <?php echo isEnglish() ? 'Financial' : 'वित्तीय'; ?>
                         </a>
                         <a href="?type=audit" class="filter-tab <?php echo $filterType === 'audit' ? 'active' : ''; ?>">
-                            <i class="fas fa-clipboard-check"></i> <?php echo isEnglish() ? 'Audit' : 'लेखापरीक्षण'; ?>
+                            <i class="lucide-icon" data-lucide="clipboard-check" aria-hidden="true"></i> <?php echo isEnglish() ? 'Audit' : 'लेखापरीक्षण'; ?>
                         </a>
                         <a href="?type=agm" class="filter-tab <?php echo $filterType === 'agm' ? 'active' : ''; ?>">
-                            <i class="fas fa-users"></i> <?php echo isEnglish() ? 'AGM' : 'साधारण सभा'; ?>
+                            <i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo isEnglish() ? 'AGM' : 'साधारण सभा'; ?>
                         </a>
                     </div>
                 </div>
@@ -241,7 +241,7 @@ function render_report_actions(array $report): void {
                         <select class="form-select" onchange="updateFilters();" id="monthFilter">
                             <option value=""><?php echo isEnglish() ? 'All Months' : 'सबै महिना'; ?></option>
                             <?php foreach ($nepaliMonths as $key => $month): ?>
-                            <option value="<?php echo $key; ?>" <?php echo $filterMonth === $key ? 'selected' : ''; ?>>
+                            <option value="<?php echo e($key); ?>" <?php echo $filterMonth === $key ? 'selected' : ''; ?>>
                                 <?php echo $month; ?>
                             </option>
                             <?php endforeach; ?>
@@ -270,7 +270,7 @@ function render_report_actions(array $report): void {
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-file-alt"></i> <?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i> <?php echo isEnglish() ? 'Reports' : 'प्रतिवेदन'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Official Reports & Documents' : 'आधिकारिक प्रतिवेदन तथा कागजातहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -283,7 +283,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'monthly') && !empty($monthlyReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-calendar-day"></i> <?php echo isEnglish() ? 'Monthly Reports' : 'मासिक प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="sunrise" aria-hidden="true"></i> <?php echo isEnglish() ? 'Monthly Reports' : 'मासिक प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($monthlyReports as $year => $yearReports): ?>
@@ -294,7 +294,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
                         <div class="report-card monthly">
                             <div class="report-icon">
-                                <i class="fas fa-file-pdf"></i>
+                                <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -316,7 +316,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'quarterly') && !empty($quarterlyReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-calendar-week"></i> <?php echo isEnglish() ? 'Quarterly Reports' : 'त्रैमासिक प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="calendar-range" aria-hidden="true"></i> <?php echo isEnglish() ? 'Quarterly Reports' : 'त्रैमासिक प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($quarterlyReports as $year => $yearReports): ?>
@@ -327,7 +327,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-3 col-md-6 mb-3">
                         <div class="report-card quarterly">
                             <div class="report-icon">
-                                <i class="fas fa-chart-bar"></i>
+                                <i class="lucide-icon" data-lucide="bar-chart-3" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -349,7 +349,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'progress') && !empty($progressReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-chart-line"></i> <?php echo isEnglish() ? 'Progress Reports' : 'प्रगति प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i> <?php echo isEnglish() ? 'Progress Reports' : 'प्रगति प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($progressReports as $year => $yearReports): ?>
@@ -360,7 +360,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card progress-type">
                             <div class="report-icon">
-                                <i class="fas fa-chart-line"></i>
+                                <i class="lucide-icon" data-lucide="trending-up" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -379,7 +379,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'annual') && !empty($annualReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-calendar"></i> <?php echo isEnglish() ? 'Annual Reports' : 'वार्षिक प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo isEnglish() ? 'Annual Reports' : 'वार्षिक प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($annualReports as $year => $yearReports): ?>
@@ -390,7 +390,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card annual">
                             <div class="report-icon">
-                                <i class="fas fa-file-alt"></i>
+                                <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -410,7 +410,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'financial') && !empty($financialReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-chart-bar"></i> <?php echo isEnglish() ? 'Financial Reports' : 'वित्तीय प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="bar-chart-3" aria-hidden="true"></i> <?php echo isEnglish() ? 'Financial Reports' : 'वित्तीय प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($financialReports as $year => $yearReports): ?>
@@ -421,7 +421,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card financial">
                             <div class="report-icon">
-                                <i class="fas fa-chart-bar"></i>
+                                <i class="lucide-icon" data-lucide="bar-chart-3" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -440,7 +440,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'audit') && !empty($auditReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-clipboard-check"></i> <?php echo isEnglish() ? 'Audit Reports' : 'लेखापरीक्षण प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="clipboard-check" aria-hidden="true"></i> <?php echo isEnglish() ? 'Audit Reports' : 'लेखापरीक्षण प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($auditReports as $year => $yearReports): ?>
@@ -451,7 +451,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card audit">
                             <div class="report-icon">
-                                <i class="fas fa-clipboard-check"></i>
+                                <i class="lucide-icon" data-lucide="clipboard-check" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -470,7 +470,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'agm') && !empty($agmReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-users"></i> <?php echo isEnglish() ? 'AGM Reports' : 'साधारण सभा प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i> <?php echo isEnglish() ? 'AGM Reports' : 'साधारण सभा प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($agmReports as $year => $yearReports): ?>
@@ -481,7 +481,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card agm">
                             <div class="report-icon">
-                                <i class="fas fa-users"></i>
+                                <i class="lucide-icon" data-lucide="users" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -500,7 +500,7 @@ function render_report_actions(array $report): void {
         <?php if (($filterType === 'all' || $filterType === 'other') && !empty($otherReports)): ?>
         <div class="report-section mb-5" data-aos="fade-up">
             <div class="report-section-header">
-                <h3><i class="fas fa-folder-open"></i> <?php echo isEnglish() ? 'Other Reports' : 'अन्य प्रतिवेदनहरू'; ?></h3>
+                <h3><i class="lucide-icon" data-lucide="folder-open" aria-hidden="true"></i> <?php echo isEnglish() ? 'Other Reports' : 'अन्य प्रतिवेदनहरू'; ?></h3>
             </div>
 
             <?php foreach ($otherReports as $year => $yearReports): ?>
@@ -511,7 +511,7 @@ function render_report_actions(array $report): void {
                     <div class="col-lg-4 col-md-6 mb-3">
                         <div class="report-card other">
                             <div class="report-icon">
-                                <i class="fas fa-file-pdf"></i>
+                                <i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i>
                             </div>
                             <div class="report-info">
                                 <h5><?php echo e(getLangField($report, 'title')); ?></h5>
@@ -529,7 +529,7 @@ function render_report_actions(array $report): void {
         <?php else: ?>
         <!-- Empty State -->
         <div class="empty-state text-center py-5">
-            <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+            <i class="lucide-icon lucide-4x text-muted mb-3" data-lucide="file-text" aria-hidden="true"></i>
             <h4><?php echo isEnglish() ? 'No Reports Available' : 'कुनै प्रतिवेदन उपलब्ध छैन'; ?></h4>
             <p class="text-muted"><?php echo isEnglish() ? 'Reports will be available soon.' : 'प्रतिवेदनहरू चाँडै उपलब्ध हुनेछन्।'; ?></p>
         </div>

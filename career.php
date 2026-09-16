@@ -48,7 +48,7 @@ $totalDepts = count($deptSet);
             <h1 class="page-title-modern"><?php echo isEnglish() ? 'Career Opportunities' : 'रोजगारीका अवसरहरू'; ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-modern">
-                    <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
                     <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Career' : 'क्यारियर'; ?></li>
                 </ol>
             </nav>
@@ -102,7 +102,7 @@ $totalDepts = count($deptSet);
     <div class="cr-filterbar" data-aos="fade-up">
         <div class="cr-search-row">
             <div class="cr-search-field">
-                <i class="fas fa-search"></i>
+                <i class="lucide-icon" data-lucide="search" aria-hidden="true"></i>
                 <input type="text" id="crSearch"
                        placeholder="<?php echo isEnglish() ? 'Search by title, department...' : 'पद, विभाग अनुसार खोज्नुहोस्...'; ?>"
                        oninput="crFilter()">
@@ -110,18 +110,18 @@ $totalDepts = count($deptSet);
         </div>
         <div class="cr-filter-chips">
             <div class="cr-chip" data-filter="all" onclick="crChip(this)">
-                <i class="fas fa-th-large"></i>
+                <i class="lucide-icon" data-lucide="layout-grid" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'All' : 'सबै'; ?>
                 <span class="cr-chip-count"><?php echo count($jobs); ?></span>
             </div>
             <div class="cr-chip active green" data-filter="open" onclick="crChip(this)">
-                <i class="fas fa-door-open"></i>
+                <i class="lucide-icon" data-lucide="door-open" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'Open' : 'खुला'; ?>
                 <span class="cr-chip-count"><?php echo $openCount; ?></span>
             </div>
             <?php if ($closedCount > 0): ?>
             <div class="cr-chip" data-filter="closed" onclick="crChip(this)">
-                <i class="fas fa-lock"></i>
+                <i class="lucide-icon" data-lucide="lock" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'Closed' : 'बन्द'; ?>
                 <span class="cr-chip-count"><?php echo $closedCount; ?></span>
             </div>
@@ -130,7 +130,7 @@ $totalDepts = count($deptSet);
         <?php if ($totalDepts > 0): ?>
         <div class="cr-dept-chips">
             <span class="cr-dept-label">
-                <i class="fas fa-building"></i><?php echo isEnglish() ? 'Dept:' : 'विभाग:'; ?>
+                <i class="lucide-icon" data-lucide="building" aria-hidden="true"></i><?php echo isEnglish() ? 'Dept:' : 'विभाग:'; ?>
             </span>
             <?php foreach (array_keys($deptSet) as $dname): ?>
             <div class="cr-dept-chip"
@@ -145,7 +145,7 @@ $totalDepts = count($deptSet);
 
     <!-- Result count -->
     <div class="cr-result-count" id="crCount">
-        <i class="fas fa-list-ul"></i>
+        <i class="lucide-icon" data-lucide="list" aria-hidden="true"></i>
         <span id="crCountText"><?php echo count($jobs); ?> <?php echo isEnglish() ? 'positions found' : 'पदहरू भेटिए'; ?></span>
     </div>
 
@@ -153,11 +153,11 @@ $totalDepts = count($deptSet);
     <div id="crGrid">
     <?php
     $deptIcons = [
-        'IT' => 'fa-laptop-code', 'लेखा' => 'fa-calculator', 'Accounts' => 'fa-calculator',
-        'HR' => 'fa-users', 'Operations' => 'fa-cogs', 'Marketing' => 'fa-bullhorn',
-        'Finance' => 'fa-coins', 'Admin' => 'fa-building', 'Loan' => 'fa-hand-holding-usd',
-        'Credit' => 'fa-credit-card', 'Audit' => 'fa-clipboard-check',
-        'सञ्चालन' => 'fa-cogs', 'ऋण' => 'fa-hand-holding-usd',
+        'IT' => 'laptop', 'लेखा' => 'calculator', 'Accounts' => 'calculator',
+        'HR' => 'users', 'Operations' => 'settings', 'Marketing' => 'megaphone',
+        'Finance' => 'coins', 'Admin' => 'building-2', 'Loan' => 'hand-coins',
+        'Credit' => 'credit-card', 'Audit' => 'clipboard-check',
+        'सञ्चालन' => 'settings', 'ऋण' => 'hand-coins',
     ];
     usort($jobs, static function ($a, $b) {
         return (int)careerDeadlinePassed($a) <=> (int)careerDeadlinePassed($b);
@@ -182,7 +182,7 @@ $totalDepts = count($deptSet);
         if ($vacancyCount < 1) {
             $vacancyCount = 1;
         }
-        $deptIcon = 'fa-briefcase';
+        $deptIcon = 'briefcase';
         foreach ($deptIcons as $k => $v) {
             if (stripos($dept, $k) !== false) { $deptIcon = $v; break; }
         }
@@ -204,12 +204,12 @@ $totalDepts = count($deptSet);
 
         <?php if ($isUrgent): ?>
         <div class="cr-urgent-tag">
-            <i class="fas fa-fire"></i>
+            <i class="lucide-icon" data-lucide="flame" aria-hidden="true"></i>
             <?php echo isEnglish() ? 'Closes in '.$daysLeft.'d' : $daysLeft.' दिनमा बन्द'; ?>
         </div>
         <?php elseif ($isNew): ?>
         <div class="cr-urgent-tag" style="background:linear-gradient(135deg,#0d9488,#14b8a6)">
-            <i class="fas fa-star"></i>
+            <i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>
             <?php echo isEnglish() ? 'New' : 'नयाँ'; ?>
         </div>
         <?php endif; ?>
@@ -218,7 +218,7 @@ $totalDepts = count($deptSet);
             <!-- Top row -->
             <div class="cr-card-top">
                 <div class="cr-dept-avatar">
-                    <i class="fas <?php echo $deptIcon; ?>"></i>
+                    <i class="lucide-icon" data-lucide="<?php echo htmlspecialchars($deptIcon, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i>
                 </div>
                 <div class="cr-card-heading">
                     <div class="cr-job-title"><?php echo htmlspecialchars(getLangField($job, 'title')); ?></div>
@@ -230,13 +230,13 @@ $totalDepts = count($deptSet);
                         <span class="cr-tag dept"><?php echo htmlspecialchars($dept); ?></span>
                         <?php endif; ?>
                         <?php if ($deadlinePassed): ?>
-                        <span class="cr-tag closed-tag"><i class="fas fa-lock me-1"></i><?php echo isEnglish() ? 'Closed' : 'बन्द'; ?></span>
+                        <span class="cr-tag closed-tag"><i class="lucide-icon me-1" data-lucide="lock" aria-hidden="true"></i><?php echo isEnglish() ? 'Closed' : 'बन्द'; ?></span>
                         <?php elseif ($isUrgent): ?>
-                        <span class="cr-tag urgent-tag"><i class="fas fa-fire me-1"></i><?php echo isEnglish() ? 'Urgent' : 'अर्जेन्ट'; ?></span>
+                        <span class="cr-tag urgent-tag"><i class="lucide-icon me-1" data-lucide="flame" aria-hidden="true"></i><?php echo isEnglish() ? 'Urgent' : 'अर्जेन्ट'; ?></span>
                         <?php elseif ($isNew): ?>
-                        <span class="cr-tag open"><i class="fas fa-star me-1"></i><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
+                        <span class="cr-tag open"><i class="lucide-icon me-1" data-lucide="star" aria-hidden="true"></i><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                         <?php else: ?>
-                        <span class="cr-tag open"><i class="fas fa-circle me-1 cr-inline-dot"></i><?php echo isEnglish() ? 'Open' : 'खुला'; ?></span>
+                        <span class="cr-tag open"><i class="lucide-icon me-1 cr-inline-dot" data-lucide="circle" aria-hidden="true"></i><?php echo isEnglish() ? 'Open' : 'खुला'; ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -246,23 +246,23 @@ $totalDepts = count($deptSet);
             <div class="cr-meta">
                 <?php if (!empty($job['location'])): ?>
                 <span class="cr-meta-item">
-                    <i class="fas fa-map-marker-alt"></i>
+                    <i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i>
                     <?php echo htmlspecialchars($job['location']); ?>
                 </span>
                 <?php endif; ?>
                 <span class="cr-meta-item">
-                    <i class="fas fa-users"></i>
+                    <i class="lucide-icon" data-lucide="users" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Vacancy: '.$vacancyCount : 'रिक्त: '.$vacancyCount; ?>
                 </span>
                 <?php if (!empty($job['salary_range'])): ?>
                 <span class="cr-meta-item">
-                    <i class="fas fa-coins"></i>
+                    <i class="lucide-icon" data-lucide="coins" aria-hidden="true"></i>
                     <?php echo htmlspecialchars($job['salary_range']); ?>
                 </span>
                 <?php endif; ?>
                 <?php if (!empty($job['deadline'])): ?>
                 <span class="cr-meta-item <?php echo $deadlinePassed ? 'deadline-gone' : ($daysLeft <= 7 ? 'deadline-near' : ''); ?>">
-                    <i class="fas fa-calendar-alt"></i>
+                    <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Deadline:' : 'म्याद:'; ?>
                     <?php echo htmlspecialchars($deadlineLabel); ?>
                     <?php if (!$deadlinePassed && $daysLeft > 0): ?>
@@ -292,21 +292,21 @@ $totalDepts = count($deptSet);
             <!-- Actions -->
             <div class="cr-actions">
                 <a href="career-detail.php?id=<?php echo $job['id']; ?>" class="cr-btn-detail">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Details' : 'विवरण'; ?>
                 </a>
                 <?php if (!$deadlinePassed && ($job['allow_online_apply'] ?? 1)): ?>
                 <a href="career-detail.php?id=<?php echo (int)$job['id']; ?>&amp;apply=1#apply-form" class="cr-btn-apply">
-                    <i class="fas fa-paper-plane"></i>
+                    <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i>
                     <span><?php echo isEnglish() ? 'Apply Now' : 'अहिले आवेदन'; ?></span>
                 </a>
                 <?php elseif (!$deadlinePassed): ?>
-                <span class="cr-meta-item text-muted"><i class="fas fa-envelope me-1"></i><?php echo isEnglish() ? 'Offline / email apply' : 'अफलाइन / इमेल आवेदन'; ?></span>
+                <span class="cr-meta-item text-muted"><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true"></i><?php echo isEnglish() ? 'Offline / email apply' : 'अफलाइन / इमेल आवेदन'; ?></span>
                 <?php endif; ?>
                 <?php if (!empty($job['attachment'])): ?>
                 <a href="<?php echo htmlspecialchars($job['attachment']); ?>" class="cr-btn-dl" download
                    title="<?php echo isEnglish() ? 'Download Notice' : 'सूचना डाउनलोड'; ?>">
-                    <i class="fas fa-download"></i>
+                    <i class="lucide-icon" data-lucide="download" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'Notice' : 'सूचना'; ?>
                 </a>
                 <?php endif; ?>
@@ -319,13 +319,13 @@ $totalDepts = count($deptSet);
     <!-- No results -->
     <div id="crNoResults" class="cr-no-results">
         <div class="cr-empty">
-            <div class="cr-empty-icon"><i class="fas fa-search"></i></div>
+            <div class="cr-empty-icon"><i class="lucide-icon" data-lucide="search" aria-hidden="true"></i></div>
             <h5><?php echo isEnglish() ? 'No Matching Positions Found' : 'कुनै पद फेला परेन'; ?></h5>
             <p class="cr-muted small" id="crNoResultsHint"><?php echo isEnglish()
                 ? 'No open positions match. Try All or Closed, or clear search.'
                 : 'खुला पद भेटिएन। सबै वा बन्द फिल्टर हेर्नुहोस्, वा खोज हटाउनुहोस्।'; ?></p>
             <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="crReset()">
-                <i class="fas fa-redo me-1"></i><?php echo isEnglish() ? 'Reset' : 'रिसेट'; ?>
+                <i class="lucide-icon me-1" data-lucide="rotate-cw" aria-hidden="true"></i><?php echo isEnglish() ? 'Reset' : 'रिसेट'; ?>
             </button>
         </div>
     </div>
@@ -333,7 +333,7 @@ $totalDepts = count($deptSet);
     <?php else: ?>
     <!-- No vacancies at all -->
     <div class="cr-novacancy" data-aos="fade-up">
-        <div class="cr-novacancy-icon"><i class="fas fa-briefcase"></i></div>
+        <div class="cr-novacancy-icon"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
         <h4 class="mb-2"><?php echo isEnglish() ? 'No Current Openings' : 'हाल कुनै रिक्त पद छैन'; ?></h4>
         <p class="cr-muted mb-3">
             <?php echo isEnglish()
@@ -342,7 +342,7 @@ $totalDepts = count($deptSet);
         </p>
         <a href="mailto:<?php echo e(getSetting('email','info@sahakari.org.np')); ?>?subject=CV Submission"
            class="btn cr-btn-primary">
-            <i class="fas fa-envelope me-2"></i><?php echo isEnglish() ? 'Send Your CV' : 'CV इमेल गर्नुहोस्'; ?>
+            <i class="lucide-icon me-2" data-lucide="mail" aria-hidden="true"></i><?php echo isEnglish() ? 'Send Your CV' : 'CV इमेल गर्नुहोस्'; ?>
         </a>
     </div>
     <?php endif; ?>
@@ -353,9 +353,9 @@ $totalDepts = count($deptSet);
 <div class="col-lg-4 cr-sidebar">
 
     <button type="button" class="cr-sidebar-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
-        <i class="fas fa-info-circle"></i>
+        <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
         <?php echo isEnglish() ? 'Career Resources & Info' : 'क्यारियर सहायता र जानकारी'; ?>
-        <i class="fas fa-chevron-down ms-auto"></i>
+        <i class="lucide-icon ms-auto" data-lucide="chevron-down" aria-hidden="true"></i>
     </button>
 
     <div class="cr-sidebar-content">
@@ -363,7 +363,7 @@ $totalDepts = count($deptSet);
     <!-- Track Application -->
     <div class="cr-sb-card cr-track-card" data-aos="fade-up">
         <div class="cr-sb-head">
-            <h4><i class="fas fa-search me-2"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक गर्नुहोस्'; ?></h4>
+            <h4><i class="lucide-icon me-2" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक गर्नुहोस्'; ?></h4>
             <p><?php echo isEnglish()
                 ? 'Already applied? Check your status with Tracking ID or email.'
                 : 'पहिले नै आवेदन दिनुभयो? Tracking ID वा इमेलले स्थिति हेर्नुहोस्।'; ?>
@@ -371,7 +371,7 @@ $totalDepts = count($deptSet);
         </div>
         <div class="cr-sb-body">
             <a href="application-tracker.php" class="cr-btn-track">
-                <i class="fas fa-route"></i>
+                <i class="lucide-icon" data-lucide="route" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'Track Now' : 'अहिले ट्र्याक'; ?>
             </a>
         </div>
@@ -380,14 +380,14 @@ $totalDepts = count($deptSet);
     <!-- Submit CV -->
     <div class="cr-sb-card cr-cv-card" data-aos="fade-up" data-aos-delay="80">
         <div class="cr-sb-body">
-            <div class="cr-cv-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="cr-cv-icon"><i class="lucide-icon" data-lucide="file-text" aria-hidden="true"></i></div>
             <h4><?php echo isEnglish() ? 'Submit Your CV' : 'आफ्नो CV पठाउनुहोस्'; ?></h4>
             <p><?php echo isEnglish()
                 ? 'Interested in joining us? Send your CV to our HR department even if no vacancy is posted.'
                 : 'हामीसँग सामेल हुन इच्छुक? रिक्त पद नभए पनि HR विभागमा CV पठाउन सक्नुहुन्छ।'; ?>
             </p>
             <a href="mailto:<?php echo e(getSetting('email','info@sahakari.org.np')); ?>?subject=CV Submission - Job Application" class="cr-btn-cv">
-                <i class="fas fa-paper-plane"></i>
+                <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i>
                 <?php echo isEnglish() ? 'Send CV' : 'CV पठाउनुहोस्'; ?>
             </a>
         </div>
@@ -396,20 +396,20 @@ $totalDepts = count($deptSet);
     <!-- Why Join Us -->
     <div class="cr-sb-card cr-why-card" data-aos="fade-up" data-aos-delay="140">
         <div class="cr-sb-body">
-            <h4><i class="fas fa-star me-2 cr-ico-accent"></i><?php echo isEnglish() ? 'Why Join Us?' : 'हामीलाई किन रोज्ने?'; ?></h4>
+            <h4><i class="lucide-icon me-2 cr-ico-accent" data-lucide="star" aria-hidden="true"></i><?php echo isEnglish() ? 'Why Join Us?' : 'हामीलाई किन रोज्ने?'; ?></h4>
             <div class="cr-benefits">
                 <?php
                 $benefits = [
-                    ['fa-money-bill-wave', isEnglish() ? 'Competitive Salary'   : 'प्रतिस्पर्धी तलब'],
-                    ['fa-chart-line',      isEnglish() ? 'Professional Growth'  : 'व्यावसायिक वृद्धि'],
-                    ['fa-smile',           isEnglish() ? 'Friendly Environment' : 'मैत्रीपूर्ण वातावरण'],
-                    ['fa-heartbeat',       isEnglish() ? 'Health Benefits'      : 'स्वास्थ्य सुविधाहरू'],
-                    ['fa-gift',            isEnglish() ? 'Festival Bonus'       : 'चाडपर्व बोनस'],
-                    ['fa-graduation-cap',  isEnglish() ? 'Training Support'     : 'तालिम सहयोग'],
+                    ['banknote', isEnglish() ? 'Competitive Salary'   : 'प्रतिस्पर्धी तलब'],
+                    ['chart-line',      isEnglish() ? 'Professional Growth'  : 'व्यावसायिक वृद्धि'],
+                    ['smile',           isEnglish() ? 'Friendly Environment' : 'मैत्रीपूर्ण वातावरण'],
+                    ['heart-pulse',       isEnglish() ? 'Health Benefits'      : 'स्वास्थ्य सुविधाहरू'],
+                    ['gift',            isEnglish() ? 'Festival Bonus'       : 'चाडपर्व बोनस'],
+                    ['graduation-cap',  isEnglish() ? 'Training Support'     : 'तालिम सहयोग'],
                 ];
                 foreach ($benefits as $b): ?>
                 <div class="cr-benefit-item">
-                    <div class="cr-benefit-icon"><i class="fas <?php echo $b[0]; ?>"></i></div>
+                    <div class="cr-benefit-icon"><i class="lucide-icon" data-lucide="<?php echo $b[0]; ?>" aria-hidden="true"></i></div>
                     <span><?php echo $b[1]; ?></span>
                 </div>
                 <?php endforeach; ?>

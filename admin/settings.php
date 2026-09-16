@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -356,13 +357,13 @@ if (!in_array($panel, ['general', 'branding'], true)) {
     <?php echo csrfField(); ?>
     <ul class="nav admin-nav-tabs mb-4" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'general' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#settings-general-tab" type="button" role="tab">
+            <button type="button" class="nav-link <?php echo $panel === 'general' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#settings-general-tab" type="button" role="tab">
                 <i class="lucide-icon me-1" aria-hidden="true" data-lucide="sliders"></i> <?php echo $__t('सामान्य सेटिङ्स', 'General Settings'); ?>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link <?php echo $panel === 'branding' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#settings-branding-tab" type="button" role="tab">
-                <i class="fas fa-image me-1"></i> <?php echo $__t('ब्रान्डिङ / मिडिया', 'Branding / Media'); ?>
+            <button type="button" class="nav-link <?php echo $panel === 'branding' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#settings-branding-tab" type="button" role="tab">
+                <i class="lucide-icon me-1" data-lucide="image" aria-hidden="true"></i> <?php echo $__t('ब्रान्डिङ / मिडिया', 'Branding / Media'); ?>
             </button>
         </li>
     </ul>
@@ -374,9 +375,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="general">
             <button type="button" class="stg-subtab-btn active" data-stg-group="identity"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="globe"></i> <?php echo $__t('साइट / SEO', 'Site / SEO'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="contact"><i class="fas fa-address-book me-1"></i> <?php echo $__t('सम्पर्क / Maps', 'Contact / Maps'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="contact"><i class="lucide-icon me-1" data-lucide="contact" aria-hidden="true"></i> <?php echo $__t('सम्पर्क / Maps', 'Contact / Maps'); ?></button>
             <button type="button" class="stg-subtab-btn" data-stg-group="banking"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="landmark"></i> <?php echo $__t('बैंकिङ / OAuth', 'Banking / OAuth'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="fas fa-table-cells-large me-1"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="lucide-icon me-1" data-lucide="table" aria-hidden="true"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
         </div>
         <div class="row">
         <div class="col-lg-12">
@@ -390,14 +391,14 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <div class="mb-3">
                                 <label for="stg_site_name" class="form-label"><?php echo $__t('साइट नाम (नेपाली)', 'Site Name (Nepali)'); ?></label>
                                 <input type="text" name="site_name" id="stg_site_name" class="form-control"
-                                       value="<?php echo $settings['site_name'] ?? ''; ?>">
+                                       value="<?php echo e($settings['site_name'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="stg_site_name_en" class="form-label">Site Name (English)</label>
                                 <input type="text" name="site_name_en" id="stg_site_name_en" class="form-control"
-                                       value="<?php echo $settings['site_name_en'] ?? ''; ?>">
+                                       value="<?php echo e($settings['site_name_en'] ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -416,7 +417,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
 
                     <hr>
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-mobile-screen-button me-2"></i><?php echo $__t('PWA / मोबाइल एप नाम', 'PWA / Mobile App Name'); ?></h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="smartphone" aria-hidden="true"></i><?php echo $__t('PWA / मोबाइल एप नाम', 'PWA / Mobile App Name'); ?></h6>
                     <p class="stg-muted small mb-3"><?php echo $__t('मोबाइलमा Install गर्दा देखिने App नाम। खाली छोड्नुभयो भने माथिको साइट नाम प्रयोग हुन्छ।', 'App name shown when installing on mobile. If left blank, the site name above is used.'); ?></p>
                     <div class="row">
                         <div class="col-md-6">
@@ -449,13 +450,13 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 </div>
                 <div class="card-body">
                     <div class="alert alert-info py-2 small mb-3">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         <?php echo $__t(
                             'यो थिम धेरै SACCOS मा चल्छ — तलका field हरू यस सहकारीको site settings बाट मात्र आउँछन्। Google मा शीर्षक brand-first हुनुपर्छ (जस्तै: जनउत्थान | बचत तथा ऋण सहकारी…), «गृहपृष्ठ -» बाट सुरु नगर्नुहोस्।',
                             'This theme runs on many SACCOS — fields below come only from this coop’s site settings. Google titles should be brand-first (e.g. Janautthan | Savings & Credit…), not starting with “Home -”.'
                         ); ?>
                     </div>
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-heading me-2"></i><?php echo $__t('Google खोज शीर्षक (Homepage)', 'Google Search Title (Homepage)'); ?></h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="heading" aria-hidden="true"></i><?php echo $__t('Google खोज शीर्षक (Homepage)', 'Google Search Title (Homepage)'); ?></h6>
                     <div class="mb-3">
                         <label for="stg_seo_title" class="form-label"><?php echo $__t('SEO शीर्षक (नेपाली)', 'SEO Title (Nepali)'); ?> — &lt;title&gt;</label>
                         <input type="text" name="seo_title" id="stg_seo_title" class="form-control" maxlength="70"
@@ -508,7 +509,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
 
                     <hr>
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-bullseye me-2"></i>Search / Share Content</h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="target" aria-hidden="true"></i>Search / Share Content</h6>
                     <div class="mb-3">
                         <label for="stg_about_short" class="form-label"><?php echo $__t('संक्षिप्त परिचय', 'Short Introduction'); ?></label>
                         <textarea name="about_short" id="stg_about_short" class="form-control" rows="3"><?php echo $settings['about_short'] ?? ''; ?></textarea>
@@ -534,7 +535,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
 
                     <hr>
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fab fa-google me-2"></i><?php echo $__t('Google Search Console (एकपटक)', 'Google Search Console (one-time)'); ?></h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fab fa-google me-2" aria-hidden="true"></i><?php echo $__t('Google Search Console (एकपटक)', 'Google Search Console (one-time)'); ?></h6>
                     <div class="alert alert-secondary py-2 small mb-3">
                         <strong><?php echo $__t('महत्त्वपूर्ण:', 'Important:'); ?></strong>
                         <?php echo $__t(
@@ -595,35 +596,35 @@ if (!in_array($panel, ['general', 'branding'], true)) {
             <!-- Contact + Social Media -->
             <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="general" data-stg-group="contact" data-stg-order="2">
                 <div class="card-header stg-section-header">
-                    <h5 class="stg-section-title"><i class="fas fa-address-book"></i> <?php echo $__t('सम्पर्क / सामाजिक सञ्जाल', 'Contact / Social Media'); ?></h5>
+                    <h5 class="stg-section-title"><i class="lucide-icon" data-lucide="contact" aria-hidden="true"></i> <?php echo $__t('सम्पर्क / सामाजिक सञ्जाल', 'Contact / Social Media'); ?></h5>
                 </div>
                 <div class="card-body">
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-phone me-2"></i><?php echo $__t('सम्पर्क जानकारी', 'Contact Information'); ?></h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="phone" aria-hidden="true"></i><?php echo $__t('सम्पर्क जानकारी', 'Contact Information'); ?></h6>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="stg_phone" class="form-label"><?php echo $__t('फोन नम्बर', 'Phone Number'); ?></label>
                                 <input type="text" name="phone" id="stg_phone" class="form-control"
-                                       value="<?php echo $settings['phone'] ?? ''; ?>">
+                                       value="<?php echo e($settings['phone'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="stg_mobile" class="form-label"><?php echo $__t('मोबाइल नम्बर', 'Mobile Number'); ?></label>
                                 <input type="text" name="mobile" id="stg_mobile" class="form-control"
-                                       value="<?php echo $settings['mobile'] ?? ''; ?>">
+                                       value="<?php echo e($settings['mobile'] ?? ''); ?>">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label for="stg_email" class="form-label"><?php echo $__t('इमेल', 'Email'); ?></label>
                         <input type="email" name="email" id="stg_email" class="form-control"
-                               value="<?php echo $settings['email'] ?? ''; ?>">
+                               value="<?php echo e($settings['email'] ?? ''); ?>">
                     </div>
                     <div class="mb-3">
                         <label for="stg_address" class="form-label"><?php echo $__t('ठेगाना', 'Address'); ?></label>
                         <input type="text" name="address" id="stg_address" class="form-control"
-                               value="<?php echo $settings['address'] ?? ''; ?>">
+                               value="<?php echo e($settings['address'] ?? ''); ?>">
                     </div>
                     <div class="mb-3">
                         <label for="stg_address_en" class="form-label"><?php echo $__t('ठेगाना (English)', 'Address (English)'); ?></label>
@@ -634,43 +635,43 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </div>
 
                     <hr>
-                    <h6 class="stg-title-accent fw-bold mb-3"><i class="fas fa-share-alt me-2"></i><?php echo $__t('सामाजिक सञ्जाल', 'Social Media'); ?></h6>
+                    <h6 class="stg-title-accent fw-bold mb-3"><i class="lucide-icon me-2" data-lucide="share-2" aria-hidden="true"></i><?php echo $__t('सामाजिक सञ्जाल', 'Social Media'); ?></h6>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="stg_facebook_url" class="form-label"><i class="fab fa-facebook stg-ico-primary"></i> Facebook URL</label>
+                                <label for="stg_facebook_url" class="form-label"><i class="fab fa-facebook stg-ico-primary" aria-hidden="true"></i> Facebook URL</label>
                                 <input type="url" name="facebook_url" id="stg_facebook_url" class="form-control"
-                                       value="<?php echo $settings['facebook_url'] ?? ''; ?>">
+                                       value="<?php echo e($settings['facebook_url'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="stg_youtube_url" class="form-label"><i class="fab fa-youtube stg-ico-danger"></i> YouTube URL</label>
+                                <label for="stg_youtube_url" class="form-label"><i class="fab fa-youtube stg-ico-danger" aria-hidden="true"></i> YouTube URL</label>
                                 <input type="url" name="youtube_url" id="stg_youtube_url" class="form-control"
-                                       value="<?php echo $settings['youtube_url'] ?? ''; ?>">
+                                       value="<?php echo e($settings['youtube_url'] ?? ''); ?>">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="stg_twitter_url" class="form-label"><i class="fab fa-twitter stg-ico-info"></i> Twitter URL</label>
+                                <label for="stg_twitter_url" class="form-label"><i class="fab fa-twitter stg-ico-info" aria-hidden="true"></i> Twitter URL</label>
                                 <input type="url" name="twitter_url" id="stg_twitter_url" class="form-control"
-                                       value="<?php echo $settings['twitter_url'] ?? ''; ?>">
+                                       value="<?php echo e($settings['twitter_url'] ?? ''); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="stg_instagram_url" class="form-label"><i class="fab fa-instagram stg-ico-danger"></i> Instagram URL</label>
+                                <label for="stg_instagram_url" class="form-label"><i class="fab fa-instagram stg-ico-danger" aria-hidden="true"></i> Instagram URL</label>
                                 <input type="url" name="instagram_url" id="stg_instagram_url" class="form-control"
-                                       value="<?php echo $settings['instagram_url'] ?? ''; ?>">
+                                       value="<?php echo e($settings['instagram_url'] ?? ''); ?>">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="stg_whatsapp_number" class="form-label"><i class="fab fa-whatsapp stg-ico-success"></i> WhatsApp Number</label>
+                        <label for="stg_whatsapp_number" class="form-label"><i class="fab fa-whatsapp stg-ico-success" aria-hidden="true"></i> WhatsApp Number</label>
                         <input type="text" name="whatsapp_number" id="stg_whatsapp_number" class="form-control"
-                               value="<?php echo $settings['whatsapp_number'] ?? ''; ?>"
+                               value="<?php echo e($settings['whatsapp_number'] ?? ''); ?>"
                                placeholder="9779812345678">
                         <small class="stg-muted"><?php echo $__t('Country code सहित (जस्तै: 9779812345678)', 'Include country code (e.g., 9779812345678)'); ?></small>
                     </div>
@@ -680,19 +681,19 @@ if (!in_array($panel, ['general', 'branding'], true)) {
             <!-- Digital Banking -->
             <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="general" data-stg-group="banking" data-stg-order="1">
                 <div class="card-header stg-section-header">
-                    <h5 class="stg-section-title"><i class="fas fa-laptop"></i> <?php echo $__t('डिजिटल बैंकिङ', 'Digital Banking'); ?></h5>
+                    <h5 class="stg-section-title"><i class="lucide-icon" data-lucide="laptop" aria-hidden="true"></i> <?php echo $__t('डिजिटल बैंकिङ', 'Digital Banking'); ?></h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="stg_internet_banking_url" class="form-label">Internet Banking URL</label>
                         <input type="url" name="internet_banking_url" id="stg_internet_banking_url" class="form-control"
-                               value="<?php echo $settings['internet_banking_url'] ?? ''; ?>"
+                               value="<?php echo e($settings['internet_banking_url'] ?? ''); ?>"
                                placeholder="https://ibanking.yoursite.com">
                         <small class="stg-muted"><?php echo $__t('इन्टरनेट बैंकिङ लगइन URL', 'Internet banking login URL'); ?></small>
                     </div>
 
                     <div class="mb-3">
-                        <label for="stg_web_login_url" class="form-label"><i class="fas fa-envelope-open-text stg-ico-info"></i> <?php echo $__t('वेब लगिन URL', 'Web Login URL'); ?></label>
+                        <label for="stg_web_login_url" class="form-label"><i class="lucide-icon stg-ico-info" data-lucide="mail-open" aria-hidden="true"></i> <?php echo $__t('वेब लगिन URL', 'Web Login URL'); ?></label>
                         <input type="url" name="web_login_url" id="stg_web_login_url" class="form-control"
                                value="<?php echo htmlspecialchars($settings['web_login_url'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                placeholder="https://mail.yourcoop.com.np">
@@ -702,7 +703,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="mb-3">
                         <label for="stg_play_store_url" class="form-label">Google Play Store URL</label>
                         <input type="url" name="play_store_url" id="stg_play_store_url" class="form-control"
-                               value="<?php echo $settings['play_store_url'] ?? ''; ?>"
+                               value="<?php echo e($settings['play_store_url'] ?? ''); ?>"
                                placeholder="https://play.google.com/store/apps/details?id=...">
                         <small class="stg-muted"><?php echo $__t('मोबाइल एप (Android)', 'Mobile app (Android)'); ?></small>
                     </div>
@@ -710,7 +711,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <div class="mb-3">
                         <label for="stg_app_store_url" class="form-label">Apple App Store URL</label>
                         <input type="url" name="app_store_url" id="stg_app_store_url" class="form-control"
-                               value="<?php echo $settings['app_store_url'] ?? ''; ?>"
+                               value="<?php echo e($settings['app_store_url'] ?? ''); ?>"
                                placeholder="https://apps.apple.com/app/...">
                         <small class="stg-muted"><?php echo $__t('मोबाइल एप (iOS)', 'Mobile app (iOS)'); ?></small>
                     </div>
@@ -718,20 +719,20 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     <!-- OAuth Settings -->
                     <hr><h6 class="stg-title-accent fw-bold mt-3"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="key"></i><?php echo $__t('Member Portal — Social Login (OAuth)', 'Member Portal — Social Login (OAuth)'); ?></h6>
                     <div class="alert alert-info py-2 px-3 stg-help-compact">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         <?php echo $__t('Google OAuth', 'Google OAuth'); ?>: <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Google Cloud Console</a> <?php echo $__t('बाट Client ID र Secret लिनुहोस्।', 'to get Client ID and Secret.'); ?><br>
                         Facebook: <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer">Meta Developers</a> <?php echo $__t('बाट App ID र Secret लिनुहोस्।', 'to get App ID and Secret.'); ?><br>
-                        <strong>Redirect URI:</strong> <code><?php echo SITE_URL; ?>member/oauth.php?provider=google</code>
+                        <strong>Redirect URI:</strong> <code><?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/oauth.php?provider=google</code>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="stg_google_client_id" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client ID</label>
+                            <label for="stg_google_client_id" class="form-label"><i class="fab fa-google stg-ico-danger me-1" aria-hidden="true"></i>Google Client ID</label>
                             <input type="text" name="google_client_id" id="stg_google_client_id" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['google_client_id'] ?? ''); ?>"
                                    placeholder="xxxx.apps.googleusercontent.com">
                         </div>
                         <div class="col-md-6">
-                            <label for="stg_google_client_secret" class="form-label"><i class="fab fa-google stg-ico-danger me-1"></i>Google Client Secret</label>
+                            <label for="stg_google_client_secret" class="form-label"><i class="fab fa-google stg-ico-danger me-1" aria-hidden="true"></i>Google Client Secret</label>
                             <input type="password" name="google_client_secret" id="stg_google_client_secret" class="form-control font-monospace"
                                    value=""
                                    placeholder="<?php echo !empty($settings['google_client_secret']) ? '•••••••• (leave blank to keep)' : 'GOCSPX-...'; ?>"
@@ -744,13 +745,13 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <?php endif; ?>
                         </div>
                         <div class="col-md-6">
-                            <label for="stg_facebook_app_id" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App ID</label>
+                            <label for="stg_facebook_app_id" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1" aria-hidden="true"></i>Facebook App ID</label>
                             <input type="text" name="facebook_app_id" id="stg_facebook_app_id" class="form-control font-monospace"
                                    value="<?php echo htmlspecialchars($settings['facebook_app_id'] ?? ''); ?>"
                                    placeholder="1234567890">
                         </div>
                         <div class="col-md-6">
-                            <label for="stg_facebook_app_secret" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1"></i>Facebook App Secret</label>
+                            <label for="stg_facebook_app_secret" class="form-label"><i class="fab fa-facebook stg-ico-primary me-1" aria-hidden="true"></i>Facebook App Secret</label>
                             <input type="password" name="facebook_app_secret" id="stg_facebook_app_secret" class="form-control font-monospace"
                                    value=""
                                    placeholder="<?php echo !empty($settings['facebook_app_secret']) ? '•••••••• (leave blank to keep)' : 'abcdef1234...'; ?>"
@@ -770,7 +771,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
             <!-- Office Info -->
             <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="general" data-stg-group="contact" data-stg-order="3">
                 <div class="card-header stg-section-header">
-                    <h5 class="stg-section-title"><i class="fas fa-building"></i> <?php echo $__t('Office Info (Map + कार्य समय)', 'Office Info (Map + Working Hours)'); ?></h5>
+                    <h5 class="stg-section-title"><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo $__t('Office Info (Map + कार्य समय)', 'Office Info (Map + Working Hours)'); ?></h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -789,7 +790,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         if ($_gmapSaved !== '' && preg_match('#(?:maps\.app\.goo\.gl|goo\.gl/maps)/#i', $_gmapSaved)):
                         ?>
                         <div class="alert alert-warning small py-2 mt-2 mb-0">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            <i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i>
                             <?php echo $__t(
                                 'अहिले share link सेभ छ। Save Settings थिच्नुहोस् — सिस्टमले embed URL मा बदल्नेछ। नभए Google Maps बाट Embed URL राख्नुहोस्।',
                                 'A share link is saved. Click Save Settings to convert it, or paste a real Embed URL from Google Maps.'
@@ -798,14 +799,14 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <?php endif; ?>
                     </div>
                     <h6 class="stg-title-accent fw-bold mb-2"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="eye"></i><?php echo $__t('सार्वजनिक प्रदर्शन समय (वेबसाइटमा देखिने)', 'Public Display Hours (shown on website)'); ?></h6>
-                    <div class="alert alert-light border small py-2 mb-3"><i class="fas fa-info-circle me-1 text-primary"></i><?php echo $__t('यो text Footer / Contact पेजमा जस्ताको तस्तै देखिन्छ। मानिसले पढ्नका लागि — कुनै time-picker मा प्रयोग हुँदैन।', 'This text is shown as-is on the Footer / Contact page. For human reading only — not used by any time-picker.'); ?></div>
+                    <div class="alert alert-light border small py-2 mb-3"><i class="lucide-icon me-1 text-primary" data-lucide="info" aria-hidden="true"></i><?php echo $__t('यो text Footer / Contact पेजमा जस्ताको तस्तै देखिन्छ। मानिसले पढ्नका लागि — कुनै time-picker मा प्रयोग हुँदैन।', 'This text is shown as-is on the Footer / Contact page. For human reading only — not used by any time-picker.'); ?></div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="stg_working_hours" class="form-label"><?php echo $__t('आइत–शुक्रबार समय', 'Sunday–Friday Hours'); ?> <small class="stg-muted">(Sunday–Friday)</small></label>
                                 <input type="text" name="working_hours" id="stg_working_hours" class="form-control"
                                        placeholder="बिहान १०:०० - साँझ ५:००"
-                                       value="<?php echo $settings['working_hours'] ?? 'बिहान १०:०० - साँझ ५:००'; ?>">
+                                       value="<?php echo e($settings['working_hours'] ?? 'बिहान १०:०० - साँझ ५:००'); ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -813,13 +814,13 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 <label for="stg_saturday_hours" class="form-label"><?php echo $__t('शनिबार समय', 'Saturday Hours'); ?> <small class="stg-muted">(Saturday)</small></label>
                                 <input type="text" name="saturday_hours" id="stg_saturday_hours" class="form-control"
                                        placeholder="बिहान १०:०० - दिउँसो १:००"
-                                       value="<?php echo $settings['saturday_hours'] ?? 'बिहान १०:०० - दिउँसो १:००'; ?>">
+                                       value="<?php echo e($settings['saturday_hours'] ?? 'बिहान १०:०० - दिउँसो १:००'); ?>">
                             </div>
                         </div>
                     </div>
                     <hr>
                     <h6 class="stg-title-accent fw-bold mb-2"><i class="lucide-icon me-2" aria-hidden="true" data-lucide="calendar-check"></i><?php echo $__t('Appointment समयसीमा (Time-picker मा प्रयोग)', 'Appointment Time Range (for time-picker)'); ?></h6>
-                    <div class="alert alert-light border small py-2 mb-3"><i class="fas fa-info-circle me-1 text-primary"></i><?php echo $__t('यी मानहरूले Appointment booking फर्मको time-picker मा कति बजेदेखि कति बजेसम्म छनोट गर्न मिल्ने हो भन्ने सीमा तोक्छ। माथिको Display Hours सँग स्वतन्त्र हुन्छ।', 'These values define the from–to range of allowed times in the Appointment booking time-picker. Independent of the Display Hours above.'); ?></div>
+                    <div class="alert alert-light border small py-2 mb-3"><i class="lucide-icon me-1 text-primary" data-lucide="info" aria-hidden="true"></i><?php echo $__t('यी मानहरूले Appointment booking फर्मको time-picker मा कति बजेदेखि कति बजेसम्म छनोट गर्न मिल्ने हो भन्ने सीमा तोक्छ। माथिको Display Hours सँग स्वतन्त्र हुन्छ।', 'These values define the from–to range of allowed times in the Appointment booking time-picker. Independent of the Display Hours above.'); ?></div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -856,9 +857,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
         </div>
         <div class="stg-subtabs mb-3" data-stg-panel="branding">
             <button type="button" class="stg-subtab-btn active" data-stg-group="media"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="images"></i> <?php echo $__t('मिडिया व्यवस्थापक', 'Media Manager'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="colors"><i class="fas fa-palette me-1"></i> <?php echo $__t('थिम रङहरू', 'Theme Colors'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="version"><i class="fas fa-code-branch me-1"></i> <?php echo $__t('संस्करण', 'Version'); ?></button>
-            <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="fas fa-table-cells-large me-1"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="colors"><i class="lucide-icon me-1" data-lucide="palette" aria-hidden="true"></i> <?php echo $__t('थिम रङहरू', 'Theme Colors'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="version"><i class="lucide-icon me-1" data-lucide="git-branch" aria-hidden="true"></i> <?php echo $__t('संस्करण', 'Version'); ?></button>
+            <button type="button" class="stg-subtab-btn" data-stg-group="all"><i class="lucide-icon me-1" data-lucide="table" aria-hidden="true"></i> <?php echo $__t('सबै देखाउनुहोस्', 'Show All'); ?></button>
         </div>
         <div class="row">
         <div class="col-lg-12">
@@ -890,7 +891,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </div>
                         <div class="col-md-4">
                             <label for="stg_favicon" class="form-label fw-semibold">
-                                <i class="fas fa-globe text-success me-1"></i>
+                                <i class="lucide-icon text-success me-1" data-lucide="globe" aria-hidden="true"></i>
                                 <?php echo $__t('Favicon (Site Icon)', 'Favicon (Site Icon)'); ?>
                             </label>
                             <?php
@@ -908,7 +909,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="clear_site_favicon" value="1" id="clear_site_favicon">
                                 <label class="form-check-label text-danger" for="clear_site_favicon">
-                                    <i class="fas fa-trash-alt me-1"></i><?php echo $__t('Favicon हटाउनुहोस्', 'Remove favicon'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="trash" aria-hidden="true"></i><?php echo $__t('Favicon हटाउनुहोस्', 'Remove favicon'); ?>
                                 </label>
                             </div>
                             <?php endif; ?>
@@ -917,7 +918,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </div>
                         <div class="col-12">
                             <label for="stg_himal_bg" class="form-label fw-semibold">
-                                <i class="fas fa-mountain text-info me-1"></i>
+                                <i class="lucide-icon text-info me-1" data-lucide="mountain" aria-hidden="true"></i>
                                 <?php echo $__t('हेडर हिमाल पृष्ठभूमि फोटो', 'Header Himal Background Photo'); ?>
                             </label>
                             <?php
@@ -938,7 +939,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="clear_himal_bg" value="1" id="clear_himal_bg">
                                 <label class="form-check-label text-danger" for="clear_himal_bg">
-                                    <i class="fas fa-trash-alt me-1"></i><?php echo $__t('हिमाल फोटो हटाउनुहोस्', 'Remove himal photo'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="trash" aria-hidden="true"></i><?php echo $__t('हिमाल फोटो हटाउनुहोस्', 'Remove himal photo'); ?>
                                 </label>
                             </div>
                             <?php endif; ?>
@@ -949,11 +950,11 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                             <!-- Opacity slider -->
                             <label for="himal_bg_opacity" class="form-label fw-semibold mb-1">
                                 <?php echo $__t('हिमाल देखिने मात्रा', 'Himal Visibility'); ?>:
-                                <strong id="himal_opacity_display"><?php echo $himalOpacityVal; ?>%</strong>
+                                <strong id="himal_opacity_display"><?php echo (int)$himalOpacityVal; ?>%</strong>
                             </label>
                             <input type="range" name="himal_bg_opacity" id="himal_bg_opacity"
                                    class="form-range" min="0" max="100" step="5"
-                                   value="<?php echo $himalOpacityVal; ?>"
+                                   value="<?php echo (int)$himalOpacityVal; ?>"
                                    oninput="document.getElementById('himal_opacity_display').textContent=this.value+'%'">
                             <div class="d-flex justify-content-between">
                                 <small class="text-muted"><?php echo $__t('अदृश्य', 'Hidden'); ?></small>
@@ -986,7 +987,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         </div>
                         <div class="col-md-6 d-flex align-items-center">
                             <div class="alert alert-secondary w-100 mb-0 small" role="alert">
-                                <i class="fas fa-users me-1"></i>
+                                <i class="lucide-icon me-1" data-lucide="users" aria-hidden="true"></i>
                                 <?php echo $__t('अध्यक्ष / CEO को फोटो अब <strong>टिम सदस्य</strong> बाट व्यवस्थापन गर्नुहोस्।','Chairman / CEO photos are now managed from <strong>Team Members</strong>.'); ?>
                                 <a href="team-karmachari.php" class="d-block mt-1"><?php echo $__t('→ टिम खोल्नुहोस्','→ Open Team'); ?></a>
                             </div>
@@ -1015,7 +1016,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
 <!-- Theme Color — Live Preview -->
 <div class="card mb-4 stg-section-card stg-filter-card" data-stg-panel="branding" data-stg-group="colors" data-stg-order="1" id="stg-color-card">
     <div class="card-header stg-section-header">
-        <h5 class="stg-section-title"><i class="fas fa-palette"></i> <?php echo $__t('थिम रंग (Live Preview)', 'Theme Colors (Live Preview)'); ?></h5>
+        <h5 class="stg-section-title"><i class="lucide-icon" data-lucide="palette" aria-hidden="true"></i> <?php echo $__t('थिम रंग (Live Preview)', 'Theme Colors (Live Preview)'); ?></h5>
         <small class="text-muted ms-auto"><?php echo $__t('रंग बदल्दा तुरुन्तै preview देखिन्छ — Save गरेपछि website मा लागू हुन्छ', 'Preview updates instantly — applied to website after Save'); ?></small>
     </div>
     <div class="card-body p-0">
@@ -1027,7 +1028,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 <!-- Presets -->
                 <div class="mb-3">
                     <div class="form-label fw-semibold small text-uppercase" style="letter-spacing:.05em;color:#6b7280">
-                        <i class="fas fa-swatchbook me-1"></i><?php echo $__t('प्रिसेट', 'Presets'); ?>
+                        <i class="lucide-icon me-1" data-lucide="swatch-book" aria-hidden="true"></i><?php echo $__t('प्रिसेट', 'Presets'); ?>
                     </div>
                     <div class="d-flex flex-wrap gap-2" id="stgPresets">
                         <?php
@@ -1059,31 +1060,31 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 <!-- Color Fields -->
                 <?php
                 $colorFields = [
-                    ['key'=>'primary_color',   'label'=>$__t('प्राथमिक रंग','Primary Color'),  'label_en'=>'Primary Color',  'desc'=>$__t('Buttons, links, cards border','Buttons, links, cards border'),  'default'=>'#1a5f2a', 'icon'=>'fas fa-circle',  'preview'=>'primary'],
-                    ['key'=>'secondary_color',  'label'=>$__t('सेकेन्डरी रंग','Secondary Color'),'label_en'=>'Secondary Color','desc'=>$__t('Accent, badges, highlights','Accent, badges, highlights'),        'default'=>'#c0392b', 'icon'=>'fas fa-circle',  'preview'=>'secondary'],
-                    ['key'=>'header_color',    'label'=>$__t('हेडर रंग','Header Color'),        'label_en'=>'Header Color',   'desc'=>$__t('Navigation header background','Navigation header background'),    'default'=>'#c0392b', 'icon'=>'fas fa-grip-horizontal', 'preview'=>'header'],
-                    ['key'=>'footer_color',    'label'=>$__t('फुटर रंग','Footer Color'),        'label_en'=>'Footer Color',   'desc'=>$__t('Footer section background','Footer section background'),          'default'=>'#1a5f2a', 'icon'=>'fas fa-grip-horizontal', 'preview'=>'footer'],
-                    ['key'=>'topbar_color',    'label'=>$__t('टप बार रंग','Top Bar Color'),     'label_en'=>'Top Bar Color',  'desc'=>$__t('माथिल्लो utility strip','Top utility strip'),                    'default'=>'#c0392b', 'icon'=>'fas fa-bars',    'preview'=>'topbar'],
+                    ['key'=>'primary_color',   'label'=>$__t('प्राथमिक रंग','Primary Color'),  'label_en'=>'Primary Color',  'desc'=>$__t('Buttons, links, cards border','Buttons, links, cards border'),  'default'=>'#1a5f2a', 'icon'=>'circle',  'preview'=>'primary'],
+                    ['key'=>'secondary_color',  'label'=>$__t('सेकेन्डरी रंग','Secondary Color'),'label_en'=>'Secondary Color','desc'=>$__t('Accent, badges, highlights','Accent, badges, highlights'),        'default'=>'#c0392b', 'icon'=>'circle',  'preview'=>'secondary'],
+                    ['key'=>'header_color',    'label'=>$__t('हेडर रंग','Header Color'),        'label_en'=>'Header Color',   'desc'=>$__t('Navigation header background','Navigation header background'),    'default'=>'#c0392b', 'icon'=>'grip-horizontal', 'preview'=>'header'],
+                    ['key'=>'footer_color',    'label'=>$__t('फुटर रंग','Footer Color'),        'label_en'=>'Footer Color',   'desc'=>$__t('Footer section background','Footer section background'),          'default'=>'#1a5f2a', 'icon'=>'grip-horizontal', 'preview'=>'footer'],
+                    ['key'=>'topbar_color',    'label'=>$__t('टप बार रंग','Top Bar Color'),     'label_en'=>'Top Bar Color',  'desc'=>$__t('माथिल्लो utility strip','Top utility strip'),                    'default'=>'#c0392b', 'icon'=>'menu',    'preview'=>'topbar'],
                 ];
                 foreach ($colorFields as $cf):
                     $val = htmlspecialchars($settings[$cf['key']] ?? $cf['default']);
                 ?>
                 <div class="stg-color-row mb-3" data-preview="<?php echo $cf['preview']; ?>">
                     <label for="stg-clr-<?php echo $cf['key']; ?>" class="form-label fw-semibold small mb-1">
-                        <i class="<?php echo $cf['icon']; ?> me-1" style="color:<?php echo $val; ?>;" id="stg-icon-<?php echo $cf['key']; ?>"></i>
-                        <?php echo $cf['label']; ?>
+                        <i class="lucide-icon me-1" aria-hidden="true" data-lucide="<?php echo e($cf['icon']); ?>" style="color:<?php echo e($val); ?>;" id="stg-icon-<?php echo e($cf['key']); ?>"></i>
+                        <?php echo e($cf['label']); ?>
                     </label>
                     <div class="input-group input-group-sm">
                         <input type="color"
-                               name="<?php echo $cf['key']; ?>"
-                               id="stg-clr-<?php echo $cf['key']; ?>"
+                               name="<?php echo e($cf['key']); ?>"
+                               id="stg-clr-<?php echo e($cf['key']); ?>"
                                class="form-control form-control-color stg-color-input"
-                               value="<?php echo $val; ?>"
+                               value="<?php echo e($val); ?>"
                                style="width:48px;flex:0 0 48px;cursor:pointer;padding:2px 3px;border-radius:6px 0 0 6px">
                         <input type="text"
                                id="stg-hex-<?php echo $cf['key']; ?>"
                                class="form-control stg-hex-input font-monospace"
-                               value="<?php echo strtoupper($val); ?>"
+                               value="<?php echo e(strtoupper($val)); ?>"
                                maxlength="7"
                                placeholder="#000000"
                                style="border-radius:0;letter-spacing:.05em;font-size:.82rem">
@@ -1093,7 +1094,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 data-default="<?php echo $cf['default']; ?>"
                                 title="<?php echo $__t('डिफल्टमा फर्काउनुस्','Reset to default'); ?>"
                                 style="border-radius:0 6px 6px 0;padding:0 8px">
-                            <i class="fas fa-undo" style="font-size:.75rem"></i>
+                            <i class="lucide-icon" data-lucide="undo-2" aria-hidden="true" style="font-size:.75rem"></i>
                         </button>
                     </div>
                     <small class="text-muted" style="font-size:.75rem"><?php echo $cf['desc']; ?></small>
@@ -1103,10 +1104,10 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 <!-- Auto-harmony button -->
                 <div class="d-flex gap-2 mt-3 pt-2 border-top">
                     <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="stgAutoSecondary">
-                        <i class="fas fa-magic me-1"></i><?php echo $__t('सेकेन्डरी Auto', 'Auto Secondary'); ?>
+                        <i class="lucide-icon me-1" data-lucide="wand-sparkles" aria-hidden="true"></i><?php echo $__t('सेकेन्डरी Auto', 'Auto Secondary'); ?>
                     </button>
                     <button type="button" class="btn btn-outline-secondary btn-sm flex-fill" id="stgResetAll">
-                        <i class="fas fa-rotate-left me-1"></i><?php echo $__t('सबै Reset', 'Reset All'); ?>
+                        <i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i><?php echo $__t('सबै Reset', 'Reset All'); ?>
                     </button>
                 </div>
             </div>
@@ -1119,22 +1120,22 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                     </span>
                     <div class="d-flex gap-1">
                         <button type="button" class="btn btn-sm stg-device-btn active" data-device="desktop" style="padding:3px 10px;font-size:.72rem;border-radius:6px" aria-label="Desktop" title="Desktop">
-                            <i class="fas fa-desktop"></i>
+                            <i class="lucide-icon" data-lucide="monitor" aria-hidden="true"></i>
                         </button>
                         <button type="button" class="btn btn-sm stg-device-btn" data-device="mobile" style="padding:3px 10px;font-size:.72rem;border-radius:6px" aria-label="Mobile Alt" title="Mobile Alt">
-                            <i class="fas fa-mobile-alt"></i>
+                            <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
 
                 <!-- Preview Frame -->
                 <div id="stgPreviewWrap" style="transition:all .3s ease">
-                    <div id="stgPreviewFrame" style="border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:560px;margin:0 auto;font-family:'Mukta',sans-serif;font-size:13px;">
+                    <div id="stgPreviewFrame" style="border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:560px;margin:0 auto;font-family:var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif);font-size:13px;">
 
                         <!-- Topbar -->
                         <div id="prev-topbar" style="padding:6px 16px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.9);">
-                            <span><i class="fas fa-phone me-1" style="font-size:10px"></i> 061-590067</span>
-                            <span><i class="fas fa-envelope me-1" style="font-size:10px"></i> info@sahakari.org.np</span>
+                            <span><i class="lucide-icon me-1" data-lucide="phone" aria-hidden="true" style="font-size:10px"></i> 061-590067</span>
+                            <span><i class="lucide-icon me-1" data-lucide="mail" aria-hidden="true" style="font-size:10px"></i> info@sahakari.org.np</span>
                             <span style="background:rgba(255,255,255,.18);border-radius:4px;padding:1px 7px;font-size:10px">EN | NP</span>
                         </div>
 
@@ -1142,7 +1143,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <div id="prev-header" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between;color:#fff;">
                             <div style="display:flex;align-items:center;gap:8px">
                                 <div style="width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center">
-                                    <i class="fas fa-seedling" style="font-size:14px;color:#fff"></i>
+                                    <i class="lucide-icon" data-lucide="sprout" aria-hidden="true" style="font-size:14px;color:#fff"></i>
                                 </div>
                                 <div>
                                     <div style="font-weight:800;font-size:13px;line-height:1.1">आकाश सहकारी</div>
@@ -1171,17 +1172,17 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                         <!-- Cards row -->
                         <div style="background:#f8fdf9;padding:12px 16px;display:flex;gap:8px">
                             <?php $cards = [
-                                ['icon'=>'fa-piggy-bank', 'title'=>$__t('बचत खाता','Savings'), 'val'=>'8%'],
-                                ['icon'=>'fa-hand-holding-usd','title'=>$__t('ऋण','Loan'),'val'=>'12%'],
-                                ['icon'=>'fa-users','title'=>$__t('सदस्य','Members'),'val'=>'५,२००'],
+                                ['icon'=>'piggy-bank', 'title'=>$__t('बचत खाता','Savings'), 'val'=>'8%'],
+                                ['icon'=>'banknote','title'=>$__t('ऋण','Loan'),'val'=>'12%'],
+                                ['icon'=>'users','title'=>$__t('सदस्य','Members'),'val'=>'५,२००'],
                             ];
                             foreach ($cards as $card): ?>
                             <div style="flex:1;background:#fff;border-radius:8px;padding:10px 8px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.07)">
                                 <div id="prev-card-icon-<?php echo $loop ?? 0; ?>" style="width:28px;height:28px;border-radius:7px;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px">
-                                    <i class="fas <?php echo $card['icon']; ?>"></i>
+                                    <i class="lucide-icon" aria-hidden="true" data-lucide="<?php echo e($card['icon']); ?>"></i>
                                 </div>
-                                <div style="font-size:12px;font-weight:800;color:#1a1a2e"><?php echo $card['val']; ?></div>
-                                <div style="font-size:10px;color:#6b7280"><?php echo $card['title']; ?></div>
+                                <div style="font-size:12px;font-weight:800;color:#1a1a2e"><?php echo e($card['val']); ?></div>
+                                <div style="font-size:10px;color:#6b7280"><?php echo e($card['title']); ?></div>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -1193,9 +1194,9 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                                 <div style="font-size:10px;opacity:.7"><?php echo $__t('© २०८१ सबै अधिकार सुरक्षित','© 2081 All rights reserved'); ?></div>
                             </div>
                             <div style="display:flex;gap:6px">
-                                <?php foreach(['fa-facebook-f','fa-youtube','fa-phone'] as $si): ?>
+                                <?php foreach(['globe','play','phone'] as $si): ?>
                                 <span style="width:24px;height:24px;border-radius:6px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:10px;cursor:default">
-                                    <i class="fab <?php echo $si; ?>" style="color:#fff"></i>
+                                    <i class="lucide-icon" data-lucide="<?php echo $si; ?>" style="color:#fff" aria-hidden="true"></i>
                                 </span>
                                 <?php endforeach; ?>
                             </div>
@@ -1205,7 +1206,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
 
                 <!-- Color harmony info -->
                 <div class="mt-3 p-2 rounded" style="background:#fff;border:1px solid #e5e7eb;font-size:.78rem;color:#6b7280">
-                    <i class="fas fa-info-circle me-1 text-primary"></i>
+                    <i class="lucide-icon me-1 text-primary" data-lucide="info" aria-hidden="true"></i>
                     <?php echo $__t(
                         'Save गरेपछि website को सबै page मा नयाँ रंग लागू हुनेछ।',
                         'After saving, new colors will apply across all website pages.'
@@ -1459,9 +1460,9 @@ if (autoSecBtn) {
         });
         applyPreview(gatherColors());
 
-        autoSecBtn.innerHTML = '<i class="fas fa-check me-1"></i><?php echo $__t("लागू भयो","Applied"); ?>';
+        autoSecBtn.innerHTML = '<i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i><?php echo $__t("लागू भयो","Applied"); ?>';
         setTimeout(function(){
-            autoSecBtn.innerHTML = '<i class="fas fa-magic me-1"></i><?php echo $__t("सेकेन्डरी Auto","Auto Secondary"); ?>';
+            autoSecBtn.innerHTML = '<i class="lucide-icon me-1" data-lucide="wand-sparkles" aria-hidden="true"></i><?php echo $__t("सेकेन्डरी Auto","Auto Secondary"); ?>';
         }, 1800);
     });
 }
@@ -1525,30 +1526,13 @@ $all('.stg-device-btn').forEach(function(btn) {
 })();
 </script>
 
-<style>
-/* ── Color Picker Row ── */
-.stg-color-row { transition: background .15s; border-radius: 8px; padding: 6px; margin-left: -6px; }
-.stg-color-row:hover { background: #f8fafc; }
-
-/* ── Hex input ── */
-.stg-hex-input:focus { border-color: var(--primary-color, #1a5f2a); box-shadow: 0 0 0 2px rgba(26,95,42,.12); }
-
-/* ── Device buttons ── */
-.stg-device-btn { background: #f3f4f6; color: #6b7280; border: 1.5px solid #e5e7eb; }
-.stg-device-btn.active { background: var(--primary-color, #1a5f2a); color: #fff; border-color: var(--primary-color, #1a5f2a); }
-
-/* ── Preset btn focus ring ── */
-.stg-preset-btn:focus-visible { outline: 2px solid var(--primary-color, #1a5f2a); outline-offset: 2px; }
-
-/* ── Mobile preview frame ── */
-#stgPreviewFrame { transition: all .3s ease; }
-
-/* ── Responsive: stack on small screens ── */
-@media (max-width: 767px) {
-    #stg-color-card .d-flex.flex-lg-row { flex-direction: column !important; }
-    .stg-clr-inputs { flex: 0 0 auto !important; max-width: 100% !important; border-right: none !important; border-bottom: 1px solid #eee; }
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/admin-settings-page.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/admin-settings-page.css');
 }
-</style>
+?>
 
             <!-- ===================================================
                  Website Version Management
@@ -1557,7 +1541,7 @@ $all('.stg-device-btn').forEach(function(btn) {
                  =================================================== -->
             <div class="card mb-4 stg-section-card stg-accent-card stg-filter-card" id="version" data-stg-panel="branding" data-stg-group="version" data-stg-order="1">
                 <div class="card-header stg-section-header stg-soft-green-header">
-                    <h5 class="mb-0 stg-section-title"><i class="fas fa-code-branch me-2"></i><?php echo $__t('वेबसाइट संस्करण', 'Website Version'); ?></h5>
+                    <h5 class="mb-0 stg-section-title"><i class="lucide-icon me-2" data-lucide="git-branch" aria-hidden="true"></i><?php echo $__t('वेबसाइट संस्करण', 'Website Version'); ?></h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -1577,14 +1561,14 @@ $all('.stg-device-btn').forEach(function(btn) {
                                    value="<?php echo htmlspecialchars($settings['site_launch_date'] ?? ''); ?>"
                                    placeholder="YYYY-MM-DD" autocomplete="off">
                             <span class="input-group-text stg-date-addon">
-                                <i class="fas fa-calendar-alt"></i>
+                                <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                             </span>
                         </div>
                         <small class="stg-muted"><?php echo $__t('Website सुरु भएको मिति (BS / बि.सं.)', 'Website launch date (BS)'); ?></small>
                     </div>
                     <!-- हालको version देखाउँछ -->
                     <div class="alert stg-alert-success py-2 mb-0 d-flex align-items-center gap-2">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
                         <span><?php echo $__t('हालको संस्करण', 'Current version'); ?>:
                             <strong><?php echo htmlspecialchars($settings['site_version'] ?? '1.0.0'); ?></strong>
                         </span>

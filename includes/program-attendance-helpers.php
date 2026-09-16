@@ -71,7 +71,7 @@ if (!function_exists('programAttendanceMethodLabel')) {
             'MEMBER_SELF' => ['np' => 'सदस्य Portal', 'en' => 'Member Portal'],
             'ADMIN_MANUAL' => ['np' => 'दर्ता डेस्क', 'en' => 'Registration Desk'],
             'QR_SCAN' => ['np' => 'QR स्क्यान', 'en' => 'QR Scan'],
-            'STAFF_VERIFY' => ['np' => 'Staff Verify', 'en' => 'Staff Verify'],
+            'STAFF_VERIFY' => ['np' => 'Staff Verify (पुरानो)', 'en' => 'Staff Verify (legacy)'],
             'ADMIN_APPROVE' => ['np' => 'Admin स्वीकृति', 'en' => 'Admin Approve'],
             'ADMIN_PREREG' => ['np' => 'Pre-reg', 'en' => 'Pre-registration'],
         ];

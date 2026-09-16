@@ -1,0 +1,80 @@
+/* Dedicated chairman / CEO message pages (app-public still has legacy block; frozen). */
+.leadership-messages-about .leadership-message-full {
+    background: var(--white);
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.leader-photo-large {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.leader-photo-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-placeholder-large {
+    width: 100%;
+    height: 100%;
+    background: var(--light-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    color: var(--border-medium);
+}
+
+.leader-position {
+    color: var(--primary-color);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.message-content-full {
+    position: relative;
+    padding-left: 50px;
+}
+
+.quote-icon-large {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 35px;
+    color: var(--primary-color);
+    opacity: 0.3;
+}
+
+.message-text-full {
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.message-text-full p {
+    margin-bottom: 15px;
+}
+
+@media (max-width: 767px) {
+    .message-content-full {
+        padding-left: 0;
+        padding-top: 40px;
+    }
+
+    .quote-icon-large {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .leader-photo-large {
+        width: 120px;
+        height: 120px;
+    }
+}

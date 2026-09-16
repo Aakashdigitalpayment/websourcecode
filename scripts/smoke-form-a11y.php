@@ -86,7 +86,30 @@ $filesExpectZeroBare = [
     'member-welfare.php',
     'digital-services.php',
     'admin/site-health.php',
+    'admin/program-registration-desk.php',
+    'admin/program-occurrences.php',
+    'admin/information-room.php',
+    'admin/programs.php',
+    'admin/notices.php',
+    'admin/footer-settings.php',
+    'admin/menu-control.php',
+    'admin/program-reports-consolidated.php',
+    'admin/program-settings.php',
+    'member/welfare.php',
 ];
+
+assertContains('online-kyc.php', 'for="kyc_permanent_province"', 'KYC permanent province for=');
+assertContains('online-kyc.php', 'for="kyc_temporary_province"', 'KYC temporary province for=');
+assertContains('admin/appointments.php', 'for="apt_qf_kind"', 'appointments kind filter for=');
+assertContains('admin/appointments.php', 'for="apt_qf_status"', 'appointments status filter for=');
+assertContains('admin/account-applications.php', 'for="qf_acc_status"', 'account apps status for=');
+assertContains('admin/grievances.php', 'for="qf_grv_status"', 'grievances status for=');
+assertContains('admin/kyc-applications.php', 'for="qf_kyc_status"', 'kyc apps status for=');
+assertContains('admin/program-attendance.php', 'for="showDoneToggle"', 'attendance showDone for=');
+assertContains('member/welfare.php', 'for="wlfClaimType"', 'member welfare claim type for=');
+assertContains('admin/program-registration-desk.php', 'for="deskProgram"', 'desk program for=');
+assertContains('admin/program-registration-desk.php', 'for="deskOccurrence"', 'desk occurrence for=');
+assertContains('admin/loan-applications.php', 'for="qf_status"', 'loan status for=');
 
 foreach ($filesExpectZeroBare as $f) {
     $n = countBareFormLabels($f);
@@ -147,8 +170,10 @@ $pairs = [
     ['member/grievance.php', 'for="mgr_subject"', 'subject'],
     ['sahakari-patro.php', 'for="sp_birth_date"', 'birth date'],
     ['sahakari-patro.php', 'for="sp_birth_time"', 'birth time'],
-    ['sahakari-patro.php', 'for="sp_nakshatra"', 'nakshatra'],
-    ['sahakari-patro.php', 'for="sp_rashi"', 'rashi'],
+    ['sahakari-patro.php', 'for="sp_nakshatra_', 'nakshatra unique ids'],
+    ['sahakari-patro.php', 'id="sp_nakshatra_', 'nakshatra unique select ids'],
+    ['sahakari-patro.php', 'for="sp_rashi_', 'rashi unique ids'],
+    ['sahakari-patro.php', 'id="sp_rashi_', 'rashi unique select ids'],
     ['grievance.php', 'aria-labelledby="grv_coop_member_label"', 'grievance coop group'],
     ['member-welfare.php', 'aria-labelledby="wlf_coop_member_label"', 'welfare coop group'],
     ['digital-services.php', 'aria-labelledby="ds_coop_member_label"', 'digital services coop group'],

@@ -12,7 +12,10 @@
  * Optional: `install.php` wizard · Emergency: `admin/db-setup.php` (direct URL)
  */
 
-require_once __DIR__ . '/../includes/config.php';
+/* Login must not require admin session — thin boot with skip. */
+define('ADMIN_PAGE_BOOT_SKIP_LOGIN', true);
+require_once __DIR__ . '/includes/admin-page-boot.php';
+
 require_once __DIR__ . '/../includes/site-license-renewal.php';
 require_once __DIR__ . '/../includes/superadmin-config.php';
 require_once __DIR__ . '/../includes/totp-2fa.php';
@@ -29,6 +32,13 @@ if (!function_exists('coop_admin_ensure_twofa_columns')) {
             return;
         }
         $done = true;
+        if (function_exists('safeAddColumn')) {
+            safeAddColumn($db, 'admin_users', 'twofa_enabled', 'TINYINT DEFAULT 0');
+            safeAddColumn($db, 'admin_users', 'twofa_secret', 'VARCHAR(64) NULL');
+            safeAddColumn($db, 'admin_users', 'twofa_backup_codes', 'TEXT NULL');
+            safeAddColumn($db, 'admin_users', 'twofa_enabled_at', 'DATETIME NULL');
+            return;
+        }
         foreach ([
             "ALTER TABLE admin_users ADD COLUMN twofa_enabled TINYINT DEFAULT 0",
             "ALTER TABLE admin_users ADD COLUMN twofa_secret VARCHAR(64) NULL",
@@ -80,7 +90,7 @@ if (
     $_SESSION['admin_id'] = 1;
     $_SESSION['admin_username'] = $testUser;
     $_SESSION['admin_name'] = $testName;
-    $_SESSION['admin_role'] = 'superadmin';
+    $_SESSION['admin_role'] = function_exists('admin_canonical_db_role') ? admin_canonical_db_role('superadmin') : 'super_admin';
     $_SESSION['is_superadmin'] = true;
     $_SESSION['admin_last_login'] = time();
     $_SESSION['admin_last_activity'] = time();
@@ -207,14 +217,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                                 $error = $msgSiteLicenseExpiredLogin;
                                 $_SESSION['admin_license_renewal_prompt'] = true;
                             } else {
+                                /* Alias-only role spelling (same as password login; privilege unchanged) */
+                                if (function_exists('coop_normalize_admin_role_aliases')) {
+                                    try {
+                                        coop_normalize_admin_role_aliases($db);
+                                        if (function_exists('admin_canonical_db_role')) {
+                                            $user['role'] = admin_canonical_db_role((string) ($user['role'] ?? 'admin'));
+                                        }
+                                    } catch (Throwable $eRoleNorm2fa) { /* ignore — login must proceed */ }
+                                }
                                 unset($_SESSION['admin_2fa_pending'], $_SESSION['admin_2fa_backup_plain']);
                                 unset($_SESSION['admin_license_renewal_prompt']);
                                 session_regenerate_id(true);
-                                $_SESSION['admin_id']        = $user['id'];
-                                $_SESSION['admin_username']  = $user['username'];
-                                $_SESSION['admin_name']      = $user['full_name'] ?: $user['username'];
-                                $_SESSION['admin_role']      = (string)($user['role'] ?? 'admin');
-                                $_SESSION['is_superadmin']   = admin_db_role_is_superadmin($user['role'] ?? '');
+                                if (function_exists('set_admin_session')) {
+                                    set_admin_session($user);
+                                } else {
+                                    $_SESSION['admin_id']        = $user['id'];
+                                    $_SESSION['admin_username']  = $user['username'];
+                                    $_SESSION['admin_name']      = $user['full_name'] ?: $user['username'];
+                                    $_SESSION['admin_role']      = function_exists('admin_canonical_db_role')
+                                        ? admin_canonical_db_role((string) ($user['role'] ?? 'admin'))
+                                        : (string) ($user['role'] ?? 'admin');
+                                    $_SESSION['is_superadmin']   = admin_db_role_is_superadmin($user['role'] ?? '');
+                                }
                                 $_SESSION['admin_last_login']    = $user['last_login'] ?? null;
                                 $_SESSION['admin_last_activity'] = time();
                                 $_SESSION['admin_agent_hash'] = substr(md5($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 16);
@@ -322,6 +347,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && (string) ($_POST['action'] ?? '') =
                 unset($_SESSION['rate_admin_login_' . $ip]);
                 if (function_exists('resetLoginAttempts')) {
                     resetLoginAttempts($username, $ip);
+                }
+                /* Alias-only role spelling normalize (privilege unchanged) */
+                if (function_exists('coop_normalize_admin_role_aliases')) {
+                    try {
+                        coop_normalize_admin_role_aliases($db);
+                        if (function_exists('admin_canonical_db_role')) {
+                            $user['role'] = admin_canonical_db_role((string) ($user['role'] ?? 'admin'));
+                        }
+                    } catch (Throwable $eRoleNorm) { /* ignore — login must proceed */ }
                 }
 
                 /* Superadmin + local फाइलमा पासवर्ड: DB मा must_change झुण्डिने अवस्था सफा गर्ने */
@@ -469,7 +503,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — <?php echo htmlspecialchars($siteName); ?></title>
+    <title>Admin Login — <?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?></title>
     <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('admin-auth'); } ?>
 </head>
 <body class="auth-portal-page admin-auth-page">
@@ -490,10 +524,10 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
     <div class="card-header">
         <?php if ($logoSrc): ?>
             <div class="card-logo-wrap">
-                <img src="<?php echo htmlspecialchars($logoSrc); ?>" alt="<?php echo htmlspecialchars($siteName); ?>">
+                <img src="<?php echo htmlspecialchars($logoSrc, ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($siteName, ENT_QUOTES, 'UTF-8'); ?>">
             </div>
         <?php else: ?>
-            <div class="card-logo-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i></div>
+            <div class="card-logo-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i></div>
         <?php endif; ?>
         <span class="card-portal-label"><i class="lucide-icon" aria-hidden="true" data-lucide="lock"></i>&nbsp;Admin Portal</span>
     </div>
@@ -620,7 +654,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 <div class="field">
                     <label for="admin_twofa_code">2FA Code / Backup Code</label>
                     <div class="input-icon">
-                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i>
                         <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                     </div>
                 </div>
@@ -629,13 +663,13 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
                 </button>
             <?php else: ?>
                 <div class="alert-error alert-info-soft">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i>
                     Google Authenticator बाट 6-अंकको code राख्नुहोस्।
                 </div>
                 <div class="field">
                     <label for="admin_twofa_code">2FA Code / Backup Code</label>
                     <div class="input-icon">
-                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+                        <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i>
                         <input type="text" name="twofa_code" id="admin_twofa_code" placeholder="123456 वा BACKUPCODE" required autofocus autocomplete="one-time-code" inputmode="text" spellcheck="false">
                     </div>
                 </div>
@@ -676,7 +710,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
             <div class="field">
                 <label>Test Username</label>
                 <div class="input-icon">
-                    <i class="lucide-icon" aria-hidden="true" data-lucide="user-gear"></i>
+                    <i class="lucide-icon" aria-hidden="true" data-lucide="user-cog"></i>
                     <input type="text" name="test_username" value="<?php echo htmlspecialchars(defined('SUPER_ADMIN_USERNAME') ? (string) SUPER_ADMIN_USERNAME : 'admin', ENT_QUOTES, 'UTF-8'); ?>" autocomplete="off">
                 </div>
             </div>
@@ -702,7 +736,7 @@ $showLicenseRenewalOnLogin = $showLicenseRenewalOnLogin && !$forceShowLogin;
         <?php endif; ?>
 
         <div class="security-note">
-            <i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i>
+            <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i>
             यो सुरक्षित Admin क्षेत्र हो। सबै गतिविधि audit log मा record हुन्छ।
         </div>
     </div>

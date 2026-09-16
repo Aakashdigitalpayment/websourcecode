@@ -5,20 +5,21 @@
  */
 
 :root {
-  --pub-font-body: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif);
-  --pub-font-head: var(--prem-font-head, 'Plus Jakarta Sans', 'Noto Sans Devanagari', system-ui, sans-serif);
-  --pub-radius: 12px;
-  --pub-radius-sm: 9px;
-  --pub-border: #d7e0db;
-  --pub-border-focus: var(--primary-color, #1a5f2a);
-  --pub-surface: #ffffff;
-  --pub-surface-soft: #f6f9f7;
-  --pub-text: #0f1a15;
-  --pub-muted: #5b6b62;
-  --pub-bottom-nav-h: 64px;
-  --pub-focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent);
-  --pub-shadow: 0 4px 18px rgba(15, 31, 23, 0.06);
-  --pub-shadow-hover: 0 10px 28px rgba(15, 31, 23, 0.10);
+  /* Aliases only — token values live in global.css */
+  --pub-font-body: var(--shell-font-body);
+  --pub-font-head: var(--shell-font-head);
+  --pub-radius: var(--shell-radius);
+  --pub-radius-sm: var(--shell-radius-sm);
+  --pub-border: var(--shell-border);
+  --pub-border-focus: var(--shell-border-focus);
+  --pub-surface: var(--shell-surface);
+  --pub-surface-soft: var(--shell-surface-soft);
+  --pub-text: var(--shell-text);
+  --pub-muted: var(--shell-muted);
+  --pub-bottom-nav-h: var(--shell-bottom-nav-h);
+  --pub-focus-ring: var(--shell-focus-ring);
+  --pub-shadow: var(--shell-shadow);
+  --pub-shadow-hover: var(--shell-shadow-hover);
 }
 
 /* ── Fonts ─────────────────────────────────────────────────────────── */
@@ -107,6 +108,17 @@ h1, h2, h3, h4, h5, h6,
 .download-card:hover {
   box-shadow: var(--pub-shadow-hover) !important;
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
+}
+
+/* Downloads type icons — Lucide sizing beside frozen app-public FA rules */
+.download-card .download-icon .lucide-icon,
+.download-card .download-icon .lucide-icon svg,
+.download-card .download-icon svg {
+  width: 28px !important;
+  height: 28px !important;
+  color: #fff !important;
+  stroke: #fff !important;
+  fill: none !important;
 }
 
 .faq-accordion .accordion-button {
@@ -464,9 +476,13 @@ body.has-bottomnav {
 }
 
 .qh-fab i,
+.qh-fab .lucide-icon,
+.qh-fab .lucide-icon svg,
 .qh-fab .fa-bolt,
 .qh-fab .fa-times {
   font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
 }
 
 .qh-menu {
@@ -876,19 +892,7 @@ body.dark-mode .download-info h5 {
   color: #f3f6f9 !important;
 }
 
-/* Tools widget — primary headers match rates/notices cards */
-body.dark-mode .tools-category-card h5 {
-  color: #fff !important;
-  background: linear-gradient(
-    135deg,
-    var(--primary-dark, var(--primary-color, #1a5f2a)),
-    var(--primary-color, #1a5f2a)
-  ) !important;
-}
-body.dark-mode .tools-category-card h5 i {
-  color: #fff !important;
-  background: rgba(255, 255, 255, 0.22) !important;
-}
+/* Tools widget h5: see SSOT block at file end */
 body.dark-mode .tools-mini-link {
   background: var(--bg-soft, #1f2a3a) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
@@ -1219,6 +1223,7 @@ body.dark-mode .text-primary {
   }
 
   html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .fa-chevron-down,
+  html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a .lucide-icon[data-lucide="chevron-down"],
   html[lang="en"] body.header-v2 .pfl-nav-area .nav-menu > li > a [data-lucide="chevron-down"] {
     margin-left: 1px !important;
   }
@@ -1555,17 +1560,7 @@ body.dark-mode .text-primary {
   opacity: 1 !important;
 }
 
-/* Service center cards — body text was #9ca3af on white */
-.service-center-card .center-info li {
-  color: #374151 !important;
-  -webkit-text-fill-color: #374151 !important;
-  opacity: 1 !important;
-}
-.service-center-card .center-info li i,
-.service-center-card .center-info li svg {
-  color: var(--primary-color, #1a5f2a) !important;
-  stroke: var(--primary-color, #1a5f2a) !important;
-}
+/* Service center cards — consolidated below (avoid early/late double paint) */
 
 /* Survey / brand modal headers — h5 global dark beat inline white */
 #surveyModal .modal-header,
@@ -1611,9 +1606,14 @@ body.dark-mode .text-primary {
 
 /* Login menu verify tile — ensure glyph always paints */
 .pfl-login-menu .pfl-lm-verify i.fas,
-.pfl-login-menu .pfl-lm-verify .fa-shield-halved {
+.pfl-login-menu .pfl-lm-verify .fa-shield-halved,
+.pfl-login-menu .pfl-lm-verify .lucide-icon,
+.pfl-login-menu .pfl-lm-verify .lucide-icon svg {
   color: var(--primary-color, #1a5f2a) !important;
+  stroke: var(--primary-color, #1a5f2a) !important;
   font-size: 1.05rem !important;
+  width: 1.05rem !important;
+  height: 1.05rem !important;
   opacity: 1 !important;
 }
 
@@ -1798,7 +1798,7 @@ body.dark-mode .text-primary {
 .tools-category-card h5 i,
 .tools-category-card h5 svg,
 .tools-category-card h5 .lucide-icon {
-  color: inherit;
+  color: var(--text-on-primary, #fff);
 }
 
 /* Restore FA font after premium Inter !important (prevents tofu/X boxes) */
@@ -1933,6 +1933,7 @@ body.dark-mode .text-primary {
   line-height: 1.4 !important;
   color: #374151 !important;
   -webkit-text-fill-color: #374151 !important;
+  opacity: 1 !important;
   border-bottom: 1px solid #f0f0f0 !important;
   display: flex !important;
   align-items: flex-start !important;
@@ -2074,9 +2075,12 @@ body.dark-mode .text-primary {
 }
 .history-empty-photo-icon,
 .history-empty-photo .fas,
+.history-empty-photo .lucide-icon,
+.history-empty-photo .lucide-icon svg,
 .history-empty-photo i {
   color: rgba(255, 255, 255, 0.92) !important;
   -webkit-text-fill-color: rgba(255, 255, 255, 0.92) !important;
+  stroke: rgba(255, 255, 255, 0.92) !important;
   opacity: 1 !important;
 }
 .history-empty-photo-note {
@@ -2193,3 +2197,120 @@ body.dark-mode .text-primary {
   color: var(--primary-color, #1a5f2a) !important;
   border: 1.5px solid var(--primary-color, #1a5f2a) !important;
 }
+
+/* ════════════════════════════════════════════════════════════
+   Homepage tools widget SSOT (was duplicated in final-ui + global-theme)
+   Public late-bundle only — keeps admin/member bundles smaller.
+   ════════════════════════════════════════════════════════════ */
+/* ── Tools widget: readable footer label (was 0.68–0.70rem) ── */
+.tools-widget-section .tools-mini-link .tools-mini-more {
+  font-size: 0.78rem !important;
+  line-height: 1.3 !important;
+  font-weight: 600 !important;
+  margin-top: 0.15rem !important;
+  color: #5b6b62 !important;
+}
+
+.tools-widget-section .tools-mini-link:hover .tools-mini-more {
+  color: var(--primary-color, #1a5f2a) !important;
+}
+
+/* Homepage "अन्य डिजिटल सेवाहरू": restore primary header chips + soft motion */
+@keyframes toolsHeaderShimmerSoft {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+@keyframes toolsHeaderFloatSoft {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: .55; }
+  50% { transform: translate(6px, -4px) scale(1.04); opacity: .85; }
+}
+@keyframes toolsSectionDividerIn {
+  from { transform: scaleX(0.35); opacity: .35; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.tools-widget-section .section-header-unified .section-divider {
+  transform-origin: center;
+  animation: toolsSectionDividerIn 0.7s ease-out both;
+}
+
+.tools-widget-section .tools-category-card {
+  transition: transform 0.28s ease, box-shadow 0.28s ease !important;
+}
+.tools-widget-section .tools-category-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--primary-color, #1a5f2a) 16%, transparent) !important;
+}
+
+.tools-widget-section .tools-category-card h5,
+.tools-category-card.tools-cat-forms h5,
+.tools-category-card.tools-cat-tools h5,
+.tools-category-card.tools-cat-member h5 {
+  color: var(--text-on-primary, #fff) !important;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color, #1a5f2a) 0%,
+    color-mix(in srgb, var(--primary-color, #1a5f2a) 72%, #0e9b53) 55%,
+    var(--primary-color, #1a5f2a) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  border: none !important;
+  text-shadow: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  animation: toolsHeaderShimmerSoft 6s ease-in-out infinite !important;
+}
+.tools-widget-section .tools-category-card:hover h5 {
+  animation-play-state: paused !important;
+  filter: brightness(1.04);
+}
+.tools-widget-section .tools-category-card h5::after,
+.tools-category-card.tools-cat-forms h5::after,
+.tools-category-card.tools-cat-tools h5::after,
+.tools-category-card.tools-cat-member h5::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  top: -60% !important;
+  right: -16% !important;
+  width: 140px !important;
+  height: 140px !important;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2), transparent 70%) !important;
+  pointer-events: none !important;
+  animation: toolsHeaderFloatSoft 6.5s ease-in-out infinite !important;
+}
+.tools-widget-section .tools-category-card h5 i,
+.tools-category-card.tools-cat-forms h5 i,
+.tools-category-card.tools-cat-tools h5 i,
+.tools-category-card.tools-cat-member h5 i,
+.tools-widget-section .tools-category-card h5 svg,
+.tools-widget-section .tools-category-card h5 .lucide-icon {
+  color: var(--text-on-primary, #fff) !important;
+  background: color-mix(in srgb, #fff 22%, transparent) !important;
+  -webkit-text-fill-color: var(--text-on-primary, #fff) !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.tools-widget-section .tools-mini-link {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+}
+.tools-widget-section .tools-mini-link:hover {
+  transform: translateY(-3px) !important;
+  border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, #e5e7eb) !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--primary-color, #1a5f2a) 12%, transparent) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tools-widget-section .section-header-unified .section-divider,
+  .tools-widget-section .tools-category-card h5,
+  .tools-widget-section .tools-category-card h5::after {
+    animation: none !important;
+  }
+  .tools-widget-section .tools-category-card:hover,
+  .tools-widget-section .tools-mini-link:hover {
+    transform: none !important;
+  }
+}
+
+/* Lucide size/spin utilities → assets/css/lucide-icon-utils.css (late-bundle) */

@@ -8,10 +8,9 @@ $__t = static function (string $np, string $en): string {
     return strtolower($lang) === 'en' ? $en : $np;
 };
 $pageTitle = $__t('सेवा व्यवस्थापन', 'Services Management');
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once '../includes/service-products-tables.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCSRFToken()) {
@@ -36,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $catNameEn = clean_text($_POST['cat_name_en'] ?? '');
             $catNameNp = clean_text($_POST['cat_name_np'] ?? $catName);
             $catIcon   = clean_text($_POST['cat_icon']    ?? 'fas fa-th-large');
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $catIcon = coop_canonical_icon_for_storage($catIcon, 'fas fa-th-large');
+            }
             $catOrder  = (int)($_POST['cat_order'] ?? 0);
             $catActive = isset($_POST['cat_is_active']) ? 1 : 0;
             if ($catName === '') throw new Exception('Category name required.');
@@ -69,6 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $description  = clean_text($_POST['description']  ?? '');
             $description_np = clean_text($_POST['description_np'] ?? $description);
             $icon         = clean_text($_POST['icon']         ?? 'fas fa-star');
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-star');
+            }
             $order        = (int)($_POST['display_order']   ?? 0);
             $is_active    = isset($_POST['is_active']) ? 1 : 0;
             $nav_group          = in_array($_POST['nav_group'] ?? '', ['general','social','student','financial','other']) ? ($_POST['nav_group']) : 'general';
@@ -193,9 +198,9 @@ $servicesArch = $svcPart['archived'];
     $__t('सेवा व्यवस्थापन', 'Services Management'),
     'fa-concierge-bell',
     $__t('संस्थाले प्रदान गर्ने सेवाहरू व्यवस्थापन।', 'Manage services provided by the organization.'),
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($services) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($servicesLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($servicesArch) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . $__t('जम्मा', 'Total') . ': ' . count($services) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>' . $__t('सक्रिय', 'Active') . ': ' . count($servicesLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>' . $__t('अभिलेख', 'Archived') . ': ' . count($servicesArch) . '</span>'
 ); ?>
 
 <?php echo adminAlert('success', $success) . adminAlert('danger', $error); ?>
@@ -203,23 +208,23 @@ $servicesArch = $svcPart['archived'];
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $openServiceForm ? '' : ($activeTab === 'cats' ? '' : 'active'); ?>" data-bs-toggle="tab" data-bs-target="#svc-list" id="svc-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i><?php echo $__t('सेवा सूची', 'Service List'); ?>
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('सेवा सूची', 'Service List'); ?>
             <span class="badge bg-success ms-1"><?php echo count($services); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $openServiceForm ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-form" id="svc-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="svcFormTabLabel"><?php echo $openServiceForm ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="svcFormTabLabel"><?php echo $openServiceForm ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#svc-products" id="svc-products-btn">
-            <i class="fas fa-list-check me-2"></i><span id="svcProductsTabLabel">Service Products</span>
+            <i class="lucide-icon me-2" data-lucide="list-checks" aria-hidden="true"></i><span id="svcProductsTabLabel">Service Products</span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab === 'cats' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#svc-cats" id="svc-cats-btn">
-            <i class="fas fa-layer-group me-2"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
+            <i class="lucide-icon me-2" data-lucide="layers" aria-hidden="true"></i><?php echo $__t('मेनु श्रेणी', 'Menu Categories'); ?>
             <span class="badge bg-secondary ms-1"><?php echo count($serviceCategories); ?></span>
         </button>
     </li>
@@ -234,21 +239,21 @@ $servicesArch = $svcPart['archived'];
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3 svc-search-wrap">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="<?php echo $__t('नाम, विवरण अनुसार खोज्नुहोस्...', 'Search by name or description...'); ?>" autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
             </div>
             <div class="card-body p-0">
                     <form method="POST">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="bulk_status">
                         <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-end gap-2">
                             <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success admin-bulk-btn">
-                                <i class="fas fa-check-circle" aria-hidden="true"></i> Bulk Active
+                                <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> Bulk Active
                             </button>
                             <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary admin-bulk-btn">
-                                <i class="fas fa-ban" aria-hidden="true"></i> Bulk Inactive
+                                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> Bulk Inactive
                             </button>
                         </div>
                     <?php echo adminListSubtabPills('svc-sub', count($servicesLive), count($servicesArch)); ?>
@@ -270,12 +275,12 @@ $servicesArch = $svcPart['archived'];
                         <tbody>
                             <?php if (empty($services)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-concierge-bell fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="bell" aria-hidden="true"></i>
                                 <?php echo $__t('कुनै सेवा छैन।', 'No services found.'); ?>
                             </td></tr>
                             <?php elseif (empty($servicesLive)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                 <?php echo $__t('सक्रिय सेवा छैन। अभिलेख हेर्नुहोस्।', 'No active services. Check archived tab.'); ?>
                             </td></tr>
                             <?php endif; ?>
@@ -284,7 +289,7 @@ $servicesArch = $svcPart['archived'];
                                 <td class="text-center" data-label=""><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
                                 <td class="ps-3" data-label="<?php echo $__t('आइकन', 'Icon'); ?>">
                                     <div class="admin-icon-cell">
-                                        <i class="<?php echo htmlspecialchars($s['icon']); ?> svc-icon-mark"></i>
+                                        <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($s['icon'], 'fas fa-circle', 'svc-icon-mark') : ''; ?>
                                     </div>
                                 </td>
                                 <td data-label="<?php echo $__t('शीर्षक', 'Title'); ?>">
@@ -296,13 +301,13 @@ $servicesArch = $svcPart['archived'];
                                 <td class="text-center" data-label="<?php echo $__t('स्थिति', 'Status'); ?>"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center" data-label="<?php echo $__t('कार्य', 'Actions'); ?>">
                                     <a href="services.php?edit=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary me-1" title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </a>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('<?php echo $__t('के तपाईं यो सेवा मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this service?'); ?>')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $s['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>" aria-label="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -328,7 +333,7 @@ $servicesArch = $svcPart['archived'];
                         <tbody>
                             <?php if (empty($servicesArch)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                 <?php echo $__t('अभिलेखमा कुनै सेवा छैन।', 'No archived services.'); ?>
                             </td></tr>
                             <?php endif; ?>
@@ -337,7 +342,7 @@ $servicesArch = $svcPart['archived'];
                                 <td class="text-center" data-label=""><input type="checkbox" class="svc-select" name="selected_ids[]" value="<?php echo (int)$s['id']; ?>"></td>
                                 <td class="ps-3" data-label="<?php echo $__t('आइकन', 'Icon'); ?>">
                                     <div class="admin-icon-cell">
-                                        <i class="<?php echo htmlspecialchars($s['icon']); ?> svc-icon-mark"></i>
+                                        <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($s['icon'], 'fas fa-circle', 'svc-icon-mark') : ''; ?>
                                     </div>
                                 </td>
                                 <td data-label="<?php echo $__t('शीर्षक', 'Title'); ?>">
@@ -349,13 +354,13 @@ $servicesArch = $svcPart['archived'];
                                 <td class="text-center" data-label="<?php echo $__t('स्थिति', 'Status'); ?>"><span class="badge bg-<?php echo $s['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $s['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center" data-label="<?php echo $__t('कार्य', 'Actions'); ?>">
                                     <a href="services.php?edit=<?php echo (int)$s['id']; ?>" class="btn btn-sm btn-primary me-1" title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </a>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो सेवा मेटाउन निश्चित हुनुहुन्छ?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $s['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$s['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -375,15 +380,15 @@ $servicesArch = $svcPart['archived'];
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="svcFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i><?php echo $openServiceForm ? $__t('सेवा सम्पादन', 'Edit Service') : $__t('नयाँ सेवा थप्नुहोस्', 'Add New Service'); ?>
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $openServiceForm ? $__t('सेवा सम्पादन', 'Edit Service') : $__t('नयाँ सेवा थप्नुहोस्', 'Add New Service'); ?>
                 </h5>
                 <a href="services.php" class="btn btn-light btn-sm" id="btnCancelSvc">
-                    <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
                 </a>
             </div>
             <div class="card-body p-4">
                 <form method="POST" id="svcForm" class="needs-validation" novalidate>
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="svcf_action" value="<?php echo $openServiceForm ? 'edit' : 'add'; ?>">
                     <input type="hidden" name="id" id="svcf_id" value="<?php echo (int)($editService['id'] ?? 0); ?>">
 
@@ -404,11 +409,11 @@ $servicesArch = $svcPart['archived'];
                             <label for="svcf_icon" class="form-label fw-semibold text-success"><?php echo $__t('आइकन', 'Icon'); ?> (Font Awesome)</label>
                             <div class="js-fa-icon-picker fa-ip-wrap">
                                 <div class="fa-ip-row input-group">
-                                    <span class="input-group-text bg-success text-white border-success" data-fa-preview id="svcIconPreview"><i class="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>"></i></span>
+                                    <span class="input-group-text bg-success text-white border-success" data-fa-preview id="svcIconPreview"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($editService['icon'] ?? 'fas fa-star', 'fas fa-circle') : ''; ?></span>
                                     <input type="text" name="icon" id="svcf_icon" class="form-control admin-fancy-input" data-fa-input
                                            value="<?php echo htmlspecialchars($editService['icon'] ?? 'fas fa-star', ENT_QUOTES, 'UTF-8'); ?>" placeholder="fas fa-star">
                                     <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                        <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                        <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                     </button>
                                 </div>
                                 <small class="fa-ip-hint"><?php echo $__t('दायाँ बटन थिचेर आइकन छान्नुहोस्, वा class टाइप गर्नुहोस्।', 'Click the grid button to pick an icon, or type a class.'); ?></small>
@@ -420,7 +425,7 @@ $servicesArch = $svcPart['archived'];
                             <select name="service_category_id" id="svcf_cat" class="form-select admin-fancy-input">
                                 <option value=""><?php echo $__t('— श्रेणी छैन —', '— No Category —'); ?></option>
                                 <?php foreach ($serviceCategories as $sc): ?>
-                                <option value="<?php echo $sc['id']; ?>" <?php echo $curCatId == $sc['id'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo (int)$sc['id']; ?>" <?php echo $curCatId == $sc['id'] ? 'selected' : ''; ?>>
                                     <?php $scLabel = (!empty($sc['name_np']) ? $sc['name_np'] : (!empty($sc['name_en']) ? $sc['name_en'] : $sc['name'])); echo htmlspecialchars($scLabel); ?>
                                 </option>
                                 <?php endforeach; ?>
@@ -442,10 +447,10 @@ $servicesArch = $svcPart['archived'];
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="svcf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i><?php echo $openServiceForm ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $openServiceForm ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add'); ?>
                         </button>
                         <button type="button" id="svcf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रद्द', 'Cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -458,12 +463,12 @@ $servicesArch = $svcPart['archived'];
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="svcProductFormTitle">
-                    <i class="fas fa-list-check me-2"></i>Service Product थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="list-checks" aria-hidden="true"></i>Service Product थप्नुहोस्
                 </h5>
             </div>
             <div class="card-body p-4">
                 <form method="POST" id="svcProductForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                     <input type="hidden" name="action" id="sp_action" value="product_add">
                     <input type="hidden" name="product_id" id="sp_id" value="">
                     <div class="row g-3">
@@ -504,7 +509,7 @@ $servicesArch = $svcPart['archived'];
                     </div>
                     <div class="d-flex gap-3 mt-3">
                         <button type="submit" id="sp_submit" class="btn btn-success px-4 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>Product थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>Product थप्नुहोस्
                         </button>
                         <button type="button" id="sp_cancel" class="btn btn-outline-secondary px-4">रद्द</button>
                     </div>
@@ -547,13 +552,13 @@ $servicesArch = $svcPart['archived'];
                                             data-desc-en="<?php echo htmlspecialchars((string)$sp['description_en'], ENT_QUOTES); ?>"
                                             data-order="<?php echo (int)$sp['display_order']; ?>"
                                             data-active="<?php echo (int)$sp['is_active']; ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो product हटाउने हो?')">
-                                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                                         <input type="hidden" name="action" value="product_delete">
                                         <input type="hidden" name="product_id" value="<?php echo (int)$sp['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -569,7 +574,7 @@ $servicesArch = $svcPart['archived'];
     <div class="tab-pane fade <?php echo $activeTab === 'cats' ? 'show active' : ''; ?>" id="svc-cats">
         <div class="card-body">
             <div class="alert alert-info py-2 mb-3 small">
-                <i class="fas fa-info-circle me-1"></i>
+                <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                 <?php echo $__t('यहाँ बनाएका श्रेणी Services को form मा "मेनु श्रेणी" dropdown मा देखिन्छन्। Service लाई श्रेणी assign गर्नुस् भने website को mega-menu मा त्यो श्रेणी अन्तर्गत column बन्छ।','Categories you create here appear in the service form\'s "Menu Category" dropdown. Assign a category to a service, and it shows as a column in the website mega-menu.'); ?>
             </div>
 
@@ -578,9 +583,9 @@ $servicesArch = $svcPart['archived'];
                 <div class="card-header bg-light py-2"><strong><?php echo $editCat ? $__t('श्रेणी सम्पादन', 'Edit Category') : $__t('नयाँ श्रेणी थप्नुहोस्', 'Add New Category'); ?></strong></div>
                 <div class="card-body">
                     <form method="POST" action="services.php?tab=cats<?php echo $editCat ? '&edit_cat='.$editCat['id'] : ''; ?>">
-                        <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                         <input type="hidden" name="action" value="<?php echo $editCat ? 'cat_edit' : 'cat_add'; ?>">
-                        <?php if ($editCat): ?><input type="hidden" name="cat_id" value="<?php echo $editCat['id']; ?>"><?php endif; ?>
+                        <?php if ($editCat): ?><input type="hidden" name="cat_id" value="<?php echo (int)$editCat['id']; ?>"><?php endif; ?>
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label for="svc_cat_name_np" class="form-label fw-semibold"><?php echo $__t('नाम (नेपाली) *', 'Name (Nepali) *'); ?></label>
@@ -595,10 +600,10 @@ $servicesArch = $svcPart['archived'];
                                 <label for="svc_cat_icon" class="form-label fw-semibold"><?php echo $__t('आइकन (Font Awesome)', 'Icon (Font Awesome)'); ?></label>
                                 <div class="js-fa-icon-picker fa-ip-wrap">
                                     <div class="fa-ip-row input-group">
-                                        <span class="fa-ip-preview input-group-text" data-fa-preview><i class="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>"></i></span>
+                                        <span class="fa-ip-preview input-group-text" data-fa-preview><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($editCat['icon'] ?? 'fas fa-th-large', 'fas fa-circle') : ''; ?></span>
                                         <input type="text" name="cat_icon" id="svc_cat_icon" class="form-control" data-fa-input value="<?php echo htmlspecialchars($editCat['icon'] ?? 'fas fa-th-large'); ?>" placeholder="fas fa-hands-helping">
                                         <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="<?php echo $__t('आइकन छान्नुहोस्', 'Pick icon'); ?>">
-                                            <i class="fas fa-th me-1"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
+                                            <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span><?php echo $__t('छान्नुहोस्', 'Pick'); ?></span>
                                         </button>
                                     </div>
                                     <small class="fa-ip-hint"><?php echo $__t('Grid बाट छान्नुहोस् वा class टाइप गर्नुहोस्।', 'Pick from grid or type a class.'); ?></small>
@@ -617,7 +622,7 @@ $servicesArch = $svcPart['archived'];
                         </div>
                         <div class="mt-3 d-flex gap-2">
                             <button type="submit" class="btn btn-success px-4" onclick="this.form.elements['cat_name'].value = this.form.elements['cat_name_np'].value || this.form.elements['cat_name_en'].value;">
-                                <i class="fas fa-save me-1"></i><?php echo $editCat ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add Category'); ?>
+                                <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $editCat ? $__t('अपडेट गर्नुहोस्', 'Update') : $__t('थप्नुहोस्', 'Add Category'); ?>
                             </button>
                             <?php if ($editCat): ?><a href="services.php?tab=cats" class="btn btn-outline-secondary"><?php echo $__t('रद्द गर्नुहोस्', 'Cancel'); ?></a><?php endif; ?>
                         </div>
@@ -627,7 +632,7 @@ $servicesArch = $svcPart['archived'];
 
             <!-- Category List -->
             <?php if (empty($serviceCategories)): ?>
-            <div class="text-center py-4 text-muted"><i class="fas fa-layer-group fa-2x mb-2 d-block opacity-50"></i><?php echo $__t('कुनै श्रेणी छैन। माथि थप्नुहोस्।', 'No categories yet. Add one above.'); ?></div>
+            <div class="text-center py-4 text-muted"><i class="lucide-icon lucide-2x mb-2 d-block opacity-50" data-lucide="layers" aria-hidden="true"></i><?php echo $__t('कुनै श्रेणी छैन। माथि थप्नुहोस्।', 'No categories yet. Add one above.'); ?></div>
             <?php else: ?>
             <table class="table table-sm table-hover admin-table-card">
                 <thead><tr>
@@ -641,18 +646,18 @@ $servicesArch = $svcPart['archived'];
                 <tbody>
                 <?php foreach ($serviceCategories as $sc): ?>
                 <tr>
-                    <td><i class="<?php echo htmlspecialchars($sc['icon']); ?> me-2 text-success"></i><?php echo htmlspecialchars($sc['name_np'] ?: $sc['name']); ?></td>
+                    <td><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($sc['icon'], 'fas fa-circle', 'me-2 text-success') : ''; ?><?php echo htmlspecialchars($sc['name_np'] ?: $sc['name']); ?></td>
                     <td><?php echo htmlspecialchars($sc['name_en'] ?? ''); ?></td>
                     <td class="text-center"><code class="small"><?php echo htmlspecialchars($sc['icon']); ?></code></td>
                     <td class="text-center"><?php echo (int)$sc['display_order']; ?></td>
                     <td class="text-center"><span class="badge <?php echo $sc['is_active'] ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sc['is_active'] ? $__t('सक्रिय','Active') : $__t('निष्क्रिय','Inactive'); ?></span></td>
                     <td class="text-center">
-                        <a href="?tab=cats&edit_cat=<?php echo $sc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="fas fa-edit"></i></a>
+                        <a href="?tab=cats&edit_cat=<?php echo (int)$sc['id']; ?>" class="btn btn-sm btn-primary me-1"><i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i></a>
                         <form method="POST" class="d-inline" onsubmit="return confirm('यो श्रेणी हटाउने? यसमा assign भएका services unlink हुन्छन्।')">
-                            <input type="hidden" name="csrf_token" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="csrf_token" value="<?php echo e($csrfToken); ?>">
                             <input type="hidden" name="action" value="cat_delete">
-                            <input type="hidden" name="cat_id" value="<?php echo $sc['id']; ?>">
-                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                            <input type="hidden" name="cat_id" value="<?php echo (int)$sc['id']; ?>">
+                            <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                         </form>
                     </td>
                 </tr>
@@ -683,9 +688,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('svcf_icon').value    = 'fas fa-star';
         document.getElementById('svcf_order').value   = '0';
         document.getElementById('svcf_active').checked= true;
-        document.getElementById('svcIconPreview').innerHTML = '<i class="fas fa-star"></i>';
-        document.getElementById('svcf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('svcFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ सेवा थप्नुहोस्';
+        document.getElementById('svcIconPreview').innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
+        document.getElementById('svcf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('svcFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ सेवा थप्नुहोस्';
         document.getElementById('svcFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -713,9 +718,16 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('svcf_order').value   = d.order;
             if (document.getElementById('svcf_cat')) document.getElementById('svcf_cat').value = d.cat_id || '';
             document.getElementById('svcf_active').checked= d.active === '1';
-            document.getElementById('svcIconPreview').innerHTML = '<i class="' + d.icon + '"></i>';
-            document.getElementById('svcf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('svcFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>सेवा सम्पादन';
+            if (window.FaIconPicker && typeof window.FaIconPicker.setPreview === 'function') {
+                window.FaIconPicker.setPreview(document.getElementById('svcIconPreview'), d.icon || 'fas fa-star');
+            } else {
+                document.getElementById('svcIconPreview').innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons({ nodes: document.getElementById('svcIconPreview').querySelectorAll('[data-lucide]') });
+                }
+            }
+            document.getElementById('svcf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('svcFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>सेवा सम्पादन';
             document.getElementById('svcFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });
@@ -731,8 +743,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sp_desc_en').value = '';
         document.getElementById('sp_order').value = '0';
         document.getElementById('sp_active').checked = true;
-        document.getElementById('sp_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>Product थप्नुहोस्';
-        document.getElementById('svcProductFormTitle').innerHTML = '<i class="fas fa-list-check me-2"></i>Service Product थप्नुहोस्';
+        document.getElementById('sp_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>Product थप्नुहोस्';
+        document.getElementById('svcProductFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="list-checks" aria-hidden="true"></i>Service Product थप्नुहोस्';
     }
     var _spCancel = document.getElementById('sp_cancel');
     if (_spCancel) _spCancel.addEventListener('click', clearProductForm);
@@ -748,8 +760,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('sp_desc_en').value = d.descEn || '';
             document.getElementById('sp_order').value = d.order || '0';
             document.getElementById('sp_active').checked = d.active === '1';
-            document.getElementById('sp_submit').innerHTML = '<i class="fas fa-save me-2"></i>Product अपडेट';
-            document.getElementById('svcProductFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>Service Product सम्पादन';
+            document.getElementById('sp_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>Product अपडेट';
+            document.getElementById('svcProductFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>Service Product सम्पादन';
             var productsBtn = document.getElementById('svc-products-btn');
             if (productsBtn) {
                 adminSwitchTab(productsBtn, document.getElementById('svc-list-btn'));

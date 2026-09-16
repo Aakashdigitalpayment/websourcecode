@@ -1,7 +1,19 @@
 <?php
 /**
  * Unified theme CSS stack — Public, Admin, Member, Auth, Verify.
- * Load order: design-tokens → global-theme (DB) → panel CSS → coop → overrides v4.
+ * Load order: panel base (app-*) → global.css / forms-tables.css →
+ * enhancements + admin mid patches → global-theme.php (DB) → late bundle last.
+ * Tokens live in global.css (and app-core.css on public/member). There is no
+ * separate design-tokens.css.
+ *
+ * Font SSOT:
+ *   - Google load: coopThemeGoogleFontsHtml() (Plus Jakarta + Inter + Noto Sans Devanagari)
+ *   - Tokens: --font-primary / --font-heading in global.css
+ *   - Shell aliases: --shell-font-* → --pub-font-* / --prem-font-* (premium-ui)
+ * Do not add a second Google Fonts <link> stack on pages.
+ *
+ * Lucide size utilities: assets/css/lucide-icon-utils.css (via late-bundles).
+ * FROZEN: Do not rewrite app-public / app-admin / app-member / app-core for polish.
  */
 if (!function_exists('coopThemeCssUrl')) {
 
@@ -39,6 +51,33 @@ if (!function_exists('coopThemeCssUrl')) {
         echo '<link rel="stylesheet" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . "\n";
     }
 
+    /** Return a stylesheet tag as a string (for $extraHead). */
+    function coopThemeLinkHtml(string $rel, ?string $ver = null): string
+    {
+        ob_start();
+        coopThemeLink($rel, $ver);
+        return (string) ob_get_clean();
+    }
+
+    /** Sanitized brand hex for theme-color meta (admin/public/member). */
+    function coopThemeColorHex(): string
+    {
+        $fallback = '#1a5f2a';
+        if (!function_exists('getSetting')) {
+            return $fallback;
+        }
+        $v = trim((string) getSetting('primary_color', $fallback));
+        if (preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $v)) {
+            return strtolower($v);
+        }
+        return $fallback;
+    }
+
+    function coopThemeColorMeta(): void
+    {
+        echo '<meta name="theme-color" content="' . htmlspecialchars(coopThemeColorHex(), ENT_QUOTES, 'UTF-8') . '">' . "\n";
+    }
+
     /** Non-blocking stylesheet — first paint छिटो; polish sheets का लागि */
     function coopThemeLinkDeferred(string $rel, ?string $ver = null): void
     {
@@ -52,7 +91,7 @@ if (!function_exists('coopThemeCssUrl')) {
         echo '<noscript><link rel="stylesheet" href="' . $safe . '"></noscript>' . "\n";
     }
 
-    /** DB brand colors — always after design-tokens.css */
+    /** DB brand colors — after static CSS so computed vars win */
     function coopThemeRequireGlobal(): void
     {
         if (!function_exists('getSetting')) {
@@ -70,6 +109,17 @@ if (!function_exists('coopThemeCssUrl')) {
         }
     }
 
+    function coopThemeGoogleFontsHtml(): string
+    {
+        $fontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap';
+        $h = htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8');
+        return '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n"
+            . '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n"
+            . '<link rel="preload" href="' . $h . '" as="style">' . "\n"
+            . '<link href="' . $h . '" rel="stylesheet" media="print" onload="this.media=\'all\'">' . "\n"
+            . '<noscript><link href="' . $h . '" rel="stylesheet"></noscript>' . "\n";
+    }
+
     function coopThemeGoogleFonts(): void
     {
         static $done = false;
@@ -77,13 +127,8 @@ if (!function_exists('coopThemeCssUrl')) {
             return;
         }
         $done = true;
-        echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-        echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
         /* Premium font stack — fewer weights; non-blocking for faster first paint */
-        $fontsCss = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap';
-        echo '<link rel="preload" href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" as="style">' . "\n";
-        echo '<link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet" media="print" onload="this.media=\'all\'">' . "\n";
-        echo '<noscript><link href="' . htmlspecialchars($fontsCss, ENT_QUOTES, 'UTF-8') . '" rel="stylesheet"></noscript>' . "\n";
+        echo coopThemeGoogleFontsHtml();
     }
 
     /**
@@ -137,18 +182,106 @@ if (!function_exists('coopThemeCssUrl')) {
         }
         var aliases = {
             "building-columns": ["landmark", "building-2"],
+            "building-user": ["building-2", "landmark"],
             "shield-halved": ["shield-check", "shield-half", "shield"],
             "shield-half": ["shield-check", "shield"],
+            "shield-alt": ["shield-check", "shield", "shield-half"],
+            "shield-exclamation": ["shield-alert", "shield"],
+            "user-shield": ["shield-user", "shield-check", "shield"],
             "chart-bar": ["bar-chart-3", "chart-column"],
-            "chart-line": ["line-chart", "chart-no-axes-column"],
+            "chart-line": ["trending-up", "line-chart", "chart-no-axes-column"],
+            "chart-simple": ["chart-column", "bar-chart-3"],
             "user-circle": ["circle-user", "user-round"],
-            "circle-question": ["help-circle", "circle-help"],
-            "circle-info": ["info", "info-circle"],
+            "user-friends": ["users", "users-round"],
+            "users-cog": ["users-round", "user-cog", "users"],
+            "user-gear": ["user-cog", "user-round-cog"],
+            "user-edit": ["user-pen", "square-pen"],
+            "user-slash": ["user-x", "user-round-x"],
+            "users-slash": ["users", "user-x"],
+            "user-round-clock": ["user-round", "clock"],
+            "user-round-tie": ["user-round", "briefcase"],
+            "circle-question": ["circle-help", "help-circle"],
+            "circle-info": ["info"],
             "circle-check": ["check-circle", "circle-check-big"],
             "check-circle": ["circle-check", "circle-check-big"],
+            "check-double": ["check-check", "check"],
+            "circle-xmark": ["circle-x", "x-circle"],
+            "circle-exclamation": ["circle-alert", "triangle-alert"],
+            "circle-half-stroke": ["contrast", "circle"],
             "hand-holding-heart": ["heart-handshake", "heart"],
-            "shield-alt": ["shield-check", "shield", "shield-half"],
-            "user-shield": ["shield-user", "shield-check", "shield"]
+            "hands-helping": ["handshake", "heart-handshake"],
+            "sync-alt": ["refresh-cw", "refresh-ccw"],
+            "arrows-rotate": ["refresh-cw", "rotate-cw"],
+            "arrow-right-arrow-left": ["arrow-right-left", "arrow-left-right"],
+            "rotate-left": ["rotate-ccw", "undo-2"],
+            "rotate-right": ["rotate-cw", "redo-2"],
+            "search-plus": ["zoom-in", "search"],
+            "search-location": ["map-pin", "search"],
+            "cloud-upload-alt": ["cloud-upload", "upload"],
+            "sign-out-alt": ["log-out", "door-open"],
+            "alert-triangle": ["triangle-alert", "octagon-alert"],
+            "exclamation-triangle": ["triangle-alert", "octagon-alert"],
+            "trash-alt": ["trash-2", "trash"],
+            "trash-can": ["trash-2", "trash"],
+            "file-alt": ["file-text", "file"],
+            "file-upload": ["file-up", "upload"],
+            "file-invoice": ["file-text", "file"],
+            "file-invoice-dollar": ["badge-dollar-sign", "file-text"],
+            "file-circle-exclamation": ["file-warning", "file-x"],
+            "file-circle-xmark": ["file-x", "file-warning"],
+            "folder-xmark": ["folder-x", "folder"],
+            "filter-circle-xmark": ["filter-x", "filter"],
+            "home": ["house"],
+            "cog": ["settings", "sliders-horizontal"],
+            "sitemap": ["network", "git-fork"],
+            "layer-group": ["layers"],
+            "bell-concierge": ["bell", "concierge-bell"],
+            "calendar-xmark": ["calendar-x", "calendar-off"],
+            "calendar-times": ["calendar-x", "calendar-off"],
+            "calendar-star": ["calendar", "star"],
+            "hourglass-end": ["hourglass", "timer"],
+            "hourglass-start": ["hourglass", "timer"],
+            "angle-double-right": ["chevrons-right", "chevron-right"],
+            "angle-double-left": ["chevrons-left", "chevron-left"],
+            "angle-right": ["chevron-right"],
+            "angle-left": ["chevron-left"],
+            "seedling": ["sprout", "leaf"],
+            "laptop-code": ["laptop", "code"],
+            "laptop-house": ["house", "laptop"],
+            "money-bill-transfer": ["banknote", "arrow-right-left"],
+            "hand-pointer": ["hand", "pointer"],
+            "address-book": ["contact", "book-user"],
+            "clone": ["copy", "files"],
+            "font": ["type", "case-sensitive"],
+            "formula": ["sigma", "calculator"],
+            "wifi-slash": ["wifi-off", "wifi"],
+            "wand-magic-sparkles": ["sparkles", "wand-sparkles"],
+            "comment-exclamation": ["message-circle-warning", "message-square-warning"],
+            "comment-slash": ["message-square-off", "message-circle-off"],
+            "notes-medical": ["clipboard-plus", "notebook-pen"],
+            "party-horn": ["party-popper", "sparkles"],
+            "pen-nib": ["pen", "pen-line"],
+            "pen-to-square": ["square-pen", "pen"],
+            "percentage": ["percent"],
+            "puzzle-piece": ["puzzle"],
+            "ruler-combined": ["ruler", "pencil-ruler"],
+            "star-of-life": ["star", "cross"],
+            "swatchbook": ["swatch-book", "palette"],
+            "table-cells-large": ["table", "grid-2x2"],
+            "venus-mars": ["venus-and-mars", "users"],
+            "weight-hanging": ["weight", "dumbbell"],
+            "location-crosshairs": ["crosshair", "map-pin"],
+            "external-link-alt": ["external-link", "square-arrow-out-up-right"],
+            /* Brands — Lucide has none; map to neutral glyphs (fab stays for real brand marks) */
+            "whatsapp": ["message-circle", "phone"],
+            "twitter": ["share-2", "at-sign"],
+            "facebook": ["share-2", "thumbs-up"],
+            "facebook-f": ["share-2", "thumbs-up"],
+            "youtube": ["play", "clapperboard"],
+            "instagram": ["camera", "image"],
+            "google": ["search", "globe"],
+            "google-play": ["play", "smartphone"],
+            "linkedin-in": ["briefcase", "share-2"]
         };
         var nodes = root.querySelectorAll("[data-lucide]");
         nodes.forEach(function (el) {
@@ -225,9 +358,14 @@ if (!function_exists('coopThemeCssUrl')) {
 
         /* Load order:
          * panel base → global/forms → enhancements → mid admin patches →
-         * panel LATE BUNDLE LAST (concat of previous polish/patch sheets).
-         * Source sheets remain in assets/css; regenerate via:
+         * DB brand (global-theme.php) → panel LATE BUNDLE LAST.
+         * Brand colour: admin settings. Shared tokens: global.css.
+         * Visual polish: polish sources, then:
          *   python3 scripts/build-css-late-bundles.py
+         * FROZEN: Do not rewrite app-public / app-admin / app-member / app-core
+         * for polish or layout tweaks — use *-page.css, *-shell-polish.css,
+         * final-ui-polish.css, then rebuild late bundles. Split/slim of app-*
+         * is a separate deferred track.
          */
         if (empty($options['skip_fonts'])) {
             coopThemeGoogleFonts();

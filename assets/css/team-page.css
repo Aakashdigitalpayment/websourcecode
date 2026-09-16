@@ -1,0 +1,36 @@
+/** Team / HR page styles — extracted from team.php */
+.team-triple-filter{max-width:980px;margin:0 auto;padding:8px 4px 4px}
+.team-triple-title{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:var(--primary-color,#1a5f2a);margin-bottom:14px}
+.team-triple-title i{opacity:.85}
+.team-filter-select{
+  border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);
+  border-radius:10px;
+  font-size:.93rem;
+  background-color:#fff;
+  min-height:44px;
+  padding:.5rem 2.25rem .5rem .85rem;
+}
+.team-filter-select:focus{
+  border-color:var(--primary-color,#1a5f2a);
+  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary-color,#1a5f2a) 18%,transparent);
+}
+.team-active-filter-row{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.65rem;margin-top:.85rem;
+}
+.team-active-filter-chip{
+  display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .85rem;border-radius:999px;
+  background:color-mix(in srgb,var(--primary-color,#1a5f2a) 10%,#fff);
+  border:1px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 22%,#e5e7eb);
+  color:#1a2e24;font-size:.86rem;font-weight:600;
+}
+.team-filter-reset{border-radius:999px;font-weight:600}
+.team-section--focused {
+    outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
+    outline-offset: 6px;
+    border-radius: 12px;
+}
+.visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}

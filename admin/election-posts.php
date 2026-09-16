@@ -2,6 +2,7 @@
 /**
  * निर्वाचन — पद Master (एकपटक बनाएर सबै चक्रमा reuse)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'पद व्यवस्थापन (Master)';
 $currentPage = 'election-posts';
 require_once 'includes/admin-header.php';
@@ -86,14 +87,14 @@ echo adminPageHeader(
     'पद व्यवस्थापन (Master)',
     'fa-briefcase',
     'Designation-driven only: पद मास्टरबाट छानेर सबै निर्वाचन चक्रमा प्रयोग गर्नुहोस्।',
-    '<a class="btn btn-outline-secondary btn-sm" href="election-information.php"><i class="fas fa-arrow-left me-1"></i>निर्वाचन</a>'
+    '<a class="btn btn-outline-secondary btn-sm" href="election-information.php"><i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>निर्वाचन</a>'
 );
 ?>
 <?php if ($f = getFlash()): ?><div class="mb-3"><?php echo adminAlert($f['type'], $f['message']); ?></div><?php endif; ?>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
-    <li class="nav-item"><a class="nav-link <?php echo $panel==='list' ? 'active' : ''; ?>" href="?panel=list"><i class="fas fa-list me-2"></i>पद सूची <span class="badge bg-success ms-1"><?php echo count($posts); ?></span></a></li>
-    <li class="nav-item"><a class="nav-link <?php echo $panel==='form' ? 'active' : ''; ?>" href="?panel=form"><i class="fas fa-plus-circle me-2"></i><?php echo $editPost ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></a></li>
+    <li class="nav-item"><a class="nav-link <?php echo $panel==='list' ? 'active' : ''; ?>" href="?panel=list"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>पद सूची <span class="badge bg-success ms-1"><?php echo count($posts); ?></span></a></li>
+    <li class="nav-item"><a class="nav-link <?php echo $panel==='form' ? 'active' : ''; ?>" href="?panel=form"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $editPost ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></a></li>
 </ul>
 
 <div class="tab-content">
@@ -101,7 +102,7 @@ echo adminPageHeader(
     <div class="row g-3">
     <div class="col-12">
         <div class="card admin-table-card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-list me-2"></i>पद सूची (<?php echo count($posts); ?>)</h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>पद सूची (<?php echo count($posts); ?>)</h6></div>
             <div class="table-responsive">
                 <table class="table table-sm mb-0 align-middle">
                     <thead><tr><th>पद</th><th>Master स्रोत</th><th>समिति</th><th>सिट</th><th>मत</th><th>क्रम</th><th></th></tr></thead>
@@ -117,12 +118,12 @@ echo adminPageHeader(
                             <td><?php echo (int)$p['default_max_votes']; ?></td>
                             <td><?php echo (int)$p['display_order']; ?></td>
                             <td class="text-nowrap">
-                                <a class="adm-icon-btn adm-icon-btn--edit" href="?edit=<?php echo (int)$p['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                <a class="adm-icon-btn adm-icon-btn--edit" href="?edit=<?php echo (int)$p['id']; ?>&panel=form" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                 <form method="post" class="d-inline" onsubmit="return confirm('यो पद मेटाउने?');">
                                     <?php echo csrfField(); ?>
                                     <input type="hidden" name="action" value="delete_post">
                                     <input type="hidden" name="post_id" value="<?php echo (int)$p['id']; ?>">
-                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                    <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -140,7 +141,7 @@ echo adminPageHeader(
     <div class="row g-3">
     <div class="col-12">
         <div class="card admin-table-card">
-            <div class="card-header"><h6 class="mb-0"><i class="fas fa-plus-circle me-2"></i><?php echo $editPost ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></h6></div>
+            <div class="card-header"><h6 class="mb-0"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $editPost ? 'पद सम्पादन' : 'नयाँ पद थप्नुहोस्'; ?></h6></div>
             <div class="card-body">
                 <form method="post" class="row g-2">
                     <?php echo csrfField(); ?>
@@ -182,7 +183,7 @@ echo adminPageHeader(
                         </div>
                     </div>
                     <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>बचत</button>
+                        <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>बचत</button>
                         <a class="btn btn-outline-secondary" href="election-posts.php?panel=form">नयाँ</a>
                     </div>
                 </form>

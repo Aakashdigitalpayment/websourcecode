@@ -37,6 +37,25 @@ function assertContains(string $file, string $needle, string $why): void {
     ok("{$file}: {$why}");
 }
 
+function assertNotContains(string $file, string $needle, string $why): void {
+    global $root;
+    $path = $root . '/' . $file;
+    if (!is_file($path)) {
+        fail("{$file}: missing ({$why})");
+        return;
+    }
+    $t = file_get_contents($path);
+    if ($t === false) {
+        fail("{$file}: unreadable ({$why})");
+        return;
+    }
+    if (strpos($t, $needle) !== false) {
+        fail("{$file}: unexpected `{$needle}` ({$why})");
+        return;
+    }
+    ok("{$file}: {$why}");
+}
+
 $theme = (string) file_get_contents($root . '/includes/theme-assets.php');
 
 assertContains('includes/theme-assets.php', "coopThemeLink('assets/css/app-public.css')", 'public base sheet');
@@ -64,21 +83,32 @@ $bundles = [
         'premium-ui.css',
         'mobile-premium-polish.css',
         'public-shell-polish.css',
+        'lucide-icon-utils.css',
         'ui-readability-safe-patch.css',
         'final-ui-polish.css',
     ],
     'admin-late-bundle.css' => [
         'premium-ui.css',
+        'mobile-premium-polish.css',
         'admin-shell-polish.css',
+        'lucide-icon-utils.css',
+        'ui-readability-safe-patch.css',
         'admin-ux-deep-patch.css',
         'final-ui-polish.css',
     ],
     'member-late-bundle.css' => [
+        'premium-ui.css',
+        'mobile-premium-polish.css',
         'member-shell-polish.css',
+        'lucide-icon-utils.css',
+        'ui-readability-safe-patch.css',
         'final-ui-polish.css',
     ],
     'minimal-late-bundle.css' => [
+        'public-shell-polish.css',
+        'lucide-icon-utils.css',
         'minimal-pages-patch.css',
+        'ui-readability-safe-patch.css',
         'final-ui-polish.css',
     ],
 ];
@@ -133,7 +163,23 @@ assertContains('scripts/build-css-late-bundles.py', 'public-late-bundle.css', 'l
 assertContains('assets/css/final-ui-polish.css', 'Homepage notices: undo over-compact', 'notice title readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Homepage interest rates: undo over-compact', 'rate row readability marker');
 assertContains('assets/css/final-ui-polish.css', 'Institutional stats: readable labels', 'stats label readability marker');
-assertContains('assets/css/final-ui-polish.css', 'Tools widget: readable footer label', 'tools mini footer readability marker');
+assertContains('assets/css/public-shell-polish.css', 'Tools widget: readable footer label', 'tools mini footer readability marker');
+assertContains('assets/css/public-shell-polish.css', 'restore primary header chips', 'tools widget primary header chips');
+assertContains('assets/css/public-shell-polish.css', 'toolsHeaderShimmerSoft', 'tools widget soft header shimmer restored');
+assertContains('assets/css/public-shell-polish.css', 'Homepage tools widget SSOT', 'tools SSOT lives in public shell');
+assertNotContains('assets/css/final-ui-polish.css', 'toolsHeaderShimmerSoft', 'tools motion not duplicated in final-ui');
+assertNotContains('assets/css/admin-late-bundle.css', 'toolsHeaderShimmerSoft', 'admin late bundle excludes homepage tools motion');
+assertNotContains('assets/css/member-late-bundle.css', 'toolsHeaderShimmerSoft', 'member late bundle excludes homepage tools motion');
+assertContains('assets/css/public-late-bundle.css', 'toolsHeaderShimmerSoft', 'public late bundle keeps tools motion');
+assertNotContains('assets/css/global-theme.php', 'Kill old shimmer pseudo-element', 'dead tools shimmer-kill removed from global-theme');
+assertContains('assets/css/final-ui-polish.css', 'body.aos-safe [data-aos]:not(.aos-animate)', 'aos-safe does not kill live scroll fades');
+assertContains('includes/footer.php', 'Fail-safe only if AOS left nodes stuck', 'AOS safe timeout is conditional');
+assertNotContains('assets/css/final-ui-polish.css', 'transition-delay: 0ms !important', 'AOS delays not globally zeroed');
+assertContains('assets/css/final-ui-polish.css', 'restore brand green', 'unified section titles use primary color');
+assertContains('assets/css/final-ui-polish.css', 'hide side chevrons on all viewports', 'hero slider side arrows hidden');
+assertContains('assets/css/final-ui-polish.css', 'labels + lucide/FA follow admin primary', 'header nav uses primary color');
+assertContains('assets/css/final-ui-polish.css', 'even quick-link grid', 'footer quick links even grid');
+assertContains('includes/footer.php', 'footer-links-cols', 'footer quick links use even grid class');
 assertContains('assets/css/final-ui-polish.css', 'Drop legacy app-public red/yellow dot on public section dividers only', 'section divider dot override');
 assertContains('assets/css/final-ui-polish.css', 'Admin modal keeps flex line dividers', 'admin modal divider scoped');
 assertContains('assets/css/final-ui-polish.css', 'Disable duplicate h2 ornaments', 'section h2 pseudo cleanup');
@@ -145,9 +191,292 @@ assertContains('includes/header.php', 'safe_versioned_media_src_absolute', 'head
 assertContains('scripts/deploy-pull-safe.sh', 'git pull origin', 'live deploy pull helper');
 
 // Page-scoped KYC capture CSS still loaded (not orphaned)
+assertContains('member/password-reset-request.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'password-reset uses versioned Bootstrap URL');
+assertNotContains('member/password-reset-request.php', 'href="assets/vendor/bootstrap.min.css"', 'password-reset no broken relative Bootstrap path');
+assertContains('assets/css/global.css', '--shell-radius:', 'shared shell radius lives in global.css');
+assertContains('assets/css/global.css', '--font-nepali:', 'global.css exposes nepali font token');
+assertContains('assets/css/global.css', '--font-size-sm:         var(--text-sm)', 'global.css font-size aliases text scale');
+assertContains('assets/css/global.css', '--fs-sm:                var(--text-sm)', 'global.css fs-* aliases text scale');
+assertContains('assets/css/global-theme.php', '--font-size-base:  var(--text-base)', 'global-theme font-size lockstep with text-*');
+assertContains('assets/css/global-theme.php', 'var(--font-size-sm, var(--text-sm, 0.8125rem))', 'admin form-label uses type-scale token');
+assertContains('admin/includes/admin-ui.php', 'admin-empty-state-title', 'adminEmptyRow uses tokenized empty-state classes');
+assertNotContains('member/index.php', 'if (false):', 'member dashboard dead legacy digital grid removed');
+assertContains('admin/print-form.php', 'goto landing — if(false) prevents fall-through', 'print-form goto NOT_FOUND documented');
+assertContains('assets/css/public-shell-polish.css', 'Service center cards — consolidated below', 'public shell service-center early duplicate removed');
+assertContains('assets/css/admin-shell-polish.css', '.admin-empty-state-title', 'admin empty-state title token styles');
+assertContains('assets/css/admin-ux-deep-patch.css', 'Removed mid-layer duplicate', 'ux-deep drops empty-state triple override');
+assertContains('assets/css/final-ui-polish.css', '.admin-empty-state-title', 'final polish styles empty-state title');
+{
+    $gc = file_get_contents($root . '/assets/css/global.css');
+    $n = substr_count((string)$gc, '.d-none { display: none !important; }');
+    if ($n === 1) {
+        ok('global.css: single .d-none utility');
+    } else {
+        fail("global.css: expected 1 .d-none utility, found {$n}");
+    }
+}
+assertContains('assets/css/public-shell-polish.css', '--pub-radius: var(--shell-radius)', 'public shell aliases shared radius');
+assertContains('assets/css/member-shell-polish.css', '--mem-radius: var(--shell-radius)', 'member shell aliases shared radius');
+assertContains('assets/css/admin-shell-polish.css', '--admin-radius: 10px', 'admin radius stays 10px');
+assertContains('includes/theme-assets.php', 'function coopThemeLinkHtml', 'extraHead CSS helper');
+assertContains('includes/theme-assets.php', 'function coopThemeColorMeta', 'shared theme-color meta');
+assertContains('assets/css/global.css', '.coop-alert--success', 'shared coop-alert type classes');
+assertContains('assets/css/member-shell-polish.css', '.bell-dropdown.open', 'member bell CSS in shell polish');
+assertContains('member/includes/chrome.php', "coopThemeLink('assets/css/member-bs-compat.css')", 'member chrome versioned bs-compat');
+assertContains('admin/includes/admin-header.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'admin header versioned Bootstrap');
+assertContains('includes/panel-uniform.php', 'coop-alert-body', 'coopAlert uses shared body class');
+assertContains('assets/css/final-ui-polish.css', '--final-control-radius:', 'phase 2b control radius contract');
+assertContains('assets/css/final-ui-polish.css', 'border-radius: var(--final-control-radius', 'forms use control radius token');
+assertContains('assets/css/final-ui-polish.css', 'font-weight: var(--final-table-head-weight', 'admin table head uses weight token');
+assertContains('assets/css/kyc-capture.css', 'var(--primary-color, #1a5f2a)', 'kyc capture uses brand token');
+assertContains('assets/css/information-room.css', 'var(--shell-radius, 12px)', 'information-room uses shell radius');
+assertContains('admin/site-license-blocked.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'license-blocked versioned Bootstrap');
+assertNotContains('admin/site-license-blocked.php', 'href="assets/vendor/bootstrap.min.css"', 'license-blocked no broken Bootstrap path');
+assertContains('assets/css/public-late-bundle.css', '--final-control-radius:', 'public bundle includes phase 2b tokens');
+assertContains('assets/css/admin-late-bundle.css', '--final-control-radius:', 'admin bundle includes phase 2b tokens');
+assertContains('assets/css/member-late-bundle.css', '--final-control-radius:', 'member bundle includes phase 2b tokens');
+assertContains('admin/db-setup.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'db-setup versioned Bootstrap');
+assertNotContains('admin/db-setup.php', 'href="assets/vendor/bootstrap.min.css"', 'db-setup no broken Bootstrap path');
+assertContains('includes/site-license.php', "assets/css/global.css", 'license expired page loads global.css');
+assertContains('includes/site-license.php', 'site-license-expired-page.css', 'license expired loads extracted CSS');
+assertContains('assets/css/site-license-expired-page.css', '.svc-expired-page', 'license expired CSS extracted');
+assertContains('core/init.php', 'core-portal-fatal-page.css', 'core fatal loads extracted CSS');
+assertContains('assets/css/core-portal-fatal-page.css', '.err-box', 'core fatal CSS extracted');
+assertContains('member/login.php', "coopThemeLink('assets/css/member-login-page.css')", 'member login loads extracted CSS');
+assertContains('assets/css/member-login-page.css', '.card-logo-wrap', 'member login CSS extracted');
+assertContains('includes/config.php', 'setup-gate-page.css', 'setup gate loads extracted CSS');
+assertContains('assets/css/setup-gate-page.css', '.box', 'setup gate CSS extracted');
+assertContains('includes/site-license.php', '$brandDynamicStyle', 'license expired injects DB brand style');
+assertContains('includes/header.php', "coopThemeLink('assets/vendor/bootstrap.min.css')", 'public header versioned Bootstrap');
+assertContains('includes/header.php', "coopThemeLink('assets/css/app-core.css')", 'public header versioned app-core');
+assertContains('assets/css/premium-ui.css', '--prem-font-body: var(--font-primary', 'premium fonts alias global');
+assertContains('assets/css/final-ui-polish.css', 'var(--primary-color, #1a5f2a), var(--primary-light, #2e7d32)', 'chairman bar uses brand tokens');
+assertContains('admin/site-license-blocked.php', "coopThemeLink('assets/css/global.css')", 'license-blocked loads global.css');
+assertContains('admin/site-license-blocked.php', "coopThemeLink('assets/css/admin-site-license-blocked-page.css')", 'license-blocked loads extracted CSS');
+assertContains('assets/css/admin-site-license-blocked-page.css', 'color: var(--primary-color, #1a5f2a)', 'license-blocked code uses brand token');
+assertNotContains('admin/site-license-blocked.php', "font-family: 'Mukta'", 'license-blocked no Mukta hardcode');
+
+assertContains('includes/header.php', 'if (!empty($extraHead))', 'public header supports $extraHead');
+assertContains('institutional-profile.php', "coopThemeLinkHtml('assets/css/institutional-profile.css')", 'institutional profile loads extracted CSS');
+assertContains('assets/css/institutional-profile.css', '.ip-filter-wrap', 'institutional profile CSS extracted');
+assertContains('assets/css/global-theme.php', "var(--font-primary,'Inter','Noto Sans Devanagari',system-ui,sans-serif)", 'global-theme font fallback matches SSOT');
+assertContains('assets/css/final-ui-polish.css', "font-family: var(--font-primary, 'Inter', 'Noto Sans Devanagari', system-ui, sans-serif) !important", 'header nav font uses SSOT');
+assertContains('assets/css/member-kyc-print-page.css', "font-family: var(--font-primary", 'kyc-print font uses SSOT with Arial fallback');
+assertContains('assets/css/admin-print-form-page.css', "font-family: var(--font-primary", 'print-form font uses SSOT');
+assertContains('member/password-reset-request.php', "coopThemeHeadAssets('auth')", 'password-reset uses theme hub auth panel');
+assertNotContains('member/index.php', '👋', 'member dashboard greeting no emoji');
+assertNotContains('application-tracker.php', '🪪', 'tracker id-card CTA no emoji');
+assertNotContains('tracker-id-card.php', '🔐', 'tracker preview no emoji');
+assertNotContains('install.php', '🎉', 'install success no emoji');
+assertNotContains('member/service-request.php', '📅', 'service-request labels no emoji');
+assertNotContains('admin/site-setup.php', '⚠️', 'site-setup status no warn emoji');
+assertContains('includes/theme-assets.php', '"sync-alt": ["refresh-cw"', 'Lucide alias covers sync-alt');
+assertContains('includes/theme-assets.php', '"cloud-upload-alt": ["cloud-upload"', 'Lucide alias covers cloud-upload-alt');
+assertContains('includes/theme-assets.php', '"sign-out-alt": ["log-out"', 'Lucide alias covers sign-out-alt');
+assertContains('includes/theme-assets.php', '"circle-xmark": ["circle-x"', 'Lucide alias covers circle-xmark');
+assertContains('includes/theme-assets.php', '"whatsapp": ["message-circle"', 'Lucide brand alias fallback exists');
+assertContains('index.php', 'fab fa-google-play', 'Play Store uses FA brand icon');
+assertNotContains('career-detail.php', 'data-lucide="whatsapp"', 'career share brands not fake Lucide');
+assertNotContains('date-converter.php', 'data-lucide="sync-alt"', 'date-converter uses Lucide refresh name');
+assertNotContains('services.php', 'data-lucide="shield-alt"', 'services uses Lucide shield name');
+assertNotContains('gallery.php', 'data-lucide="search-plus"', 'gallery uses Lucide zoom name');
+assertNotContains('member/profile.php', 'data-lucide="sign-out-alt"', 'member profile logout Lucide name');
+assertContains('admin/includes/admin-ui.php', "'success' => 'circle-check'", 'adminAlert success Lucide SSOT');
+assertContains('core/helpers.php', "'fa-check-circle'     => 'circle-check'", 'fa_to_lucide check-circle → circle-check');
+assertContains('assets/css/member-id-card-page.css', "font-family: var(--font-primary", 'id-card font uses SSOT');
+assertContains('member/id-card.php', "coopThemeLinkHtml('assets/css/member-id-card-page.css')", 'id-card loads extracted CSS');
+assertContains('assets/css/member-password-reset-page.css', "var(--font-primary,'Inter'", 'password-reset font fallback matches SSOT');
+
+assertContains('sahakari-patro.php', "coopThemeLinkHtml('assets/css/sahakari-patro.css')", 'sahakari-patro loads extracted CSS');
+assertContains('assets/css/sahakari-patro.css', '--sp-primary:var(--primary-color', 'sahakari-patro CSS brand tokens');
+assertContains('verify.php', "coopThemeLink('assets/css/verify-page.css')", 'verify loads extracted CSS');
+assertContains('assets/css/verify-page.css', '.vp-back-bar', 'verify page CSS extracted');
+assertContains('includes/satisfaction-widget.php', "coopThemeLink('assets/css/satisfaction-widget.css')", 'satisfaction widget loads extracted CSS');
+assertContains('assets/css/satisfaction-widget.css', '.satisfaction-widget', 'satisfaction widget CSS extracted');
+assertContains('committees.php', "coopThemeLinkHtml('assets/css/committees-page.css')", 'committees loads extracted CSS');
+assertContains('auction.php', "coopThemeLinkHtml('assets/css/auction-page.css')", 'auction loads extracted CSS');
+assertContains('appointment.php', "coopThemeLinkHtml('assets/css/appointment-page.css')", 'appointment loads extracted CSS');
+assertContains('team.php', "coopThemeLinkHtml('assets/css/team-page.css')", 'team loads extracted CSS');
+assertContains('about.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'about loads related/success CSS');
+assertContains('about.php', "location.replace", 'about redirects old success/chairman hashes');
+assertContains('about.php', "h === '#ceo' || h === '#ceo-message'", 'about hash redirects #ceo to dedicated page');
+assertContains('about.php', "h === '#success-stories' || h === '#success'", 'about hash redirects success aliases');
+assertContains('includes/ai-chat-instant.php', "chairman-message.php", 'AI chat public links include chairman page');
+assertContains('includes/ai-chat-instant.php', "ceo-message.php", 'AI chat public links include ceo page');
+assertContains('includes/ai-chat-instant.php', "success-stories.php", 'AI chat public links include success stories');
+assertNotContains('includes/ai-chat-instant.php', "'#chairman'", 'AI chat chairman no stale about#hash');
+assertContains('includes/ai-chat-context.php', "ceo-message.php", 'AI context pack links ceo message page');
+assertContains('about.php', 'vision-mission.php', 'about teaser links vision-mission page');
+assertContains('about.php', 'id="vision-teaser"', 'about vision is teaser not full duplicate');
+assertContains('index.php', 'why-choose.php', 'homepage links why-choose dedicated page');
+assertContains('admin/pages.php', '../vision-mission.php', 'pages static preview links vision-mission');
+assertContains('admin/help-guide.php', 'vision-mission.php', 'help guide documents vision-mission');
+assertContains('vision-mission.php', 'vision_content', 'vision-mission dedicated page');
+assertContains('why-choose.php', 'why_choose_features', 'why-choose dedicated page');
+assertContains('includes/header.php', 'vision-mission.php', 'about dropdown links vision-mission page');
+assertContains('includes/header.php', 'why-choose.php', 'about dropdown links why-choose page');
+assertContains('about.php', "h === '#vision' || h === '#mission' || h === '#vision-mission'", 'about hash redirects vision to dedicated page');
+assertContains('sitemap.php', 'success-stories.php', 'sitemap includes success stories');
+assertContains('sitemap.php', 'chairman-message.php', 'sitemap includes chairman page');
+assertContains('sitemap.php', 'vision-mission.php', 'sitemap includes vision-mission');
+assertContains('sitemap.php', 'why-choose.php', 'sitemap includes why-choose');
+assertContains('success-stories.php', 'fetchActiveMemberSuccessStories', 'success stories dedicated page');
+assertContains('success-stories.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'success stories page CSS');
+assertContains('chairman-message.php', 'coop_load_leadership_messages', 'chairman dedicated page');
+assertContains('chairman-message.php', "coopThemeLinkHtml('assets/css/leadership-message-page.css')", 'chairman page CSS');
+assertContains('ceo-message.php', 'coop_load_leadership_messages', 'ceo dedicated page');
+assertContains('ceo-message.php', "coopThemeLinkHtml('assets/css/leadership-message-page.css')", 'ceo page CSS');
+assertContains('assets/css/leadership-message-page.css', '.leadership-messages-about', 'leadership page CSS present');
+assertContains('includes/header.php', 'success-stories.php', 'about dropdown links success stories page');
+assertContains('includes/header.php', 'chairman-message.php', 'about dropdown links chairman page');
+assertContains('includes/header.php', 'ceo-message.php', 'about dropdown links ceo page');
+assertContains('assets/css/about-success-stories.css', '.mss-card', 'success stories CSS present');
+assertContains('admin/member-success-stories.php', 'member_success_stories', 'admin success stories CRUD');
+assertContains('includes/member-success-stories-tables.php', 'ensureMemberSuccessStoriesTable', 'success stories table helper');
+assertContains('cooperative-programs.php', "coopThemeLinkHtml('assets/css/cooperative-programs-page.css')", 'programs loads extracted CSS');
+assertContains('services.php', "coopThemeLinkHtml('assets/css/services-page.css')", 'services loads extracted CSS');
+assertContains('member/welfare.php', "coopThemeLinkHtml('assets/css/member-welfare-page.css')", 'member welfare loads extracted CSS');
+assertContains('assets/css/member-welfare-page.css', '.claim-card', 'member welfare CSS extracted');
+assertContains('member/service-request.php', "coopThemeLinkHtml('assets/css/member-service-request-page.css')", 'member service-request loads extracted CSS');
+assertContains('member/appointment.php', "coopThemeLinkHtml('assets/css/member-appointment-page.css')", 'member appointment loads extracted CSS');
+assertContains('member/marketplace.php', "coopThemeLinkHtml('assets/css/member-marketplace-page.css')", 'member marketplace loads extracted CSS');
+assertContains('member/index.php', "coopThemeLinkHtml('assets/css/member-dashboard-page.css')", 'member dashboard loads extracted CSS');
+assertContains('assets/css/member-dashboard-page.css', '.midx-greeting', 'member dashboard CSS extracted');
+assertContains('member/certificate.php', "coopThemeLinkHtml('assets/css/member-certificate-page.css')", 'member certificate loads extracted CSS');
+assertContains('member/scan.php', "coopThemeLinkHtml('assets/css/member-scan-page.css')", 'member scan loads extracted CSS');
+assertContains('member/attend.php', "coopThemeLinkHtml('assets/css/member-attend-page.css')", 'member attend loads extracted CSS');
+assertContains('member/election-vote.php', "coopThemeLinkHtml('assets/css/member-election-vote-page.css')", 'member election vote loads extracted CSS');
+assertContains('member/apply-frame.php', "coopThemeLinkHtml('assets/css/member-apply-frame-page.css')", 'member apply-frame loads extracted CSS');
+assertContains('member/profile.php', "coopThemeLinkHtml('assets/css/member-profile-page.css')", 'member profile loads extracted CSS');
+assertContains('includes/member-prefill-block.php', "coopThemeLink('assets/css/member-prefill-block.css')", 'prefill block loads extracted CSS');
+assertContains('assets/css/member-prefill-block.css', '.coop-prefill-banner', 'prefill CSS extracted');
+assertContains('admin/program-registration-desk.php', "coopThemeLink('assets/css/admin-program-registration-desk.css')", 'desk loads extracted CSS');
+assertContains('admin/reports.php', "coopThemeLink('assets/css/admin-reports-page.css')", 'reports loads extracted CSS');
+assertContains('member/password-reset-request.php', "coopThemeLink('assets/css/member-password-reset-page.css')", 'password-reset loads extracted CSS');
+assertContains('assets/css/member-password-reset-page.css', '.step-dot', 'password-reset CSS extracted');
+assertContains('member/kyc-print.php', "coopThemeLink('assets/css/member-kyc-print-page.css')", 'kyc-print loads extracted CSS');
+assertContains('assets/css/member-kyc-print-page.css', '.toolbar', 'kyc-print CSS extracted');
+assertContains('admin/settings.php', "coopThemeLink('assets/css/admin-settings-page.css')", 'settings loads extracted CSS');
+assertContains('assets/css/admin-settings-page.css', '.stg-color-row', 'settings CSS extracted');
+assertContains('admin/print-form.php', 'coopThemeColorHex', 'print-form uses theme brand hex');
+assertContains('offline.php', 'assets/css/offline-page.css', 'public offline loads extracted CSS');
+assertContains('assets/css/offline-page.css', '--primary-color:#1a5f2a', 'public offline uses primary token');
+assertContains('member/offline.php', 'assets/css/member-offline-page.css', 'member offline loads extracted CSS');
+assertContains('assets/css/member-offline-page.css', '--green:var(--primary-color)', 'member offline aliases primary');
+assertContains('500.php', 'assets/css/error-500-page.css', '500 page loads extracted CSS');
+assertContains('assets/css/error-500-page.css', '--primary-color:#166534', '500 page uses primary token');
+
+assertContains('includes/header.php', "coopThemeLink('assets/css/public-header-shell.css')", 'header loads shell CSS');
+assertContains('assets/css/public-header-shell.css', '.pfl-brand-area', 'header shell CSS extracted');
+assertContains('includes/header.php', "coopThemeLink('assets/css/public-embed-frame.css')", 'header loads embed CSS');
+assertContains('includes/header.php', "coopThemeLink('assets/css/public-mobile-nav-critical.css')", 'header loads mobile-nav CSS');
+assertContains('admin/print-form.php', "coopThemeLink('assets/css/admin-print-form-page.css')", 'print-form loads extracted CSS');
+assertContains('assets/css/admin-print-form-page.css', 'var(--pf-primary)', 'print-form uses brand CSS vars');
+assertContains('install.php', 'assets/css/install-page.css', 'install loads extracted CSS');
+assertContains('assets/css/install-page.css', 'body', 'install CSS extracted');
+assertContains('admin/includes/admin-header.php', "coopThemeLink('assets/css/admin-header-critical.css')", 'admin-header loads critical CSS');
+
+
+assertContains('includes/theme-assets.php', 'FROZEN: Do not rewrite app-public', 'app-* freeze documented');
+
+assertContains('includes/theme-assets.php', 'function coopThemeGoogleFontsHtml', 'fonts HTML helper for heredocs');
+assertContains('tracker-id-card.php', 'coopThemeGoogleFonts()', 'tracker id-card fonts SSOT');
+assertContains('attend.php', 'member/attend.php', 'legacy attend redirects to member portal');
+assertContains('includes/header.php', 'coopThemeGoogleFonts()', 'public header fonts SSOT');
+assertNotContains('attend.php', 'data-lucide="calendar-check"', 'legacy attend no chrome Lucide page');
+assertContains('verify.php', 'data-lucide="shield"', 'verify chrome Lucide');
+assertNotContains('install.php', 'wght@400;500;600;700;800', 'install fonts drop weight 800');
+assertNotContains('member/id-card.php', 'font-family:Mukta', 'id-card no Mukta');
+assertContains('includes/panel-uniform.php', 'data-lucide="inbox"', 'uniform empty row Lucide');
+assertContains('includes/panel-uniform.php', 'coop-alert--{$typeKey}', 'uniform alert uses CSS variants only');
+assertNotContains('includes/panel-uniform.php', 'style="background:{$m', 'uniform alert no inline bg');
+assertContains('assets/css/global.css', '.coop-empty-icon', 'global empty icon styles');
+assertContains('assets/css/global.css', '.coop-info-th', 'global info card th styles');
+
+
+assertContains('assets/css/app-public.css', 'FROZEN PANEL BASE', 'app-public frozen banner');
+
+assertContains('assets/css/app-public.css', 'SECTION INDEX (inventory only', 'app-public section inventory');
+assertContains('assets/css/app-admin.css', 'SECTION INDEX (inventory only', 'app-admin section inventory');
+assertContains('assets/css/app-member.css', 'SECTION INDEX (inventory only', 'app-member section inventory');
+assertContains('assets/css/app-core.css', 'SECTION INDEX (inventory only', 'app-core section inventory');
+assertContains('includes/header.php', 'coop_nav_icon_html(', 'header nav icons via helper');
+
+assertContains('assets/css/app-member.css', 'FROZEN PANEL BASE', 'app-member frozen banner');
+assertContains('assets/css/app-core.css', 'FROZEN PANEL BASE', 'app-core frozen banner');
+assertContains('scripts/build-css-late-bundles.py', 'Never include app-public', 'build script documents app-* freeze');
+assertNotContains('scripts/build-css-late-bundles.py', '"app-public.css"', 'late bundles do not concat app-public');
+assertContains('scripts/inventory-app-css.py', 'FROZEN PANEL BASE', 'app-* inventory script present');
+assertContains('scripts/inventory-app-css.py', 'Never include app-public', 'inventory documents late-bundle policy');
+assertContains('scripts/inventory-app-css.py', '*-page.css', 'inventory lists page CSS extracts');
+assertContains('scripts/inventory-app-css.py', 'app-css-split-plan.json', 'inventory split plan report path');
+assertContains('scripts/inventory-app-css.py', 'thin import shim', 'inventory documents shim split PR');
+assertContains('scripts/extract-app-css-section.py', '--verify', 'shadow extract has sha verify mode');
+assertContains('scripts/extract-app-css-section.py', '--all-first-pr', 'shadow extract can write all first_pr');
+assertContains('scripts/extract-app-css-section.py', '--all-second-pr', 'shadow extract can write second-wave');
+assertContains('scripts/extract-app-css-section.py', '--all-third-pr', 'shadow extract can write third-wave');
+assertContains('scripts/extract-app-css-section.py', 'THIRD_PR_MAX_BYTES', 'third-wave has byte cap for large deferred bodies');
+assertContains('assets/css/app-sections/README.md', 'not live CSS', 'app-sections README marks non-live');
+assertContains('assets/css/app-sections/README.md', '--all-third-pr', 'app-sections README documents third wave');
+assertContains('assets/css/app-sections/app-admin--admin-tokens.css', 'SHADOW EXTRACT from app-admin.css', 'admin-tokens shadow present');
+assertContains('assets/css/app-sections/app-member--mem-utils.css', 'SHADOW EXTRACT from app-member.css', 'mem-utils shadow present');
+assertContains('assets/css/app-sections/app-public--header-v2.css', 'SHADOW EXTRACT from app-public.css', 'header-v2 shadow present');
+assertContains('assets/css/app-sections/app-core--design-tokens.css', 'SHADOW EXTRACT from app-core.css', 'design-tokens shadow present');
+assertContains('assets/css/app-sections/app-core--coop-core.css', 'SHADOW EXTRACT from app-core.css', 'coop-core second-wave shadow present');
+assertContains('assets/css/app-sections/app-member--member.css', 'SHADOW EXTRACT from app-member.css', 'member.css second-wave shadow present');
+assertContains('assets/css/app-sections/app-core--unified-portal.css', 'SHADOW EXTRACT from app-core.css', 'unified-portal second-wave shadow present');
+assertContains('assets/css/app-sections/app-member--theme-overrides-v4.css', 'SHADOW EXTRACT from app-member.css', 'member theme-overrides-v4 third-wave shadow present');
+{
+    $cmd = 'python3 ' . escapeshellarg($root . '/scripts/extract-app-css-section.py') . ' --verify 2>&1';
+    $out = [];
+    $code = 0;
+    exec($cmd, $out, $code);
+    if ($code !== 0) {
+        fail('app-sections shadow verify failed — ' . implode(' ', $out));
+    } else {
+        ok('app-sections shadow verify');
+    }
+}
+assertContains('includes/footer.php', 'data-lucide="messages-square"', 'footer chatbot Lucide');
+
+assertContains('includes/header.php', 'data-lucide="layout-grid"', 'header tools icon Lucide');
+
+assertContains('includes/header.php', 'data-lucide="moon"', 'header theme toggle Lucide');
+assertNotContains('includes/header.php', 'fas fa-bars', 'header no FA hamburger');
+
+assertNotContains('includes/header.php', 'fas fa-download', 'header no FA download in chrome');
+
+assertNotContains('install.php', "family=Mukta", 'install wizard no Mukta Google font');
+assertContains('install.php', 'coopThemeGoogleFonts()', 'install fonts via SSOT helper');
+assertContains('install.php', 'family=Inter', 'install wizard uses Inter');
+assertContains('404.php', 'data-lucide="house"', '404 home Lucide');
+assertContains('includes/header.php', "htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8')", 'header SITE_URL escaped');
+
+
+assertContains('admin/db-setup.php', "coopThemeLink('assets/css/admin-db-setup-page.css')", 'db-setup loads extracted CSS');
+assertContains('assets/css/admin-db-setup-page.css', '.bootstrap-banner', 'db-setup banner styles present');
+
+assertContains('includes/header.php', '--pfl-mobile-logo: url(', 'header dynamic CSS vars on html style');
+assertContains('includes/header.php', "coopThemeLink('assets/css/public-header-shell.css')", 'header shell CSS extracted');
+assertContains('member/includes/chrome.php', 'data-lucide="house"', 'member chrome Lucide marker');
+assertContains('assets/css/admin-shell-polish.css', 'Lucide size/spin utilities', 'lucide size utilities in admin shell');
+assertContains('assets/css/public-shell-polish.css', 'Lucide size/spin utilities', 'lucide size utilities in public shell');
+assertContains('assets/css/lucide-icon-utils.css', 'lucide-spin-kf', 'shared Lucide size/spin utilities file');
+assertContains('scripts/build-css-late-bundles.py', 'lucide-icon-utils.css', 'late-bundle sources include Lucide utils');
+assertContains('assets/css/public-late-bundle.css', 'BEGIN lucide-icon-utils.css', 'public late bundle embeds Lucide utils');
+assertContains('assets/css/admin-late-bundle.css', 'BEGIN lucide-icon-utils.css', 'admin late bundle embeds Lucide utils');
+assertContains('assets/css/member-late-bundle.css', 'BEGIN lucide-icon-utils.css', 'member late bundle embeds Lucide utils');
+assertContains('assets/css/minimal-late-bundle.css', 'BEGIN lucide-icon-utils.css', 'minimal late bundle embeds Lucide utils');
+assertNotContains('assets/css/public-shell-polish.css', '@keyframes lucide-spin-kf', 'public shell no duplicated Lucide spin');
+assertNotContains('assets/css/admin-shell-polish.css', '@keyframes lucide-spin-kf', 'admin shell no duplicated Lucide spin');
+assertNotContains('assets/css/member-shell-polish.css', '@keyframes lucide-spin-kf', 'member shell no duplicated Lucide spin');
+assertContains('includes/theme-assets.php', 'lucide-icon-utils.css', 'theme hub documents Lucide utils');
+assertContains('scripts/inventory-css-deep-audit.py', 'css-deep-audit.json', 'CSS deep audit inventory script');
+assertNotContains('verify.php', 'fonts.googleapis.com', 'verify fonts via SSOT only (no rogue Google link)');
+
 assertContains('online-kyc.php', 'assets/css/kyc-capture.css', 'online-kyc loads kyc-capture.css');
-assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.10', 'online-kyc capture js version');
-assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.10', 'member profile capture js synced');
+assertContains('online-kyc.php', 'assets/js/kyc-capture.js?v=10.11', 'online-kyc capture js version');
+assertContains('member/profile.php', 'assets/js/kyc-capture.js?v=10.11', 'member profile capture js synced');
 
 // KYC soft polish markers
 assertContains('online-kyc.php', 'id="kymWizardNav"', 'wizard nav id');
@@ -158,7 +487,7 @@ assertContains('online-kyc.php', 'kymWizardBusy', 'wizard busy / double-advance 
 assertContains('online-kyc.php', "submitBtn.setAttribute('aria-busy', 'true')", 'submit aria-busy on submit');
 assertContains('online-kyc.php', 'kymFocusOnStep', 'wizard focus only after user navigation');
 
-foreach (['includes/theme-assets.php', 'online-kyc.php', 'member/profile.php', 'scripts/build-css-late-bundles.py'] as $f) {
+foreach (['includes/theme-assets.php', 'includes/header.php', 'institutional-profile.php', 'sahakari-patro.php', 'verify.php', 'includes/satisfaction-widget.php', 'team.php', 'cooperative-programs.php', 'services.php', 'committees.php', 'auction.php', 'appointment.php', 'online-kyc.php', 'member/profile.php', 'member/password-reset-request.php', 'member/login.php', 'member/id-card.php', 'member/welfare.php', 'member/service-request.php', 'member/appointment.php', 'member/marketplace.php', 'member/index.php', 'member/certificate.php', 'member/scan.php', 'member/attend.php', 'member/election-vote.php', 'member/apply-frame.php', 'member/kyc-print.php', 'includes/member-prefill-block.php', 'includes/site-license.php', 'core/init.php', 'admin/program-registration-desk.php', 'admin/reports.php', 'admin/settings.php', 'admin/site-license-blocked.php', 'admin/db-setup.php', 'admin/print-form.php', 'admin/includes/admin-header.php', 'install.php', 'index.php', 'contact.php', 'offline.php', 'member/offline.php', '500.php', 'scripts/build-css-late-bundles.py'] as $f) {
     if (str_ends_with($f, '.py')) {
         if (!is_file($root . '/' . $f)) {
             fail("{$f}: missing");

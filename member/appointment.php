@@ -130,13 +130,10 @@ $purposes = [
 $siteName  = getSetting('site_name', 'सहकारी');
 $pageTitle = $_t('भेटघाट बुक', 'Book Appointment') . ' — ' . $siteName;
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
-$extraHead = '<style>
-.appt-status{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;}
-.appt-status--pending{background:color-mix(in srgb,var(--secondary-color) 14%,white);color:var(--secondary-dark);}
-.appt-status--confirmed{background:color-mix(in srgb,var(--primary-color) 14%,white);color:var(--primary-dark);}
-.appt-status--completed{background:color-mix(in srgb,var(--primary-color) 10%,white);color:var(--primary-dark);}
-.appt-status--cancelled{background:#f3f4f6;color:#6b7280;}
-</style>';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-appointment-page.css')
+        : '');
 require __DIR__ . '/includes/chrome.php';
 ?>
 <div class="mp-main">
@@ -144,32 +141,32 @@ require __DIR__ . '/includes/chrome.php';
 
   <div class="mp-page-head">
     <h1 class="mem-page-title">
-      <i class="fas fa-calendar-check"></i><?php echo $_t('भेटघाट बुक', 'Book Appointment'); ?>
+      <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i><?php echo $_t('भेटघाट बुक', 'Book Appointment'); ?>
     </h1>
     <a href="tracker.php" class="mp-tracker-link">
-      <i class="fas fa-magnifying-glass-chart"></i> Tracker
+      <i class="lucide-icon" data-lucide="chart-no-axes-combined" aria-hidden="true"></i> Tracker
     </a>
   </div>
 
   <?php if ($errorMsg): ?>
   <div class="mem-alert mem-alert-error">
-    <i class="fas fa-circle-xmark"></i><div><?= htmlspecialchars($errorMsg) ?></div>
+    <i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i><div><?= htmlspecialchars($errorMsg) ?></div>
   </div>
   <?php endif; ?>
 
   <div class="wf-tabs">
     <button type="button" class="wf-tab <?= $activeTab==='new'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-new')" id="apptTabNew">
-      <i class="fas fa-plus-circle wf-icon-gap-sm"></i><?php echo $_t('नयाँ बुकिङ', 'New Booking'); ?>
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $_t('नयाँ बुकिङ', 'New Booking'); ?>
     </button>
     <button type="button" class="wf-tab <?= $activeTab==='history'?'active':'' ?>" onclick="apptShowTab(this,'appt-pane-history')" id="apptTabHistory">
-      <i class="fas fa-clock-rotate-left wf-icon-gap-sm"></i><?php echo $_t('मेरा भेटघाटहरू', 'My Appointments'); ?> (<?= count($recentAppts) ?>)
+      <i class="lucide-icon wf-icon-gap-sm" data-lucide="history" aria-hidden="true"></i><?php echo $_t('मेरा भेटघाटहरू', 'My Appointments'); ?> (<?= count($recentAppts) ?>)
     </button>
   </div>
 
   <!-- ── New Booking ── -->
   <div class="wf-pane <?= $activeTab==='new'?'active':'' ?>" id="appt-pane-new">
     <div class="mem-autofill-banner">
-      <i class="fas fa-wand-magic-sparkles"></i>
+      <i class="lucide-icon" data-lucide="sparkles" aria-hidden="true"></i>
       <div><?php echo $_t('तपाईंको नाम, फोन, email — <strong>KYC/profile बाट auto-fill</strong> भएको छ।', 'Your name, phone and email are <strong>auto-filled from KYM/profile</strong>.'); ?></div>
     </div>
 
@@ -178,7 +175,7 @@ require __DIR__ . '/includes/chrome.php';
       <input type="hidden" name="action" value="submit">
 
       <div class="mem-prefill-block">
-        <div class="mem-prefill-block-head"><i class="fas fa-user-check"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
+        <div class="mem-prefill-block-head"><i class="lucide-icon" data-lucide="user-check" aria-hidden="true"></i><?php echo $_t('तपाईंको जानकारी (KYM बाट)', 'Your Info (from KYM)'); ?></div>
         <div class="mem-prefill-grid">
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('नाम', 'Name'); ?></span><span class="mem-prefill-value"><?= htmlspecialchars($memName ?: '—') ?></span></div>
           <div class="mem-prefill-item"><span class="mem-prefill-label"><?php echo $_t('सदस्यता नम्बर', 'Member No.'); ?></span><span class="mem-prefill-value mem-tracking-id"><?= htmlspecialchars($memSadasyata ?: '—') ?></span></div>
@@ -204,7 +201,7 @@ require __DIR__ . '/includes/chrome.php';
 
       <div class="mem-form-row mem-form-row-2">
         <div class="mem-form-group">
-          <label class="mem-form-label" for="mapt_preferred_date"><i class="fas fa-calendar ico-primary"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required">*</span></label>
+          <label class="mem-form-label" for="mapt_preferred_date"><i class="lucide-icon ico-primary" data-lucide="calendar" aria-hidden="true"></i><?php echo $_t('मनपर्ने मिति', 'Preferred Date'); ?><?php echo function_exists('coop_date_label_calendar') ? coop_date_label_calendar() : ''; ?> <span class="mem-form-required">*</span></label>
           <?php
           echo function_exists('coop_date_input_html')
               ? coop_date_input_html([
@@ -219,7 +216,7 @@ require __DIR__ . '/includes/chrome.php';
           ?>
         </div>
         <div class="mem-form-group">
-          <label class="mem-form-label" for="mapt_preferred_time"><i class="fas fa-clock ico-primary"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required">*</span></label>
+          <label class="mem-form-label" for="mapt_preferred_time"><i class="lucide-icon ico-primary" data-lucide="clock" aria-hidden="true"></i><?php echo $_t('मनपर्ने समय', 'Preferred Time'); ?> <span class="mem-form-required">*</span></label>
           <?php $selTime = trim((string)($_POST['preferred_time'] ?? '')); ?>
           <select name="preferred_time" class="mem-form-control" required id="mapt_preferred_time">
             <option value="">— <?php echo $_t('समय छान्नुहोस्', 'Select time'); ?> —</option>
@@ -231,7 +228,7 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <div class="mem-form-group">
-        <label class="mem-form-label" for="mapt_branch"><i class="fas fa-building ico-primary"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
+        <label class="mem-form-label" for="mapt_branch"><i class="lucide-icon ico-primary" data-lucide="building" aria-hidden="true"></i><?php echo $_t('सेवा कार्यालय', 'Service Office'); ?></label>
         <select name="branch" class="mem-form-control" id="mapt_branch">
           <option value=""><?php echo $_t('सेवा कार्यालय छान्नुहोस्', 'Select branch'); ?></option>
           <?php foreach ($branches as $br): ?>
@@ -242,7 +239,7 @@ require __DIR__ . '/includes/chrome.php';
       </div>
 
       <button type="submit" class="mem-submit-btn">
-        <i class="fas fa-calendar-check"></i> <?php echo $_t('भेटघाट बुक गर्नुहोस्', 'Book Appointment'); ?>
+        <i class="lucide-icon" data-lucide="calendar-check" aria-hidden="true"></i> <?php echo $_t('भेटघाट बुक गर्नुहोस्', 'Book Appointment'); ?>
       </button>
     </form>
   </div>
@@ -251,13 +248,13 @@ require __DIR__ . '/includes/chrome.php';
   <div class="wf-pane <?= $activeTab==='history'?'active':'' ?>" id="appt-pane-history">
     <?php if ($successMsg): ?>
     <div class="mem-alert mem-alert-success">
-      <i class="fas fa-circle-check"></i><div><?= htmlspecialchars($successMsg) ?></div>
+      <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i><div><?= htmlspecialchars($successMsg) ?></div>
     </div>
     <?php endif; ?>
 
     <?php if (empty($recentAppts)): ?>
     <div class="mp-empty">
-      <i class="fas fa-calendar-xmark mp-empty-icon"></i>
+      <i class="lucide-icon mp-empty-icon" data-lucide="calendar-x" aria-hidden="true"></i>
       <div class="mp-empty-title"><?php echo $_t('कुनै भेटघाट छैन', 'No appointments yet'); ?></div>
       <div class="mp-empty-hint"><?php echo $_t('"नयाँ बुकिङ" बाट भेटघाट बुक गर्नुहोस्।', 'Use "New Booking" tab to book.'); ?></div>
     </div>
@@ -271,8 +268,8 @@ require __DIR__ . '/includes/chrome.php';
       <div>
         <div class="mp-list-title"><?= $purposeLabel ?></div>
         <div class="mp-list-meta">
-          <i class="fas fa-calendar fa-xs ico-mr"></i><?= htmlspecialchars($ap['preferred_date'] ?? '') ?>
-          <?php if (!empty($ap['preferred_time'])): ?> &nbsp;·&nbsp; <i class="fas fa-clock fa-xs ico-mr"></i><?= htmlspecialchars($ap['preferred_time']) ?><?php endif; ?>
+          <i class="lucide-icon ico-mr" data-lucide="calendar" aria-hidden="true"></i><?= htmlspecialchars($ap['preferred_date'] ?? '') ?>
+          <?php if (!empty($ap['preferred_time'])): ?> &nbsp;·&nbsp; <i class="lucide-icon ico-mr" data-lucide="clock" aria-hidden="true"></i><?= htmlspecialchars($ap['preferred_time']) ?><?php endif; ?>
         </div>
       </div>
       <div class="mp-status-row">
@@ -282,7 +279,7 @@ require __DIR__ . '/includes/chrome.php';
     </div>
     <?php endforeach; ?>
     <a href="tracker.php" class="mp-tracker-link-sm">
-      <i class="fas fa-magnifying-glass-chart ico-mr"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
+      <i class="lucide-icon ico-mr" data-lucide="chart-no-axes-combined" aria-hidden="true"></i><?php echo $_t('सबै Tracker मा हेर्नुहोस्', 'View all in Tracker'); ?> →
     </a>
     <?php endif; ?>
   </div>

@@ -230,7 +230,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
             <?php if ($img !== ''): ?>
                 <img src="<?php echo htmlspecialchars($img); ?>" alt="<?php echo htmlspecialchars($title); ?>" loading="lazy">
             <?php else: ?>
-                <span class="mkt-card-fallback" aria-hidden="true"><i class="fas <?php echo htmlspecialchars($icon); ?>"></i></span>
+                <span class="mkt-card-fallback" aria-hidden="true"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html('fas ' . $icon, 'fas fa-circle', '') : ''; ?></span>
             <?php endif; ?>
         </a>
         <div class="mkt-card-body">
@@ -239,13 +239,13 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
             <p class="mkt-price"><?php echo htmlspecialchars($price); ?></p>
             <?php if ($name !== '' || $loc !== ''): ?>
             <p class="mkt-meta">
-                <?php if ($name !== ''): ?><i class="fas fa-user" aria-hidden="true"></i> <?php echo htmlspecialchars($name); ?><?php endif; ?>
-                <?php if ($loc !== ''): ?><span class="mkt-dot">·</span><i class="fas fa-location-dot" aria-hidden="true"></i> <?php echo htmlspecialchars($loc); ?><?php endif; ?>
+                <?php if ($name !== ''): ?><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo htmlspecialchars($name); ?><?php endif; ?>
+                <?php if ($loc !== ''): ?><span class="mkt-dot">·</span><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo htmlspecialchars($loc); ?><?php endif; ?>
             </p>
             <?php endif; ?>
             <?php if ($untilDisp !== '' || ($timeFrom !== '' && $timeFrom !== '00:00')): ?>
             <p class="mkt-until">
-                <i class="fas fa-clock" aria-hidden="true"></i>
+                <i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i>
                 <?php
                 if ($untilDisp !== '') {
                     echo $mpT('उपलब्ध ', 'Until ') . htmlspecialchars($untilDisp);
@@ -258,7 +258,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
             <?php endif; ?>
             <div class="mkt-card-actions">
                 <?php if ($phone !== ''): ?>
-                    <a class="mkt-btn mkt-btn-call mkt-btn-icon" href="tel:<?php echo htmlspecialchars($phone); ?>" title="<?php echo htmlspecialchars($phone); ?>" aria-label="<?php echo htmlspecialchars($mpT('फोन', 'Call') . ' ' . $phone); ?>"><i class="fas fa-phone"></i></a>
+                    <a class="mkt-btn mkt-btn-call mkt-btn-icon" href="tel:<?php echo htmlspecialchars($phone); ?>" title="<?php echo htmlspecialchars($phone); ?>" aria-label="<?php echo htmlspecialchars($mpT('फोन', 'Call') . ' ' . $phone); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a>
                 <?php endif; ?>
                 <?php if ($wa !== ''): ?>
                     <a class="mkt-btn mkt-btn-wa mkt-btn-icon" href="<?php echo htmlspecialchars($wa); ?>" target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
@@ -277,7 +277,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
             <h1 class="page-title-modern"><?php echo htmlspecialchars($heroTitle); ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-modern">
-                    <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
                     <li class="breadcrumb-item active"><?php echo htmlspecialchars($heroTitle); ?></li>
                 </ol>
             </nav>
@@ -292,13 +292,13 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
         <p class="mkt-lead"><?php echo $heroLead; ?></p>
         <div class="mkt-cta-row">
             <a class="btn btn-success btn-sm" href="<?php echo htmlspecialchars($memberCta); ?>">
-                <i class="fas fa-plus me-1"></i><?php echo $mpT('मेरो सूची थप्नुहोस्', 'Add my listing'); ?>
+                <i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo $mpT('मेरो सूची थप्नुहोस्', 'Add my listing'); ?>
             </a>
             <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars($otherHref); ?>">
-                <i class="fas fa-<?php echo $mpKind === 'skill' ? 'basket-shopping' : 'screwdriver-wrench'; ?> me-1"></i><?php echo $otherLabel; ?>
+                <i class="lucide-icon me-1" data-lucide="<?php echo $mpKind === 'skill' ? 'shopping-basket' : 'wrench'; ?>" aria-hidden="true"></i><?php echo $otherLabel; ?>
             </a>
-            <a class="btn btn-outline-secondary btn-sm" href="<?php echo SITE_URL; ?>member/login.php">
-                <i class="fas fa-user me-1"></i><?php echo $mpT('सदस्य पोर्टल', 'Member portal'); ?>
+            <a class="btn btn-outline-secondary btn-sm" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/login.php">
+                <i class="lucide-icon me-1" data-lucide="user" aria-hidden="true"></i><?php echo $mpT('सदस्य पोर्टल', 'Member portal'); ?>
             </a>
         </div>
     </div>
@@ -312,7 +312,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
 
     <?php if ($detailUnavailable): ?>
         <div class="mkt-empty">
-            <i class="fas fa-hourglass-end"></i>
+            <i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i>
             <p><?php echo $mpT('यो सूची अहिले उपलब्ध छैन — स्वीकृत नभएको, अवधि सकिएको, वा फिर्ता लिइएको हुन सक्छ।', 'This listing is not available — it may be unapproved, expired, or withdrawn.'); ?></p>
             <a class="btn btn-outline-success" href="<?php echo htmlspecialchars(mpPublicPageUrl($mpKind)); ?>"><?php echo $mpT('सूचीमा फर्कनुहोस्', 'Back to list'); ?></a>
         </div>
@@ -334,7 +334,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
                 <?php if ($dImg !== ''): ?>
                     <img src="<?php echo htmlspecialchars($dImg); ?>" alt="<?php echo htmlspecialchars((string) $detail['title']); ?>">
                 <?php else: ?>
-                    <div class="mkt-card-fallback mkt-detail-fallback"><i class="fas <?php echo htmlspecialchars(mpCategoryIcon($mpKind, (string) $detail['category'])); ?>"></i></div>
+                    <div class="mkt-card-fallback mkt-detail-fallback"><?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html('fas ' . mpCategoryIcon($mpKind, (string) $detail['category']), 'fas fa-circle', '') : ''; ?></div>
                 <?php endif; ?>
             </div>
             <div class="mkt-detail-body">
@@ -352,24 +352,24 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
                 <?php endif; ?>
                 <ul class="mkt-facts">
                     <?php if (trim((string) ($detail['contact_name'] ?? '')) !== ''): ?>
-                        <li><i class="fas fa-user"></i> <?php echo htmlspecialchars((string) $detail['contact_name']); ?></li>
+                        <li><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i> <?php echo htmlspecialchars((string) $detail['contact_name']); ?></li>
                     <?php endif; ?>
                     <?php if (trim((string) ($detail['location'] ?? '')) !== ''): ?>
-                        <li><i class="fas fa-location-dot"></i> <?php echo htmlspecialchars((string) $detail['location']); ?></li>
+                        <li><i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i> <?php echo htmlspecialchars((string) $detail['location']); ?></li>
                     <?php endif; ?>
                     <?php if ($dFromDisp !== ''): ?>
-                        <li><i class="fas fa-calendar"></i> <?php echo $mpT('सुरू', 'From'); ?>: <?php echo htmlspecialchars($dFromDisp); ?></li>
+                        <li><i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i> <?php echo $mpT('सुरू', 'From'); ?>: <?php echo htmlspecialchars($dFromDisp); ?></li>
                     <?php endif; ?>
                     <?php if ($dUntilDisp !== ''): ?>
-                        <li><i class="fas fa-hourglass-end"></i> <?php echo $mpT('सम्म उपलब्ध', 'Available until'); ?>: <?php echo htmlspecialchars($dUntilDisp); ?></li>
+                        <li><i class="lucide-icon" data-lucide="hourglass" aria-hidden="true"></i> <?php echo $mpT('सम्म उपलब्ध', 'Available until'); ?>: <?php echo htmlspecialchars($dUntilDisp); ?></li>
                     <?php endif; ?>
                     <?php if ($tFrom !== '' && $tFrom !== '00:00'): ?>
-                        <li><i class="fas fa-clock"></i> <?php echo $mpT('दैनिक समय', 'Daily hours'); ?>: <?php echo htmlspecialchars($tFrom . '–' . $tTo); ?></li>
+                        <li><i class="lucide-icon" data-lucide="clock" aria-hidden="true"></i> <?php echo $mpT('दैनिक समय', 'Daily hours'); ?>: <?php echo htmlspecialchars($tFrom . '–' . $tTo); ?></li>
                     <?php endif; ?>
                 </ul>
                 <div class="mkt-card-actions">
                     <?php if ($dPhone !== ''): ?>
-                        <a class="mkt-btn mkt-btn-call" href="tel:<?php echo htmlspecialchars($dPhone); ?>"><i class="fas fa-phone"></i> <?php echo htmlspecialchars($dPhone); ?></a>
+                        <a class="mkt-btn mkt-btn-call" href="tel:<?php echo htmlspecialchars($dPhone); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i> <?php echo htmlspecialchars($dPhone); ?></a>
                     <?php endif; ?>
                     <?php if ($dWa !== ''): ?>
                         <a class="mkt-btn mkt-btn-wa" href="<?php echo htmlspecialchars($dWa); ?>" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> WhatsApp</a>
@@ -419,7 +419,7 @@ $renderCard = static function (array $row) use ($mpKind, $mpT, $en): void {
 
         <?php if ($listings === []): ?>
             <div class="mkt-empty">
-                <i class="fas fa-<?php echo $mpKind === 'skill' ? 'screwdriver-wrench' : 'basket-shopping'; ?>"></i>
+                <i class="lucide-icon" data-lucide="<?php echo $mpKind === 'skill' ? 'wrench' : 'shopping-basket'; ?>" aria-hidden="true"></i>
                 <p><?php echo $mpT('अहिले सार्वजनिक सूची छैन। सदस्य पोर्टलबाट थप्न सकिन्छ — प्रशासन स्वीकृतिपछि यहाँ देखिन्छ।', 'No public listings yet. Members can add from the portal; they appear here after admin approval.'); ?></p>
                 <a class="btn btn-outline-success" href="<?php echo htmlspecialchars($memberCta); ?>"><?php echo $mpT('सूची थप्नुहोस्', 'Add a listing'); ?></a>
             </div>

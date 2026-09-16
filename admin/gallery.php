@@ -3,6 +3,7 @@
  * ग्यालरी व्यवस्थापन — Album-first gallery management
  * Tabs: एल्बमहरू | ग्यालरी | फोटो अपलोड | भिडियो
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'ग्यालरी व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -336,42 +337,42 @@ foreach ($images as $img) {
     'ग्यालरी व्यवस्थापन',
     'fa-images',
     'पहिले एल्बम बनाउनुहोस्, त्यसपछि फोटो अपलोड गर्नुहोस्।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-folder me-1"></i>एल्बम: ' . count($albums) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25"><i class="fas fa-images me-1"></i>फोटो: ' . $photoCount . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="folder" aria-hidden="true"></i>एल्बम: ' . count($albums) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25"><i class="lucide-icon me-1" data-lucide="images" aria-hidden="true"></i>फोटो: ' . $photoCount . '</span>'
 );
 ?>
 <?php echo adminHelpTip('सही क्रम:', [
     '१. "एल्बमहरू" ट्याबमा कार्यक्रम/सभाको नामले एल्बम बनाउनुहोस्।',
     '२. "फोटो अपलोड" / "भिडियो" मा एल्बम छानेर media थप्नुहोस्।',
-    '३. ग्यालरी सूचीबाट Edit (✏️) थिचेर album change / title / status अपडेट गर्न सकिन्छ।',
+    '३. ग्यालरी सूचीबाट Edit थिचेर album change / title / status अपडेट गर्न सकिन्छ।',
     '४. Public मा Photos/Videos tab → album cover → click गरेर popup मा media हेर्नुहोस्।',
 ]); ?>
 
 <?php if ($flash && $flash['type'] === 'success'): ?>
-<div class="alert alert-success alert-dismissible fade show mb-3"><i class="fas fa-check-circle me-2"></i><?php echo $flash['message']; ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-success alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="circle-check" aria-hidden="true"></i><?php echo e($flash['message']); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php elseif ($flash && $flash['type'] === 'error'): ?>
-<div class="alert alert-danger alert-dismissible fade show mb-3"><i class="fas fa-exclamation-circle me-2"></i><?php echo $flash['message']; ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-danger alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="circle-alert" aria-hidden="true"></i><?php echo e($flash['message']); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <ul class="nav nav-tabs admin-nav-tabs mb-3">
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab === 'albums' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-albums">
-            <i class="fas fa-folder me-2"></i>एल्बमहरू <span class="badge bg-success ms-1"><?php echo count($albums); ?></span>
+            <i class="lucide-icon me-2" data-lucide="folder" aria-hidden="true"></i>एल्बमहरू <span class="badge bg-success ms-1"><?php echo count($albums); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab === 'list' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-list">
-            <i class="fas fa-images me-2"></i>ग्यालरी <span class="badge bg-primary ms-1"><?php echo count($images); ?></span>
+            <i class="lucide-icon me-2" data-lucide="images" aria-hidden="true"></i>ग्यालरी <span class="badge bg-primary ms-1"><?php echo count($images); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab === 'upload' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-photo" id="gal-photo-tab">
-            <i class="fas fa-camera me-2"></i>फोटो अपलोड
+            <i class="lucide-icon me-2" data-lucide="camera" aria-hidden="true"></i>फोटो अपलोड
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link <?php echo $activeTab === 'video' ? 'active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#gal-video">
-            <i class="fab fa-youtube me-2 gal-yt-icon"></i>भिडियो थप्नुहोस्
+            <i class="fab fa-youtube me-2 gal-yt-icon" aria-hidden="true"></i>भिडियो थप्नुहोस्
         </button>
     </li>
 </ul>
@@ -383,7 +384,7 @@ foreach ($images as $img) {
             <div class="col-lg-5">
                 <div class="card admin-table-card">
                     <div class="card-header gradient-card-header">
-                        <h5 class="mb-0"><i class="fas fa-folder-plus me-2"></i><?php echo $editAlbum ? 'एल्बम सम्पादन' : 'नयाँ एल्बम'; ?></h5>
+                        <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="folder-plus" aria-hidden="true"></i><?php echo $editAlbum ? 'एल्बम सम्पादन' : 'नयाँ एल्बम'; ?></h5>
                     </div>
                     <div class="card-body p-4">
                         <form method="POST" action="gallery.php?tab=albums">
@@ -423,7 +424,7 @@ foreach ($images as $img) {
                             </div>
                             <div class="d-flex gap-2">
                                 <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save me-1"></i><?php echo $editAlbum ? 'अद्यावधिक' : 'एल्बम बनाउनुहोस्'; ?>
+                                    <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i><?php echo $editAlbum ? 'अद्यावधिक' : 'एल्बम बनाउनुहोस्'; ?>
                                 </button>
                                 <?php if ($editAlbum): ?>
                                 <a href="gallery.php?tab=albums" class="btn btn-outline-secondary">रद्द</a>
@@ -435,11 +436,11 @@ foreach ($images as $img) {
             </div>
             <div class="col-lg-7">
                 <div class="card admin-table-card">
-                    <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>एल्बम सूची</h5></div>
+                    <div class="card-header"><h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>एल्बम सूची</h5></div>
                     <div class="card-body p-0">
                         <?php if (empty($albums)): ?>
                         <div class="text-center py-5 text-muted">
-                            <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                            <i class="lucide-icon lucide-3x mb-3 opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                             <p class="mb-0">कुनै एल्बम छैन। बायाँबाट पहिलो एल्बम बनाउनुहोस्।</p>
                         </div>
                         <?php else: ?>
@@ -475,12 +476,12 @@ foreach ($images as $img) {
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-end">
-                                            <a href="gallery.php?tab=albums&amp;edit_album=<?php echo (int)$alb['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="सम्पादन" aria-label="सम्पादन"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                            <a href="gallery.php?tab=albums&amp;edit_album=<?php echo (int)$alb['id']; ?>" class="adm-icon-btn adm-icon-btn--edit" title="सम्पादन" aria-label="सम्पादन"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i></a>
                                             <form method="POST" class="d-inline" onsubmit="return confirm('यो खाली एल्बम मेटाउने हो?')">
                                                 <?php echo csrfField(); ?>
                                                 <input type="hidden" name="action" value="delete_album">
                                                 <input type="hidden" name="id" value="<?php echo (int)$alb['id']; ?>">
-                                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्" <?php echo (int)($alb['media_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्" <?php echo (int)($alb['media_count'] ?? 0) > 0 ? 'disabled' : ''; ?>><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -499,7 +500,7 @@ foreach ($images as $img) {
     <div class="tab-pane fade <?php echo $activeTab === 'list' ? 'show active' : ''; ?>" id="gal-list">
         <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3 flex-wrap">
             <div class="input-group input-group-sm gal-search-group">
-                <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                 <input type="text" class="form-control border-start-0 admin-gallery-search" placeholder="शीर्षक, एल्बम वा वर्गले खोज्नुहोस्..." autocomplete="off">
             </div>
             <select id="galAlbumFilter" class="form-select form-select-sm gal-album-filter-select">
@@ -513,7 +514,7 @@ foreach ($images as $img) {
             <div class="card-body">
                 <?php if (empty($images)): ?>
                 <div class="text-center py-5 text-muted">
-                    <i class="fas fa-images fa-4x mb-3 opacity-25"></i>
+                    <i class="lucide-icon lucide-4x mb-3 opacity-25" data-lucide="images" aria-hidden="true"></i>
                     <p>कुनै तस्विर छैन। पहिले एल्बम बनाएर "फोटो अपलोड" प्रयोग गर्नुहोस्।</p>
                 </div>
                 <?php else: ?>
@@ -533,19 +534,19 @@ foreach ($images as $img) {
                             <img src="<?php echo htmlspecialchars($thumbSrc); ?>" loading="lazy" alt="<?php echo htmlspecialchars((string)$img['title']); ?>" class="gal-thumb">
                             <?php if ($isVideo): ?>
                             <div class="position-absolute top-50 start-50 translate-middle pe-none">
-                                <i class="fab fa-youtube fa-2x text-danger opacity-75"></i>
+                                <i class="fab fa-youtube text-danger opacity-75" aria-hidden="true"></i>
                             </div>
                             <?php endif; ?>
                             <div class="gallery-hover-overlay">
                                 <small class="text-white fw-semibold d-block mb-1"><?php echo htmlspecialchars(mb_substr((string)$img['title'], 0, 20)); ?></small>
                                 <?php if ($albumLbl !== ''): ?>
-                                <small class="text-white-50 d-block mb-1 gal-album-lbl"><i class="fas fa-folder me-1"></i><?php echo htmlspecialchars(mb_substr($albumLbl, 0, 24)); ?></small>
+                                <small class="text-white-50 d-block mb-1 gal-album-lbl"><i class="lucide-icon me-1" data-lucide="folder" aria-hidden="true"></i><?php echo htmlspecialchars(mb_substr($albumLbl, 0, 24)); ?></small>
                                 <?php endif; ?>
                                 <span class="visually-hidden"><?php echo htmlspecialchars($albumLbl . ' ' . ($img['category'] ?? '')); ?></span>
                                 <div class="d-flex gap-1 justify-content-center flex-wrap">
                                     <a href="<?php echo htmlspecialchars($isVideo ? ($img['video_url'] ?? '#') : ('../' . $img['image'])); ?>"
                                        target="_blank" class="btn btn-sm btn-info" title="हेर्नुहोस्" rel="noopener noreferrer">
-                                        <i class="fas fa-eye"></i>
+                                        <i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i>
                                     </a>
                                     <button type="button"
                                             class="btn btn-sm btn-warning gal-edit-media-btn"
@@ -558,14 +559,14 @@ foreach ($images as $img) {
                                             data-media-url="<?php echo htmlspecialchars((string)($img['video_url'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
                                             data-album-id="<?php echo (int)($img['album_id'] ?? 0); ?>"
                                             data-is-active="<?php echo (int)($img['is_active'] ?? 1); ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="gal-inline-form" onsubmit="return confirm('यो फोटो/भिडियो मेटाउने हो?')">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$img['id']; ?>">
                                         <?php echo csrfField(); ?>
                                         <button type="submit" class="btn btn-sm btn-danger" title="मेटाउनुहोस्">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -590,7 +591,7 @@ foreach ($images as $img) {
                     <input type="hidden" name="id" id="galEditMediaId" value="">
                     <div class="modal-header">
                         <h5 class="modal-title" id="galEditMediaTitle">
-                            <i class="fas fa-edit me-2 text-success"></i>मिडिया सम्पादन
+                            <i class="lucide-icon me-2 text-success" data-lucide="pencil" aria-hidden="true"></i>मिडिया सम्पादन
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -623,7 +624,7 @@ foreach ($images as $img) {
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">रद्द</button>
                         <button type="submit" class="btn btn-success" <?php echo empty($albums) ? 'disabled' : ''; ?>>
-                            <i class="fas fa-save me-1"></i>सेभ गर्नुहोस्
+                            <i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ गर्नुहोस्
                         </button>
                     </div>
                 </form>
@@ -634,11 +635,11 @@ foreach ($images as $img) {
     <!-- PHOTO UPLOAD TAB -->
     <div class="tab-pane fade <?php echo $activeTab === 'upload' ? 'show active' : ''; ?>" id="gal-photo">
         <div class="card admin-table-card">
-            <div class="card-header gradient-card-header"><h5><i class="fas fa-camera me-2"></i>फोटो अपलोड गर्नुहोस्</h5></div>
+            <div class="card-header gradient-card-header"><h5><i class="lucide-icon me-2" data-lucide="camera" aria-hidden="true"></i>फोटो अपलोड गर्नुहोस्</h5></div>
             <div class="card-body p-4">
                 <?php if (empty($albums)): ?>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i>
                     पहिले <strong>एल्बमहरू</strong> ट्याबमा एउटा एल्बम बनाउनुहोस्, त्यसपछि फोटो अपलोड गर्न सकिन्छ।
                     <a href="gallery.php?tab=albums" class="alert-link ms-1">एल्बम बनाउनुहोस् →</a>
                 </div>
@@ -672,10 +673,10 @@ foreach ($images as $img) {
                             </div>
                         </div>
                         <div class="col-12">
-                            <label for="gal_files" class="form-label fw-semibold text-success"><i class="fas fa-images me-1"></i>तस्विरहरू छान्नुहोस् <span class="text-danger">*</span></label>
+                            <label for="gal_files" class="form-label fw-semibold text-success"><i class="lucide-icon me-1" data-lucide="images" aria-hidden="true"></i>तस्विरहरू छान्नुहोस् <span class="text-danger">*</span></label>
                             <div class="upload-drop-zone p-4 text-center border-2 border-dashed gal-upload-drop"
                                  onclick="document.getElementById('gal_files').click()">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-success mb-2"></i>
+                                <i class="lucide-icon lucide-3x text-success mb-2" data-lucide="cloud-upload" aria-hidden="true"></i>
                                 <p class="mb-1 fw-semibold text-success">क्लिक गरी वा drag-drop गरी फोटो छान्नुहोस्</p>
                                 <small class="text-muted d-block">PNG, JPG, WebP — एकैपटक धेरै फोटो छान्न सकिन्छ (Ctrl/Cmd + click)</small>
                                 <small class="text-muted d-block">प्रति फोटो अधिकतम <?php echo $galleryMaxMb; ?>MB (स्वतः 1200×900 सम्म resize हुन्छ)</small>
@@ -687,7 +688,7 @@ foreach ($images as $img) {
                         </div>
                         <div class="col-12 pt-2">
                             <button type="submit" class="btn btn-success px-5 fw-semibold">
-                                <i class="fas fa-upload me-2"></i>अपलोड गर्नुहोस्
+                                <i class="lucide-icon me-2" data-lucide="upload" aria-hidden="true"></i>अपलोड गर्नुहोस्
                             </button>
                         </div>
                     </div>
@@ -701,18 +702,18 @@ foreach ($images as $img) {
     <div class="tab-pane fade <?php echo $activeTab === 'video' ? 'show active' : ''; ?>" id="gal-video">
         <div class="card admin-table-card">
             <div class="card-header gal-video-head">
-                <h5><i class="fab fa-youtube me-2"></i>YouTube भिडियो थप्नुहोस्</h5>
+                <h5><i class="fab fa-youtube me-2" aria-hidden="true"></i>YouTube भिडियो थप्नुहोस्</h5>
             </div>
             <div class="card-body p-4">
                 <?php if (empty($albums)): ?>
                 <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <i class="lucide-icon me-2" data-lucide="triangle-alert" aria-hidden="true"></i>
                     भिडियो थप्न पहिले <strong>एल्बमहरू</strong> ट्याबमा एल्बम बनाउनुहोस्।
                     <a href="gallery.php?tab=albums" class="alert-link ms-1">एल्बम बनाउनुहोस् →</a>
                 </div>
                 <?php else: ?>
                 <p class="text-muted small mb-3">
-                    <i class="fab fa-youtube me-1"></i>
+                    <i class="fab fa-youtube me-1" aria-hidden="true"></i>
                     YouTube link मात्र — एक पटकमा एउटा भिडियो। फाइल upload हुँदैन; URL राखेर बारम्बार submit गर्न सकिन्छ।
                 </p>
                 <form method="POST" action="gallery.php?tab=video" class="needs-validation" novalidate>
@@ -736,14 +737,14 @@ foreach ($images as $img) {
                             <input type="text" name="title" id="gal_video_title" class="form-control admin-fancy-input" placeholder="भिडियोको नाम">
                         </div>
                         <div class="col-12">
-                            <label for="gal_video_url" class="form-label fw-semibold text-danger"><i class="fab fa-youtube me-1"></i>YouTube URL <span class="text-danger">*</span></label>
+                            <label for="gal_video_url" class="form-label fw-semibold text-danger"><i class="fab fa-youtube me-1" aria-hidden="true"></i>YouTube URL <span class="text-danger">*</span></label>
                             <input type="url" name="video_url" id="gal_video_url" class="form-control admin-fancy-input" required
                                    placeholder="https://www.youtube.com/watch?v=XXXXXXXXXXX">
                             <small class="text-muted">Thumbnail स्वचालित रूपमा YouTube बाट लिइनेछ।</small>
                         </div>
                         <div class="col-12 pt-2">
                             <button type="submit" class="btn btn-danger px-5 fw-semibold">
-                                <i class="fab fa-youtube me-2"></i>भिडियो थप्नुहोस्
+                                <i class="fab fa-youtube me-2" aria-hidden="true"></i>भिडियो थप्नुहोस्
                             </button>
                         </div>
                     </div>
@@ -878,7 +879,7 @@ function showFileNames(input) {
         document.getElementById('galEditActive').checked = trigger.getAttribute('data-is-active') === '1';
         document.getElementById('galEditVideoUrlWrap').classList.toggle('d-none', type !== 'video');
         document.getElementById('galEditMediaTitle').innerHTML =
-            '<i class="fas fa-edit me-2 text-success"></i>'
+            '<i class="lucide-icon me-2 text-success" data-lucide="pencil" aria-hidden="true"></i>'
             + (type === 'video' ? 'भिडियो सम्पादन' : 'फोटो सम्पादन');
     });
 })();

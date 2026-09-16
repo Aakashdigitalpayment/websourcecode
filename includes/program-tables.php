@@ -40,21 +40,35 @@ if (!function_exists('ensureProgramTables')) {
                 INDEX idx_up_prereg (pre_registration_open)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            foreach ([
-                'ALTER TABLE upcoming_programs ADD COLUMN pre_registration_open TINYINT(1) DEFAULT 0 AFTER is_active',
-                'ALTER TABLE upcoming_programs ADD COLUMN qr_token VARCHAR(64) UNIQUE NULL',
-                'ALTER TABLE upcoming_programs ADD COLUMN qr_starts_at DATETIME NULL AFTER qr_token',
-                'ALTER TABLE upcoming_programs ADD COLUMN qr_expires_at DATETIME NULL AFTER qr_starts_at',
-                'ALTER TABLE upcoming_programs ADD COLUMN updated_at TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP',
-                'ALTER TABLE upcoming_programs ADD COLUMN created_by VARCHAR(100) NULL',
-                'ALTER TABLE upcoming_programs ADD COLUMN qr_enabled TINYINT(1) DEFAULT 1 AFTER pre_registration_open',
-                'ALTER TABLE upcoming_programs ADD INDEX idx_up_prereg (pre_registration_open)',
-            ] as $sql) {
+            $addCol = static function (PDO $db, string $table, string $col, string $def): void {
+                if (function_exists('safeAddColumn')) {
+                    safeAddColumn($db, $table, $col, $def);
+                    return;
+                }
                 try {
-                    $db->exec($sql);
+                    $db->exec("ALTER TABLE `{$table}` ADD COLUMN `{$col}` {$def}");
                 } catch (Throwable $e) {
                 }
-            }
+            };
+            $addIdx = static function (PDO $db, string $table, string $name, array $cols): void {
+                if (function_exists('safeAddIndex')) {
+                    safeAddIndex($db, $table, $name, $cols);
+                    return;
+                }
+                try {
+                    $db->exec('ALTER TABLE `' . $table . '` ADD INDEX `' . $name . '` (`' . implode('`,`', $cols) . '`)');
+                } catch (Throwable $e) {
+                }
+            };
+
+            $addCol($db, 'upcoming_programs', 'pre_registration_open', 'TINYINT(1) DEFAULT 0 AFTER is_active');
+            $addCol($db, 'upcoming_programs', 'qr_token', 'VARCHAR(64) UNIQUE NULL');
+            $addCol($db, 'upcoming_programs', 'qr_starts_at', 'DATETIME NULL AFTER qr_token');
+            $addCol($db, 'upcoming_programs', 'qr_expires_at', 'DATETIME NULL AFTER qr_starts_at');
+            $addCol($db, 'upcoming_programs', 'updated_at', 'TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP');
+            $addCol($db, 'upcoming_programs', 'created_by', 'VARCHAR(100) NULL');
+            $addCol($db, 'upcoming_programs', 'qr_enabled', 'TINYINT(1) DEFAULT 1 AFTER pre_registration_open');
+            $addIdx($db, 'upcoming_programs', 'idx_up_prereg', ['pre_registration_open']);
 
             $db->exec("CREATE TABLE IF NOT EXISTS member_program_attendance (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,15 +88,8 @@ if (!function_exists('ensureProgramTables')) {
                 INDEX idx_mpa_prog_att (program_id, attended_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            foreach ([
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_date (attended_at)',
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_prog_att (program_id, attended_at)',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_date', ['attended_at']);
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_prog_att', ['program_id', 'attended_at']);
 
             $db->exec("CREATE TABLE IF NOT EXISTS member_program_attendance_requests (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -107,20 +114,10 @@ if (!function_exists('ensureProgramTables')) {
                 INDEX idx_mpar_status_prog (status, program_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            try {
-                $db->exec('ALTER TABLE member_program_attendance_requests ADD INDEX idx_mpar_status_prog (status, program_id)');
-            } catch (Throwable $e) {
-            }
-            foreach ([
-                'ALTER TABLE member_program_attendance_requests ADD COLUMN member_phone VARCHAR(30) DEFAULT "" AFTER member_name',
-                'ALTER TABLE member_program_attendance_requests ADD COLUMN member_address VARCHAR(255) DEFAULT "" AFTER member_phone',
-                'ALTER TABLE member_program_attendance_requests ADD COLUMN user_agent VARCHAR(255) DEFAULT "" AFTER verified_by_ip',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addIdx($db, 'member_program_attendance_requests', 'idx_mpar_status_prog', ['status', 'program_id']);
+            $addCol($db, 'member_program_attendance_requests', 'member_phone', 'VARCHAR(30) DEFAULT "" AFTER member_name');
+            $addCol($db, 'member_program_attendance_requests', 'member_address', 'VARCHAR(255) DEFAULT "" AFTER member_phone');
+            $addCol($db, 'member_program_attendance_requests', 'user_agent', 'VARCHAR(255) DEFAULT "" AFTER verified_by_ip');
 
             $db->exec("CREATE TABLE IF NOT EXISTS member_program_preregistrations (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -142,37 +139,23 @@ if (!function_exists('ensureProgramTables')) {
                 INDEX idx_mppr_prog_created (program_id, created_at)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            foreach ([
-                'ALTER TABLE member_program_preregistrations ADD COLUMN email VARCHAR(120) DEFAULT \'\'',
-                'ALTER TABLE member_program_preregistrations ADD COLUMN event_date DATE NULL',
-                'ALTER TABLE member_program_preregistrations ADD COLUMN note VARCHAR(500) DEFAULT \'\'',
-                'ALTER TABLE member_program_preregistrations ADD INDEX idx_mppr_prog_created (program_id, created_at)',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addCol($db, 'member_program_preregistrations', 'email', "VARCHAR(120) DEFAULT ''");
+            $addCol($db, 'member_program_preregistrations', 'event_date', 'DATE NULL');
+            $addCol($db, 'member_program_preregistrations', 'note', "VARCHAR(500) DEFAULT ''");
+            $addIdx($db, 'member_program_preregistrations', 'idx_mppr_prog_created', ['program_id', 'created_at']);
 
             /* ── Program v2: parent/occurrence/multi-location (additive) ── */
-            foreach ([
-                "ALTER TABLE upcoming_programs ADD COLUMN program_type ENUM('General','AGM','SGM','Orientation','Training','Seminar','Workshop','Financial_Literacy','Other') NOT NULL DEFAULT 'General' AFTER title",
-                'ALTER TABLE upcoming_programs ADD COLUMN parent_program_id INT NULL AFTER program_type',
-                'ALTER TABLE upcoming_programs ADD COLUMN is_multi_location TINYINT(1) NOT NULL DEFAULT 0 AFTER parent_program_id',
-                'ALTER TABLE upcoming_programs ADD COLUMN attendance_open_at DATETIME NULL AFTER qr_expires_at',
-                'ALTER TABLE upcoming_programs ADD COLUMN attendance_close_at DATETIME NULL AFTER attendance_open_at',
-                "ALTER TABLE upcoming_programs ADD COLUMN eligible_member_scope VARCHAR(30) NOT NULL DEFAULT 'all_active' AFTER attendance_close_at",
-                'ALTER TABLE upcoming_programs ADD COLUMN instant_attendance TINYINT(1) NOT NULL DEFAULT 0 AFTER eligible_member_scope',
-                'ALTER TABLE upcoming_programs ADD COLUMN shared_qr_mode TINYINT(1) NOT NULL DEFAULT 1 AFTER instant_attendance',
-                'ALTER TABLE upcoming_programs ADD INDEX idx_up_parent (parent_program_id)',
-                'ALTER TABLE upcoming_programs ADD INDEX idx_up_multi (is_multi_location)',
-                'ALTER TABLE upcoming_programs ADD INDEX idx_up_type (program_type)',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addCol($db, 'upcoming_programs', 'program_type', "ENUM('General','AGM','SGM','Orientation','Training','Seminar','Workshop','Financial_Literacy','Other') NOT NULL DEFAULT 'General' AFTER title");
+            $addCol($db, 'upcoming_programs', 'parent_program_id', 'INT NULL AFTER program_type');
+            $addCol($db, 'upcoming_programs', 'is_multi_location', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER parent_program_id');
+            $addCol($db, 'upcoming_programs', 'attendance_open_at', 'DATETIME NULL AFTER qr_expires_at');
+            $addCol($db, 'upcoming_programs', 'attendance_close_at', 'DATETIME NULL AFTER attendance_open_at');
+            $addCol($db, 'upcoming_programs', 'eligible_member_scope', "VARCHAR(30) NOT NULL DEFAULT 'all_active' AFTER attendance_close_at");
+            $addCol($db, 'upcoming_programs', 'instant_attendance', 'TINYINT(1) NOT NULL DEFAULT 0 AFTER eligible_member_scope');
+            $addCol($db, 'upcoming_programs', 'shared_qr_mode', 'TINYINT(1) NOT NULL DEFAULT 1 AFTER instant_attendance');
+            $addIdx($db, 'upcoming_programs', 'idx_up_parent', ['parent_program_id']);
+            $addIdx($db, 'upcoming_programs', 'idx_up_multi', ['is_multi_location']);
+            $addIdx($db, 'upcoming_programs', 'idx_up_type', ['program_type']);
 
             $db->exec("CREATE TABLE IF NOT EXISTS program_occurrences (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -198,29 +181,22 @@ if (!function_exists('ensureProgramTables')) {
                 INDEX idx_po_qr (qr_token)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            foreach ([
-                'ALTER TABLE member_program_attendance ADD COLUMN occurrence_id INT NULL AFTER program_id',
-                'ALTER TABLE member_program_attendance ADD COLUMN parent_program_id INT NULL AFTER occurrence_id',
-                'ALTER TABLE member_program_attendance ADD COLUMN attendance_scope_key INT NOT NULL DEFAULT 0 AFTER parent_program_id',
-                "ALTER TABLE member_program_attendance ADD COLUMN attendance_method ENUM('MEMBER_SELF','ADMIN_MANUAL','QR_SCAN','STAFF_VERIFY','ADMIN_APPROVE','ADMIN_PREREG') NOT NULL DEFAULT 'STAFF_VERIFY' AFTER source",
-                "ALTER TABLE member_program_attendance ADD COLUMN attendance_status ENUM('VALID','VOID') NOT NULL DEFAULT 'VALID' AFTER attendance_method",
-                'ALTER TABLE member_program_attendance ADD COLUMN location_label VARCHAR(180) NULL AFTER attendance_status',
-                'ALTER TABLE member_program_attendance ADD COLUMN desk_id INT NULL AFTER location_label',
-                'ALTER TABLE member_program_attendance ADD COLUMN staff_admin_id INT NULL AFTER desk_id',
-                'ALTER TABLE member_program_attendance ADD COLUMN device_fingerprint VARCHAR(120) NULL AFTER staff_admin_id',
-                'ALTER TABLE member_program_attendance ADD COLUMN voided_by INT NULL AFTER device_fingerprint',
-                'ALTER TABLE member_program_attendance ADD COLUMN voided_at DATETIME NULL AFTER voided_by',
-                'ALTER TABLE member_program_attendance ADD COLUMN void_reason VARCHAR(500) NULL AFTER voided_at',
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_occurrence (occurrence_id)',
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_parent (parent_program_id)',
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_scope (attendance_scope_key)',
-                'ALTER TABLE member_program_attendance ADD INDEX idx_mpa_scope_member (attendance_scope_key, member_id)',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addCol($db, 'member_program_attendance', 'occurrence_id', 'INT NULL AFTER program_id');
+            $addCol($db, 'member_program_attendance', 'parent_program_id', 'INT NULL AFTER occurrence_id');
+            $addCol($db, 'member_program_attendance', 'attendance_scope_key', 'INT NOT NULL DEFAULT 0 AFTER parent_program_id');
+            $addCol($db, 'member_program_attendance', 'attendance_method', "ENUM('MEMBER_SELF','ADMIN_MANUAL','QR_SCAN','STAFF_VERIFY','ADMIN_APPROVE','ADMIN_PREREG') NOT NULL DEFAULT 'STAFF_VERIFY' AFTER source");
+            $addCol($db, 'member_program_attendance', 'attendance_status', "ENUM('VALID','VOID') NOT NULL DEFAULT 'VALID' AFTER attendance_method");
+            $addCol($db, 'member_program_attendance', 'location_label', 'VARCHAR(180) NULL AFTER attendance_status');
+            $addCol($db, 'member_program_attendance', 'desk_id', 'INT NULL AFTER location_label');
+            $addCol($db, 'member_program_attendance', 'staff_admin_id', 'INT NULL AFTER desk_id');
+            $addCol($db, 'member_program_attendance', 'device_fingerprint', 'VARCHAR(120) NULL AFTER staff_admin_id');
+            $addCol($db, 'member_program_attendance', 'voided_by', 'INT NULL AFTER device_fingerprint');
+            $addCol($db, 'member_program_attendance', 'voided_at', 'DATETIME NULL AFTER voided_by');
+            $addCol($db, 'member_program_attendance', 'void_reason', 'VARCHAR(500) NULL AFTER voided_at');
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_occurrence', ['occurrence_id']);
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_parent', ['parent_program_id']);
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_scope', ['attendance_scope_key']);
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_scope_member', ['attendance_scope_key', 'member_id']);
             try {
                 $db->exec('ALTER TABLE member_program_attendance ADD UNIQUE KEY uniq_scope_member_status (attendance_scope_key, member_id, attendance_status)');
             } catch (Throwable $e) {
@@ -230,20 +206,10 @@ if (!function_exists('ensureProgramTables')) {
                 $db->exec('ALTER TABLE member_program_attendance DROP INDEX uniq_member_program');
             } catch (Throwable $e) {
             }
-            try {
-                $db->exec('ALTER TABLE member_program_attendance ADD INDEX idx_mpa_member_program (member_id, program_id)');
-            } catch (Throwable $e) {
-            }
+            $addIdx($db, 'member_program_attendance', 'idx_mpa_member_program', ['member_id', 'program_id']);
 
-            foreach ([
-                'ALTER TABLE member_program_attendance_requests ADD COLUMN occurrence_id INT NULL AFTER program_id',
-                'ALTER TABLE member_program_attendance_requests ADD INDEX idx_mpar_occurrence (occurrence_id)',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
-                }
-            }
+            $addCol($db, 'member_program_attendance_requests', 'occurrence_id', 'INT NULL AFTER program_id');
+            $addIdx($db, 'member_program_attendance_requests', 'idx_mpar_occurrence', ['occurrence_id']);
 
             $db->exec("CREATE TABLE IF NOT EXISTS program_attendance_attempts (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -469,13 +435,17 @@ if (!function_exists('programAttendanceSourceLabel')) {
     {
         $s = trim((string)$source);
         $map = [
-            'member_portal_qr_pending' => 'Portal QR',
-            'member_portal_pending' => 'Portal Attend',
+            'member_portal_qr_pending' => 'Portal QR (pending)',
+            'member_portal_pending' => 'Portal Attend (pending)',
+            'member_portal_instant' => 'Portal QR (instant)',
             'public_qr_unmatched_request' => 'Public (unmatched)',
             'public_attend' => 'Public attend',
-            'program_verify_page' => 'Staff Verify',
+            'public_qr_request' => 'Public QR request',
+            'program_verify_page' => 'Staff Verify (legacy)',
             'admin_request_approve' => 'Admin approve',
-            'verify_portal' => 'Verify portal',
+            'admin_prereg' => 'Admin pre-reg',
+            'registration_desk' => 'Registration desk',
+            'verify_portal' => 'Verify portal (ID only)',
         ];
         return $map[$s] ?? ($s !== '' ? $s : '—');
     }

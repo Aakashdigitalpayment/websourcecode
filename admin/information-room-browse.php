@@ -2,6 +2,7 @@
 /**
  * Information Room — Admin reader browse (preview what members see)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string) ($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -33,7 +34,7 @@ $siteBase = rtrim((string) (defined('SITE_URL') ? SITE_URL : '../'), '/') . '/';
     $__t('Information Room — Reader', 'Information Room — Reader'),
     'fa-book-open',
     $__t('Admin ले authorized सदस्यले देख्ने view preview गर्नुहोस्।', 'Preview the view authorized members will see.'),
-    '<a href="information-room.php" class="btn btn-sm btn-outline-secondary"><i class="fas fa-cog me-1"></i>' . $__t('व्यवस्थापन', 'Manage') . '</a>'
+    '<a href="information-room.php" class="btn btn-sm btn-outline-secondary"><i class="lucide-icon me-1" data-lucide="settings" aria-hidden="true"></i>' . $__t('व्यवस्थापन', 'Manage') . '</a>'
 ) : ''; ?>
 
 <div class="mb-3 d-flex flex-wrap gap-2">
@@ -64,12 +65,12 @@ $siteBase = rtrim((string) (defined('SITE_URL') ? SITE_URL : '../'), '/') . '/';
             <div><?php echo $__t('सन्दर्भ', 'Ref'); ?>: <?php echo htmlspecialchars((string) $row['reference_no'], ENT_QUOTES, 'UTF-8'); ?></div>
             <?php endif; ?>
             <?php if (empty($row['allow_download'])): ?>
-            <div class="text-warning-emphasis"><i class="fas fa-eye me-1"></i><?php echo $__t('हेर्न मात्र', 'View only'); ?></div>
+            <div class="text-warning-emphasis"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo $__t('हेर्न मात्र', 'View only'); ?></div>
             <?php endif; ?>
         </div>
         <div class="ir-card-actions">
             <a href="information-room-view.php?id=<?php echo (int) $row['id']; ?>" class="btn btn-sm btn-success w-100">
-                <i class="fas fa-book-open me-1"></i><?php echo $__t('पढ्नुहोस्', 'Read'); ?>
+                <i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i><?php echo $__t('पढ्नुहोस्', 'Read'); ?>
             </a>
         </div>
     </article>

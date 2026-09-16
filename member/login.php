@@ -56,13 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_login'])) {
                     $info = 'pending';
                 } elseif ($res['error'] === 'rejected') {
                     $info  = 'rejected';
-                    $error = $_t('❌ तपाईंको दर्ता अस्वीकृत भएको छ।', '❌ Your registration has been rejected.')
+                    $error = $_t('तपाईंको दर्ता अस्वीकृत भएको छ।', 'Your registration has been rejected.')
                            . (!empty($res['reason']) ? ($_t(' कारण: ', ' Reason: ') . htmlspecialchars($res['reason'])) : '')
                            . $_t(' थप जानकारीका लागि कार्यालयमा सम्पर्क गर्नुहोस्।', ' Please contact office for more details.');
                 } elseif ($res['error'] === 'renewal_required') {
                     /* Issue #3: 5-year card म्याद सकियो */
                     $info  = 'renewal';
-                    $error = $_t('🔄 तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', '🔄 Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
+                    $error = $_t('तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', 'Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
                 } elseif ($isRateLimited) {
                     $error = htmlspecialchars($_t(
                         (string)$res['error'],
@@ -179,12 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_member_2fa'])) {
                                 $info = 'pending';
                             } elseif (($gate['error'] ?? '') === 'rejected') {
                                 $info = 'rejected';
-                                $error = $_t('❌ तपाईंको दर्ता अस्वीकृत भएको छ।', '❌ Your registration has been rejected.')
+                                $error = $_t('तपाईंको दर्ता अस्वीकृत भएको छ।', 'Your registration has been rejected.')
                                        . (!empty($gate['reason']) ? ($_t(' कारण: ', ' Reason: ') . htmlspecialchars((string)$gate['reason'])) : '')
                                        . $_t(' थप जानकारीका लागि कार्यालयमा सम्पर्क गर्नुहोस्।', ' Please contact office for more details.');
                             } elseif (($gate['error'] ?? '') === 'renewal_required') {
                                 $info = 'renewal';
-                                $error = $_t('🔄 तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', '🔄 Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
+                                $error = $_t('तपाईंको Member Card को ५ बर्षे म्याद सकिएको छ। कार्यालयमा सम्पर्क गरी renew गर्नुहोस् — Admin ले approve गरेपछि feri active हुनेछ।', 'Your member card has expired after 5 years. Please contact office for renewal — it will be active again after admin approval.');
                             } else {
                                 $error = htmlspecialchars((string)($gate['error'] ?? 'Login blocked.'));
                             }
@@ -355,8 +355,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['do_register'])) {
                 $tab     = 'login';
                 $attached = !empty($res['attached']);
                 $success = $attached
-                    ? $_t('✅ पासवर्ड सेट भयो! Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Password set! You can login after admin approval.')
-                    : $_t('✅ दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', '✅ Registration successful! Profile was auto-filled from KYM. You can login after admin approval.');
+                    ? $_t('पासवर्ड सेट भयो! Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', 'Password set! You can login after admin approval.')
+                    : $_t('दर्ता सफल! KYC विवरणबाट प्रोफाइल स्वतः ल्याइयो। Admin अनुमोदनपछि लगिन गर्न सक्नुहुन्छ।', 'Registration successful! Profile was auto-filled from KYM. You can login after admin approval.');
             }
         }
     }
@@ -393,126 +393,13 @@ if ($logoPath) {
 <title><?php echo htmlspecialchars($_t('सदस्य लगिन', 'Member Login')); ?> — <?php echo htmlspecialchars($siteName); ?></title>
 
 <?php if (function_exists('coopThemeHeadAssets')) { coopThemeHeadAssets('auth'); } ?>
-<style>
-*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
-body {
-    font-family: var(--prem-font-body, 'Inter', 'Noto Sans Devanagari', 'Segoe UI', sans-serif);
-    min-height: 100dvh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 56px 14px 20px;
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/member-login-page.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/member-login-page.css');
 }
-.card-logo-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 0.35rem;
-}
-.card-logo-wrap img {
-    max-height: 76px;
-    max-width: min(300px, 92%);
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto;
-}
-.card-logo-hide { display: none !important; }
-
-/* Tabs — member-only */
-.tabs { display:flex; gap:6px; margin-bottom:14px; border-radius:12px; padding:4px; }
-.tab-btn {
-    flex:1; padding:8px 8px;
-    background:transparent; border:none; border-radius:9px;
-    font-size:.83rem; font-weight:600; font-family:inherit;
-    color:var(--text-muted); cursor:pointer; transition:all .15s;
-    display:flex; align-items:center; justify-content:center; gap:6px;
-}
-.tab-btn.active {
-    background:var(--bg-card);
-    color:var(--primary-color);
-    box-shadow:0 1px 4px color-mix(in srgb, var(--text-primary) 8%, transparent);
-}
-.tab-btn:hover:not(.active) { color:var(--text-secondary); }
-
-/* Fields — password / member-specific */
-.field { margin-bottom:11px; }
-.pw-wrap { position:relative; }
-.pw-wrap input { padding-right:42px; }
-.pw-toggle {
-    position:absolute; right:12px; top:50%; transform:translateY(-50%);
-    background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:.9rem;
-    padding:4px; transition:color .15s;
-}
-.pw-toggle:hover { color:var(--primary-color); }
-.field-feedback { font-size:12px; margin-top:4px; }
-.field-feedback.is-muted{color:var(--text-muted);}
-.field-feedback.is-ok{color:var(--primary-color);}
-.field-feedback.is-bad{color:var(--secondary-color);}
-.field-feedback.is-warn{color:var(--secondary-dark,var(--secondary-color));}
-
-/* Alerts */
-.alert { padding:9px 11px; border-radius:10px; margin-bottom:11px; font-size:.8rem; display:flex; align-items:flex-start; gap:8px; }
-.alert-error  { background:var(--color-danger-bg,#fef2f2); color:var(--color-danger,#b91c1c); border:1px solid var(--color-danger-border,#fecaca); }
-.alert-success{ background:var(--color-success-bg,#f0fdf4); color:var(--color-success,#15803d); border:1px solid var(--color-success-border,#bbf7d0); }
-.alert-warning{ background:var(--color-warning-bg,#fffbeb); color:var(--color-warning,#d97706); border:1px solid var(--color-warning-border,#fde68a); }
-.alert-info   { background:var(--color-info-bg,#eff6ff); color:var(--color-info,#0891b2); border:1px solid var(--color-info-border,#bfdbfe); }
-
-/* OAuth */
-.oauth-divider {
-    text-align:center; font-size:.72rem; color:var(--text-muted,#9ca3af);
-    position:relative; margin:12px 0 10px;
-}
-.oauth-divider::before, .oauth-divider::after {
-    content:''; position:absolute; top:50%; width:38%; height:1px; background:var(--border-color,#e5e7eb);
-}
-.oauth-divider::before { left:0; }
-.oauth-divider::after  { right:0; }
-.oauth-row { display:flex; gap:8px; margin-bottom:8px; }
-.oauth-btn {
-    flex:1; padding:8px; border:1.5px solid var(--border-color,#e5e7eb); border-radius:10px;
-    background:var(--bg-soft,#fafbfc); color:var(--text-primary,#374151); text-decoration:none;
-    font-size:.82rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:7px;
-    transition:all .15s;
-}
-.oauth-btn:hover { background:var(--bg-card,#fff); border-color:var(--primary-color,#d1d5db); }
-.oauth-btn .google { color:#ea4335; }
-.oauth-btn .fb     { color:#1877f2; }
-
-.foot-link { text-align:center; margin-top:10px; font-size:.78rem; color:var(--text-muted,#6b7280); }
-.foot-link a { color:var(--primary-color,#1a8754); font-weight:600; text-decoration:none; }
-.foot-link a:hover { text-decoration:underline; }
-.login-logo-fallback{display:none;margin-bottom:0;}
-.twofa-qr-wrap{margin-bottom:12px;font-size:.78rem;}
-.twofa-qr-link{color:var(--primary-color,#1a8754);font-weight:600;}
-.forgot-wrap{text-align:right;margin-bottom:6px;}
-.forgot-link{font-size:.78rem;color:var(--primary-color,#1a8754);font-weight:600;text-decoration:none;}
-.req-star{color:var(--secondary-color);}
-.kyc-note{font-size:.78rem;padding:9px 12px;margin-bottom:14px;}
-.pw-strength{margin-top:5px;font-size:12px;}
-
-/* Password strength */
-.pw-rules { margin:6px 0 0; padding-left:0; font-size:11.5px; color:var(--text-muted,#6b7280); line-height:1.7; list-style:none; }
-.pw-rules li.rule-ok{color:var(--primary-color);}
-.pw-rules li.rule-muted{color:var(--text-muted,#9ca3af);}
-.pw-strength.str-0{color:var(--text-muted,#9ca3af);}
-.pw-strength.str-1{color:var(--secondary-color);}
-.pw-strength.str-2{color:var(--secondary-dark,var(--secondary-color));}
-.pw-strength.str-3{color:var(--accent-color,#ca8a04);}
-.pw-strength.str-4{color:var(--primary-color);}
-
-@media (max-width:480px) {
-    body { padding: 48px 12px 16px; justify-content: flex-start; }
-    .auth-card { border-radius: 18px; }
-    .card-header { padding: 13px 14px 11px; }
-    .card-body { padding: 13px 14px 14px; }
-}
-@media (min-height:700px) {
-    body { justify-content: center; padding-top: 56px; }
-}
-</style>
+?>
 </head>
 <body class="auth-portal-page">
 
@@ -522,7 +409,7 @@ body {
 </a>
 <?php endif; ?>
 
-<a href="<?php echo $siteUrl; ?>" class="page-back">
+<a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>" class="page-back">
     <i class="lucide-icon" aria-hidden="true" data-lucide="arrow-left"></i> <?php echo $_t('गृहपृष्ठ', 'Homepage'); ?>
 </a>
 
@@ -533,12 +420,12 @@ body {
             <div class="card-logo-wrap">
                 <img src="<?php echo htmlspecialchars($logoSrc); ?>" alt="<?php echo htmlspecialchars($siteName); ?>"
                      onerror="this.classList.add('card-logo-hide');var f=document.getElementById('loginLogoFallback');if(f)f.style.display='grid';">
-                <div id="loginLogoFallback" class="card-logo-icon login-logo-fallback" aria-hidden="true"><i class="lucide-icon" aria-hidden="true" data-lucide="building-columns"></i></div>
+                <div id="loginLogoFallback" class="card-logo-icon login-logo-fallback" aria-hidden="true"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></div>
             </div>
         <?php else: ?>
-            <div class="card-logo-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="building-columns"></i></div>
+            <div class="card-logo-icon"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></div>
         <?php endif; ?>
-        <span class="card-portal-label"><i class="lucide-icon" aria-hidden="true" data-lucide="user-circle"></i>&nbsp;<?php echo $_t('सदस्य पोर्टल', 'Member Portal'); ?></span>
+        <span class="card-portal-label"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-user"></i>&nbsp;<?php echo $_t('सदस्य पोर्टल', 'Member Portal'); ?></span>
     </div>
 
     <div class="card-body">
@@ -567,7 +454,7 @@ body {
             <div class="alert alert-warning"><i class="lucide-icon" aria-hidden="true" data-lucide="smartphone"></i> Google Authenticator setup आवश्यक छ — QR स्क्यान गरी code verify गर्नुहोस्।</div>
         <?php endif; ?>
         <?php if ($info === 'twofa_verify_required' || (isset($_GET['oauth_2fa']) && (string)$_GET['oauth_2fa'] === '1' && is_array($member2faPending) && ($member2faPending['mode'] ?? '') === 'verify')): ?>
-            <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-halved"></i> Google Authenticator code verify गरेपछि मात्र login हुन्छ।</div>
+            <div class="alert alert-info"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i> Google Authenticator code verify गरेपछि मात्र login हुन्छ।</div>
         <?php endif; ?>
 
         <?php if (is_array($member2faPending)): ?>
@@ -642,7 +529,7 @@ body {
                 </div>
             </div>
             <div class="forgot-wrap">
-                <a href="<?php echo $siteUrl; ?>member/password-reset-request.php" class="forgot-link"><?php echo $_t('पासवर्ड बिर्सनुभयो?', 'Forgot password?'); ?></a>
+                <a href="<?php echo htmlspecialchars($siteUrl, ENT_QUOTES, 'UTF-8'); ?>member/password-reset-request.php" class="forgot-link"><?php echo $_t('पासवर्ड बिर्सनुभयो?', 'Forgot password?'); ?></a>
             </div>
             <button type="submit" class="submit-btn">
                 <i class="lucide-icon" aria-hidden="true" data-lucide="log-in"></i> <?php echo $_t('लगिन गर्नुहोस्', 'Login'); ?>
@@ -683,7 +570,7 @@ body {
                 <div class="field-feedback" id="fbPhone"></div>
             </div>
             <div class="alert alert-info kyc-note">
-                <i class="fas fa-circle-info"></i>
+                <i class="lucide-icon" data-lucide="info" aria-hidden="true"></i>
                 नाम KYM बाट स्वतः लिइन्छ। सदस्यता नम्बर + इमेल + मोबाइल KYC सँग मिल्नुपर्छ।
             </div>
             <div class="field">
@@ -850,7 +737,7 @@ document.querySelectorAll('form').forEach(function(form){
     fb.textContent = '⏳ जाँच हुँदै…';
     fb.classList.remove('is-ok','is-bad','is-muted','is-warn');
     fb.classList.add('is-muted');
-    fetch('<?php echo SITE_URL; ?>member/check-availability.php?field='+encodeURIComponent(field)+'&value='+encodeURIComponent(v))
+    fetch('<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/check-availability.php?field='+encodeURIComponent(field)+'&value='+encodeURIComponent(v))
       .then(function(r){ return r.json(); })
       .then(function(j){
         if (j && j.available) {

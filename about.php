@@ -1,6 +1,7 @@
 <?php
 require_once 'includes/config.php';
 require_once __DIR__ . '/includes/team-chart-helpers.php';
+require_once __DIR__ . '/includes/leadership-message-helpers.php';
 $pageTitle = isEnglish() ? 'About Us' : 'हाम्रो बारेमा';
 /* Prefer Admin SEO meta_description; only fall back to about_short when SEO meta is empty */
 $__aboutMeta = trim((string) getSetting(isEnglish() ? 'meta_description_en' : 'meta_description', ''));
@@ -17,11 +18,18 @@ if ($__aboutMeta === '') {
             : substr(strip_tags($aboutShort), 0, 158);
     }
 }
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/about-success-stories.css')
+        : '');
 require_once 'includes/header.php';
 ?>
 
 <?php
 // Get about page content
+$db = null;
+$page = null;
+$boardMembers = [];
 try {
     $db = getDB();
     $stmt = $db->prepare("SELECT * FROM pages WHERE slug = 'about' AND is_active = 1 ORDER BY id DESC LIMIT 1");
@@ -31,10 +39,29 @@ try {
     // Get team members (board)
     $boardMembers = $db->query("SELECT * FROM team_members WHERE category = 'board' AND is_active = 1 ORDER BY display_order LIMIT 20")->fetchAll();
 } catch (Exception $e) {
-    $page = null;
-    $boardMembers = [];
+    if (!$page) {
+        $page = null;
+    }
+    if (!is_array($boardMembers)) {
+        $boardMembers = [];
+    }
 }
 
+$lead = coop_load_leadership_messages($db instanceof PDO ? $db : null);
+$hasChairMsg = trim((string)($lead['chairman_message'] ?? '')) !== '';
+$hasCeoMsg = trim((string)($lead['ceo_message'] ?? '')) !== '';
+?>
+<script>
+(function () {
+  var h = (location.hash || '').toLowerCase();
+  if (h === '#success-stories' || h === '#success') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/success-stories.php'); ?>);
+  else if (h === '#chairman' || h === '#chairman-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/chairman-message.php'); ?>);
+  else if (h === '#ceo' || h === '#ceo-message') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/ceo-message.php'); ?>);
+  else if (h === '#vision' || h === '#mission' || h === '#vision-mission') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/vision-mission.php'); ?>);
+  else if (h === '#why-choose' || h === '#why-us') location.replace(<?php echo json_encode(rtrim(SITE_URL, '/') . '/why-choose.php'); ?>);
+})();
+</script>
+<?php
 // Get about page image from settings (admin controlled) — missing file = no broken image tag
 $aboutImageSetting = trim((string) getSetting('about_page_image', ''));
 $aboutImageDefault = 'assets/images/about-image.jpg';
@@ -67,10 +94,6 @@ if ($aboutVisual === '') {
 $hasAboutVisual = $aboutVisual !== '';
 
 // Static section titles (admin editable via pages static sections)
-$visionTitleNp = getSetting('vision_content_title_np', 'हाम्रो दृष्टिकोण');
-$visionTitleEn = getSetting('vision_content_title_en', 'Our Vision');
-$missionTitleNp = getSetting('mission_content_title_np', 'हाम्रो लक्ष्य');
-$missionTitleEn = getSetting('mission_content_title_en', 'Our Mission');
 $valuesTitleNp = getSetting('values_content_title_np', 'हाम्रो मूल मान्यताहरू');
 $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
 ?>
@@ -82,7 +105,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <h1 class="page-title-modern"><?php echo htmlspecialchars(is_array($page) ? ($page['title_np'] ?? 'हाम्रो बारेमा') : 'हाम्रो बारेमा', ENT_QUOTES, 'UTF-8'); ?></h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-modern">
-                    <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
+                    <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="breadcrumb-link-modern"><?php echo $L['home']; ?></a></li>
                     <li class="breadcrumb-item active"><?php echo $L['about'] ?? 'हाम्रो बारेमा'; ?></li>
                 </ol>
             </nav>
@@ -97,7 +120,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="<?php echo $hasAboutVisual ? 'col-lg-7' : 'col-lg-10 col-xl-9'; ?> mb-2" data-aos="fade-right">
                 <div class="about-content-box">
                     <div style="margin-bottom:4px;">
-                        <span class="section-tag"><i class="fas fa-building"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></span>
+                        <span class="section-tag"><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i> <?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?></span>
                     </div>
                     <h2><?php echo isEnglish() ? 'Our Introduction' : 'हाम्रो परिचय'; ?></h2>
                     <div class="about-divider"></div>
@@ -124,7 +147,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="col-lg-5 mb-2" data-aos="fade-left">
                 <div class="about-image-box about-image-box-side">
                     <div class="about-side-badge">
-                        <i class="fas fa-seedling me-1"></i><?php echo isEnglish() ? 'Journey of Trust' : 'विश्वासको यात्रा'; ?>
+                        <i class="lucide-icon me-1" data-lucide="sprout" aria-hidden="true"></i><?php echo isEnglish() ? 'Journey of Trust' : 'विश्वासको यात्रा'; ?>
                     </div>
                     <img src="<?php echo e(safe_versioned_media_src($aboutVisual)); ?>"
                          alt="<?php echo isEnglish() ? 'About Us' : 'हाम्रो बारेमा'; ?>"
@@ -172,7 +195,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <?php echo getSetting('established_year', '२०७५'); ?>
                     </div>
                     <div class="history-badge">
-                        <i class="fas fa-history"></i>
+                        <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>
                     </div>
                 </div>
 
@@ -180,7 +203,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                 <!-- Photo छैन भने modern decorative box देखाउनुहोस् — icon नहटाइएकोले icon-only -->
                 <div class="history-image-box history-icon-only">
                     <div class="history-badge">
-                        <i class="fas fa-history"></i>
+                        <i class="lucide-icon" data-lucide="history" aria-hidden="true"></i>
                     </div>
                     <div class="history-year-badge">
                         <?php echo getSetting('established_year', '२०७५'); ?>
@@ -190,7 +213,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
                         <!-- Admin ले about-settings.php बाट photo upload गर्न सक्छ -->
                         <div class="history-icon-ring"></div>
                         <div class="history-empty-photo">
-                            <i class="fas fa-camera fa-2x mb-2 d-block history-empty-photo-icon"></i>
+                            <i class="lucide-icon lucide-2x mb-2 d-block history-empty-photo-icon" data-lucide="camera" aria-hidden="true"></i>
                             <small class="history-empty-photo-note"><?php echo isEnglish() ? 'Photo not available - please upload a photo.' : 'फोटो उपलब्ध छैन — कृपया फोटो थप्नुहोस्'; ?></small>
                         </div>
                     </div>
@@ -200,7 +223,7 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
             <div class="col-lg-7" data-aos="fade-left">
                 <div class="history-content-v2">
                     <div style="margin-bottom:4px;">
-                        <span class="section-tag"><i class="fas fa-history"></i> <?php echo isEnglish() ? 'Our Journey' : 'हाम्रो यात्रा'; ?></span>
+                        <span class="section-tag"><i class="lucide-icon" data-lucide="history" aria-hidden="true"></i> <?php echo isEnglish() ? 'Our Journey' : 'हाम्रो यात्रा'; ?></span>
                     </div>
                     <h2><?php echo isEnglish() ? 'Our History' : 'हाम्रो इतिहास'; ?></h2>
                     <div class="history-divider"></div>
@@ -220,199 +243,93 @@ $valuesTitleEn = getSetting('values_content_title_en', 'Our Core Values');
     </div>
 </section>
 
-<!-- Vision & Mission Section - Eye Catching Design -->
-<section class="vision-section-v2 section-padding bg-light" id="vision">
+<!-- Vision & Mission — teaser; full content on vision-mission.php -->
+<section class="vision-section-v2 section-padding bg-light" id="vision-teaser">
     <div class="container">
-        <div class="section-header text-center mb-5" data-aos="fade-up">
+        <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
                 <span class="section-badge">
                     <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
                     <?php echo isEnglish() ? 'Our Purpose' : 'हाम्रो उद्देश्य'; ?>
                 </span>
             </div>
-            <h2><?php echo isEnglish() ? 'Vision & Mission' : 'दृष्टि र लक्ष्य'; ?></h2>
+            <h2><?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></h2>
             <div class="section-divider"></div>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="vision-card-v2 vision">
-                    <div class="vision-card-glow"></div>
-                    <div class="vision-icon-v2">
-                        <i class="lucide-icon" aria-hidden="true" data-lucide="eye"></i>
-                    </div>
-                    <div class="vision-card-content coop-prose">
-                        <h4><?php echo htmlspecialchars(isEnglish() ? $visionTitleEn : $visionTitleNp, ENT_QUOTES, 'UTF-8'); ?></h4>
-                        <?php
-                        $visionContent = isEnglish() ? getSetting('vision_content_en', '') : getSetting('vision_content_np', '');
-                        if ($visionContent):
-                            echo coop_render_cms_prose($visionContent);
-                        else:
-                        ?>
-                        <p><?php echo isEnglish() ? 'To be the most trusted and preferred cooperative in our community.' : 'समुदायमा सबैभन्दा विश्वसनीय र रुचाइएको सहकारी संस्था बन्नु।'; ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vision-card-decoration"></div>
-                </div>
-            </div>
-            <div class="col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="vision-card-v2 mission">
-                    <div class="vision-card-glow"></div>
-                    <div class="vision-icon-v2">
-                        <i class="fas fa-bullseye"></i>
-                    </div>
-                    <div class="vision-card-content coop-prose">
-                        <h4><?php echo htmlspecialchars(isEnglish() ? $missionTitleEn : $missionTitleNp, ENT_QUOTES, 'UTF-8'); ?></h4>
-                        <?php
-                        $missionContent = isEnglish() ? getSetting('mission_content_en', '') : getSetting('mission_content_np', '');
-                        if ($missionContent):
-                            echo coop_render_cms_prose($missionContent);
-                        else:
-                        ?>
-                        <p><?php echo isEnglish() ? 'To provide quality financial services while promoting the spirit of cooperation and helping members achieve their financial goals.' : 'सहकारिताको भावनालाई प्रवर्द्धन गर्दै सदस्यहरूलाई उनीहरूको वित्तीय लक्ष्य हासिल गर्न मद्दत गर्ने गुणस्तरीय वित्तीय सेवा प्रदान गर्नु।'; ?></p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="vision-card-decoration"></div>
-                </div>
-            </div>
+            <p class="mb-3"><?php echo isEnglish()
+                ? 'Read our full vision and mission on the dedicated page.'
+                : 'पूर्ण दृष्टि र लक्ष्य छुट्टै पृष्ठमा पढ्नुहोस्।'; ?></p>
+            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php" class="btn btn-primary">
+                <i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i><?php echo isEnglish() ? 'View Vision & Mission' : 'दृष्टि र लक्ष्य हेर्नुहोस्'; ?>
+            </a>
         </div>
     </div>
 </section>
 
 
-<!-- Leadership Messages Section -->
-<?php
-// Get from settings first
-$chairmanMessageSetting = getSetting('chairman_message_np', '');
-$chairmanNameSetting = getSetting('chairman_name', '');
-$chairmanPhotoSetting = getSetting('chairman_photo', '');
-$ceoMessageSetting = getSetting('ceo_message_np', '');
-$ceoNameSetting = getSetting('ceo_name', '');
-$ceoPhotoSetting = getSetting('ceo_photo', '');
-$ceoDesignationNp = trim((string)getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
-$ceoDesignationEn = trim((string)getSetting('ceo_designation_en', 'Chief Executive Officer'));
-
-// Fallback: Get chairman/CEO from team_members table based on is_chairman/is_ceo flags
-try {
-    $needChair = empty($chairmanNameSetting) || empty($chairmanMessageSetting);
-    $needCeo = empty($ceoNameSetting) || empty($ceoMessageSetting);
-    if (($needChair || $needCeo) && isset($db) && $db instanceof PDO) {
-        $leaders = $db->query("SELECT * FROM team_members WHERE is_active = 1 AND (is_chairman = 1 OR is_ceo = 1) LIMIT 4")->fetchAll(PDO::FETCH_ASSOC) ?: [];
-        $chairFromTeam = null;
-        $ceoFromTeam = null;
-        foreach ($leaders as $lm) {
-            if ($chairFromTeam === null && !empty($lm['is_chairman'])) $chairFromTeam = $lm;
-            if ($ceoFromTeam === null && !empty($lm['is_ceo'])) $ceoFromTeam = $lm;
-        }
-        if ($needChair && $chairFromTeam) {
-            if (empty($chairmanNameSetting)) {
-                $chairmanNameSetting = $chairFromTeam['name_np'] ?: $chairFromTeam['name'];
-            }
-            if (empty($chairmanPhotoSetting)) {
-                $chairmanPhotoSetting = $chairFromTeam['photo'];
-            }
-            if (empty($chairmanMessageSetting)) {
-                $chairmanMessageSetting = $chairFromTeam['position_np'] ?: $chairFromTeam['position'];
-            }
-        }
-        if ($needCeo && $ceoFromTeam) {
-            if (empty($ceoNameSetting)) {
-                $ceoNameSetting = $ceoFromTeam['name_np'] ?: $ceoFromTeam['name'];
-            }
-            if (empty($ceoPhotoSetting)) {
-                $ceoPhotoSetting = $ceoFromTeam['photo'];
-            }
-            if (empty($ceoMessageSetting)) {
-                $ceoMessageSetting = $ceoFromTeam['position_np'] ?: $ceoFromTeam['position'];
-            }
-        }
-    }
-} catch (Throwable $e) { /* silent fallback */ }
-
-// Use settings or team member data
-$chairmanName = $chairmanNameSetting ?: 'अध्यक्ष';
-$chairmanPhoto = $chairmanPhotoSetting;
-$chairmanMessage = $chairmanMessageSetting;
-$ceoName = $ceoNameSetting ?: 'प्रमुख कार्यकारी अधिकृत';
-$ceoPhoto = $ceoPhotoSetting;
-$ceoMessage = $ceoMessageSetting;
-?>
-<?php if ($chairmanMessage || $ceoMessage): ?>
-<section class="leadership-messages-about section-padding bg-light" id="chairman">
+<!-- Leadership / related pages (dedicated pages — like Institutional Profile) -->
+<section class="section-padding bg-light" id="about-related">
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-quote-left"></i> <?php echo isEnglish() ? 'Leadership' : 'नेतृत्व'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="link" aria-hidden="true"></i> <?php echo isEnglish() ? 'Explore' : 'थप जान्नुहोस्'; ?></span>
             </div>
-            <h2><?php echo isEnglish() ? 'Messages from Leadership' : 'नेतृत्वबाट सन्देश'; ?></h2>
+            <h2><?php echo isEnglish() ? 'More about us' : 'हाम्रो बारे थप'; ?></h2>
             <div class="section-divider"></div>
-            <p><?php echo isEnglish() ? ('Words from our Chairman and ' . $ceoDesignationEn) : ('हाम्रो अध्यक्ष र ' . $ceoDesignationNp . 'का शब्दहरू'); ?></p>
+            <p><?php echo isEnglish()
+                ? 'Leadership messages, member stories, vision, and institutional profile — each on its own page.'
+                : 'नेतृत्व सन्देश, सदस्य कथा, दृष्टि र संस्थागत प्रोफाइल — प्रत्येक छुट्टै पृष्ठमा।'; ?></p>
         </div>
-
-        <?php if ($chairmanMessage): ?>
-        <div class="leadership-message-full mb-5" id="chairman-message">
-            <div class="row align-items-center">
-                <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
-                    <div class="leader-photo-large">
-                        <?php if ($chairmanPhoto): ?>
-                        <img src="<?php echo e(safe_versioned_media_src($chairmanPhoto)); ?>" alt="<?php echo e($chairmanName); ?>" loading="lazy" decoding="async">
-                        <?php else: ?>
-                        <div class="photo-placeholder-large">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <h4 class="mt-3"><?php echo e($chairmanName); ?></h4>
-                    <span class="leader-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
-                </div>
-                <div class="col-lg-9 col-md-8">
-                    <div class="message-content-full">
-                        <i class="fas fa-quote-left quote-icon-large"></i>
-                        <div class="message-text-full coop-prose">
-                            <?php echo coop_render_cms_prose($chairmanMessage); ?>
-                        </div>
-                    </div>
-                </div>
+        <div class="row g-3 justify-content-center">
+            <?php if ($hasChairMsg): ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>chairman-message.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="user-round" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $chairmanMenuLabelEn : $chairmanMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
+            <?php endif; ?>
+            <?php if ($hasCeoMsg): ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="60">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>ceo-message.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
+            <?php endif; ?>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="90">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>vision-mission.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></div>
+                    <h5><?php echo htmlspecialchars(isEnglish() ? $visionMissionMenuEn : $visionMissionMenuNp, ENT_QUOTES, 'UTF-8'); ?></h5>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="120">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="building-2" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></h5>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="150">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>why-choose.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Why Choose Us' : 'किन हामीलाई छान्ने?'; ?></h5>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3" data-aos="fade-up" data-aos-delay="180">
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>success-stories.php" class="value-card text-decoration-none d-block h-100">
+                    <div class="value-icon"><i class="lucide-icon" data-lucide="book-open" aria-hidden="true"></i></div>
+                    <h5><?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></h5>
+                </a>
             </div>
         </div>
-        <?php endif; ?>
-
-        <?php if ($ceoMessage): ?>
-        <div class="leadership-message-full" id="ceo-message">
-            <div class="row align-items-center flex-md-row-reverse">
-                <div class="col-lg-3 col-md-4 text-center mb-4 mb-md-0">
-                    <div class="leader-photo-large">
-                        <?php if ($ceoPhoto): ?>
-                        <img src="<?php echo e(safe_versioned_media_src($ceoPhoto)); ?>" alt="<?php echo e($ceoName); ?>" loading="lazy" decoding="async">
-                        <?php else: ?>
-                        <div class="photo-placeholder-large">
-                            <i class="fas fa-user-tie"></i>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    <h4 class="mt-3"><?php echo e($ceoName); ?></h4>
-                    <span class="leader-position"><?php echo isEnglish() ? $ceoDesignationEn : $ceoDesignationNp; ?></span>
-                </div>
-                <div class="col-lg-9 col-md-8">
-                    <div class="message-content-full">
-                        <i class="fas fa-quote-left quote-icon-large"></i>
-                        <div class="message-text-full coop-prose">
-                            <?php echo coop_render_cms_prose($ceoMessage); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 </section>
-<?php endif; ?>
 
 <!-- Core Values Section - Consolidated -->
 <section class="values-section section-padding" id="values">
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-heart"></i> <?php echo isEnglish() ? 'Values' : 'मूल्यहरू'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="heart" aria-hidden="true"></i> <?php echo isEnglish() ? 'Values' : 'मूल्यहरू'; ?></span>
             </div>
             <h2><?php echo htmlspecialchars(isEnglish() ? $valuesTitleEn : $valuesTitleNp, ENT_QUOTES, 'UTF-8'); ?></h2>
         </div>
@@ -460,7 +377,7 @@ $ceoMessage = $ceoMessageSetting;
     <div class="container">
         <div class="section-header text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-users-cog"></i> <?php echo isEnglish() ? 'Board' : 'समिति'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i> <?php echo isEnglish() ? 'Board' : 'समिति'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Board of Directors' : 'सञ्चालक समिति'; ?></h2>
             <div class="section-divider"></div>
@@ -486,28 +403,28 @@ $ceoMessage = $ceoMessageSetting;
         <div class="row">
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="0">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-users"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_members', '५०००'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Members' : 'सदस्यहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-award"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="award" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('years_experience', '२०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Years Experience' : 'वर्षको अनुभव'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-handshake"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="handshake" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('total_services', '१०'); ?>+</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="stat-box">
-                    <div class="stat-icon" aria-hidden="true"><i class="fas fa-smile"></i></div>
+                    <div class="stat-icon" aria-hidden="true"><i class="lucide-icon" data-lucide="smile" aria-hidden="true"></i></div>
                     <div class="stat-number"><?php echo getSetting('satisfaction_rate', '९९'); ?>%</div>
                     <div class="stat-label"><?php echo isEnglish() ? 'Satisfied Customers' : 'सन्तुष्ट ग्राहक'; ?></div>
                 </div>

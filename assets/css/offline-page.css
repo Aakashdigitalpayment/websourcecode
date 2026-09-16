@@ -1,0 +1,56 @@
+/** Public offline page — extracted from offline.php */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary-color:#1a5f2a;
+  --primary-soft:#e8f5e9;
+  --font-primary:'Inter','Noto Sans Devanagari',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+body{
+  font-family:var(--font-primary);
+  background:linear-gradient(145deg,#f0f7f1 0%,var(--primary-soft) 100%);
+  min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:20px;color:#1f2937;
+}
+.card{
+  background:#fff;border-radius:24px;padding:44px 36px 36px;
+  max-width:420px;width:100%;text-align:center;
+  box-shadow:0 12px 48px color-mix(in srgb, var(--primary-color) 13%, transparent),0 2px 8px rgba(0,0,0,.06);
+}
+.logo-wrap{margin-bottom:22px}
+.logo-wrap img{height:52px;object-fit:contain}
+.wifi-icon{
+  width:76px;height:76px;background:var(--primary-soft);border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:0 auto 22px;box-shadow:0 0 0 6px #f0f7f1;
+}
+h1{font-size:1.35rem;font-weight:800;color:#1a2e1d;margin-bottom:8px;letter-spacing:-.01em}
+.en-title{font-size:.8rem;color:#6b7280;margin-bottom:18px;letter-spacing:.02em;text-transform:uppercase;font-weight:600}
+.subtitle{font-size:.9rem;color:#4b5563;margin-bottom:24px;line-height:1.75}
+.tips{
+  list-style:none;text-align:left;padding:14px 18px;
+  background:#f9fafb;border-radius:12px;border:1px solid #e5e7eb;
+  margin-bottom:26px;
+}
+.tips li{
+  font-size:.83rem;color:#374151;padding:3px 0;line-height:1.7;
+  display:flex;align-items:flex-start;gap:8px;
+}
+.tips li::before{content:'•';color:var(--primary-color);font-weight:800;flex-shrink:0;margin-top:1px}
+.retry-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  background:var(--primary-color);color:#fff;border:none;border-radius:12px;
+  padding:14px 28px;font-size:.95rem;font-weight:700;cursor:pointer;
+  width:100%;transition:opacity .15s,transform .1s;
+  box-shadow:0 4px 14px color-mix(in srgb, var(--primary-color) 32%, transparent);
+}
+.retry-btn:hover{opacity:.88}
+.retry-btn:active{transform:scale(.98)}
+.retry-btn svg{flex-shrink:0}
+.status-bar{
+  margin-top:16px;padding:8px 14px;border-radius:8px;
+  font-size:.76rem;font-weight:600;letter-spacing:.02em;
+  display:none;
+}
+.status-bar.online{background:#d1fae5;color:#065f46;display:block}
+.status-bar.retrying{background:#fef3c7;color:#92400e;display:block}
+.footer-text{margin-top:22px;font-size:.72rem;color:#9ca3af}

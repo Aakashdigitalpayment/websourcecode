@@ -1,3 +1,32 @@
+/* FROZEN PANEL BASE — do not rewrite for polish/layout.
+ * Visual changes: *-page.css, *-shell-polish.css, final-ui-polish.css
+ * then: python3 scripts/build-css-late-bundles.py
+ * Split/slim of this file is a separate deferred track.
+ */
+/*
+ * SECTION INDEX (inventory only — do not hand-edit body for polish):
+ *  - style.css
+ *  - WHATSAPP FLOATING BUTTON
+ *  - SCROLL PROGRESS BAR
+ *  - PAGE LOADER
+ *  - MAIN HEADER
+ *  - NOTICE TICKER (Scrolling Notices)
+ *  - POPUP NOTICE MODAL
+ *  - HERO SLIDER - Enhanced Eye-Catching Design
+ *  - SECTIONS - Enhanced with Eye-Catching Headers
+ *  - SERVICE CARDS - Enhanced Eye-Catching Design
+ *  - INTEREST RATES - Enhanced Eye-Catching Design
+ *  - MODERN RATES CARD DESIGN
+ *  - NOTICES
+ *  - FEATURES / WHY US
+ *  - MOBILE APP SECTION
+ *  - APP FEATURES SECTION
+ *  - CTA SECTION
+ *  - UNIFORM SUCCESS / TRACKING UI (Public Forms)
+ *  - … +91 more
+ * Total section markers: 109
+ */
+
 /* ========== style.css ========== */
 /* ==============================================
    AAKASH COOPERATIVE - MAIN STYLESHEET

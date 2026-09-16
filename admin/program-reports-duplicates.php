@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'Duplicate Attempts';
 $currentPage = 'program-reports-duplicates';
 require_once 'includes/admin-header.php';

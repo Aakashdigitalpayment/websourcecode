@@ -21,9 +21,9 @@
 }
 .ir-viewer-stage {
     position: relative;
-    background: #f8faf9;
+    background: var(--bg-page, #f8faf9);
     border: 1px solid rgba(0,0,0,.08);
-    border-radius: .75rem;
+    border-radius: var(--shell-radius, 12px);
     overflow: hidden;
     min-height: 70vh;
 }
@@ -32,7 +32,7 @@
     min-height: 75vh;
     border: 0;
     display: block;
-    background: #fff;
+    background: var(--bg-card, #fff);
 }
 .ir-image-wrap {
     display: flex;
@@ -90,9 +90,9 @@
 }
 .ir-room-card {
     border: 1px solid rgba(0,0,0,.08);
-    border-radius: .75rem;
+    border-radius: var(--shell-radius, 12px);
     padding: 1rem;
-    background: #fff;
+    background: var(--bg-card, #fff);
     height: 100%;
     display: flex;
     flex-direction: column;

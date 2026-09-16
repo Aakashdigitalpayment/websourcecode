@@ -4,6 +4,7 @@
  * Tab UI: List tab + Add/Edit form tab (modal popup हटाइएको)
  * सबै मिति नेपाली (बि.सं.) मात्र
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $__t = static function (string $np, string $en): string {
     $lang = (string)($_SESSION['admin_lang'] ?? $_SESSION['lang'] ?? 'np');
     return strtolower($lang) === 'en' ? $en : $np;
@@ -16,11 +17,16 @@ require_once dirname(__DIR__) . '/includes/simple-cache.php';
 /* ─── Ensure popup_photo_only + popup_image columns exist ─── */
 try {
     $__db = getDB();
-    foreach ([
-        "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Popup shows photo only'",
-        "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT '' COMMENT 'Custom popup image'",
-    ] as $__sql) {
-        try { $__db->exec($__sql); } catch (Exception $e) { /* column exists */ }
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($__db, 'notices', 'popup_photo_only', "TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Popup shows photo only'");
+        safeAddColumn($__db, 'notices', 'popup_image', "VARCHAR(255) DEFAULT '' COMMENT 'Custom popup image'");
+    } else {
+        foreach ([
+            "ALTER TABLE notices ADD COLUMN popup_photo_only TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Popup shows photo only'",
+            "ALTER TABLE notices ADD COLUMN popup_image VARCHAR(255) DEFAULT '' COMMENT 'Custom popup image'",
+        ] as $__sql) {
+            try { $__db->exec($__sql); } catch (Exception $e) { /* column exists */ }
+        }
     }
     unset($__db, $__sql);
 } catch (Exception $e) {}
@@ -260,7 +266,7 @@ $ntcBasename = static function (?string $path): string {
 ?>
 
 <?php echo adminPageHeader($__t('सूचना व्यवस्थापन', 'Notices Management'), 'fa-bullhorn', $__t('संस्थाका सूचनाहरू — थप्नुहोस्, सम्पादन गर्नुहोस्।', 'Manage organization notices — add and edit.'),
-    '<span class="badge admin-stat-badge ntc-stat-pill me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($notices) . '</span>'
+    '<span class="badge admin-stat-badge ntc-stat-pill me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . $__t('जम्मा', 'Total') . ': ' . count($notices) . '</span>'
 );
 ?>
 <?php echo adminHelpTip($__t('यो पृष्ठबाट संस्थाका सूचनाहरू थप्न, सम्पादन गर्न र हटाउन सकिन्छ।', 'Use this page to add, edit and remove notices.'), [$__t('नयाँ सूचना थप्न: "नयाँ थप्नुहोस्" tab थिच्नुहोस्।', 'To add a new notice: open the "Add New" tab.'), $__t('सक्रिय/निष्क्रिय: सूचना छानेर Bulk सक्रिय वा Bulk निष्क्रिय थिच्नुहोस्।', 'Active/inactive: select notices and use Bulk Active or Bulk Inactive.'), $__t('सूचना हटाउन: रातो Delete बटन थिच्नुहोस् (यो कार्य पूर्ववत हुन सक्दैन)।', 'To delete: click red Delete button (cannot be undone).')]); ?>
@@ -271,13 +277,13 @@ $ntcBasename = static function (?string $path): string {
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="noticeTabs">
     <li class="nav-item">
         <button type="button" class="nav-link<?php echo $startOnFormTab ? '' : ' active'; ?>" data-bs-toggle="tab" data-bs-target="#tab-list" id="tab-list-btn">
-            <i class="fas fa-list me-2"></i><?php echo $__t('सूचना सूची', 'Notice List'); ?>
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('सूचना सूची', 'Notice List'); ?>
             <span class="badge ntc-count-badge ms-1"><?php echo count($notices); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link<?php echo $startOnFormTab ? ' active' : ''; ?>" data-bs-toggle="tab" data-bs-target="#tab-form" id="tab-form-btn">
-            <i class="fas fa-<?php echo $startOnFormTab ? 'edit' : 'plus-circle'; ?> me-2"></i><span id="noticeFormTabLabel"><?php echo $startOnFormTab ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+            <i class="lucide-icon me-2" aria-hidden="true" data-lucide="<?php echo $startOnFormTab ? 'pencil' : 'circle-plus'; ?>"></i><span id="noticeFormTabLabel"><?php echo $startOnFormTab ? $__t('सम्पादन', 'Edit') : $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
 </ul>
@@ -294,10 +300,10 @@ $ntcBasename = static function (?string $path): string {
                         <input type="hidden" name="action" value="bulk_status">
                         <div class="px-3 py-2 border-bottom ntc-soft-bg d-flex gap-2 justify-content-end">
                             <button type="submit" name="bulk" value="active" class="btn btn-sm ntc-bulk-active admin-bulk-btn">
-                                <i class="fas fa-check-circle me-1"></i><?php echo $__t('Bulk सक्रिय', 'Bulk Active'); ?>
+                                <i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $__t('Bulk सक्रिय', 'Bulk Active'); ?>
                             </button>
                             <button type="submit" name="bulk" value="inactive" class="btn btn-sm ntc-bulk-inactive admin-bulk-btn">
-                                <i class="fas fa-ban me-1"></i><?php echo $__t('Bulk निष्क्रिय', 'Bulk Inactive'); ?>
+                                <i class="lucide-icon me-1" data-lucide="ban" aria-hidden="true"></i><?php echo $__t('Bulk निष्क्रिय', 'Bulk Inactive'); ?>
                             </button>
                         </div>
                     </form>
@@ -322,15 +328,15 @@ $ntcBasename = static function (?string $path): string {
                                     <div class="fw-semibold text-dark"><?php echo htmlspecialchars($item['title']); ?></div>
                                     <?php if ($item['attachment']): ?>
                                         <?php if (coop_stored_upload_exists($item['attachment'])): ?>
-                                        <small class="ntc-muted"><i class="fas fa-paperclip me-1 ntc-file-icon"></i><?php echo $__t('फाइल संलग्न', 'File attached'); ?></small>
+                                        <small class="ntc-muted"><i class="lucide-icon me-1 ntc-file-icon" data-lucide="paperclip" aria-hidden="true"></i><?php echo $__t('फाइल संलग्न', 'File attached'); ?></small>
                                         <?php else: ?>
-                                        <small class="text-warning"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('फाइल छैन', 'No file'); ?></small>
+                                        <small class="text-warning"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i><?php echo $__t('फाइल छैन', 'No file'); ?></small>
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     <?php if (!empty($item['is_active'])): ?>
                                     <div class="mt-1">
                                         <a href="../notices.php?id=<?php echo (int)$item['id']; ?>" class="small text-decoration-none" target="_blank" rel="noopener noreferrer">
-                                            <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('Public हेर्नुहोस्', 'View public'); ?>
+                                            <i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i><?php echo $__t('Public हेर्नुहोस्', 'View public'); ?>
                                         </a>
                                     </div>
                                     <?php else: ?>
@@ -339,22 +345,22 @@ $ntcBasename = static function (?string $path): string {
                                 </td>
                                 <td data-label="मिति">
                                     <span class="text-secondary">
-                                        <i class="far fa-calendar-alt me-1 ntc-date-icon"></i>
+                                        <i class="lucide-icon me-1 ntc-date-icon" data-lucide="calendar" aria-hidden="true"></i>
                                         <?php echo htmlspecialchars($item['notice_date'] ?? '—'); ?>
                                     </span>
                                 </td>
                                 <td class="text-center" data-label="पप-अप">
                                     <?php if ($item['is_popup']): ?>
-                                        <span class="badge ntc-popup-badge"><i class="fas fa-bell me-1"></i><?php echo $__t('पप-अप', 'Popup'); ?></span>
+                                        <span class="badge ntc-popup-badge"><i class="lucide-icon me-1" data-lucide="bell" aria-hidden="true"></i><?php echo $__t('पप-अप', 'Popup'); ?></span>
                                     <?php else: ?>
                                         <span class="badge ntc-no-badge"><?php echo $__t('होइन', 'No'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center" data-label="स्थिति">
                                     <?php if ($item['is_active']): ?>
-                                        <span class="badge ntc-status-on"><i class="fas fa-check-circle me-1"></i><?php echo $__t('सक्रिय', 'Active'); ?></span>
+                                        <span class="badge ntc-status-on"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $__t('सक्रिय', 'Active'); ?></span>
                                     <?php else: ?>
-                                        <span class="badge ntc-status-off"><i class="fas fa-times-circle me-1"></i><?php echo $__t('निष्क्रिय', 'Inactive'); ?></span>
+                                        <span class="badge ntc-status-off"><i class="lucide-icon me-1" data-lucide="circle-x" aria-hidden="true"></i><?php echo $__t('निष्क्रिय', 'Inactive'); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-center" data-label="कार्य">
@@ -362,14 +368,14 @@ $ntcBasename = static function (?string $path): string {
                                     <a href="notices.php?edit=<?php echo (int) $item['id']; ?>"
                                         class="adm-icon-btn adm-icon-btn--edit"
                                         title="<?php echo $__t('सम्पादन', 'Edit'); ?>">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </a>
                                     <form method="POST" class="svc-inline-form d-inline" onsubmit="return confirm('<?php echo $__t('यो सूचना मेटाउने हो?', 'Delete this notice?'); ?>')">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo (int)$item['id']; ?>">
                                         <?php echo csrfField(); ?>
                                         <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="<?php echo $__t('मेटाउनुहोस्', 'Delete'); ?>">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                     </div>
@@ -389,13 +395,13 @@ $ntcBasename = static function (?string $path): string {
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="noticeFormTitle">
                     <?php if ($startOnFormTab): ?>
-                    <i class="fas fa-edit me-2"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>
+                    <i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i><?php echo $__t('सूचना सम्पादन', 'Edit Notice'); ?>
                     <?php else: ?>
-                    <i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>
                     <?php endif; ?>
                 </h5>
                 <button type="button" class="btn btn-sm ntc-soft-bg" id="btnCancelNotice">
-                    <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
                 </button>
             </div>
             <div class="card-body p-4">
@@ -410,13 +416,13 @@ $ntcBasename = static function (?string $path): string {
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="ntf_title" class="form-label fw-semibold ntc-label ntc-title-label">
-                                    <i class="fas fa-heading me-1"></i><?php echo $__t('शीर्षक', 'Title'); ?> <span class="ntc-required">*</span>
+                                    <i class="lucide-icon me-1" data-lucide="heading" aria-hidden="true"></i><?php echo $__t('शीर्षक', 'Title'); ?> <span class="ntc-required">*</span>
                                 </label>
                                 <input type="text" name="title" id="ntf_title" class="form-control admin-fancy-input" required placeholder="<?php echo $__t('सूचनाको शीर्षक', 'Notice title'); ?>" value="<?php echo htmlspecialchars((string) ($ef['title'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="mb-3">
                                 <label for="ntf_content" class="form-label fw-semibold ntc-label ntc-content-label">
-                                    <i class="fas fa-align-left me-1"></i><?php echo $__t('विवरण (वैकल्पिक)', 'Description (optional)'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="align-left" aria-hidden="true"></i><?php echo $__t('विवरण (वैकल्पिक)', 'Description (optional)'); ?>
                                 </label>
                                 <textarea name="content" id="ntf_content" class="form-control admin-fancy-input" rows="6" placeholder="<?php echo $__t('सूचनाको विवरण...', 'Notice details...'); ?>"><?php echo htmlspecialchars((string) ($ef['content'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
                             </div>
@@ -424,7 +430,7 @@ $ntcBasename = static function (?string $path): string {
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="ntf_date" class="form-label fw-semibold ntc-label ntc-date-label">
-                                    <i class="fas fa-calendar-alt me-1"></i><?php echo $__t('मिति (बि.सं.)', 'Date (BS)'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i><?php echo $__t('मिति (बि.सं.)', 'Date (BS)'); ?>
                                 </label>
                                 <div class="input-group">
                                     <input type="text" name="notice_date" id="ntf_date"
@@ -432,24 +438,35 @@ $ntcBasename = static function (?string $path): string {
                                            placeholder="YYYY-MM-DD" autocomplete="off"
                                            value="<?php echo htmlspecialchars((string) ($ef['notice_date'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
                                     <span class="input-group-text ntc-date-trigger ndp-trigger ntf-cursor-pointer">
-                                        <i class="fas fa-calendar-alt"></i>
+                                        <i class="lucide-icon" data-lucide="calendar" aria-hidden="true"></i>
                                     </span>
                                 </div>
                                 <small class="ntc-muted"><?php echo $__t('बि.सं. मिति (नेपाली क्यालेन्डर)', 'BS date (Nepali calendar)'); ?></small>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label fw-semibold ntc-label ntc-attach-label">
-                                    <i class="fas fa-paperclip me-1"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
+                                <label id="ntf_attach_legend" class="form-label fw-semibold ntc-label ntc-attach-label">
+                                    <i class="lucide-icon me-1" data-lucide="paperclip" aria-hidden="true"></i><?php echo $__t('फाइल (वैकल्पिक)', 'File (optional)'); ?>
                                     <small class="ntc-muted fw-normal" id="ntf_att_note"></small>
                                 </label>
                                 <div id="ntf_att_link" class="mb-2<?php echo $efAttachmentExists ? '' : ' d-none'; ?>">
                                     <div class="alert alert-success py-2 px-3 mb-0 small">
-                                        <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको फाइल', 'Currently uploaded file'); ?></div>
+                                        <div class="fw-semibold mb-1"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $__t('हाल upload भएको फाइल', 'Currently uploaded file'); ?></div>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <i class="<?php echo preg_match('/\.pdf$/i', $efAttachment) ? 'fas fa-file-pdf text-danger' : (preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $efAttachment) ? 'fas fa-file-image text-success' : 'fas fa-file text-secondary'); ?>" id="ntf_att_icon" aria-hidden="true"></i>
+                                            <?php
+                                            $__attLucide = 'file';
+                                            $__attCls = 'text-secondary';
+                                            if (preg_match('/\.pdf$/i', (string)$efAttachment)) {
+                                                $__attLucide = 'file-text';
+                                                $__attCls = 'text-danger';
+                                            } elseif (preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', (string)$efAttachment)) {
+                                                $__attLucide = 'image';
+                                                $__attCls = 'text-success';
+                                            }
+                                            ?>
+                                            <i class="lucide-icon <?php echo $__attCls; ?>" data-lucide="<?php echo $__attLucide; ?>" id="ntf_att_icon" aria-hidden="true"></i>
                                             <span id="ntf_att_name" class="text-truncate fw-semibold"><?php echo htmlspecialchars($ntcBasename($efAttachment), ENT_QUOTES, 'UTF-8'); ?></span>
                                             <a id="ntf_att_href" href="<?php echo $efAttachmentExists ? '../' . htmlspecialchars($efAttachment, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold ntc-attach-link ms-auto" rel="noopener noreferrer">
-                                                <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
+                                                <i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                             </a>
                                         </div>
                                         <div class="form-check mt-2 mb-0">
@@ -460,7 +477,7 @@ $ntcBasename = static function (?string $path): string {
                                 </div>
                                 <div id="ntf_att_missing" class="mb-2<?php echo ($efAttachment !== '' && !$efAttachmentExists) ? '' : ' d-none'; ?>">
                                     <div class="alert alert-warning py-2 px-3 mb-0 small">
-                                        <div class="fw-semibold mb-1"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('फाइल disk मा भेटिएन', 'File missing on disk'); ?></div>
+                                        <div class="fw-semibold mb-1"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i><?php echo $__t('फाइल disk मा भेटिएन', 'File missing on disk'); ?></div>
                                         <div class="text-truncate"><?php echo htmlspecialchars($ntcBasename($efAttachment), ENT_QUOTES, 'UTF-8'); ?></div>
                                         <div class="form-check mt-2 mb-0">
                                             <input class="form-check-input" type="checkbox" name="remove_attachment" id="ntf_remove_attachment_missing" value="1"<?php echo ($efAttachment !== '' && !$efAttachmentExists) ? ' checked' : ''; ?>>
@@ -469,7 +486,7 @@ $ntcBasename = static function (?string $path): string {
                                     </div>
                                 </div>
                                 <div id="ntf_att_empty" class="mb-2 small text-muted<?php echo $efAttachment !== '' ? ' d-none' : ''; ?>">
-                                    <i class="fas fa-info-circle me-1"></i><?php echo $__t('हाल कुनै फाइल upload भएको छैन', 'No file uploaded yet'); ?>
+                                    <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo $__t('हाल कुनै फाइल upload भएको छैन', 'No file uploaded yet'); ?>
                                 </div>
                                 <label for="ntf_attachment" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फाइल बदल्न (वैकल्पिक)', 'Replace with new file (optional)'); ?></label>
                                 <input type="file" name="attachment" id="ntf_attachment" class="form-control admin-fancy-input" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif">
@@ -486,7 +503,7 @@ $ntcBasename = static function (?string $path): string {
                                     <input class="form-check-input" type="checkbox" name="is_popup" id="ntf_popup"<?php echo !empty($ef['is_popup']) ? ' checked' : ''; ?>>
                                 </div>
                                 <label class="form-label mb-0 fw-semibold d-flex align-items-center gap-1" for="ntf_popup">
-                                    <i class="fas fa-bell ntc-bell-icon"></i>
+                                    <i class="lucide-icon ntc-bell-icon" data-lucide="bell" aria-hidden="true"></i>
                                     <?php echo $__t('पप-अप देखाउनुहोस्', 'Show as popup'); ?>
                                 </label>
                             </div>
@@ -497,25 +514,25 @@ $ntcBasename = static function (?string $path): string {
                                         <input class="form-check-input" type="checkbox" name="popup_photo_only" id="ntf_popup_photo_only"<?php echo !empty($ef['popup_photo_only']) ? ' checked' : ''; ?>>
                                     </div>
                                     <label class="form-label mb-0 fw-semibold d-flex align-items-center gap-1" for="ntf_popup_photo_only">
-                                        <i class="fas fa-image text-success"></i>
+                                        <i class="lucide-icon text-success" data-lucide="image" aria-hidden="true"></i>
                                         <?php echo $__t('फोटो मात्र देखाउनुहोस् (Photo-only popup)', 'Photo-only popup'); ?>
                                     </label>
                                 </div>
                                 <div class="mt-2" id="ntf_popup_photo_wrap">
-                                    <label class="form-label fw-semibold small mb-1">
-                                        <i class="fas fa-image me-1 text-success"></i>
+                                    <label for="ntf_popup_image" class="form-label fw-semibold small mb-1">
+                                        <i class="lucide-icon me-1 text-success" data-lucide="image" aria-hidden="true"></i>
                                         <?php echo $__t('पप-अप फोटो (वैकल्पिक)', 'Popup image (optional)'); ?>
                                     </label>
                                     <small class="text-muted d-block mb-2"><?php echo $__t('Photo-only popup मा मुख्य रूपमा प्रयोग हुन्छ।', 'Used mainly for photo-only popup mode.'); ?></small>
                                     <div id="ntf_popup_img_link" class="mb-2<?php echo $efPopupImageExists ? '' : ' d-none'; ?>">
                                         <div class="alert alert-success py-2 px-3 mb-0 small">
-                                            <div class="fw-semibold mb-1"><i class="fas fa-check-circle me-1"></i><?php echo $__t('हाल upload भएको पप-अप फोटो', 'Current popup image'); ?></div>
+                                            <div class="fw-semibold mb-1"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i><?php echo $__t('हाल upload भएको पप-अप फोटो', 'Current popup image'); ?></div>
                                             <div class="d-flex align-items-start gap-2 flex-wrap">
                                                 <img id="ntf_popup_img_preview" src="<?php echo $efPopupImageExists ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : ''; ?>" alt="" class="rounded border<?php echo $efPopupImageExists ? '' : ' d-none'; ?>" style="max-height:72px;max-width:110px;object-fit:contain;">
                                                 <div class="flex-grow-1">
                                                     <span id="ntf_popup_img_name" class="d-block text-truncate small fw-semibold"><?php echo htmlspecialchars($ntcBasename($efPopupImage), ENT_QUOTES, 'UTF-8'); ?></span>
                                                     <a id="ntf_popup_img_href" href="<?php echo $efPopupImageExists ? '../' . htmlspecialchars($efPopupImage, ENT_QUOTES, 'UTF-8') : '#'; ?>" target="_blank" class="fw-semibold small" rel="noopener noreferrer">
-                                                        <i class="fas fa-external-link-alt me-1"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
+                                                        <i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i><?php echo $__t('हेर्नुहोस्', 'View'); ?>
                                                     </a>
                                                 </div>
                                             </div>
@@ -527,7 +544,7 @@ $ntcBasename = static function (?string $path): string {
                                     </div>
                                     <div id="ntf_popup_img_missing" class="mb-2<?php echo ($efPopupImage !== '' && !$efPopupImageExists) ? '' : ' d-none'; ?>">
                                         <div class="alert alert-warning py-2 px-3 mb-0 small">
-                                            <div class="fw-semibold mb-1"><i class="fas fa-exclamation-triangle me-1"></i><?php echo $__t('पप-अप फोटो disk मा भेटिएन', 'Popup image missing on disk'); ?></div>
+                                            <div class="fw-semibold mb-1"><i class="lucide-icon me-1" data-lucide="triangle-alert" aria-hidden="true"></i><?php echo $__t('पप-अप फोटो disk मा भेटिएन', 'Popup image missing on disk'); ?></div>
                                             <div class="text-truncate"><?php echo htmlspecialchars($ntcBasename($efPopupImage), ENT_QUOTES, 'UTF-8'); ?></div>
                                             <div class="form-check mt-2 mb-0">
                                                 <input class="form-check-input" type="checkbox" name="remove_popup_image" id="ntf_remove_popup_image_missing" value="1"<?php echo ($efPopupImage !== '' && !$efPopupImageExists) ? ' checked' : ''; ?>>
@@ -536,7 +553,7 @@ $ntcBasename = static function (?string $path): string {
                                         </div>
                                     </div>
                                     <div id="ntf_popup_img_empty" class="mb-2 small text-muted<?php echo $efPopupImage !== '' ? ' d-none' : ''; ?>">
-                                        <i class="fas fa-info-circle me-1"></i><?php echo $__t('हाल कुनै पप-अप फोटो छैन', 'No popup image uploaded yet'); ?>
+                                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo $__t('हाल कुनै पप-अप फोटो छैन', 'No popup image uploaded yet'); ?>
                                     </div>
                                     <label for="ntf_popup_image" class="form-label small text-muted mb-1"><?php echo $__t('नयाँ फोटो बदल्न (वैकल्पिक)', 'Replace with new image (optional)'); ?></label>
                                     <input type="file" name="popup_image" id="ntf_popup_image"
@@ -554,13 +571,13 @@ $ntcBasename = static function (?string $path): string {
                     <div class="d-flex gap-3">
                         <button type="submit" id="ntf_submit" class="btn ntc-submit px-5 fw-semibold">
                             <?php if ($startOnFormTab): ?>
-                            <i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>
+                            <i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>
                             <?php else: ?>
-                            <i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
                             <?php endif; ?>
                         </button>
                         <button type="button" id="ntf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रद्द', 'Cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -585,10 +602,21 @@ document.addEventListener('DOMContentLoaded', function () {
         return p.split('/').pop() || p;
     }
 
-    function fileIconClass(path) {
-        if (/\.pdf$/i.test(path)) return 'fas fa-file-pdf text-danger';
-        if (/\.(jpg|jpeg|png|webp|gif)$/i.test(path)) return 'fas fa-file-image text-success';
-        return 'fas fa-file text-secondary';
+    function fileIconMeta(path) {
+        if (/\.pdf$/i.test(path)) return { name: 'file-text', cls: 'lucide-icon text-danger' };
+        if (/\.(jpg|jpeg|png|webp|gif)$/i.test(path)) return { name: 'image', cls: 'lucide-icon text-success' };
+        return { name: 'file', cls: 'lucide-icon text-secondary' };
+    }
+
+    function applyLucideIcon(el, meta) {
+        if (!el || !meta) return;
+        el.className = meta.cls;
+        el.setAttribute('data-lucide', meta.name);
+        el.setAttribute('aria-hidden', 'true');
+        el.innerHTML = '';
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ nodes: [el] });
+        }
     }
 
     function setCurrentUploadUi(wrapId, hrefId, nameId, iconId, previewId, path, noteId, emptyId, hiddenId, removeId) {
@@ -629,7 +657,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (nameEl) nameEl.textContent = basenamePath(path);
         if (iconId) {
             var iconEl = document.getElementById(iconId);
-            if (iconEl) iconEl.className = fileIconClass(path);
+            if (iconEl) applyLucideIcon(iconEl, fileIconMeta(path));
         }
         if (previewId) {
             var prev = document.getElementById(previewId);
@@ -692,8 +720,8 @@ document.addEventListener('DOMContentLoaded', function () {
         setCurrentUploadUi('ntf_popup_img_link', 'ntf_popup_img_href', 'ntf_popup_img_name', null, 'ntf_popup_img_preview', '', null, 'ntf_popup_img_empty', 'ntf_existing_popup_image', 'ntf_remove_popup_image');
         setCurrentUploadUi('ntf_att_link', 'ntf_att_href', 'ntf_att_name', 'ntf_att_icon', null, '', 'ntf_att_note', 'ntf_att_empty', 'ntf_existing_attachment', 'ntf_remove_attachment');
         resetFileInputs();
-        document.getElementById('ntf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
-        document.getElementById('noticeFormTitle').innerHTML  = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>';
+        document.getElementById('ntf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
+        document.getElementById('noticeFormTitle').innerHTML  = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ सूचना थप्नुहोस्', 'Add New Notice'); ?>';
         document.getElementById('noticeFormTabLabel').textContent = '<?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?>';
     }
 

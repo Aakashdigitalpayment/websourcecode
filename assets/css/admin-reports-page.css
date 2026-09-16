@@ -1,0 +1,95 @@
+/** Admin reports list — extracted from admin/reports.php */
+    /* Page-scoped: escape global .btn / card-header icon-button CSS */
+    body.admin-page-reports .rpt-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 12px 16px;
+        background: #f8faf9;
+        border-bottom: 1px solid #e6eee9;
+    }
+    body.admin-page-reports .rpt-chip {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: auto !important;
+        min-width: unset !important;
+        height: auto !important;
+        min-height: 34px !important;
+        padding: 6px 14px !important;
+        margin: 0 !important;
+        border-radius: 999px !important;
+        border: 1.5px solid #c5d0c9 !important;
+        background: #fff !important;
+        color: #1f2937 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+    }
+    body.admin-page-reports .rpt-chip.is-active {
+        background: #111827 !important;
+        color: #fff !important;
+        border-color: #111827 !important;
+    }
+    body.admin-page-reports .rpt-actions-cell {
+        width: 132px !important;
+        min-width: 132px !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        white-space: nowrap !important;
+    }
+    body.admin-page-reports .rpt-row-actions {
+        display: inline-flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin: 0 auto;
+    }
+    body.admin-page-reports .rpt-act-form {
+        display: inline-flex !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 34px !important;
+        height: 34px !important;
+        flex: 0 0 34px !important;
+    }
+    body.admin-page-reports .rpt-act {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: 0 0 34px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        line-height: 1 !important;
+        text-decoration: none !important;
+        box-shadow: none !important;
+        cursor: pointer !important;
+    }
+    body.admin-page-reports .rpt-act-view { background: #0f766e !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-edit { background: #1f2937 !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-del { background: #dc2626 !important; color: #fff !important; }
+    body.admin-page-reports .rpt-act-placeholder {
+        visibility: hidden;
+        pointer-events: none;
+        background: transparent !important;
+    }
+    body.admin-page-reports .rpt-act i,
+    body.admin-page-reports .rpt-act svg {
+        width: 15px !important;
+        height: 15px !important;
+        color: #fff !important;
+        stroke: #fff !important;
+    }
+    

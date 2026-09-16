@@ -3,17 +3,12 @@
  * Admin: AI Chat settings (Gemini / OpenAI / DeepSeek per सहकारी)
  * Key stored in site_settings; blank password keeps previous value.
  */
-define('IS_ADMIN_PAGE', true);
 $pageTitle = 'AI Chat सेटिङ्स';
 $currentPage = 'ai-settings';
 
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/ai-chat-helpers.php';
 require_once __DIR__ . '/../includes/ai-chat-providers.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
 /* API keys / provider secrets — admin+ only (editors cannot change) */
 if (function_exists('require_role')) {
     require_role('admin');
@@ -105,8 +100,8 @@ echo adminPageHeader(
     'fa-robot',
     'हरेक सहकारीले आफ्नै Gemini/OpenAI/DeepSeek key राख्छ। Visitor लाई निःशुल्क च्याट; जवाफ यसै साइटको डाटाबाट।',
     ($enabled && $hasKey
-        ? '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="fas fa-check-circle me-1"></i>सक्रिय</span>'
-        : '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border"><i class="fas fa-pause-circle me-1"></i>बन्द / key छैन</span>')
+        ? '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय</span>'
+        : '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border"><i class="lucide-icon me-1" data-lucide="pause-circle" aria-hidden="true"></i>बन्द / key छैन</span>')
     . ' <a class="btn btn-sm btn-outline-success ms-1" href="' . htmlspecialchars($publicUrl, ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">साइट हेर्नुहोस्</a>'
 );
 if ($_flash) {
@@ -123,7 +118,7 @@ if ($_flash) {
 
 <div class="card admin-table-card mb-3">
     <div class="card-body py-3">
-        <div class="fw-semibold mb-2"><i class="fas fa-list-ol me-1 text-success"></i>API key कहाँबाट?</div>
+        <div class="fw-semibold mb-2"><i class="lucide-icon me-1 text-success" data-lucide="list-ordered" aria-hidden="true"></i>API key कहाँबाट?</div>
         <ul class="mb-0 small text-muted ps-3">
             <li><strong>Gemini (free):</strong> <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio → API key</a></li>
             <li><strong>DeepSeek (paid, सस्तो):</strong> <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">DeepSeek Platform → API Keys</a> — balance top-up गर्नुपर्छ</li>
@@ -208,7 +203,7 @@ if ($_flash) {
             </div>
 
             <div class="mt-4 d-flex flex-wrap gap-2">
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>सेभ गर्नुहोस्</button>
+                <button type="submit" class="btn btn-primary"><i class="lucide-icon me-1" data-lucide="save" aria-hidden="true"></i>सेभ गर्नुहोस्</button>
             </div>
         </form>
 
@@ -217,12 +212,12 @@ if ($_flash) {
             <form method="post" class="d-inline">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="test">
-                <button type="submit" class="btn btn-outline-success btn-sm"><i class="fas fa-plug me-1"></i>Test connection</button>
+                <button type="submit" class="btn btn-outline-success btn-sm"><i class="lucide-icon me-1" data-lucide="plug" aria-hidden="true"></i>Test connection</button>
             </form>
             <form method="post" class="d-inline" onsubmit="return confirm('API key मेट्ने निश्चित हो?');">
                 <?php echo csrfField(); ?>
                 <input type="hidden" name="action" value="clear_key">
-                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fas fa-trash me-1"></i>Key हटाउनुहोस्</button>
+                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>Key हटाउनुहोस्</button>
             </form>
             <?php endif; ?>
         </div>

@@ -11,31 +11,20 @@
 // Start output buffering early to catch any accidental output before headers
 ob_start();
 
-// Define admin page constant before including config
-define('IS_ADMIN_PAGE', true);
-
 // Safe include with error catching
 try {
-    require_once '../includes/config.php';
+    require_once __DIR__ . '/includes/admin-page-boot.php';
 } catch (Throwable $e) {
-    // If config.php itself fails, show a safe error page
+    // If config/boot itself fails, show a safe error page
     ob_end_clean();
     http_response_code(503);
     echo '<!DOCTYPE html><html><head><title>System Error</title></head><body>';
     echo '<h2>Configuration Error</h2>';
     echo '<p>includes/config.php लोड हुन सकेन। Database settings जाँच गर्नुहोस्।</p>';
     if (ini_get('display_errors')) {
-        echo '<pre>' . htmlspecialchars($e->getMessage()) . '</pre>';
+        echo '<pre>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</pre>';
     }
     echo '</body></html>';
-    exit();
-}
-
-// Require admin login — safe redirect if not logged in
-try {
-    requireAdminLogin();
-} catch (Throwable $e) {
-    header('Location: ' . (defined('ADMIN_URL') ? ADMIN_URL : '../admin/') . 'index.php');
     exit();
 }
 
@@ -114,7 +103,7 @@ try {
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header gradient-card-header">
-                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Version Requirements</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="info" aria-hidden="true"></i>Version Requirements</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -122,17 +111,17 @@ try {
                         <tr>
                             <td class="text-muted">Minimum</td>
                             <td><strong>PHP <?php echo REQUIRED_PHP_VERSION; ?>+</strong></td>
-                            <td><?php echo $info['is_compatible'] ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>OK</span>' : '<span class="badge bg-danger"><i class="fas fa-times me-1"></i>FAIL</span>'; ?></td>
+                            <td><?php echo $info['is_compatible'] ? '<span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>OK</span>' : '<span class="badge bg-danger"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>FAIL</span>'; ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Recommended</td>
                             <td><strong>PHP <?php echo RECOMMENDED_PHP_VERSION; ?>+</strong></td>
-                            <td><?php echo $info['is_recommended'] ? '<span class="badge bg-success"><i class="fas fa-check me-1"></i>OK</span>' : '<span class="badge bg-warning text-dark"><i class="fas fa-arrow-up me-1"></i>Update</span>'; ?></td>
+                            <td><?php echo $info['is_recommended'] ? '<span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>OK</span>' : '<span class="badge bg-warning text-dark"><i class="lucide-icon me-1" data-lucide="arrow-up" aria-hidden="true"></i>Update</span>'; ?></td>
                         </tr>
                         <tr>
                             <td class="text-muted">Current</td>
                             <td><strong>PHP <?php echo htmlspecialchars($info['php_version']); ?></strong></td>
-                            <td><span class="badge bg-primary"><i class="fas fa-circle-check me-1"></i>Running</span></td>
+                            <td><span class="badge bg-primary"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>Running</span></td>
                         </tr>
                         <tr>
                             <td class="text-muted">OS</td>
@@ -151,7 +140,7 @@ try {
         <div class="col-md-6">
             <div class="card h-100">
                 <div class="card-header gradient-card-header">
-                    <h5 class="mb-0"><i class="fas fa-cog me-2"></i>PHP Settings</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="settings" aria-hidden="true"></i>PHP Settings</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -192,7 +181,7 @@ try {
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header gradient-card-header">
-                    <h5 class="mb-0"><i class="fas fa-puzzle-piece me-2"></i>Required PHP Extensions</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="puzzle" aria-hidden="true"></i>Required PHP Extensions</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -213,9 +202,9 @@ try {
                                 <td class="text-muted small"><?php echo $details['loaded'] ? htmlspecialchars($details['version']) : '—'; ?></td>
                                 <td>
                                     <?php if ($details['loaded']): ?>
-                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Loaded</span>
+                                        <span class="badge bg-success"><i class="lucide-icon me-1" data-lucide="check" aria-hidden="true"></i>Loaded</span>
                                     <?php else: ?>
-                                        <span class="badge bg-danger"><i class="fas fa-times me-1"></i>Missing!</span>
+                                        <span class="badge bg-danger"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>Missing!</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -231,7 +220,7 @@ try {
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header gradient-card-header">
-                    <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>PHP Upgrade Guide</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="arrow-up" aria-hidden="true"></i>PHP Upgrade Guide</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3 p-3 rounded si-upgrade-box si-upgrade-81">
@@ -278,7 +267,7 @@ try {
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-toolbox me-2"></i>Install / DB maintenance (emergency)</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="toolbox" aria-hidden="true"></i>Install / DB maintenance (emergency)</h5>
                 </div>
                 <div class="card-body">
                     <p class="small text-muted mb-2">
@@ -311,7 +300,7 @@ try {
         <div class="col-12">
             <div class="card">
                 <div class="card-header gradient-card-header">
-                    <h5 class="mb-0"><i class="fas fa-file-code me-2"></i>Version-Sensitive Files — यी files upgrade मा check गर्नुहोस्</h5>
+                    <h5 class="mb-0"><i class="lucide-icon me-2" data-lucide="file-code" aria-hidden="true"></i>Version-Sensitive Files — यी files upgrade मा check गर्नुहोस्</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -329,7 +318,7 @@ try {
                                 <td><code>includes/compatibility.php</code></td>
                                 <td>Version check, polyfills, upgrade guide</td>
                                 <td><span class="badge bg-secondary">7.4+</span></td>
-                                <td class="text-success small"><i class="fas fa-star me-1"></i>Upgrade गर्दा पहिले यहाँ हेर्नुहोस्</td>
+                                <td class="text-success small"><i class="lucide-icon me-1" data-lucide="star" aria-hidden="true"></i>Upgrade गर्दा पहिले यहाँ हेर्नुहोस्</td>
                             </tr>
                             <tr>
                                 <td><code>includes/config.php</code></td>

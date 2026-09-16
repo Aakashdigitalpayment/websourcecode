@@ -27,7 +27,7 @@ require_once 'includes/header.php';
 
         <!-- Icon -->
         <div class="mb-3">
-            <i class="fas fa-magnifying-glass" style="font-size:3rem;color:var(--primary-color);opacity:0.6;"></i>
+            <i class="lucide-icon" aria-hidden="true" data-lucide="search" style="font-size:3rem;color:var(--primary-color);opacity:0.6;"></i>
         </div>
 
         <!-- Heading -->
@@ -44,16 +44,16 @@ require_once 'includes/header.php';
 
         <!-- Action Buttons -->
         <div class="d-flex flex-wrap justify-content-center gap-3">
-            <a href="<?php echo SITE_URL; ?>" class="btn btn-primary btn-lg px-4">
-                <i class="fas fa-home me-2"></i>
+            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-primary btn-lg px-4">
+                <i class="lucide-icon me-2" aria-hidden="true" data-lucide="house"></i>
                 <?php echo isEnglish() ? 'Go to Home' : 'गृहपृष्ठमा जानुहोस्'; ?>
             </a>
             <button type="button" onclick="history.back()" class="btn btn-outline-secondary btn-lg px-4">
-                <i class="fas fa-arrow-left me-2"></i>
+                <i class="lucide-icon me-2" aria-hidden="true" data-lucide="arrow-left"></i>
                 <?php echo isEnglish() ? 'Go Back' : 'फर्कनुहोस्'; ?>
             </button>
-            <a href="<?php echo SITE_URL; ?>contact.php" class="btn btn-outline-primary btn-lg px-4">
-                <i class="fas fa-phone me-2"></i>
+            <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>contact.php" class="btn btn-outline-primary btn-lg px-4">
+                <i class="lucide-icon me-2" aria-hidden="true" data-lucide="phone"></i>
                 <?php echo isEnglish() ? 'Contact Us' : 'सम्पर्क गर्नुहोस्'; ?>
             </a>
         </div>
@@ -77,7 +77,12 @@ require_once 'includes/header.php';
                 foreach ($popularLinks as $link):
                 ?>
                 <a href="<?php echo e(SITE_URL . $link['url']); ?>" class="btn btn-sm btn-light border">
-                    <i class="fas <?php echo htmlspecialchars(coop_sanitize_icon_class($link['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?> me-1"></i>
+                    <?php
+                    $__404Fa = 'fas ' . ltrim((string) ($link['icon'] ?? 'fa-link'), ' ');
+                    echo function_exists('coop_nav_icon_html')
+                        ? coop_nav_icon_html($__404Fa, 'fas fa-link', 'me-1')
+                        : '<i class="lucide-icon me-1" aria-hidden="true" data-lucide="link"></i>';
+                    ?>
                     <?php echo isEnglish() ? $link['en'] : $link['np']; ?>
                 </a>
                 <?php endforeach; ?>

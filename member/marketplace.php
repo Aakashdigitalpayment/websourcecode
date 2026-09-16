@@ -273,32 +273,11 @@ $formType = $editRow['listing_type'] ?? ((($_GET['type'] ?? '') === 'skill') ? '
 $csrfField = '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(generateCSRFToken()) . '">';
 
 $pageTitle = $_t('सदस्य बजार / सीप', 'Marketplace / skills') . ' — ' . (function_exists('getSetting') ? getSetting('site_name', 'सहकारी') : 'सहकारी');
-$extraHead = '<style>
-.mmp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.mmp-title{margin:0;color:var(--primary-color);font-size:1.35rem}
-.mmp-lead{margin:6px 0 0;color:var(--text-light);font-size:.88rem;max-width:42rem}
-.mmp-grid{display:grid;gap:12px}
-.mmp-item{background:#fff;border:1px solid color-mix(in srgb,var(--primary-color) 14%,#e5e7eb);border-radius:12px;padding:14px;display:grid;grid-template-columns:88px 1fr auto;gap:12px;align-items:start}
-@media(max-width:640px){.mmp-item{grid-template-columns:1fr}}
-.mmp-thumb{width:88px;height:88px;border-radius:10px;object-fit:cover;background:color-mix(in srgb,var(--primary-color) 10%,#f8fafc);display:flex;align-items:center;justify-content:center;color:var(--primary-color);font-size:1.6rem}
-.mmp-thumb img{width:100%;height:100%;object-fit:cover;border-radius:10px}
-.mmp-pill{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:700;padding:3px 8px;border-radius:999px}
-.mmp-form .form-group{margin-bottom:12px}
-.mmp-form label{display:block;font-weight:600;font-size:.86rem;margin-bottom:4px}
-.mmp-form .form-control,.mmp-form select,.mmp-form textarea{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid color-mix(in srgb,var(--primary-color) 20%,#d1d5db);font-family:inherit}
-.mmp-type-tabs{display:flex;gap:8px;margin-bottom:14px}
-.mmp-type-tabs label{flex:1;border:1.5px solid color-mix(in srgb,var(--primary-color) 20%,#d1d5db);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-weight:700;font-size:.85rem}
-.mmp-type-tabs input{display:none}
-.mmp-type-tabs input:checked+span{color:var(--primary-color)}
-.mmp-type-tabs label:has(input:checked){border-color:var(--primary-color);background:color-mix(in srgb,var(--primary-color) 10%,#fff)}
-.mmp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media(max-width:540px){.mmp-row{grid-template-columns:1fr}}
-.mmp-hint{font-size:.78rem;color:var(--text-light);margin-top:4px}
-.mmp-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.mmp-inq-unread{border-color:color-mix(in srgb,var(--primary-color) 45%,#fbbf24)!important;background:color-mix(in srgb,var(--primary-color) 6%,#fffbeb)}
-.mmp-badge{display:inline-flex;min-width:1.25rem;height:1.25rem;padding:0 6px;border-radius:999px;background:#dc2626;color:#fff;font-size:.7rem;font-weight:800;align-items:center;justify-content:center;margin-left:6px}
-</style>
-<link rel="stylesheet" href="' . htmlspecialchars(SITE_URL) . 'assets/css/nepali.datepicker.min.css">';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/member-marketplace-page.css')
+        : '')
+    . '<link rel="stylesheet" href="' . htmlspecialchars(SITE_URL) . 'assets/css/nepali.datepicker.min.css">';
 require __DIR__ . '/includes/chrome.php';
 
 $f = static function (string $key, string $fallback = '') use ($editRow): string {
@@ -319,28 +298,28 @@ $untilDateBs = mpAdToBsDisplay($untilDateVal ?: date('Y-m-d', strtotime('+' . mp
 
 <div class="mmp-head">
     <div>
-        <h1 class="mmp-title"><i class="fas fa-store"></i> <?php echo $_t('सदस्य बजार र सीप', 'Member marketplace & skills'); ?></h1>
+        <h1 class="mmp-title"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i> <?php echo $_t('सदस्य बजार र सीप', 'Member marketplace & skills'); ?></h1>
         <p class="mmp-lead"><?php echo $_t(
             'आफूले फलाएको उत्पादन (काँक्रो, तरकारी, फलफूल…) वा दिन सक्ने सीप (प्लम्बर, विद्युत, ब्युटीसियन…) राख्नुहोस्। प्रशासनले स्वीकृत गरेपछि मात्र सार्वजनिक मेनुमा देखिन्छ। मूल्य/उपलब्ध समय सकिएपछि सूची हट्छ।',
             'List produce you grow (cucumber, vegetables, fruit…) or skills you offer (plumber, electrician, beautician…). They appear in the public menu only after admin approval, and leave after the price/availability window ends.'
         ); ?></p>
     </div>
     <div class="mmp-actions">
-        <a class="btn btn-outline-success btn-sm" href="<?php echo SITE_URL; ?>member-marketplace.php" target="_blank" rel="noopener"><?php echo $_t('सार्वजनिक बजार', 'Public market'); ?></a>
-        <a class="btn btn-outline-success btn-sm" href="<?php echo SITE_URL; ?>member-skills.php" target="_blank" rel="noopener"><?php echo $_t('सीप सूची', 'Skill list'); ?></a>
+        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-marketplace.php" target="_blank" rel="noopener"><?php echo $_t('सार्वजनिक बजार', 'Public market'); ?></a>
+        <a class="btn btn-outline-success btn-sm" href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member-skills.php" target="_blank" rel="noopener"><?php echo $_t('सीप सूची', 'Skill list'); ?></a>
         <?php if (!$showForm || $editRow): ?>
         <a class="btn btn-success btn-sm" href="marketplace.php?new=1"><?php echo $_t('+ नयाँ सूची', '+ New listing'); ?></a>
         <?php endif; ?>
     </div>
 </div>
 
-<?php if ($successMsg): ?><div class="mem-alert mem-alert-success"><i class="fas fa-circle-check"></i> <?php echo htmlspecialchars($successMsg); ?></div><?php endif; ?>
-<?php if ($errorMsg): ?><div class="mem-alert mem-alert-error"><i class="fas fa-circle-xmark"></i> <?php echo htmlspecialchars($errorMsg); ?></div><?php endif; ?>
+<?php if ($successMsg): ?><div class="mem-alert mem-alert-success"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> <?php echo htmlspecialchars($successMsg); ?></div><?php endif; ?>
+<?php if ($errorMsg): ?><div class="mem-alert mem-alert-error"><i class="lucide-icon" data-lucide="circle-x" aria-hidden="true"></i> <?php echo htmlspecialchars($errorMsg); ?></div><?php endif; ?>
 
 <?php if ($showForm): ?>
 <div class="mem-card" style="margin-bottom:18px;">
     <div class="mem-card-header">
-        <div class="mem-card-title"><i class="fas fa-pen"></i> <?php echo $editRow ? $_t('सूची सम्पादन', 'Edit listing') : $_t('नयाँ सूची', 'New listing'); ?></div>
+        <div class="mem-card-title"><i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i> <?php echo $editRow ? $_t('सूची सम्पादन', 'Edit listing') : $_t('नयाँ सूची', 'New listing'); ?></div>
     </div>
     <div class="mem-card-body">
         <form method="post" enctype="multipart/form-data" class="mmp-form">
@@ -351,11 +330,11 @@ $untilDateBs = mpAdToBsDisplay($untilDateVal ?: date('Y-m-d', strtotime('+' . mp
             <div class="mmp-type-tabs" role="radiogroup" aria-label="<?php echo $_t('सूची प्रकार', 'Listing type'); ?>">
                 <label>
                     <input type="radio" name="listing_type" value="product" <?php echo $formType !== 'skill' ? 'checked' : ''; ?> onchange="mmpToggleType()">
-                    <span><i class="fas fa-basket-shopping"></i> <?php echo $_t('उत्पादन बिक्री', 'Sell produce'); ?></span>
+                    <span><i class="lucide-icon" data-lucide="shopping-basket" aria-hidden="true"></i> <?php echo $_t('उत्पादन बिक्री', 'Sell produce'); ?></span>
                 </label>
                 <label>
                     <input type="radio" name="listing_type" value="skill" <?php echo $formType === 'skill' ? 'checked' : ''; ?> onchange="mmpToggleType()">
-                    <span><i class="fas fa-screwdriver-wrench"></i> <?php echo $_t('सीप / कामदार', 'Skill / worker'); ?></span>
+                    <span><i class="lucide-icon" data-lucide="wrench" aria-hidden="true"></i> <?php echo $_t('सीप / कामदार', 'Skill / worker'); ?></span>
                 </label>
             </div>
 
@@ -454,7 +433,7 @@ $untilDateBs = mpAdToBsDisplay($untilDateVal ?: date('Y-m-d', strtotime('+' . mp
 
             <p class="mmp-hint"><?php echo $_t('स्वीकृतिपछि नाम, मोबाइल र मूल्य सार्वजनिक देखिन्छ। गलत विवरण भए प्रशासनले अस्वीकृत गर्न सक्छ।', 'After approval, name, mobile and price are public. Admin may reject inaccurate listings.'); ?></p>
             <button type="submit" class="wf-submit-btn" style="width:100%;padding:12px;background:var(--primary-color);color:#fff;border:0;border-radius:10px;font-weight:700;cursor:pointer">
-                <i class="fas fa-paper-plane"></i> <?php echo $editRow ? $_t('अपडेट गरी स्वीकृति पठाउनुहोस्', 'Update and send for approval') : $_t('स्वीकृतिका लागि पठाउनुहोस्', 'Submit for approval'); ?>
+                <i class="lucide-icon" data-lucide="send" aria-hidden="true"></i> <?php echo $editRow ? $_t('अपडेट गरी स्वीकृति पठाउनुहोस्', 'Update and send for approval') : $_t('स्वीकृतिका लागि पठाउनुहोस्', 'Submit for approval'); ?>
             </button>
             <?php if ($editRow): ?>
                 <p style="text-align:center;margin-top:10px"><a href="marketplace.php"><?php echo $_t('रद्द', 'Cancel'); ?></a></p>
@@ -485,7 +464,7 @@ mmpToggleType();
 
 <div class="mem-card">
     <div class="mem-card-header">
-        <div class="mem-card-title"><i class="fas fa-list"></i> <?php echo $_t('मेरा सूचीहरू', 'My listings'); ?></div>
+        <div class="mem-card-title"><i class="lucide-icon" data-lucide="list" aria-hidden="true"></i> <?php echo $_t('मेरा सूचीहरू', 'My listings'); ?></div>
     </div>
     <div class="mem-card-body">
         <?php if ($mine === []): ?>
@@ -499,7 +478,15 @@ mmpToggleType();
             ?>
                 <div class="mmp-item">
                     <div class="mmp-thumb">
-                        <?php if ($img !== ''): ?><img src="<?php echo htmlspecialchars($img); ?>" alt=""><?php else: ?><i class="fas <?php echo htmlspecialchars(mpCategoryIcon((string)$row['listing_type'], (string)$row['category'])); ?>"></i><?php endif; ?>
+                        <?php if ($img !== ''): ?><img src="<?php echo htmlspecialchars($img); ?>" alt=""><?php else:
+                            $__mpFa = trim((string) mpCategoryIcon((string)$row['listing_type'], (string)$row['category']));
+                            if ($__mpFa !== '' && !preg_match('/^fa[srlb]?\s+/i', $__mpFa)) {
+                                $__mpFa = 'fas ' . ltrim($__mpFa, ' ');
+                            }
+                            echo function_exists('coop_nav_icon_html')
+                                ? coop_nav_icon_html($__mpFa !== '' ? $__mpFa : 'fas fa-tag', 'fas fa-tag')
+                                : '<i class="lucide-icon" aria-hidden="true" data-lucide="tag"></i>';
+                        endif; ?>
                     </div>
                     <div>
                         <div><strong><?php echo htmlspecialchars((string)$row['title']); ?></strong></div>
@@ -540,7 +527,7 @@ mmpToggleType();
 <div class="mem-card" id="mmp-inquiries" style="margin-top:18px">
     <div class="mem-card-header">
         <div class="mem-card-title">
-            <i class="fas fa-comments"></i> <?php echo $_t('चासो सन्देशहरू', 'Interest messages'); ?>
+            <i class="lucide-icon" data-lucide="messages-square" aria-hidden="true"></i> <?php echo $_t('चासो सन्देशहरू', 'Interest messages'); ?>
             <?php if ($unreadInquiryCount > 0): ?>
                 <span class="mmp-badge" title="<?php echo $_t('नयाँ', 'New'); ?>"><?php echo (int) $unreadInquiryCount; ?></span>
             <?php endif; ?>

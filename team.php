@@ -7,6 +7,10 @@ $pageTitle = isEnglish() ? 'Human Resources' : 'मानवीय श्रो�
 $pageDescription = isEnglish()
     ? 'Meet our board, management, committees and contact officers.'
     : 'हाम्रो सञ्चालक समिति, व्यवस्थापन, समिति र सम्पर्क अधिकारीहरूसँग भेट्नुहोस्।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/team-page.css')
+        : '');
 require_once 'includes/header.php';
 
 $selectedCommitteeId = isset($_GET['cmt']) ? (int)$_GET['cmt'] : 0;
@@ -510,7 +514,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
         <h1><?php echo isEnglish() ? 'Human Resources' : 'मानवीय श्रोत'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Human Resources' : 'मानवीय श्रोत'; ?></li>
             </ol>
         </nav>
@@ -522,13 +526,13 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
     <div class="container">
         <div class="team-triple-filter">
             <div class="team-triple-title">
-                <i class="fas fa-filter"></i>
+                <i class="lucide-icon" data-lucide="filter" aria-hidden="true"></i>
                 <span><?php echo isEnglish() ? 'Filter people' : 'मानवीय स्रोत फिल्टर'; ?></span>
             </div>
             <div class="row g-3 align-items-end justify-content-center">
                 <div class="col-md-4 col-lg-3">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamMenuSelect">
-                        <i class="fas fa-layer-group me-1" aria-hidden="true"></i>
+                        <i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>
                         1. <?php echo isEnglish() ? 'Category' : 'श्रेणी'; ?>
                     </label>
                     <select id="teamMenuSelect" class="form-select team-filter-select">
@@ -542,7 +546,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                 </div>
                 <div class="col-md-4 col-lg-3" id="teamItemWrap" style="<?php echo ($viewMenuSlug !== 'all' && !empty($menuItemsForSelect)) ? '' : 'display:none'; ?>">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamItemSelect">
-                        <i class="fas fa-sitemap me-1" aria-hidden="true"></i>
+                        <i class="lucide-icon me-1" data-lucide="network" aria-hidden="true"></i>
                         2. <?php echo isEnglish() ? 'Item' : 'विवरण'; ?>
                     </label>
                     <select id="teamItemSelect" class="form-select team-filter-select">
@@ -559,7 +563,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                 </div>
                 <div class="col-md-4 col-lg-3" id="teamTenureWrap" style="<?php echo ($isCommitteeView && !empty($viewTenures)) ? '' : 'display:none'; ?>">
                     <label class="form-label small fw-semibold text-success mb-1" for="teamTenureSelect">
-                        <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i>
+                        <i class="lucide-icon me-1" data-lucide="calendar" aria-hidden="true"></i>
                         3. <?php echo isEnglish() ? 'Tenure' : 'कार्यकाल'; ?>
                     </label>
                     <select id="teamTenureSelect" class="form-select team-filter-select" <?php echo empty($viewTenures) ? 'disabled' : ''; ?>>
@@ -576,7 +580,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                                     $period = trim(($tn['start_date'] ?? '') . ' – ' . ($tn['end_date'] ?? ''));
                                 }
                             ?>
-                            <option value="<?php echo $tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
+                            <option value="<?php echo (int)$tid; ?>" <?php echo $viewTenureId === $tid ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($label); ?><?php if ($period): ?> (<?php echo htmlspecialchars($period); ?>)<?php endif; ?>
                                 <?php if (!empty($tn['is_current'])): ?> <?php echo isEnglish() ? '(Latest)' : '(हालको)'; ?><?php endif; ?>
                             </option>
@@ -588,11 +592,11 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
             <?php if (!$isTeamOverview && $activeFilterSummary !== ''): ?>
             <div class="team-active-filter-row">
                 <span class="team-active-filter-chip">
-                    <i class="fas fa-location-dot" aria-hidden="true"></i>
+                    <i class="lucide-icon" data-lucide="map-pin" aria-hidden="true"></i>
                     <?php echo htmlspecialchars($activeFilterSummary); ?>
                 </span>
-                <a href="<?php echo SITE_URL; ?>team.php" class="btn btn-sm btn-outline-success team-filter-reset">
-                    <i class="fas fa-rotate-left me-1" aria-hidden="true"></i>
+                <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>team.php" class="btn btn-sm btn-outline-success team-filter-reset">
+                    <i class="lucide-icon me-1" data-lucide="rotate-ccw" aria-hidden="true"></i>
                     <?php echo isEnglish() ? 'View all' : 'सबै हेर्नुहोस्'; ?>
                 </a>
             </div>
@@ -605,33 +609,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
         </div>
     </div>
 </section>
-<style>
-.team-triple-filter{max-width:980px;margin:0 auto;padding:8px 4px 4px}
-.team-triple-title{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:var(--primary-color,#1a5f2a);margin-bottom:14px}
-.team-triple-title i{opacity:.85}
-.team-filter-select{
-  border:1.5px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 30%,#e5e7eb);
-  border-radius:10px;
-  font-size:.93rem;
-  background-color:#fff;
-  min-height:44px;
-  padding:.5rem 2.25rem .5rem .85rem;
-}
-.team-filter-select:focus{
-  border-color:var(--primary-color,#1a5f2a);
-  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--primary-color,#1a5f2a) 18%,transparent);
-}
-.team-active-filter-row{
-  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.65rem;margin-top:.85rem;
-}
-.team-active-filter-chip{
-  display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .85rem;border-radius:999px;
-  background:color-mix(in srgb,var(--primary-color,#1a5f2a) 10%,#fff);
-  border:1px solid color-mix(in srgb,var(--primary-color,#1a5f2a) 22%,#e5e7eb);
-  color:#1a2e24;font-size:.86rem;font-weight:600;
-}
-.team-filter-reset{border-radius:999px;font-weight:600}
-</style>
+
 <?php endif; ?>
 
 <!-- Information & Grievance Officers Section -->
@@ -711,7 +689,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
     <div class="container">
         <div class="section-header section-header-unified text-center mb-4" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-user-tie"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i> <?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Contact Officers' : 'सम्पर्क अधिकारी'; ?></h2>
             <div class="section-divider"></div>
@@ -729,7 +707,9 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
             <div class="officers-grid-cell" role="listitem" data-aos="fade-up" data-aos-delay="<?php echo (int)$card['delay']; ?>">
                 <div class="officer-card <?php echo e($card['class']); ?>">
                     <div class="officer-badge">
-                        <i class="<?php echo e($card['badge_icon']); ?>"></i>
+                        <?php echo function_exists('coop_nav_icon_html')
+                            ? coop_nav_icon_html((string)($card['badge_icon'] ?? ''), 'fas fa-user-tie')
+                            : '<i class="lucide-icon" aria-hidden="true" data-lucide="user-round"></i>'; ?>
                         <span><?php echo e($card['badge_label']); ?></span>
                     </div>
                     <div class="officer-photo">
@@ -747,13 +727,13 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                         <div class="officer-contact">
                             <?php if (!empty($person['phone'])): ?>
                             <a href="tel:<?php echo e($person['phone']); ?>" class="contact-item">
-                                <i class="fas fa-phone"></i>
+                                <i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i>
                                 <span><?php echo e($person['phone']); ?></span>
                             </a>
                             <?php endif; ?>
                             <?php if (!empty($person['email'])): ?>
                             <a href="mailto:<?php echo e($person['email']); ?>" class="contact-item">
-                                <i class="fas fa-envelope"></i>
+                                <i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i>
                                 <span><?php echo e($person['email']); ?></span>
                             </a>
                             <?php endif; ?>
@@ -763,7 +743,7 @@ $teamShowSection = static function (string $key) use ($isTeamOverview, $activeSe
                         <p><?php echo e($card['description']); ?></p>
                         <?php if (!empty($card['grievance_btn'])): ?>
                         <a href="grievance.php" class="btn btn-sm btn-outline-danger mt-2">
-                            <i class="fas fa-pen"></i> <?php echo isEnglish() ? 'File Grievance Online' : 'अनलाइन गुनासो दर्ता'; ?>
+                            <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i> <?php echo isEnglish() ? 'File Grievance Online' : 'अनलाइन गुनासो दर्ता'; ?>
                         </a>
                         <?php endif; ?>
                     </div>
@@ -841,10 +821,10 @@ foreach ($staffGroups as $_sg):
                         <?php if (!empty($member['phone']) || !empty($member['email'])): ?>
                         <div class="team-contact-circular">
                             <?php if (!empty($member['phone'])): ?>
-                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="fas fa-phone"></i></a>
+                                <a href="tel:<?php echo e($member['phone']); ?>" title="<?php echo e($member['phone']); ?>"><i class="lucide-icon" data-lucide="phone" aria-hidden="true"></i></a>
                             <?php endif; ?>
                             <?php if (!empty($member['email'])): ?>
-                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="fas fa-envelope"></i></a>
+                                <a href="mailto:<?php echo e($member['email']); ?>" title="<?php echo e($member['email']); ?>"><i class="lucide-icon" data-lucide="mail" aria-hidden="true"></i></a>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
@@ -880,7 +860,7 @@ foreach ($staffGroups as $_sg):
         </div>
         <?php else: ?>
         <div class="team-empty-selection text-center py-4" id="teamCmtMembers">
-            <i class="fas fa-users-slash fa-2x text-muted mb-3 d-block opacity-50" aria-hidden="true"></i>
+            <i class="lucide-icon lucide-2x text-muted mb-3 d-block opacity-50" data-lucide="users" aria-hidden="true"></i>
             <p class="text-muted mb-0"><?php echo isEnglish() ? 'No members found for this selection.' : 'यो छनोटका लागि सदस्य भेटिएन।'; ?></p>
         </div>
         <?php endif; ?>
@@ -1143,16 +1123,5 @@ function teamBuildUrl(menuSlug, itemKey, tenureId) {
     window.addEventListener('hashchange', boot);
 })();
 </script>
-<style>
-.team-section--focused {
-    outline: 2px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent);
-    outline-offset: 6px;
-    border-radius: 12px;
-}
-.visually-hidden {
-    position: absolute !important;
-    width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0,0,0,0); border: 0;
-}
-</style>
+
 <?php require_once 'includes/footer.php'; ?>

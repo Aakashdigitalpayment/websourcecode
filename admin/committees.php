@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/election-tables.php';
 /**
  * समिति व्यवस्थापन — Committee Management
@@ -17,7 +18,11 @@ try {
 
 /* committee_types.icon — सार्वजनिक मेनु item icon */
 try {
-    $db->exec("ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+    if (function_exists('safeAddColumn')) {
+        safeAddColumn($db, 'committee_types', 'icon', "VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+    } else {
+        $db->exec("ALTER TABLE committee_types ADD COLUMN icon VARCHAR(80) DEFAULT 'fas fa-users-gear'");
+    }
 } catch (Throwable $e) { /* already exists */ }
 
 /* CSRF सुरक्षा: POST अनुरोध प्रमाणित गर्नुहोस् */
@@ -54,6 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $show_in_navbar = isset($_POST['type_show_in_navbar']) ? 1 : 0;
             $menu_category_id = (int)($_POST['type_menu_category_id'] ?? 0) ?: null;
             $icon = clean_text($_POST['type_icon'] ?? 'fas fa-users-gear', 80) ?: 'fas fa-users-gear';
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-users-gear');
+            }
 
             if (function_exists('isBoardCommitteeTypeAlias') && isBoardCommitteeTypeAlias([
                 'name' => $name,
@@ -185,7 +193,7 @@ $_flash = getFlash();
 ?>
 
 <?php
-$headerBtns = '<button type="button" class="btn btn-primary btn-sm" id="btnAddCmt"><i class="fas fa-plus me-1"></i>नयाँ थप्नुहोस्</button>';
+$headerBtns = '<button type="button" class="btn btn-primary btn-sm" id="btnAddCmt"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ थप्नुहोस्</button>';
 echo adminPageHeader('समिति/उपसमिति व्यवस्थापन', 'fa-users-gear', 'संचालक समिति र उपसमिति सदस्य व्यवस्थापन', $headerBtns);
 if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger', $_flash['message']);
 ?>
@@ -194,19 +202,19 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <a class="nav-link <?php echo $activeTab === 'types' ? 'active' : ''; ?>" href="?tab=types">
-            <i class="fas fa-layer-group me-2"></i>समिति प्रकार
+            <i class="lucide-icon me-2" data-lucide="layers" aria-hidden="true"></i>समिति प्रकार
             <span class="badge bg-success ms-1"><?php echo count($committeeTypes); ?></span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo $activeTab === 'tenures' ? 'active' : ''; ?>" href="?tab=tenures">
-            <i class="fas fa-calendar-alt me-2"></i>कार्यकालहरू
+            <i class="lucide-icon me-2" data-lucide="calendar" aria-hidden="true"></i>कार्यकालहरू
             <span class="badge bg-primary ms-1"><?php echo count($tenures); ?></span>
         </a>
     </li>
     <li class="nav-item">
         <a class="nav-link <?php echo $activeTab === 'members' ? 'active' : ''; ?>" href="?tab=members">
-            <i class="fas fa-user-friends me-2"></i>सदस्यहरू
+            <i class="lucide-icon me-2" data-lucide="users" aria-hidden="true"></i>सदस्यहरू
             <span class="badge bg-info ms-1"><?php echo count($members); ?></span>
         </a>
     </li>
@@ -218,14 +226,14 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
 <?php if ($activeTab === 'types'): ?>
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-green">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-layer-group me-2"></i>समिति प्रकारहरू</h5>
-        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddType"><i class="fas fa-plus me-1"></i>नयाँ प्रकार</button>
+        <h5 class="mb-0 fw-bold"><i class="lucide-icon me-2" data-lucide="layers" aria-hidden="true"></i>समिति प्रकारहरू</h5>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddType"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ प्रकार</button>
     </div>
 
             <!-- खोज बक्स -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -244,7 +252,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                 </tr></thead>
                 <tbody>
                     <?php if (empty($committeeTypes)): ?>
-                    <tr><td colspan="7" class="text-center py-5 text-muted"><i class="fas fa-layer-group fa-3x mb-2 d-block opacity-25"></i>कुनै समिति प्रकार छैन।</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted"><i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="layers" aria-hidden="true"></i>कुनै समिति प्रकार छैन।</td></tr>
                     <?php endif; ?>
                     <?php
                     $menuCatById = [];
@@ -261,7 +269,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         <td class="ps-3"><span class="badge bg-light text-dark border"><?php echo $t['display_order']; ?></span></td>
                         <td>
                             <div class="fw-semibold">
-                                <i class="<?php echo htmlspecialchars($t['icon'] ?? 'fas fa-users-gear'); ?> me-1 text-success"></i>
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($t['icon'] ?? ''), 'fas fa-users-gear', 'me-1 text-success') : ''; ?>
                                 <?php echo htmlspecialchars($t['name_np']); ?>
                                 <?php if ($isBoardAlias): ?>
                                     <span class="badge bg-warning-subtle text-warning border border-warning ms-1" title="Public UI ले Team → board प्रयोग गर्छ">board</span>
@@ -275,7 +283,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         <td>
                             <?php if ($mcRow): ?>
                                 <span class="badge bg-light text-dark border">
-                                    <i class="<?php echo htmlspecialchars($mcRow['icon'] ?? 'fas fa-folder'); ?> me-1"></i>
+                                    <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($mcRow['icon'] ?? ''), 'fas fa-folder', 'me-1') : ''; ?>
                                     <?php echo htmlspecialchars($mcRow['name_np'] ?: ($mcRow['name_en'] ?? '')); ?>
                                 </span>
                             <?php else: ?>
@@ -285,30 +293,30 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         <td><small class="text-muted"><?php echo htmlspecialchars($t['description'] ?? ''); ?></small></td>
                         <td class="text-center">
                             <?php if ($showNav): ?>
-                                <span class="badge bg-info-subtle text-info border border-info"><i class="fas fa-eye me-1"></i>देखिन्छ</span>
+                                <span class="badge bg-info-subtle text-info border border-info"><i class="lucide-icon me-1" data-lucide="eye" aria-hidden="true"></i>देखिन्छ</span>
                             <?php else: ?>
-                                <span class="badge bg-light text-muted border"><i class="fas fa-eye-slash me-1"></i>लुकाइएको</span>
+                                <span class="badge bg-light text-muted border"><i class="lucide-icon me-1" data-lucide="eye-off" aria-hidden="true"></i>लुकाइएको</span>
                             <?php endif; ?>
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $t['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $t['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
                             <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-type"
-                                    data-id="<?php echo $t['id']; ?>"
+                                    data-id="<?php echo (int)$t['id']; ?>"
                                     data-name="<?php echo htmlspecialchars($t['name'], ENT_QUOTES); ?>"
                                     data-name-np="<?php echo htmlspecialchars($t['name_np'], ENT_QUOTES); ?>"
                                     data-desc="<?php echo htmlspecialchars($t['description'] ?? '', ENT_QUOTES); ?>"
-                                    data-order="<?php echo $t['display_order']; ?>"
-                                    data-active="<?php echo $t['is_active']; ?>"
-                                    data-show-nav="<?php echo $showNav; ?>"
-                                    data-menu-cat="<?php echo $mcId; ?>"
+                                    data-order="<?php echo (int)$t['display_order']; ?>"
+                                    data-active="<?php echo (int)$t['is_active']; ?>"
+                                    data-show-nav="<?php echo (int)$showNav; ?>"
+                                    data-menu-cat="<?php echo (int)$mcId; ?>"
                                     data-icon="<?php echo htmlspecialchars($t['icon'] ?? 'fas fa-users-gear', ENT_QUOTES); ?>">
-                                <i class="fas fa-edit"></i>
+                                <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                             </button>
                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो समिति प्रकार मेटाउने?')">
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_type">
-                                <input type="hidden" name="delete_id" value="<?php echo $t['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <input type="hidden" name="delete_id" value="<?php echo (int)$t['id']; ?>">
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -322,8 +330,8 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
 <!-- Add/Edit Form Panel -->
 <div id="typFormPanel" class="card mt-4 d-none cmt-top-border-green">
     <div class="card-header d-flex justify-content-between align-items-center cmt-header-green">
-        <h5 class="mb-0 fw-bold" id="typFormTitle"><i class="fas fa-plus-circle me-2"></i>नयाँ समिति प्रकार</h5>
-        <button type="button" class="btn btn-light btn-sm" id="btnCancelType"><i class="fas fa-times me-1"></i>रद्द</button>
+        <h5 class="mb-0 fw-bold" id="typFormTitle"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समिति प्रकार</h5>
+        <button type="button" class="btn btn-light btn-sm" id="btnCancelType"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
     </div>
     <div class="card-body p-4">
         <form method="POST">
@@ -348,12 +356,12 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                     <div class="js-fa-icon-picker fa-ip-wrap">
                         <div class="fa-ip-row input-group">
                             <span class="fa-ip-preview input-group-text" data-fa-preview id="typIconPreview">
-                                <i class="fas fa-users-gear"></i>
+                                <i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i>
                             </span>
                             <input type="text" name="type_icon" id="typ_icon" class="form-control admin-fancy-input" data-fa-input
                                    value="fas fa-users-gear" placeholder="fas fa-users-gear">
                             <button type="button" class="btn btn-success fa-ip-open" data-fa-open title="आइकन छान्नुहोस्">
-                                <i class="fas fa-th me-1"></i><span>छान्नुहोस्</span>
+                                <i class="lucide-icon me-1" data-lucide="layout-grid" aria-hidden="true"></i><span>छान्नुहोस्</span>
                             </button>
                         </div>
                         <small class="fa-ip-hint">सार्वजनिक मानवीय स्रोत मेनुमा यो समिति item को icon।</small>
@@ -373,7 +381,7 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                         <?php endforeach; ?>
                     </select>
                     <small class="text-muted d-block mt-1">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         मानवीय स्रोत मेनुमा कुन parent श्रेणी अन्तर्गत यो समिति देखिने —
                         <a href="team.php?tab=menu">मेनु श्रेणी</a> मा बनाइन्छ।
                         <?php if (empty($committeeMenuCategories)): ?>
@@ -397,17 +405,17 @@ if ($_flash) echo adminAlert($_flash['type'] === 'success' ? 'success' : 'danger
                             <input class="form-check-input" type="checkbox" name="type_show_in_navbar" id="typ_show_nav">
                             <label class="form-check-label fw-semibold" for="typ_show_nav">Navbar मा देखाउनुहोस्</label>
                         </div>
-                        <small class="text-muted d-block mt-1"><i class="fas fa-info-circle me-1"></i>ON गर्दा Website को "Team / Committees" वा "सम्पर्क अधिकारी → समिति" मेनुमा यो प्रकार देखिन्छ।</small>
+                        <small class="text-muted d-block mt-1"><i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>ON गर्दा Website को "Team / Committees" वा "सम्पर्क अधिकारी → समिति" मेनुमा यो प्रकार देखिन्छ।</small>
                     </div>
                 </div>
             </div>
             <hr class="my-4">
             <div class="d-flex gap-3">
                 <button type="submit" id="typ_submit" class="btn btn-success px-5 fw-semibold">
-                    <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                 </button>
                 <button type="button" id="typCancelBtn2" class="btn btn-outline-secondary px-4">
-                    <i class="fas fa-times me-1"></i>रद्द
+                    <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                 </button>
             </div>
         </form>
@@ -429,11 +437,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('typ_menu_cat').value = '';
         document.getElementById('typ_icon').value = 'fas fa-users-gear';
         var prev = document.getElementById('typIconPreview');
-        if (prev) prev.innerHTML = '<i class="fas fa-users-gear"></i>';
+        if (prev) prev.innerHTML = '<i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i>';
         document.getElementById('typ_active').checked = true;
         document.getElementById('typ_show_nav').checked = false;
-        document.getElementById('typ_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('typFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ समिति प्रकार';
+        document.getElementById('typ_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('typFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समिति प्रकार';
         if (window.FaIconPicker && typeof window.FaIconPicker.enhance === 'function') {
             window.FaIconPicker.enhance(document.getElementById('typFormPanel') || document);
         }
@@ -458,11 +466,18 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('typ_menu_cat').value = d.menuCat || '';
             document.getElementById('typ_icon').value = d.icon || 'fas fa-users-gear';
             var prev = document.getElementById('typIconPreview');
-            if (prev) prev.innerHTML = '<i class="' + (d.icon || 'fas fa-users-gear') + '"></i>';
+            if (prev && window.FaIconPicker && typeof window.FaIconPicker.setPreview === 'function') {
+                window.FaIconPicker.setPreview(prev, d.icon || 'fas fa-users-gear');
+            } else if (prev) {
+                prev.innerHTML = '<i class="lucide-icon" data-lucide="users-round" aria-hidden="true"></i>';
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    window.lucide.createIcons({ nodes: prev.querySelectorAll('[data-lucide]') });
+                }
+            }
             document.getElementById('typ_active').checked = d.active === '1';
             document.getElementById('typ_show_nav').checked = d.showNav === '1';
-            document.getElementById('typ_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('typFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>समिति प्रकार सम्पादन';
+            document.getElementById('typ_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('typFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>समिति प्रकार सम्पादन';
             showPanel();
             if (window.FaIconPicker && typeof window.FaIconPicker.enhance === 'function') {
                 window.FaIconPicker.enhance(document.getElementById('typFormPanel') || document);
@@ -479,14 +494,14 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php if ($activeTab === 'tenures'): ?>
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-blue">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-alt me-2"></i>कार्यकालहरू</h5>
-        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddTenure"><i class="fas fa-plus me-1"></i>नयाँ कार्यकाल</button>
+        <h5 class="mb-0 fw-bold"><i class="lucide-icon me-2" data-lucide="calendar" aria-hidden="true"></i>कार्यकालहरू</h5>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddTenure"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ कार्यकाल</button>
     </div>
 
             <!-- खोज बक्स -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -503,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tr></thead>
                 <tbody>
                     <?php if (empty($tenures)): ?>
-                    <tr><td colspan="5" class="text-center py-5 text-muted"><i class="fas fa-calendar fa-3x mb-2 d-block opacity-25"></i>कुनै कार्यकाल छैन।</td></tr>
+                    <tr><td colspan="5" class="text-center py-5 text-muted"><i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="calendar" aria-hidden="true"></i>कुनै कार्यकाल छैन।</td></tr>
                     <?php endif; ?>
                     <?php foreach ($tenures as $tn): ?>
                     <tr class="<?php echo $tn['is_current'] ? 'table-success' : ''; ?>">
@@ -522,21 +537,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="text-center"><span class="badge bg-<?php echo $tn['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $tn['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
                             <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-tenure"
-                                    data-id="<?php echo $tn['id']; ?>"
-                                    data-type-id="<?php echo $tn['committee_type_id']; ?>"
+                                    data-id="<?php echo (int)$tn['id']; ?>"
+                                    data-type-id="<?php echo (int)$tn['committee_type_id']; ?>"
                                     data-name="<?php echo htmlspecialchars($tn['tenure_name'], ENT_QUOTES); ?>"
                                     data-name-np="<?php echo htmlspecialchars($tn['tenure_name_np'] ?? '', ENT_QUOTES); ?>"
                                     data-start="<?php echo htmlspecialchars($tn['start_date'], ENT_QUOTES); ?>"
                                     data-end="<?php echo htmlspecialchars($tn['end_date'], ENT_QUOTES); ?>"
-                                    data-current="<?php echo $tn['is_current']; ?>"
-                                    data-active="<?php echo $tn['is_active']; ?>">
-                                <i class="fas fa-edit"></i>
+                                    data-current="<?php echo (int)$tn['is_current']; ?>"
+                                    data-active="<?php echo (int)$tn['is_active']; ?>">
+                                <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                             </button>
                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो कार्यकाल मेटाउने?')">
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_tenure">
-                                <input type="hidden" name="delete_id" value="<?php echo $tn['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <input type="hidden" name="delete_id" value="<?php echo (int)$tn['id']; ?>">
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -550,8 +565,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Tenure Add/Edit Form Panel -->
 <div id="tenFormPanel" class="card mt-4 d-none cmt-top-border-blue">
     <div class="card-header d-flex justify-content-between align-items-center cmt-header-blue">
-        <h5 class="mb-0 fw-bold" id="tenFormTitle"><i class="fas fa-plus-circle me-2"></i>नयाँ कार्यकाल</h5>
-        <button type="button" class="btn btn-light btn-sm" id="btnCancelTenure"><i class="fas fa-times me-1"></i>रद्द</button>
+        <h5 class="mb-0 fw-bold" id="tenFormTitle"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ कार्यकाल</h5>
+        <button type="button" class="btn btn-light btn-sm" id="btnCancelTenure"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
     </div>
     <div class="card-body p-4">
         <form method="POST">
@@ -564,13 +579,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     <select name="committee_type_id" id="ten_type_id" class="form-select admin-fancy-input" required>
                         <option value="">— छान्नुहोस् —</option>
                         <?php foreach ($committeeTypes as $ct): ?>
-                        <option value="<?php echo $ct['id']; ?>"><?php echo htmlspecialchars($ct['name_np']); ?></option>
+                        <option value="<?php echo (int)$ct['id']; ?>"><?php echo htmlspecialchars($ct['name_np']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-12">
                     <div class="alert alert-info py-2 mb-1 small">
-                        <i class="fas fa-info-circle me-1"></i>
+                        <i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i>
                         <strong>कार्यकाल भनेको के हो?</strong>
                         समितिको एक कार्य-अवधि (जस्तै २०७८-२०८१)। एउटा समिति प्रकारमा धेरै कार्यकाल हुन सक्छन् — <strong>हालको कार्यकाल ON</strong> गरेको मात्र public website मा देखिन्छ। पुराना कार्यकाल "विगतका समितिहरू" मा जान्छन्।
                     </div>
@@ -608,9 +623,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <hr class="my-4">
             <div class="d-flex gap-3">
                 <button type="submit" id="ten_submit" class="btn btn-primary px-5 fw-semibold">
-                    <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                 </button>
-                <button type="button" id="tenCancelBtn2" class="btn btn-outline-secondary px-4"><i class="fas fa-times me-1"></i>रद्द</button>
+                <button type="button" id="tenCancelBtn2" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
             </div>
         </form>
     </div>
@@ -631,8 +646,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('ten_end').value     = '';
         document.getElementById('ten_current').checked = false;
         document.getElementById('ten_active').checked  = true;
-        document.getElementById('ten_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('tenFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ कार्यकाल';
+        document.getElementById('ten_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('tenFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ कार्यकाल';
     }
     var btnAddTenure = document.getElementById('btnAddTenure');
     var btnCancelTenure = document.getElementById('btnCancelTenure');
@@ -652,8 +667,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('ten_end').value       = d.end;
             document.getElementById('ten_current').checked = d.current === '1';
             document.getElementById('ten_active').checked  = d.active === '1';
-            document.getElementById('ten_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('tenFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>कार्यकाल सम्पादन';
+            document.getElementById('ten_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('tenFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>कार्यकाल सम्पादन';
             showPanel();
         });
     });
@@ -667,14 +682,14 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php if ($activeTab === 'members'): ?>
 <div class="card admin-table-card cmt-flat-top-card">
     <div class="card-header d-flex align-items-center justify-content-between cmt-header-cyan">
-        <h5 class="mb-0 fw-bold"><i class="fas fa-user-friends me-2"></i>समिति सदस्यहरू</h5>
-        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddMember"><i class="fas fa-plus me-1"></i>नयाँ सदस्य</button>
+        <h5 class="mb-0 fw-bold"><i class="lucide-icon me-2" data-lucide="users" aria-hidden="true"></i>समिति सदस्यहरू</h5>
+        <button type="button" class="btn btn-outline-light btn-sm" id="btnAddMember"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i>नयाँ सदस्य</button>
     </div>
 
             <!-- खोज बक्स -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -692,12 +707,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tr></thead>
                 <tbody>
                     <?php if (empty($members)): ?>
-                    <tr><td colspan="6" class="text-center py-5 text-muted"><i class="fas fa-users fa-3x mb-2 d-block opacity-25"></i>कुनै सदस्य छैन।</td></tr>
+                    <tr><td colspan="6" class="text-center py-5 text-muted"><i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="users" aria-hidden="true"></i>कुनै सदस्य छैन।</td></tr>
                     <?php endif; ?>
                     <?php foreach ($groupedMembers as $groupLabel => $membersInGroup): ?>
                     <tr class="table-secondary">
                         <td colspan="6" class="fw-semibold text-start">
-                            <i class="fas fa-layer-group me-2"></i>
+                            <i class="lucide-icon me-2" data-lucide="layers" aria-hidden="true"></i>
                             <?php echo htmlspecialchars($groupLabel); ?>
                         </td>
                     </tr>
@@ -709,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                  class="cmt-mem-avatar" alt="<?php echo htmlspecialchars($m['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                             <?php else: ?>
                             <div class="cmt-mem-avatar-fallback">
-                                <i class="fas fa-user text-secondary"></i>
+                                <i class="lucide-icon text-secondary" data-lucide="user" aria-hidden="true"></i>
                             </div>
                             <?php endif; ?>
                         </td>
@@ -722,21 +737,21 @@ document.addEventListener('DOMContentLoaded', function() {
                             <small class="text-muted"><?php echo htmlspecialchars($m['tenure_name'] ?? ''); ?></small>
                         </td>
                         <td>
-                            <?php if ($m['phone']): ?><small><i class="fas fa-phone fa-xs text-muted me-1"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
-                            <?php if ($m['email']): ?><small><i class="fas fa-envelope fa-xs text-muted me-1"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
+                            <?php if ($m['phone']): ?><small><i class="lucide-icon text-muted me-1" data-lucide="phone" aria-hidden="true"></i><?php echo htmlspecialchars($m['phone']); ?></small><br><?php endif; ?>
+                            <?php if ($m['email']): ?><small><i class="lucide-icon text-muted me-1" data-lucide="mail" aria-hidden="true"></i><?php echo htmlspecialchars($m['email']); ?></small><?php endif; ?>
                         </td>
                         <td class="text-center"><span class="badge bg-<?php echo $m['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $m['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                         <td class="text-center">
                             <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-member"
                                     data-member='<?php echo htmlspecialchars(json_encode($m, JSON_UNESCAPED_UNICODE), ENT_QUOTES); ?>'
                                     title="सम्पादन">
-                                <i class="fas fa-edit"></i>
+                                <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                             </button>
                             <form method="POST" class="svc-inline-form" onsubmit="return confirm('यो सदस्य मेटाउने?')">
     <?php echo csrfField(); ?>
                                 <input type="hidden" name="action" value="delete_member">
-                                <input type="hidden" name="delete_id" value="<?php echo $m['id']; ?>">
-                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                <input type="hidden" name="delete_id" value="<?php echo (int)$m['id']; ?>">
+                                <button type="submit" class="adm-icon-btn adm-icon-btn--delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                             </form>
                         </td>
                     </tr>
@@ -751,8 +766,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Member Add/Edit Form Panel -->
 <div id="memFormPanel" class="card mt-4 d-none cmt-top-border-cyan">
     <div class="card-header d-flex justify-content-between align-items-center cmt-header-cyan">
-        <h5 class="mb-0 fw-bold" id="memFormTitle"><i class="fas fa-plus-circle me-2"></i>नयाँ समिति सदस्य</h5>
-        <button type="button" class="btn btn-light btn-sm" id="btnCancelMember"><i class="fas fa-times me-1"></i>रद्द</button>
+        <h5 class="mb-0 fw-bold" id="memFormTitle"><i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समिति सदस्य</h5>
+        <button type="button" class="btn btn-light btn-sm" id="btnCancelMember"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
     </div>
     <div class="card-body p-4">
         <form method="POST" enctype="multipart/form-data" id="memForm" class="needs-validation" novalidate>
@@ -767,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <select name="tenure_id" id="mem_tenure_id" class="form-select admin-fancy-input" required>
                         <option value="">— कार्यकाल छान्नुहोस् —</option>
                         <?php foreach ($tenures as $tn): ?>
-                        <option value="<?php echo $tn['id']; ?>">
+                        <option value="<?php echo (int)$tn['id']; ?>">
                             <?php echo htmlspecialchars(($tn['type_name'] ?? '') . ' — ' . $tn['tenure_name']); ?>
                             <?php echo $tn['is_current'] ? ' (हालको)' : ''; ?>
                         </option>
@@ -831,9 +846,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <hr class="my-4">
             <div class="d-flex gap-3">
                 <button type="submit" id="mem_submit" class="btn btn-primary px-5 fw-semibold">
-                    <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                 </button>
-                <button type="button" id="memCancelBtn2" class="btn btn-outline-secondary px-4"><i class="fas fa-times me-1"></i>रद्द</button>
+                <button type="button" id="memCancelBtn2" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द</button>
             </div>
         </form>
     </div>
@@ -860,8 +875,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mem_existing_photo').value   = '';
         document.getElementById('mem_photo_prev').innerHTML   = '';
         document.getElementById('mem_photo_note').textContent = '';
-        document.getElementById('mem_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('memFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ समिति सदस्य';
+        document.getElementById('mem_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('memFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समिति सदस्य';
     }
     var btnAddMember = document.getElementById('btnAddMember');
     var btnCancelMember = document.getElementById('btnCancelMember');
@@ -890,8 +905,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('mem_photo_prev').innerHTML   = m.photo
                 ? '<img src="../' + m.photo + '" class="cmt-preview-img cmt-preview-img-cyan" alt="Preview">'
                 : '';
-            document.getElementById('mem_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('memFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>सदस्य सम्पादन';
+            document.getElementById('mem_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('memFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>सदस्य सम्पादन';
             showPanel();
         });
     });

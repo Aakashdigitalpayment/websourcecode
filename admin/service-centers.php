@@ -3,6 +3,7 @@
  * सेवा कार्यालय व्यवस्थापन — Service Centers / Branch Management
  * Tab UI: सूची + Add/Edit form (modal popup हटाइएको)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'सेवा कार्यालय व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -64,14 +65,14 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
     'सेवा कार्यालय व्यवस्थापन',
     'fa-map-marker-alt',
     'संस्थाका कार्यालय तथा सेवा कार्यालयहरू।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($centers) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($centersLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($centersArch) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($centers) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय: ' . count($centersLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>अभिलेख: ' . count($centersArch) . '</span>'
 ); ?>
 
 <?php $flash = getFlash(); if ($flash): ?>
 <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3">
-    <i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i>
+    <i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i>
     <?php echo htmlspecialchars($flash['message']); ?>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
@@ -80,13 +81,13 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#sc-list" id="sc-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>सेवा कार्यालय सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>सेवा कार्यालय सूची
             <span class="badge bg-success ms-1"><?php echo count($centers); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#sc-form" id="sc-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="scFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="scFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -100,7 +101,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3" style="flex-wrap:wrap">
                 <div class="input-group input-group-sm" style="max-width:300px">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="नाम, विवरण अनुसार खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -125,12 +126,12 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <tbody>
                             <?php if (empty($centers)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-map-marker-alt fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="map-pin" aria-hidden="true"></i>
                                 कुनै सेवा कार्यालय छैन। माथिको "नयाँ थप्नुहोस्" बटन थिच्नुहोस्।
                             </td></tr>
                             <?php elseif (empty($centersLive)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                 सक्रिय सेवा कार्यालय छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
@@ -152,7 +153,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-sc"
-                                            data-id="<?php echo $c['id']; ?>"
+                                            data-id="<?php echo (int)$c['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($c['name_np'] ?? '', ENT_QUOTES); ?>"
                                             data-address="<?php echo htmlspecialchars($c['address'] ?? '', ENT_QUOTES); ?>"
@@ -161,17 +162,17 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                             data-province="<?php echo htmlspecialchars($c['province'] ?? '', ENT_QUOTES); ?>"
                                             data-hours="<?php echo htmlspecialchars($c['opening_hours'] ?? '', ENT_QUOTES); ?>"
                                             data-map="<?php echo htmlspecialchars($c['map_url'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $c['display_order']; ?>"
-                                            data-main="<?php echo $c['is_main_branch']; ?>"
-                                            data-active="<?php echo $c['is_active']; ?>"
+                                            data-order="<?php echo (int)$c['display_order']; ?>"
+                                            data-main="<?php echo (int)$c['is_main_branch']; ?>"
+                                            data-active="<?php echo (int)$c['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो सेवा कार्यालय मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -197,7 +198,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                         <tbody>
                             <?php if (empty($centersArch)): ?>
                             <tr><td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                 अभिलेखमा कुनै सेवा कार्यालय छैन।
                             </td></tr>
                             <?php endif; ?>
@@ -219,7 +220,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                 <td class="text-center"><span class="badge bg-<?php echo $c['is_active'] ? 'success' : 'secondary'; ?>"><?php echo $c['is_active'] ? 'सक्रिय' : 'निष्क्रिय'; ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-sc"
-                                            data-id="<?php echo $c['id']; ?>"
+                                            data-id="<?php echo (int)$c['id']; ?>"
                                             data-name="<?php echo htmlspecialchars($c['name'], ENT_QUOTES); ?>"
                                             data-name-np="<?php echo htmlspecialchars($c['name_np'] ?? '', ENT_QUOTES); ?>"
                                             data-address="<?php echo htmlspecialchars($c['address'] ?? '', ENT_QUOTES); ?>"
@@ -228,17 +229,17 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                                             data-province="<?php echo htmlspecialchars($c['province'] ?? '', ENT_QUOTES); ?>"
                                             data-hours="<?php echo htmlspecialchars($c['opening_hours'] ?? '', ENT_QUOTES); ?>"
                                             data-map="<?php echo htmlspecialchars($c['map_url'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $c['display_order']; ?>"
-                                            data-main="<?php echo $c['is_main_branch']; ?>"
-                                            data-active="<?php echo $c['is_active']; ?>"
+                                            data-order="<?php echo (int)$c['display_order']; ?>"
+                                            data-main="<?php echo (int)$c['is_main_branch']; ?>"
+                                            data-active="<?php echo (int)$c['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" style="display:inline" onsubmit="return confirm('के तपाईं यो सेवा कार्यालय मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $c['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$c['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -257,10 +258,10 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
         <div class="card" style="border-top-left-radius:0!important;border-top-right-radius:0!important;">
             <div class="card-header d-flex justify-content-between align-items-center" style="background:linear-gradient(135deg,var(--primary-color),var(--primary-light));color:#fff;">
                 <h5 class="mb-0 fw-bold" id="scFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ सेवा कार्यालय थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ सेवा कार्यालय थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelSc">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </button>
             </div>
             <div class="card-body p-4">
@@ -295,7 +296,7 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                             <select name="province" id="scf_province" class="form-select admin-fancy-input">
                                 <option value="">छान्नुहोस्</option>
                                 <?php foreach ($provinces as $k => $v): ?>
-                                <option value="<?php echo $k; ?>"><?php echo $v; ?></option>
+                                <option value="<?php echo e($k); ?>"><?php echo e($v); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -329,10 +330,10 @@ $provinces = ['1'=>'प्रदेश नं. १','2'=>'मधेश','3'=>'�
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="scf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="scf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -365,8 +366,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('scf_main').checked  = false;
         document.getElementById('scf_active').checked = true;
         document.getElementById('scf_province').selectedIndex = 0;
-        document.getElementById('scf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i>नयाँ सेवा कार्यालय थप्नुहोस्';
+        document.getElementById('scf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('scFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ सेवा कार्यालय थप्नुहोस्';
         document.getElementById('scFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
     }
 
@@ -397,8 +398,8 @@ document.addEventListener('DOMContentLoaded', function() {
             for (var i=0; i<sel.options.length; i++) {
                 if (sel.options[i].value === d.province) { sel.selectedIndex = i; break; }
             }
-            document.getElementById('scf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('scFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i>सेवा कार्यालय सम्पादन';
+            document.getElementById('scf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('scFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>सेवा कार्यालय सम्पादन';
             document.getElementById('scFormTabLabel').textContent = 'सम्पादन';
             switchToForm();
         });

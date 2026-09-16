@@ -5,6 +5,10 @@ $pageTitle = isEnglish() ? 'Services' : 'सेवाहरू';
 $pageDescription = isEnglish()
     ? 'Explore savings, loans, remittance and member services offered by our cooperative.'
     : 'हाम्रो सहकारीका बचत, ऋण, रेमिट्यान्स र सदस्य सेवाहरू अन्वेषण गर्नुहोस्।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/services-page.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -119,7 +123,7 @@ if (!function_exists('service_anchor_id')) {
         <h1><?php echo isEnglish() ? 'Our Services' : 'हाम्रो सेवाहरू'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Services' : 'सेवाहरू'; ?></li>
             </ol>
         </nav>
@@ -131,7 +135,7 @@ if (!function_exists('service_anchor_id')) {
     <div class="container">
         <div class="section-header text-center mb-5" data-aos="fade-up">
             <div class="section-badge-wrap">
-                <span class="section-badge"><i class="fas fa-concierge-bell"></i> <?php echo isEnglish() ? 'Our Services' : 'हाम्रा सेवाहरू'; ?></span>
+                <span class="section-badge"><i class="lucide-icon" data-lucide="bell" aria-hidden="true"></i> <?php echo isEnglish() ? 'Our Services' : 'हाम्रा सेवाहरू'; ?></span>
             </div>
             <h2><?php echo isEnglish() ? 'Services We Provide' : 'हामीले प्रदान गर्ने सेवाहरू'; ?></h2>
             <div class="section-divider"></div>
@@ -161,7 +165,7 @@ if (!function_exists('service_anchor_id')) {
                         <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
                             <div class="service-category-header-inner d-flex align-items-center justify-content-center gap-3">
                                 <div class="service-category-icon rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
-                                    <i class="<?php echo htmlspecialchars($category['icon'] ?: 'fas fa-th-large'); ?> fs-4"></i>
+                                    <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html((string)($category['icon'] ?? ''), 'fas fa-th-large', 'fs-4') : '<i class="lucide-icon fs-4" aria-hidden="true" data-lucide="layout-grid"></i>'; ?>
                                 </div>
                                 <div class="service-category-header-text">
                                     <h3 class="mb-1"><?php echo isEnglish() ? ($category['name_en'] ?: $category['name']) : ($category['name_np'] ?: $category['name']); ?></h3>
@@ -181,7 +185,7 @@ if (!function_exists('service_anchor_id')) {
                             <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                             <?php endif; ?>
                             <div class="service-icon-lg">
-                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($service['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($service['icon'] ?? '', 'fas fa-circle') : ''; ?>
                             </div>
                             <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
                             <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
@@ -196,7 +200,7 @@ if (!function_exists('service_anchor_id')) {
                                     <ul class="service-features mb-0">
                                         <?php foreach ($sProducts as $sp): ?>
                                             <li>
-                                                <i class="fas fa-check"></i>
+                                                <i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>
                                                 <span>
                                                     <?php echo htmlspecialchars(isEnglish() ? (($sp['title_en'] ?: $sp['title_np']) ?? '') : (($sp['title_np'] ?: $sp['title_en']) ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                     <?php
@@ -225,7 +229,7 @@ if (!function_exists('service_anchor_id')) {
                         <div class="service-category-header p-4 rounded-3 bg-white border shadow-sm">
                             <div class="service-category-header-inner d-flex align-items-center justify-content-center gap-3">
                                 <div class="service-category-icon rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;">
-                                    <i class="fas fa-list"></i>
+                                    <i class="lucide-icon" data-lucide="list" aria-hidden="true"></i>
                                 </div>
                                 <div class="service-category-header-text">
                                     <h3 class="mb-1"><?php echo isEnglish() ? 'Other Services' : 'अन्य सेवाहरू'; ?></h3>
@@ -242,7 +246,7 @@ if (!function_exists('service_anchor_id')) {
                             <span class="new-badge"><?php echo isEnglish() ? 'New' : 'नयाँ'; ?></span>
                             <?php endif; ?>
                             <div class="service-icon-lg">
-                                <i class="<?php echo htmlspecialchars(coop_sanitize_icon_class($service['icon'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"></i>
+                                <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($service['icon'] ?? '', 'fas fa-circle') : ''; ?>
                             </div>
                             <h4><?php echo isEnglish() ? ($service['title'] ?: $service['title_np']) : ($service['title_np'] ?: $service['title']); ?></h4>
                             <p><?php echo isEnglish() ? ($service['description'] ?: $service['description_np']) : ($service['description_np'] ?: $service['description']); ?></p>
@@ -257,7 +261,7 @@ if (!function_exists('service_anchor_id')) {
                                     <ul class="service-features mb-0">
                                         <?php foreach ($sProducts as $sp): ?>
                                             <li>
-                                                <i class="fas fa-check"></i>
+                                                <i class="lucide-icon" data-lucide="check" aria-hidden="true"></i>
                                                 <span>
                                                     <?php echo htmlspecialchars(isEnglish() ? (($sp['title_en'] ?: $sp['title_np']) ?? '') : (($sp['title_np'] ?: $sp['title_en']) ?? ''), ENT_QUOTES, 'UTF-8'); ?>
                                                     <?php
@@ -287,15 +291,15 @@ if (!function_exists('service_anchor_id')) {
                 <div class="col-lg-4 col-md-6 mb-4" id="saving">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
-                            <i class="fas fa-piggy-bank"></i>
+                            <i class="lucide-icon" data-lucide="piggy-bank" aria-hidden="true"></i>
                         </div>
                         <h4>बचत खाता</h4>
                         <p>हाम्रो बचत खाताहरूमा आकर्षक ब्याज दर र सुरक्षित बचतको ग्यारेन्टी पाउनुहोस्। विभिन्न प्रकारका बचत योजनाहरू उपलब्ध छन्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> नियमित बचत खाता</li>
-                            <li><i class="fas fa-check"></i> मुद्दती बचत खाता</li>
-                            <li><i class="fas fa-check"></i> बाल बचत खाता</li>
-                            <li><i class="fas fa-check"></i> महिला बचत खाता</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> नियमित बचत खाता</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> मुद्दती बचत खाता</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> बाल बचत खाता</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> महिला बचत खाता</li>
                         </ul>
                     </div>
                 </div>
@@ -303,15 +307,15 @@ if (!function_exists('service_anchor_id')) {
                 <div class="col-lg-4 col-md-6 mb-4" id="loan">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
-                            <i class="fas fa-hand-holding-usd"></i>
+                            <i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i>
                         </div>
                         <h4>ऋण सेवा</h4>
                         <p>तपाईंको विभिन्न आवश्यकताहरूको लागि सजिलो र छिटो ऋण सेवा प्राप्त गर्नुहोस्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> व्यक्तिगत ऋण</li>
-                            <li><i class="fas fa-check"></i> व्यवसायिक ऋण</li>
-                            <li><i class="fas fa-check"></i> घर कर्जा</li>
-                            <li><i class="fas fa-check"></i> शैक्षिक ऋण</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> व्यक्तिगत ऋण</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> व्यवसायिक ऋण</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> घर कर्जा</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> शैक्षिक ऋण</li>
                         </ul>
                     </div>
                 </div>
@@ -324,10 +328,10 @@ if (!function_exists('service_anchor_id')) {
                         <h4>मुद्दती निक्षेप</h4>
                         <p>उच्च ब्याज दरमा तपाईंको पैसालाई मुद्दती निक्षेपमा राख्नुहोस्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> ३ महिना मुद्दती</li>
-                            <li><i class="fas fa-check"></i> ६ महिना मुद्दती</li>
-                            <li><i class="fas fa-check"></i> १ वर्ष मुद्दती</li>
-                            <li><i class="fas fa-check"></i> २ वर्ष मुद्दती</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> ३ महिना मुद्दती</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> ६ महिना मुद्दती</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> १ वर्ष मुद्दती</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> २ वर्ष मुद्दती</li>
                         </ul>
                     </div>
                 </div>
@@ -335,14 +339,14 @@ if (!function_exists('service_anchor_id')) {
                 <div class="col-lg-4 col-md-6 mb-4" id="remittance">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
-                            <i class="fas fa-exchange-alt"></i>
+                            <i class="lucide-icon" data-lucide="arrow-left-right" aria-hidden="true"></i>
                         </div>
                         <h4>रेमिट्यान्स</h4>
                         <p>विदेशबाट पठाइएको पैसा सजिलै र छिटो प्राप्त गर्नुहोस्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> द्रुत सेवा</li>
-                            <li><i class="fas fa-check"></i> सुरक्षित लेनदेन</li>
-                            <li><i class="fas fa-check"></i> प्रतिस्पर्धी दर</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> द्रुत सेवा</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> सुरक्षित लेनदेन</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> प्रतिस्पर्धी दर</li>
                         </ul>
                     </div>
                 </div>
@@ -350,14 +354,14 @@ if (!function_exists('service_anchor_id')) {
                 <div class="col-lg-4 col-md-6 mb-4" id="mobile-banking">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
-                            <i class="fas fa-mobile-alt"></i>
+                            <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true"></i>
                         </div>
                         <h4>मोबाइल बैंकिङ</h4>
                         <p>आफ्नो मोबाइलबाट जुनसुकै समय आफ्नो खाता पहुँच गर्नुहोस्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> २४/७ पहुँच</li>
-                            <li><i class="fas fa-check"></i> सजिलो प्रयोग</li>
-                            <li><i class="fas fa-check"></i> सुरक्षित</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> २४/७ पहुँच</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> सजिलो प्रयोग</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> सुरक्षित</li>
                         </ul>
                     </div>
                 </div>
@@ -365,14 +369,14 @@ if (!function_exists('service_anchor_id')) {
                 <div class="col-lg-4 col-md-6 mb-4" id="insurance">
                     <div class="service-detail-card">
                         <div class="service-icon-lg">
-                            <i class="lucide-icon" aria-hidden="true" data-lucide="shield-alt"></i>
+                            <i class="lucide-icon" aria-hidden="true" data-lucide="shield-check"></i>
                         </div>
                         <h4>बीमा सेवा</h4>
                         <p>तपाईंको बचतको लागि बीमा कभरेज प्राप्त गर्नुहोस्।</p>
                         <ul class="service-features">
-                            <li><i class="fas fa-check"></i> जीवन बीमा</li>
-                            <li><i class="fas fa-check"></i> बचत बीमा</li>
-                            <li><i class="fas fa-check"></i> दुर्घटना बीमा</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> जीवन बीमा</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> बचत बीमा</li>
+                            <li><i class="lucide-icon" data-lucide="check" aria-hidden="true"></i> दुर्घटना बीमा</li>
                         </ul>
                     </div>
                 </div>
@@ -430,13 +434,7 @@ if (!function_exists('service_anchor_id')) {
     window.addEventListener('hashchange', focusServiceFromHash);
 })();
 </script>
-<style>
-.service-detail-card.is-focused {
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color, #1a5f2a) 35%, transparent), 0 12px 28px rgba(0,0,0,.08);
-    border-radius: 12px;
-}
-.service-item--focused { scroll-margin-top: 110px; }
-</style>
+
 
 <!-- CTA Section -->
 <section class="cta-section">

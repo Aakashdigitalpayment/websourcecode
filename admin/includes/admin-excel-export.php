@@ -170,7 +170,7 @@ if (!function_exists('adminExcelExportButtonHtml')) {
             : '';
         return '<div class="d-flex flex-wrap gap-2 mt-2 align-items-center">'
             . '<a href="' . $href . '" class="btn btn-success btn-sm">'
-            . '<i class="fas fa-file-excel me-1"></i>' . $label . $countHtml
+            . '<i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>' . $label . $countHtml
             . '</a>'
             . '<span class="small text-muted">मिति / फिल्टर अनुसार CSV — Excel ले खोल्छ।</span>'
             . '</div>';
@@ -185,7 +185,7 @@ if (!function_exists('adminExcelSingleLink')) {
         }
         $href = htmlspecialchars($baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . 'export=csv&id=' . $id, ENT_QUOTES, 'UTF-8');
         $cls  = htmlspecialchars($class, ENT_QUOTES, 'UTF-8');
-        return '<a href="' . $href . '" class="' . $cls . '"><i class="fas fa-file-excel me-1"></i>Excel</a>';
+        return '<a href="' . $href . '" class="' . $cls . '"><i class="lucide-icon me-1" data-lucide="file-spreadsheet" aria-hidden="true"></i>Excel</a>';
     }
 }
 
@@ -208,7 +208,7 @@ if (!function_exists('adminPrintFormLink')) {
         $cls  = htmlspecialchars($class, ENT_QUOTES, 'UTF-8');
         $lab  = htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
         return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" class="' . $cls . '">'
-            . '<i class="fas fa-print me-1"></i>' . $lab . '</a>';
+            . '<i class="lucide-icon me-1" data-lucide="printer" aria-hidden="true"></i>' . $lab . '</a>';
     }
 }
 
@@ -226,7 +226,7 @@ if (!function_exists('adminPrintFormIcon')) {
         }
         $href = htmlspecialchars('print-form.php?type=' . $type . '&id=' . $id, ENT_QUOTES, 'UTF-8');
         return '<a href="' . $href . '" target="_blank" rel="noopener noreferrer" class="adm-icon-btn adm-icon-btn--print" title="Print" aria-label="Print">'
-            . '<i class="fas fa-print"></i></a>';
+            . '<i class="lucide-icon" data-lucide="printer" aria-hidden="true"></i></a>';
     }
 }
 
@@ -257,7 +257,7 @@ if (!function_exists('adminExcelIcon')) {
         }
         $href = htmlspecialchars($baseUrl . (str_contains($baseUrl, '?') ? '&' : '?') . 'export=csv&id=' . $id, ENT_QUOTES, 'UTF-8');
         return '<a href="' . $href . '" class="adm-icon-btn" title="Excel" aria-label="Excel">'
-            . '<i class="fas fa-file-excel text-success"></i></a>';
+            . '<i class="lucide-icon text-success" data-lucide="file-spreadsheet" aria-hidden="true"></i></a>';
     }
 }
 

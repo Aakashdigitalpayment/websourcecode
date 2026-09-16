@@ -3,16 +3,11 @@
  * Superadmin only — hide/show admin sidebar menu groups for this cooperative deploy.
  * Default: nothing hidden. Save requires confirm code (not SA role alone).
  */
-define('IS_ADMIN_PAGE', true);
 $pageTitle = 'Menu Control';
 $currentPage = 'menu-control';
 
-require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/admin-menu-control.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
 if (empty($_SESSION['is_superadmin'])) {
     setFlash('error', 'यो पृष्ठ केवल Superadmin ले प्रयोग गर्न सक्छ।');
     redirect(ADMIN_URL . 'dashboard.php');
@@ -153,8 +148,8 @@ echo adminPageHeader(
   <div class="card border-0 bg-light">
     <div class="card-body d-flex flex-wrap align-items-end gap-2">
       <div class="flex-grow-1" style="min-width:200px;">
-        <label class="form-label small mb-1"><?php echo $t('Reset को लागि पनि Confirm Code', 'Confirm Code also required to reset'); ?></label>
-        <input type="password" name="confirm_code" class="form-control" inputmode="numeric" autocomplete="off" required>
+        <label for="menu_reset_confirm_code" class="form-label small mb-1"><?php echo $t('Reset को लागि पनि Confirm Code', 'Confirm Code also required to reset'); ?></label>
+        <input type="password" name="confirm_code" id="menu_reset_confirm_code" class="form-control" inputmode="numeric" autocomplete="off" required>
       </div>
       <button type="submit" class="btn btn-outline-secondary"><?php echo $t('सबै देखाउनुहोस् (Reset)', 'Show all (Reset)'); ?></button>
     </div>

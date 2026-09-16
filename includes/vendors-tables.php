@@ -34,12 +34,16 @@ if (!function_exists('ensureVendorsTables')) {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-            foreach ([
-                'ALTER TABLE vendors ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL',
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Throwable $e) {
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'vendors', 'tracking_id', 'VARCHAR(60) UNIQUE NULL');
+            } else {
+                foreach ([
+                    'ALTER TABLE vendors ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL',
+                ] as $sql) {
+                    try {
+                        $db->exec($sql);
+                    } catch (Throwable $e) {
+                    }
                 }
             }
 

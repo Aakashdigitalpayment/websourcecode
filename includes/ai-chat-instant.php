@@ -18,6 +18,11 @@ if (!function_exists('ai_chat_public_links')) {
         $b = ai_chat_base_url();
         return [
             'about' => $b . 'about.php',
+            'chairman' => $b . 'chairman-message.php',
+            'ceo' => $b . 'ceo-message.php',
+            'success_stories' => $b . 'success-stories.php',
+            'vision_mission' => $b . 'vision-mission.php',
+            'why_choose' => $b . 'why-choose.php',
             'team' => $b . 'team.php',
             'contact' => $b . 'contact.php',
             'rates' => $b . 'interest-rates.php',
@@ -218,9 +223,10 @@ if (!function_exists('ai_chat_try_instant_answer')) {
                     $parts[] = ($english ? 'Email: ' : 'इमेल: ') . $contact['email'];
                 }
             }
-            $parts[] = ($english ? 'More: ' : 'थप: ') . $links['team'];
+            $ceoUrl = $links['ceo'] ?? ($links['team'] ?? '');
+            $parts[] = ($english ? 'More: ' : 'थप: ') . $ceoUrl;
             $sources[] = 'leadership: CEO';
-            $outLinks[] = $links['team'];
+            $outLinks[] = $ceoUrl;
             return ['answer' => implode("\n", $parts), 'sources' => $sources, 'links' => $outLinks];
         }
 
@@ -240,9 +246,10 @@ if (!function_exists('ai_chat_try_instant_answer')) {
             if ($contact && $contact['email'] !== '') {
                 $parts[] = ($english ? 'Email: ' : 'इमेल: ') . $contact['email'];
             }
-            $parts[] = ($english ? 'More: ' : 'थप: ') . $links['about'] . '#chairman';
+            $chairUrl = $links['chairman'] ?? ($links['about'] ?? '');
+            $parts[] = ($english ? 'More: ' : 'थप: ') . $chairUrl;
             $sources[] = 'leadership: Chairman';
-            $outLinks[] = $links['about'];
+            $outLinks[] = $chairUrl;
             return ['answer' => implode("\n", $parts), 'sources' => $sources, 'links' => $outLinks];
         }
 
@@ -317,13 +324,18 @@ if (!function_exists('ai_chat_suggest_links_for_answer')) {
             'rates' => '/ब्याज|interest|rate|ऋण|बचत/',
             'services' => '/सेवा|service|product|ऋण आवेदन|loan/',
             'branches' => '/शाखा|branch|office|केन्द्र|service center/',
-            'team' => '/ceo|chairman|अध्यक्ष|team|टोली|officer|अधिकृत/',
+            'chairman' => '/chairman|chairperson|अध्यक्ष/',
+            'ceo' => '/\bceo\b|pca|chief\s*executive|प्रमुख\s*कार्यकारी|कार्यकारी\s*अधिकृत/',
+            'success_stories' => '/success\s*stor|सफलता(?:को)?\s*कथा/',
+            'vision_mission' => '/vision|mission|दृष्टि|लक्ष्य|भिजन|मिसन/',
+            'why_choose' => '/why\s*choose|किन\s*हामी/',
+            'team' => '/team|टोली|officer|अधिकृत|कर्मचारी/',
             'contact' => '/सम्पर्क|contact|phone|फोन/',
             'faqs' => '/faq|प्रश्न|question|help/',
             'notices' => '/सूचना|notice/',
             'downloads' => '/download|फारम|form/',
             'reports' => '/report|प्रतिवेदन/',
-            'about' => '/about|बारेमा|vision|mission/',
+            'about' => '/about|बारेमा/',
             'election' => '/निर्वाचन|election|उम्मेदवार|candidate|मतदान|vote/',
             'profile' => '/सदस्य|member|कुल|total|संस्थागत|institutional|profile/',
         ];

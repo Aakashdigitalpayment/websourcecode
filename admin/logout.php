@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/config.php';
+$GLOBALS['ADMIN_PAGE_BOOT_SKIP_LOGIN'] = true;
+require_once __DIR__ . '/includes/admin-page-boot.php';
 
 // Log the logout
 if (isAdminLoggedIn()) {

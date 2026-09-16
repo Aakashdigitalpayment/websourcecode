@@ -1,0 +1,116 @@
+/** Member program QR scan — extracted from member/scan.php */
+.scan-wrap { margin: 0 auto; }
+.scan-hero {
+  background: linear-gradient(135deg,#ecfdf5,#d1fae5);
+  border: 1px solid #6ee7b7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: .82rem;
+  color: #065f46;
+  line-height: 1.5;
+}
+#scan-reader {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid var(--primary-color);
+    background: #0f172a;
+    min-height: 280px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+    width: 100%;
+}
+#scan-reader video {
+    width: 100% !important;
+    border-radius: 12px;
+    display: block;
+}
+/* Scanning laser line animation */
+#scan-reader.scanning::after {
+    content: '';
+    position: absolute;
+    left: 10%; right: 10%;
+    top: 30%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #22c55e, transparent);
+    box-shadow: 0 0 8px #22c55e;
+    animation: scan-laser 1.8s ease-in-out infinite;
+    z-index: 10;
+    pointer-events: none;
+}
+@keyframes scan-laser {
+    0%   { top: 25%; opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { top: 75%; opacity: 0; }
+}
+/* Camera loading state */
+#scan-loading {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+    font-size: .88rem;
+}
+#scan-loading i { font-size: 2rem; display: block; margin-bottom: 10px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.scan-actions button {
+    flex: 1;
+    min-width: 130px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: .9rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all .25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.scan-btn-start { background: var(--primary-color,#1a8754); color: #fff; }
+.scan-btn-start:disabled { opacity: .6; cursor: not-allowed; }
+.scan-btn-stop  { background: #f1f5f9; color: #374151; border-color: #cbd5e1; }
+.scan-err {
+  display: none;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+.scan-err-retry {
+  display: inline-block;
+  margin-top: 8px;
+  background: var(--primary-color,#1a8754);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.scan-success {
+  display: none;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  color: #15803d;
+  font-size: .88rem;
+  font-weight: 600;
+}
+.scan-links { margin-top: 18px; text-align: center; font-size: .82rem; }
+.scan-links a { color: var(--primary-color,#1a8754); font-weight: 600; text-decoration: none; }
+.scan-links a:hover { text-decoration: underline; }
+/* ios safari fix */
+video { object-fit: cover; }

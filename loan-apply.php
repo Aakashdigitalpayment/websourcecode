@@ -227,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h1><?php echo isEnglish() ? 'Online Loan Application' : 'अनलाइन ऋण आवेदन'; ?></h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo SITE_URL; ?>"><?php echo $L['home']; ?></a></li>
+                <li class="breadcrumb-item"><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>"><?php echo $L['home']; ?></a></li>
                 <li class="breadcrumb-item active"><?php echo isEnglish() ? 'Loan Application' : 'ऋण आवेदन'; ?></li>
             </ol>
         </nav>
@@ -245,7 +245,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="form-success-card form-success-card--token text-center py-5 px-4 rounded-4 shadow-sm">
-            <div class="form-success-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="form-success-icon"><i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i></div>
             <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Loan Application Submitted!' : 'ऋण आवेदन सफलतापूर्वक पेश भयो!'; ?></h3>
             <p class="text-muted mb-3"><?php echo isEnglish() ? 'Our loan officer will contact you within 2-3 business days.' : 'हाम्रो ऋण अधिकृत २-३ कार्य दिनभित्र सम्पर्क गर्नेछन्।'; ?></p>
             <?php if ($loanTrackingId): ?>
@@ -259,9 +259,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <?php endif; ?>
             <div class="mt-4 d-flex flex-wrap gap-2 justify-content-center">
-                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4"><i class="fas fa-search me-1"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
-                <a href="emi-calculator.php" class="btn btn-outline-success px-4"><i class="fas fa-calculator me-1"></i>EMI Calculator</a>
-                <a href="loan-apply.php" class="btn btn-outline-secondary px-4"><i class="fas fa-plus me-1"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?></a>
+                <a href="<?php echo e($trackerUrl); ?>" class="btn btn-success px-4"><i class="lucide-icon me-1" data-lucide="search" aria-hidden="true"></i><?php echo isEnglish() ? 'Track Application' : 'आवेदन ट्र्याक'; ?></a>
+                <a href="emi-calculator.php" class="btn btn-outline-success px-4"><i class="lucide-icon me-1" data-lucide="calculator" aria-hidden="true"></i>EMI Calculator</a>
+                <a href="loan-apply.php" class="btn btn-outline-secondary px-4"><i class="lucide-icon me-1" data-lucide="plus" aria-hidden="true"></i><?php echo isEnglish() ? 'New Application' : 'नयाँ आवेदन'; ?></a>
             </div>
         </div>
     </div>
@@ -271,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <?php if ($error): ?>
 <script>document.addEventListener('DOMContentLoaded',function(){var e=document.querySelector('.alert-danger');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});});</script>
-<div class="alert alert-danger alert-dismissible fade show" role="alert"><i class="fas fa-exclamation-circle me-1"></i><?php echo htmlspecialchars($error,ENT_QUOTES,'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+<div class="alert alert-danger alert-dismissible fade show" role="alert"><i class="lucide-icon me-1" data-lucide="circle-alert" aria-hidden="true"></i><?php echo htmlspecialchars($error,ENT_QUOTES,'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
 <?php endif; ?>
 
 <div class="row justify-content-center">
@@ -280,22 +280,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <!-- ── Step Progress Bar ── -->
 <div class="loan-wizard-bar mb-4" id="loanWizardBar">
     <div class="loan-wiz-step active" data-step="1">
-        <div class="loan-wiz-circle"><i class="fas fa-user"></i></div>
+        <div class="loan-wiz-circle"><i class="lucide-icon" data-lucide="user" aria-hidden="true"></i></div>
         <div class="loan-wiz-label"><?php echo isEnglish() ? 'Applicant' : 'आवेदक'; ?></div>
     </div>
     <div class="loan-wiz-connector"></div>
     <div class="loan-wiz-step" data-step="2">
-        <div class="loan-wiz-circle"><i class="fas fa-money-bill-wave"></i></div>
+        <div class="loan-wiz-circle"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i></div>
         <div class="loan-wiz-label"><?php echo isEnglish() ? 'Loan Details' : 'ऋण विवरण'; ?></div>
     </div>
     <div class="loan-wiz-connector"></div>
     <div class="loan-wiz-step" data-step="3">
-        <div class="loan-wiz-circle"><i class="fas fa-briefcase"></i></div>
+        <div class="loan-wiz-circle"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></div>
         <div class="loan-wiz-label"><?php echo isEnglish() ? 'Income / Security' : 'आय / धितो'; ?></div>
     </div>
     <div class="loan-wiz-connector"></div>
     <div class="loan-wiz-step" data-step="4">
-        <div class="loan-wiz-circle"><i class="fas fa-file-upload"></i></div>
+        <div class="loan-wiz-circle"><i class="lucide-icon" data-lucide="file-up" aria-hidden="true"></i></div>
         <div class="loan-wiz-label"><?php echo isEnglish() ? 'Documents' : 'कागजात'; ?></div>
     </div>
 </div>
@@ -318,7 +318,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Member check -->
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr">
-            <span class="form-section-icon bg-primary-soft"><i class="fas fa-users"></i></span>
+            <span class="form-section-icon bg-primary-soft"><i class="lucide-icon" data-lucide="users" aria-hidden="true"></i></span>
             <span class="fw-semibold"><?php echo isEnglish() ? 'Are you an existing cooperative member?' : 'तपाईं सहकारी सदस्य हुनुहुन्छ?'; ?></span>
         </div>
         <div class="d-flex flex-wrap gap-3 mt-2">
@@ -331,7 +331,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <span><?php echo isEnglish() ? 'Yes — verify with Member ID + email + mobile' : 'हो — सदस्यता नम्बर + इमेल + मोबाइल मिलाउनुहोस्'; ?></span>
             </label>
         </div>
-        <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i><?php echo isEnglish() ? 'If Yes, personal details will be loaded from KYM after matching ID, email and phone.' : '"हो" भए KYC मा भएको तीन विवरण मिलाएपछि नाम/ठेगाना KYM बाटै लिइन्छ।'; ?></p>
+        <p class="text-muted small mt-2 mb-0"><i class="lucide-icon me-1" data-lucide="info" aria-hidden="true"></i><?php echo isEnglish() ? 'If Yes, personal details will be loaded from KYM after matching ID, email and phone.' : '"हो" भए KYC मा भएको तीन विवरण मिलाएपछि नाम/ठेगाना KYM बाटै लिइन्छ।'; ?></p>
     </div>
     <?php endif; ?>
 
@@ -339,7 +339,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if (!$loggedMember): ?>
     <div class="form-section-card">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-primary-soft"><i class="fas fa-id-card"></i></span>
+            <span class="form-section-icon bg-primary-soft"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Personal Information' : 'व्यक्तिगत जानकारी'; ?></span>
         </div>
         <div class="row g-3">
@@ -415,7 +415,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="loan-step-pane" id="loanPane2" style="display:none;">
     <div class="form-section-card">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-success-soft"><i class="fas fa-money-bill-wave"></i></span>
+            <span class="form-section-icon bg-success-soft"><i class="lucide-icon" data-lucide="banknote" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Loan Information' : 'ऋण जानकारी'; ?></span>
         </div>
         <div class="row g-3">
@@ -450,7 +450,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <select name="loan_tenure" id="loan_tenure" class="form-select">
                     <option value=""><?php echo isEnglish() ? 'Select' : 'छान्नुहोस्'; ?></option>
                     <?php foreach ([12,24,36,48,60,84,120] as $m): ?>
-                    <option value="<?php echo $m; ?>" <?php echo ($_POST['loan_tenure'] ?? '') == $m ? 'selected' : ''; ?>><?php echo $m; ?> <?php echo isEnglish() ? 'Months' : 'महिना'; ?></option>
+                    <option value="<?php echo (int)$m; ?>" <?php echo ($_POST['loan_tenure'] ?? '') == $m ? 'selected' : ''; ?>><?php echo $m; ?> <?php echo isEnglish() ? 'Months' : 'महिना'; ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -473,9 +473,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- EMI Calculator hint -->
     <div class="d-flex align-items-center gap-2 mt-2 text-muted small">
-        <i class="fas fa-calculator text-primary"></i>
+        <i class="lucide-icon text-primary" data-lucide="calculator" aria-hidden="true"></i>
         <?php echo isEnglish() ? 'Estimate your monthly installment:' : 'मासिक किस्ता अनुमान गर्नुहोस्:'; ?>
-        <a href="emi-calculator.php" target="_blank" class="text-decoration-none fw-semibold" style="color:var(--primary-color);" rel="noopener noreferrer">EMI Calculator <i class="fas fa-arrow-up-right-from-square fa-xs"></i></a>
+        <a href="emi-calculator.php" target="_blank" class="text-decoration-none fw-semibold" style="color:var(--primary-color);" rel="noopener noreferrer">EMI Calculator <i class="lucide-icon" data-lucide="external-link" aria-hidden="true"></i></a>
     </div>
 </div><!-- /loanPane2 -->
 
@@ -485,7 +485,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Income -->
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-warning-soft"><i class="fas fa-briefcase"></i></span>
+            <span class="form-section-icon bg-warning-soft"><i class="lucide-icon" data-lucide="briefcase" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Employment & Income' : 'रोजगार र आय'; ?></span>
         </div>
         <div class="row g-3">
@@ -501,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ['foreign',    isEnglish() ? 'Foreign Employment' : 'वैदेशिक रोजगार'],
                         ['other',      isEnglish() ? 'Other' : 'अन्य'],
                     ] as [$val,$lbl]): ?>
-                    <option value="<?php echo $val; ?>" <?php echo ($_POST['occupation'] ?? '') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                    <option value="<?php echo e($val); ?>" <?php echo ($_POST['occupation'] ?? '') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -530,7 +530,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Collateral -->
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-info-soft"><i class="fas fa-home"></i></span>
+            <span class="form-section-icon bg-info-soft"><i class="lucide-icon" data-lucide="house" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Collateral / Security' : 'धितो / जमानत'; ?></span>
         </div>
         <div class="row g-3">
@@ -547,7 +547,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ['share',     isEnglish() ? 'Share Certificate'   : 'शेयर प्रमाणपत्र'],
                         ['guarantor', isEnglish() ? 'Personal Guarantee'  : 'व्यक्तिगत जमानत'],
                     ] as [$val,$lbl]): ?>
-                    <option value="<?php echo $val; ?>" <?php echo ($_POST['collateral_type'] ?? '') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
+                    <option value="<?php echo e($val); ?>" <?php echo ($_POST['collateral_type'] ?? '') === $val ? 'selected' : ''; ?>><?php echo $lbl; ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
@@ -571,7 +571,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Guarantor -->
     <div class="form-section-card">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-secondary-soft"><i class="fas fa-user-shield"></i></span>
+            <span class="form-section-icon bg-secondary-soft"><i class="lucide-icon" data-lucide="shield-user" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Guarantor Information' : 'धनजमानीको जानकारी'; ?></span>
             <span class="badge bg-light text-muted ms-auto fw-normal"><?php echo isEnglish() ? 'Optional' : 'ऐच्छिक'; ?></span>
         </div>
@@ -608,7 +608,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Branch -->
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-primary-soft"><i class="fas fa-building"></i></span>
+            <span class="form-section-icon bg-primary-soft"><i class="lucide-icon" data-lucide="building" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Preferred Service Office' : 'मनपर्ने सेवा कार्यालय'; ?></span>
         </div>
         <select name="branch" class="form-select">
@@ -628,17 +628,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Documents upload -->
     <div class="form-section-card mb-3">
         <div class="form-section-card-hdr mb-3">
-            <span class="form-section-icon bg-warning-soft"><i class="fas fa-paperclip"></i></span>
+            <span class="form-section-icon bg-warning-soft"><i class="lucide-icon" data-lucide="paperclip" aria-hidden="true"></i></span>
             <span class="fw-bold"><?php echo isEnglish() ? 'Supporting Documents' : 'सहयोगी कागजातहरू'; ?></span>
             <span class="badge bg-light text-muted ms-auto fw-normal"><?php echo isEnglish() ? 'Optional' : 'ऐच्छिक'; ?></span>
         </div>
         <div class="document-upload text-center py-4 border rounded-3 bg-light" id="docDropZone" style="border-style:dashed!important;">
-            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="color:var(--primary-color);opacity:.6;"></i>
+            <i class="lucide-icon lucide-3x mb-3" data-lucide="cloud-upload" aria-hidden="true" style="color:var(--primary-color);opacity:.6;"></i>
             <p class="mb-1 fw-semibold"><?php echo isEnglish() ? 'Click to upload or drag & drop' : 'Click गर्नुहोस् वा तान्नुहोस्'; ?></p>
             <p class="text-muted small mb-2"><?php echo isEnglish() ? 'Citizenship, income proof, collateral documents' : 'नागरिकता, आय प्रमाण, धितो कागजातहरू'; ?></p>
             <input type="file" name="documents[]" id="docFileInput" class="d-none" multiple accept=".pdf,.jpg,.jpeg,.png,image/*">
             <button type="button" class="btn btn-outline-primary btn-sm px-3" onclick="document.getElementById('docFileInput').click();">
-                <i class="fas fa-folder-open me-1"></i><?php echo isEnglish() ? 'Choose Files' : 'फाइल छान्नुहोस्'; ?>
+                <i class="lucide-icon me-1" data-lucide="folder-open" aria-hidden="true"></i><?php echo isEnglish() ? 'Choose Files' : 'फाइल छान्नुहोस्'; ?>
             </button>
             <div id="docFileList" class="mt-3 text-start small"></div>
             <p class="text-muted small mt-2 mb-0"><?php echo isEnglish() ? 'Max 5MB per file | PDF/JPG/PNG' : 'प्रति फाइल अधिकतम 5MB | PDF/JPG/PNG'; ?></p>
@@ -651,15 +651,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="d-flex align-items-center justify-content-between mt-4 loan-wiz-nav">
     <button type="button" class="btn btn-outline-secondary px-4" id="loanPrevBtn">
-        <i class="fas fa-arrow-left me-1"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
+        <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo isEnglish() ? 'Previous' : 'अघिल्लो'; ?>
     </button>
     <div id="loanStepLabel" class="small text-muted fw-semibold"><?php echo isEnglish() ? 'Step 1 of 4' : 'चरण 1 / 4'; ?></div>
     <div class="d-flex gap-2">
         <button type="button" class="btn btn-primary px-4" id="loanNextBtn">
-            <?php echo isEnglish() ? 'Next' : 'अर्को'; ?> <i class="fas fa-arrow-right ms-1"></i>
+            <?php echo isEnglish() ? 'Next' : 'अर्को'; ?> <i class="lucide-icon ms-1" data-lucide="arrow-right" aria-hidden="true"></i>
         </button>
         <button type="submit" class="btn btn-success px-4" id="loanSubmitBtn" style="display:none;">
-            <i class="fas fa-paper-plane me-1"></i><?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
+            <i class="lucide-icon me-1" data-lucide="send" aria-hidden="true"></i><?php echo isEnglish() ? 'Submit Application' : 'आवेदन पेश गर्नुहोस्'; ?>
         </button>
     </div>
 </div>
@@ -761,7 +761,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             var sz = (files[i].size/1024/1024).toFixed(2);
             var ok = files[i].size <= 5*1024*1024;
             fileList.innerHTML += '<div class="d-flex align-items-center gap-1 py-1">'
-                +'<i class="fas fa-file-alt '+(ok?'text-success':'text-danger')+'"></i>'
+                +'<i class="lucide-icon '+(ok?'text-success':'text-danger')+'" data-lucide="file-text" aria-hidden="true"></i>'
                 +'<span class="'+(ok?'':'text-danger')+'">'
                 +files[i].name+' <em class="text-muted">('+sz+' MB)</em></span></div>';
         }

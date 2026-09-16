@@ -20,13 +20,18 @@ if (!function_exists('ensureWelfareClaimsTables')) {
             return;
         }
         try {
-            foreach ([
-                "ALTER TABLE member_welfare_claims ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL",
-                "ALTER TABLE member_welfare_claims ADD COLUMN status ENUM('pending','processing','approved','rejected') DEFAULT 'pending'",
-            ] as $sql) {
-                try {
-                    $db->exec($sql);
-                } catch (Exception $e) {
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'member_welfare_claims', 'tracking_id', 'VARCHAR(60) UNIQUE NULL');
+                safeAddColumn($db, 'member_welfare_claims', 'status', "ENUM('pending','processing','approved','rejected') DEFAULT 'pending'");
+            } else {
+                foreach ([
+                    "ALTER TABLE member_welfare_claims ADD COLUMN tracking_id VARCHAR(60) UNIQUE NULL",
+                    "ALTER TABLE member_welfare_claims ADD COLUMN status ENUM('pending','processing','approved','rejected') DEFAULT 'pending'",
+                ] as $sql) {
+                    try {
+                        $db->exec($sql);
+                    } catch (Exception $e) {
+                    }
                 }
             }
 
@@ -67,11 +72,25 @@ if (!function_exists('ensureWelfareClaimsTables')) {
             INDEX idx_status (status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
+            if (function_exists('safeAddColumn')) {
+                safeAddColumn($db, 'member_welfare_claims', 'policy_number', 'VARCHAR(80) DEFAULT NULL');
+                safeAddColumn($db, 'member_welfare_claims', 'insurer_name', 'VARCHAR(150) DEFAULT NULL');
+                safeAddColumn($db, 'member_welfare_claims', 'member_portal_id', 'INT DEFAULT NULL');
+                safeAddColumn($db, 'member_welfare_claims', 'attachment_path', 'VARCHAR(255) DEFAULT NULL');
+            } else {
+                foreach ([
+                    'ALTER TABLE member_welfare_claims ADD COLUMN policy_number VARCHAR(80) DEFAULT NULL',
+                    'ALTER TABLE member_welfare_claims ADD COLUMN insurer_name VARCHAR(150) DEFAULT NULL',
+                    'ALTER TABLE member_welfare_claims ADD COLUMN member_portal_id INT DEFAULT NULL',
+                    'ALTER TABLE member_welfare_claims ADD COLUMN attachment_path VARCHAR(255) DEFAULT NULL',
+                ] as $sql) {
+                    try {
+                        $db->exec($sql);
+                    } catch (Exception $e) {
+                    }
+                }
+            }
             foreach ([
-                'ALTER TABLE member_welfare_claims ADD COLUMN policy_number VARCHAR(80) DEFAULT NULL',
-                'ALTER TABLE member_welfare_claims ADD COLUMN insurer_name VARCHAR(150) DEFAULT NULL',
-                'ALTER TABLE member_welfare_claims ADD COLUMN member_portal_id INT DEFAULT NULL',
-                'ALTER TABLE member_welfare_claims ADD COLUMN attachment_path VARCHAR(255) DEFAULT NULL',
                 /* Prefer VARCHAR so custom catalog slugs are not blocked by ENUM */
                 "ALTER TABLE member_welfare_claims MODIFY COLUMN claim_type VARCHAR(60) NOT NULL DEFAULT 'other'",
                 'ALTER TABLE member_welfare_claims ADD INDEX idx_claim_type (claim_type)',
@@ -86,7 +105,11 @@ if (!function_exists('ensureWelfareClaimsTables')) {
             }
 
             try {
-                $db->exec('ALTER TABLE member_welfare_claims ADD COLUMN full_name VARCHAR(120) GENERATED ALWAYS AS (member_name) VIRTUAL');
+                if (function_exists('safeAddColumn')) {
+                    safeAddColumn($db, 'member_welfare_claims', 'full_name', 'VARCHAR(120) GENERATED ALWAYS AS (member_name) VIRTUAL');
+                } else {
+                    $db->exec('ALTER TABLE member_welfare_claims ADD COLUMN full_name VARCHAR(120) GENERATED ALWAYS AS (member_name) VIRTUAL');
+                }
             } catch (Exception $e) {
             }
 

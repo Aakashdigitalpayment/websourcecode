@@ -189,37 +189,38 @@ if (!$step) $step = intval($_SESSION['pr_step'] ?? 1);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Secure password reset for Aakash Cooperative member portal.">
 <title><?php echo htmlspecialchars($_t('पासवर्ड रिसेट', 'Password Reset')); ?> — <?php echo htmlspecialchars($siteName); ?></title>
-<link rel="stylesheet" href="assets/vendor/bootstrap.min.css">
-
-<?php memberHeadAssets(); ?>
-<style>
-body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0fdf4) 60%,#e3f2fd);min-height:100vh;font-family:var(--font-primary,'Mukta','Noto Sans Devanagari','Segoe UI',sans-serif);color:var(--text-primary,#1a2e1f);}
-.card{max-width:440px;margin:56px auto 40px;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.10);border:none;}
-.card-header{background:var(--primary-color);color:#fff;padding:26px 28px 18px;text-align:center;border-radius:18px 18px 0 0;}
-.card-header h4{margin:0;font-weight:700;}
-.step-bar{display:flex;gap:6px;margin-bottom:22px;}
-.step-dot{flex:1;height:4px;border-radius:4px;background:var(--border-color,#e5e7eb);transition:.3s;}
-.step-dot.done{background:var(--primary-color);}
-.step-dot.active{background:var(--primary-light,#4ade80);}
-.otp-input{letter-spacing:12px;font-size:2rem;font-weight:700;text-align:center;padding:12px;}
-.channel-opt input{display:none;}
-.channel-opt label{border:2px solid var(--border-color,#e5e7eb);border-radius:10px;padding:10px 14px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.2s;font-size:.9rem;}
-.channel-opt input:checked+label{border-color:var(--primary-color);background:var(--bg-soft,#f0fdf4);}
-.btn-g{background:var(--primary-color);color:#fff;border:none;}
-.btn-g:hover{background:var(--primary-dark,#155222);color:#fff;}
-</style>
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/vendor/bootstrap.min.css');
+} else {
+    $__bsHref = rtrim(defined('SITE_URL') ? SITE_URL : '../', '/') . '/assets/vendor/bootstrap.min.css';
+    echo '<link rel="stylesheet" href="' . htmlspecialchars($__bsHref, ENT_QUOTES, 'UTF-8') . '">' . "\n";
+}
+if (function_exists('coopThemeHeadAssets')) {
+    coopThemeHeadAssets('auth');
+} elseif (function_exists('memberHeadAssets')) {
+    memberHeadAssets();
+}
+?>
+<?php
+if (function_exists('coopThemeLink')) {
+    coopThemeLink('assets/css/member-password-reset-page.css');
+} elseif (function_exists('coopThemeLinkHtml')) {
+    echo coopThemeLinkHtml('assets/css/member-password-reset-page.css');
+}
+?>
 </head>
 <body>
 <div class="card">
   <div class="card-header">
-    <div style="font-size:2rem;margin-bottom:6px;"><i class="lucide-icon" aria-hidden="true" data-lucide="shield-alt"></i></div>
+    <div style="font-size:2rem;margin-bottom:6px;"><i class="lucide-icon" aria-hidden="true" data-lucide="shield"></i></div>
     <h4><?php echo $_t('पासवर्ड रिसेट', 'Password Reset'); ?></h4>
     <p class="mb-0 mt-1 opacity-75 small"><?php echo htmlspecialchars($siteName); ?> — <?php echo $_t('सदस्य पोर्टल', 'Member Portal'); ?></p>
   </div>
   <div class="card-body p-4">
 
     <?php if ($error): ?>
-    <div class="alert alert-danger border-0 small py-2"><?php echo $error; ?></div>
+    <div class="alert alert-danger border-0 small py-2"><?php echo e($error); ?></div>
     <?php endif; ?>
     <?php if ($success): ?>
     <div class="alert alert-success border-0 small py-2"><?php echo htmlspecialchars($success); ?></div>
@@ -258,7 +259,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
           <div class="flex-1 channel-opt" style="flex:1">
             <input type="radio" name="channel" id="ch_sms" value="sms" checked>
             <label for="ch_sms" class="w-100 justify-content-center">
-              <i class="fas fa-mobile-alt text-success fs-5"></i>
+              <i class="lucide-icon text-success fs-5" data-lucide="smartphone" aria-hidden="true"></i>
               <div><strong class="d-block">SMS</strong><small class="text-muted">Mobile मा</small></div>
             </label>
           </div>
@@ -296,7 +297,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
 
     <?php elseif ($step === 'done'): ?>
     <div class="text-center py-3">
-      <div style="font-size:3rem;color:#16a34a;"><i class="lucide-icon" aria-hidden="true" data-lucide="check-circle"></i></div>
+      <div style="font-size:3rem;color:#16a34a;"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i></div>
       <h5 class="mt-2"><?php echo $_t('अनुरोध सफलतापूर्वक पठाइयो!', 'Request sent successfully!'); ?></h5>
       <p class="text-muted small">Admin ले तपाईंको अनुरोध समीक्षा गर्नेछन्। नयाँ पासवर्द कार्यालयबाट प्राप्त गर्न सकिन्छ।</p>
       <a href="login.php" class="btn btn-g mt-2"><i class="lucide-icon me-1" aria-hidden="true" data-lucide="log-in"></i><?php echo $_t('Login मा फर्कनुहोस्', 'Back to Login'); ?></a>
@@ -305,7 +306,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
     <?php elseif ($step == 2): /* ═══ STEP 2 ═══ */ ?>
     <?php $sentTo = $_SESSION['pr_sent_to'] ?? ''; $ch = $_SESSION['pr_channel'] ?? 'sms'; ?>
     <p class="text-center text-muted small mb-3">
-      <i class="fas fa-<?php echo $ch==='sms'?'mobile-alt':'envelope'; ?> me-1 text-success"></i>
+      <i class="lucide-icon me-1 text-success" data-lucide="<?php echo $ch==='sms'?'smartphone':'mail'; ?>" aria-hidden="true"></i>
       <?php echo $ch==='sms'?'Mobile':'Email'; ?> <strong><?php echo htmlspecialchars($sentTo); ?></strong> मा
       6-digit OTP पठाइएको छ। 10 मिनेटभित्र enter गर्नुहोस्।
     </p>
@@ -319,7 +320,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       </div>
       <?php echo coop_public_form_anti_bot_html('password_reset', 'pr2', isEnglish(), 'col-12'); ?>
       <button type="submit" class="btn btn-g w-100 py-2 fw-semibold mb-2">
-        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="check-circle"></i>OTP Verify गर्नुहोस्
+        <i class="lucide-icon me-2" aria-hidden="true" data-lucide="circle-check"></i>OTP Verify गर्नुहोस्
       </button>
     </form>
     <div class="d-flex gap-2">
@@ -327,7 +328,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
       <?php echo csrfField(); ?>
         <input type="hidden" name="action" value="resend_otp">
         <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
-          <i class="fas fa-redo me-1"></i>फेरि पठाउनुहोस्
+          <i class="lucide-icon me-1" data-lucide="rotate-cw" aria-hidden="true"></i>फेरि पठाउनुहोस्
         </button>
       </form>
       <form method="POST" novalidate class="needs-validation flex-1">
@@ -339,7 +340,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
 
     <?php elseif ($step == 3): /* ═══ STEP 3 ═══ */ ?>
     <div class="alert alert-success border-0 small py-2 text-center">
-      <i class="lucide-icon me-1" aria-hidden="true" data-lucide="check-circle"></i><?php echo $_t('OTP verified! अब नयाँ पासवर्ड राख्नुहोस्।', 'OTP verified! Now set your new password.'); ?>
+      <i class="lucide-icon me-1" aria-hidden="true" data-lucide="circle-check"></i><?php echo $_t('OTP verified! अब नयाँ पासवर्ड राख्नुहोस्।', 'OTP verified! Now set your new password.'); ?>
     </div>
     <form method="POST" novalidate class="needs-validation" autocomplete="off">
       <?php echo csrfField(); ?>
@@ -372,7 +373,7 @@ body{background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f0
 
     <?php elseif ($step === 'done'): /* ═══ DONE ═══ */ ?>
     <div class="text-center py-4">
-      <div style="font-size:3.5rem;color:#22c55e"><i class="lucide-icon" aria-hidden="true" data-lucide="check-circle"></i></div>
+      <div style="font-size:3.5rem;color:#22c55e"><i class="lucide-icon" aria-hidden="true" data-lucide="circle-check"></i></div>
       <h5 class="mt-3 fw-bold"><?php echo $_t('पासवर्ड सफलतापूर्वक परिवर्तन!', 'Password changed successfully!'); ?></h5>
       <p class="text-muted small mt-2"><?php echo $_t('तपाईं अब नयाँ पासवर्डले login गर्न सक्नुहुन्छ।', 'You can now login with your new password.'); ?></p>
       <a href="login.php" class="btn btn-g px-4 py-2 fw-semibold mt-2">

@@ -8,9 +8,8 @@ $__t = static function (string $np, string $en): string {
     return strtolower($lang) === 'en' ? $en : $np;
 };
 $pageTitle = $__t('एप सुविधाहरू', 'App Features');
-require_once '../includes/config.php';
+require_once __DIR__ . '/includes/admin-page-boot.php';
 require_once __DIR__ . '/../includes/simple-cache.php';
-if (!isAdminLoggedIn()) redirect(ADMIN_URL . 'index.php');
 
 $db = getDB();
 
@@ -27,6 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $title    = clean_text($_POST['title']    ?? '');
             $title_np = clean_text($_POST['title_np'] ?? $title);
             $icon     = clean_text($_POST['icon']     ?? 'fas fa-star');
+            if (function_exists('coop_canonical_icon_for_storage')) {
+                $icon = coop_canonical_icon_for_storage($icon, 'fas fa-star');
+            }
             $desc     = $_POST['description']       ?? '';
             $desc_np  = $_POST['description_np']   ?? '';
             $is_new   = isset($_POST['is_new'])    ? 1 : 0;
@@ -64,7 +66,7 @@ $flash = getFlash();
     $__t('एप सुविधाहरू', 'App Features'),
     'fa-mobile-alt',
     $__t('मोबाइल एपमा देखिने सुविधाहरू।', 'Features shown in mobile app.'),
-    '<span class="badge admin-stat-badge appfeat-stat-pill me-2"><i class="fas fa-layer-group me-1"></i>' . $__t('जम्मा', 'Total') . ': ' . count($features) . ' ' . $__t('सुविधाहरू', 'features') . '</span>'
+    '<span class="badge admin-stat-badge appfeat-stat-pill me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>' . $__t('जम्मा', 'Total') . ': ' . count($features) . ' ' . $__t('सुविधाहरू', 'features') . '</span>'
 ); ?>
 
 <?php if (!empty($flash)) { echo adminAlert($flash['type'] === 'success' ? 'success' : 'danger', $flash['message']); } ?>
@@ -73,13 +75,13 @@ $flash = getFlash();
 <ul class="nav nav-tabs admin-nav-tabs mb-0">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#feat-list" id="feat-list-btn">
-            <i class="fas fa-list me-2"></i><?php echo $__t('सुविधा सूची', 'Feature List'); ?>
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i><?php echo $__t('सुविधा सूची', 'Feature List'); ?>
             <span class="badge appfeat-count-badge ms-1"><?php echo count($features); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#feat-form" id="feat-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="featFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="featFormTabLabel"><?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?></span>
         </button>
     </li>
 </ul>
@@ -106,7 +108,7 @@ $flash = getFlash();
                         <tbody>
                             <?php if (empty($features)): ?>
                             <tr><td colspan="7" class="text-center py-5 appfeat-muted">
-                                <i class="fas fa-mobile-alt fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="smartphone" aria-hidden="true"></i>
                                 <?php echo $__t('कुनै सुविधा छैन।', 'No features found.'); ?>
                             </td></tr>
                             <?php endif; ?>
@@ -114,7 +116,7 @@ $flash = getFlash();
                             <tr>
                                 <td class="ps-3">
                                     <div class="appfeat-icon-wrap">
-                                        <i class="<?php echo htmlspecialchars($f['icon']); ?> appfeat-icon fa-lg"></i>
+                                        <?php echo function_exists('coop_nav_icon_html') ? coop_nav_icon_html($f['icon'], 'fas fa-circle', 'appfeat-icon fa-lg') : ''; ?>
                                     </div>
                                 </td>
                                 <td>
@@ -127,7 +129,7 @@ $flash = getFlash();
                                     <form method="POST" class="appfeat-inline-form">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="toggle_new">
-                                        <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
+                                        <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
                                         <button type="submit" class="badge border-0 appfeat-toggle-badge <?php echo $f['is_new'] ? 'appfeat-toggle-on' : 'appfeat-toggle-off'; ?>" title="<?php echo $__t('टगल गर्नुहोस्', 'Toggle'); ?>">
                                             <?php echo $f['is_new'] ? ('✓ ' . $__t('नयाँ', 'NEW')) : $__t('छैन', 'No'); ?>
                                         </button>
@@ -136,24 +138,24 @@ $flash = getFlash();
                                 <td class="text-center"><span class="badge <?php echo $f['is_active'] ? 'appfeat-status-on' : 'appfeat-status-off'; ?>"><?php echo $f['is_active'] ? $__t('सक्रिय', 'Active') : $__t('निष्क्रिय', 'Inactive'); ?></span></td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-feat"
-                                            data-id="<?php echo $f['id']; ?>"
+                                            data-id="<?php echo (int)$f['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($f['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($f['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-icon="<?php echo htmlspecialchars($f['icon'], ENT_QUOTES); ?>"
                                             data-desc="<?php echo htmlspecialchars($f['description'] ?? '', ENT_QUOTES); ?>"
                                             data-desc-np="<?php echo htmlspecialchars($f['description_np'] ?? '', ENT_QUOTES); ?>"
-                                            data-order="<?php echo $f['sort_order']; ?>"
-                                            data-is-new="<?php echo $f['is_new']; ?>"
-                                            data-active="<?php echo $f['is_active']; ?>"
+                                            data-order="<?php echo (int)$f['sort_order']; ?>"
+                                            data-is-new="<?php echo (int)$f['is_new']; ?>"
+                                            data-active="<?php echo (int)$f['is_active']; ?>"
                                             title="सम्पादन"
                                             aria-label="सम्पादन">
-                                        <i class="fas fa-pen" aria-hidden="true"></i>
+                                        <i class="lucide-icon" data-lucide="pen" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="appfeat-inline-form" onsubmit="return confirm('<?php echo $__t('के तपाईं यो सुविधा हटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete this feature?'); ?>')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $f['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$f['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete appfeat-btn-delete" aria-label="Delete" title="Delete"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -170,10 +172,10 @@ $flash = getFlash();
         <div class="card appfeat-flat-top">
             <div class="card-header d-flex justify-content-between align-items-center appfeat-form-header">
                 <h5 class="mb-0 fw-bold" id="featFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सुविधा थप्नुहोस्', 'Add New Feature'); ?>
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ सुविधा थप्नुहोस्', 'Add New Feature'); ?>
                 </h5>
                 <button type="button" class="btn btn-sm appfeat-cancel-btn" id="btnCancelFeat">
-                    <i class="fas fa-arrow-left me-1"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i><?php echo $__t('सूचीमा फर्कनुहोस्', 'Back to List'); ?>
                 </button>
             </div>
             <div class="card-body p-4">
@@ -192,12 +194,11 @@ $flash = getFlash();
                             <input type="text" name="title" id="fef_title" class="form-control admin-fancy-input" placeholder="Feature name in English">
                         </div>
                         <div class="col-12">
-                            <label for="fef_icon" class="form-label fw-semibold appfeat-label"><?php echo $__t('Font Awesome आइकन', 'Font Awesome Icon'); ?></label>
-                            <div class="input-group">
-                                <span class="input-group-text appfeat-icon-prev" id="fefIconPrev"><i class="fas fa-star"></i></span>
-                                <input type="text" name="icon" id="fef_icon" class="form-control admin-fancy-input"
-                                       value="fas fa-star" placeholder="fas fa-star"
-                                       oninput="document.getElementById('fefIconPrev').innerHTML='<i class=\''+this.value+'\'></i>'">
+                            <label for="fef_icon" class="form-label fw-semibold appfeat-label"><?php echo $__t('आइकन (FA class → Lucide preview)', 'Icon (FA class → Lucide preview)'); ?></label>
+                            <div class="input-group js-fa-icon-picker">
+                                <span class="input-group-text appfeat-icon-prev fa-ip-preview" id="fefIconPrev" data-fa-preview><i class="lucide-icon" data-lucide="star" aria-hidden="true"></i></span>
+                                <input type="text" name="icon" id="fef_icon" class="form-control admin-fancy-input" data-fa-input
+                                       value="fas fa-star" placeholder="fas fa-star">
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -229,10 +230,10 @@ $flash = getFlash();
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="fef_submit" class="btn appfeat-submit px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>
                         </button>
                         <button type="button" id="fef_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i><?php echo $__t('रद्द', 'Cancel'); ?>
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i><?php echo $__t('रद्द', 'Cancel'); ?>
                         </button>
                     </div>
                 </form>
@@ -262,9 +263,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('fef_order').value    = '0';
         document.getElementById('fef_is_new').checked = false;
         document.getElementById('fef_active').checked = true;
-        document.getElementById('fefIconPrev').innerHTML = '<i class="fas fa-star"></i>';
-        document.getElementById('fef_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
-        document.getElementById('featFormTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i><?php echo $__t('नयाँ सुविधा थप्नुहोस्', 'Add New Feature'); ?>';
+        document.getElementById('fefIconPrev').innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
+        if (window.lucide && lucide.createIcons) lucide.createIcons({ nodes: [document.getElementById('fefIconPrev').querySelector('[data-lucide]')].filter(Boolean) });
+        document.getElementById('fef_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('थप्नुहोस्', 'Add'); ?>';
+        document.getElementById('featFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><?php echo $__t('नयाँ सुविधा थप्नुहोस्', 'Add New Feature'); ?>';
         document.getElementById('featFormTabLabel').textContent = '<?php echo $__t('नयाँ थप्नुहोस्', 'Add New'); ?>';
     }
 
@@ -288,9 +290,19 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('fef_order').value    = d.order || 0;
             document.getElementById('fef_is_new').checked = d.isNew === '1';
             document.getElementById('fef_active').checked = d.active === '1';
-            document.getElementById('fefIconPrev').innerHTML = '<i class="' + (d.icon || 'fas fa-star') + '"></i>';
-            document.getElementById('fef_submit').innerHTML = '<i class="fas fa-save me-2"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
-            document.getElementById('featFormTitle').innerHTML = '<i class="fas fa-edit me-2"></i><?php echo $__t('एप सुविधा सम्पादन', 'Edit App Feature'); ?>';
+            if (window.FaIconPicker && FaIconPicker.setPreview) {
+                FaIconPicker.setPreview(document.getElementById('fefIconPrev'), d.icon || 'fas fa-star');
+            } else {
+                var fefPrev = document.getElementById('fefIconPrev');
+                if (fefPrev) {
+                    fefPrev.innerHTML = '<i class="lucide-icon" data-lucide="star" aria-hidden="true"></i>';
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons({ nodes: fefPrev.querySelectorAll('[data-lucide]') });
+                    }
+                }
+            }
+            document.getElementById('fef_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i><?php echo $__t('अपडेट गर्नुहोस्', 'Update'); ?>';
+            document.getElementById('featFormTitle').innerHTML = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i><?php echo $__t('एप सुविधा सम्पादन', 'Edit App Feature'); ?>';
             document.getElementById('featFormTabLabel').textContent = '<?php echo $__t('सम्पादन', 'Edit'); ?>';
             switchToForm();
         });

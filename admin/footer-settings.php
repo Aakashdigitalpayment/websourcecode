@@ -3,15 +3,10 @@
  * Superadmin only — public footer credits (Developed By / Supported By).
  * Copyright text is derived from cooperative site_name (not free-edit).
  */
-define('IS_ADMIN_PAGE', true);
 $pageTitle = 'Footer Settings';
 $currentPage = 'footer-settings';
 
-require_once __DIR__ . '/../includes/config.php';
-
-if (!isAdminLoggedIn()) {
-    redirect(ADMIN_URL . 'index.php');
-}
+require_once __DIR__ . '/includes/admin-page-boot.php';
 if (empty($_SESSION['is_superadmin'])) {
     setFlash('error', 'यो पृष्ठ केवल Superadmin ले प्रयोग गर्न सक्छ।');
     redirect(ADMIN_URL . 'dashboard.php');
@@ -84,8 +79,8 @@ echo adminPageHeader(
             <?php echo csrfField(); ?>
 
             <div class="mb-3">
-                <label class="form-label"><?php echo $t('Copyright Text', 'Copyright Text'); ?></label>
-                <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($copyrightPreview, ENT_QUOTES, 'UTF-8'); ?>">
+                <label for="ft_copyright_preview" class="form-label"><?php echo $t('Copyright Text', 'Copyright Text'); ?></label>
+                <input type="text" id="ft_copyright_preview" class="form-control" readonly value="<?php echo htmlspecialchars($copyrightPreview, ENT_QUOTES, 'UTF-8'); ?>">
                 <small class="text-muted d-block mt-1">
                     <?php echo $t(
                         'यो पाठ सहकारीको नाम (साइट सेटिङ्स → साइट नाम) बाट स्वतः बन्छ।',

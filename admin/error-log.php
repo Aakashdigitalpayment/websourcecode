@@ -3,6 +3,7 @@
  * Error Log Viewer — Admin बाट site errors हेर्ने / fix गर्ने
  * URL: admin/error-log.php
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle   = 'Error Log';
 $currentPage = 'error-log';
 $activeGroup = 'prawidhi';
@@ -43,20 +44,20 @@ if (file_exists($logFile)) {
             <input type="hidden" name="action" value="clear">
             <button type="submit" class="btn btn-danger btn-sm"
                     onclick="return confirm('Log clear गर्ने?')">
-                <i class="fas fa-trash me-1"></i>Log Clear गर्नुस्
+                <i class="lucide-icon me-1" data-lucide="trash-2" aria-hidden="true"></i>Log Clear गर्नुस्
             </button>
         </form>
     </div>
 
     <?php if (!file_exists($logFile) || $logSize == 0): ?>
     <div class="alert alert-success">
-        <i class="fas fa-check-circle me-2"></i>
+        <i class="lucide-icon me-2" data-lucide="circle-check" aria-hidden="true"></i>
         कुनै Error छैन। Site राम्रोसँग चलिरहेको छ।
     </div>
     <?php else: ?>
     <div class="card">
         <div class="card-header bg-dark text-white d-flex justify-content-between">
-            <span><i class="fas fa-terminal me-2"></i>Error Output</span>
+            <span><i class="lucide-icon me-2" data-lucide="terminal" aria-hidden="true"></i>Error Output</span>
             <small class="text-muted"><?php echo date('Y-m-d H:i'); ?></small>
         </div>
         <div class="card-body p-0">
@@ -76,7 +77,7 @@ if (file_exists($logFile)) {
     <!-- Common Fix Tips (collapsed by default for clean UI) -->
     <div class="d-flex align-items-center gap-2 mt-4 mb-2">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#errorFixTips" aria-expanded="false" aria-controls="errorFixTips">
-            <i class="fas fa-lightbulb me-1 text-warning"></i>सामान्य Error Fix गर्ने तरिका
+            <i class="lucide-icon me-1 text-warning" data-lucide="lightbulb" aria-hidden="true"></i>सामान्य Error Fix गर्ने तरिका
         </button>
     </div>
     <div class="collapse" id="errorFixTips">
@@ -85,21 +86,21 @@ if (file_exists($logFile)) {
                 <div class="row g-3">
                     <div class="col-md-4">
                         <div class="p-3 border rounded h-100">
-                            <strong class="text-danger"><i class="fas fa-database me-1"></i>Database Error</strong>
+                            <strong class="text-danger"><i class="lucide-icon me-1" data-lucide="database" aria-hidden="true"></i>Database Error</strong>
                             <p class="small mt-1 mb-0">includes/database.local.php मा DB_NAME, DB_USER, DB_PASS confirm गर्नुस्।
                             cPanel → MySQL Databases मा user permissions check गर्नुस्।</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 border rounded h-100">
-                            <strong class="text-warning"><i class="fas fa-folder me-1"></i>File Permission Error</strong>
+                            <strong class="text-warning"><i class="lucide-icon me-1" data-lucide="folder" aria-hidden="true"></i>File Permission Error</strong>
                             <p class="small mt-1 mb-0">assets/uploads/ र logs/ folder को permission 755 राख्नुस्।
                             cPanel → File Manager → Permission मा जानुस्।</p>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 border rounded h-100">
-                            <strong class="text-info"><i class="fas fa-table me-1"></i>Table Missing Error</strong>
+                            <strong class="text-info"><i class="lucide-icon me-1" data-lucide="table" aria-hidden="true"></i>Table Missing Error</strong>
                             <p class="small mt-1 mb-0">नयाँ column/table प्रायः page load मा auto बन्छ (<code>ensure*Tables</code>)।
                             Emergency मा Superadmin ले <code>admin/db-setup.php</code> वा <code>admin/run-migration.php</code> (direct URL) प्रयोग गर्न सक्छ।
                             phpMyAdmin मा <code>database/install.sql</code> पनि OK।</p>

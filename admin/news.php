@@ -3,6 +3,7 @@
  * समाचार व्यवस्थापन — News Management
  * Tab UI: List tab + Add/Edit form tab (modal popup हटाइएको)
  */
+require_once __DIR__ . '/includes/admin-page-boot.php';
 $pageTitle = 'समाचार व्यवस्थापन';
 require_once 'includes/admin-header.php';
 require_once 'includes/admin-ui.php';
@@ -76,16 +77,16 @@ $newsArch = $newsPart['archived'];
     'समाचार व्यवस्थापन',
     'fa-newspaper',
     'संस्थाका समाचार र गतिविधिहरू।',
-    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="fas fa-layer-group me-1"></i>जम्मा: ' . count($news) . '</span>'
-    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="fas fa-check-circle me-1"></i>सक्रिय: ' . count($newsLive) . '</span>'
-    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="fas fa-archive me-1"></i>अभिलेख: ' . count($newsArch) . '</span>'
+    '<span class="badge admin-stat-badge bg-success-subtle text-success border border-success border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="layers" aria-hidden="true"></i>जम्मा: ' . count($news) . '</span>'
+    . '<span class="badge admin-stat-badge bg-primary-subtle text-primary border border-primary border-opacity-25 me-2"><i class="lucide-icon me-1" data-lucide="circle-check" aria-hidden="true"></i>सक्रिय: ' . count($newsLive) . '</span>'
+    . '<span class="badge admin-stat-badge bg-secondary-subtle text-secondary border border-secondary border-opacity-25"><i class="lucide-icon me-1" data-lucide="archive" aria-hidden="true"></i>अभिलेख: ' . count($newsArch) . '</span>'
 );
 ?>
 <?php echo adminHelpTip('यो पृष्ठबाट संस्थाका समाचार र गतिविधि थप्न, सम्पादन गर्न सकिन्छ।', ['समाचार थप्न: "+" बटन थिच्नुहोस्।', 'Photo: JPEG/PNG format, 1MB भन्दा कम राख्नुहोस्।', 'Publish गर्न: form भर्दा "Active" छनोट गर्नुहोस्।']); ?>
 
 <?php $flash = getFlash(); if ($flash): ?>
 <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3">
-    <i class="fas fa-<?php echo $flash['type']==='success'?'check-circle':'exclamation-circle'; ?> me-2"></i>
+    <i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i>
     <?php echo htmlspecialchars($flash['message']); ?>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
@@ -95,13 +96,13 @@ $newsArch = $newsPart['archived'];
 <ul class="nav nav-tabs admin-nav-tabs mb-0" id="newsTabs">
     <li class="nav-item">
         <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#news-list" id="tab-list-btn" title="जम्मा">
-            <i class="fas fa-list me-2"></i>समाचार सूची
+            <i class="lucide-icon me-2" data-lucide="list" aria-hidden="true"></i>समाचार सूची
             <span class="badge bg-success ms-1"><?php echo count($news); ?></span>
         </button>
     </li>
     <li class="nav-item">
         <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#news-form" id="tab-form-btn">
-            <i class="fas fa-plus-circle me-2"></i><span id="newsFormTabLabel">नयाँ थप्नुहोस्</span>
+            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i><span id="newsFormTabLabel">नयाँ थप्नुहोस्</span>
         </button>
     </li>
 </ul>
@@ -115,7 +116,7 @@ $newsArch = $newsPart['archived'];
             <!-- खोज बक्स — client-side filter -->
             <div class="admin-search-wrap px-3 py-2 border-bottom bg-light d-flex align-items-center gap-3 svc-search-wrap">
                 <div class="input-group input-group-sm svc-search-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <span class="input-group-text bg-white border-end-0"><i class="lucide-icon text-muted" data-lucide="search" aria-hidden="true"></i></span>
                     <input type="text" class="form-control border-start-0 admin-table-search" placeholder="नाम, विवरण अनुसार खोज्नुहोस्..." autocomplete="off">
                 </div>
                 <small class="text-muted search-count"></small>
@@ -126,10 +127,10 @@ $newsArch = $newsPart['archived'];
                     <input type="hidden" name="action" value="bulk_status">
                     <div class="px-3 py-2 border-bottom bg-light d-flex justify-content-end gap-2">
                         <button type="submit" name="bulk" value="active" class="btn btn-sm btn-outline-success admin-bulk-btn">
-                                <i class="fas fa-check-circle" aria-hidden="true"></i> Bulk Active
+                                <i class="lucide-icon" data-lucide="circle-check" aria-hidden="true"></i> Bulk Active
                             </button>
                             <button type="submit" name="bulk" value="inactive" class="btn btn-sm btn-outline-secondary admin-bulk-btn">
-                                <i class="fas fa-ban" aria-hidden="true"></i> Bulk Inactive
+                                <i class="lucide-icon" data-lucide="ban" aria-hidden="true"></i> Bulk Inactive
                             </button>
                     </div>
                     <?php echo adminListSubtabPills('news-sub', count($newsLive), count($newsArch)); ?>
@@ -150,12 +151,12 @@ $newsArch = $newsPart['archived'];
                         <tbody>
                             <?php if (empty($news)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-newspaper fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="newspaper" aria-hidden="true"></i>
                                 कुनै समाचार छैन। माथिको "नयाँ थप्नुहोस्" बटन थिच्नुहोस्।
                             </td></tr>
                             <?php elseif (empty($newsLive)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-check-circle fa-3x mb-2 d-block opacity-25 text-success"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25 text-success" data-lucide="circle-check" aria-hidden="true"></i>
                                 सक्रिय समाचार छैन। अभिलेख हेर्नुहोस्।
                             </td></tr>
                             <?php endif; ?>
@@ -166,7 +167,7 @@ $newsArch = $newsPart['archived'];
                                     <?php if ($n['image']): ?>
                                     <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
-                                    <div class="news-thumb-placeholder"><i class="fas fa-newspaper text-success"></i></div>
+                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success" data-lucide="newspaper" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -181,21 +182,21 @@ $newsArch = $newsPart['archived'];
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-news"
-                                            data-id="<?php echo $n['id']; ?>"
+                                            data-id="<?php echo (int)$n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-content="<?php echo htmlspecialchars($n['content'] ?? '', ENT_QUOTES); ?>"
                                             data-content-np="<?php echo htmlspecialchars($n['content_np'] ?? '', ENT_QUOTES); ?>"
                                             data-image="<?php echo htmlspecialchars($n['image'] ?? '', ENT_QUOTES); ?>"
-                                            data-active="<?php echo $n['is_active']; ?>"
+                                            data-active="<?php echo (int)$n['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो समाचार मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$n['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -220,7 +221,7 @@ $newsArch = $newsPart['archived'];
                         <tbody>
                             <?php if (empty($newsArch)): ?>
                             <tr><td colspan="6" class="text-center py-5 text-muted">
-                                <i class="fas fa-folder-open fa-3x mb-2 d-block opacity-25"></i>
+                                <i class="lucide-icon lucide-3x mb-2 d-block opacity-25" data-lucide="folder-open" aria-hidden="true"></i>
                                 अभिलेखमा कुनै समाचार छैन।
                             </td></tr>
                             <?php endif; ?>
@@ -231,7 +232,7 @@ $newsArch = $newsPart['archived'];
                                     <?php if ($n['image']): ?>
                                     <img src="../<?php echo htmlspecialchars($n['image']); ?>" class="news-thumb-img" alt="<?php echo htmlspecialchars($n['title_np'] ?: ($n['title'] ?? 'News'), ENT_QUOTES, 'UTF-8'); ?>">
                                     <?php else: ?>
-                                    <div class="news-thumb-placeholder"><i class="fas fa-newspaper text-success"></i></div>
+                                    <div class="news-thumb-placeholder"><i class="lucide-icon text-success" data-lucide="newspaper" aria-hidden="true"></i></div>
                                     <?php endif; ?>
                                 </td>
                                 <td>
@@ -246,21 +247,21 @@ $newsArch = $newsPart['archived'];
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="adm-icon-btn adm-icon-btn--edit btn-edit-news"
-                                            data-id="<?php echo $n['id']; ?>"
+                                            data-id="<?php echo (int)$n['id']; ?>"
                                             data-title="<?php echo htmlspecialchars($n['title'], ENT_QUOTES); ?>"
                                             data-title-np="<?php echo htmlspecialchars($n['title_np'] ?? '', ENT_QUOTES); ?>"
                                             data-content="<?php echo htmlspecialchars($n['content'] ?? '', ENT_QUOTES); ?>"
                                             data-content-np="<?php echo htmlspecialchars($n['content_np'] ?? '', ENT_QUOTES); ?>"
                                             data-image="<?php echo htmlspecialchars($n['image'] ?? '', ENT_QUOTES); ?>"
-                                            data-active="<?php echo $n['is_active']; ?>"
+                                            data-active="<?php echo (int)$n['is_active']; ?>"
                                             title="सम्पादन">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="lucide-icon" data-lucide="pencil" aria-hidden="true"></i>
                                     </button>
                                     <form method="POST" class="svc-inline-form" onsubmit="return confirm('के तपाईं यो समाचार मेटाउन निश्चित हुनुहुन्छ?')">
     <?php echo csrfField(); ?>
                                         <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo $n['id']; ?>">
-                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <input type="hidden" name="id" value="<?php echo (int)$n['id']; ?>">
+                                        <button type="submit" class="adm-icon-btn adm-icon-btn--delete" title="मेटाउनुहोस्" aria-label="मेटाउनुहोस्"><i class="lucide-icon" data-lucide="trash-2" aria-hidden="true"></i></button>
                                     </form>
                                 </td>
                             </tr>
@@ -280,10 +281,10 @@ $newsArch = $newsPart['archived'];
         <div class="card svc-flat-top-card">
             <div class="card-header d-flex justify-content-between align-items-center svc-form-header-grad">
                 <h5 class="mb-0 fw-bold" id="newsFormTitle">
-                    <i class="fas fa-plus-circle me-2"></i>नयाँ समाचार थप्नुहोस्
+                    <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समाचार थप्नुहोस्
                 </h5>
                 <button type="button" class="btn btn-light btn-sm" id="btnCancelNews">
-                    <i class="fas fa-arrow-left me-1"></i>सूचीमा फर्कनुहोस्
+                    <i class="lucide-icon me-1" data-lucide="arrow-left" aria-hidden="true"></i>सूचीमा फर्कनुहोस्
                 </button>
             </div>
             <div class="card-body p-4">
@@ -296,31 +297,31 @@ $newsArch = $newsPart['archived'];
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label for="nf_title_np" class="form-label fw-semibold text-success">
-                                <i class="fas fa-language me-1"></i>शीर्षक (नेपाली) <span class="text-danger">*</span>
+                                <i class="lucide-icon me-1" data-lucide="languages" aria-hidden="true"></i>शीर्षक (नेपाली) <span class="text-danger">*</span>
                             </label>
                             <input type="text" name="title_np" id="nf_title_np" class="form-control admin-fancy-input" required placeholder="समाचारको शीर्षक नेपालीमा">
                         </div>
                         <div class="col-md-6">
                             <label for="nf_title" class="form-label fw-semibold text-success">
-                                <i class="fas fa-globe me-1"></i>Title (English)
+                                <i class="lucide-icon me-1" data-lucide="globe" aria-hidden="true"></i>Title (English)
                             </label>
                             <input type="text" name="title" id="nf_title" class="form-control admin-fancy-input" placeholder="News title in English">
                         </div>
                         <div class="col-md-6">
                             <label for="nf_content_np" class="form-label fw-semibold text-success">
-                                <i class="fas fa-align-left me-1"></i>विवरण (नेपाली)
+                                <i class="lucide-icon me-1" data-lucide="align-left" aria-hidden="true"></i>विवरण (नेपाली)
                             </label>
                             <textarea name="content_np" id="nf_content_np" class="form-control admin-fancy-input" rows="6" placeholder="समाचारको विवरण नेपालीमा..."></textarea>
                         </div>
                         <div class="col-md-6">
                             <label for="nf_content" class="form-label fw-semibold text-success">
-                                <i class="fas fa-align-left me-1"></i>Content (English)
+                                <i class="lucide-icon me-1" data-lucide="align-left" aria-hidden="true"></i>Content (English)
                             </label>
                             <textarea name="content" id="nf_content" class="form-control admin-fancy-input" rows="6" placeholder="News content in English..."></textarea>
                         </div>
                         <div class="col-md-6">
                             <label for="nf_img_file" class="form-label fw-semibold text-success">
-                                <i class="fas fa-image me-1"></i>छवि (Image)
+                                <i class="lucide-icon me-1" data-lucide="image" aria-hidden="true"></i>छवि (Image)
                                 <small class="text-muted fw-normal" id="nf_img_note"></small>
                             </label>
                             <input type="file" name="image" class="form-control admin-fancy-input" accept="image/*" id="nf_img_file">
@@ -337,10 +338,10 @@ $newsArch = $newsPart['archived'];
                     <hr class="my-4">
                     <div class="d-flex gap-3">
                         <button type="submit" id="nf_submit" class="btn btn-success px-5 fw-semibold">
-                            <i class="fas fa-plus-circle me-2"></i>थप्नुहोस्
+                            <i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्
                         </button>
                         <button type="button" id="nf_cancel2" class="btn btn-outline-secondary px-4">
-                            <i class="fas fa-times me-1"></i>रद्द
+                            <i class="lucide-icon me-1" data-lucide="x" aria-hidden="true"></i>रद्द
                         </button>
                     </div>
                 </form>
@@ -374,8 +375,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('nf_active').checked   = true;
         document.getElementById('nf_img_preview').innerHTML = '';
         document.getElementById('nf_img_note').textContent  = '';
-        document.getElementById('nf_submit').innerHTML = '<i class="fas fa-plus-circle me-2"></i>थप्नुहोस्';
-        document.getElementById('newsFormTitle').innerHTML  = '<i class="fas fa-plus-circle me-2"></i>नयाँ समाचार थप्नुहोस्';
+        document.getElementById('nf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>थप्नुहोस्';
+        document.getElementById('newsFormTitle').innerHTML  = '<i class="lucide-icon me-2" data-lucide="circle-plus" aria-hidden="true"></i>नयाँ समाचार थप्नुहोस्';
         document.getElementById('newsFormTabLabel').textContent = 'नयाँ थप्नुहोस्';
         try { document.getElementById('nf_img_file').value = ''; } catch(e) {}
     }
@@ -413,8 +414,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('nf_img_note').textContent = d.image
                 ? ' — नयाँ फोटो नचुने भने पुरानै रहन्छ'
                 : '';
-            document.getElementById('nf_submit').innerHTML = '<i class="fas fa-save me-2"></i>अपडेट गर्नुहोस्';
-            document.getElementById('newsFormTitle').innerHTML  = '<i class="fas fa-edit me-2"></i>समाचार सम्पादन';
+            document.getElementById('nf_submit').innerHTML = '<i class="lucide-icon me-2" data-lucide="save" aria-hidden="true"></i>अपडेट गर्नुहोस्';
+            document.getElementById('newsFormTitle').innerHTML  = '<i class="lucide-icon me-2" data-lucide="pencil" aria-hidden="true"></i>समाचार सम्पादन';
             document.getElementById('newsFormTabLabel').textContent = 'सम्पादन';
             _isEditMode = true;
             switchToForm();

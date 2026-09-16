@@ -208,7 +208,17 @@ if (!function_exists('ensureAuctionTables')) {
             }
 
             try {
-                $db->exec("ALTER TABLE auction_notices MODIFY COLUMN status ENUM('upcoming','ongoing','completed','cancelled') DEFAULT 'upcoming'");
+                if (function_exists('safeWidenEnumColumn')) {
+                    safeWidenEnumColumn(
+                        $db,
+                        'auction_notices',
+                        'status',
+                        ['upcoming', 'ongoing', 'completed', 'cancelled'],
+                        'upcoming'
+                    );
+                } else {
+                    $db->exec("ALTER TABLE auction_notices MODIFY COLUMN status ENUM('upcoming','ongoing','completed','cancelled') DEFAULT 'upcoming'");
+                }
             } catch (Throwable $e) {
             }
 
