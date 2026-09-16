@@ -71,7 +71,7 @@ p, li, td, th, label, span,
 
 /* ── 3. TEXT SELECTION ──────────────────────────────────────────────────
    ──────────────────────────────────────────────────────────────────── */
-::selection { background: rgba(22,101,52,0.14); }
+::selection { background: color-mix(in srgb, var(--primary-color, #1a5f2a) 18%, transparent); }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    PUBLIC SITE

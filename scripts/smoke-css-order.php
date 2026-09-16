@@ -206,7 +206,13 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.2')", 'theme version 2.2 multi-sahakari');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.3')", 'theme version 2.3 typography lock');
+assertContains('assets/css/final-ui-polish.css', 'Typography SSOT lock', 'final polish locks Inter/Jakarta over Mukta');
+assertContains('assets/css/final-ui-polish.css', '--shell-font-body: var(--font-primary', 'final ensures shell font aliases');
+assertContains('assets/css/premium-ui.css', 'color-mix(in srgb, var(--primary-color', 'premium selection uses primary tint');
+assertNotContains('assets/css/premium-ui.css', 'rgba(22,101,52,0.14)', 'premium selection no hardcoded green');
+assertContains('assets/css/global.css', "--font-primary:         'Inter'", 'global.css Inter SSOT');
+assertContains('assets/css/global.css', "--font-heading:         'Plus Jakarta Sans'", 'global.css Jakarta SSOT');
 assertContains('assets/css/final-ui-polish.css', 'Multi-sahakari brand bridge', 'late brand bridge present');
 assertContains('admin/settings.php', '--bg-muted', 'settings live preview updates bg surfaces');
 assertContains('assets/css/public-shell-polish.css', 'rgba(var(--primary-rgb),', 'public shell uses primary-rgb shadows');
