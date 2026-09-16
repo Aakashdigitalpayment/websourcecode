@@ -210,6 +210,8 @@ assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.6')", 
 assertContains('assets/css/global-theme.php', '$__ensureWhiteOnBar', 'bright brand bars darkened for white glyphs');
 assertContains('admin/manage-admins.php', "action === 'reset_2fa'", 'superadmin can reset admin 2FA QR');
 assertContains('admin/manage-admins.php', 'twofa_enabled = 0', '2FA reset clears enabled flag');
+assertContains('admin/manage-admins.php', 'adm-action-icons', 'manage-admins actions use uniform icon buttons');
+assertContains('assets/css/final-ui-polish.css', 'Manage-admins action column', 'manage-admins action icon polish');
 assertContains('assets/css/global-theme.php', '--text-on-topbar:', 'topbar has WCAG text token');
 assertContains('assets/css/global-theme.php', '--icon-on-primary:', 'icon-on-primary token present');
 assertContains('assets/css/global-theme.php', "getSetting('topbar_color'", 'topbar_color drives --topbar-bg');
