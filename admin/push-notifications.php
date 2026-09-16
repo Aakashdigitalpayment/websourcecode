@@ -178,7 +178,7 @@ $typeColors = [
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px;">
     <div class="card" style="border-radius:16px;">
         <div class="card-body" style="display:flex;gap:14px;align-items:center;padding:18px 20px;">
-            <div style="width:48px;height:48px;border-radius:12px;background:#e8f5e9;display:flex;align-items:center;justify-content:center;">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--bg-muted,#e8f5e9);display:flex;align-items:center;justify-content:center;">
                 <i class="lucide-icon" data-lucide="smartphone" aria-hidden="true" style="color:var(--primary-color);font-size:1.3rem;"></i>
             </div>
             <div>

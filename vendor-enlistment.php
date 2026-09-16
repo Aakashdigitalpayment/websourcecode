@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <?php if ($success): ?>
-                <div class="text-center py-5 px-4 rounded-4 shadow-sm mb-4" style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:2px solid #c8e6c9;">
+                <div class="text-center py-5 px-4 rounded-4 shadow-sm mb-4" style="background:linear-gradient(135deg,var(--bg-muted,#e8f5e9),var(--bg-soft,#f5faf6));border:2px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #fff);">
                     <div style="font-size:4rem;color:var(--primary-light);"><i class="lucide-icon" data-lucide="store" aria-hidden="true"></i></div>
                     <h3 class="mt-3 fw-bold text-success"><?php echo isEnglish() ? 'Vendor Application Submitted!' : 'भेन्डर आवेदन सफलतापूर्वक पेश भयो!'; ?></h3>
                     <p class="text-muted mb-3"><?php echo isEnglish() ? 'We will review your application and contact you soon.' : 'हामी तपाईंको आवेदन समीक्षा गरी छिट्टै सम्पर्क गर्नेछौं।'; ?></p>

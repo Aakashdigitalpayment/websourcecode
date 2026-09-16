@@ -433,7 +433,7 @@ $kymDobDisplay = (trim((string)($kymDobKr['dob_bs'] ?? '')) !== '')
                 <div class="mem-card-header">
                     <div class="mem-card-title"><i class="lucide-icon" data-lucide="id-card" aria-hidden="true"></i>KYC जानकारी</div>
                     <?php if ($kycRow && !empty($kycRow['id'])): ?>
-                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;" rel="noopener noreferrer">
+                    <a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>member/kyc-print.php" target="_blank" style="margin-left:auto;font-size:.78rem;background:var(--bg-muted,#f0fdf4);border:1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 35%, #fff);color:var(--primary-ink,var(--primary-color,#1a5f2a));padding:6px 10px;border-radius:8px;text-decoration:none;font-weight:700;" rel="noopener noreferrer">
                         <i class="lucide-icon me-1" data-lucide="printer" aria-hidden="true"></i>Print KYC
                     </a>
                     <?php endif; ?>

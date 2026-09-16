@@ -449,7 +449,7 @@ if ($ipChartSeries['count'] >= 2):
   <div style="background:#fff;border-radius:14px;width:100%;max-width:920px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.4);">
     <div style="padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span id="ipDocIcon" style="width:36px;height:36px;border-radius:8px;background:#f0fdf4;display:inline-flex;align-items:center;justify-content:center;color:var(--primary-color,#1a5f2a);font-size:1.1rem;flex-shrink:0;"></span>
+        <span id="ipDocIcon" style="width:36px;height:36px;border-radius:8px;background:var(--bg-muted,#f0fdf4);display:inline-flex;align-items:center;justify-content:center;color:var(--primary-color,#1a5f2a);font-size:1.1rem;flex-shrink:0;"></span>
         <div>
           <div id="ipDocTitle" style="font-weight:700;color:#1a2e1d;font-size:.95rem;"></div>
           <div id="ipDocSub" style="font-size:.75rem;color:#6b7280;margin-top:1px;"></div>
@@ -457,7 +457,7 @@ if ($ipChartSeries['count'] >= 2):
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
         <a id="ipDocDlBtn" href="#" download target="_blank" rel="noopener noreferrer"
-           style="width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#f0fdf4;color:#166534;text-decoration:none;border:1px solid #bbf7d0;"
+           style="width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:var(--bg-muted,#f0fdf4);color:var(--primary-ink,var(--primary-color,#1a5f2a));text-decoration:none;border:1px solid color-mix(in srgb, var(--primary-color,#1a5f2a) 28%, #fff);"
            title="<?php echo $isEn ? 'Download' : 'डाउनलोड'; ?>"
            data-testid="institutional-profile-document-download-link">
           <i class="lucide-icon" data-lucide="download" aria-hidden="true" style="font-size:.85rem;"></i>

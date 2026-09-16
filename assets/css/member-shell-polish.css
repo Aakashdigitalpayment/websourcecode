@@ -862,11 +862,11 @@ body.verify-auth-page .vp-secure {
   align-items: flex-start;
   gap: 0.65rem;
   background: var(--color-success-bg, var(--bg-muted)) !important;
-  border: 1px solid #86efac !important;
+  border: 1px solid color-mix(in srgb, var(--primary-color, #1a5f2a) 32%, #fff) !important;
   border-radius: var(--mem-radius-sm) !important;
   padding: 0.75rem 1rem !important;
   margin-bottom: 1rem;
-  color: #166534 !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   font-size: 0.9rem;
   line-height: 1.45;
 }
@@ -1001,7 +1001,7 @@ body.verify-auth-page .vp-secure {
   font-weight: 700;
   font-size: .68rem;
 }
-.vp-visit-badge.yes { background: #dcfce7; color: #15803d; }
+.vp-visit-badge.yes { background: var(--bg-muted, #dcfce7); color: var(--primary-ink, var(--primary-color, #15803d)); }
 .vp-visit-badge.no { background: #f1f5f9; color: #64748b; }
 .vp-visit-empty,
 .vp-visit-empty-filter {
