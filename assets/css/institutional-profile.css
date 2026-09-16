@@ -9,6 +9,16 @@
     padding: 14px;
     margin: 0 0 14px;
 }
+
+/* Full ledger amounts (same clean style as share poster) */
+.ip-month-value strong {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+}
+.ip-month-value {
+    text-align: right;
+}
 .ip-filter-bar {
     display: grid;
     grid-template-columns: minmax(140px, 180px) minmax(140px, 180px) minmax(160px, 1fr) auto auto;
