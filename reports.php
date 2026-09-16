@@ -4,6 +4,10 @@ $pageTitle = isEnglish() ? 'Reports' : 'प्रतिवेदनहरू';
 $pageDescription = isEnglish()
     ? 'Monthly and annual reports published for members and the public.'
     : 'सदस्य तथा सर्वसाधारणका लागि प्रकाशित मासिक तथा वार्षिक प्रतिवेदनहरू।';
+$extraHead = (isset($extraHead) ? (string) $extraHead : '')
+    . (function_exists('coopThemeLinkHtml')
+        ? coopThemeLinkHtml('assets/css/reports-page.css')
+        : '');
 require_once 'includes/header.php';
 $L = getLangStrings();
 
@@ -157,23 +161,84 @@ function coop_public_report_file_url(?string $path): string {
     return function_exists('getAssetUrl') ? getAssetUrl($path) : (rtrim((string) SITE_URL, '/') . '/' . $path);
 }
 
-/** View + Download on every report card (annual/financial/all types). */
+/**
+ * Icon-only View / Download / Share row (compact; share includes report details).
+ */
 function render_report_actions(array $report): void {
-    $url = coop_public_download_url((string) ($report['file_path'] ?? ''));
+    global $nepaliMonths, $quarters;
+
+    $fileUrl = coop_public_download_url((string) ($report['file_path'] ?? ''));
+    $title = trim((string) (function_exists('getLangField') ? getLangField($report, 'title') : ($report['title'] ?? '')));
+    if ($title === '') {
+        $title = isEnglish() ? 'Report' : 'प्रतिवेदन';
+    }
+    $typeLabel = getTypeLabel((string) ($report['report_type'] ?? 'other'));
+    $year = trim((string) ($report['report_year'] ?? ''));
+    $metaParts = [$typeLabel];
+    if ($year !== '') {
+        $metaParts[] = (isEnglish() ? 'FY ' : 'आ.व. ') . $year;
+    }
+    $monthKey = trim((string) ($report['report_month'] ?? ''));
+    if ($monthKey !== '' && is_array($nepaliMonths ?? null) && isset($nepaliMonths[$monthKey])) {
+        $metaParts[] = (string) $nepaliMonths[$monthKey];
+    } elseif ($monthKey !== '') {
+        $metaParts[] = $monthKey;
+    }
+    $quarterKey = trim((string) ($report['report_quarter'] ?? ''));
+    if ($quarterKey !== '' && is_array($quarters ?? null) && isset($quarters[$quarterKey])) {
+        $metaParts[] = (string) $quarters[$quarterKey];
+    } elseif ($quarterKey !== '') {
+        $metaParts[] = $quarterKey;
+    }
+    $metaLine = implode(' · ', array_filter($metaParts));
+    $siteName = trim((string) (function_exists('getSetting') ? getSetting('site_name', '') : ''));
+    if ($siteName === '') {
+        $siteName = isEnglish() ? 'Cooperative' : 'सहकारी';
+    }
+
+    $type = preg_replace('/[^a-z_]/', '', (string) ($report['report_type'] ?? 'all')) ?: 'all';
+    $sharePage = rtrim((string) SITE_URL, '/') . '/reports.php?type=' . rawurlencode($type);
+    if ($year !== '' && preg_match('/^\d{4}\/\d{2}$/', $year)) {
+        $sharePage .= '&year=' . rawurlencode($year);
+    }
+
+    $shareText = $title . "\n" . $metaLine . "\n" . $siteName;
+    if ($fileUrl !== '') {
+        $shareText .= "\n" . (isEnglish() ? 'File: ' : 'फाइल: ') . $fileUrl;
+    }
+
     $viewLabel = isEnglish() ? 'View' : 'हेर्नुहोस्';
     $dlLabel = isEnglish() ? 'Download' : 'डाउनलोड';
-    echo '<div class="report-actions">';
-    if ($url !== '') {
-        $safe = htmlspecialchars($url, ENT_QUOTES, 'UTF-8');
-        echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">'
-            . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i> ' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '</a>';
-        echo '<a href="' . $safe . '" download class="btn btn-sm btn-outline-primary">'
-            . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i> ' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '</a>';
+    $shareLabel = isEnglish() ? 'Share' : 'सेयर';
+
+    echo '<div class="report-actions report-actions-icons" role="group" aria-label="'
+        . htmlspecialchars(isEnglish() ? 'Report actions' : 'प्रतिवेदन कार्यहरू', ENT_QUOTES, 'UTF-8')
+        . '">';
+
+    if ($fileUrl !== '') {
+        $safe = htmlspecialchars($fileUrl, ENT_QUOTES, 'UTF-8');
+        echo '<a href="' . $safe . '" target="_blank" rel="noopener noreferrer" class="report-action-btn report-action-view"'
+            . ' title="' . htmlspecialchars($viewLabel, ENT_QUOTES, 'UTF-8') . '"'
+            . ' aria-label="' . htmlspecialchars($viewLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="lucide-icon" data-lucide="eye" aria-hidden="true"></i></a>';
+        echo '<a href="' . $safe . '" download class="report-action-btn report-action-download"'
+            . ' title="' . htmlspecialchars($dlLabel, ENT_QUOTES, 'UTF-8') . '"'
+            . ' aria-label="' . htmlspecialchars($dlLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="lucide-icon" data-lucide="download" aria-hidden="true"></i></a>';
     } else {
-        echo '<span class="text-muted small">'
-            . htmlspecialchars(isEnglish() ? 'File not available' : 'फाइल उपलब्ध छैन', ENT_QUOTES, 'UTF-8')
-            . '</span>';
+        echo '<span class="report-action-missing text-muted" title="'
+            . htmlspecialchars(isEnglish() ? 'File not available' : 'फाइल उपलब्ध छैन', ENT_QUOTES, 'UTF-8') . '">'
+            . '<i class="lucide-icon" data-lucide="file-x" aria-hidden="true"></i></span>';
     }
+
+    echo '<button type="button" class="report-action-btn report-action-share"'
+        . ' title="' . htmlspecialchars($shareLabel, ENT_QUOTES, 'UTF-8') . '"'
+        . ' aria-label="' . htmlspecialchars($shareLabel . ': ' . $title, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-share-title="' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-share-text="' . htmlspecialchars($shareText, ENT_QUOTES, 'UTF-8') . '"'
+        . ' data-share-url="' . htmlspecialchars($sharePage, ENT_QUOTES, 'UTF-8') . '">'
+        . '<i class="lucide-icon" data-lucide="share-2" aria-hidden="true"></i></button>';
+
     echo '</div>';
 }
 ?>
@@ -540,3 +605,99 @@ function render_report_actions(array $report): void {
 
 
 <?php require_once 'includes/footer.php'; ?>
+
+<script>
+(function () {
+  var labels = {
+    wa: <?php echo json_encode(isEnglish() ? 'WhatsApp' : 'WhatsApp'); ?>,
+    fb: <?php echo json_encode(isEnglish() ? 'Facebook' : 'Facebook'); ?>,
+    copy: <?php echo json_encode(isEnglish() ? 'Copy details' : 'विवरण कपी गर्नुहोस्'); ?>,
+    copied: <?php echo json_encode(isEnglish() ? 'Report details copied.' : 'प्रतिवेदन विवरण कपी भयो।'); ?>
+  };
+
+  var openMenu = null;
+
+  function closeMenu() {
+    if (openMenu) {
+      openMenu.remove();
+      openMenu = null;
+    }
+  }
+
+  function copyText(full) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(full).then(function () {
+        window.alert(labels.copied);
+      }).catch(function () {
+        window.prompt(labels.copy, full);
+      });
+    }
+    window.prompt(labels.copy, full);
+  }
+
+  function showFallbackMenu(btn, title, text, url) {
+    closeMenu();
+    var full = (text || title || '') + (url ? '\n' + url : '');
+    var menu = document.createElement('div');
+    menu.className = 'report-share-menu';
+    menu.setAttribute('role', 'menu');
+
+    var wa = document.createElement('a');
+    wa.href = 'https://wa.me/?text=' + encodeURIComponent(full);
+    wa.target = '_blank';
+    wa.rel = 'noopener noreferrer';
+    wa.setAttribute('role', 'menuitem');
+    wa.textContent = labels.wa;
+
+    var fb = document.createElement('a');
+    fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url || location.href);
+    fb.target = '_blank';
+    fb.rel = 'noopener noreferrer';
+    fb.setAttribute('role', 'menuitem');
+    fb.textContent = labels.fb;
+
+    var cp = document.createElement('button');
+    cp.type = 'button';
+    cp.setAttribute('role', 'menuitem');
+    cp.textContent = labels.copy;
+    cp.addEventListener('click', function () {
+      copyText(full);
+      closeMenu();
+    });
+
+    menu.appendChild(wa);
+    menu.appendChild(fb);
+    menu.appendChild(cp);
+    btn.parentNode.appendChild(menu);
+    openMenu = menu;
+  }
+
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target && ev.target.closest ? ev.target.closest('.report-action-share') : null;
+    if (!btn) {
+      if (!ev.target.closest || !ev.target.closest('.report-share-menu')) {
+        closeMenu();
+      }
+      return;
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+    var title = btn.getAttribute('data-share-title') || document.title;
+    var text = btn.getAttribute('data-share-text') || title;
+    var url = btn.getAttribute('data-share-url') || location.href;
+    if (navigator.share) {
+      navigator.share({ title: title, text: text, url: url }).catch(function () {});
+      return;
+    }
+    if (openMenu && btn.parentNode.contains(openMenu)) {
+      closeMenu();
+      return;
+    }
+    showFallbackMenu(btn, title, text, url);
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') closeMenu();
+  });
+})();
+</script>

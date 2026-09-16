@@ -3194,7 +3194,7 @@ body.dark-mode .text-primary {
   }
 }
 
-/* Public reports — View/Download always visible on every type (incl. annual) */
+/* Public reports — icon toolbar (page CSS owns compact icons; keep visible) */
 .report-card .report-actions {
   display: flex !important;
   flex-wrap: wrap;
@@ -3203,7 +3203,7 @@ body.dark-mode .text-primary {
   visibility: visible !important;
   opacity: 1 !important;
 }
-.report-card .report-actions .btn {
+.report-card .report-actions:not(.report-actions-icons) .btn {
   flex: 1 1 auto;
   min-height: 38px;
   display: inline-flex !important;
@@ -3211,14 +3211,14 @@ body.dark-mode .text-primary {
   justify-content: center;
   gap: 6px;
 }
-.report-card .report-actions .btn-primary {
+.report-card .report-actions:not(.report-actions-icons) .btn-primary {
   background: var(--primary-color, #1a5f2a) !important;
-  color: #fff !important;
+  color: var(--text-on-primary, #fff) !important;
   border-color: var(--primary-color, #1a5f2a) !important;
 }
-.report-card .report-actions .btn-outline-primary {
+.report-card .report-actions:not(.report-actions-icons) .btn-outline-primary {
   background: #fff !important;
-  color: var(--primary-color, #1a5f2a) !important;
+  color: var(--primary-ink, var(--primary-color, #1a5f2a)) !important;
   border: 1.5px solid var(--primary-color, #1a5f2a) !important;
 }
 
