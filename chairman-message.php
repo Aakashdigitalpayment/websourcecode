@@ -6,10 +6,13 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/leadership-message-helpers.php';
 
 $lead = coop_load_leadership_messages(function_exists('getDB') ? getDB() : null);
-$pageTitle = isEnglish() ? 'Chairman\'s Message' : 'अध्यक्षको सन्देश';
+$designation = isEnglish() ? $lead['chairman_designation_en'] : $lead['chairman_designation_np'];
+$pageTitle = isEnglish()
+    ? ($lead['chairman_designation_en'] . '\'s Message')
+    : ($lead['chairman_designation_np'] . 'को सन्देश');
 $pageDescription = isEnglish()
-    ? 'Message from the Chairman of our cooperative.'
-    : 'हाम्रो सहकारीका अध्यक्षको सन्देश।';
+    ? ('Message from the ' . $lead['chairman_designation_en'] . ' of our cooperative.')
+    : ('हाम्रो सहकारीका ' . $lead['chairman_designation_np'] . 'को सन्देश।');
 $extraHead = (isset($extraHead) ? (string) $extraHead : '')
     . (function_exists('coopThemeLinkHtml')
         ? coopThemeLinkHtml('assets/css/leadership-message-page.css')
@@ -19,6 +22,8 @@ $L = function_exists('getLangStrings') ? getLangStrings() : [];
 $name = (string) $lead['chairman_name'];
 $photo = (string) $lead['chairman_photo'];
 $message = (string) $lead['chairman_message'];
+$emptyMsg = isEnglish() ? 'Chairman message will appear here soon.' : 'अध्यक्षको सन्देश चाँडै यहाँ देखिनेछ।';
+$placeholderIcon = 'user-round';
 ?>
 
 <section class="page-banner page-banner-modern">
@@ -36,24 +41,24 @@ $message = (string) $lead['chairman_message'];
     </div>
 </section>
 
-<section class="leadership-messages-about section-padding bg-light" id="chairman">
+<section class="leadership-messages-about section-padding bg-light" id="chairman-message">
     <div class="container">
         <?php if ($message === ''): ?>
         <div class="text-center text-muted py-5">
-            <p class="mb-0"><?php echo isEnglish() ? 'Chairman message will appear here soon.' : 'अध्यक्षको सन्देश चाँडै यहाँ देखिनेछ।'; ?></p>
+            <p class="mb-0"><?php echo htmlspecialchars($emptyMsg, ENT_QUOTES, 'UTF-8'); ?></p>
         </div>
         <?php else: ?>
-        <article class="leadership-message-full leadership-message-stack" id="chairman-message" data-aos="fade-up">
+        <article class="leadership-message-full leadership-message-stack" id="chairman-message-body" data-aos="fade-up">
             <header class="leader-identity">
                 <div class="leader-photo-large">
                     <?php if ($photo !== ''): ?>
                     <img src="<?php echo e(safe_versioned_media_src($photo)); ?>" alt="<?php echo e($name); ?>" loading="lazy" decoding="async">
                     <?php else: ?>
-                    <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="user-round" aria-hidden="true"></i></div>
+                    <div class="photo-placeholder-large"><i class="lucide-icon" data-lucide="<?php echo htmlspecialchars($placeholderIcon, ENT_QUOTES, 'UTF-8'); ?>" aria-hidden="true"></i></div>
                     <?php endif; ?>
                 </div>
                 <h2 class="leader-name"><?php echo e($name); ?></h2>
-                <span class="leader-position"><?php echo isEnglish() ? 'Chairman' : 'अध्यक्ष'; ?></span>
+                <span class="leader-position"><?php echo htmlspecialchars((string) $designation, ENT_QUOTES, 'UTF-8'); ?></span>
             </header>
             <div class="message-content-full">
                 <i class="lucide-icon quote-icon-large" data-lucide="quote" aria-hidden="true"></i>

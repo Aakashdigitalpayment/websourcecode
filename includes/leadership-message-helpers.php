@@ -36,6 +36,8 @@ if (!function_exists('coop_load_leadership_messages')) {
 
         $ceoDesignationNp = trim((string) getSetting('ceo_designation_np', 'प्रमुख कार्यकारी अधिकृत'));
         $ceoDesignationEn = trim((string) getSetting('ceo_designation_en', 'Chief Executive Officer'));
+        $chairmanDesignationNp = trim((string) getSetting('chairman_designation_np', 'अध्यक्ष'));
+        $chairmanDesignationEn = trim((string) getSetting('chairman_designation_en', 'Chairman'));
 
         try {
             if (!$db && function_exists('getDB')) {
@@ -59,24 +61,32 @@ if (!function_exists('coop_load_leadership_messages')) {
                 }
                 if ($needChair && $chairFromTeam) {
                     if ($chairmanName === '') {
-                        $chairmanName = (string) ($chairFromTeam['name_np'] ?: $chairFromTeam['name'] ?: '');
+                        $chairmanName = $en
+                            ? (string) (($chairFromTeam['name_en'] ?? '') ?: ($chairFromTeam['name'] ?? '') ?: ($chairFromTeam['name_np'] ?? ''))
+                            : (string) (($chairFromTeam['name_np'] ?? '') ?: ($chairFromTeam['name'] ?? '') ?: ($chairFromTeam['name_en'] ?? ''));
                     }
                     if ($chairmanPhoto === '') {
                         $chairmanPhoto = (string) ($chairFromTeam['photo'] ?? '');
                     }
                     if ($chairmanMessage === '') {
-                        $chairmanMessage = (string) ($chairFromTeam['position_np'] ?: $chairFromTeam['position'] ?: '');
+                        $chairmanMessage = $en
+                            ? (string) (($chairFromTeam['position_en'] ?? '') ?: ($chairFromTeam['position'] ?? '') ?: ($chairFromTeam['position_np'] ?? ''))
+                            : (string) (($chairFromTeam['position_np'] ?? '') ?: ($chairFromTeam['position'] ?? '') ?: ($chairFromTeam['position_en'] ?? ''));
                     }
                 }
                 if ($needCeo && $ceoFromTeam) {
                     if ($ceoName === '') {
-                        $ceoName = (string) ($ceoFromTeam['name_np'] ?: $ceoFromTeam['name'] ?: '');
+                        $ceoName = $en
+                            ? (string) (($ceoFromTeam['name_en'] ?? '') ?: ($ceoFromTeam['name'] ?? '') ?: ($ceoFromTeam['name_np'] ?? ''))
+                            : (string) (($ceoFromTeam['name_np'] ?? '') ?: ($ceoFromTeam['name'] ?? '') ?: ($ceoFromTeam['name_en'] ?? ''));
                     }
                     if ($ceoPhoto === '') {
                         $ceoPhoto = (string) ($ceoFromTeam['photo'] ?? '');
                     }
                     if ($ceoMessage === '') {
-                        $ceoMessage = (string) ($ceoFromTeam['position_np'] ?: $ceoFromTeam['position'] ?: '');
+                        $ceoMessage = $en
+                            ? (string) (($ceoFromTeam['position_en'] ?? '') ?: ($ceoFromTeam['position'] ?? '') ?: ($ceoFromTeam['position_np'] ?? ''))
+                            : (string) (($ceoFromTeam['position_np'] ?? '') ?: ($ceoFromTeam['position'] ?? '') ?: ($ceoFromTeam['position_en'] ?? ''));
                     }
                 }
             }
@@ -85,9 +95,11 @@ if (!function_exists('coop_load_leadership_messages')) {
         }
 
         return [
-            'chairman_name' => $chairmanName !== '' ? $chairmanName : 'अध्यक्ष',
+            'chairman_name' => $chairmanName !== '' ? $chairmanName : ($en ? $chairmanDesignationEn : $chairmanDesignationNp),
             'chairman_photo' => $chairmanPhoto,
             'chairman_message' => $chairmanMessage,
+            'chairman_designation_np' => $chairmanDesignationNp !== '' ? $chairmanDesignationNp : 'अध्यक्ष',
+            'chairman_designation_en' => $chairmanDesignationEn !== '' ? $chairmanDesignationEn : 'Chairman',
             'ceo_name' => $ceoName !== '' ? $ceoName : ($en ? $ceoDesignationEn : $ceoDesignationNp),
             'ceo_photo' => $ceoPhoto,
             'ceo_message' => $ceoMessage,
