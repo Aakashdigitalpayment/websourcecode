@@ -1077,7 +1077,7 @@ body.dark-mode .text-primary {
   background: #e74c3c !important;
 }
 .pfl-top-bar .pfl-bell-drop .pfl-bell-item-icon {
-  background: #e8f5e9 !important;
+  background: var(--bg-muted) !important;
   color: var(--primary-color, #1a5f2a) !important;
 }
 .pfl-top-bar .pfl-bell-drop .pfl-bell-item--new .pfl-bell-item-icon,
@@ -1094,7 +1094,7 @@ body.dark-mode .text-primary {
 /* Login menu: soft icon tiles (match e-banking / app rows) */
 .pfl-login-menu .pfl-lm-member,
 .pfl-login-menu .pfl-lm-verify {
-  background: #e8f5e9 !important;
+  background: var(--bg-muted) !important;
   color: var(--primary-color, #1a5f2a) !important;
 }
 .pfl-login-menu .pfl-lm-member i,
@@ -1440,7 +1440,7 @@ body.dark-mode .text-primary {
 .feature-icon {
   background: linear-gradient(135deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
   color: #fff !important;
-  box-shadow: 0 8px 18px rgba(26, 95, 42, 0.22) !important;
+  box-shadow: 0 8px 18px rgba(var(--primary-rgb), 0.22) !important;
 }
 .service-icon i,
 .service-icon svg,
@@ -1831,12 +1831,12 @@ body.dark-mode .text-primary {
 }
 .service-center-card:hover {
   transform: translateY(-8px) !important;
-  box-shadow: 0 15px 40px rgba(26, 95, 42, 0.18) !important;
+  box-shadow: 0 15px 40px rgba(var(--primary-rgb), 0.18) !important;
   border-color: color-mix(in srgb, var(--primary-color, #1a5f2a) 22%, #e5e7eb) !important;
 }
 .service-center-card.main-branch {
   border: 2px solid var(--primary-color, #1a5f2a) !important;
-  box-shadow: 0 8px 30px rgba(26, 95, 42, 0.15) !important;
+  box-shadow: 0 8px 30px rgba(var(--primary-rgb), 0.15) !important;
   background: linear-gradient(135deg, #f8fff9 0%, #ffffff 100%) !important;
 }
 .service-center-card .branch-badge {
@@ -1851,12 +1851,12 @@ body.dark-mode .text-primary {
   padding: 4px !important;
   border-radius: 50% !important;
   background: linear-gradient(145deg, var(--primary-color, #1a5f2a), var(--primary-light, #2d8a45)) !important;
-  box-shadow: 0 8px 22px rgba(26, 95, 42, 0.22) !important;
+  box-shadow: 0 8px 22px rgba(var(--primary-rgb), 0.22) !important;
   transition: transform 0.35s ease, box-shadow 0.35s ease !important;
 }
 .service-center-card:hover .center-icon-ring {
   transform: scale(1.05) !important;
-  box-shadow: 0 12px 30px rgba(26, 95, 42, 0.32) !important;
+  box-shadow: 0 12px 30px rgba(var(--primary-rgb), 0.32) !important;
 }
 .service-center-card .center-icon {
   width: 100% !important;
@@ -1910,7 +1910,7 @@ body.dark-mode .text-primary {
   font-size: 0.75rem !important;
   font-weight: 500 !important;
   line-height: 1.2 !important;
-  background: linear-gradient(135deg, rgba(26, 95, 42, 0.1), rgba(26, 95, 42, 0.18)) !important;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.18)) !important;
   color: var(--primary-color, #1a5f2a) !important;
   -webkit-text-fill-color: var(--primary-color, #1a5f2a) !important;
 }
@@ -1973,7 +1973,7 @@ body.dark-mode .text-primary {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: linear-gradient(135deg, rgba(26, 95, 42, 0.1), rgba(26, 95, 42, 0.18)) !important;
+  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--primary-rgb), 0.18)) !important;
   color: var(--primary-color, #1a5f2a) !important;
   font-size: 13px !important;
   text-decoration: none !important;
@@ -1983,7 +1983,7 @@ body.dark-mode .text-primary {
   background: var(--primary-color, #1a5f2a) !important;
   color: #fff !important;
   transform: translateY(-3px) !important;
-  box-shadow: 0 5px 15px rgba(26, 95, 42, 0.3) !important;
+  box-shadow: 0 5px 15px rgba(var(--primary-rgb), 0.3) !important;
 }
 .service-center-card .center-contact a i,
 .service-center-card .center-contact a svg,

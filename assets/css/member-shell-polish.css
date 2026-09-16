@@ -861,7 +861,7 @@ body.verify-auth-page .vp-secure {
   display: flex;
   align-items: flex-start;
   gap: 0.65rem;
-  background: #f0fdf4 !important;
+  background: var(--color-success-bg, var(--bg-muted)) !important;
   border: 1px solid #86efac !important;
   border-radius: var(--mem-radius-sm) !important;
   padding: 0.75rem 1rem !important;

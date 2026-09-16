@@ -9,7 +9,7 @@ if (!function_exists('getSetting')) {
     return; // config.php include नभई यो file load नगर्नुस्
 }
 
-define('THEME_VERSION', '2.1');
+define('THEME_VERSION', '2.2');
 
 /* ─── Hex normalizer ─── */
 $__hex = function (string $raw, string $fallback = '#1a5f2a'): string {
@@ -211,12 +211,14 @@ $__shadowFocus = $_shadowFocus ?? '0 0 0 3px rgba(26,95,42,0.18)';
     --shadow-secondary:<?= $__shadowS ?>;
     --shadow-focus:    <?= $__shadowFocus ?>;
 
-    /* ── Semantic surface colors (light mode defaults) ── */
-    --bg-page:         #f8faf9;
+    /* ── Semantic surface colors — tint follows admin primary (multi-sahakari) ── */
+    --bg-page:         color-mix(in srgb, <?= $__p ?> 4%, #f8fafc);
     --bg-card:         #ffffff;
-    --bg-soft:         #f5faf6;
-    --bg-muted:        #e8f5e9;
+    --bg-soft:         color-mix(in srgb, <?= $__p ?> 6%, #f8fafc);
+    --bg-muted:        color-mix(in srgb, <?= $__p ?> 11%, #f1f5f9);
     --bg-hover:        rgba(<?= $__pRgb ?>, 0.04);
+    /* Legacy alias used by older sheets — same as muted brand soft */
+    --light-green:     var(--bg-muted);
 
     /* ── Text scale ── */
     --text-primary:    #1a2e1f;
@@ -2473,8 +2475,8 @@ button > i:only-child, a > i:only-child                {
     min-height: 122px !important;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
 }
-.stat-mini:hover { box-shadow: 0 4px 18px rgba(26,95,42,0.12) !important; border-color: #22c55e !important; }
-.stat-mini.active-filter { border-color: var(--primary-color, #1a5f2a) !important; background: #f0fdf4 !important; box-shadow: 0 2px 10px rgba(26,95,42,0.15) !important; }
+.stat-mini:hover { box-shadow: 0 4px 18px rgba(var(--primary-rgb), 0.12) !important; border-color: var(--primary-color, #1a5f2a) !important; }
+.stat-mini.active-filter { border-color: var(--primary-color, #1a5f2a) !important; background: var(--bg-muted) !important; box-shadow: 0 2px 10px rgba(var(--primary-rgb), 0.15) !important; }
 .stat-mini .sm-val { font-size: 1.6rem !important; font-weight: 800 !important; color: #1a2e1d !important; line-height: 1 !important; }
 .stat-mini .sm-lbl { font-size: 0.73rem !important; color: #6b7280 !important; margin-top: 2px !important; line-height: 1.35 !important; min-height: 2em !important; }
 .stat-mini .sm-icon { width: 34px !important; height: 34px !important; border-radius: 8px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 0.9rem !important; margin-bottom: 8px !important; flex-shrink: 0 !important; }
@@ -2511,7 +2513,7 @@ button > i:only-child, a > i:only-child                {
     background: #fff !important;
 }
 .admin-table-card .table thead th {
-    background: linear-gradient(135deg, rgba(26,95,42,0.08), rgba(40,167,69,0.12)) !important;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.14)) !important;
     color: var(--primary-color, #1a5f2a) !important;
     font-weight: 700 !important;
     font-size: 0.8rem !important;
@@ -2523,13 +2525,13 @@ button > i:only-child, a > i:only-child                {
     font-size: 0.875rem !important;
 }
 .coop-table thead th {
-    background: linear-gradient(135deg, rgba(26,95,42,0.08), rgba(40,167,69,0.12)) !important;
+    background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.08), rgba(var(--primary-rgb), 0.14)) !important;
     color: var(--primary-color, #1a5f2a) !important;
     font-weight: 600 !important;
     border-bottom: 2px solid var(--primary-color, #1a5f2a) !important;
 }
 .coop-table tbody tr:hover {
-    background-color: rgba(26,95,42,0.04) !important;
+    background-color: rgba(var(--primary-rgb), 0.04) !important;
 }
 
 /* Mobile table card view — only on small screens (desktop stays normal table) */

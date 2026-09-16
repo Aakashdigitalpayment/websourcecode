@@ -1060,7 +1060,7 @@ if (!in_array($panel, ['general', 'branding'], true)) {
                 <!-- Color Fields -->
                 <?php
                 $colorFields = [
-                    ['key'=>'primary_color',   'label'=>$__t('प्राथमिक रंग','Primary Color'),  'label_en'=>'Primary Color',  'desc'=>$__t('Buttons, links, cards border','Buttons, links, cards border'),  'default'=>'#1a5f2a', 'icon'=>'circle',  'preview'=>'primary'],
+                    ['key'=>'primary_color',   'label'=>$__t('प्राथमिक रंग','Primary Color'),  'label_en'=>'Primary Color',  'desc'=>$__t('सबै सहकारीको आ–आफ्नो brand — buttons, links, soft backgrounds','Per-coop brand — buttons, links, soft backgrounds'),  'default'=>'#1a5f2a', 'icon'=>'circle',  'preview'=>'primary'],
                     ['key'=>'secondary_color',  'label'=>$__t('सेकेन्डरी रंग','Secondary Color'),'label_en'=>'Secondary Color','desc'=>$__t('Accent, badges, highlights','Accent, badges, highlights'),        'default'=>'#c0392b', 'icon'=>'circle',  'preview'=>'secondary'],
                     ['key'=>'header_color',    'label'=>$__t('हेडर रंग','Header Color'),        'label_en'=>'Header Color',   'desc'=>$__t('Navigation header background','Navigation header background'),    'default'=>'#c0392b', 'icon'=>'grip-horizontal', 'preview'=>'header'],
                     ['key'=>'footer_color',    'label'=>$__t('फुटर रंग','Footer Color'),        'label_en'=>'Footer Color',   'desc'=>$__t('Footer section background','Footer section background'),          'default'=>'#1a5f2a', 'icon'=>'grip-horizontal', 'preview'=>'footer'],
@@ -1364,6 +1364,12 @@ function applyPreview(colors) {
     root.style.setProperty('--text-on-secondary', onS);
     root.style.setProperty('--text-on-header', onH);
     root.style.setProperty('--text-on-footer', onF);
+    /* Surfaces follow primary so preview matches multi-sahakari theming */
+    root.style.setProperty('--bg-page', 'color-mix(in srgb, ' + pc + ' 4%, #f8fafc)');
+    root.style.setProperty('--bg-soft', 'color-mix(in srgb, ' + pc + ' 6%, #f8fafc)');
+    root.style.setProperty('--bg-muted', 'color-mix(in srgb, ' + pc + ' 11%, #f1f5f9)');
+    root.style.setProperty('--light-green', 'var(--bg-muted)');
+    root.style.setProperty('--bg-hover', 'rgba(' + hexToRgbCsv(pc) + ', 0.04)');
 }
 
 // ─── Gather current color values ─────────────────────────
