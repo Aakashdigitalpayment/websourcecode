@@ -206,8 +206,9 @@ assertNotContains('verify.php', '#0e9b53', 'verify no hardcoded teal gradient st
 assertContains('assets/css/member-shell-polish.css', 'vp-success-alert', 'member shell success alert present');
 assertContains('assets/css/member-shell-polish.css', 'color-mix(in srgb, var(--primary-color', 'member success alert border follows primary');
 assertContains('assets/css/global-theme.php', '--light-green:     var(--bg-muted)', 'legacy light-green aliases muted brand');
-assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.6')", 'theme version 2.6 bright-bar contrast');
-assertContains('assets/css/global-theme.php', '$__ensureWhiteOnBar', 'bright brand bars darkened for white glyphs');
+assertContains('assets/css/global-theme.php', "define('THEME_VERSION', '2.7')", 'theme version 2.7 keep bright bar brand colour');
+assertContains('assets/css/global-theme.php', '$__forceWhiteGlyphsOnBrightBar', 'bright bars keep admin colour + white glyphs');
+assertNotContains('assets/css/global-theme.php', '$__ensureWhiteOnBar', 'no longer darkens orange bars to rust');
 assertContains('admin/manage-admins.php', "action === 'reset_2fa'", 'superadmin can reset admin 2FA QR');
 assertContains('admin/manage-admins.php', 'twofa_enabled = 0', '2FA reset clears enabled flag');
 assertContains('admin/manage-admins.php', 'adm-action-icons', 'manage-admins actions use uniform icon buttons');
