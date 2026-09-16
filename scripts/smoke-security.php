@@ -512,6 +512,11 @@ assertFileNotContains('career-detail.php', '$error = $e->getMessage()', 'career 
 assertFileContains('member/election-vote.php', '[election-vote]', 'election vote logs exceptions');
 assertFileContains('admin/about-settings.php', "uploadFile(\$file, 'about'", 'about settings uses uploadFile');
 assertFileContains('admin/member-of-year.php', "uploadFile(\$_FILES['photo'], 'member-spotlight'", 'member-of-year uses uploadFile');
+assertFileContains('admin/member-success-stories.php', "uploadFile(\$_FILES['photo'], \$uploadSub", 'member success stories uses uploadFile');
+assertFileContains('admin/member-success-stories.php', 'verifyCSRFToken', 'member success stories CSRF');
+assertFileContains('includes/member-success-stories-tables.php', 'member_success_stories', 'success stories table helper');
+assertFileContains('about.php', 'fetchActiveMemberSuccessStories', 'about loads success stories');
+assertFileContains('includes/header.php', 'about.php#success-stories', 'nav about dropdown success stories last');
 assertFileContains('includes/notifications.php', 'coop_safe_webhook_url', 'SMS webhook SSRF guard');
 assertFileContains('includes/member-auth.php', "str_starts_with(\$rel, 'member/')", 'memberSafeRedirect member-only paths');
 assertFileContains('member/password-reset-request.php', 'Same generic copy as unknown account', 'password reset no sent_to leak');

@@ -177,5 +177,11 @@ if (!str_contains($ensureAdmin, 'v15-schema-mig-role-alias-2026')) {
     ok('admin schema lock v15 role-alias');
 }
 
+if (!str_contains($ensureAdmin, 'ensureMemberSuccessStoriesTable')) {
+    fail('ensure-admin-tables should ensure member_success_stories');
+} else {
+    ok('ensure-admin-tables member success stories');
+}
+
 echo "\n$passed passed, $failed failed\n";
 exit($failed > 0 ? 1 : 0);

@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../includes/ensure-tables.php';
 require_once __DIR__ . '/../../includes/satisfaction-links-tables.php';
 require_once __DIR__ . '/../../includes/member-of-year-tables.php';
+require_once __DIR__ . '/../../includes/member-success-stories-tables.php';
 require_once __DIR__ . '/../../includes/notification-templates-tables.php';
 require_once __DIR__ . '/../../includes/honor-tables.php';
 require_once __DIR__ . '/../../includes/member-marketplace-tables.php';
@@ -598,6 +599,7 @@ function ensureAdminTables(): bool {
 
         /* ── 26–27. MEMBER OF YEAR + SATISFACTION LINKS — shared helpers ── */
         ensureMemberOfYearTable($db);
+        ensureMemberSuccessStoriesTable($db);
         ensureSatisfactionLinksTables($db);
         ensureMemberMarketplaceTables($db);
         ensureInformationRoomTables($db);

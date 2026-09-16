@@ -122,7 +122,13 @@ require_once 'includes/admin-ui.php';
 <div class="container-fluid py-4">
 
     <?php
-    echo adminPageHeader('About Page Settings','fa-building-columns','History section photo र content manage गर्नुहोस्।');
+    echo adminPageHeader(
+        'About Page Settings',
+        'fa-building-columns',
+        'History section photo र content manage गर्नुहोस्।',
+        '<a class="btn btn-outline-success btn-sm" href="member-success-stories.php"><i class="lucide-icon me-1" data-lucide="book-open" aria-hidden="true"></i>' . adminLangT('सदस्य सफलताका कथा', 'Success Stories') . '</a>'
+        . '<a class="btn btn-outline-secondary btn-sm" href="../about.php#success-stories" target="_blank" rel="noopener"><i class="lucide-icon me-1" data-lucide="external-link" aria-hidden="true"></i>About</a>'
+    );
     if ($flash = getFlash()):
     ?>
     <div class="alert alert-<?php echo $flash['type']==='success'?'success':'danger'; ?> alert-dismissible fade show mb-3"><i class="lucide-icon me-2" data-lucide="<?php echo $flash['type']==='success'?'circle-check':'circle-alert'; ?>" aria-hidden="true"></i><?php echo htmlspecialchars($flash['message'], ENT_QUOTES, 'UTF-8'); ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>

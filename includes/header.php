@@ -1189,6 +1189,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                             <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
                             <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
+                            <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#success-stories"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">
@@ -1570,6 +1571,7 @@ if (!empty($seoBreadcrumbs) && is_array($seoBreadcrumbs) && function_exists('seo
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#ceo-message"><i class="lucide-icon" aria-hidden="true" data-lucide="user"></i> <?php echo htmlspecialchars(isEnglish() ? $ceoMenuLabelEn : $ceoMenuLabelNp, ENT_QUOTES, 'UTF-8'); ?></a></li>
                                     <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>institutional-profile.php"><i class="lucide-icon" aria-hidden="true" data-lucide="building-2"></i> <?php echo isEnglish() ? 'Institutional Profile' : 'संस्थागत प्रोफाइल'; ?></a></li>
                                     <?php foreach ($navCmsPages['about'] as $mp) { echo coop_nav_cms_page_li($mp); } ?>
+                                    <li><a href="<?php echo htmlspecialchars(SITE_URL, ENT_QUOTES, 'UTF-8'); ?>about.php#success-stories"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i> <?php echo isEnglish() ? 'Member Success Stories' : 'सदस्यको सफलताको कथा'; ?></a></li>
                                 </ul>
                             </li>
                             <li class="has-dropdown <?php echo $currentPage == 'services' ? 'active' : ''; ?>">

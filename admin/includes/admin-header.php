@@ -311,7 +311,7 @@ $pageGroups = [
     'nirvachan' => ['election-information','election-posts','election-candidates','election-results','election-voting-attendance'],
     /* appointments also listed under आबेदनहरू for discoverability; keep sampark entry for old habit */
     'sampark'=> ['messages','feedbacks','grievances','appointments','welfare-claims','welfare-claim-types','help-center'],
-    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','about-settings','satisfaction-settings','settings','ai-settings'],
+    'sanstha'=> ['service-centers','institutional-profile','information-room','information-room-browse','information-room-logs','notification-settings','notification-templates','push-notifications','member-of-year','member-success-stories','about-settings','satisfaction-settings','settings','ai-settings'],
     'prawidhi'=> ['system-info','update-checklist','site-health','audit-log','error-log','help-guide','help-center'],
     /* Superadmin-only tools — one place in sidebar (not hideable via Menu Control) */
     'superadmin'=> ['manage-admins','menu-control','footer-settings','security-settings','backup-restore','site-license','site-setup','db-setup','run-migration'],
@@ -1014,6 +1014,9 @@ set_exception_handler(function (\Throwable $ex) {
                             </li>
                             <li class="<?php echo $currentPage=='member-of-year' ? 'active' : ''; ?>">
                                 <a href="member-of-year.php"><span class="nav-icon-wrap"><i class="lucide-icon nav-icon-accent nav-icon-gold" aria-hidden="true" data-lucide="trophy"></i></span><span><?php echo $adminT('वर्षको सर्वश्रेष्ठ सदस्य', 'Member of the Year'); ?></span></a>
+                            </li>
+                            <li class="<?php echo $currentPage=='member-success-stories' ? 'active' : ''; ?>">
+                                <a href="member-success-stories.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="book-open"></i></span><span><?php echo $adminT('सदस्य सफलताका कथा', 'Member Success Stories'); ?></span></a>
                             </li>
                             <li class="<?php echo $currentPage=='about-settings' ? 'active' : ''; ?>">
                                 <a href="about-settings.php"><span class="nav-icon-wrap"><i class="lucide-icon" aria-hidden="true" data-lucide="landmark"></i></span><span><?php echo $adminT('बारेमा पृष्ठ', 'About Page'); ?></span></a>

@@ -297,6 +297,12 @@ assertContains('committees.php', "coopThemeLinkHtml('assets/css/committees-page.
 assertContains('auction.php', "coopThemeLinkHtml('assets/css/auction-page.css')", 'auction loads extracted CSS');
 assertContains('appointment.php', "coopThemeLinkHtml('assets/css/appointment-page.css')", 'appointment loads extracted CSS');
 assertContains('team.php', "coopThemeLinkHtml('assets/css/team-page.css')", 'team loads extracted CSS');
+assertContains('about.php', "coopThemeLinkHtml('assets/css/about-success-stories.css')", 'about loads success stories CSS');
+assertContains('about.php', 'id="success-stories"', 'about has success stories section anchor');
+assertContains('includes/header.php', 'about.php#success-stories', 'about dropdown links success stories');
+assertContains('assets/css/about-success-stories.css', '.mss-card', 'success stories CSS present');
+assertContains('admin/member-success-stories.php', 'member_success_stories', 'admin success stories CRUD');
+assertContains('includes/member-success-stories-tables.php', 'ensureMemberSuccessStoriesTable', 'success stories table helper');
 assertContains('cooperative-programs.php', "coopThemeLinkHtml('assets/css/cooperative-programs-page.css')", 'programs loads extracted CSS');
 assertContains('services.php', "coopThemeLinkHtml('assets/css/services-page.css')", 'services loads extracted CSS');
 assertContains('member/welfare.php', "coopThemeLinkHtml('assets/css/member-welfare-page.css')", 'member welfare loads extracted CSS');
